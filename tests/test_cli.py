@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
-from click.utils import strip_ansi
+from click import unstyle
 from typer.testing import CliRunner
 
 from sentinel.cli import app
@@ -21,7 +21,7 @@ def test_version_and_help() -> None:
     assert version.stdout.strip() == "0.1.0"
     help_result = runner.invoke(app, ["scan", "--help"])
     assert help_result.exit_code == 0
-    assert "--static-only" in strip_ansi(help_result.stdout)
+    assert "--static-only" in unstyle(help_result.stdout)
 
 
 def test_json_scan_returns_incomplete_exit_and_clean_stdout(target_root: Path) -> None:
