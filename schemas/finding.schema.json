@@ -1,0 +1,1134 @@
+{
+  "$defs": {
+    "Confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "DegradedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "evidence_refs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EvidenceReference"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Refs"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "mode": {
+          "const": "degraded",
+          "default": "degraded",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
+        "requested_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Model"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Model"
+        },
+        "reviewed": {
+          "const": false,
+          "default": false,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "const": "needs_review",
+          "default": "needs_review",
+          "title": "Status",
+          "type": "string"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "reviewed_at",
+        "reason"
+      ],
+      "title": "DegradedReview",
+      "type": "object"
+    },
+    "DynamicEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "dynamic",
+          "default": "dynamic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "logs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Logs",
+          "type": "array"
+        },
+        "probe_id": {
+          "minLength": 1,
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "request": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Request",
+          "type": "object"
+        },
+        "response": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Response",
+          "type": "object"
+        }
+      },
+      "required": [
+        "probe_id",
+        "request",
+        "response"
+      ],
+      "title": "DynamicEvidence",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        }
+      },
+      "required": [
+        "path",
+        "range",
+        "claim"
+      ],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "Exploitability": {
+      "enum": [
+        "confirmed",
+        "likely",
+        "theoretical"
+      ],
+      "title": "Exploitability",
+      "type": "string"
+    },
+    "FileLocation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "file",
+          "default": "file",
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        }
+      },
+      "required": [
+        "path",
+        "range"
+      ],
+      "title": "FileLocation",
+      "type": "object"
+    },
+    "FindingSource": {
+      "enum": [
+        "static",
+        "dynamic"
+      ],
+      "title": "FindingSource",
+      "type": "string"
+    },
+    "FindingStatus": {
+      "enum": [
+        "needs_review",
+        "confirmed",
+        "likely_false_positive",
+        "suppressed"
+      ],
+      "title": "FindingStatus",
+      "type": "string"
+    },
+    "Impact": {
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        "Informational"
+      ],
+      "title": "Impact",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "LiveReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "live",
+          "default": "live",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "reviewed_at"
+      ],
+      "title": "LiveReview",
+      "type": "object"
+    },
+    "LogicalLocation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "logical",
+          "default": "logical",
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "LogicalLocation",
+      "type": "object"
+    },
+    "NotReviewedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "evidence_refs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EvidenceReference"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Refs"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "mode": {
+          "const": "not_reviewed",
+          "default": "not_reviewed",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
+        "requested_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Model"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Model"
+        },
+        "reviewed": {
+          "const": false,
+          "default": false,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "NotReviewedReview",
+      "type": "object"
+    },
+    "OwaspCategory": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^ASI(?:0[1-9]|10):2026$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "OwaspCategory",
+      "type": "object"
+    },
+    "ProbePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "argument_bindings": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Argument Bindings",
+          "type": "object"
+        },
+        "ordered_probe_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Ordered Probe Ids",
+          "type": "array"
+        },
+        "target_tool": {
+          "minLength": 1,
+          "title": "Target Tool",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ordered_probe_ids",
+        "target_tool",
+        "argument_bindings"
+      ],
+      "title": "ProbePlan",
+      "type": "object"
+    },
+    "ProvenanceEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "discriminator": {
+            "mapping": {
+              "dynamic": "#/$defs/DynamicEvidence",
+              "static": "#/$defs/StaticEvidence"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/StaticEvidence"
+            },
+            {
+              "$ref": "#/$defs/DynamicEvidence"
+            }
+          ],
+          "title": "Evidence"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/FindingSource"
+        },
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "rule_id",
+        "evidence",
+        "timestamp"
+      ],
+      "title": "ProvenanceEntry",
+      "type": "object"
+    },
+    "ReplayReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "replay",
+          "default": "replay",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "reviewed_at"
+      ],
+      "title": "ReplayReview",
+      "type": "object"
+    },
+    "ReviewStatus": {
+      "enum": [
+        "confirmed",
+        "suppressed",
+        "needs_review"
+      ],
+      "title": "ReviewStatus",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        "Informational"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "SourceRange": {
+      "additionalProperties": false,
+      "description": "SARIF-compatible 1-based range with an exclusive end column.",
+      "properties": {
+        "end_column": {
+          "minimum": 1,
+          "title": "End Column",
+          "type": "integer"
+        },
+        "end_line": {
+          "minimum": 1,
+          "title": "End Line",
+          "type": "integer"
+        },
+        "start_column": {
+          "minimum": 1,
+          "title": "Start Column",
+          "type": "integer"
+        },
+        "start_line": {
+          "minimum": 1,
+          "title": "Start Line",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_line",
+        "start_column",
+        "end_line",
+        "end_column"
+      ],
+      "title": "SourceRange",
+      "type": "object"
+    },
+    "StaticEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "static",
+          "default": "static",
+          "title": "Kind",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        },
+        "snippet": {
+          "title": "Snippet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snippet",
+        "range"
+      ],
+      "title": "StaticEvidence",
+      "type": "object"
+    },
+    "TokenUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_write_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Write Tokens"
+        },
+        "cached_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cached Tokens"
+        },
+        "input_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Tokens"
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Tokens"
+        },
+        "reasoning_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Tokens"
+        },
+        "total_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Tokens"
+        }
+      },
+      "title": "TokenUsage",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "confidence": {
+      "$ref": "#/$defs/Confidence",
+      "default": "high"
+    },
+    "dedup_key": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Dedup Key",
+      "type": "string"
+    },
+    "description": {
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "evidence": {
+      "discriminator": {
+        "mapping": {
+          "dynamic": "#/$defs/DynamicEvidence",
+          "static": "#/$defs/StaticEvidence"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/StaticEvidence"
+        },
+        {
+          "$ref": "#/$defs/DynamicEvidence"
+        }
+      ],
+      "title": "Evidence"
+    },
+    "exploitability": {
+      "$ref": "#/$defs/Exploitability",
+      "default": "theoretical"
+    },
+    "finding_id": {
+      "format": "uuid",
+      "title": "Finding Id",
+      "type": "string"
+    },
+    "impact": {
+      "$ref": "#/$defs/Impact"
+    },
+    "location": {
+      "discriminator": {
+        "mapping": {
+          "file": "#/$defs/FileLocation",
+          "logical": "#/$defs/LogicalLocation"
+        },
+        "propertyName": "kind"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/FileLocation"
+        },
+        {
+          "$ref": "#/$defs/LogicalLocation"
+        }
+      ],
+      "title": "Location"
+    },
+    "owasp_category": {
+      "$ref": "#/$defs/OwaspCategory"
+    },
+    "provenance": {
+      "items": {
+        "$ref": "#/$defs/ProvenanceEntry"
+      },
+      "title": "Provenance",
+      "type": "array"
+    },
+    "remediation": {
+      "minLength": 1,
+      "title": "Remediation",
+      "type": "string"
+    },
+    "review": {
+      "discriminator": {
+        "mapping": {
+          "degraded": "#/$defs/DegradedReview",
+          "live": "#/$defs/LiveReview",
+          "not_reviewed": "#/$defs/NotReviewedReview",
+          "replay": "#/$defs/ReplayReview"
+        },
+        "propertyName": "mode"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/NotReviewedReview"
+        },
+        {
+          "$ref": "#/$defs/DegradedReview"
+        },
+        {
+          "$ref": "#/$defs/LiveReview"
+        },
+        {
+          "$ref": "#/$defs/ReplayReview"
+        }
+      ],
+      "title": "Review"
+    },
+    "rule_id": {
+      "minLength": 1,
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "scan_id": {
+      "format": "uuid",
+      "title": "Scan Id",
+      "type": "string"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity",
+      "readOnly": true
+    },
+    "source": {
+      "$ref": "#/$defs/FindingSource"
+    },
+    "status": {
+      "$ref": "#/$defs/FindingStatus",
+      "default": "needs_review"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "finding_id",
+    "dedup_key",
+    "rule_id",
+    "title",
+    "description",
+    "impact",
+    "owasp_category",
+    "source",
+    "location",
+    "evidence",
+    "remediation",
+    "scan_id",
+    "timestamp",
+    "provenance",
+    "severity"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

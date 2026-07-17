@@ -1,0 +1,45 @@
+"""SARIF object construction and offline validation tests."""
+
+from __future__ import annotations
+
+import json
+
+import pytest
+
+from sentinel.config import LoadedConfiguration
+from sentinel.errors import InfrastructureError
+from sentinel.orchestrator import run_phase0_scan
+from sentinel.report.model import ScanContext, ScanTarget
+from sentinel.report.sarif import render_sarif
+from sentinel.report.validate_sarif import validate_sarif_data
+from tests.conftest import NOW, SCAN_ID
+
+
+def test_sarif_shell_validates_and_preserves_failure_state(
+    loaded_config: LoadedConfiguration,
+) -> None:
+    context = ScanContext(
+        scan_id=SCAN_ID, started_at=NOW, target=ScanTarget(display_name="fixture")
+    )
+    report = run_phase0_scan(loaded_config, context, completed_at=NOW).report
+    text = render_sarif(report)
+    payload = json.loads(text)
+    validate_sarif_data(payload)
+
+    assert payload["version"] == "2.1.0"
+    run = payload["runs"][0]
+    assert run["tool"]["driver"]["name"] == "MCP Sentinel"
+    assert run["tool"]["driver"]["rules"] == []
+    assert run["results"] == []
+    assert run["originalUriBaseIds"]["SRCROOT"]["uri"] == "./"
+    invocation = run["invocations"][0]
+    assert invocation["executionSuccessful"] is False
+    assert invocation["exitCode"] == 3
+    assert "arguments" not in invocation and "commandLine" not in invocation
+    assert invocation["toolExecutionNotifications"][0]["level"] == "error"
+    assert "/Users/" not in text
+
+
+def test_invalid_sarif_is_an_infrastructure_failure() -> None:
+    with pytest.raises(InfrastructureError, match="SARIF schema"):
+        validate_sarif_data({"version": "2.1.0", "runs": "not-an-array"})

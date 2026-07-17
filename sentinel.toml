@@ -1,0 +1,20 @@
+[scanner]
+format = "console"
+fail_on = "high"
+rules = []
+ignore_paths = []
+target_config = "sentinel.target.yaml"
+max_findings_per_scan = 500
+
+[llm]
+reasoning_effort = "medium"
+timeout_seconds = 30
+retries = 2
+max_concurrency = 5
+
+[sandbox]
+allowed_registries = ["pypi.org", "files.pythonhosted.org"]
+
+[rules.SENT-005]
+allow_paths = []
+fingerprints = []

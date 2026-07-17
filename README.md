@@ -6,6 +6,12 @@ MCP Sentinel is a build-time static and dynamic analysis tool that catches secur
 
 Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
 
+> **Implementation status:** Phase 0 is complete: packaging, strict configuration
+> and Finding/report contracts, console/JSON/SARIF shells, offline schema
+> validation, and CI are implemented. Detection engines intentionally remain
+> incomplete until Phases 1–3. A Phase 0 scan exits `3` and cannot be mistaken
+> for a clean security result.
+
 ---
 
 ## Why Sentinel
@@ -24,7 +30,7 @@ Sentinel looks for them.
 
 Every finding is mapped to the relevant category in the **OWASP Agentic Top 10**, with a severity rating and a suggested remediation.
 
-## Features
+## Planned product features
 
 - 🔍 **Static analysis** of MCP server source, tool schemas, and configuration
 - ⚡ **Dynamic analysis** — exercises running MCP servers with adversarial inputs
@@ -34,66 +40,61 @@ Every finding is mapped to the relevant category in the **OWASP Agentic Top 10**
 - 📄 **SARIF output** — integrates natively with GitHub code scanning and other CI security dashboards
 - 🧩 Part of the [SecureMCP suite](#related-projects) — pairs with a runtime enforcement gateway and a credential broker for full lifecycle coverage
 
-## Installation
+## Phase 0 development installation
 
 ```bash
-pip install mcp-sentinel
+uv sync --extra dev
+uv run sentinel --version
 ```
 
-Or use it directly in CI via the GitHub Action (see below).
+The pip-compatible development path is `pip install -e ".[dev]"`. The package
+is not published to PyPI in Phase 0.
 
 ## Usage
 
 ### CLI
 
 ```bash
-# Scan a local MCP server project
-sentinel scan ./path/to/mcp-server
+# Inspect the CLI
+sentinel scan --help
 
-# Output as SARIF for CI ingestion
+# Exercise the report shell. This intentionally exits 3 until detectors exist.
 sentinel scan ./path/to/mcp-server --format sarif --output results.sarif
 
-# Run dynamic checks against a live server
-sentinel scan --dynamic --endpoint http://localhost:8000
+# Run the self-contained Phase 0 scaffold demo (also exits 3 by design)
+sentinel demo
+
+# Regenerate/check native schemas and validate SARIF fully offline
+python -m sentinel.schema generate
+python -m sentinel.schema check
+python -m sentinel.report.validate_sarif results.sarif
 ```
+
+A normal scan requires `sentinel.target.yaml` because dynamic analysis is the
+eventual default. `--static-only` is the sole way to omit target launch
+configuration. Only local Python MCP/FastMCP repositories over stdio are
+accepted.
 
 ### GitHub Action
 
-```yaml
-- name: Run MCP Sentinel
-  uses: <org>/mcp-sentinel-action@v1
-  with:
-    path: ./mcp-server
-    format: sarif
-    output: results.sarif
-
-- name: Upload SARIF results
-  uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: results.sarif
-```
+The end-user composite Action is Phase 4 work. This repository currently has a
+Python 3.10–3.12 CI workflow for the Phase 0 quality and packaging gates.
 
 ## Example output
 
-```
-$ sentinel scan ./mcp-server
+```text
+MCP Sentinel 0.1.0
+Target: scaffold_target
+Status: INCOMPLETE
+Findings: 0
 
-MCP Sentinel — 3 findings
-
-[HIGH]   Over-permissioned tool schema
-         tools/delete_record.py:12
-         OWASP Agentic Top 10 — A03: Excessive Agency
-         Tool grants unscoped filesystem write access; scope to specific paths.
-
-[MEDIUM] Unsanitized prompt template input
-         prompts/summarize.py:44
-         OWASP Agentic Top 10 — A01: Prompt Injection
-         User-supplied field interpolated directly into system prompt.
-
-[LOW]    Missing input schema constraints
-         tools/search.py:8
-         OWASP Agentic Top 10 — A07: Insecure Output Handling
-         `query` parameter accepts unbounded string; add maxLength.
+Pipeline stages:
+  static: skipped — not implemented in Phase 0
+  gpt_static: skipped — not implemented in Phase 0
+  dynamic: skipped — not implemented in Phase 0
+  gpt_dynamic: skipped — not implemented in Phase 0
+  merge: skipped — not implemented in Phase 0
+  reporting: succeeded
 ```
 
 ## Related projects

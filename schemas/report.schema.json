@@ -1,0 +1,1186 @@
+{
+  "$defs": {
+    "Confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "DegradedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "evidence_refs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EvidenceReference"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Refs"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "mode": {
+          "const": "degraded",
+          "default": "degraded",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
+        "requested_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Model"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Model"
+        },
+        "reviewed": {
+          "const": false,
+          "default": false,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "const": "needs_review",
+          "default": "needs_review",
+          "title": "Status",
+          "type": "string"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "reviewed_at",
+        "reason"
+      ],
+      "title": "DegradedReview",
+      "type": "object"
+    },
+    "DynamicEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "dynamic",
+          "default": "dynamic",
+          "title": "Kind",
+          "type": "string"
+        },
+        "logs": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Logs",
+          "type": "array"
+        },
+        "probe_id": {
+          "minLength": 1,
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "request": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Request",
+          "type": "object"
+        },
+        "response": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Response",
+          "type": "object"
+        }
+      },
+      "required": [
+        "probe_id",
+        "request",
+        "response"
+      ],
+      "title": "DynamicEvidence",
+      "type": "object"
+    },
+    "EvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        }
+      },
+      "required": [
+        "path",
+        "range",
+        "claim"
+      ],
+      "title": "EvidenceReference",
+      "type": "object"
+    },
+    "Exploitability": {
+      "enum": [
+        "confirmed",
+        "likely",
+        "theoretical"
+      ],
+      "title": "Exploitability",
+      "type": "string"
+    },
+    "FileLocation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "file",
+          "default": "file",
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        }
+      },
+      "required": [
+        "path",
+        "range"
+      ],
+      "title": "FileLocation",
+      "type": "object"
+    },
+    "FindingSource": {
+      "enum": [
+        "static",
+        "dynamic"
+      ],
+      "title": "FindingSource",
+      "type": "string"
+    },
+    "FindingStatus": {
+      "enum": [
+        "needs_review",
+        "confirmed",
+        "likely_false_positive",
+        "suppressed"
+      ],
+      "title": "FindingStatus",
+      "type": "string"
+    },
+    "Impact": {
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        "Informational"
+      ],
+      "title": "Impact",
+      "type": "string"
+    },
+    "JsonValue": {},
+    "LiveReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "live",
+          "default": "live",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "reviewed_at"
+      ],
+      "title": "LiveReview",
+      "type": "object"
+    },
+    "LogicalLocation": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "logical",
+          "default": "logical",
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "LogicalLocation",
+      "type": "object"
+    },
+    "NotReviewedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "evidence_refs": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EvidenceReference"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Refs"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "mode": {
+          "const": "not_reviewed",
+          "default": "not_reviewed",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning"
+        },
+        "requested_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requested Model"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Returned Model"
+        },
+        "reviewed": {
+          "const": false,
+          "default": false,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TokenUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "NotReviewedReview",
+      "type": "object"
+    },
+    "OwaspCategory": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^ASI(?:0[1-9]|10):2026$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "OwaspCategory",
+      "type": "object"
+    },
+    "ProbePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "argument_bindings": {
+          "additionalProperties": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Argument Bindings",
+          "type": "object"
+        },
+        "ordered_probe_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Ordered Probe Ids",
+          "type": "array"
+        },
+        "target_tool": {
+          "minLength": 1,
+          "title": "Target Tool",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ordered_probe_ids",
+        "target_tool",
+        "argument_bindings"
+      ],
+      "title": "ProbePlan",
+      "type": "object"
+    },
+    "ProvenanceEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "discriminator": {
+            "mapping": {
+              "dynamic": "#/$defs/DynamicEvidence",
+              "static": "#/$defs/StaticEvidence"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/StaticEvidence"
+            },
+            {
+              "$ref": "#/$defs/DynamicEvidence"
+            }
+          ],
+          "title": "Evidence"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/FindingSource"
+        },
+        "timestamp": {
+          "title": "Timestamp",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "rule_id",
+        "evidence",
+        "timestamp"
+      ],
+      "title": "ProvenanceEntry",
+      "type": "object"
+    },
+    "ReplayReview": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "replay",
+          "default": "replay",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "reviewed_at"
+      ],
+      "title": "ReplayReview",
+      "type": "object"
+    },
+    "ReportWarning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ReportWarning",
+      "type": "object"
+    },
+    "ReviewStatus": {
+      "enum": [
+        "confirmed",
+        "suppressed",
+        "needs_review"
+      ],
+      "title": "ReviewStatus",
+      "type": "string"
+    },
+    "ScanSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "by_severity": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/Severity"
+          },
+          "title": "By Severity",
+          "type": "object"
+        },
+        "by_status": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/FindingStatus"
+          },
+          "title": "By Status",
+          "type": "object"
+        },
+        "total": {
+          "minimum": 0,
+          "title": "Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "by_severity",
+        "by_status"
+      ],
+      "title": "ScanSummary",
+      "type": "object"
+    },
+    "ScanTarget": {
+      "additionalProperties": false,
+      "properties": {
+        "display_name": {
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "root": {
+          "const": ".",
+          "default": ".",
+          "title": "Root",
+          "type": "string"
+        }
+      },
+      "required": [
+        "display_name"
+      ],
+      "title": "ScanTarget",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        "Informational"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "SourceRange": {
+      "additionalProperties": false,
+      "description": "SARIF-compatible 1-based range with an exclusive end column.",
+      "properties": {
+        "end_column": {
+          "minimum": 1,
+          "title": "End Column",
+          "type": "integer"
+        },
+        "end_line": {
+          "minimum": 1,
+          "title": "End Line",
+          "type": "integer"
+        },
+        "start_column": {
+          "minimum": 1,
+          "title": "Start Column",
+          "type": "integer"
+        },
+        "start_line": {
+          "minimum": 1,
+          "title": "Start Line",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_line",
+        "start_column",
+        "end_line",
+        "end_column"
+      ],
+      "title": "SourceRange",
+      "type": "object"
+    },
+    "StageName": {
+      "enum": [
+        "static",
+        "gpt_static",
+        "dynamic",
+        "gpt_dynamic",
+        "merge",
+        "reporting"
+      ],
+      "title": "StageName",
+      "type": "string"
+    },
+    "StageRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/StageName"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "status": {
+          "$ref": "#/$defs/StageStatus"
+        }
+      },
+      "required": [
+        "name",
+        "status"
+      ],
+      "title": "StageRecord",
+      "type": "object"
+    },
+    "StageStatus": {
+      "enum": [
+        "pending",
+        "skipped",
+        "succeeded",
+        "failed"
+      ],
+      "title": "StageStatus",
+      "type": "string"
+    },
+    "StaticEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "static",
+          "default": "static",
+          "title": "Kind",
+          "type": "string"
+        },
+        "range": {
+          "$ref": "#/$defs/SourceRange"
+        },
+        "snippet": {
+          "title": "Snippet",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snippet",
+        "range"
+      ],
+      "title": "StaticEvidence",
+      "type": "object"
+    },
+    "TokenUsage": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_write_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Write Tokens"
+        },
+        "cached_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cached Tokens"
+        },
+        "input_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Tokens"
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Tokens"
+        },
+        "reasoning_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reasoning Tokens"
+        },
+        "total_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Tokens"
+        }
+      },
+      "title": "TokenUsage",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "analysisComplete": {
+      "title": "Analysiscomplete",
+      "type": "boolean"
+    },
+    "completed_at": {
+      "title": "Completed At",
+      "type": "string"
+    },
+    "executionSuccessful": {
+      "title": "Executionsuccessful",
+      "type": "boolean"
+    },
+    "findings": {
+      "items": {
+        "$ref": "finding.schema.json"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "scan_id": {
+      "format": "uuid",
+      "title": "Scan Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "sentinel_version": {
+      "minLength": 1,
+      "title": "Sentinel Version",
+      "type": "string"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/StageRecord"
+      },
+      "title": "Stages",
+      "type": "array"
+    },
+    "started_at": {
+      "title": "Started At",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/ScanSummary"
+    },
+    "target": {
+      "$ref": "#/$defs/ScanTarget"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/ReportWarning"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scan_id",
+    "sentinel_version",
+    "started_at",
+    "completed_at",
+    "target",
+    "analysisComplete",
+    "executionSuccessful",
+    "stages",
+    "summary",
+    "warnings",
+    "findings"
+  ],
+  "title": "ScanReport",
+  "type": "object"
+}

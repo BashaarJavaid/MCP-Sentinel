@@ -46,16 +46,23 @@ Don't load the full dynamic-analysis sandbox code when working on a static rule,
 *(Fill in as Phase 0 scaffolding lands — keep this section current so a session can start from here without re-deriving setup steps.)*
 
 - `pip install -e ".[dev]"` — local dev install
+- `uv sync --extra dev` — reproducible local dev install from `uv.lock`
 - `sentinel scan <path>` — run static + dynamic checks against a local MCP server repo
 - `sentinel scan <path> --format sarif` — emit SARIF 2.1.0
-- `pytest` — run the rule-engine test suite against `tests/fixtures/vulnerable_server` and `tests/fixtures/clean_server`
-- `sentinel scan tests/fixtures/vulnerable_server --format sarif` — the demo command; should trip every implemented rule
+- `pytest` — run the current test suite with branch coverage
+- `sentinel demo` — run the Phase 0 scaffold demo; currently exits `3` by design
+- `python -m sentinel.schema check` — fail if generated Finding/report schemas drift
+- `python -m sentinel.report.validate_sarif <file.sarif>` — validate SARIF offline
+
+During Phase 0, `sentinel scan` and `sentinel demo` intentionally exit `3`
+after emitting an incomplete scaffold report. They must not be treated as clean
+security scans until their required detector stages land.
 
 ## Current phase
 
 See `mcp-sentinel-buildplan.md` §6 for the full phased plan. Work through phases in order — don't start Phase 2 (dynamic probing) rules before Phase 1's static engine and its fixture server are passing, and don't start Phase 3 (GitHub Action) before Phase 1 and 2 both produce valid SARIF. Update this section (or the buildplan's checklist) as phases complete so a new session knows what's next.
 
-- [ ] Phase 0 — repo scaffold, no-op `sentinel scan`, minimal valid SARIF shell
+- [x] Phase 0 — repo scaffold, incomplete `sentinel scan`, valid report shells and schemas
 - [ ] Phase 1 — static rule engine + 5–8 rules + vulnerable fixture server
 - [ ] Phase 2 — dynamic sandbox + adversarial probes, merged into the same report pipeline
 - [ ] Phase 3 — GitHub Action wrapper, SARIF upload to Security tab, pass/fail threshold
