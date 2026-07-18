@@ -8,7 +8,7 @@ import pytest
 
 from sentinel.config import LoadedConfiguration
 from sentinel.errors import InfrastructureError
-from sentinel.orchestrator import run_phase0_scan
+from sentinel.orchestrator import run_phase1_scan
 from sentinel.report.model import ScanContext, ScanTarget
 from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_sarif import validate_sarif_data
@@ -21,7 +21,7 @@ def test_sarif_shell_validates_and_preserves_failure_state(
     context = ScanContext(
         scan_id=SCAN_ID, started_at=NOW, target=ScanTarget(display_name="fixture")
     )
-    report = run_phase0_scan(loaded_config, context, completed_at=NOW).report
+    report = run_phase1_scan(loaded_config, context, completed_at=NOW).report
     text = render_sarif(report)
     payload = json.loads(text)
     validate_sarif_data(payload)
@@ -29,7 +29,9 @@ def test_sarif_shell_validates_and_preserves_failure_state(
     assert payload["version"] == "2.1.0"
     run = payload["runs"][0]
     assert run["tool"]["driver"]["name"] == "MCP Sentinel"
-    assert run["tool"]["driver"]["rules"] == []
+    assert [item["id"] for item in run["tool"]["driver"]["rules"]] == [
+        f"SENT-{number:03d}" for number in range(1, 8)
+    ]
     assert run["results"] == []
     assert run["originalUriBaseIds"]["SRCROOT"]["uri"] == "./"
     invocation = run["invocations"][0]

@@ -12,15 +12,31 @@ import attrs
 from sarif_om import (
     ArtifactLocation,
     Invocation,
+    Location,
     Message,
+    MultiformatMessageString,
     Notification,
+    PhysicalLocation,
+    Region,
+    ReportingConfiguration,
+    ReportingDescriptor,
+    Result,
     Run,
     SarifLog,
+    Suppression,
     Tool,
     ToolComponent,
 )
 
+from sentinel.finding import (
+    FileLocation,
+    Finding,
+    FindingStatus,
+    Severity,
+    StaticEvidence,
+)
 from sentinel.report.model import ScanReport
+from sentinel.static.catalog import RULE_BY_ID
 
 SARIF_SCHEMA_URI = (
     "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/"
@@ -32,24 +48,30 @@ def render_sarif(report: ScanReport) -> str:
     notification = Notification(
         level="error",
         message=Message(
-            text="Sentinel Phase 0 report is incomplete because detector stages "
-            "are not implemented."
+            text=(
+                "Sentinel static analysis completed, but required GPT and dynamic "
+                "stages are not implemented."
+            )
         ),
         time_utc=_format_datetime(report.completed_at),
         properties={"code": "analysis_incomplete"},
     )
     invocation = Invocation(
-        execution_successful=False,
+        execution_successful=report.execution_successful,
         exit_code=3,
-        exit_code_description="Analysis incomplete in Phase 0 scaffold",
+        exit_code_description="Analysis incomplete after Phase 1 static analysis",
         start_time_utc=_format_datetime(report.started_at),
         end_time_utc=_format_datetime(report.completed_at),
         tool_execution_notifications=[notification],
         properties={
-            "analysisComplete": False,
+            "analysisComplete": report.analysis_complete,
             "schemaVersion": report.schema_version,
             "findingCount": report.summary.total,
+            "staticAnalysis": _model_data(report.static_analysis),
         },
+    )
+    selected = (
+        report.static_analysis.selected_rule_ids if report.static_analysis else ()
     )
     driver = ToolComponent(
         name="MCP Sentinel",
@@ -57,21 +79,118 @@ def render_sarif(report: ScanReport) -> str:
         information_uri="https://github.com/BashaarJavaid/MCP-Sentinel",
         semantic_version=report.sentinel_version,
         version=report.sentinel_version,
-        rules=[],
+        rules=[_rule_descriptor(rule_id) for rule_id in selected],
+        properties={"reportSchemaVersion": report.schema_version},
     )
     run = Run(
         tool=Tool(driver=driver),
         invocations=[invocation],
         original_uri_base_ids={"SRCROOT": ArtifactLocation(uri="./")},
-        results=[],
+        results=[_result(finding, selected) for finding in report.findings],
         properties={
-            "analysisComplete": False,
-            "executionSuccessful": False,
+            "analysisComplete": report.analysis_complete,
+            "executionSuccessful": report.execution_successful,
         },
     )
     log = SarifLog(version="2.1.0", schema_uri=SARIF_SCHEMA_URI, runs=[run])
     payload = _serialize_sarif_om(log)
     return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+def _rule_descriptor(rule_id: str) -> ReportingDescriptor:
+    definition = RULE_BY_ID[rule_id]
+    return ReportingDescriptor(
+        id=rule_id,
+        name=definition.title,
+        short_description=MultiformatMessageString(text=definition.title),
+        full_description=MultiformatMessageString(text=definition.description),
+        help=MultiformatMessageString(
+            text=f"{definition.remediation} FP risk: {definition.false_positive_risk}"
+        ),
+        help_uri=definition.help_uri,
+        default_configuration=ReportingConfiguration(
+            level=_sarif_level(Severity(definition.impact.value))
+        ),
+        properties={
+            "impact": definition.impact.value,
+            "owaspCategory": definition.owasp_category.model_dump(mode="json"),
+            "falsePositiveRisk": definition.false_positive_risk,
+            "engine": definition.engine.value,
+        },
+    )
+
+
+def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
+    location = _location(finding)
+    suppressions = None
+    if finding.status is FindingStatus.SUPPRESSED:
+        suppressions = [
+            Suppression(
+                kind="external",
+                state="accepted",
+                justification=finding.review.reason or "Suppressed by Sentinel review",
+            )
+        ]
+    return Result(
+        rule_id=finding.rule_id,
+        rule_index=selected.index(finding.rule_id),
+        level=_sarif_level(finding.severity),
+        message=Message(text=f"{finding.title}: {finding.description}"),
+        locations=[location],
+        fingerprints={"sentinel/v1": finding.dedup_key},
+        suppressions=suppressions,
+        properties={
+            "findingId": str(finding.finding_id),
+            "dedupKey": finding.dedup_key,
+            "impact": finding.impact.value,
+            "severity": finding.severity.value,
+            "exploitability": finding.exploitability.value,
+            "confidence": finding.confidence.value,
+            "status": finding.status.value,
+            "source": finding.source.value,
+            "owaspId": finding.owasp_category.id,
+            "owaspName": finding.owasp_category.name,
+            "evidence": finding.evidence.model_dump(mode="json"),
+            "provenance": [item.model_dump(mode="json") for item in finding.provenance],
+            "review": finding.review.model_dump(mode="json"),
+            "remediation": finding.remediation,
+        },
+    )
+
+
+def _location(finding: Finding) -> Location:
+    if not isinstance(finding.location, FileLocation):
+        return Location(message=Message(text=finding.location.path))
+    if not isinstance(finding.evidence, StaticEvidence):
+        raise TypeError("file findings require static evidence")
+    source_range = finding.location.range
+    return Location(
+        physical_location=PhysicalLocation(
+            artifact_location=ArtifactLocation(
+                uri=finding.location.path,
+                uri_base_id="SRCROOT",
+            ),
+            region=Region(
+                start_line=source_range.start_line,
+                start_column=source_range.start_column,
+                end_line=source_range.end_line,
+                end_column=source_range.end_column,
+                snippet=MultiformatMessageString(text=finding.evidence.snippet),
+            ),
+        )
+    )
+
+
+def _sarif_level(severity: Severity) -> str:
+    if severity in {Severity.CRITICAL, Severity.HIGH}:
+        return "error"
+    if severity is Severity.MEDIUM:
+        return "warning"
+    return "note"
+
+
+def _model_data(value: Any) -> Any:
+    return value.model_dump(mode="json") if value is not None else None
 
 
 def _serialize_sarif_om(value: Any) -> Any:

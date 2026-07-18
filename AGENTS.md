@@ -43,30 +43,33 @@ Don't load the full dynamic-analysis sandbox code when working on a static rule,
 
 ## Commands
 
-*(Fill in as Phase 0 scaffolding lands — keep this section current so a session can start from here without re-deriving setup steps.)*
-
 - `pip install -e ".[dev]"` — local dev install
 - `uv sync --extra dev` — reproducible local dev install from `uv.lock`
 - `sentinel scan <path>` — run static + dynamic checks against a local MCP server repo
 - `sentinel scan <path> --format sarif` — emit SARIF 2.1.0
 - `pytest` — run the current test suite with branch coverage
-- `sentinel demo` — run the Phase 0 scaffold demo; currently exits `3` by design
+- `sentinel demo` — run all seven static rules against the vulnerable fixture;
+  currently exits `3` because later required stages are incomplete
 - `python -m sentinel.schema check` — fail if generated Finding/report schemas drift
 - `python -m sentinel.report.validate_sarif <file.sarif>` — validate SARIF offline
 
-During Phase 0, `sentinel scan` and `sentinel demo` intentionally exit `3`
-after emitting an incomplete scaffold report. They must not be treated as clean
-security scans until their required detector stages land.
+After Phase 1, `sentinel scan` and `sentinel demo` run complete static analysis
+but intentionally exit `3` because GPT review and dynamic probing are not yet
+implemented. Their static findings are real; the overall result is incomplete.
 
 ## Current phase
 
-See `mcp-sentinel-buildplan.md` §6 for the full phased plan. Work through phases in order — don't start Phase 2 (dynamic probing) rules before Phase 1's static engine and its fixture server are passing, and don't start Phase 3 (GitHub Action) before Phase 1 and 2 both produce valid SARIF. Update this section (or the buildplan's checklist) as phases complete so a new session knows what's next.
+See `ROADMAP.md` for the authoritative phase order. Work through phases in
+order: GPT semantic review follows the static engine, then dynamic probing, then
+the GitHub Action. Update this section as each verification gate passes.
 
 - [x] Phase 0 — repo scaffold, incomplete `sentinel scan`, valid report shells and schemas
-- [ ] Phase 1 — static rule engine + 5–8 rules + vulnerable fixture server
-- [ ] Phase 2 — dynamic sandbox + adversarial probes, merged into the same report pipeline
-- [ ] Phase 3 — GitHub Action wrapper, SARIF upload to Security tab, pass/fail threshold
-- [ ] Phase 4 — console report polish, README, demo rehearsal
+- [x] Phase 1 — hybrid static engine, `SENT-001`–`SENT-007`, paired fixtures
+- [ ] Phase 2 — GPT semantic review of static and dynamic candidates
+- [ ] Phase 3 — Docker sandbox and four adversarial probes
+- [ ] Phase 4 — GitHub Action and live SARIF upload
+- [ ] Phase 5 — console/report polish and judged demo
+- [ ] Phase 6 — fixture-scoped exploit-confirmation stretch
 
 ---
 

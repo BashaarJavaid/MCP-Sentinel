@@ -1,0 +1,15 @@
+rules:
+  - id: sentinel.sent005.provider-secret-candidate
+    message: Source contains a provider-shaped hardcoded secret.
+    severity: ERROR
+    languages: [generic]
+    metadata:
+      sentinel_rule_id: SENT-005
+    pattern-regex: '(?:sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{20,}|AKIA[A-Z0-9]{16}|AIza[A-Za-z0-9_-]{20,})'
+  - id: sentinel.sent005.secret-candidate
+    message: Source contains a possible hardcoded secret.
+    severity: ERROR
+    languages: [generic]
+    metadata:
+      sentinel_rule_id: SENT-005
+    pattern-regex: '(?i)(?:api[_-]?key|secret|token|password)\s*[:=]\s*["'']?[A-Za-z0-9_./+=-]{20,}'

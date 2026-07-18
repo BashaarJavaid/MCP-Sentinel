@@ -1,0 +1,37 @@
+rules:
+  - id: sentinel.sent002.unsafe-execution
+    message: Untrusted tool input reaches an unsafe execution primitive.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      sentinel_rule_id: SENT-002
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: |
+                  @$MCP.tool(...)
+                  def $FUNC(..., $ARG: $TYPE, ...):
+                    ...
+              - pattern-inside: |
+                  @$MCP.tool(...)
+                  async def $FUNC(..., $ARG: $TYPE, ...):
+                    ...
+              - pattern-inside: |
+                  @$MCP.tool(...)
+                  def $FUNC(..., $ARG, ...):
+                    ...
+              - pattern-inside: |
+                  @$MCP.tool(...)
+                  async def $FUNC(..., $ARG, ...):
+                    ...
+          - focus-metavariable: $ARG
+    pattern-sinks:
+      - pattern-either:
+          - pattern: eval(...)
+          - pattern: exec(...)
+          - pattern: pickle.loads(...)
+          - pattern: yaml.load(...)
+          - pattern: subprocess.run(..., shell=True, ...)
+          - pattern: subprocess.call(..., shell=True, ...)
+          - pattern: subprocess.Popen(..., shell=True, ...)

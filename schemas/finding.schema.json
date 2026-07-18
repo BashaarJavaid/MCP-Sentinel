@@ -868,6 +868,19 @@
     "StaticEvidence": {
       "additionalProperties": false,
       "properties": {
+        "fingerprint": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fingerprint"
+        },
         "kind": {
           "const": "static",
           "default": "static",

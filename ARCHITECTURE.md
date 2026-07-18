@@ -608,9 +608,9 @@ Required options include:
 
 There is no `--dynamic` flag because dynamic analysis is the default.
 
-During Phase 0 only, a valid scan emits an explicitly incomplete report,
-marks detector/GPT/dynamic/merge stages skipped, sets
-`analysisComplete=false` and `executionSuccessful=false`, and exits `3`.
+After Phase 1, a valid scan runs the static stage and emits its real findings,
+marks GPT/dynamic/merge stages skipped, sets `analysisComplete=false` and
+`executionSuccessful=false`, and exits `3`.
 The global `--debug` option exposes tracebacks for internal failures; the
 default error surface remains concise.
 

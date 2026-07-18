@@ -995,9 +995,72 @@
       "title": "StageStatus",
       "type": "string"
     },
+    "StaticAnalysisSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_ms": {
+          "minimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "ignored_file_count": {
+          "minimum": 0,
+          "title": "Ignored File Count",
+          "type": "integer"
+        },
+        "rule_outcomes": {
+          "items": {
+            "$ref": "#/$defs/StaticRuleOutcome"
+          },
+          "title": "Rule Outcomes",
+          "type": "array"
+        },
+        "scanned_file_count": {
+          "minimum": 0,
+          "title": "Scanned File Count",
+          "type": "integer"
+        },
+        "selected_rule_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Selected Rule Ids",
+          "type": "array"
+        },
+        "total_matches": {
+          "minimum": 0,
+          "title": "Total Matches",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "selected_rule_ids",
+        "scanned_file_count",
+        "ignored_file_count",
+        "total_matches",
+        "duration_ms",
+        "rule_outcomes"
+      ],
+      "title": "StaticAnalysisSummary",
+      "type": "object"
+    },
     "StaticEvidence": {
       "additionalProperties": false,
       "properties": {
+        "fingerprint": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fingerprint"
+        },
         "kind": {
           "const": "static",
           "default": "static",
@@ -1018,6 +1081,59 @@
       ],
       "title": "StaticEvidence",
       "type": "object"
+    },
+    "StaticRuleOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "exemptions_by_reason": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Exemptions By Reason",
+          "type": "object"
+        },
+        "match_count": {
+          "minimum": 0,
+          "title": "Match Count",
+          "type": "integer"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "skip_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Skip Reason"
+        },
+        "status": {
+          "$ref": "#/$defs/StaticRuleStatus"
+        }
+      },
+      "required": [
+        "rule_id",
+        "status",
+        "match_count",
+        "exemptions_by_reason"
+      ],
+      "title": "StaticRuleOutcome",
+      "type": "object"
+    },
+    "StaticRuleStatus": {
+      "enum": [
+        "evaluated",
+        "skipped"
+      ],
+      "title": "StaticRuleStatus",
+      "type": "string"
     },
     "TokenUsage": {
       "additionalProperties": false,
@@ -1133,8 +1249,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "1.0.0",
-      "default": "1.0.0",
+      "const": "1.1.0",
+      "default": "1.1.0",
       "title": "Schema Version",
       "type": "string"
     },
@@ -1153,6 +1269,16 @@
     "started_at": {
       "title": "Started At",
       "type": "string"
+    },
+    "static_analysis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StaticAnalysisSummary"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "summary": {
       "$ref": "#/$defs/ScanSummary"
@@ -1179,7 +1305,8 @@
     "stages",
     "summary",
     "warnings",
-    "findings"
+    "findings",
+    "static_analysis"
   ],
   "title": "ScanReport",
   "type": "object"

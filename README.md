@@ -6,11 +6,11 @@ MCP Sentinel is a build-time static and dynamic analysis tool that catches secur
 
 Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
 
-> **Implementation status:** Phase 0 is complete: packaging, strict configuration
-> and Finding/report contracts, console/JSON/SARIF shells, offline schema
-> validation, and CI are implemented. Detection engines intentionally remain
-> incomplete until Phases 1–3. A Phase 0 scan exits `3` and cannot be mistaken
-> for a clean security result.
+> **Implementation status:** Phases 0 and 1 are complete. The hybrid AST/Semgrep
+> engine runs `SENT-001` through `SENT-007`, emits canonical findings to console,
+> JSON, and schema-valid SARIF, and passes paired vulnerable/clean fixtures. GPT
+> review and dynamic analysis remain incomplete, so scans still exit `3` and
+> cannot be mistaken for a complete security result.
 
 ---
 
@@ -30,9 +30,11 @@ Sentinel looks for them.
 
 Every finding is mapped to the relevant category in the **OWASP Agentic Top 10**, with a severity rating and a suggested remediation.
 
-## Planned product features
+## Product scope
 
-- 🔍 **Static analysis** of MCP server source, tool schemas, and configuration
+- ✅ **Static analysis** of MCP server source, tool schemas, and configuration
+- 🧠 **GPT-5.6 semantic review** of every deterministic candidate, with grounded
+  evidence and constrained dynamic-probe planning
 - ⚡ **Dynamic analysis** — exercises running MCP servers with adversarial inputs
 - 🧭 **OWASP Agentic Top 10 mapping** for every finding
 - 🛠️ **CLI tool** for local development and ad-hoc scans
@@ -40,7 +42,7 @@ Every finding is mapped to the relevant category in the **OWASP Agentic Top 10**
 - 📄 **SARIF output** — integrates natively with GitHub code scanning and other CI security dashboards
 - 🧩 Part of the [SecureMCP suite](#related-projects) — pairs with a runtime enforcement gateway and a credential broker for full lifecycle coverage
 
-## Phase 0 development installation
+## Development installation
 
 ```bash
 uv sync --extra dev
@@ -48,7 +50,7 @@ uv run sentinel --version
 ```
 
 The pip-compatible development path is `pip install -e ".[dev]"`. The package
-is not published to PyPI in Phase 0.
+is not published to PyPI yet.
 
 ## Usage
 
@@ -58,10 +60,11 @@ is not published to PyPI in Phase 0.
 # Inspect the CLI
 sentinel scan --help
 
-# Exercise the report shell. This intentionally exits 3 until detectors exist.
+# Run the seven static rules and emit SARIF. The command still exits 3 until
+# required GPT review and dynamic analysis are implemented.
 sentinel scan ./path/to/mcp-server --format sarif --output results.sarif
 
-# Run the self-contained Phase 0 scaffold demo (also exits 3 by design)
+# Run all seven static rules against the vulnerable reference fixture.
 sentinel demo
 
 # Regenerate/check native schemas and validate SARIF fully offline
@@ -78,22 +81,27 @@ accepted.
 ### GitHub Action
 
 The end-user composite Action is Phase 4 work. This repository currently has a
-Python 3.10–3.12 CI workflow for the Phase 0 quality and packaging gates.
+Python 3.10–3.12 CI workflow for the Phase 0–1 quality and packaging gates.
 
 ## Example output
 
 ```text
 MCP Sentinel 0.1.0
-Target: scaffold_target
+Target: vulnerable_server
 Status: INCOMPLETE
-Findings: 0
+Static findings: 7
+
+Rules:
+  SENT-001: evaluated, 1 match(es)
+  ...
+  SENT-007: evaluated, 1 match(es)
 
 Pipeline stages:
-  static: skipped — not implemented in Phase 0
-  gpt_static: skipped — not implemented in Phase 0
-  dynamic: skipped — not implemented in Phase 0
-  gpt_dynamic: skipped — not implemented in Phase 0
-  merge: skipped — not implemented in Phase 0
+  static: succeeded
+  gpt_static: skipped — not implemented after Phase 1 static analysis
+  dynamic: skipped — not implemented after Phase 1 static analysis
+  gpt_dynamic: skipped — not implemented after Phase 1 static analysis
+  merge: skipped — not implemented after Phase 1 static analysis
   reporting: succeeded
 ```
 

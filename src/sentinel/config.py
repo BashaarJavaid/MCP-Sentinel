@@ -147,36 +147,91 @@ class SandboxConfig(ContractModel):
         return value
 
 
-class Sent005Config(ContractModel):
-    allow_paths: tuple[str, ...] = ()
-    fingerprints: tuple[str, ...] = ()
+class Sent005AllowlistEntry(ContractModel):
+    path: str
+    fingerprint: str
+    reason: str
 
-    @field_validator("allow_paths", "fingerprints", mode="before")
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, value: str) -> str:
+        return _validate_relative_text_path(value, "SENT-005 allow path")
+
+    @field_validator("fingerprint")
+    @classmethod
+    def validate_fingerprint(cls, value: str) -> str:
+        if not re.fullmatch(r"[0-9a-f]{64}", value):
+            raise ValueError("SENT-005 fingerprints must be lowercase SHA-256")
+        return value
+
+    @field_validator("reason")
+    @classmethod
+    def validate_reason(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("SENT-005 allowlist reason cannot be empty")
+        return value.strip()
+
+
+class Sent005Config(ContractModel):
+    allowlist: tuple[Sent005AllowlistEntry, ...] = ()
+
+    @field_validator("allowlist", mode="before")
     @classmethod
     def list_to_tuple(cls, value: Any) -> Any:
         return tuple(value) if isinstance(value, list) else value
 
-    @field_validator("allow_paths")
+
+class Sent004Config(ContractModel):
+    sanitizers: tuple[str, ...] = ()
+
+    @field_validator("sanitizers", mode="before")
     @classmethod
-    def validate_allow_paths(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+    def list_to_tuple(cls, value: Any) -> Any:
+        return tuple(value) if isinstance(value, list) else value
+
+    @field_validator("sanitizers")
+    @classmethod
+    def validate_sanitizers(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         for item in value:
-            _validate_relative_text_path(item, "SENT-005 allow path")
+            if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", item):
+                raise ValueError(f"invalid qualified sanitizer: {item}")
         return value
 
-    @field_validator("fingerprints")
+
+class Sent006Config(ContractModel):
+    public_routes: tuple[str, ...] = ()
+
+    @field_validator("public_routes", mode="before")
     @classmethod
-    def validate_fingerprints(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        for fingerprint in value:
-            if not re.fullmatch(r"[0-9a-f]{64}", fingerprint):
-                raise ValueError("SENT-005 fingerprints must be lowercase SHA-256")
+    def list_to_tuple(cls, value: Any) -> Any:
+        return tuple(value) if isinstance(value, list) else value
+
+    @field_validator("public_routes")
+    @classmethod
+    def validate_public_routes(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        for item in value:
+            if not re.fullmatch(r"[A-Z]+ /\S+", item):
+                raise ValueError(
+                    "SENT-006 public routes must use 'METHOD /path-pattern'"
+                )
         return value
 
 
 class RulesConfig(ContractModel):
+    sent004: Sent004Config = Field(
+        default_factory=Sent004Config,
+        validation_alias=AliasChoices("SENT-004", "sent004"),
+        serialization_alias="SENT-004",
+    )
     sent005: Sent005Config = Field(
         default_factory=Sent005Config,
         validation_alias=AliasChoices("SENT-005", "sent005"),
         serialization_alias="SENT-005",
+    )
+    sent006: Sent006Config = Field(
+        default_factory=Sent006Config,
+        validation_alias=AliasChoices("SENT-006", "sent006"),
+        serialization_alias="SENT-006",
     )
 
 

@@ -1,4 +1,4 @@
-"""Shared Phase 0 fixtures."""
+"""Shared scanner fixtures."""
 
 from __future__ import annotations
 

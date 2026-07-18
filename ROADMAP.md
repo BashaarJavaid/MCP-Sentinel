@@ -28,6 +28,8 @@ The required delivery is complete only when all of the following are true:
 
 ## 3. Phase 0 — Scaffold and contracts
 
+**Status: complete.**
+
 ### Objective
 
 Establish an executable, typed scan-to-report shell before implementing detectors.
@@ -66,6 +68,9 @@ Establish an executable, typed scan-to-report shell before implementing detector
 
 ## 4. Phase 1 — Static rule engine
 
+**Status: complete.** The seven-rule vulnerable/clean fixture gate, native JSON
+schema validation, offline SARIF validation, and local quality gates pass.
+
 ### Objective
 
 Produce deterministic, auditable candidates for the seven permanent static rule IDs.
@@ -95,6 +100,8 @@ Produce deterministic, auditable candidates for the seven permanent static rule 
 - The full Python CI matrix, quality gates, and 80% coverage pass.
 
 ## 5. Phase 2 — GPT semantic review
+
+**Status: next.**
 
 ### Objective
 

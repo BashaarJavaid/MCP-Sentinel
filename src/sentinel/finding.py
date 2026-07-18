@@ -138,6 +138,7 @@ class StaticEvidence(ContractModel):
     kind: Literal["static"] = "static"
     snippet: str
     range: SourceRange
+    fingerprint: Sha256Hex | None = None
 
 
 class DynamicEvidence(ContractModel):

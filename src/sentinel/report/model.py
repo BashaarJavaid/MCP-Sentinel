@@ -47,6 +47,46 @@ class ReportWarning(ContractModel):
     message: NonEmptyString
 
 
+class StaticRuleStatus(str, Enum):
+    EVALUATED = "evaluated"
+    SKIPPED = "skipped"
+
+
+class StaticRuleOutcome(ContractModel):
+    rule_id: NonEmptyString
+    status: StaticRuleStatus
+    match_count: int = Field(ge=0)
+    exemptions_by_reason: dict[str, int]
+    skip_reason: str | None = None
+
+    @model_validator(mode="after")
+    def validate_outcome(self) -> StaticRuleOutcome:
+        if any(value < 0 for value in self.exemptions_by_reason.values()):
+            raise ValueError("static exemption counts cannot be negative")
+        if self.status is StaticRuleStatus.SKIPPED and not self.skip_reason:
+            raise ValueError("skipped static rules require a reason")
+        if self.status is StaticRuleStatus.EVALUATED and self.skip_reason is not None:
+            raise ValueError("evaluated static rules cannot have a skip reason")
+        return self
+
+
+class StaticAnalysisSummary(ContractModel):
+    selected_rule_ids: tuple[NonEmptyString, ...]
+    scanned_file_count: int = Field(ge=0)
+    ignored_file_count: int = Field(ge=0)
+    total_matches: int = Field(ge=0)
+    duration_ms: int = Field(ge=0)
+    rule_outcomes: tuple[StaticRuleOutcome, ...]
+
+    @model_validator(mode="after")
+    def validate_static_summary(self) -> StaticAnalysisSummary:
+        if tuple(item.rule_id for item in self.rule_outcomes) != self.selected_rule_ids:
+            raise ValueError("static rule outcomes must match selected rule order")
+        if sum(item.match_count for item in self.rule_outcomes) != self.total_matches:
+            raise ValueError("static rule matches must sum to total_matches")
+        return self
+
+
 class ScanTarget(ContractModel):
     display_name: NonEmptyString
     root: Literal["."] = "."
@@ -101,7 +141,7 @@ class ScanContext(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.0.0"] = "1.0.0"
+    schema_version: Literal["1.1.0"] = "1.1.0"
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime
@@ -113,6 +153,7 @@ class ScanReport(ContractModel):
     summary: ScanSummary
     warnings: tuple[ReportWarning, ...]
     findings: tuple[Finding, ...]
+    static_analysis: StaticAnalysisSummary | None
 
     @field_validator("scan_id")
     @classmethod

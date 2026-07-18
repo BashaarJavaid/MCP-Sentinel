@@ -13,10 +13,11 @@ dependencies = [
   "jsonschema>=4.25.1,<5",
   "openai>=2.46.0,<3",
   "packaging>=25.0,<26",
+  "pathspec>=1.1.1,<2",
   "pydantic>=2.13.4,<3",
   "PyYAML>=6.0.3,<7",
   "sarif-om>=1.0.4,<2",
-  "semgrep>=1.170.0,<2",
+  "semgrep==1.170.0",
   "typer>=0.27.0,<1",
   "tomli>=2.4.1,<3; python_version < '3.11'",
 ]
@@ -72,6 +73,7 @@ python_version = "3.10"
 strict = true
 plugins = ["pydantic.mypy"]
 files = ["src", "tests", "scripts"]
+exclude = ["tests/fixtures/"]
 
 [[tool.mypy.overrides]]
 module = ["sarif_om", "sarif_om.*"]

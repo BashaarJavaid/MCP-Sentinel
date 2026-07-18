@@ -16,7 +16,7 @@ import typer
 from sentinel import __version__
 from sentinel.config import FailThreshold, OutputFormat, load_configuration
 from sentinel.errors import InfrastructureError, UsageError
-from sentinel.orchestrator import run_phase0_scan
+from sentinel.orchestrator import run_phase1_scan
 from sentinel.report.console import render_console
 from sentinel.report.json_report import render_json
 from sentinel.report.model import ScanContext, ScanTarget
@@ -74,7 +74,7 @@ def scan(
     static_only: bool = typer.Option(False, "--static-only"),
     rules: str | None = typer.Option(None, "--rules"),
 ) -> None:
-    """Validate a target and emit the intentionally incomplete Phase 0 report."""
+    """Run static checks and emit a report with later stages marked incomplete."""
 
     del allow_degraded
     state = _state(ctx)
@@ -97,14 +97,14 @@ def scan(
             started_at=now,
             target=ScanTarget(display_name=configuration.scan_root.name),
         )
-        outcome = run_phase0_scan(
+        outcome = run_phase1_scan(
             configuration, context, completed_at=datetime.now(timezone.utc)
         )
         effective_format = configuration.scanner.scanner.format
         rendered = _render(outcome.report, effective_format)
         _write_report(rendered, output)
         typer.echo(
-            "error: analysis incomplete; Phase 0 detector stages are not implemented",
+            "error: analysis incomplete; GPT and dynamic stages are not implemented",
             err=True,
         )
         raise typer.Exit(outcome.exit_code)
@@ -126,23 +126,28 @@ def scan(
 
 @app.command()
 def demo(ctx: typer.Context) -> None:
-    """Exercise every Phase 0 report format against the scaffold target."""
+    """Exercise Phase 1 against the vulnerable reference fixture."""
 
     state = _state(ctx)
     try:
-        root = Path(__file__).resolve().parents[2] / "demo" / "scaffold_target"
+        root = (
+            Path(__file__).resolve().parents[2]
+            / "tests"
+            / "fixtures"
+            / "vulnerable_server"
+        )
         configuration = load_configuration(root)
         now = datetime.now(timezone.utc)
         context = ScanContext(
             scan_id=uuid4(),
             started_at=now,
-            target=ScanTarget(display_name="scaffold_target"),
+            target=ScanTarget(display_name="vulnerable_server"),
         )
-        outcome = run_phase0_scan(
+        outcome = run_phase1_scan(
             configuration, context, completed_at=datetime.now(timezone.utc)
         )
         typer.echo(render_console(outcome.report), nl=False)
-        with tempfile.TemporaryDirectory(prefix="sentinel-phase0-demo-") as directory:
+        with tempfile.TemporaryDirectory(prefix="sentinel-phase1-demo-") as directory:
             directory_path = Path(directory)
             json_path = directory_path / "report.json"
             sarif_path = directory_path / "report.sarif"
@@ -156,7 +161,7 @@ def demo(ctx: typer.Context) -> None:
             typer.echo(f"Validated temporary SARIF: {sarif_path}")
         typer.echo("Temporary demo reports cleaned up.")
         typer.echo(
-            "error: demo is intentionally incomplete until detector phases land",
+            "error: demo is intentionally incomplete until later stages land",
             err=True,
         )
         raise typer.Exit(outcome.exit_code)
