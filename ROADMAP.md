@@ -8,6 +8,56 @@ Phases 0–5 are the complete required hackathon deliverable. Required work is n
 
 The architecture and accepted contracts are defined in `ARCHITECTURE.md`. This roadmap tracks implementation and verification; it does not redefine those decisions.
 
+### GPT-5.6 API cost-control policy
+
+The production path remains GPT-5.6 Sol through the Responses API. Development
+minimizes paid calls without substituting a different model or weakening any
+GPT-specific release gate:
+
+- Use hand-built response objects for unit tests of parsing, validation,
+  retries, refusals, incomplete responses, merge behavior, and reporting.
+- Use checked-in GPT-5.6 cassettes for routine integration tests, local
+  development, CI, and the offline judge demo. Replay must exercise the same
+  parser, validators, merge logic, and reports as live mode.
+- Keep `OPENAI_API_KEY` out of routine test and CI environments. Supplying it
+  never implicitly turns an offline test into a paid live test; live checkpoints
+  must be selected explicitly.
+- Minimize each live request using the already-approved context windows,
+  redaction, batching, stable prompt prefixes, cache reuse, and fixture-scoped
+  candidate caps. Do not lower the production 500-finding default to disguise
+  cost or skip required candidates.
+- Record tokens, cache use, requested and returned models, and the dated pricing
+  source for every live checkpoint. Stop after the required evidence or cassette
+  has been captured; do not repeatedly call the API while debugging host-side
+  code that can be tested offline.
+- Repeat an accepted live checkpoint only when its production prompt, schema,
+  model, request construction, or affected semantic behavior changes, or when
+  the checkpoint itself fails. A host-only reporting or sandbox change does not
+  invalidate unrelated GPT cassettes.
+
+Paid live calls are limited to these dependency gates:
+
+1. **Phase 2 contract smoke:** after the request and response schema are stable,
+   send the smallest representative batch that proves authentication,
+   `store: false`, strict Structured Outputs, reasoning effort, returned model,
+   usage telemetry, and one grounded valid review.
+2. **Phase 2 evaluation and cassette capture:** after all host-side tests pass,
+   run the versioned static truth set once at `medium` and once at `low`, capture
+   accepted GPT-5.6 responses, and use those responses for subsequent offline
+   development and CI.
+3. **Phase 3 integrated chain:** after Docker and probe tests pass offline, run
+   the smallest live fixture scan that proves static candidate → GPT review →
+   prioritized probes → dynamic candidate → GPT review, then capture the new
+   dynamic-review responses.
+4. **Phase 5 release evidence:** after the clean-checkout and replay gates pass,
+   perform one final live end-to-end demo run. Reuse that successful run for the
+   ablation, checked-in artifacts, and recorded submission evidence wherever
+   their inputs are identical.
+
+This schedule is a spending discipline, not permission to claim GPT behavior
+from mocks or replay. The applicable live checkpoint must pass before its
+dependent phase is complete.
+
 ## 2. Delivery definition
 
 The required delivery is complete only when all of the following are true:
@@ -132,7 +182,9 @@ Make GPT review a required, auditable, operationally consequential stage that re
 - Implement cache keys based on rule ID, snippet hash, and schema hash.
 - Keep reusable prompt/rule prefixes stable and record cached/cache-write tokens before considering explicit cache breakpoints.
 - Implement fail-closed behavior and the explicit `--allow-degraded` path.
-- Capture real GPT-5.6 responses once and replay them as deterministic cassette fixtures.
+- At the Phase 2 live checkpoints, capture accepted real GPT-5.6 responses and
+  replay them as deterministic cassette fixtures; recapture only under the
+  cost-control policy above.
 - Implement the visibly labeled `sentinel demo --replay-review` path through the same parser, plan validator, merge, and reporting code.
 - Record per-batch model, effort, mode, latency, retry, refusal/incomplete state, schema result, token usage, cache use, and status counts without logging source snippets.
 - Attach the model, pricing source, and pricing-as-of date to cost estimates; report token usage alone when authoritative pricing is unavailable.
@@ -153,6 +205,11 @@ Make GPT review a required, auditable, operationally consequential stage that re
 - CI runs fully offline against recorded responses.
 - SARIF preserves review status, reasoning, confidence, and advisory severity data.
 - Replay findings are unmistakably labeled and cannot appear as live reviews.
+- The Phase 2 contract smoke proves the real Responses API accepts the strict
+  schema and returns the required model, status, and usage fields before Phase 3
+  begins.
+- The versioned static truth set has one accepted live `medium` run and one
+  accepted live `low` run; routine reruns use their checked-in cassettes.
 - The ablation includes rules-only, GPT-reviewed, and dynamically confirmed metrics for true/false positives, precision, recall where defined, structured-output validity, evidence grounding, plan validity, latency, tokens, cache behavior, and cost per successful review with auditable pricing metadata.
 - The truth set demonstrates at least one corroborated true positive, one grounded visible suppression, one ambiguous `needs_review`, and one correctly prioritized probe.
 - `medium` and `low` reasoning effort are compared without changing the production default unless the measured results justify it.
