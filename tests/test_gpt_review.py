@@ -227,9 +227,7 @@ def test_context_is_bounded_grounded_and_line_preserving() -> None:
 
 
 def test_ambiguous_eval_context_does_not_expose_imported_helper() -> None:
-    finding = next(
-        item for item in _all_eval_findings() if item.rule_id == "SENT-001"
-    )
+    finding = next(item for item in _all_eval_findings() if item.rule_id == "SENT-001")
     context = build_finding_context(ROOT, finding)
 
     assert len(context.blocks) == 1
@@ -389,9 +387,7 @@ def test_suppressed_static_finding_can_use_fixed_probe_fallback(
             message["content"][0]["text"] = json.dumps(payload)
             return raw
 
-    finding = next(
-        item for item in _all_eval_findings() if item.rule_id == "SENT-003"
-    )
+    finding = next(item for item in _all_eval_findings() if item.rule_id == "SENT-003")
     outcome = SemanticReviewer(
         root=ROOT,
         config=LlmConfig(retries=0),
@@ -458,8 +454,7 @@ def test_api_contract_errors_preserve_safe_diagnostic_detail() -> None:
     failure = _classify(error)
 
     assert str(failure) == (
-        "GPT HTTP 400: Invalid schema for response_format. "
-        "(param: text.format.schema)"
+        "GPT HTTP 400: Invalid schema for response_format. (param: text.format.schema)"
     )
     assert failure.retryable is False
 

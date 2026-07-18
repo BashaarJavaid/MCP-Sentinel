@@ -122,9 +122,7 @@ def _evaluate(effort: ReasoningEffort, cases: list[dict[str, Any]]) -> dict[str,
     status_matches = sum(
         status.value == case["expected_status"] for case, status in decisions
     )
-    priority_cases = [
-        case for case, _ in decisions if "expected_first_probe" in case
-    ]
+    priority_cases = [case for case, _ in decisions if "expected_first_probe" in case]
     priority_matches = sum(
         first_probes[case["id"]] == case["expected_first_probe"]
         for case in priority_cases
@@ -145,8 +143,7 @@ def _evaluate(effort: ReasoningEffort, cases: list[dict[str, Any]]) -> dict[str,
             priority_matches, len(priority_cases)
         ),
         "quality_gate_passed": (
-            status_matches == len(decisions)
-            and priority_matches == len(priority_cases)
+            status_matches == len(decisions) and priority_matches == len(priority_cases)
         ),
         "origin_latency_ms": outcome.summary.origin_latency_ms,
         "origin_usage": outcome.summary.origin_usage.model_dump(mode="json"),

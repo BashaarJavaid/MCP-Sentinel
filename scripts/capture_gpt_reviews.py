@@ -50,9 +50,7 @@ def main() -> int:
         ReasoningEffort.LOW if args.checkpoint == "eval-low" else ReasoningEffort.MEDIUM
     )
     batches, config = _planned_batches(args.checkpoint, effort)
-    reservations = {
-        batch.fingerprint: _reserved_micro_usd(batch) for batch in batches
-    }
+    reservations = {batch.fingerprint: _reserved_micro_usd(batch) for batch in batches}
     reserved = sum(reservations.values())
     print(f"checkpoint: {args.checkpoint}")
     print(f"reasoning effort: {effort.value}")
@@ -79,9 +77,7 @@ def main() -> int:
         (reservations[batch.fingerprint] for batch in new_batches), default=0
     )
     if largest_reservation > budget_micro_usd:
-        parser.error(
-            "an uncaptured request's worst-case reservation exceeds --max-usd"
-        )
+        parser.error("an uncaptured request's worst-case reservation exceeds --max-usd")
     return asyncio.run(
         _capture(
             batches,
