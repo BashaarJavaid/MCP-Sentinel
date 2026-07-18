@@ -335,6 +335,9 @@ The reviewer uses the OpenAI Responses API with the explicit `gpt-5.6-sol` model
 - Evaluation comparison: `medium` versus `low` on the versioned review cases.
 - Pro mode is not part of the required pipeline unless a later measured evaluation justifies it.
 - Requests set `store: false` because scanned source may be proprietary.
+- Requests set `service_tier=default`, `verbosity=low`, disable streaming and
+  background execution, provide no tools, and use
+  `min(16384, 1024 + 1024 * finding_count)` output tokens.
 - The integration uses strict Structured Outputs generated from the Pydantic models in `src/sentinel/llm/schema.py`.
 - Refusals, incomplete responses, schema violations, and unsupported response item types follow the documented retry and failure policy; they are never coerced into a valid review.
 - Programmatic Tool Calling and multi-agent mode are not dependencies of the required pipeline. They may be evaluated later without changing the baseline review contract.
@@ -352,7 +355,13 @@ The host-side reviewer calls GPT-5.6 using `OPENAI_API_KEY`. Each request contai
 
 Anything matched as a secret by `SENT-005` and all absolute paths are redacted before transmission.
 
-Related candidates are grouped by tool or file so GPT can reason about one local security boundary in one call. Batching reduces API calls and exposes relationships such as a missing schema plus unsafe use of the same argument. Cached per-finding reviews are removed before batching; the response still returns one independently auditable review keyed by each `finding_id`.
+The primary enclosing unit is at most 80 contiguous lines. Up to two directly
+called same-file helpers contribute at most 40 lines each, with a hard total of
+160 lines per candidate. Typed placeholders preserve line structure. The same
+sanitizer runs over model reasoning and evidence claims before persistence;
+unsafe redaction fails the review stage.
+
+Related candidates are grouped by tool or file so GPT can reason about one local security boundary in one call. Batches contain at most ten findings. Whole validated batches are cached; any member, context, tool metadata, model, prompt/schema version, or effort change invalidates the group.
 
 ### Validated response
 
@@ -377,9 +386,11 @@ Related candidates are grouped by tool or file so GPT can reason about one local
       "probe_plan": {
         "ordered_probe_ids": ["SENT-011", "SENT-009", "SENT-010", "SENT-008"],
         "target_tool": "search_records",
-        "argument_bindings": {
-          "SENT-011": {"limit": "__SENTINEL_WRONG_TYPE__"}
-        }
+        "argument_bindings": [
+          {"probe_id": "SENT-009", "field": "limit", "value": "__SENTINEL_OVERSIZED__"},
+          {"probe_id": "SENT-010", "field": "query", "value": "__SENTINEL_INJECTION__"},
+          {"probe_id": "SENT-011", "field": "limit", "value": "__SENTINEL_WRONG_TYPE__"}
+        ]
       },
       "suggested_severity_override": null
     }
@@ -387,7 +398,10 @@ Related candidates are grouped by tool or file so GPT can reason about one local
 }
 ```
 
-The review status enum remains exactly `confirmed | suppressed | needs_review`. Dynamic-candidate reviews set `probe_plan` to `null` because the probes have already run.
+The review status enum remains exactly `confirmed | suppressed | needs_review`.
+Suppressed static findings may set `probe_plan` to `null`, in which case the
+dynamic stage uses its fixed safe fallback. Dynamic-candidate reviews also set
+`probe_plan` to `null` because the probes have already run.
 
 Host-side validation additionally enforces:
 
@@ -398,7 +412,7 @@ Host-side validation additionally enforces:
 - Argument bindings are limited to fields declared by the target tool and inert values accepted by the approved probe template.
 - The model cannot provide shell, Python, SQL, or other executable probe programs.
 
-After validation, `semantic_reviewer.py` adds the requested model, returned `response.model`, review mode (`live`, `replay`, or `degraded`), and `reviewed_at` timestamp. The raw numeric confidence remains in the nested review record. Top-level confidence is updated to:
+After validation, `semantic_reviewer.py` adds the requested model, returned `response.model`, review mode (`live`, `replay`, `cached`, or `degraded`), `batch_id`, original `reviewed_at`, and current `applied_at`. Cached reviews preserve their original model, usage, latency, and batch provenance. Degraded reviews have `reviewed_at=null`. The raw numeric confidence remains in the nested review record. Top-level confidence is updated to:
 
 - `high` for values at or above `0.8`.
 - `medium` for values from `0.5` through `0.79`.
@@ -426,7 +440,9 @@ An invalid plan does not remove or skip probes. Sentinel falls back to the fixed
 - At most five concurrent requests.
 - Default `max_findings_per_scan = 500`, configurable through `sentinel.toml`.
 - The cap limits findings, not API calls; related cache misses are batched by tool or file.
-- Per-finding cache key: `(rule_id, snippet_hash, schema_hash)`.
+- Whole-group identity includes each rule ID, full transmitted-context hash,
+  merged tool-metadata hash, model, prompt/review-schema versions, effort, and
+  complete group composition.
 - Candidates beyond the cap remain `needs_review`; they are never dropped. The console and report summary warn that review was truncated.
 - Reaching the configured cap is expected volume control, not an internal failure, and does not produce exit code `3`.
 - Stable prompt and rule prefixes are kept separate from dynamic request data so prompt caching remains measurable. Explicit cache breakpoints are adopted only after the evaluation shows a benefit.
@@ -608,9 +624,11 @@ Required options include:
 
 There is no `--dynamic` flag because dynamic analysis is the default.
 
-After Phase 1, a valid scan runs the static stage and emits its real findings,
-marks GPT/dynamic/merge stages skipped, sets `analysisComplete=false` and
-`executionSuccessful=false`, and exits `3`.
+After the offline Phase 2 implementation, `--static-only` runs static analysis
+and GPT review and exits `0` or `1`. `--allow-degraded` explicitly permits a
+complete static-only result with `needs_review` candidates when GPT is
+unavailable. Normal scans still mark dynamic work incomplete and exit `3` until
+Phase 3 lands.
 The global `--debug` option exposes tracebacks for internal failures; the
 default error surface remains concise.
 
@@ -635,7 +653,10 @@ Uncaught exceptions exit with code `3`.
 
 ## 12. Reporting and SARIF
 
-Console, JSON, and SARIF renderers consume canonical Findings after deduplication.
+Console, JSON, and SARIF renderers consume canonical Findings after
+deduplication. Native report schema `1.2.0` adds nullable top-level `gpt_review`
+with batch-deduplicated current/origin token, latency, cache, failure, status,
+pricing, and integer micro-USD cost telemetry.
 
 SARIF output uses `sarif-om`. Repository-relative artifact locations are anchored with `originalUriBaseIds`; absolute host paths are never emitted.
 

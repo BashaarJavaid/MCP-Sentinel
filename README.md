@@ -6,11 +6,10 @@ MCP Sentinel is a build-time static and dynamic analysis tool that catches secur
 
 Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
 
-> **Implementation status:** Phases 0 and 1 are complete. The hybrid AST/Semgrep
-> engine runs `SENT-001` through `SENT-007`, emits canonical findings to console,
-> JSON, and schema-valid SARIF, and passes paired vulnerable/clean fixtures. GPT
-> review and dynamic analysis remain incomplete, so scans still exit `3` and
-> cannot be mistaken for a complete security result.
+> **Implementation status:** Phases 0–2 are complete. GPT-5.6 prompt v3 passes
+> the live contract smoke, medium truth-set quality gate, low-effort comparison,
+> deterministic replay demo, and generated static ablation gate. Phase 3
+> dynamic analysis is not implemented.
 
 ---
 
@@ -60,9 +59,16 @@ is not published to PyPI yet.
 # Inspect the CLI
 sentinel scan --help
 
-# Run the seven static rules and emit SARIF. The command still exits 3 until
-# required GPT review and dynamic analysis are implemented.
+# Run static analysis, required live GPT review, then available later stages.
+# Normal scans still exit 3 because Phase 3 dynamic probing is incomplete.
 sentinel scan ./path/to/mcp-server --format sarif --output results.sarif
+
+# Complete static analysis plus GPT review; exits 0 or 1 based on --fail-on.
+sentinel scan ./path/to/mcp-server --static-only
+
+# Explicitly permit a complete, prominently degraded static-only scan when GPT
+# is unavailable. Findings remain needs_review and still participate in fail-on.
+sentinel scan ./path/to/mcp-server --static-only --allow-degraded
 
 # Run all seven static rules against the vulnerable reference fixture.
 sentinel demo
@@ -73,10 +79,11 @@ python -m sentinel.schema check
 python -m sentinel.report.validate_sarif results.sarif
 ```
 
-A normal scan requires `sentinel.target.yaml` because dynamic analysis is the
-eventual default. `--static-only` is the sole way to omit target launch
-configuration. Only local Python MCP/FastMCP repositories over stdio are
-accepted.
+A normal scan requires `sentinel.target.yaml`. `--static-only` omits target
+launch configuration but does not omit semantic review. Candidate-bearing live
+reviews read `OPENAI_API_KEY` from the process environment; the value is never
+printed, persisted, cached, or forwarded to target code. Missing access fails
+closed with exit `3` unless `--allow-degraded` is explicit.
 
 ### GitHub Action
 
@@ -98,10 +105,10 @@ Rules:
 
 Pipeline stages:
   static: succeeded
-  gpt_static: skipped — not implemented after Phase 1 static analysis
-  dynamic: skipped — not implemented after Phase 1 static analysis
-  gpt_dynamic: skipped — not implemented after Phase 1 static analysis
-  merge: skipped — not implemented after Phase 1 static analysis
+  gpt_static: succeeded
+  dynamic: skipped — not implemented until Phase 3 dynamic probing
+  gpt_dynamic: skipped — not implemented until Phase 3 dynamic probing
+  merge: skipped — not implemented until Phase 3 dynamic probing
   reporting: succeeded
 ```
 

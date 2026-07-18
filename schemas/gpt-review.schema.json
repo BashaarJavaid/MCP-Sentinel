@@ -1,0 +1,214 @@
+{
+  "$defs": {
+    "FindingReviewDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/ReviewEvidenceReference"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "finding_id": {
+          "format": "uuid",
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reasoning": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "confirmed",
+            "suppressed",
+            "needs_review"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "finding_id",
+        "status",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "probe_plan",
+        "suggested_severity_override"
+      ],
+      "title": "FindingReviewDecision",
+      "type": "object"
+    },
+    "ReviewArgumentBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "probe_id": {
+          "enum": [
+            "SENT-009",
+            "SENT-010",
+            "SENT-011"
+          ],
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "value": {
+          "enum": [
+            "__SENTINEL_OVERSIZED__",
+            "__SENTINEL_INJECTION__",
+            "__SENTINEL_WRONG_TYPE__",
+            "__SENTINEL_OMIT__"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "probe_id",
+        "field",
+        "value"
+      ],
+      "title": "ReviewArgumentBinding",
+      "type": "object"
+    },
+    "ReviewEvidenceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "end_line": {
+          "minimum": 1,
+          "title": "End Line",
+          "type": "integer"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "start_line": {
+          "minimum": 1,
+          "title": "Start Line",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "start_line",
+        "end_line",
+        "claim"
+      ],
+      "title": "ReviewEvidenceReference",
+      "type": "object"
+    },
+    "ReviewProbePlan": {
+      "additionalProperties": false,
+      "properties": {
+        "argument_bindings": {
+          "items": {
+            "$ref": "#/$defs/ReviewArgumentBinding"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "title": "Argument Bindings",
+          "type": "array"
+        },
+        "ordered_probe_ids": {
+          "items": {
+            "enum": [
+              "SENT-008",
+              "SENT-009",
+              "SENT-010",
+              "SENT-011"
+            ],
+            "type": "string"
+          },
+          "title": "Ordered Probe Ids",
+          "type": "array"
+        },
+        "target_tool": {
+          "minLength": 1,
+          "title": "Target Tool",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ordered_probe_ids",
+        "target_tool",
+        "argument_bindings"
+      ],
+      "title": "ReviewProbePlan",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "Critical",
+        "High",
+        "Medium",
+        "Low",
+        "Informational"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "$id": "mcp_sentinel_review_v2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "reviews": {
+      "items": {
+        "$ref": "#/$defs/FindingReviewDecision"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Reviews",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reviews"
+  ],
+  "title": "ReviewBatchResponse",
+  "type": "object"
+}

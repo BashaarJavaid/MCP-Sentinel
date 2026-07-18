@@ -30,7 +30,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
-          version: 0.11.29
+          version: 0.8.22
           enable-cache: true
 
       - name: Install locked dependencies
@@ -53,6 +53,11 @@ jobs:
 
       - name: Test with branch coverage
         run: uv run --python ${{ matrix.python-version }} pytest
+
+      - name: Plan GPT smoke without credentials or network
+        run: >-
+          uv run --python ${{ matrix.python-version }} python
+          scripts/capture_gpt_reviews.py smoke
 
       - name: Audit locked runtime dependencies
         run: >-
@@ -83,7 +88,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
-          version: 0.11.29
+          version: 0.8.22
           enable-cache: true
 
       - name: Build wheel and source distribution
@@ -98,4 +103,4 @@ jobs:
         run: |
           "$RUNNER_TEMP/sentinel-wheel/bin/sentinel" --version
           "$RUNNER_TEMP/sentinel-wheel/bin/sentinel" scan --help
-          "$RUNNER_TEMP/sentinel-wheel/bin/python" -c "from importlib import resources; root=resources.files('sentinel').joinpath('_schemas'); assert root.joinpath('finding.schema.json').is_file(); assert root.joinpath('report.schema.json').is_file(); assert root.joinpath('sarif-2.1.0.schema.json').is_file()"
+          "$RUNNER_TEMP/sentinel-wheel/bin/python" -c "from importlib import resources; root=resources.files('sentinel').joinpath('_schemas'); assert root.joinpath('finding.schema.json').is_file(); assert root.joinpath('report.schema.json').is_file(); assert root.joinpath('gpt-review.schema.json').is_file(); assert root.joinpath('sarif-2.1.0.schema.json').is_file()"

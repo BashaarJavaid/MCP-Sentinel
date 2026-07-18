@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Protocol, cast
 
 from sentinel.finding import Finding
+from sentinel.llm.schema import ReviewBatchResponse
 from sentinel.report.model import ScanReport
 
 SCHEMA_DRAFT = "https://json-schema.org/draft/2020-12/schema"
@@ -32,7 +33,15 @@ def schema_texts() -> dict[str, str]:
     return {
         "finding.schema.json": _dump(finding_schema),
         "report.schema.json": _dump(report_schema),
+        "gpt-review.schema.json": _dump(_review_schema()),
     }
+
+
+def _review_schema() -> dict[str, Any]:
+    schema = ReviewBatchResponse.model_json_schema(mode="serialization")
+    schema["$schema"] = SCHEMA_DRAFT
+    schema["$id"] = "mcp_sentinel_review_v2"
+    return schema
 
 
 def generate(schema_dir: Path) -> None:

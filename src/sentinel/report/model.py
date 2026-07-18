@@ -9,12 +9,14 @@ from uuid import UUID
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 
+from sentinel.config import ReasoningEffort
 from sentinel.finding import (
     ContractModel,
     Finding,
     FindingStatus,
     NonEmptyString,
     Severity,
+    TokenUsage,
     ensure_utc,
     format_utc,
 )
@@ -140,8 +142,69 @@ class ScanContext(ContractModel):
         return ensure_utc(value)
 
 
+class GptPricing(ContractModel):
+    model: NonEmptyString
+    source: NonEmptyString
+    as_of: NonEmptyString
+    input_micro_usd_per_million: int = Field(ge=0)
+    cached_input_micro_usd_per_million: int = Field(ge=0)
+    output_micro_usd_per_million: int = Field(ge=0)
+    cache_write_multiplier_millionths: int = Field(ge=0)
+
+
+class GptBatchRecord(ContractModel):
+    batch_id: NonEmptyString
+    request_fingerprint: NonEmptyString
+    mode: Literal["live", "replay", "cached", "degraded"]
+    requested_model: NonEmptyString
+    returned_model: str | None
+    reasoning_effort: ReasoningEffort
+    finding_count: int = Field(ge=0)
+    retry_count: int = Field(ge=0)
+    status: Literal["accepted", "failed", "skipped"]
+    failure: str | None = None
+    refusal_count: int = Field(default=0, ge=0)
+    incomplete_count: int = Field(default=0, ge=0)
+    schema_valid: bool
+    current_usage: TokenUsage
+    origin_usage: TokenUsage
+    current_latency_ms: int = Field(ge=0)
+    origin_latency_ms: int = Field(ge=0)
+    current_cost_micro_usd: int | None = Field(default=None, ge=0)
+    origin_cost_micro_usd: int | None = Field(default=None, ge=0)
+    confirmed_count: int = Field(default=0, ge=0)
+    suppressed_count: int = Field(default=0, ge=0)
+    needs_review_count: int = Field(default=0, ge=0)
+
+
+class GptReviewSummary(ContractModel):
+    requested_model: NonEmptyString
+    reasoning_effort: ReasoningEffort
+    mode: Literal["live", "replay", "cached", "degraded", "mixed"]
+    candidate_count: int = Field(ge=0)
+    selected_count: int = Field(ge=0)
+    overflow_count: int = Field(ge=0)
+    reviewed_count: int = Field(ge=0)
+    confirmed_count: int = Field(ge=0)
+    suppressed_count: int = Field(ge=0)
+    needs_review_count: int = Field(ge=0)
+    failure_count: int = Field(ge=0)
+    cache_hits: int = Field(ge=0)
+    cache_misses: int = Field(ge=0)
+    cache_writes: int = Field(ge=0)
+    cache_errors: int = Field(ge=0)
+    current_usage: TokenUsage
+    origin_usage: TokenUsage
+    current_latency_ms: int = Field(ge=0)
+    origin_latency_ms: int = Field(ge=0)
+    current_cost_micro_usd: int | None = Field(default=None, ge=0)
+    origin_cost_micro_usd: int | None = Field(default=None, ge=0)
+    pricing: GptPricing | None
+    batches: tuple[GptBatchRecord, ...]
+
+
 class ScanReport(ContractModel):
-    schema_version: Literal["1.1.0"] = "1.1.0"
+    schema_version: Literal["1.2.0"] = "1.2.0"
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime
@@ -154,6 +217,7 @@ class ScanReport(ContractModel):
     warnings: tuple[ReportWarning, ...]
     findings: tuple[Finding, ...]
     static_analysis: StaticAnalysisSummary | None
+    gpt_review: GptReviewSummary | None
 
     @field_validator("scan_id")
     @classmethod

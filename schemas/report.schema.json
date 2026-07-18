@@ -1,5 +1,137 @@
 {
   "$defs": {
+    "CachedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "cached",
+          "default": "cached",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
+      ],
+      "title": "CachedReview",
+      "type": "object"
+    },
     "Confidence": {
       "enum": [
         "high",
@@ -12,6 +144,29 @@
     "DegradedReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Id"
+        },
         "confidence": {
           "anyOf": [
             {
@@ -159,7 +314,7 @@
         }
       },
       "required": [
-        "reviewed_at",
+        "applied_at",
         "reason"
       ],
       "title": "DegradedReview",
@@ -287,6 +442,394 @@
       "title": "FindingStatus",
       "type": "string"
     },
+    "GptBatchRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
+        "confirmed_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Confirmed Count",
+          "type": "integer"
+        },
+        "current_cost_micro_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Cost Micro Usd"
+        },
+        "current_latency_ms": {
+          "minimum": 0,
+          "title": "Current Latency Ms",
+          "type": "integer"
+        },
+        "current_usage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure"
+        },
+        "finding_count": {
+          "minimum": 0,
+          "title": "Finding Count",
+          "type": "integer"
+        },
+        "incomplete_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Incomplete Count",
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "live",
+            "replay",
+            "cached",
+            "degraded"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "needs_review_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Needs Review Count",
+          "type": "integer"
+        },
+        "origin_cost_micro_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Cost Micro Usd"
+        },
+        "origin_latency_ms": {
+          "minimum": 0,
+          "title": "Origin Latency Ms",
+          "type": "integer"
+        },
+        "origin_usage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "reasoning_effort": {
+          "$ref": "#/$defs/ReasoningEffort"
+        },
+        "refusal_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Refusal Count",
+          "type": "integer"
+        },
+        "request_fingerprint": {
+          "minLength": 1,
+          "title": "Request Fingerprint",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "retry_count": {
+          "minimum": 0,
+          "title": "Retry Count",
+          "type": "integer"
+        },
+        "returned_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Returned Model"
+        },
+        "schema_valid": {
+          "title": "Schema Valid",
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "accepted",
+            "failed",
+            "skipped"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "suppressed_count": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Suppressed Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "batch_id",
+        "request_fingerprint",
+        "mode",
+        "requested_model",
+        "returned_model",
+        "reasoning_effort",
+        "finding_count",
+        "retry_count",
+        "status",
+        "schema_valid",
+        "current_usage",
+        "origin_usage",
+        "current_latency_ms",
+        "origin_latency_ms"
+      ],
+      "title": "GptBatchRecord",
+      "type": "object"
+    },
+    "GptPricing": {
+      "additionalProperties": false,
+      "properties": {
+        "as_of": {
+          "minLength": 1,
+          "title": "As Of",
+          "type": "string"
+        },
+        "cache_write_multiplier_millionths": {
+          "minimum": 0,
+          "title": "Cache Write Multiplier Millionths",
+          "type": "integer"
+        },
+        "cached_input_micro_usd_per_million": {
+          "minimum": 0,
+          "title": "Cached Input Micro Usd Per Million",
+          "type": "integer"
+        },
+        "input_micro_usd_per_million": {
+          "minimum": 0,
+          "title": "Input Micro Usd Per Million",
+          "type": "integer"
+        },
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "output_micro_usd_per_million": {
+          "minimum": 0,
+          "title": "Output Micro Usd Per Million",
+          "type": "integer"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model",
+        "source",
+        "as_of",
+        "input_micro_usd_per_million",
+        "cached_input_micro_usd_per_million",
+        "output_micro_usd_per_million",
+        "cache_write_multiplier_millionths"
+      ],
+      "title": "GptPricing",
+      "type": "object"
+    },
+    "GptReviewSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "batches": {
+          "items": {
+            "$ref": "#/$defs/GptBatchRecord"
+          },
+          "title": "Batches",
+          "type": "array"
+        },
+        "cache_errors": {
+          "minimum": 0,
+          "title": "Cache Errors",
+          "type": "integer"
+        },
+        "cache_hits": {
+          "minimum": 0,
+          "title": "Cache Hits",
+          "type": "integer"
+        },
+        "cache_misses": {
+          "minimum": 0,
+          "title": "Cache Misses",
+          "type": "integer"
+        },
+        "cache_writes": {
+          "minimum": 0,
+          "title": "Cache Writes",
+          "type": "integer"
+        },
+        "candidate_count": {
+          "minimum": 0,
+          "title": "Candidate Count",
+          "type": "integer"
+        },
+        "confirmed_count": {
+          "minimum": 0,
+          "title": "Confirmed Count",
+          "type": "integer"
+        },
+        "current_cost_micro_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current Cost Micro Usd"
+        },
+        "current_latency_ms": {
+          "minimum": 0,
+          "title": "Current Latency Ms",
+          "type": "integer"
+        },
+        "current_usage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "failure_count": {
+          "minimum": 0,
+          "title": "Failure Count",
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "live",
+            "replay",
+            "cached",
+            "degraded",
+            "mixed"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "needs_review_count": {
+          "minimum": 0,
+          "title": "Needs Review Count",
+          "type": "integer"
+        },
+        "origin_cost_micro_usd": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin Cost Micro Usd"
+        },
+        "origin_latency_ms": {
+          "minimum": 0,
+          "title": "Origin Latency Ms",
+          "type": "integer"
+        },
+        "origin_usage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+        "overflow_count": {
+          "minimum": 0,
+          "title": "Overflow Count",
+          "type": "integer"
+        },
+        "pricing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GptPricing"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reasoning_effort": {
+          "$ref": "#/$defs/ReasoningEffort"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "reviewed_count": {
+          "minimum": 0,
+          "title": "Reviewed Count",
+          "type": "integer"
+        },
+        "selected_count": {
+          "minimum": 0,
+          "title": "Selected Count",
+          "type": "integer"
+        },
+        "suppressed_count": {
+          "minimum": 0,
+          "title": "Suppressed Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "requested_model",
+        "reasoning_effort",
+        "mode",
+        "candidate_count",
+        "selected_count",
+        "overflow_count",
+        "reviewed_count",
+        "confirmed_count",
+        "suppressed_count",
+        "needs_review_count",
+        "failure_count",
+        "cache_hits",
+        "cache_misses",
+        "cache_writes",
+        "cache_errors",
+        "current_usage",
+        "origin_usage",
+        "current_latency_ms",
+        "origin_latency_ms",
+        "pricing",
+        "batches"
+      ],
+      "title": "GptReviewSummary",
+      "type": "object"
+    },
     "Impact": {
       "enum": [
         "Critical",
@@ -302,6 +845,22 @@
     "LiveReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
         "confidence": {
           "maximum": 1.0,
           "minimum": 0.0,
@@ -408,7 +967,9 @@
         "evidence_refs",
         "usage",
         "latency_ms",
-        "reviewed_at"
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
       ],
       "title": "LiveReview",
       "type": "object"
@@ -437,6 +998,29 @@
     "NotReviewedReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Id"
+        },
         "confidence": {
           "anyOf": [
             {
@@ -697,9 +1281,33 @@
       "title": "ProvenanceEntry",
       "type": "object"
     },
+    "ReasoningEffort": {
+      "enum": [
+        "low",
+        "medium"
+      ],
+      "title": "ReasoningEffort",
+      "type": "string"
+    },
     "ReplayReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
         "confidence": {
           "maximum": 1.0,
           "minimum": 0.0,
@@ -806,7 +1414,9 @@
         "evidence_refs",
         "usage",
         "latency_ms",
-        "reviewed_at"
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
       ],
       "title": "ReplayReview",
       "type": "object"
@@ -1243,14 +1853,24 @@
       "title": "Findings",
       "type": "array"
     },
+    "gpt_review": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GptReviewSummary"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "scan_id": {
       "format": "uuid",
       "title": "Scan Id",
       "type": "string"
     },
     "schema_version": {
-      "const": "1.1.0",
-      "default": "1.1.0",
+      "const": "1.2.0",
+      "default": "1.2.0",
       "title": "Schema Version",
       "type": "string"
     },
@@ -1306,7 +1926,8 @@
     "summary",
     "warnings",
     "findings",
-    "static_analysis"
+    "static_analysis",
+    "gpt_review"
   ],
   "title": "ScanReport",
   "type": "object"

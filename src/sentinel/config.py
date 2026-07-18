@@ -123,6 +123,7 @@ class LlmConfig(ContractModel):
     timeout_seconds: int = Field(default=30, ge=1)
     retries: int = Field(default=2, ge=0)
     max_concurrency: int = Field(default=5, ge=1)
+    cache_enabled: bool = True
 
 
 class SandboxConfig(ContractModel):
@@ -306,6 +307,7 @@ ENV_OVERRIDES: dict[str, tuple[str, str]] = {
     "SENTINEL_LLM_TIMEOUT_SECONDS": ("llm", "timeout_seconds"),
     "SENTINEL_LLM_RETRIES": ("llm", "retries"),
     "SENTINEL_LLM_MAX_CONCURRENCY": ("llm", "max_concurrency"),
+    "SENTINEL_LLM_CACHE_ENABLED": ("llm", "cache_enabled"),
     "SENTINEL_ALLOWED_REGISTRIES": ("sandbox", "allowed_registries"),
 }
 LIST_ENV_VARS = {
@@ -319,6 +321,7 @@ INTEGER_ENV_VARS = {
     "SENTINEL_LLM_RETRIES",
     "SENTINEL_LLM_MAX_CONCURRENCY",
 }
+BOOLEAN_ENV_VARS = {"SENTINEL_LLM_CACHE_ENABLED"}
 
 
 def load_configuration(
@@ -496,6 +499,11 @@ def _apply_environment(
                 value = int(raw)
             except ValueError as error:
                 raise UsageError(f"{name} must be an integer") from error
+        elif name in BOOLEAN_ENV_VARS:
+            lowered = raw.strip().lower()
+            if lowered not in {"true", "false", "1", "0"}:
+                raise UsageError(f"{name} must be true, false, 1, or 0")
+            value = lowered in {"true", "1"}
         else:
             value = raw
         result.setdefault(section, {})[key] = value

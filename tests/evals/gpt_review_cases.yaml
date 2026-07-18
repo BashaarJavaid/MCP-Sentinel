@@ -1,0 +1,24 @@
+version: 1
+fixture: tests/fixtures/gpt_review_eval
+cases:
+  - id: sent002_raw_eval
+    rule_id: SENT-002
+    tool: unsafe_evaluator
+    truth: vulnerable
+    expected_status: confirmed
+  - id: sent003_custom_validation
+    rule_id: SENT-003
+    tool: custom_validated
+    truth: safe
+    expected_status: suppressed
+  - id: sent001_indirect_permission
+    rule_id: SENT-001
+    tool: indirect_reader
+    truth: ambiguous
+    expected_status: needs_review
+  - id: sent003_unchecked
+    rule_id: SENT-003
+    tool: unchecked_lookup
+    truth: vulnerable
+    expected_status: confirmed
+    expected_first_probe: SENT-011

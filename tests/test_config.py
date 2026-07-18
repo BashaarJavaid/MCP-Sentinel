@@ -42,6 +42,7 @@ max_findings_per_scan = 10
             "SENTINEL_FORMAT": "json",
             "SENTINEL_RULES": "SENT-002",
             "SENTINEL_MAX_FINDINGS": "20",
+            "SENTINEL_LLM_CACHE_ENABLED": "false",
             "SENTINEL_UNKNOWN": "ignored",
         },
         cli_overrides={"format": OutputFormat.CONSOLE, "rules": ("SENT-003",)},
@@ -49,6 +50,7 @@ max_findings_per_scan = 10
     assert loaded.scanner.scanner.format is OutputFormat.CONSOLE
     assert loaded.scanner.scanner.rules == ("SENT-003",)
     assert loaded.scanner.scanner.max_findings_per_scan == 20
+    assert loaded.scanner.llm.cache_enabled is False
 
 
 def test_unknown_file_key_and_invalid_env_list_fail(tmp_path: Path) -> None:
@@ -63,6 +65,8 @@ def test_unknown_file_key_and_invalid_env_list_fail(tmp_path: Path) -> None:
         load_configuration(target, environ={"SENTINEL_RULES": "SENT-001,"})
     with pytest.raises(UsageError, match="invalid rule token"):
         load_configuration(target, environ={"SENTINEL_RULES": "++SENT-001"})
+    with pytest.raises(UsageError, match="must be true"):
+        load_configuration(target, environ={"SENTINEL_LLM_CACHE_ENABLED": "sometimes"})
 
 
 def test_static_only_skips_target_config_but_not_framework_check(

@@ -29,6 +29,21 @@ FINDING_ID = UUID("00000000-0000-4000-8000-000000000002")
 NOW = datetime(2026, 7, 17, 12, 0, 0, 123456, tzinfo=timezone.utc)
 
 
+@pytest.fixture(autouse=True)
+def forbid_live_openai_transport(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Routine tests must remain offline even on a developer machine with a key."""
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    def reject_live_client(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("offline tests cannot instantiate AsyncOpenAI")
+
+    monkeypatch.setattr(
+        "sentinel.llm.semantic_reviewer.AsyncOpenAI", reject_live_client
+    )
+
+
 def make_target(
     root: Path,
     *,

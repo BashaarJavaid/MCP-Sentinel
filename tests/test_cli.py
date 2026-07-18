@@ -3,14 +3,24 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from pathlib import Path
+from uuid import UUID
 
 import pytest
 from click import unstyle
 from typer.testing import CliRunner
 
 from sentinel.cli import app
+from sentinel.config import LoadedConfiguration
+from sentinel.report.model import (
+    StaticAnalysisSummary,
+    StaticRuleOutcome,
+    StaticRuleStatus,
+)
+from sentinel.static.model import StaticScanResult
 from tests.conftest import make_target
+from tests.test_gpt_review import _sent002_findings
 
 runner = CliRunner()
 
@@ -67,11 +77,70 @@ def test_invalid_output_parent_is_usage_error(
     assert "invalid output path" in result.stderr
 
 
-def test_static_only_skips_target_launch_requirement(tmp_path: Path) -> None:
+def test_static_only_skips_target_launch_and_completes_when_clean(
+    tmp_path: Path,
+) -> None:
     target = make_target(tmp_path / "target", target_yaml="")
     result = runner.invoke(app, ["scan", str(target), "--static-only"])
-    assert result.exit_code == 3
-    assert "Status: INCOMPLETE" in result.stdout
+    assert result.exit_code == 0
+    assert "Status: COMPLETE" in result.stdout
+
+
+def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    def fake_static_scan(
+        configuration: LoadedConfiguration,
+        scan_id: UUID,
+        *,
+        timestamp: datetime,
+    ) -> StaticScanResult:
+        del configuration
+        finding = _sent002_findings()[0].model_copy(
+            update={"scan_id": scan_id, "timestamp": timestamp}
+        )
+        return StaticScanResult(
+            findings=(finding,),
+            warnings=(),
+            summary=StaticAnalysisSummary(
+                selected_rule_ids=("SENT-002",),
+                scanned_file_count=1,
+                ignored_file_count=0,
+                total_matches=1,
+                duration_ms=1,
+                rule_outcomes=(
+                    StaticRuleOutcome(
+                        rule_id="SENT-002",
+                        status=StaticRuleStatus.EVALUATED,
+                        match_count=1,
+                        exemptions_by_reason={},
+                    ),
+                ),
+            ),
+        )
+
+    monkeypatch.setattr("sentinel.orchestrator.run_static_scan", fake_static_scan)
+    target = Path(__file__).parent / "fixtures" / "vulnerable_server"
+    base = ["scan", str(target), "--static-only", "--rules", "SENT-002", "--json"]
+
+    fatal = runner.invoke(app, base)
+    assert fatal.exit_code == 3
+    fatal_payload = json.loads(fatal.stdout)
+    assert fatal_payload["analysisComplete"] is False
+    assert fatal_payload["gpt_review"]["failure_count"] == 1
+    assert fatal_payload["findings"][0]["review"]["mode"] == "not_reviewed"
+
+    degraded = runner.invoke(app, [*base, "--allow-degraded"])
+    assert degraded.exit_code == 1
+    degraded_payload = json.loads(degraded.stdout)
+    assert degraded_payload["analysisComplete"] is True
+    assert degraded_payload["gpt_review"]["mode"] == "degraded"
+    review = degraded_payload["findings"][0]["review"]
+    assert review["mode"] == "degraded"
+    assert review["reviewed_at"] is None
+    assert review["applied_at"] is not None
 
 
 def test_launch_override_and_rule_validation(tmp_path: Path) -> None:
@@ -98,7 +167,7 @@ def test_demo_validates_and_cleans_temporary_reports() -> None:
     assert "Validated temporary JSON" in result.stdout
     assert "Validated temporary SARIF" in result.stdout
     assert "Temporary demo reports cleaned up" in result.stdout
-    assert "intentionally incomplete" in result.stderr
+    assert "incomplete until Phase 3" in result.stderr
 
 
 def test_debug_controls_internal_tracebacks(

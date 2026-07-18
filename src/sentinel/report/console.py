@@ -1,4 +1,4 @@
-"""Human-readable Phase 1 console report."""
+"""Human-readable scan report."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ def render_console(report: ScanReport) -> str:
     lines = [
         f"MCP Sentinel {report.sentinel_version}",
         f"Target: {report.target.display_name}",
-        "Status: INCOMPLETE",
+        f"Status: {'COMPLETE' if report.analysis_complete else 'INCOMPLETE'}",
         f"Static findings: {report.summary.total}",
     ]
     if report.static_analysis is not None:
@@ -36,6 +36,25 @@ def render_console(report: ScanReport) -> str:
         lines.extend(("", "Findings:"))
         for finding in report.findings:
             lines.extend(_finding_lines(finding))
+    if report.gpt_review is not None:
+        review = report.gpt_review
+        label = review.mode.upper()
+        lines.extend(
+            (
+                "",
+                f"GPT review: {label} · {review.reviewed_count}/"
+                f"{review.candidate_count} reviewed",
+                f"  confirmed {review.confirmed_count}, suppressed "
+                f"{review.suppressed_count}, needs review {review.needs_review_count}",
+                f"  cache {review.cache_hits} hit(s), {review.cache_misses} miss(es)",
+                f"  origin tokens {review.origin_usage.total_tokens or 0}, "
+                f"cost {review.origin_cost_micro_usd or 0} micro-USD",
+            )
+        )
+        if review.mode == "replay":
+            lines.append("  RECORDED REPLAY — no live model call")
+        elif review.mode == "degraded":
+            lines.append("  DEGRADED — semantic review did not run")
     if report.warnings:
         lines.extend(("", "Warnings:"))
         lines.extend(
@@ -48,8 +67,9 @@ def render_console(report: ScanReport) -> str:
     lines.extend(
         (
             "",
-            "Analysis is incomplete; GPT review and dynamic probing are not "
-            "implemented.",
+            "Analysis complete."
+            if report.analysis_complete
+            else "Analysis incomplete.",
         )
     )
     return "\n".join(lines) + "\n"
@@ -63,9 +83,14 @@ def _finding_lines(finding: Finding) -> tuple[str, ...]:
         )
     else:
         where = location.path
-    return (
+    lines = [
         f"  [{finding.severity.value}] {finding.rule_id} {finding.title}",
         f"    {where} · {finding.owasp_category.id} {finding.owasp_category.name}",
         f"    {finding.description}",
-        f"    Remediation: {finding.remediation}",
-    )
+        f"    Review: {finding.review.mode} / "
+        f"{finding.review.status.value if finding.review.status else 'needs_review'}",
+    ]
+    if finding.review.reasoning:
+        lines.append(f"    GPT: {finding.review.reasoning}")
+    lines.append(f"    Remediation: {finding.remediation}")
+    return tuple(lines)

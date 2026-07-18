@@ -192,15 +192,17 @@ class ReviewBase(ContractModel):
     suggested_severity_override: Severity | None = None
     usage: TokenUsage | None = None
     latency_ms: int | None = Field(default=None, ge=0)
+    batch_id: str | None = None
     reviewed_at: datetime | None = None
+    applied_at: datetime | None = None
     reason: str | None = None
 
-    @field_validator("reviewed_at")
+    @field_validator("reviewed_at", "applied_at")
     @classmethod
     def validate_reviewed_at(cls, value: datetime | None) -> datetime | None:
         return ensure_utc(value) if value is not None else None
 
-    @field_serializer("reviewed_at", when_used="json")
+    @field_serializer("reviewed_at", "applied_at", when_used="json")
     def serialize_reviewed_at(self, value: datetime | None) -> str | None:
         return format_utc(value) if value is not None else None
 
@@ -215,7 +217,8 @@ class DegradedReview(ReviewBase):
     reviewed: Literal[False] = False
     status: Literal[ReviewStatus.NEEDS_REVIEW] = ReviewStatus.NEEDS_REVIEW
     reason: NonEmptyString
-    reviewed_at: datetime
+    reviewed_at: None = None
+    applied_at: datetime
 
 
 class CompletedReview(ReviewBase):
@@ -229,7 +232,9 @@ class CompletedReview(ReviewBase):
     suggested_severity_override: Severity | None = None
     usage: TokenUsage
     latency_ms: int = Field(ge=0)
+    batch_id: NonEmptyString
     reviewed_at: datetime
+    applied_at: datetime
 
 
 class LiveReview(CompletedReview):
@@ -240,8 +245,12 @@ class ReplayReview(CompletedReview):
     mode: Literal["replay"] = "replay"
 
 
+class CachedReview(CompletedReview):
+    mode: Literal["cached"] = "cached"
+
+
 FindingReview = Annotated[
-    NotReviewedReview | DegradedReview | LiveReview | ReplayReview,
+    NotReviewedReview | DegradedReview | LiveReview | ReplayReview | CachedReview,
     Field(discriminator="mode"),
 ]
 

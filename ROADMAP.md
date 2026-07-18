@@ -151,7 +151,11 @@ Produce deterministic, auditable candidates for the seven permanent static rule 
 
 ## 5. Phase 2 — GPT semantic review
 
-**Status: next.**
+**Status: complete.** Prompt v3 passes the live contract smoke, medium truth-set
+expected-status, grounding, and probe-priority gates. The low-effort comparison
+justifies retaining medium as the production default. All accepted captures
+replay through the production parser and host validators; the replay demo reviews
+all seven static findings, and the generated static ablation records the result.
 
 ### Objective
 

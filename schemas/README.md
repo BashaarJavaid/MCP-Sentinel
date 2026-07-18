@@ -1,7 +1,9 @@
 # Vendored and generated schemas
 
-`finding.schema.json` and `report.schema.json` are generated from Sentinel's
-Pydantic models with `python -m sentinel.schema generate`.
+`finding.schema.json`, `report.schema.json`, and `gpt-review.schema.json` are
+generated from Sentinel's Pydantic models with
+`python -m sentinel.schema generate`. The native report contract is version
+`1.2.0`; `gpt_review` is nullable for pre-Phase-2 or stage-skipped reports.
 
 `sarif-2.1.0.schema.json` is the OASIS SARIF 2.1.0 JSON Schema with Errata 01:
 

@@ -1,5 +1,137 @@
 {
   "$defs": {
+    "CachedReview": {
+      "additionalProperties": false,
+      "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceReference"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "latency_ms": {
+          "minimum": 0,
+          "title": "Latency Ms",
+          "type": "integer"
+        },
+        "mode": {
+          "const": "cached",
+          "default": "cached",
+          "title": "Mode",
+          "type": "string"
+        },
+        "probe_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProbePlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "reasoning": {
+          "minLength": 1,
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "requested_model": {
+          "minLength": 1,
+          "title": "Requested Model",
+          "type": "string"
+        },
+        "returned_model": {
+          "minLength": 1,
+          "title": "Returned Model",
+          "type": "string"
+        },
+        "reviewed": {
+          "const": true,
+          "default": true,
+          "title": "Reviewed",
+          "type": "boolean"
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reviewed At"
+        },
+        "status": {
+          "$ref": "#/$defs/ReviewStatus"
+        },
+        "suggested_severity_override": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "usage": {
+          "$ref": "#/$defs/TokenUsage"
+        }
+      },
+      "required": [
+        "status",
+        "requested_model",
+        "returned_model",
+        "confidence",
+        "reasoning",
+        "evidence_refs",
+        "usage",
+        "latency_ms",
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
+      ],
+      "title": "CachedReview",
+      "type": "object"
+    },
     "Confidence": {
       "enum": [
         "high",
@@ -12,6 +144,29 @@
     "DegradedReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Id"
+        },
         "confidence": {
           "anyOf": [
             {
@@ -159,7 +314,7 @@
         }
       },
       "required": [
-        "reviewed_at",
+        "applied_at",
         "reason"
       ],
       "title": "DegradedReview",
@@ -302,6 +457,22 @@
     "LiveReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
         "confidence": {
           "maximum": 1.0,
           "minimum": 0.0,
@@ -408,7 +579,9 @@
         "evidence_refs",
         "usage",
         "latency_ms",
-        "reviewed_at"
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
       ],
       "title": "LiveReview",
       "type": "object"
@@ -437,6 +610,29 @@
     "NotReviewedReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Id"
+        },
         "confidence": {
           "anyOf": [
             {
@@ -700,6 +896,22 @@
     "ReplayReview": {
       "additionalProperties": false,
       "properties": {
+        "applied_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Applied At"
+        },
+        "batch_id": {
+          "minLength": 1,
+          "title": "Batch Id",
+          "type": "string"
+        },
         "confidence": {
           "maximum": 1.0,
           "minimum": 0.0,
@@ -806,7 +1018,9 @@
         "evidence_refs",
         "usage",
         "latency_ms",
-        "reviewed_at"
+        "batch_id",
+        "reviewed_at",
+        "applied_at"
       ],
       "title": "ReplayReview",
       "type": "object"
@@ -1071,6 +1285,7 @@
     "review": {
       "discriminator": {
         "mapping": {
+          "cached": "#/$defs/CachedReview",
           "degraded": "#/$defs/DegradedReview",
           "live": "#/$defs/LiveReview",
           "not_reviewed": "#/$defs/NotReviewedReview",
@@ -1090,6 +1305,9 @@
         },
         {
           "$ref": "#/$defs/ReplayReview"
+        },
+        {
+          "$ref": "#/$defs/CachedReview"
         }
       ],
       "title": "Review"

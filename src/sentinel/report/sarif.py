@@ -45,29 +45,44 @@ SARIF_SCHEMA_URI = (
 
 
 def render_sarif(report: ScanReport) -> str:
-    notification = Notification(
-        level="error",
-        message=Message(
-            text=(
-                "Sentinel static analysis completed, but required GPT and dynamic "
-                "stages are not implemented."
+    notifications = []
+    if not report.analysis_complete:
+        notifications.append(
+            Notification(
+                level="error",
+                message=Message(
+                    text="Sentinel analysis is incomplete; inspect stages."
+                ),
+                time_utc=_format_datetime(report.completed_at),
+                properties={"code": "analysis_incomplete"},
             )
-        ),
-        time_utc=_format_datetime(report.completed_at),
-        properties={"code": "analysis_incomplete"},
-    )
+        )
+    if report.gpt_review is not None and report.gpt_review.mode == "replay":
+        notifications.append(
+            Notification(
+                level="note",
+                message=Message(
+                    text="GPT review used a recorded replay; no live model call ran."
+                ),
+                time_utc=_format_datetime(report.completed_at),
+                properties={"code": "gpt_recorded_replay"},
+            )
+        )
     invocation = Invocation(
         execution_successful=report.execution_successful,
-        exit_code=3,
-        exit_code_description="Analysis incomplete after Phase 1 static analysis",
+        exit_code=0 if report.analysis_complete else 3,
+        exit_code_description=(
+            "Analysis completed" if report.analysis_complete else "Analysis incomplete"
+        ),
         start_time_utc=_format_datetime(report.started_at),
         end_time_utc=_format_datetime(report.completed_at),
-        tool_execution_notifications=[notification],
+        tool_execution_notifications=notifications or None,
         properties={
             "analysisComplete": report.analysis_complete,
             "schemaVersion": report.schema_version,
             "findingCount": report.summary.total,
             "staticAnalysis": _model_data(report.static_analysis),
+            "gptReview": _model_data(report.gpt_review),
         },
     )
     selected = (
@@ -80,7 +95,10 @@ def render_sarif(report: ScanReport) -> str:
         semantic_version=report.sentinel_version,
         version=report.sentinel_version,
         rules=[_rule_descriptor(rule_id) for rule_id in selected],
-        properties={"reportSchemaVersion": report.schema_version},
+        properties={
+            "reportSchemaVersion": report.schema_version,
+            "gptReview": _model_data(report.gpt_review),
+        },
     )
     run = Run(
         tool=Tool(driver=driver),
