@@ -19,6 +19,7 @@ from pydantic import AliasChoices, Field, field_validator, model_validator
 
 from sentinel.errors import UsageError
 from sentinel.finding import ContractModel, FindingStatus, Severity
+from sentinel.permissions import load_permissions_manifest
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -376,6 +377,7 @@ def load_configuration(
         except Exception as error:
             raise UsageError(f"invalid target configuration: {error}") from error
         _validate_target_paths(scan_root, target)
+        load_permissions_manifest(scan_root, required=True)
 
     return LoadedConfiguration(
         scan_root=scan_root,
@@ -593,30 +595,7 @@ def _validate_install_shape(command: tuple[str, ...]) -> None:
             )
         return
 
-    if lowered[:2] == ("poetry", "install"):
-        if "--no-root" not in lowered[2:]:
-            raise ValueError("Poetry install_cmd must include --no-root")
-        if any(
-            item not in {"--no-root", "--no-interaction", "--sync"}
-            for item in lowered[2:]
-        ):
-            raise ValueError("unsupported Poetry install option")
-        return
-
-    if lowered[:2] == ("uv", "sync"):
-        if "--no-install-project" not in lowered[2:]:
-            raise ValueError("uv install_cmd must include --no-install-project")
-        allowed = {
-            "--no-install-project",
-            "--frozen",
-            "--locked",
-            "--no-dev",
-            "--all-groups",
-        }
-        if any(item not in allowed for item in lowered[2:]):
-            raise ValueError("unsupported uv sync option")
-        return
-    raise ValueError("install_cmd must use pip, Poetry, or uv dependency-only forms")
+    raise ValueError("install_cmd must use a dependency-only pip requirements form")
 
 
 def _validate_target_paths(root: Path, target: TargetConfig) -> None:

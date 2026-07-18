@@ -182,7 +182,6 @@ def demo(
             typer.echo(f"Validated temporary JSON: {json_path}")
             typer.echo(f"Validated temporary SARIF: {sarif_path}")
         typer.echo("Temporary demo reports cleaned up.")
-        typer.echo("error: demo remains incomplete until Phase 3", err=True)
         raise typer.Exit(outcome.exit_code)
     except typer.Exit:
         raise

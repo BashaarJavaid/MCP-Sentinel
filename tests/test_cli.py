@@ -13,7 +13,10 @@ from typer.testing import CliRunner
 
 from sentinel.cli import app
 from sentinel.config import LoadedConfiguration
+from sentinel.errors import InfrastructureError
+from sentinel.orchestrator import ScanOutcome, run_phase1_scan
 from sentinel.report.model import (
+    ScanContext,
     StaticAnalysisSummary,
     StaticRuleOutcome,
     StaticRuleStatus,
@@ -34,13 +37,13 @@ def test_version_and_help() -> None:
     assert "--static-only" in unstyle(help_result.stdout)
 
 
-def test_json_scan_returns_incomplete_exit_and_clean_stdout(target_root: Path) -> None:
-    result = runner.invoke(app, ["scan", str(target_root), "--json"])
-    assert result.exit_code == 3
+def test_json_scan_returns_complete_exit_and_clean_stdout(target_root: Path) -> None:
+    result = runner.invoke(app, ["scan", str(target_root), "--json", "--static-only"])
+    assert result.exit_code == 0
     payload = json.loads(result.stdout)
-    assert payload["analysisComplete"] is False
+    assert payload["analysisComplete"] is True
     assert payload["findings"] == []
-    assert "analysis incomplete" in result.stderr
+    assert result.stderr == ""
 
 
 def test_conflicting_format_is_usage_error(target_root: Path) -> None:
@@ -58,9 +61,17 @@ def test_output_atomically_overwrites_named_file(
     output.write_text("old", encoding="utf-8")
     result = runner.invoke(
         app,
-        ["scan", str(target_root), "--format", "json", "--output", str(output)],
+        [
+            "scan",
+            str(target_root),
+            "--format",
+            "json",
+            "--output",
+            str(output),
+            "--static-only",
+        ],
     )
-    assert result.exit_code == 3
+    assert result.exit_code == 0
     assert result.stdout == ""
     assert json.loads(output.read_text(encoding="utf-8"))["findings"] == []
 
@@ -71,7 +82,15 @@ def test_invalid_output_parent_is_usage_error(
     output = tmp_path / "missing" / "report.json"
     result = runner.invoke(
         app,
-        ["scan", str(target_root), "--format", "json", "--output", str(output)],
+        [
+            "scan",
+            str(target_root),
+            "--format",
+            "json",
+            "--output",
+            str(output),
+            "--static-only",
+        ],
     )
     assert result.exit_code == 2
     assert "invalid output path" in result.stderr
@@ -154,20 +173,53 @@ def test_launch_override_and_rule_validation(tmp_path: Path) -> None:
             "python server.py",
             "--rules",
             "SENT-001,-SENT-007",
+            "--static-only",
         ],
     )
-    assert result.exit_code == 3
+    assert result.exit_code == 0
     invalid = runner.invoke(app, ["scan", str(target), "--rules", "SENT-999"])
     assert invalid.exit_code == 2
 
 
-def test_demo_validates_and_cleans_temporary_reports() -> None:
+def test_orphan_reaper_failure_returns_infrastructure_exit(
+    target_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail_reaper() -> None:
+        raise InfrastructureError("cannot list stale Sentinel containers")
+
+    monkeypatch.setattr("sentinel.orchestrator.reap_orphans", fail_reaper)
+
+    result = runner.invoke(app, ["scan", str(target_root)])
+
+    assert result.exit_code == 3
+    assert "cannot list stale Sentinel containers" in result.stderr
+
+
+def test_demo_validates_and_cleans_temporary_reports(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_run_scan(
+        configuration: LoadedConfiguration,
+        context: ScanContext,
+        *,
+        completed_at: datetime,
+        **kwargs: object,
+    ) -> ScanOutcome:
+        del kwargs
+        return run_phase1_scan(
+            configuration,
+            context,
+            completed_at=completed_at,
+        )
+
+    monkeypatch.setattr("sentinel.cli.run_scan", fake_run_scan)
     result = runner.invoke(app, ["demo"])
     assert result.exit_code == 3
     assert "Validated temporary JSON" in result.stdout
     assert "Validated temporary SARIF" in result.stdout
     assert "Temporary demo reports cleaned up" in result.stdout
-    assert "incomplete until Phase 3" in result.stderr
+    assert "incomplete until Phase 3" not in result.stderr
 
 
 def test_debug_controls_internal_tracebacks(

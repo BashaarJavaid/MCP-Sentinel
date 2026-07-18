@@ -183,11 +183,12 @@ env:
     "command",
     (
         ("python", "-m", "pip", "install", "-r", "requirements.txt"),
-        ("poetry", "install", "--no-root"),
-        ("uv", "sync", "--no-install-project", "--locked"),
+        ("pip", "install", "--requirement", "requirements.txt"),
     ),
 )
-def test_dependency_only_install_shapes_are_accepted(command: tuple[str, ...]) -> None:
+def test_dependency_only_pip_install_shapes_are_accepted(
+    command: tuple[str, ...],
+) -> None:
     config = TargetConfig(
         language="python",
         launch_cmd=("python", "server.py"),
@@ -211,8 +212,8 @@ def test_dependency_only_install_shapes_are_accepted(command: tuple[str, ...]) -
             "-r",
             "requirements.txt",
         ),
-        ("poetry", "install"),
-        ("uv", "sync"),
+        ("poetry", "install", "--no-root"),
+        ("uv", "sync", "--no-install-project", "--locked"),
         ("npm", "install"),
     ),
 )

@@ -220,6 +220,14 @@ Make GPT review a required, auditable, operationally consequential stage that re
 
 ## 6. Phase 3 — Docker dynamic probing
 
+**Status: complete.** The vulnerable fixture produces exactly `SENT-008`
+through `SENT-011` under the GPT-prioritized plan, while the clean fixture
+produces no dynamic findings. Sandbox isolation, orphan reaping,
+infrastructure-failure handling, merge behavior, schema-valid reports, and the
+full quality gate pass. The live `phase3-integrated` checkpoint captures and
+replays the complete static candidate → GPT review → prioritized Docker probes
+→ dynamic candidates → GPT review chain with the required model and telemetry.
+
 ### Objective
 
 Confirm runtime behavior through four mandatory stdio probes without exposing the host or external systems.

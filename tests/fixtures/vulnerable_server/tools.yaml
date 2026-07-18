@@ -1,2 +1,15 @@
+version: 1
 tools:
-  - name: example
+  - name: broad_reader
+    input_schema:
+      type: object
+      properties: {path: {type: string}}
+      required: [path]
+      additionalProperties: false
+  - name: unsafe_calculator
+    input_schema:
+      type: object
+      properties: {expression: {type: string}}
+      required: [expression]
+      additionalProperties: false
+  - name: unchecked_lookup

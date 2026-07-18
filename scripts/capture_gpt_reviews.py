@@ -7,7 +7,9 @@ import asyncio
 import hashlib
 import json
 import os
+import shutil
 import tempfile
+from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, cast
@@ -16,7 +18,9 @@ from uuid import UUID, uuid4
 import tiktoken
 
 from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
-from sentinel.finding import Finding, TokenUsage
+from sentinel.dynamic.prober import run_dynamic_scan
+from sentinel.dynamic.sandbox import DockerSandbox, reap_orphans
+from sentinel.finding import Finding, FindingSource, TokenUsage
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.context import build_finding_context, sanitize_text
 from sentinel.llm.semantic_reviewer import (
@@ -30,6 +34,7 @@ from sentinel.llm.semantic_reviewer import (
     _tool_for_finding,
 )
 from sentinel.llm.tools import ToolCatalog, extract_tool_catalog
+from sentinel.report.model import GptReviewSummary
 from sentinel.static.engine import run_static_scan
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,12 +44,22 @@ CASSETTES = ROOT / "src" / "sentinel" / "_cassettes"
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "checkpoint", choices=("smoke", "eval-medium", "eval-low", "demo")
+        "checkpoint",
+        choices=(
+            "smoke",
+            "eval-medium",
+            "eval-low",
+            "demo",
+            "phase3-integrated",
+        ),
     )
     parser.add_argument("--live", action="store_true")
     parser.add_argument("--max-usd", type=float)
     parser.add_argument("--replace", action="store_true")
     args = parser.parse_args()
+
+    if args.checkpoint == "phase3-integrated":
+        return _capture_phase3_integrated(args, parser)
 
     effort = (
         ReasoningEffort.LOW if args.checkpoint == "eval-low" else ReasoningEffort.MEDIUM
@@ -90,6 +105,239 @@ def main() -> int:
             replace=args.replace,
         )
     )
+
+
+def _capture_phase3_integrated(
+    args: argparse.Namespace, parser: argparse.ArgumentParser
+) -> int:
+    fixture = ROOT / "tests" / "fixtures" / "vulnerable_server"
+    loaded = load_configuration(
+        fixture,
+        environ={},
+        cli_overrides={"rules": ("SENT-002",)},
+    )
+    llm = loaded.scanner.llm.model_copy(
+        update={"max_concurrency": 1, "retries": 0, "cache_enabled": False}
+    )
+    loaded = loaded.model_copy(
+        update={"scanner": loaded.scanner.model_copy(update={"llm": llm})}
+    )
+    scan_id = uuid4()
+    timestamp = datetime.now(timezone.utc)
+    static_findings = run_static_scan(loaded, scan_id, timestamp=timestamp).findings
+    if len(static_findings) != 1 or static_findings[0].rule_id != "SENT-002":
+        raise RuntimeError("Phase 3 checkpoint requires exactly one SENT-002 candidate")
+    static_batches = _batches_for_findings(fixture, static_findings, llm)
+    static_reservation = sum(_reserved_micro_usd(batch) for batch in static_batches)
+    print("checkpoint: phase3-integrated")
+    print(f"reasoning effort: {llm.reasoning_effort.value}")
+    print(f"static request count: {len(static_batches)}")
+    print(f"static worst-case cost: ${static_reservation / 1_000_000:.6f}")
+    if not args.live:
+        print("dry run: dynamic reservation is computed after Docker probing")
+        print("dry run: no API key read, Docker launch, or network call made")
+        return 0
+    if args.replace:
+        parser.error("phase3-integrated captures cannot be replaced")
+    if args.max_usd is None or args.max_usd <= 0:
+        parser.error("--live requires a positive --max-usd ceiling")
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        parser.error("--live requires OPENAI_API_KEY in the environment")
+    checkpoint_dir = CASSETTES / args.checkpoint
+    if checkpoint_dir.exists():
+        parser.error("phase3-integrated checkpoint already exists")
+    budget_micro_usd = round(args.max_usd * 1_000_000)
+    if static_reservation > budget_micro_usd:
+        parser.error("static request worst-case reservation exceeds --max-usd")
+
+    static_raw: dict[str, dict[str, Any]] = {}
+    static_review = SemanticReviewer(
+        root=fixture,
+        config=llm,
+        max_findings=1,
+        mode="live",
+        api_key=api_key,
+        cache=ReviewCache(enabled=False),
+        capture_sink=_capture_into(static_raw),
+    ).review(static_findings, allow_degraded=False)
+    if static_review.fatal:
+        raise RuntimeError("live static review failed during Phase 3 checkpoint")
+    plan = static_review.findings[0].review.probe_plan
+    if plan is None or plan.target_tool != "unsafe_calculator":
+        raise RuntimeError("live static review did not produce the intended probe plan")
+
+    reap_orphans()
+    dynamic = run_dynamic_scan(
+        DockerSandbox(loaded, scan_id),
+        static_review.findings,
+        scan_id=scan_id,
+        timestamp=timestamp,
+    )
+    dynamic_rule_ids = {finding.rule_id for finding in dynamic.findings}
+    if dynamic_rule_ids != {"SENT-008", "SENT-009", "SENT-010", "SENT-011"}:
+        raise RuntimeError(
+            f"Phase 3 fixture produced unexpected dynamic rules: {dynamic_rule_ids}"
+        )
+    dynamic_batches = _batches_for_findings(fixture, dynamic.findings, llm)
+    dynamic_reservation = sum(_reserved_micro_usd(batch) for batch in dynamic_batches)
+    spent = static_review.summary.current_cost_micro_usd or 0
+    print(f"dynamic request count: {len(dynamic_batches)}")
+    print(f"dynamic worst-case cost: ${dynamic_reservation / 1_000_000:.6f}")
+    if spent + dynamic_reservation > budget_micro_usd:
+        raise RuntimeError(
+            "remaining live-capture budget cannot reserve dynamic review"
+        )
+
+    dynamic_raw: dict[str, dict[str, Any]] = {}
+    dynamic_review = SemanticReviewer(
+        root=fixture,
+        config=llm,
+        max_findings=len(dynamic.findings),
+        mode="live",
+        api_key=api_key,
+        cache=ReviewCache(enabled=False),
+        capture_sink=_capture_into(dynamic_raw),
+    ).review(dynamic.findings, allow_degraded=False)
+    if dynamic_review.fatal:
+        raise RuntimeError("live dynamic review failed during Phase 3 checkpoint")
+    if any(
+        finding.source is not FindingSource.DYNAMIC
+        or finding.review.probe_plan is not None
+        for finding in dynamic_review.findings
+    ):
+        raise RuntimeError("dynamic review violated source or post-probe plan contract")
+
+    staging = Path(tempfile.mkdtemp(prefix=".phase3-integrated-", dir=CASSETTES))
+    try:
+        manifest_batches = [
+            *_write_captures(staging, "static", static_raw, static_review.summary),
+            *_write_captures(staging, "dynamic", dynamic_raw, dynamic_review.summary),
+        ]
+        _atomic_json(
+            staging / "manifest.json",
+            {
+                "checkpoint": args.checkpoint,
+                "model": MODEL,
+                "reasoning_effort": llm.reasoning_effort.value,
+                "fixture": "vulnerable_server",
+                "dynamic_rule_ids": sorted(dynamic_rule_ids),
+                "pricing": (
+                    dynamic_review.summary.pricing.model_dump(mode="json")
+                    if dynamic_review.summary.pricing is not None
+                    else None
+                ),
+                "batches": manifest_batches,
+            },
+        )
+        _replay_phase3(
+            fixture,
+            llm,
+            staging,
+            static_findings,
+            dynamic.findings,
+        )
+        os.replace(staging, checkpoint_dir)
+    finally:
+        if staging.exists():
+            shutil.rmtree(staging)
+
+    total = spent + (dynamic_review.summary.current_cost_micro_usd or 0)
+    print(f"captured live spend: ${total / 1_000_000:.6f}")
+    print("replay validation: passed")
+    return 0
+
+
+def _batches_for_findings(
+    root: Path, findings: tuple[Finding, ...], config: LlmConfig
+) -> tuple[_Batch, ...]:
+    catalog = extract_tool_catalog(root)
+    candidates = tuple(
+        _Candidate(
+            finding=finding,
+            context=build_finding_context(root, finding),
+            tool=_tool_for_finding(catalog, finding),
+        )
+        for finding in sorted(findings, key=_candidate_sort_key)
+    )
+    return _build_batches(candidates, config.reasoning_effort)
+
+
+def _capture_into(
+    destination: dict[str, dict[str, Any]],
+) -> Callable[[str, dict[str, Any], dict[str, Any]], None]:
+    def sink(
+        fingerprint: str, request: dict[str, Any], response: dict[str, Any]
+    ) -> None:
+        del request
+        destination[fingerprint] = response
+
+    return sink
+
+
+def _write_captures(
+    directory: Path,
+    stage: str,
+    raw_by_fingerprint: dict[str, dict[str, Any]],
+    summary: GptReviewSummary,
+) -> list[dict[str, Any]]:
+    records = {item.request_fingerprint: item for item in summary.batches}
+    if set(records) != set(raw_by_fingerprint):
+        raise RuntimeError(f"{stage} capture records do not match accepted responses")
+    entries: list[dict[str, Any]] = []
+    captured_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    for fingerprint, raw in raw_by_fingerprint.items():
+        record = records[fingerprint]
+        payload = {
+            "cassette_version": 1,
+            "checkpoint": "phase3-integrated",
+            "stage": stage,
+            "fingerprint": fingerprint,
+            "captured_at": captured_at,
+            "requested_model": record.requested_model,
+            "returned_model": record.returned_model,
+            "reasoning_effort": record.reasoning_effort.value,
+            "usage": record.origin_usage.model_dump(mode="json"),
+            "latency_ms": record.origin_latency_ms,
+            "retry_count": record.retry_count,
+            "batch_id": record.batch_id,
+            "cost_micro_usd": record.origin_cost_micro_usd,
+            "response": _sanitize_raw_response(raw, fingerprint),
+        }
+        _atomic_json(directory / f"{fingerprint}.json", payload)
+        entries.append(_manifest_entry(payload))
+    return entries
+
+
+def _replay_phase3(
+    root: Path,
+    config: LlmConfig,
+    cassette_root: Path,
+    static_findings: tuple[Finding, ...],
+    dynamic_findings: tuple[Finding, ...],
+) -> None:
+    static = SemanticReviewer(
+        root=root,
+        config=config,
+        max_findings=len(static_findings),
+        mode="replay",
+        cache=ReviewCache(enabled=False),
+        cassette_root=cassette_root,
+    ).review(static_findings, allow_degraded=False)
+    rebound = tuple(
+        finding.model_copy(update={"finding_id": uuid4()})
+        for finding in dynamic_findings
+    )
+    dynamic = SemanticReviewer(
+        root=root,
+        config=config,
+        max_findings=len(rebound),
+        mode="replay",
+        cache=ReviewCache(enabled=False),
+        cassette_root=cassette_root,
+    ).review(rebound, allow_degraded=False)
+    if static.fatal or dynamic.fatal:
+        raise RuntimeError("captured Phase 3 responses failed production replay")
 
 
 def _planned_batches(
@@ -269,6 +517,7 @@ def _manifest_entry(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         key: payload[key]
         for key in (
+            "stage",
             "fingerprint",
             "captured_at",
             "returned_model",

@@ -68,6 +68,9 @@ def make_target(
     (root / "server.py").write_text(
         'raise RuntimeError("target code must not execute")\n', encoding="utf-8"
     )
+    (root / "sentinel.permissions.yaml").write_text(
+        "version: 1\ntools: {}\n", encoding="utf-8"
+    )
     if target_yaml is None:
         target_yaml = """\
 language: python

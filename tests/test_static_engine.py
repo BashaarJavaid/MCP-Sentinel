@@ -102,6 +102,7 @@ def test_missing_permissions_sidecar_marks_sent001_skipped(tmp_path: Path) -> No
         tmp_path / "target",
         scanner_toml='[scanner]\nrules = ["SENT-001"]\n',
     )
+    (root / "sentinel.permissions.yaml").unlink()
     configuration = load_configuration(root, environ={}, static_only=True)
     result = run_static_scan(configuration, uuid4(), timestamp=NOW)
 

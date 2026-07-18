@@ -880,7 +880,9 @@ def _merge_decision(
         applied_at=applied_at,
     )
     status = FindingStatus(decision.status)
-    if status is FindingStatus.CONFIRMED:
+    if finding.source.value == "dynamic":
+        exploitability = Exploitability.CONFIRMED
+    elif status is FindingStatus.CONFIRMED:
         exploitability = (
             Exploitability.LIKELY
             if finding.source.value == "static"
@@ -909,7 +911,11 @@ def _degrade(finding: Finding, reason: str, applied_at: datetime) -> Finding:
     data = finding.model_dump(mode="python", exclude={"severity"})
     data.update(
         status=FindingStatus.NEEDS_REVIEW,
-        exploitability=Exploitability.THEORETICAL,
+        exploitability=(
+            Exploitability.CONFIRMED
+            if finding.source.value == "dynamic"
+            else Exploitability.THEORETICAL
+        ),
         review=DegradedReview(reason=sanitize_text(reason), applied_at=applied_at),
     )
     return Finding.model_validate(data)

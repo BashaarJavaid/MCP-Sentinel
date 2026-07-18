@@ -8,14 +8,21 @@ from pathlib import Path
 
 from sentinel import __version__
 from sentinel.config import FailThreshold, LoadedConfiguration
+from sentinel.dynamic.merge import merge_findings
+from sentinel.dynamic.prober import run_dynamic_scan
+from sentinel.dynamic.sandbox import DockerSandbox, reap_orphans
 from sentinel.errors import InfrastructureError
+from sentinel.finding import DegradedReview, Finding, TokenUsage
 from sentinel.llm.semantic_reviewer import (
     RawTransport,
+    ReviewOutcome,
     SemanticReviewer,
     empty_review_outcome,
     unavailable_review_outcome,
 )
+from sentinel.llm.tools import extract_tool_catalog
 from sentinel.report.model import (
+    GptReviewSummary,
     ReportWarning,
     ScanContext,
     ScanReport,
@@ -25,6 +32,7 @@ from sentinel.report.model import (
     summarize,
 )
 from sentinel.static.engine import run_static_scan
+from sentinel.static.model import StaticScanResult
 
 
 @dataclass(frozen=True)
@@ -44,7 +52,10 @@ def run_scan(
     transport: RawTransport | None = None,
     cassette_root: Path | None = None,
 ) -> ScanOutcome:
-    """Run static analysis and required semantic review; Phase 3 remains explicit."""
+    """Run the complete static, GPT, Docker probe, merge, and report pipeline."""
+
+    if not configuration.static_only:
+        reap_orphans()
 
     static_result = run_static_scan(
         configuration,
@@ -76,12 +87,142 @@ def run_scan(
                 applied_at=completed_at,
             )
 
-    static_only_complete = configuration.static_only and not review.fatal
-    later_reason = (
-        "static-only scan requested"
-        if configuration.static_only
-        else "not implemented until Phase 3 dynamic probing"
+    if configuration.static_only:
+        return _static_only_outcome(
+            configuration,
+            context,
+            completed_at,
+            static_result,
+            review,
+        )
+
+    if review.fatal:
+        return _failed_dynamic_outcome(
+            configuration,
+            context,
+            completed_at,
+            static_result,
+            review,
+            reason="static GPT review failed before dynamic probing",
+            dynamic_started=False,
+        )
+
+    try:
+        dynamic = run_dynamic_scan(
+            DockerSandbox(configuration, context.scan_id),
+            review.findings,
+            scan_id=context.scan_id,
+            timestamp=completed_at,
+        )
+    except InfrastructureError as error:
+        return _failed_dynamic_outcome(
+            configuration,
+            context,
+            completed_at,
+            static_result,
+            review,
+            reason=str(error),
+            dynamic_started=True,
+        )
+
+    remaining = max(
+        0,
+        configuration.scanner.scanner.max_findings_per_scan
+        - review.summary.selected_count,
     )
+    if not dynamic.findings:
+        dynamic_review = empty_review_outcome(
+            configuration.scanner.llm, mode=review_mode
+        )
+    elif remaining == 0:
+        dynamic_review = _cap_overflow_review(
+            dynamic.findings, configuration, applied_at=completed_at
+        )
+    else:
+        try:
+            reviewer = SemanticReviewer(
+                root=configuration.scan_root,
+                config=configuration.scanner.llm,
+                max_findings=remaining,
+                mode=review_mode,
+                api_key=api_key,
+                transport=transport,
+                cassette_root=cassette_root,
+            )
+            dynamic_review = reviewer.review(
+                dynamic.findings, allow_degraded=allow_degraded
+            )
+        except InfrastructureError as error:
+            dynamic_review = unavailable_review_outcome(
+                dynamic.findings,
+                config=configuration.scanner.llm,
+                reason=str(error),
+                allow_degraded=allow_degraded,
+                applied_at=completed_at,
+            )
+
+    catalog = extract_tool_catalog(
+        configuration.scan_root,
+        configuration.scanner.scanner.ignore_paths,
+    )
+    findings = merge_findings(review.findings, dynamic_review.findings, catalog)
+    combined_gpt = _combine_gpt_summaries(review.summary, dynamic_review.summary)
+    stages = (
+        StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
+        StageRecord(name=StageName.GPT_STATIC, status=StageStatus.SUCCEEDED),
+        StageRecord(name=StageName.DYNAMIC, status=StageStatus.SUCCEEDED),
+        StageRecord(
+            name=StageName.GPT_DYNAMIC,
+            status=(
+                StageStatus.FAILED if dynamic_review.fatal else StageStatus.SUCCEEDED
+            ),
+            reason=("GPT dynamic review failed" if dynamic_review.fatal else None),
+        ),
+        StageRecord(name=StageName.MERGE, status=StageStatus.SUCCEEDED),
+        StageRecord(name=StageName.REPORTING, status=StageStatus.SUCCEEDED),
+    )
+    complete = not dynamic_review.fatal
+    report = ScanReport(
+        scan_id=context.scan_id,
+        sentinel_version=__version__,
+        started_at=context.started_at,
+        completed_at=completed_at,
+        target=context.target,
+        analysis_complete=complete,
+        execution_successful=complete,
+        stages=stages,
+        summary=summarize(findings),
+        warnings=(
+            *static_result.warnings,
+            *review.warnings,
+            *dynamic.warnings,
+            *dynamic_review.warnings,
+        ),
+        findings=findings,
+        static_analysis=static_result.summary,
+        gpt_review=combined_gpt,
+    )
+    if dynamic_review.fatal:
+        return ScanOutcome(report=report, exit_code=3)
+    return ScanOutcome(
+        report=report,
+        exit_code=(
+            1
+            if _threshold_failed(findings, configuration.scanner.scanner.fail_on)
+            else 0
+        ),
+    )
+
+
+def _static_only_outcome(
+    configuration: LoadedConfiguration,
+    context: ScanContext,
+    completed_at: datetime,
+    static_result: StaticScanResult,
+    review: ReviewOutcome,
+) -> ScanOutcome:
+    static_only_complete = not review.fatal
+    later_reason = "static-only scan requested"
     gpt_status = StageStatus.FAILED if review.fatal else StageStatus.SUCCEEDED
     stages = (
         StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
@@ -106,13 +247,6 @@ def run_scan(
         StageRecord(name=StageName.REPORTING, status=StageStatus.SUCCEEDED),
     )
     warnings = [*static_result.warnings, *review.warnings]
-    if not configuration.static_only:
-        warnings.append(
-            ReportWarning(
-                code="analysis_incomplete",
-                message="Static and GPT review completed; dynamic probing is Phase 3.",
-            )
-        )
     report = ScanReport(
         scan_id=context.scan_id,
         sentinel_version=__version__,
@@ -128,7 +262,7 @@ def run_scan(
         static_analysis=static_result.summary,
         gpt_review=review.summary,
     )
-    if review.fatal or not configuration.static_only:
+    if review.fatal:
         exit_code = 3
     else:
         exit_code = (
@@ -137,6 +271,132 @@ def run_scan(
             else 0
         )
     return ScanOutcome(report=report, exit_code=exit_code)
+
+
+def _failed_dynamic_outcome(
+    configuration: LoadedConfiguration,
+    context: ScanContext,
+    completed_at: datetime,
+    static_result: StaticScanResult,
+    review: ReviewOutcome,
+    *,
+    reason: str,
+    dynamic_started: bool,
+) -> ScanOutcome:
+    stages = (
+        StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
+        StageRecord(
+            name=StageName.GPT_STATIC,
+            status=StageStatus.FAILED if review.fatal else StageStatus.SUCCEEDED,
+            reason="GPT semantic review failed" if review.fatal else None,
+        ),
+        StageRecord(
+            name=StageName.DYNAMIC,
+            status=StageStatus.FAILED if dynamic_started else StageStatus.SKIPPED,
+            reason=reason,
+        ),
+        StageRecord(
+            name=StageName.GPT_DYNAMIC,
+            status=StageStatus.SKIPPED,
+            reason=reason,
+        ),
+        StageRecord(name=StageName.MERGE, status=StageStatus.SKIPPED, reason=reason),
+        StageRecord(name=StageName.REPORTING, status=StageStatus.SUCCEEDED),
+    )
+    report = ScanReport(
+        scan_id=context.scan_id,
+        sentinel_version=__version__,
+        started_at=context.started_at,
+        completed_at=completed_at,
+        target=context.target,
+        analysis_complete=False,
+        execution_successful=False,
+        stages=stages,
+        summary=summarize(review.findings),
+        warnings=(
+            *static_result.warnings,
+            *review.warnings,
+            ReportWarning(code="dynamic_analysis_failed", message=reason),
+        ),
+        findings=review.findings,
+        static_analysis=static_result.summary,
+        gpt_review=review.summary,
+    )
+    return ScanOutcome(report=report, exit_code=3)
+
+
+def _cap_overflow_review(
+    findings: tuple[Finding, ...],
+    configuration: LoadedConfiguration,
+    *,
+    applied_at: datetime,
+) -> ReviewOutcome:
+
+    reason = "scan-wide GPT review cap was exhausted before dynamic review"
+    updated: list[Finding] = []
+    for finding in findings:
+        data = finding.model_dump(mode="python", exclude={"severity"})
+        data["review"] = DegradedReview(reason=reason, applied_at=applied_at)
+        updated.append(Finding.model_validate(data))
+    empty = empty_review_outcome(configuration.scanner.llm, mode="degraded")
+    summary = empty.summary.model_copy(
+        update={
+            "mode": "degraded",
+            "candidate_count": len(updated),
+            "overflow_count": len(updated),
+            "needs_review_count": len(updated),
+        }
+    )
+    warning = ReportWarning(code="gpt_review_truncated", message=reason)
+    return ReviewOutcome(tuple(updated), (warning,), summary, fatal=False)
+
+
+def _combine_gpt_summaries(
+    first: GptReviewSummary, second: GptReviewSummary
+) -> GptReviewSummary:
+    mode = first.mode if first.mode == second.mode else "mixed"
+    return GptReviewSummary(
+        requested_model=first.requested_model,
+        reasoning_effort=first.reasoning_effort,
+        mode=mode,
+        candidate_count=first.candidate_count + second.candidate_count,
+        selected_count=first.selected_count + second.selected_count,
+        overflow_count=first.overflow_count + second.overflow_count,
+        reviewed_count=first.reviewed_count + second.reviewed_count,
+        confirmed_count=first.confirmed_count + second.confirmed_count,
+        suppressed_count=first.suppressed_count + second.suppressed_count,
+        needs_review_count=first.needs_review_count + second.needs_review_count,
+        failure_count=first.failure_count + second.failure_count,
+        cache_hits=first.cache_hits + second.cache_hits,
+        cache_misses=first.cache_misses + second.cache_misses,
+        cache_writes=first.cache_writes + second.cache_writes,
+        cache_errors=first.cache_errors + second.cache_errors,
+        current_usage=_sum_usage(first.current_usage, second.current_usage),
+        origin_usage=_sum_usage(first.origin_usage, second.origin_usage),
+        current_latency_ms=(first.current_latency_ms + second.current_latency_ms),
+        origin_latency_ms=first.origin_latency_ms + second.origin_latency_ms,
+        current_cost_micro_usd=_sum_optional(
+            first.current_cost_micro_usd, second.current_cost_micro_usd
+        ),
+        origin_cost_micro_usd=_sum_optional(
+            first.origin_cost_micro_usd, second.origin_cost_micro_usd
+        ),
+        pricing=first.pricing if first.pricing == second.pricing else None,
+        batches=(*first.batches, *second.batches),
+    )
+
+
+def _sum_usage(first: TokenUsage, second: TokenUsage) -> TokenUsage:
+    values: dict[str, int | None] = {}
+    for name in TokenUsage.model_fields:
+        values[name] = _sum_optional(getattr(first, name), getattr(second, name))
+    return TokenUsage.model_validate(values)
+
+
+def _sum_optional(first: int | None, second: int | None) -> int | None:
+    if first is None and second is None:
+        return None
+    return (first or 0) + (second or 0)
 
 
 def _threshold_failed(findings: tuple[object, ...], threshold: FailThreshold) -> bool:

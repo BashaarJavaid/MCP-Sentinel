@@ -3,12 +3,18 @@ import hashlib
 import hmac
 import os
 
+import anyio
 import yaml
 from fastapi import Depends, FastAPI, HTTPException
+from mcp.server import Server
 from mcp.server.fastmcp import FastMCP
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool
 from pydantic import BaseModel
 
 mcp = FastMCP("clean")
+runtime = Server("clean-runtime")
+register_runtime_call = runtime.call_tool
 app = FastAPI()
 api_key = os.environ.get("SERVICE_API_KEY")
 
@@ -28,6 +34,8 @@ def justified_reader(path: str) -> str:
 
 @mcp.tool()
 def safe_calculator(expression: str) -> object:
+    if len(expression) > 4096:
+        raise ValueError("expression exceeds the 4096-character limit")
     return ast.literal_eval(expression)
 
 
@@ -68,3 +76,57 @@ def load_manifest() -> object:
     if not hmac.compare_digest(actual, "0" * 64):
         raise ValueError("manifest digest mismatch")
     return yaml.safe_load(raw)
+
+
+@runtime.list_tools()
+async def list_runtime_tools() -> list[Tool]:
+    def string_input(name: str) -> dict[str, object]:
+        return {
+            "type": "object",
+            "properties": {name: {"type": "string", "maxLength": 4096}},
+            "required": [name],
+            "additionalProperties": False,
+        }
+
+    return [
+        Tool(name="justified_reader", inputSchema=string_input("path")),
+        Tool(name="safe_calculator", inputSchema=string_input("expression")),
+        Tool(
+            name="validated_lookup",
+            inputSchema={
+                "type": "object",
+                "properties": {"arguments": {"type": "object"}},
+                "required": ["arguments"],
+                "additionalProperties": False,
+            },
+        ),
+    ]
+
+
+@register_runtime_call(validate_input=True)
+async def call_runtime_tool(
+    name: str, arguments: dict[str, object]
+) -> dict[str, object]:
+    if name == "justified_reader":
+        return {"result": justified_reader(str(arguments["path"]))}
+    if name == "safe_calculator":
+        return {"result": safe_calculator(str(arguments["expression"]))}
+    if name == "validated_lookup":
+        raw = arguments["arguments"]
+        if not isinstance(raw, dict):
+            raise ValueError("arguments must be an object")
+        return {"result": validated_lookup(raw)}
+    raise ValueError("unknown tool")
+
+
+async def run_stdio() -> None:
+    async with stdio_server() as (read_stream, write_stream):
+        await runtime.run(
+            read_stream,
+            write_stream,
+            runtime.create_initialization_options(),
+        )
+
+
+if __name__ == "__main__":
+    anyio.run(run_stdio)

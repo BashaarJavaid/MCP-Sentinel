@@ -542,7 +542,10 @@ Only `transport: stdio` is accepted in v1. `http`, `port`, SSE, and other transp
 
 - The cached image contains dependencies only; target source is never baked into it.
 - `install_cmd` may install dependencies but may not install the target package itself.
-- When `install_cmd` is absent, Sentinel infers dependency installation from `requirements.txt`, `pyproject.toml`, or a Poetry lockfile.
+- Phase 3 accepts dependency-only pip requirements forms for `install_cmd`.
+  Poetry and uv install commands are rejected during configuration loading.
+- When `install_cmd` is absent, Sentinel infers dependencies from one unambiguous
+  source: `requirements.txt` or PEP 621 `project.dependencies` in `pyproject.toml`.
 - Package build scripts may run only inside the build container.
 - Build-time network is restricted to registries listed in `[sandbox].allowed_registries`.
 - The default registry allowlist is `pypi.org` and `files.pythonhosted.org`.

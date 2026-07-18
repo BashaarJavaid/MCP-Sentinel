@@ -1,2 +1,15 @@
+version: 1
 tools:
-  - name: example
+  - name: justified_reader
+    input_schema:
+      type: object
+      properties: {path: {type: string, maxLength: 4096}}
+      required: [path]
+      additionalProperties: false
+  - name: safe_calculator
+    input_schema:
+      type: object
+      properties: {expression: {type: string, maxLength: 4096}}
+      required: [expression]
+      additionalProperties: false
+  - name: validated_lookup
