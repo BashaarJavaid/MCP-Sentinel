@@ -11,3 +11,8 @@ Production review retries remain unchanged and are covered offline.
 `generate_gpt_static_ablation.py` replays the accepted medium/low cassettes and
 generates `artifacts/gpt-static-ablation.json`. Phase 3 later adds the Docker
 orphan-reaper and the final three-treatment ablation.
+
+`run_github_action.py` is the internal adapter used by the composite Action. It
+runs the public CLI once, validates the generated SARIF offline, writes aggregate
+Action outputs and the job summary, and preserves the CLI exit-code contract.
+It is not a separate public scanner interface.

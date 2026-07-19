@@ -6,10 +6,9 @@ MCP Sentinel is a build-time static and dynamic analysis tool that catches secur
 
 Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
 
-> **Implementation status:** Phases 0–2 are complete. GPT-5.6 prompt v3 passes
-> the live contract smoke, medium truth-set quality gate, low-effort comparison,
-> deterministic replay demo, and generated static ablation gate. Phase 3
-> dynamic analysis is not implemented.
+> **Implementation status:** Phases 0–3 are complete: hybrid static analysis,
+> required GPT-5.6 semantic review, and Docker-isolated dynamic probing. Phase 4
+> adds the end-user GitHub Action and live SARIF upload proof.
 
 ---
 
@@ -59,8 +58,7 @@ is not published to PyPI yet.
 # Inspect the CLI
 sentinel scan --help
 
-# Run static analysis, required live GPT review, then available later stages.
-# Normal scans still exit 3 because Phase 3 dynamic probing is incomplete.
+# Run static analysis, required live GPT review, and Docker dynamic probing.
 sentinel scan ./path/to/mcp-server --format sarif --output results.sarif
 
 # Complete static analysis plus GPT review; exits 0 or 1 based on --fail-on.
@@ -87,8 +85,57 @@ closed with exit `3` unless `--allow-degraded` is explicit.
 
 ### GitHub Action
 
-The end-user composite Action is Phase 4 work. This repository currently has a
-Python 3.10–3.12 CI workflow for the Phase 0–1 quality and packaging gates.
+The composite Action installs the exact Sentinel source at its selected ref,
+runs the same default Docker-backed pipeline as the CLI, validates SARIF
+offline, and uploads it to GitHub code scanning. The caller checks out the
+repository and grants the upload permission:
+
+```yaml
+name: MCP Sentinel
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - id: sentinel
+        uses: BashaarJavaid/MCP-Sentinel@<commit-sha>
+        with:
+          target-path: .
+          fail-on: high
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+```
+
+Pin the Action to an immutable commit. `target-path` defaults to `.` and must
+resolve inside `GITHUB_WORKSPACE`; `fail-on` defaults to `high`; and
+`static-only` defaults to `false`. A full scan requires Docker and
+`sentinel.target.yaml` in the target.
+
+| Output | Meaning |
+|---|---|
+| `sarif-path` | Absolute path to the validated report under `RUNNER_TEMP` |
+| `findings-count` | All visible SARIF results, including suppressions |
+| `highest-severity` | Highest non-suppressed severity, or `none` |
+
+Exit `0` passes. Exit `1` uploads SARIF and then fails the configured finding
+threshold. Exit `2` is invalid input/configuration. Exit `3` is incomplete
+analysis or Action infrastructure failure; a valid incomplete report is still
+uploaded, while invalid SARIF always blocks upload.
+
+For forked pull requests, GitHub does not expose repository secrets or a normal
+write token. Sentinel automatically withholds the API key, enables visibly
+degraded review, validates and summarizes the report, and skips code-scanning
+upload. Findings remain fail-on eligible. Non-fork workflows remain fail-closed
+when required GPT review cannot run.
 
 ## Example output
 

@@ -219,6 +219,9 @@ def _serialize_sarif_om(value: Any) -> Any:
             if item is None:
                 continue
             name = attribute.metadata.get("schema_property_name", attribute.name)
+            if isinstance(value, Suppression) and name == "state":
+                # sarif-om 1.0.4 uses the pre-standard property name.
+                name = "status"
             output[name] = _serialize_sarif_om(item)
         return output
     if isinstance(value, dict):
