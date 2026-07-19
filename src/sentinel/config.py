@@ -17,7 +17,7 @@ from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
 from pydantic import AliasChoices, Field, field_validator, model_validator
 
-from sentinel.errors import UsageError
+from sentinel.errors import ConfigurationError, TargetError
 from sentinel.finding import ContractModel, FindingStatus, Severity
 from sentinel.permissions import load_permissions_manifest
 
@@ -343,7 +343,7 @@ def load_configuration(
     try:
         scanner = SentinelConfig.model_validate(merged)
     except Exception as error:
-        raise UsageError(f"invalid scanner configuration: {error}") from error
+        raise ConfigurationError(f"invalid scanner configuration: {error}") from error
 
     _require_supported_framework(scan_root)
 
@@ -367,7 +367,7 @@ def load_configuration(
                 "env_from": [],
             }
         else:
-            raise UsageError(
+            raise TargetError(
                 "dynamic analysis requires sentinel.target.yaml or "
                 "--target-launch-cmd; use --static-only to opt out"
             )
@@ -375,7 +375,9 @@ def load_configuration(
         try:
             target = TargetConfig.model_validate(target_data)
         except Exception as error:
-            raise UsageError(f"invalid target configuration: {error}") from error
+            raise ConfigurationError(
+                f"invalid target configuration: {error}"
+            ) from error
         _validate_target_paths(scan_root, target)
         load_permissions_manifest(scan_root, required=True)
 
@@ -389,11 +391,11 @@ def load_configuration(
 
 def validate_scan_root(path: Path) -> Path:
     if path.is_symlink():
-        raise UsageError("scan root cannot be a symbolic link")
+        raise TargetError("scan root cannot be a symbolic link")
     if not path.exists():
-        raise UsageError(f"scan root does not exist: {path}")
+        raise TargetError(f"scan root does not exist: {path}")
     if not path.is_dir():
-        raise UsageError(f"scan root is not a directory: {path}")
+        raise TargetError(f"scan root is not a directory: {path}")
     return path.resolve()
 
 
@@ -401,20 +403,20 @@ def resolve_within_root(root: Path, value: str, *, must_exist: bool = True) -> P
     try:
         _validate_relative_text_path(value, "path")
     except ValueError as error:
-        raise UsageError(str(error)) from error
+        raise ConfigurationError(str(error)) from error
     candidate = root.joinpath(value)
     current = root
     for part in Path(value).parts:
         current = current / part
         if current.is_symlink():
-            raise UsageError(f"symbolic links are not allowed: {value}")
+            raise ConfigurationError(f"symbolic links are not allowed: {value}")
     resolved = candidate.resolve(strict=False)
     try:
         resolved.relative_to(root)
     except ValueError as error:
-        raise UsageError(f"path escapes the scan root: {value}") from error
+        raise ConfigurationError(f"path escapes the scan root: {value}") from error
     if must_exist and not resolved.exists():
-        raise UsageError(f"path does not exist: {value}")
+        raise TargetError(f"path does not exist: {value}")
     return resolved
 
 
@@ -427,18 +429,20 @@ def infer_python_version(root: Path) -> str:
             try:
                 specifier = SpecifierSet(requires_python)
             except InvalidSpecifier as error:
-                raise UsageError(
+                raise ConfigurationError(
                     f"invalid requires-python: {requires_python}"
                 ) from error
             for candidate in ("3.11", "3.12", "3.10"):
                 if Version(candidate) in specifier:
                     return candidate
-            raise UsageError("target requires-python excludes Python 3.10-3.12")
+            raise ConfigurationError("target requires-python excludes Python 3.10-3.12")
     version_file = root / ".python-version"
     if version_file.is_file() and not version_file.is_symlink():
         candidate = version_file.read_text(encoding="utf-8").strip()
         if candidate not in {"3.10", "3.11", "3.12"}:
-            raise UsageError(".python-version must select Python 3.10, 3.11, or 3.12")
+            raise ConfigurationError(
+                ".python-version must select Python 3.10, 3.11, or 3.12"
+            )
         return candidate
     return "3.11"
 
@@ -446,29 +450,31 @@ def infer_python_version(root: Path) -> str:
 def _read_toml(path: Path, *, required: bool) -> dict[str, Any]:
     if not path.exists():
         if required:
-            raise UsageError(f"missing TOML file: {path.name}")
+            raise TargetError(f"missing TOML file: {path.name}")
         return {}
     if path.is_symlink():
-        raise UsageError(f"configuration cannot be a symbolic link: {path.name}")
+        raise ConfigurationError(
+            f"configuration cannot be a symbolic link: {path.name}"
+        )
     try:
         with path.open("rb") as handle:
             data = tomllib.load(handle)
     except (OSError, tomllib.TOMLDecodeError) as error:
-        raise UsageError(f"cannot parse {path.name}: {error}") from error
+        raise ConfigurationError(f"cannot parse {path.name}: {error}") from error
     if not isinstance(data, dict):
-        raise UsageError(f"{path.name} must contain a TOML table")
+        raise ConfigurationError(f"{path.name} must contain a TOML table")
     return data
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
     if path.is_symlink():
-        raise UsageError("target configuration cannot be a symbolic link")
+        raise ConfigurationError("target configuration cannot be a symbolic link")
     try:
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as error:
-        raise UsageError(f"cannot parse {path.name}: {error}") from error
+        raise ConfigurationError(f"cannot parse {path.name}: {error}") from error
     if not isinstance(data, dict):
-        raise UsageError(f"{path.name} must contain a YAML mapping")
+        raise ConfigurationError(f"{path.name} must contain a YAML mapping")
     return data
 
 
@@ -494,17 +500,17 @@ def _apply_environment(
         if name in LIST_ENV_VARS:
             parts = tuple(part.strip() for part in raw.split(","))
             if not parts or any(not part for part in parts):
-                raise UsageError(f"{name} contains an empty list element")
+                raise ConfigurationError(f"{name} contains an empty list element")
             value = parts
         elif name in INTEGER_ENV_VARS:
             try:
                 value = int(raw)
             except ValueError as error:
-                raise UsageError(f"{name} must be an integer") from error
+                raise ConfigurationError(f"{name} must be an integer") from error
         elif name in BOOLEAN_ENV_VARS:
             lowered = raw.strip().lower()
             if lowered not in {"true", "false", "1", "0"}:
-                raise UsageError(f"{name} must be true, false, 1, or 0")
+                raise ConfigurationError(f"{name} must be true, false, 1, or 0")
             value = lowered in {"true", "1"}
         else:
             value = raw
@@ -525,13 +531,13 @@ def _parse_launch_override(value: str) -> tuple[str, ...]:
     try:
         parsed = tuple(shlex.split(value, posix=True))
     except ValueError as error:
-        raise UsageError(f"invalid --target-launch-cmd: {error}") from error
+        raise ConfigurationError(f"invalid --target-launch-cmd: {error}") from error
     if not parsed:
-        raise UsageError("--target-launch-cmd cannot be empty")
+        raise ConfigurationError("--target-launch-cmd cannot be empty")
     try:
         _reject_shell(parsed, "--target-launch-cmd")
     except ValueError as error:
-        raise UsageError(str(error)) from error
+        raise ConfigurationError(str(error)) from error
     return parsed
 
 
@@ -601,7 +607,7 @@ def _validate_install_shape(command: tuple[str, ...]) -> None:
 def _validate_target_paths(root: Path, target: TargetConfig) -> None:
     working_dir = resolve_within_root(root, target.working_dir)
     if not working_dir.is_dir():
-        raise UsageError("working_dir must be a directory")
+        raise TargetError("working_dir must be a directory")
     if target.install_cmd is not None:
         _validate_install_files(root, target.install_cmd)
 
@@ -611,7 +617,7 @@ def _validate_install_files(root: Path, command: tuple[str, ...]) -> None:
         if item.lower() in {"-r", "--requirement", "-c", "--constraint"}:
             path = resolve_within_root(root, command[index + 1])
             if not path.is_file():
-                raise UsageError(
+                raise TargetError(
                     f"dependency input is not a file: {command[index + 1]}"
                 )
 
@@ -673,7 +679,7 @@ def _require_supported_framework(root: Path) -> None:
         names.update(_requirement_names(entries))
 
     if not names.intersection({"mcp", "fastmcp"}):
-        raise UsageError(
+        raise TargetError(
             "unsupported target: declare the official 'mcp' or 'fastmcp' dependency"
         )
 

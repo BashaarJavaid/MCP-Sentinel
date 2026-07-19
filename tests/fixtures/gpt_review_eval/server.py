@@ -31,3 +31,7 @@ def custom_validated(arguments: dict[str, object]) -> object:
 @mcp.tool()
 def unchecked_lookup(arguments: dict[str, object]) -> object:
     return arguments["record_id"]
+
+
+if __name__ == "__main__":
+    mcp.run()

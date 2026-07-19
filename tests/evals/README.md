@@ -1,4 +1,8 @@
 # GPT evaluation cases
 
-Phase 2 adds the versioned GPT semantic-review truth set here. Phase 0 keeps the
-location explicit without inventing evaluation cases before the reviewer exists.
+`gpt_review_cases.yaml` is the versioned semantic-review truth set. Phase 5 adds
+case-specific dynamic expectations for the approved root-cause probe while still
+requiring every eligible Docker campaign to execute all four permanent probes.
+
+The ambiguous permission case remains an abstention: dynamic behavior cannot
+establish whether its declared scope is broader than the server's real need.

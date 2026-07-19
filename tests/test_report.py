@@ -9,6 +9,7 @@ import pytest
 
 from sentinel import __version__
 from sentinel.config import LoadedConfiguration, load_configuration
+from sentinel.finding import Exploitability, Finding, FindingStatus
 from sentinel.orchestrator import run_phase1_scan, run_scan
 from sentinel.report.console import render_console
 from sentinel.report.json_report import render_json
@@ -20,6 +21,7 @@ from sentinel.report.model import (
     StaticAnalysisSummary,
     StaticRuleOutcome,
     StaticRuleStatus,
+    summarize,
 )
 from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_json import validate_report_data
@@ -67,9 +69,54 @@ def test_console_reports_semantic_state(loaded_config: LoadedConfiguration) -> N
     assert "MCP Sentinel 0.1.0" in console
     assert "Target: fixture" in console
     assert "Status: INCOMPLETE" in console
-    assert "Static findings: 0" in console
+    assert "Findings: 0" in console
     assert "static: succeeded" in console
     assert "reporting: succeeded" in console
+
+
+def test_console_orders_by_severity_then_suppression_and_bounds_detail(
+    loaded_config: LoadedConfiguration,
+    sample_finding: Finding,
+) -> None:
+    context = ScanContext(
+        scan_id=SCAN_ID, started_at=NOW, target=ScanTarget(display_name="fixture")
+    )
+    base = run_phase1_scan(loaded_config, context, completed_at=NOW).report
+    confirmed = sample_finding.model_copy(
+        update={
+            "title": "Confirmed high",
+            "status": FindingStatus.CONFIRMED,
+            "exploitability": Exploitability.CONFIRMED,
+        }
+    )
+    suppressed = sample_finding.model_copy(
+        update={
+            "title": "Suppressed high",
+            "status": FindingStatus.SUPPRESSED,
+            "exploitability": Exploitability.CONFIRMED,
+        }
+    )
+    lower = sample_finding.model_copy(
+        update={
+            "title": "Needs-review high",
+            "exploitability": Exploitability.CONFIRMED,
+        }
+    )
+    findings = (suppressed, lower, confirmed)
+    report = base.model_copy(
+        update={"findings": findings, "summary": summarize(findings)}
+    )
+
+    concise = render_console(report, color=True)
+    assert "\x1b[" in concise
+    assert concise.index("Confirmed high") < concise.index("Suppressed high")
+    assert concise.index("Needs-review high") < concise.index("Suppressed high")
+    assert "Description:" not in concise
+
+    verbose = render_console(report, verbose=True)
+    assert "Description: Raw tool input reaches eval." in verbose
+    assert "Evidence: eval(value)" in verbose
+    assert "Provenance: static:SENT-002" in verbose
 
 
 def test_schema_generate_and_drift_check(tmp_path: Path) -> None:
@@ -97,6 +144,17 @@ def test_completed_gpt_review_survives_console_json_and_sarif(
         environ={},
         cli_overrides={"rules": ("SENT-002",)},
         static_only=True,
+    )
+    configuration = configuration.model_copy(
+        update={
+            "scanner": configuration.scanner.model_copy(
+                update={
+                    "llm": configuration.scanner.llm.model_copy(
+                        update={"cache_enabled": False}
+                    )
+                }
+            )
+        }
     )
     context = ScanContext(
         scan_id=SCAN_ID,

@@ -1,0 +1,182 @@
+{
+  "artifact_version": 1,
+  "generated_from": "checked-in GPT replay plus isolated Docker campaigns",
+  "gpt_plus_dynamic": {
+    "abstentions": 1,
+    "accuracy": 1.0,
+    "cases": [
+      {
+        "case": "sent002_raw_eval",
+        "expected_vulnerable": true,
+        "gpt_status": "confirmed",
+        "observed_vulnerable": true,
+        "ordered_probe_ids": [
+          "SENT-010",
+          "SENT-011",
+          "SENT-009",
+          "SENT-008"
+        ],
+        "probe_id": "SENT-010",
+        "probe_plan_source": "gpt",
+        "suppressed_plan_executed_for_evaluation": false,
+        "target_tool": "unsafe_evaluator"
+      },
+      {
+        "case": "sent003_custom_validation",
+        "expected_vulnerable": false,
+        "gpt_status": "suppressed",
+        "observed_vulnerable": false,
+        "ordered_probe_ids": [
+          "SENT-011",
+          "SENT-008",
+          "SENT-009",
+          "SENT-010"
+        ],
+        "probe_id": "SENT-011",
+        "probe_plan_source": "fixed_root_cause_evaluation",
+        "suppressed_plan_executed_for_evaluation": true,
+        "target_tool": "custom_validated"
+      },
+      {
+        "case": "sent003_unchecked",
+        "expected_vulnerable": true,
+        "gpt_status": "confirmed",
+        "observed_vulnerable": true,
+        "ordered_probe_ids": [
+          "SENT-011",
+          "SENT-009",
+          "SENT-010",
+          "SENT-008"
+        ],
+        "probe_id": "SENT-011",
+        "probe_plan_source": "gpt",
+        "suppressed_plan_executed_for_evaluation": false,
+        "target_tool": "unchecked_lookup"
+      }
+    ],
+    "false_positives": 0,
+    "precision": 1.0,
+    "quality_gate_passed": true,
+    "recall": 1.0,
+    "true_positives": 2
+  },
+  "gpt_reviewed": {
+    "low": {
+      "abstentions": 2,
+      "cache_hits": 0,
+      "cost_per_valid_review_micro_usd": 19536,
+      "evidence_grounding_validity": 1.0,
+      "expected_probe_priority_accuracy": 1.0,
+      "expected_status_accuracy": 0.75,
+      "false_positives": 0,
+      "origin_cost_micro_usd": 78144,
+      "origin_latency_ms": 23627,
+      "origin_usage": {
+        "cache_write_tokens": 4362,
+        "cached_tokens": 0,
+        "input_tokens": 4374,
+        "output_tokens": 1694,
+        "reasoning_tokens": 665,
+        "total_tokens": 6068
+      },
+      "precision": 1.0,
+      "probe_plan_validity": 1.0,
+      "quality_gate_passed": false,
+      "recall": 0.5,
+      "status_transitions": [
+        {
+          "case": "sent001_indirect_permission",
+          "from": "needs_review",
+          "to": "needs_review"
+        },
+        {
+          "case": "sent002_raw_eval",
+          "from": "needs_review",
+          "to": "confirmed"
+        },
+        {
+          "case": "sent003_custom_validation",
+          "from": "needs_review",
+          "to": "suppressed"
+        },
+        {
+          "case": "sent003_unchecked",
+          "from": "needs_review",
+          "to": "needs_review"
+        }
+      ],
+      "structured_output_validity": 1.0,
+      "true_positives": 1
+    },
+    "medium": {
+      "abstentions": 1,
+      "cache_hits": 0,
+      "cost_per_valid_review_micro_usd": 19476,
+      "evidence_grounding_validity": 1.0,
+      "expected_probe_priority_accuracy": 1.0,
+      "expected_status_accuracy": 1.0,
+      "false_positives": 0,
+      "origin_cost_micro_usd": 77907,
+      "origin_latency_ms": 26664,
+      "origin_usage": {
+        "cache_write_tokens": 4353,
+        "cached_tokens": 0,
+        "input_tokens": 4365,
+        "output_tokens": 1688,
+        "reasoning_tokens": 793,
+        "total_tokens": 6053
+      },
+      "precision": 1.0,
+      "probe_plan_validity": 1.0,
+      "quality_gate_passed": true,
+      "recall": 1.0,
+      "status_transitions": [
+        {
+          "case": "sent001_indirect_permission",
+          "from": "needs_review",
+          "to": "needs_review"
+        },
+        {
+          "case": "sent002_raw_eval",
+          "from": "needs_review",
+          "to": "confirmed"
+        },
+        {
+          "case": "sent003_custom_validation",
+          "from": "needs_review",
+          "to": "suppressed"
+        },
+        {
+          "case": "sent003_unchecked",
+          "from": "needs_review",
+          "to": "confirmed"
+        }
+      ],
+      "structured_output_validity": 1.0,
+      "true_positives": 2
+    }
+  },
+  "model": "gpt-5.6-sol",
+  "pricing": {
+    "as_of": "2026-07-18",
+    "cache_write_multiplier_millionths": 1250000,
+    "cached_input_micro_usd_per_million": 500000,
+    "input_micro_usd_per_million": 5000000,
+    "model": "gpt-5.6-sol",
+    "output_micro_usd_per_million": 30000000,
+    "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+  },
+  "rules_only": {
+    "abstentions": 1,
+    "false_positives": 1,
+    "precision": 0.666667,
+    "recall": 1.0,
+    "true_positives": 2
+  },
+  "truth_policy": {
+    "all_four_probes_execute_for_each_eligible_case": true,
+    "ambiguous_excluded_from_binary_metrics": true,
+    "ambiguous_reported_as_abstention": true,
+    "dynamic_scores_case_specific_root_cause_probe": true
+  }
+}

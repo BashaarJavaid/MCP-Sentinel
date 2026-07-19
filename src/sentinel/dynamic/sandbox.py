@@ -23,7 +23,7 @@ from mcp.client.stdio import stdio_client
 
 from sentinel import __version__
 from sentinel.config import LoadedConfiguration, TargetConfig
-from sentinel.errors import InfrastructureError, UsageError
+from sentinel.errors import ConfigurationError, InfrastructureError
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -355,7 +355,7 @@ class DockerSandbox:
         environment = dict(target.env)
         for name_from_host in target.env_from:
             if name_from_host not in os.environ:
-                raise UsageError(
+                raise ConfigurationError(
                     f"required environment variable is unset: {name_from_host}"
                 )
             environment[name_from_host] = os.environ[name_from_host]
@@ -419,7 +419,7 @@ def _dependency_inputs(
     if target.install_cmd is not None:
         lowered = tuple(item.lower() for item in target.install_cmd)
         if "pip" not in lowered and lowered[0] not in {"pip", "pip3"}:
-            raise UsageError(
+            raise ConfigurationError(
                 "wheelhouse builds currently require a pip requirements install_cmd"
             )
         for index, item in enumerate(target.install_cmd[:-1]):
@@ -434,7 +434,7 @@ def _dependency_inputs(
             if path.is_file() and not path.is_symlink()
         ]
         if len(candidates) != 1:
-            raise UsageError(
+            raise ConfigurationError(
                 "dependency source is ambiguous; set a dependency-only install_cmd"
             )
         source = candidates[0]
@@ -445,7 +445,9 @@ def _dependency_inputs(
             else _pyproject_dependencies(source)
         )
     if not requirements:
-        raise UsageError("target dependency configuration produced no requirements")
+        raise ConfigurationError(
+            "target dependency configuration produced no requirements"
+        )
     digest = hashlib.sha256()
     digest.update(target.python_version.encode())
     digest.update(json.dumps(target.install_cmd, separators=(",", ":")).encode())
@@ -471,7 +473,9 @@ def _pyproject_dependencies(path: Path) -> list[str]:
     if not isinstance(dependencies, list) or not all(
         isinstance(item, str) for item in dependencies
     ):
-        raise UsageError("pyproject.toml project.dependencies must be a string list")
+        raise ConfigurationError(
+            "pyproject.toml project.dependencies must be a string list"
+        )
     return dependencies
 
 

@@ -1,4 +1,4 @@
-.PHONY: install lint format-check typecheck test audit schema-generate schema-check sarif-check check demo build
+.PHONY: install lint format-check typecheck test audit schema-generate schema-check sarif-check notices notices-check artifacts artifacts-live artifacts-check check demo build
 
 # Semgrep 1.170.0 hard-pins the affected transitive versions. See SECURITY.md.
 PIP_AUDIT_EXCEPTIONS = --ignore-vuln PYSEC-2026-2132 --ignore-vuln CVE-2026-52870 --ignore-vuln CVE-2026-52869 --ignore-vuln CVE-2026-59950
@@ -30,7 +30,22 @@ schema-check:
 sarif-check:
 	uv run pytest tests/test_sarif.py
 
-check: lint format-check typecheck schema-check test audit
+notices:
+	uv run python scripts/generate_third_party_notices.py
+
+notices-check:
+	uv run python scripts/generate_third_party_notices.py --check
+
+artifacts:
+	uv run python -m scripts.generate_phase5_artifacts
+
+artifacts-live:
+	uv run python -m scripts.generate_phase5_artifacts --live --max-usd $${MAX_USD:-0.50}
+
+artifacts-check:
+	uv run python -m scripts.generate_phase5_artifacts --check
+
+check: lint format-check typecheck schema-check test audit notices-check
 
 demo:
 	uv run sentinel demo

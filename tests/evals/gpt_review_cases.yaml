@@ -6,19 +6,29 @@ cases:
     tool: unsafe_evaluator
     truth: vulnerable
     expected_status: confirmed
+    dynamic:
+      probe_id: SENT-010
+      expected_vulnerable: true
   - id: sent003_custom_validation
     rule_id: SENT-003
     tool: custom_validated
     truth: safe
     expected_status: suppressed
+    dynamic:
+      probe_id: SENT-011
+      expected_vulnerable: false
   - id: sent001_indirect_permission
     rule_id: SENT-001
     tool: indirect_reader
     truth: ambiguous
     expected_status: needs_review
+    dynamic: null
   - id: sent003_unchecked
     rule_id: SENT-003
     tool: unchecked_lookup
     truth: vulnerable
     expected_status: confirmed
     expected_first_probe: SENT-011
+    dynamic:
+      probe_id: SENT-011
+      expected_vulnerable: true

@@ -1,95 +1,167 @@
 # MCP Sentinel
 
-**Shift-left security scanning for MCP (Model Context Protocol) servers.**
+**Build-time security scanning for MCP servers.**
 
-MCP Sentinel is a build-time static and dynamic analysis tool that catches security vulnerabilities in MCP servers *before* they reach production — prompt injection vectors, over-permissioned tool definitions, insecure auth flows, and more. It maps every finding to the OWASP Agentic Top 10 and drops straight into CI as a CLI tool or GitHub Action with SARIF output.
+MCP Sentinel combines deterministic static rules, required GPT-5.6 semantic
+review, and Docker-isolated adversarial probes. Every canonical finding maps to
+the OWASP Agentic Top 10 and renders through the same console, JSON, and SARIF
+2.1.0 report pipeline.
 
-Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
+> **Status:** Phases 0–4 are complete. Phase 5 repository hardening is in
+> progress; public video, Devpost, and release-publication tasks remain pending.
 
-> **Implementation status:** Phases 0–4 are complete: hybrid static analysis,
-> required GPT-5.6 semantic review, Docker-isolated dynamic probing, and the
-> end-user GitHub Action with a public live SARIF upload proof. Phase 5 is
-> console/report polish and judged-demo preparation.
+## Architecture
 
----
+```mermaid
+flowchart LR
+    A[Untrusted MCP repository] --> B[AST + Semgrep rules]
+    B --> C[Canonical candidates]
+    C --> D[GPT-5.6 semantic review]
+    D --> E[Constrained four-probe plan]
+    E --> F[Docker sandbox]
+    F --> G[Reviewed dynamic evidence]
+    D --> H[Deduplication + provenance merge]
+    G --> H
+    H --> I[Console]
+    H --> J[JSON 1.2.0]
+    H --> K[SARIF 2.1.0]
+    K --> L[GitHub code scanning]
+```
 
-## Why Sentinel
-
-MCP servers expose tools, resources, and prompts to AI agents — often with far more trust and reach than a typical API endpoint. A single overly-permissive tool schema or unsanitized prompt template can let an agent be manipulated into leaking data, escalating privileges, or taking unintended actions. Most of these issues are visible in the code and config *before* deployment — if something is actually looking for them.
-
-Sentinel looks for them.
+Static analysis never imports or executes target code. Dynamic analysis runs
+only local Python MCP targets in fresh containers with read-only source,
+restricted build egress, no runtime network, resource limits, and forced
+cleanup. GPT can order and bind four permanent inert templates; it cannot emit
+executable probe code or create rule-less findings.
 
 ## What it checks
 
-- **Prompt injection surfaces** — unsanitized user/tool input flowing into prompt templates
-- **Over-permissioned tool definitions** — tools requesting broader scopes/capabilities than their function needs
-- **Insecure auth flows** — weak or missing credential handling, hardcoded secrets, unsafe token storage
-- **Unsafe tool composition** — tool chains that could be combined to bypass intended guardrails
-- **Schema and input validation gaps** — missing or overly permissive JSON schema constraints on tool inputs
+| Rule | Detection | OWASP | Impact |
+|---|---|---|---|
+| SENT-001 | Overly broad tool permission scope | ASI03:2026 | High |
+| SENT-002 | Tool input reaches unsafe execution | ASI05:2026 | Critical |
+| SENT-003 | Missing tool input validation | ASI02:2026 | Medium |
+| SENT-004 | Unsanitized tool content enters a prompt | ASI01:2026 | High |
+| SENT-005 | Hardcoded credential | ASI03:2026 | Critical |
+| SENT-006 | Missing or ineffective route authentication | ASI03:2026 | High |
+| SENT-007 | Unverified tool manifest | ASI04:2026 | Medium |
+| SENT-008 | Out-of-scope tool execution | ASI02:2026 | Critical |
+| SENT-009 | Oversized argument accepted | ASI05:2026 | Medium |
+| SENT-010 | Injection payload executed | ASI05:2026 | Critical |
+| SENT-011 | Malformed schema input processed | ASI02:2026 | Low |
 
-Every finding is mapped to the relevant category in the **OWASP Agentic Top 10**, with a severity rating and a suggested remediation.
+See the [rule catalog](docs/rules.md) for boundaries, false-positive risks,
+evidence, and remediation.
 
-## Product scope
+## Requirements and installation
 
-- ✅ **Static analysis** of MCP server source, tool schemas, and configuration
-- 🧠 **GPT-5.6 semantic review** of every deterministic candidate, with grounded
-  evidence and constrained dynamic-probe planning
-- ⚡ **Dynamic analysis** — exercises running MCP servers with adversarial inputs
-- 🧭 **OWASP Agentic Top 10 mapping** for every finding
-- 🛠️ **CLI tool** for local development and ad-hoc scans
-- 🤖 **GitHub Action** for automated scanning on every PR
-- 📄 **SARIF output** — integrates natively with GitHub code scanning and other CI security dashboards
-- 🧩 Part of the [SecureMCP suite](#related-projects) — pairs with a runtime enforcement gateway and a credential broker for full lifecycle coverage
+Supported CLI environments are Python 3.10–3.12 on Linux, macOS, and Windows.
+Full scans and demos require Docker Engine or Docker Desktop with Buildx. The
+GitHub Action runs on Ubuntu.
 
-## Development installation
+Development checkout:
 
 ```bash
 uv sync --extra dev
 uv run sentinel --version
 ```
 
-The pip-compatible development path is `pip install -e ".[dev]"`. The package
-is not published to PyPI yet.
-
-## Usage
-
-### CLI
+The pip-compatible development path is:
 
 ```bash
-# Inspect the CLI
-sentinel scan --help
-
-# Run static analysis, required live GPT review, and Docker dynamic probing.
-sentinel scan ./path/to/mcp-server --format sarif --output results.sarif
-
-# Complete static analysis plus GPT review; exits 0 or 1 based on --fail-on.
-sentinel scan ./path/to/mcp-server --static-only
-
-# Explicitly permit a complete, prominently degraded static-only scan when GPT
-# is unavailable. Findings remain needs_review and still participate in fail-on.
-sentinel scan ./path/to/mcp-server --static-only --allow-degraded
-
-# Run all seven static rules against the vulnerable reference fixture.
-sentinel demo
-
-# Regenerate/check native schemas and validate SARIF fully offline
-python -m sentinel.schema generate
-python -m sentinel.schema check
-python -m sentinel.report.validate_sarif results.sarif
+pip install -e ".[dev]"
 ```
 
-A normal scan requires `sentinel.target.yaml`. `--static-only` omits target
-launch configuration but does not omit semantic review. Candidate-bearing live
-reviews read `OPENAI_API_KEY` from the process environment; the value is never
-printed, persisted, cached, or forwarded to target code. Missing access fails
-closed with exit `3` unless `--allow-degraded` is explicit.
+Phase 5 CI builds one prebuilt `0.1.0` wheel and retains it as a downloadable
+workflow artifact. Install that exact wheel without rebuilding:
 
-### GitHub Action
+```bash
+python -m pip install mcp_sentinel-0.1.0-py3-none-any.whl
+# or
+pipx install mcp_sentinel-0.1.0-py3-none-any.whl
+```
 
-The composite Action installs the exact Sentinel source at its selected ref,
-runs the same default Docker-backed pipeline as the CLI, validates SARIF
-offline, and uploads it to GitHub code scanning. The caller checks out the
-repository and grants the upload permission:
+The package is not published to PyPI yet.
+
+## CLI
+
+```bash
+# Complete static + GPT + Docker analysis
+sentinel scan ./path/to/server
+
+# Validated SARIF
+sentinel scan ./path/to/server --format sarif --output results.sarif
+
+# Static analysis plus required semantic review
+sentinel scan ./path/to/server --static-only
+
+# Explicitly allow unreviewed candidates when GPT is unavailable
+sentinel scan ./path/to/server --static-only --allow-degraded
+
+# Compact output is default; bounded evidence is opt-in
+sentinel scan ./path/to/server --verbose
+```
+
+`--color/--no-color` overrides display detection. Otherwise `NO_COLOR` disables
+style and interactive TTYs receive color. Presentation flags are rejected for
+JSON/SARIF rather than silently ignored.
+
+A normal scan requires `sentinel.target.yaml` and
+`sentinel.permissions.yaml`. `--static-only` omits Docker and launch
+configuration but still requires semantic review. `OPENAI_API_KEY` is read only
+by Sentinel; it is never printed, persisted, forwarded to the target, or stored
+by the Responses API.
+
+Exit codes are stable:
+
+| Code | Meaning |
+|---:|---|
+| 0 | Complete scan with no finding at the failure threshold |
+| 1 | Complete scan with a finding at or above the threshold |
+| 2 | Target or configuration error |
+| 3 | GPT, Docker, Semgrep, report-validation, or internal failure |
+
+Operational messages use `target error:`, `configuration error:`, and
+`infrastructure error:` prefixes. `--debug` adds internal tracebacks.
+
+## Judge demo
+
+The wheel contains the vulnerable and clean fixtures, schemas, and GPT
+cassettes. No source checkout is required.
+
+```bash
+# Offline GPT replay plus real Docker probes
+sentinel demo --replay-review --verbose
+
+# Live GPT review plus real Docker probes
+export OPENAI_API_KEY=your-key
+sentinel demo --verbose
+```
+
+Both commands atomically refresh validated reports under
+`./sentinel-demo-results/`; use `--output-dir` to change the location. Expected
+vulnerabilities make the demo successful, so a complete demo exits `0`.
+Recorded review is prominently labeled and is never represented as a live call.
+See the [judge runbook and narration](docs/demo.md).
+
+## GPT-5.6 behavior and disclosure
+
+The production reviewer uses the OpenAI Responses API with:
+
+- requested model `gpt-5.6-sol` and recorded returned model ID;
+- `store: false`;
+- medium reasoning effort by default;
+- strict Structured Outputs using the versioned review schema;
+- deterministic context selection, redaction, batching, and candidate caps;
+- validated source-range claims and constrained probe plans;
+- current/origin latency, tokens, cache, failure, and micro-USD telemetry.
+
+Live mode calls the model. Replay mode feeds checked live responses through the
+same parser, validators, merge logic, dynamic probes, and reports. Degraded mode
+is explicit, leaves candidates in `needs_review`, and remains fail-on eligible.
+Suppressed candidates stay visible in every report with their reasoning.
+
+## GitHub Action
 
 ```yaml
 name: MCP Sentinel
@@ -107,82 +179,66 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - id: sentinel
-        uses: BashaarJavaid/MCP-Sentinel@<commit-sha>
+        uses: BashaarJavaid/MCP-Sentinel@<immutable-commit-sha>
         with:
           target-path: .
           fail-on: high
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
 ```
 
-Pin the Action to an immutable commit. `target-path` defaults to `.` and must
-resolve inside `GITHUB_WORKSPACE`; `fail-on` defaults to `high`; and
-`static-only` defaults to `false`. A full scan requires Docker and
-`sentinel.target.yaml` in the target.
+The Action validates SARIF before upload and exposes `sarif-path`,
+`findings-count`, and `highest-severity`. Fork pull requests receive no secret;
+they run visibly degraded analysis and skip code-scanning upload. Non-fork runs
+remain fail-closed. The preserved live proof is documented in
+[`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
 
-| Output | Meaning |
-|---|---|
-| `sarif-path` | Absolute path to the validated report under `RUNNER_TEMP` |
-| `findings-count` | All visible SARIF results, including suppressions |
-| `highest-severity` | Highest non-suppressed severity, or `none` |
+## Reports and reproducibility
 
-Exit `0` passes. Exit `1` uploads SARIF and then fails the configured finding
-threshold. Exit `2` is invalid input/configuration. Exit `3` is incomplete
-analysis or Action infrastructure failure; a valid incomplete report is still
-uploaded, while invalid SARIF always blocks upload.
-
-For forked pull requests, GitHub does not expose repository secrets or a normal
-write token. Sentinel automatically withholds the API key, enables visibly
-degraded review, validates and summarizes the report, and skips code-scanning
-upload. Findings remain fail-on eligible. Non-fork workflows remain fail-closed
-when required GPT review cannot run.
-
-## Example output
-
-```text
-MCP Sentinel 0.1.0
-Target: vulnerable_server
-Status: INCOMPLETE
-Static findings: 7
-
-Rules:
-  SENT-001: evaluated, 1 match(es)
-  ...
-  SENT-007: evaluated, 1 match(es)
-
-Pipeline stages:
-  static: succeeded
-  gpt_static: succeeded
-  dynamic: skipped — not implemented until Phase 3 dynamic probing
-  gpt_dynamic: skipped — not implemented until Phase 3 dynamic probing
-  merge: skipped — not implemented until Phase 3 dynamic probing
-  reporting: succeeded
+```bash
+python -m sentinel.schema check
+python -m sentinel.report.validate_sarif results.sarif
+make artifacts-check
+make notices-check
 ```
 
-## Related projects
+`artifacts/example.sarif` is the checked live report.
+`artifacts/gpt-ablation.json` compares rules-only, GPT-reviewed, and
+dynamically proven outcomes over the versioned truth set. Routine generation
+uses replay and Docker; the final live refresh is hard-capped:
 
-Sentinel is one piece of the **SecureMCP** suite, a set of independent, zero-trust-aligned tools for securing agentic AI systems end-to-end:
+```bash
+make artifacts
+MAX_USD=0.50 make artifacts-live
+```
 
-| Project | Role |
-|---|---|
-| **SecureMCP Gateway** | Runtime zero-trust gateway — RBAC/ABAC policy enforcement, risk scoring, signed audit logs |
-| **MCP Sentinel** *(this repo)* | Build-time static/dynamic scanner, OWASP Agentic Top 10 mapped |
-| **SecureMCP Identity** | Short-lived credential broker — OAuth 2.1, Dynamic Client Registration, SPIFFE/SPIRE-style workload identity |
+## Human, Codex, and GPT contribution
 
-Each project runs independently, mirroring how tools like SPIRE and Vault operate as separate trust planes rather than a single monolith.
+The human owner defined product scope, architecture, trust boundaries, threat
+model, phase gates, and release decisions. Codex accelerated implementation,
+tests, debugging, artifact automation, and documentation. GPT-5.6 changes the
+runtime scanner by grounding semantic decisions and prioritizing constrained
+probes; it does not replace deterministic detectors or the Docker boundary.
 
-## Roadmap
+Primary Codex `/feedback` thread for core implementation:
+`019f7469-e3ed-75a0-9906-7059299b1484`.
 
-- [ ] IDE plugin (VS Code) for inline findings
-- [ ] Expanded dynamic fuzzing corpus for tool-chain abuse cases
-- [ ] Policy-as-code rule authoring for custom checks
-- [ ] Baseline diffing to flag only new findings in PRs
+Supporting implementation threads:
 
-## Contributing
+- `019f70e6-a5fb-7f13-8eae-bca041fc37ad`
+- `019f741f-cf91-7000-b12c-e9aa2a50ff03`
+- `019f77a1-f2f0-7ab2-9a5d-e72fa1ebc40e`
 
-Issues and PRs welcome. Please open an issue describing the vulnerability class or false positive/negative before submitting a fix, so it can be traced back to an OWASP Agentic Top 10 category.
+Submit `/feedback` from the primary thread as required by the hackathon record.
+
+## SecureMCP suite
+
+Sentinel is the build-time security plane. SecureMCP Gateway provides runtime
+zero-trust enforcement, while SecureMCP Identity brokers short-lived workload
+credentials. Those projects are separate and out of scope here.
 
 ## License
 
-MIT
+MCP Sentinel is MIT licensed. Dependency licenses and packaged notice files are
+recorded in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

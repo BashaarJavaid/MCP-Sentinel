@@ -34,6 +34,8 @@ def test_sarif_shell_validates_and_preserves_failure_state(
         f"SENT-{number:03d}" for number in range(1, 8)
     ]
     assert run["results"] == []
+    for rule in run["tool"]["driver"]["rules"]:
+        assert rule["helpUri"].endswith(f"docs/rules.md#{rule['id'].lower()}")
     assert run["originalUriBaseIds"]["SRCROOT"]["uri"] == "./"
     invocation = run["invocations"][0]
     assert invocation["executionSuccessful"] is False

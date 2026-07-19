@@ -6,7 +6,7 @@ from sentinel.finding import Impact
 from sentinel.owasp_mapping import category_for_rule
 from sentinel.static.model import RuleDefinition, RuleEngine
 
-_DOC_ROOT = "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules"
+_DOC_ROOT = "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md"
 
 
 def _rule(
@@ -27,7 +27,7 @@ def _rule(
         false_positive_risk=false_positive_risk,
         owasp_category=category_for_rule(rule_id),
         engine=engine,
-        help_uri=f"{_DOC_ROOT}/{rule_id}.md",
+        help_uri=f"{_DOC_ROOT}#{rule_id.lower()}",
     )
 
 

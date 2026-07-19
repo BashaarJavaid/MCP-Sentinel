@@ -142,7 +142,7 @@ def _rule_descriptor(rule_id: str) -> ReportingDescriptor:
         engine = "dynamic"
         help_uri = (
             "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/"
-            f"docs/rules/{rule_id}.md"
+            f"docs/rules.md#{rule_id.lower()}"
         )
         help_text = dynamic_definition.remediation
     return ReportingDescriptor(

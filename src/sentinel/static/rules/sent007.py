@@ -10,7 +10,7 @@ from typing import Literal
 import yaml
 from pydantic import field_validator, model_validator
 
-from sentinel.errors import UsageError
+from sentinel.errors import ConfigurationError, TargetError
 from sentinel.finding import ContractModel
 from sentinel.static.ast_utils import match_from_node, qualified_name
 from sentinel.static.model import RuleRunState, StaticContext
@@ -85,19 +85,21 @@ def _load_anchors(root: Path) -> IntegrityManifest | None:
     if not path.exists():
         return None
     if path.is_symlink() or not path.is_file():
-        raise UsageError("sentinel.integrity.yaml must be a regular file")
+        raise ConfigurationError("sentinel.integrity.yaml must be a regular file")
     try:
         value = IntegrityManifest.model_validate(
             yaml.safe_load(path.read_text(encoding="utf-8"))
         )
     except Exception as error:
-        raise UsageError(f"invalid sentinel.integrity.yaml: {error}") from error
+        raise ConfigurationError(f"invalid sentinel.integrity.yaml: {error}") from error
     for manifest, entry in value.manifests.items():
         if Path(manifest).is_absolute() or ".." in Path(manifest).parts:
-            raise UsageError("integrity manifest paths must be repository-relative")
+            raise ConfigurationError(
+                "integrity manifest paths must be repository-relative"
+            )
         for target in (entry.public_key, entry.signature):
             if target is not None and not (root / target).is_file():
-                raise UsageError(
+                raise TargetError(
                     f"integrity trust-anchor path does not exist: {target}"
                 )
     return value

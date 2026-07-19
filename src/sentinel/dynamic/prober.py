@@ -55,6 +55,7 @@ class ProbeBinding:
     target_tool: str | None
     field: str | None
     marker: str | None
+    container_field: str | None = None
 
 
 @dataclass(frozen=True)
@@ -300,6 +301,20 @@ def _select_runtime_binding(
         properties = _properties(by_name[binding.target_tool])
         if binding.field in properties:
             return binding
+        containers = [
+            name
+            for name, schema in properties.items()
+            if schema.get("type") == "object"
+            and schema.get("additionalProperties") is True
+        ]
+        if len(containers) == 1:
+            return ProbeBinding(
+                binding.probe_id,
+                binding.target_tool,
+                binding.field,
+                binding.marker,
+                containers[0],
+            )
     for tool in sorted(tools, key=lambda item: item.name):
         properties = _properties(tool)
         field = _compatible_field(binding.probe_id, tool, properties)
@@ -329,23 +344,34 @@ def _probe_arguments(
     tool = next((item for item in tools if item.name == binding.target_tool), None)
     schema = tool.inputSchema if tool is not None else {}
     arguments = _baseline_arguments(schema)
-    redacted: dict[str, JsonValue] = dict(arguments)
+    redacted: dict[str, JsonValue] = _baseline_arguments(schema)
     if binding.field is None:
         return arguments, redacted
+    argument_target = arguments
+    redacted_target = redacted
+    if binding.container_field is not None:
+        nested_arguments = arguments.get(binding.container_field)
+        nested_redacted = redacted.get(binding.container_field)
+        if not isinstance(nested_arguments, dict) or not isinstance(
+            nested_redacted, dict
+        ):
+            raise InfrastructureError("runtime object envelope is not an object")
+        argument_target = nested_arguments
+        redacted_target = nested_redacted
     if binding.marker == OMIT_MARKER:
-        arguments.pop(binding.field, None)
-        redacted.pop(binding.field, None)
+        argument_target.pop(binding.field, None)
+        redacted_target.pop(binding.field, None)
     elif binding.marker == OVERSIZED_MARKER:
         field_schema = _properties(tool).get(binding.field, {}) if tool else {}
         value = _oversized_value(field_schema)
-        arguments[binding.field] = value
-        redacted[binding.field] = OVERSIZED_MARKER
+        argument_target[binding.field] = value
+        redacted_target[binding.field] = OVERSIZED_MARKER
     elif binding.marker == INJECTION_MARKER:
-        arguments[binding.field] = INJECTION_VALUE
-        redacted[binding.field] = INJECTION_MARKER
+        argument_target[binding.field] = INJECTION_VALUE
+        redacted_target[binding.field] = INJECTION_MARKER
     else:
-        arguments[binding.field] = {"__sentinel_wrong_type__": True}
-        redacted[binding.field] = WRONG_TYPE_MARKER
+        argument_target[binding.field] = {"__sentinel_wrong_type__": True}
+        redacted_target[binding.field] = WRONG_TYPE_MARKER
     return arguments, redacted
 
 

@@ -12,7 +12,7 @@ import yaml
 from pathspec import GitIgnoreSpec
 
 from sentinel.config import DEFAULT_IGNORES
-from sentinel.errors import UsageError
+from sentinel.errors import ConfigurationError, TargetError
 from sentinel.report.model import ReportWarning
 from sentinel.static.model import ParsedPythonFile, StaticFileSet
 
@@ -44,7 +44,7 @@ def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFil
         try:
             entries = sorted(os.scandir(directory), key=lambda item: item.name)
         except OSError as error:
-            raise UsageError(
+            raise TargetError(
                 f"cannot traverse target directory: {directory}"
             ) from error
         for entry in entries:
@@ -71,7 +71,7 @@ def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFil
                 try:
                     tree = ast.parse(source, filename=relative)
                 except SyntaxError as error:
-                    raise UsageError(
+                    raise TargetError(
                         f"cannot parse Python source {relative}: {error.msg}"
                     ) from error
                 python_files.append(
@@ -118,22 +118,22 @@ def _read_supported(path: Path) -> str:
     try:
         size = path.stat().st_size
     except OSError as error:
-        raise UsageError(f"cannot stat supported file: {path.name}") from error
+        raise TargetError(f"cannot stat supported file: {path.name}") from error
     if size > MAX_STATIC_FILE_BYTES:
-        raise UsageError(f"supported file exceeds 1 MiB limit: {path.name}")
+        raise TargetError(f"supported file exceeds 1 MiB limit: {path.name}")
     try:
         return path.read_text(encoding="utf-8")
     except UnicodeDecodeError as error:
-        raise UsageError(f"supported file is not valid UTF-8: {path.name}") from error
+        raise TargetError(f"supported file is not valid UTF-8: {path.name}") from error
     except OSError as error:
-        raise UsageError(f"cannot read supported file: {path.name}") from error
+        raise TargetError(f"cannot read supported file: {path.name}") from error
 
 
 def _read_gitignore(path: Path) -> GitIgnoreSpec:
     try:
         content = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as error:
-        raise UsageError(f"cannot read .gitignore: {path}") from error
+        raise TargetError(f"cannot read .gitignore: {path}") from error
     return GitIgnoreSpec.from_lines(content.splitlines())
 
 
@@ -178,7 +178,9 @@ def _validate_config(path: Path, relative: str, source: str) -> None:
         else:
             _validate_dotenv(source)
     except (json.JSONDecodeError, yaml.YAMLError, tomllib.TOMLDecodeError) as error:
-        raise UsageError(f"cannot parse configuration {relative}: {error}") from error
+        raise ConfigurationError(
+            f"cannot parse configuration {relative}: {error}"
+        ) from error
 
 
 def _validate_dotenv(source: str) -> None:
@@ -189,10 +191,10 @@ def _validate_dotenv(source: str) -> None:
         if line.startswith("export "):
             line = line[7:].lstrip()
         if "=" not in line:
-            raise UsageError(f"invalid dotenv syntax on line {number}")
+            raise ConfigurationError(f"invalid dotenv syntax on line {number}")
         name, value = line.split("=", 1)
         if not name.strip().isidentifier():
-            raise UsageError(f"invalid dotenv name on line {number}")
+            raise ConfigurationError(f"invalid dotenv name on line {number}")
         value = value.strip()
         if value.startswith(("'", '"')) and (len(value) < 2 or value[-1] != value[0]):
-            raise UsageError(f"unterminated dotenv quote on line {number}")
+            raise ConfigurationError(f"unterminated dotenv quote on line {number}")

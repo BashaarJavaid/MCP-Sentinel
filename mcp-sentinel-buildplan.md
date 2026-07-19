@@ -2,6 +2,11 @@
 
 > **Purpose of this document:** This is a complete handoff brief for building **MCP Sentinel** with the help of a GPT-based coding assistant ("Sol"). It contains full context on what Sentinel is, how it fits into the larger SecureMCP suite, the architecture, the build plan, and exactly how ChatGPT/Sol should be used at each phase. Paste this whole file into Sol as the first message of the build session.
 
+> **Current authority:** Phase numbering and release gates in this brief have
+> been reconciled with the implemented system. `ARCHITECTURE.md` owns accepted
+> contracts and `ROADMAP.md` owns gate status if either document becomes more
+> specific than this original handoff.
+
 ---
 
 ## 1. Project Identity
@@ -57,11 +62,11 @@ Every finding Sentinel produces is tagged against a category in the OWASP Agenti
 
 ## 3. Deliverables
 
-1. **CLI tool** (`sentinel scan <path-or-url>`) — runs static + dynamic checks against a local MCP server repo or a running MCP endpoint, prints a human-readable report to stdout, and can emit SARIF (`--format sarif`)
+1. **CLI tool** (`sentinel scan <path>`) — runs static and dynamic checks against a local Python MCP repository and emits console, JSON, or SARIF output
 2. **GitHub Action** — wraps the CLI, runs on PRs, uploads SARIF to GitHub's Security tab (Code Scanning), and can be configured to fail the build above a severity threshold
 3. **Rule engine** — a set of discrete, independently testable detection rules, each mapped to an OWASP Agentic Top 10 category, versioned so new rules can be added without touching the core engine
-4. **GPT-5.6 semantic review layer** — takes raw rule-engine candidates, reads the target server's actual tool schemas/descriptions/code context, and emits validated canonical findings (confirms real issues, suppresses false positives, adds context static rules can't see). This is the guaranteed-to-work spine of the GPT-5.6 integration — see §12.
-5. **GPT-5.6 exploit-confirmation layer (scoped stretch goal)** — for findings against the project's own fixture `vulnerable_server`, GPT-5.6 generates a context-specific exploit, the sandbox runs it, and the finding is marked CONFIRMED (with evidence) or LIKELY FALSE POSITIVE. Auto-patch-generation and auto-opened PRs are a further stretch beyond this. See §12.
+4. **GPT-5.6 semantic review layer** — takes raw rule-engine candidates, reads the target server's actual tool schemas/descriptions/code context, and emits validated canonical findings (confirms real issues, suppresses false positives, adds context static rules can't see). This is the guaranteed-to-work spine of the GPT-5.6 integration — see §10.
+5. **GPT-5.6 exploit-confirmation layer (scoped stretch goal)** — for findings against the project's own fixture `vulnerable_server`, GPT-5.6 generates a context-specific exploit, the sandbox runs it, and the finding is marked CONFIRMED (with evidence) or LIKELY FALSE POSITIVE. Auto-patch-generation and auto-opened PRs are a further stretch beyond this. See §10.
 6. **Demo artifact** — a deliberately vulnerable sample MCP server repo that Sentinel scans live during the demo, producing a visible SARIF report / annotated PR with real findings, including at least one GPT-5.6-confirmed finding
 
 ---
@@ -69,10 +74,10 @@ Every finding Sentinel produces is tagged against a category in the OWASP Agenti
 ## 4. Suggested Tech Stack
 
 - **Language:** Python (consistent with the rest of your stack — FastAPI, LangGraph, RAG work — and Python has the best MCP SDK support today)
-- **CLI framework:** `click` or `typer` for ergonomic command structure
-- **Static analysis:** AST-based parsing (`ast` module) for Python MCP servers; regex/pattern rules as a fallback for quick wins; consider `semgrep` as an embedded engine for custom rule definitions rather than writing an AST walker from scratch — this saves significant hackathon time
-- **Dynamic analysis:** spin up target server in a subprocess or Docker container, use `httpx`/`requests` to send probe payloads against its MCP endpoint
-- **SARIF output:** use the `sarif-om` Python package (or hand-roll a minimal SARIF 2.1.0 JSON writer — the schema is well documented and a minimal valid output is not large)
+- **CLI framework:** Typer
+- **Static analysis:** MCP-aware Python AST analysis plus pinned Semgrep rules
+- **Dynamic analysis:** fresh Docker containers using MCP stdio and four fixed probes
+- **SARIF output:** `sarif-om` objects plus offline SARIF 2.1.0 validation
 - **Packaging:** `pyproject.toml` + `pip install -e .` for local dev; publish-ready structure even if you don't actually publish to PyPI during the hackathon
 - **GitHub Action:** a `action.yml` wrapping a Docker container or composite run steps that install and invoke the CLI
 - **Testing:** `pytest` for rule engine unit tests against fixture "vulnerable" and "clean" MCP server snippets
@@ -116,41 +121,36 @@ mcp-sentinel/
 
 ## 6. Phased Build Plan
 
-### Phase 0 — Setup (Day 1, first hour)
-- Scaffold repo structure above
-- Get `sentinel scan --help` running end-to-end with a no-op scan
-- Write the minimal valid SARIF output shell so the pipeline (scan → report) exists before rules do
+### Phase 0 — Scaffold and contracts
+- Establish the Typer CLI, canonical Finding/report schemas, valid empty report
+  shells, vendored validators, fixtures, and packaging boundaries.
 
-### Phase 1 — Static Rule Engine (Day 1)
-- Implement the AST/pattern-based rule engine
-- Write 5–8 concrete rules covering the categories in §2.1
-- Build the deliberately vulnerable fixture server that trips every rule
-- Get `sentinel scan ./fixtures/vulnerable_server --format sarif` producing a correct, validating SARIF file
+### Phase 1 — Hybrid static engine
+- Implement `SENT-001` through `SENT-007` with paired vulnerable/clean fixtures,
+  permanent OWASP mappings, Semgrep/AST boundaries, and offline-valid SARIF.
 
-### Phase 2 — Dynamic Probing (Day 1–2)
-- Implement the sandbox launcher (subprocess or Docker)
-- Implement 3–5 adversarial probes (oversized payload, injection in args, out-of-scope tool call, malformed schema)
-- Merge dynamic findings into the same report/SARIF pipeline as static findings
+### Phase 2 — GPT-5.6 semantic review
+- Review every deterministic candidate through strict Responses API Structured
+  Outputs, grounded evidence references, safe probe planning, live checkpoints,
+  checked replay cassettes, and a versioned static ablation.
 
-### Phase 2.5 — GPT-5.6 Semantic Review (Day 1–2, the guaranteed-to-work spine — see §10)
-- Implement `llm/semantic_reviewer.py`: takes raw rule-engine candidates + the target server's actual tool schemas/descriptions, emits validated canonical findings
-- Confirm it correctly validates true positives and suppresses at least one seeded false positive in the fixture set
-- Merge its output into the same Finding shape/report pipeline as static and dynamic findings
+### Phase 3 — Docker dynamic probing
+- Run `SENT-008` through `SENT-011` in fresh isolated containers, review the
+  resulting evidence, merge provenance, and prove cleanup and failure posture.
 
-### Phase 3 — GitHub Action Wrapper (Day 2)
-- Write `action.yml`
-- Test on a real PR against the fixture repo (or a throwaway repo) to confirm SARIF uploads to the Security tab correctly
-- Add pass/fail threshold logic (e.g., fail on any "high" severity finding)
+### Phase 4 — GitHub Action and SARIF integration
+- Wrap the same CLI pipeline, validate before upload, preserve exit semantics,
+  handle fork secrets visibly, and retain a public Security-tab proof.
 
-### Phase 4 — Polish & Demo Prep (Day 2, final hours)
-- Human-readable console report formatting (color-coded severity, OWASP category labels, remediation hints per finding)
-- README with quickstart, architecture diagram, and OWASP mapping table
-- Rehearse the live demo: run `sentinel scan` against the vulnerable fixture, show the SARIF/PR annotation, narrate 2–3 findings and why they matter — including at least one finding that went through the full "rule flagged it → GPT-5.6 confirmed it" chain
+### Phase 5 — Polish and judged demo
+- Polish console/report presentation and errors; package fixtures, schemas, and
+  cassettes; finish live/replay demo paths; generate judge artifacts; reconcile
+  docs and licenses; and pass clean cross-platform distribution gates.
 
-### Phase 4 (stretch) — GPT-5.6 Exploit Confirmation (only if time remains — see §10.3)
-- Implement `llm/exploit_confirm.py`, scoped only to `tests/fixtures/vulnerable_server`
-- For each confirmed finding, generate one context-specific exploit, run it in the Phase 2 sandbox, mark CONFIRMED (with evidence) or LIKELY FALSE POSITIVE
-- Auto-patch generation and auto-opened PR stay out of scope unless this is solid with time to spare
+### Phase 6 — Conditional exploit-confirmation stretch
+- Begin only after every Phase 0–5 gate is stable. Keep fixture-scoped exploit
+  confirmation isolated from the required demo; auto-patching and auto-PRs remain
+  out of scope unless separately approved and proven reliable.
 
 ---
 
@@ -158,11 +158,15 @@ mcp-sentinel/
 
 Sol should be used as an active pair-programmer, not just a code generator. Concrete usage pattern per phase:
 
-- **Phase 0:** Ask Sol to scaffold the full repo structure and boilerplate CLI in one shot from this brief — this is the highest-leverage single prompt, since it removes all the setup friction.
-- **Phase 1:** For each rule, give Sol the specific vulnerable pattern description from §2.1 and ask for (a) the detection logic, (b) a fixture snippet that triggers it, and (c) a fixture snippet that doesn't. Do this rule-by-rule rather than asking for all rules at once — smaller, verifiable units are easier to debug under time pressure.
-- **Phase 2:** Ask Sol to generate the adversarial probe payloads as a structured list (payload, expected-safe-behavior, expected-vulnerable-behavior) before writing the prober code — this front-loads the security thinking and makes the resulting code easier to review quickly.
-- **Phase 3:** GitHub Actions YAML has a lot of small syntactic gotchas (inputs/outputs wiring, permissions blocks for the Security tab upload) — this is a good place to let Sol write the full file and then verify against GitHub's own Action + SARIF upload docs rather than hand-writing it.
-- **Phase 4:** Use Sol to draft the README and the demo narration script — feed it the actual findings your scanner produces on the fixture server so the narration is accurate rather than generic.
+- **Phase 0:** Scaffold CLI, schemas, validators, fixtures, and package boundaries.
+- **Phase 1:** Build and accept static rules one at a time with paired fixtures.
+- **Phase 2:** Implement and evaluate the grounded GPT contract with live captures
+  only at approved cost gates.
+- **Phase 3:** Design fixed probe expectations before implementing Docker
+  execution and cleanup.
+- **Phase 4:** Verify the composite Action and real SARIF upload against GitHub.
+- **Phase 5:** Draft public docs and narration only from actual final reports;
+  exercise replay, wheel installation, and clean-checkout gates before live proof.
 - **Throughout:** Paste actual error output back to Sol rather than paraphrasing it — exact tracebacks and exact SARIF validation errors get much better fixes than a description of the problem.
 
 ---
@@ -171,17 +175,17 @@ Sol should be used as an active pair-programmer, not just a code generator. Conc
 
 | Rule ID | Detection | OWASP Agentic Category | Severity |
 |---|---|---|---|
-| SENT-001 | Overly broad tool permission scope | Excessive Agency | High |
-| SENT-002 | Unsafe eval/deserialization in tool handler | Tool Misuse | Critical |
-| SENT-003 | Missing input schema validation | Insecure Output/Input Handling | Medium |
-| SENT-004 | Prompt-injection-susceptible tool output re-injection | Prompt Injection via Tool Response | High |
-| SENT-005 | Hardcoded secrets in server code/config | Insecure Credential Handling | Critical |
-| SENT-006 | Missing/overly permissive auth middleware | Excessive Agency | High |
-| SENT-007 | Unsigned/unverified tool manifest | Supply Chain / Manifest Integrity | Medium |
-| SENT-008 (dynamic) | Server executes out-of-scope tool call | Excessive Agency | Critical |
-| SENT-009 (dynamic) | Server accepts malformed/oversized payload without rejection | Insecure Input Handling | Medium |
-
-*(Expand this table as real rules get implemented — keep rule IDs stable once assigned so SARIF output stays consistent across runs.)*
+| SENT-001 | Overly broad tool permission scope | ASI03:2026 Identity & Privilege Abuse | High |
+| SENT-002 | Tool input reaches unsafe execution | ASI05:2026 Unexpected Code Execution | Critical |
+| SENT-003 | Missing tool input validation | ASI02:2026 Tool Misuse & Exploitation | Medium |
+| SENT-004 | Unsanitized tool content enters a prompt | ASI01:2026 Agent Goal Hijack | High |
+| SENT-005 | Hardcoded credential | ASI03:2026 Identity & Privilege Abuse | Critical |
+| SENT-006 | Missing or ineffective route authentication | ASI03:2026 Identity & Privilege Abuse | High |
+| SENT-007 | Unverified tool manifest | ASI04:2026 Agentic Supply Chain Vulnerabilities | Medium |
+| SENT-008 | Out-of-scope tool execution | ASI02:2026 Tool Misuse & Exploitation | Critical |
+| SENT-009 | Oversized argument accepted | ASI05:2026 Unexpected Code Execution | Medium |
+| SENT-010 | Injection payload executed | ASI05:2026 Unexpected Code Execution | Critical |
+| SENT-011 | Malformed schema input processed | ASI02:2026 Tool Misuse & Exploitation | Low |
 
 ---
 
@@ -200,7 +204,7 @@ Sol should be used as an active pair-programmer, not just a code generator. Conc
 
 The question that drove this design: *what should GPT-5.6 do inside Sentinel so its use is genuinely core to the product*, not a bolted-on chatbot feature. Two options were weighed.
 
-### 12.1 Option A — Semantic Security Reviewer (the spine)
+### 10.1 Option A — Semantic Security Reviewer (the spine)
 
 ```
 Deterministic rules find candidates
@@ -209,12 +213,13 @@ GPT-5.6 analyzes code context, finds semantic issues,
 and emits validated canonical findings
 ```
 
-- One GPT-5.6 call per candidate finding, text in/text out. No code execution.
+- Candidates are reviewed in bounded GPT-5.6 batches, with text in/text out and
+  no model-authored code execution.
 - Risk: low — nothing can crash mid-demo; worst case is a mediocre finding explanation.
 - Value: catches business-logic/context issues static rules miss, and kills false positives before they reach the report — a real, defensible improvement over "rules only."
 - Fully buildable inside the hackathon window with room to spare.
 
-### 12.2 Option B — Exploit-Confirm-Patch-PR Loop (the differentiator)
+### 10.2 Option B — Exploit-Confirm-Patch-PR Loop (the differentiator)
 
 ```
 Sentinel static/dynamic scan
@@ -250,20 +255,25 @@ Auto-opens a GitHub PR containing:
   - This is the most likely part of the whole project to break live, and the hardest to debug at 2am the night before.
 - Ceiling: much higher — this isn't "a scanner," it's an autonomous vulnerability-to-fix agent. It's the pitch that actually differentiates the project as founding-engineer-caliber agentic AI work, not just tooling.
 
-### 12.3 Decision — Layer, Don't Choose
+### 10.3 Decision — Layer, Don't Choose
 
 Don't pick one outright — split them by risk, and build in this order:
 
-1. **Build Option A as the guaranteed-to-work spine.** This alone is legitimate and demoable no matter what else lands. This is Phase 2.5 in the build plan (§6) — it sits between static rules and dynamic probing, consuming candidates from either.
-2. **Layer in the *first half* of Option B — exploit generation + sandbox execution + confirm/reject — as the differentiator, scoped tightly to the project's own fixture `vulnerable_server`**, where the exact exploit surface is controlled and known ahead of time. This is the empirically-validated, "not just an LLM's opinion" finding-confirmation story, and it's the most defensible part of Option B. This is a scoped Phase 4 stretch item, not a Phase 0–3 dependency.
+1. **Build Option A as the guaranteed-to-work spine.** This is Phase 2; it sits
+   between static rules and dynamic probing and also reviews dynamic evidence.
+2. **Layer fixture-scoped exploit confirmation only as Phase 6 stretch work.**
+   Required Phase 3 uses permanent inert probes, not LLM-authored exploit code.
 3. **Treat auto-patch-generation + auto-opened PR as a stretch goal demoed only if it's reliably working by the day before** — not something the whole narration depends on. If it isn't solid, narrating live — "here's the confirmed exploit, and here's what the patch would need to fix" — is still a strong close without needing the PR to auto-open.
 
 This gets the differentiated pitch without betting the whole demo on the riskiest four-hop chain in the plan.
 
-### 12.4 Build Plan Impact
+### 10.4 Build Plan Impact
 
-- **New Phase 2.5 — Semantic Review (Day 1–2, after static rules, before/alongside dynamic probing):** implement `llm/semantic_reviewer.py`; feed it real candidate findings from Phase 1's rule engine plus the target server's tool schemas/descriptions; validate that it correctly confirms true positives and suppresses at least one seeded false positive in the fixture set.
-- **Phase 4 stretch addition — Exploit Confirmation:** implement `llm/exploit_confirm.py` scoped only to `tests/fixtures/vulnerable_server`; wire it to generate one context-specific exploit per confirmed finding, run it in the existing sandbox (§2.2/`dynamic/sandbox.py`), and mark the finding CONFIRMED or LIKELY FALSE POSITIVE with evidence attached to the report. Auto-patch + auto-PR stays explicitly out of scope unless this is solid with time to spare.
+- **Phase 2 — Semantic Review:** implement `llm/semantic_reviewer.py`; feed it
+  Phase 1 candidates and real tool schemas; prove confirmation, visible
+  suppression, abstention, and constrained probe prioritization.
+- **Phase 6 — Exploit Confirmation:** if separately entered, keep generation and
+  execution fixture-scoped and unable to destabilize the Phase 0–5 pipeline.
 - **Demo script (§9) addition:** narrate at least one finding that went through the full "rule flagged it → GPT-5.6 confirmed it → sandbox proved it" chain — this is the single most differentiating beat in the demo.
 
 ---
@@ -273,11 +283,20 @@ This gets the differentiated pitch without betting the whole demo on the riskies
 To keep scope bounded, the following are **out of scope** for the hackathon build and should be called out as "future work" rather than attempted:
 - Full runtime Gateway integration (that's a separate repo/plane)
 - SPIFFE/SPIRE-based identity brokering (Identity plane, separate)
-- Comprehensive rule coverage of every possible MCP vulnerability class — 8–10 solid, demonstrable rules beat 30 shallow ones
+- Comprehensive rule coverage of every possible MCP vulnerability class — the
+  current 11 solid, demonstrable rules are preferable to 30 shallow ones
 - Publishing the CLI to PyPI or the Action to the GitHub Marketplace (nice-to-have stretch goal only if time remains)
 
 ---
 
 ## 12. Quick Reference Summary (for Sol's context window if brevity is needed)
 
-Sentinel = build-time MCP server security scanner. Static (AST/pattern rules) + light dynamic (adversarial probes) analysis, plus a GPT-5.6 semantic review layer that validates rule-engine candidates into confirmed findings (the guaranteed spine), with a scoped GPT-5.6 exploit-generation + sandbox-confirmation layer against the project's own fixture server as the stretch-goal differentiator (auto-patch/auto-PR out of scope unless time allows). Findings mapped to OWASP Agentic Top 10. Ships as CLI + GitHub Action producing SARIF. Part of a larger SecureMCP suite (Gateway = runtime enforcement, Identity = credential brokering) but those are out of scope here. Python stack, `click`/`typer` CLI, optional `semgrep` embedding for static rules, `sarif-om` or hand-rolled SARIF writer, `pytest` fixtures of vulnerable/clean sample servers. Build order: scaffold → static rules → GPT-5.6 semantic review → dynamic probes → GitHub Action → polish/demo → (stretch) exploit confirmation.
+Sentinel is a build-time security scanner for local Python MCP servers. Its
+hybrid AST and pinned-Semgrep static engine feeds bounded candidates through a
+required GPT-5.6 semantic review, then fresh Docker-contained stdio probes test
+the reviewed attack surface. All canonical findings map to the OWASP Agentic
+Top 10 and feed the Typer CLI's console, JSON, and offline-validated SARIF 2.1.0
+reports. Sentinel ships as that CLI plus a GitHub Action; the SecureMCP Gateway
+and Identity planes remain separate. Build order: scaffold → static rules → GPT
+semantic review → dynamic probes → GitHub Action → polish/demo → optional,
+fixture-scoped exploit confirmation.

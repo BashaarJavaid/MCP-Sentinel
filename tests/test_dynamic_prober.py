@@ -219,6 +219,36 @@ def test_runtime_binding_uses_ungranted_tool_and_schema_fallback() -> None:
     assert malformed.marker == WRONG_TYPE_MARKER
 
 
+def test_runtime_binding_preserves_logical_field_inside_object_envelope() -> None:
+    manifest = PermissionsManifest.model_validate(
+        {"version": 1, "tools": {"wrapped": {}}}
+    )
+    tool = Tool(
+        name="wrapped",
+        inputSchema={
+            "type": "object",
+            "properties": {
+                "arguments": {
+                    "type": "object",
+                    "additionalProperties": True,
+                }
+            },
+            "required": ["arguments"],
+        },
+    )
+
+    binding = _select_runtime_binding(
+        ProbeBinding("SENT-011", "wrapped", "record_id", WRONG_TYPE_MARKER),
+        (tool,),
+        manifest,
+    )
+    arguments, evidence = _probe_arguments(binding, (tool,))
+
+    assert binding.container_field == "arguments"
+    assert arguments == {"arguments": {"record_id": {"__sentinel_wrong_type__": True}}}
+    assert evidence == {"arguments": {"record_id": WRONG_TYPE_MARKER}}
+
+
 def test_dynamic_finding_is_confirmed_and_redacts_pointer_tokens() -> None:
     observation = _Observation(
         probe_id="SENT-009",

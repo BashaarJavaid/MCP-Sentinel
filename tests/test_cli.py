@@ -11,7 +11,7 @@ import pytest
 from click import unstyle
 from typer.testing import CliRunner
 
-from sentinel.cli import app
+from sentinel.cli import _use_color, app
 from sentinel.config import LoadedConfiguration
 from sentinel.errors import InfrastructureError
 from sentinel.orchestrator import ScanOutcome, run_phase1_scan
@@ -51,7 +51,35 @@ def test_conflicting_format_is_usage_error(target_root: Path) -> None:
         app, ["scan", str(target_root), "--json", "--format", "sarif"]
     )
     assert result.exit_code == 2
+    assert result.stderr.startswith("configuration error:")
     assert "conflicts" in result.stderr
+
+
+@pytest.mark.parametrize("flag", ["--verbose", "--color", "--no-color"])
+def test_machine_formats_reject_console_presentation_options(
+    target_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    flag: str,
+) -> None:
+    def reject_scan(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("presentation validation must happen before scanning")
+
+    monkeypatch.setattr("sentinel.cli.run_scan", reject_scan)
+    result = runner.invoke(
+        app,
+        ["scan", str(target_root), "--json", flag, "--static-only"],
+    )
+    assert result.exit_code == 2
+    assert result.stderr.startswith("configuration error:")
+    assert "require console output" in result.stderr
+
+
+def test_color_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("NO_COLOR", "1")
+    assert _use_color(None) is False
+    assert _use_color(True) is True
+    assert _use_color(False) is False
 
 
 def test_output_atomically_overwrites_named_file(
@@ -93,7 +121,14 @@ def test_invalid_output_parent_is_usage_error(
         ],
     )
     assert result.exit_code == 2
+    assert result.stderr.startswith("configuration error:")
     assert "invalid output path" in result.stderr
+
+
+def test_missing_target_uses_target_error_prefix(tmp_path: Path) -> None:
+    result = runner.invoke(app, ["scan", str(tmp_path / "missing")])
+    assert result.exit_code == 2
+    assert result.stderr.startswith("target error:")
 
 
 def test_static_only_skips_target_launch_and_completes_when_clean(
@@ -193,11 +228,13 @@ def test_orphan_reaper_failure_returns_infrastructure_exit(
     result = runner.invoke(app, ["scan", str(target_root)])
 
     assert result.exit_code == 3
+    assert result.stderr.startswith("infrastructure error:")
     assert "cannot list stale Sentinel containers" in result.stderr
 
 
 def test_demo_validates_and_cleans_temporary_reports(
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
     def fake_run_scan(
         configuration: LoadedConfiguration,
@@ -207,18 +244,25 @@ def test_demo_validates_and_cleans_temporary_reports(
         **kwargs: object,
     ) -> ScanOutcome:
         del kwargs
-        return run_phase1_scan(
+        incomplete = run_phase1_scan(
             configuration,
             context,
             completed_at=completed_at,
         )
+        return ScanOutcome(report=incomplete.report, exit_code=1)
 
     monkeypatch.setattr("sentinel.cli.run_scan", fake_run_scan)
-    result = runner.invoke(app, ["demo"])
-    assert result.exit_code == 3
-    assert "Validated temporary JSON" in result.stdout
-    assert "Validated temporary SARIF" in result.stdout
-    assert "Temporary demo reports cleaned up" in result.stdout
+    output_dir = tmp_path / "demo-output"
+    output_dir.mkdir()
+    unrelated = output_dir / "notes.txt"
+    unrelated.write_text("keep", encoding="utf-8")
+    result = runner.invoke(app, ["demo", "--output-dir", str(output_dir)])
+    assert result.exit_code == 0
+    assert "Validated JSON" in result.stdout
+    assert "Validated SARIF" in result.stdout
+    assert (output_dir / "report.json").is_file()
+    assert (output_dir / "report.sarif").is_file()
+    assert unrelated.read_text(encoding="utf-8") == "keep"
     assert "incomplete until Phase 3" not in result.stderr
 
 

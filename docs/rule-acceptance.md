@@ -16,5 +16,5 @@ Finding's exploitability; it is not copied from this table.
 | SENT-006 | AST | `ASI03:2026`: unauthenticated routes exercise server authority | Low | Pass | Pass | Signed off |
 | SENT-007 | AST | `ASI04:2026`: unverified metadata permits supply-chain substitution | Low | Pass | Pass | Signed off |
 
-The detailed detection boundaries and exemption mechanisms are versioned in
-[`docs/rules/`](rules/).
+The detailed detection boundaries and exemption mechanisms are versioned in the
+[`docs/rules.md`](rules.md) catalog.
