@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -74,38 +75,47 @@ def run_semgrep(
         if remaining <= 0:
             raise InfrastructureError("static analysis exceeded its 120-second timeout")
         batch = paths[index : index + SEMGREP_BATCH_SIZE]
-        command = [
-            executable,
-            "scan",
-            "--json",
-            "--jobs",
-            "1",
-            "--timeout",
-            str(SEMGREP_TIMEOUT_SECONDS),
-            "--metrics",
-            "off",
-            "--disable-version-check",
-            "--disable-nosem",
-        ]
-        for config in configs:
-            command.extend(("--config", str(config)))
-        command.extend(str(path) for path in batch)
-        try:
-            completed = subprocess.run(
-                command,
-                check=False,
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                timeout=min(SEMGREP_TIMEOUT_SECONDS, remaining),
-                env=environment,
-            )
-        except (OSError, subprocess.TimeoutExpired) as error:
-            raise InfrastructureError(f"Semgrep execution failed: {error}") from error
-        if completed.returncode not in {0, 1}:
-            detail = completed.stderr.strip() or "unknown Semgrep failure"
-            raise InfrastructureError(f"Semgrep execution failed: {detail}")
-        payload = _parse_payload(completed.stdout)
+        with tempfile.TemporaryDirectory(prefix="sentinel-semgrep-") as directory:
+            output = Path(directory) / "results.json"
+            command = [
+                executable,
+                "scan",
+                "--json",
+                "--output",
+                str(output),
+                "--jobs",
+                "1",
+                "--timeout",
+                str(SEMGREP_TIMEOUT_SECONDS),
+                "--metrics",
+                "off",
+                "--disable-version-check",
+                "--disable-nosem",
+            ]
+            for config in configs:
+                command.extend(("--config", str(config)))
+            command.extend(str(path) for path in batch)
+            try:
+                completed = subprocess.run(
+                    command,
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    timeout=min(SEMGREP_TIMEOUT_SECONDS, remaining),
+                    env=environment,
+                )
+            except (OSError, subprocess.TimeoutExpired) as error:
+                raise InfrastructureError(
+                    f"Semgrep execution failed: {error}"
+                ) from error
+            if completed.returncode not in {0, 1}:
+                detail = completed.stderr.strip() or "unknown Semgrep failure"
+                raise InfrastructureError(f"Semgrep execution failed: {detail}")
+            if not output.is_file():
+                detail = completed.stderr.strip() or "Semgrep wrote no JSON report"
+                raise InfrastructureError(f"Semgrep execution failed: {detail}")
+            payload = _parse_payload(output.read_text(encoding="utf-8"))
         _collect_results(payload, results, files, scan_root)
     return results
 
