@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from uuid import UUID
 
@@ -34,6 +35,8 @@ from sentinel.report.model import (
     StaticRuleOutcome,
     StaticRuleStatus,
 )
+from sentinel.report.sarif import render_sarif
+from sentinel.report.validate_sarif import validate_sarif_data
 from sentinel.static.model import StaticScanResult
 from tests.conftest import NOW, SCAN_ID
 
@@ -213,6 +216,12 @@ def test_full_orchestration_orders_both_reviews_and_merge(
         FindingSource.DYNAMIC,
     }
     assert all(stage.status is StageStatus.SUCCEEDED for stage in outcome.report.stages)
+    sarif = json.loads(render_sarif(outcome.report))
+    validate_sarif_data(sarif)
+    assert [rule["id"] for rule in sarif["runs"][0]["tool"]["driver"]["rules"]] == [
+        "SENT-002",
+        "SENT-008",
+    ]
 
 
 @pytest.mark.parametrize(

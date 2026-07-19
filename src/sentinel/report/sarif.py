@@ -28,6 +28,7 @@ from sarif_om import (
     ToolComponent,
 )
 
+from sentinel.dynamic.catalog import RULE_BY_ID as DYNAMIC_RULE_BY_ID
 from sentinel.finding import (
     FileLocation,
     Finding,
@@ -36,7 +37,7 @@ from sentinel.finding import (
     StaticEvidence,
 )
 from sentinel.report.model import ScanReport
-from sentinel.static.catalog import RULE_BY_ID
+from sentinel.static.catalog import RULE_BY_ID as STATIC_RULE_BY_ID
 
 SARIF_SCHEMA_URI = (
     "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/"
@@ -85,8 +86,13 @@ def render_sarif(report: ScanReport) -> str:
             "gptReview": _model_data(report.gpt_review),
         },
     )
-    selected = (
+    selected_static = (
         report.static_analysis.selected_rule_ids if report.static_analysis else ()
+    )
+    reported_rule_ids = tuple(
+        dict.fromkeys(
+            (*selected_static, *(finding.rule_id for finding in report.findings))
+        )
     )
     driver = ToolComponent(
         name="MCP Sentinel",
@@ -94,7 +100,7 @@ def render_sarif(report: ScanReport) -> str:
         information_uri="https://github.com/BashaarJavaid/MCP-Sentinel",
         semantic_version=report.sentinel_version,
         version=report.sentinel_version,
-        rules=[_rule_descriptor(rule_id) for rule_id in selected],
+        rules=[_rule_descriptor(rule_id) for rule_id in reported_rule_ids],
         properties={
             "reportSchemaVersion": report.schema_version,
             "gptReview": _model_data(report.gpt_review),
@@ -104,7 +110,7 @@ def render_sarif(report: ScanReport) -> str:
         tool=Tool(driver=driver),
         invocations=[invocation],
         original_uri_base_ids={"SRCROOT": ArtifactLocation(uri="./")},
-        results=[_result(finding, selected) for finding in report.findings],
+        results=[_result(finding, reported_rule_ids) for finding in report.findings],
         properties={
             "analysisComplete": report.analysis_complete,
             "executionSuccessful": report.execution_successful,
@@ -116,24 +122,44 @@ def render_sarif(report: ScanReport) -> str:
 
 
 def _rule_descriptor(rule_id: str) -> ReportingDescriptor:
-    definition = RULE_BY_ID[rule_id]
+    if rule_id in STATIC_RULE_BY_ID:
+        definition = STATIC_RULE_BY_ID[rule_id]
+        title = definition.title
+        description = definition.description
+        impact = definition.impact
+        owasp_category = definition.owasp_category
+        false_positive_risk = definition.false_positive_risk
+        engine = definition.engine.value
+        help_uri = definition.help_uri
+        help_text = f"{definition.remediation} FP risk: {false_positive_risk}"
+    else:
+        dynamic_definition = DYNAMIC_RULE_BY_ID[rule_id]
+        title = dynamic_definition.title
+        description = dynamic_definition.description
+        impact = dynamic_definition.impact
+        owasp_category = dynamic_definition.owasp_category
+        false_positive_risk = "Runtime-confirmed probe observation."
+        engine = "dynamic"
+        help_uri = (
+            "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/"
+            f"docs/rules/{rule_id}.md"
+        )
+        help_text = dynamic_definition.remediation
     return ReportingDescriptor(
         id=rule_id,
-        name=definition.title,
-        short_description=MultiformatMessageString(text=definition.title),
-        full_description=MultiformatMessageString(text=definition.description),
-        help=MultiformatMessageString(
-            text=f"{definition.remediation} FP risk: {definition.false_positive_risk}"
-        ),
-        help_uri=definition.help_uri,
+        name=title,
+        short_description=MultiformatMessageString(text=title),
+        full_description=MultiformatMessageString(text=description),
+        help=MultiformatMessageString(text=help_text),
+        help_uri=help_uri,
         default_configuration=ReportingConfiguration(
-            level=_sarif_level(Severity(definition.impact.value))
+            level=_sarif_level(Severity(impact.value))
         ),
         properties={
-            "impact": definition.impact.value,
-            "owaspCategory": definition.owasp_category.model_dump(mode="json"),
-            "falsePositiveRisk": definition.false_positive_risk,
-            "engine": definition.engine.value,
+            "impact": impact.value,
+            "owaspCategory": owasp_category.model_dump(mode="json"),
+            "falsePositiveRisk": false_positive_risk,
+            "engine": engine,
         },
     )
 
