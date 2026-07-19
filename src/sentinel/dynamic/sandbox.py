@@ -15,7 +15,7 @@ from collections.abc import AsyncIterator, Callable, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TextIO
+from typing import TextIO, cast
 from uuid import UUID
 
 from mcp import ClientSession, StdioServerParameters
@@ -283,6 +283,7 @@ class DockerSandbox:
         token = str(self.scan_id).replace("-", "")[:12]
         name = f"sentinel-probe-{token}-{suffix}"
         with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
+            errlog = cast(TextIO, stderr)
             parameters = StdioServerParameters(
                 command="docker",
                 args=list(self._probe_run_args(image, name, probe_id)),
@@ -290,11 +291,11 @@ class DockerSandbox:
             )
             try:
                 async with (
-                    stdio_client(parameters, errlog=stderr) as (read, write),
+                    stdio_client(parameters, errlog=errlog) as (read, write),
                     ClientSession(read, write) as client,
                 ):
                     await client.initialize()
-                    yield ProbeSession(client, name, stderr, self)
+                    yield ProbeSession(client, name, errlog, self)
             except BaseException as error:
                 if isinstance(error, asyncio.CancelledError):
                     raise

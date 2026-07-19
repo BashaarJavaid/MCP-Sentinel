@@ -47,13 +47,7 @@ def render_notices() -> str:
         version = distribution.version
         license_name = _license_name(metadata)
         source = _source_url(metadata)
-        license_files = sorted(
-            str(item)
-            for item in distribution.files or ()
-            if "license" in str(item).lower() or "copying" in str(item).lower()
-        )
-        files = ", ".join(license_files) if license_files else "metadata only"
-        rows.append((name, version, license_name, source, files))
+        rows.append((name, version, license_name, source))
     lines = [
         "# Third-party notices",
         "",
@@ -61,13 +55,13 @@ def render_notices() -> str:
         "installed, locked runtime dependency closure. Run the command again after",
         "dependency changes and review every license before release.",
         "",
-        "| Package | Version | License | Source | Packaged notice files |",
-        "|---|---:|---|---|---|",
+        "| Package | Version | License | Source |",
+        "|---|---:|---|---|",
     ]
-    for name, version, license_name, source, files in rows:
+    for name, version, license_name, source in rows:
         lines.append(
             f"| {_cell(name)} | {_cell(version)} | {_cell(license_name)} | "
-            f"{_cell(source)} | {_cell(files)} |"
+            f"{_cell(source)} |"
         )
     lines.extend(
         (
