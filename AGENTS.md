@@ -72,6 +72,16 @@ the GitHub Action. Update this section as each verification gate passes.
 - [ ] Phase 5 — console/report polish and judged demo
 - [ ] Phase 6 — fixture-scoped exploit-confirmation stretch
 
+Phase 5 is **incomplete**. Its repository implementation and verification gates
+are complete, but the following manual/external submission work remains:
+
+- Record and publish the public YouTube demo (under three minutes, with audio).
+- Complete and submit the Devpost entry.
+- Publish the `v0.1.0` GitHub Release with the tested wheel.
+- Submit `/feedback` from the primary Codex thread recorded in `README.md`.
+
+Do not mark Phase 5 complete or begin Phase 6 until all four items are finished.
+
 ---
 
 ## 1. Think Before Coding

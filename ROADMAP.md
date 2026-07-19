@@ -308,6 +308,20 @@ Deliver the required CI workflow and prove that Sentinel findings appear in GitH
 
 Make the required implementation understandable, repeatable, and reliable under live demonstration.
 
+### Current status
+
+Phase 5 is **incomplete**. The repository implementation and automated
+verification gates are complete. The following manual/external submission work
+remains before Phase 5 can be marked complete:
+
+- Record and publish the public YouTube demo (under three minutes, with audio).
+- Complete and submit the Devpost entry.
+- Publish the `v0.1.0` GitHub Release with the tested wheel.
+- Submit `/feedback` from the primary Codex thread recorded in `README.md`.
+
+Phase 6 must not begin until all four items are finished and Phase 5 is marked
+complete.
+
 ### Work
 
 - Polish console severity, OWASP, location, evidence, and remediation presentation.
