@@ -268,6 +268,12 @@ Confirm runtime behavior through four mandatory stdio probes without exposing th
 
 ## 7. Phase 4 — GitHub Action and SARIF integration
 
+**Status: complete.** The SHA-pinned composite Action preserves the CLI exit
+contract, validates SARIF before upload, publishes aggregate GPT telemetry, and
+handles fork events without exposing secrets. A public paired-fixture workflow
+proves the clean pass, vulnerable threshold failure, retained artifacts, and 11
+visible Security-tab alerts from `SENT-001` through `SENT-011`.
+
 ### Objective
 
 Deliver the required CI workflow and prove that Sentinel findings appear in GitHub code scanning.

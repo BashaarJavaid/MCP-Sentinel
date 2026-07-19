@@ -6,9 +6,10 @@ MCP Sentinel is a build-time static and dynamic analysis tool that catches secur
 
 Sentinel is the shift-left counterpart to runtime gateways: instead of only containing threats at request time, it flags the underlying bugs at the source, on every commit and PR.
 
-> **Implementation status:** Phases 0–3 are complete: hybrid static analysis,
-> required GPT-5.6 semantic review, and Docker-isolated dynamic probing. Phase 4
-> adds the end-user GitHub Action and live SARIF upload proof.
+> **Implementation status:** Phases 0–4 are complete: hybrid static analysis,
+> required GPT-5.6 semantic review, Docker-isolated dynamic probing, and the
+> end-user GitHub Action with a public live SARIF upload proof. Phase 5 is
+> console/report polish and judged-demo preparation.
 
 ---
 

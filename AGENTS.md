@@ -68,7 +68,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 1 — hybrid static engine, `SENT-001`–`SENT-007`, paired fixtures
 - [x] Phase 2 — GPT semantic review, live captures, replay demo, and static ablation
 - [x] Phase 3 — Docker sandbox and four adversarial probes
-- [ ] Phase 4 — GitHub Action and live SARIF upload
+- [x] Phase 4 — GitHub Action and live SARIF upload
 - [ ] Phase 5 — console/report polish and judged demo
 - [ ] Phase 6 — fixture-scoped exploit-confirmation stretch
 
