@@ -7,8 +7,90 @@ review, and Docker-isolated adversarial probes. Every canonical finding maps to
 the OWASP Agentic Top 10 and renders through the same console, JSON, and SARIF
 2.1.0 report pipeline.
 
-> **Status:** Phases 0–4 are complete. Phase 5 repository hardening is in
-> progress; public video, Devpost, and release-publication tasks remain pending.
+> **Status:** Phases 0–4 and the Phase 5 repository work are complete. The
+> public video, Devpost entry, and release publication remain pending.
+
+## Try Sentinel in three minutes
+
+No source checkout or OpenAI API key is required. Install the prebuilt wheel,
+then run the bundled GPT replay with real Docker probes.
+
+### 1. Download the wheel
+
+Until the `v0.1.0` GitHub Release is published, open the successful
+[Phase 5 CI run](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29684340942),
+download the `mcp-sentinel-wheel` artifact, and unzip it. GitHub may ask you to
+sign in to download a workflow artifact. The archive contains:
+
+```text
+mcp_sentinel-0.1.0-py3-none-any.whl
+```
+
+### 2. Check Docker
+
+Use Python 3.10, 3.11, or 3.12 and start Docker Engine on Linux or Docker
+Desktop on macOS/Windows. Docker Desktop on Windows must use Linux containers.
+
+```bash
+docker info
+docker buildx version
+```
+
+The first run may download Docker images and fixture dependencies through
+Sentinel's restricted build network. The scanned server has no runtime network
+access.
+
+### 3. Install and run
+
+macOS or Linux:
+
+```bash
+cd /path/to/unzipped-wheel
+python3 -m venv sentinel-judge-env
+source sentinel-judge-env/bin/activate
+python -m pip install ./mcp_sentinel-0.1.0-py3-none-any.whl
+sentinel --version
+sentinel demo --replay-review --verbose
+```
+
+Windows PowerShell:
+
+```powershell
+cd C:\path\to\unzipped-wheel
+py -3.12 -m venv sentinel-judge-env
+.\sentinel-judge-env\Scripts\python.exe -m pip install .\mcp_sentinel-0.1.0-py3-none-any.whl
+.\sentinel-judge-env\Scripts\sentinel.exe --version
+.\sentinel-judge-env\Scripts\sentinel.exe demo --replay-review --verbose
+```
+
+The demo should exit `0` with `Status: COMPLETE`, evaluate all seven static
+rules, and report `SENT-001` through `SENT-011`. It writes validated reports to:
+
+```text
+sentinel-demo-results/report.json
+sentinel-demo-results/report.sarif
+```
+
+Validate the SARIF independently on macOS or Linux:
+
+```bash
+python -m sentinel.report.validate_sarif sentinel-demo-results/report.sarif
+```
+
+On Windows PowerShell:
+
+```powershell
+.\sentinel-judge-env\Scripts\python.exe -m sentinel.report.validate_sarif sentinel-demo-results\report.sarif
+```
+
+The validator produces no output when the report is valid and exits `0`. Replay
+is prominently disclosed and makes no model call; checked responses captured
+from GPT-5.6 still pass through the production parser, evidence and probe-plan
+validators, all four real Docker probes, merge logic, and report validation.
+
+See the accepted live
+[`SENT-010` GitHub code-scanning alert](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/security/code-scanning/10)
+and the complete [Action evidence](artifacts/phase4-action-evidence.md).
 
 ## Architecture
 
@@ -72,8 +154,10 @@ The pip-compatible development path is:
 pip install -e ".[dev]"
 ```
 
-Phase 5 CI builds one prebuilt `0.1.0` wheel and retains it as a downloadable
-workflow artifact. Install that exact wheel without rebuilding:
+Phase 5 CI builds one prebuilt `0.1.0` wheel and retains it in the
+[successful workflow run](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29684340942).
+The quickstart above shows the complete no-rebuild judge path. Install that
+exact wheel directly with either package frontend:
 
 ```bash
 python -m pip install mcp_sentinel-0.1.0-py3-none-any.whl
