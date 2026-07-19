@@ -222,6 +222,13 @@ def test_full_orchestration_orders_both_reviews_and_merge(
         "SENT-002",
         "SENT-008",
     ]
+    dynamic_result = sarif["runs"][0]["results"][1]
+    dynamic_location = dynamic_result["locations"][0]
+    physical = dynamic_location["physicalLocation"]
+    assert physical["artifactLocation"]["uri"] == "sentinel.target.yaml"
+    assert physical["artifactLocation"]["uriBaseId"] == "SRCROOT"
+    assert physical["region"]["startLine"] == 1
+    assert dynamic_location["message"]["text"].startswith("Runtime location:")
 
 
 @pytest.mark.parametrize(

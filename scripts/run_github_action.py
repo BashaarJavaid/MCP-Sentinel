@@ -50,6 +50,7 @@ class SarifMetrics:
 class ActionResult:
     effective_exit_code: int
     sarif_path: Path
+    checkout_path: Path
     category: str
     fork_pull_request: bool
     upload_ready: bool
@@ -79,6 +80,7 @@ def execute_action(
         return ActionResult(
             effective_exit_code=2,
             sarif_path=report_path,
+            checkout_path=workspace,
             category="mcp-sentinel/invalid-target",
             fork_pull_request=False,
             upload_ready=False,
@@ -126,6 +128,7 @@ def execute_action(
         return ActionResult(
             effective_exit_code=3 if scan_exit != 2 else 2,
             sarif_path=report_path,
+            checkout_path=target,
             category=category,
             fork_pull_request=fork,
             upload_ready=False,
@@ -145,6 +148,7 @@ def execute_action(
         return ActionResult(
             effective_exit_code=3,
             sarif_path=report_path,
+            checkout_path=target,
             category=category,
             fork_pull_request=fork,
             upload_ready=False,
@@ -156,6 +160,7 @@ def execute_action(
     return ActionResult(
         effective_exit_code=scan_exit,
         sarif_path=report_path,
+        checkout_path=target,
         category=category,
         fork_pull_request=fork,
         upload_ready=upload_ready,
@@ -335,6 +340,7 @@ def emit_action_state(result: ActionResult, environ: Mapping[str, str]) -> None:
         raise RuntimeError("GitHub output paths are unavailable")
     outputs = {
         "sarif-path": str(result.sarif_path),
+        "checkout-path": str(result.checkout_path),
         "findings-count": str(result.metrics.findings_count),
         "highest-severity": result.metrics.highest_severity,
         "effective-exit-code": str(result.effective_exit_code),

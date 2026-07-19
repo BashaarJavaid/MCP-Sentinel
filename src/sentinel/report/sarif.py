@@ -204,7 +204,16 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
 
 def _location(finding: Finding) -> Location:
     if not isinstance(finding.location, FileLocation):
-        return Location(message=Message(text=finding.location.path))
+        return Location(
+            message=Message(text=f"Runtime location: {finding.location.path}"),
+            physical_location=PhysicalLocation(
+                artifact_location=ArtifactLocation(
+                    uri="sentinel.target.yaml",
+                    uri_base_id="SRCROOT",
+                ),
+                region=Region(start_line=1),
+            ),
+        )
     if not isinstance(finding.evidence, StaticEvidence):
         raise TypeError("file findings require static evidence")
     source_range = finding.location.range

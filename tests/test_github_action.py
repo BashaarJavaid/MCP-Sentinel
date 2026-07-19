@@ -273,6 +273,7 @@ def test_outputs_and_summary_are_aggregate_only(tmp_path: Path) -> None:
     result = ActionResult(
         effective_exit_code=0,
         sarif_path=tmp_path / "report.sarif",
+        checkout_path=tmp_path,
         category="mcp-sentinel/root",
         fork_pull_request=False,
         upload_ready=True,
