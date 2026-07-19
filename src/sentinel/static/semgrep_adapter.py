@@ -65,8 +65,6 @@ def run_semgrep(
         {
             "SEMGREP_SEND_METRICS": "off",
             "SEMGREP_ENABLE_VERSION_CHECK": "0",
-            "SEMGREP_LOG_FILE": os.devnull,
-            "SEMGREP_SETTINGS_FILE": os.devnull,
             "SSL_CERT_FILE": certifi.where(),
         }
     )
@@ -76,7 +74,14 @@ def run_semgrep(
             raise InfrastructureError("static analysis exceeded its 120-second timeout")
         batch = paths[index : index + SEMGREP_BATCH_SIZE]
         with tempfile.TemporaryDirectory(prefix="sentinel-semgrep-") as directory:
-            output = Path(directory) / "results.json"
+            temporary_root = Path(directory)
+            output = temporary_root / "results.json"
+            environment.update(
+                {
+                    "SEMGREP_LOG_FILE": str(temporary_root / "semgrep.log"),
+                    "SEMGREP_SETTINGS_FILE": str(temporary_root / "settings.yml"),
+                }
+            )
             command = [
                 executable,
                 "scan",
