@@ -8,7 +8,7 @@ the OWASP Agentic Top 10 and renders through the same console, JSON, and SARIF
 2.1.0 report pipeline.
 
 > **Status:** Phases 0–4 and the Phase 5 repository work are complete. The
-> public video, Devpost entry, and release publication remain pending.
+> public video, Devpost entry, and Codex `/feedback` submission remain pending.
 
 ## Try Sentinel in three minutes
 
@@ -17,13 +17,13 @@ then run the bundled GPT replay with real Docker probes.
 
 ### 1. Download the wheel
 
-Until the `v0.1.0` GitHub Release is published, open the successful
-[Phase 5 CI run](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29684340942),
-download the `mcp-sentinel-wheel` artifact, and unzip it. GitHub may ask you to
-sign in to download a workflow artifact. The archive contains:
+Download `mcp_sentinel-0.1.0-py3-none-any.whl` from the
+[`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0),
+or use the [direct wheel download](https://github.com/BashaarJavaid/MCP-Sentinel/releases/download/v0.1.0/mcp_sentinel-0.1.0-py3-none-any.whl).
+Its SHA-256 digest is:
 
 ```text
-mcp_sentinel-0.1.0-py3-none-any.whl
+4672e63413e87bf750113c06a21133162d00f1e71ca6259a8394028c22b677aa
 ```
 
 ### 2. Check Docker
@@ -45,7 +45,7 @@ access.
 macOS or Linux:
 
 ```bash
-cd /path/to/unzipped-wheel
+cd /path/to/download-directory
 python3 -m venv sentinel-judge-env
 source sentinel-judge-env/bin/activate
 python -m pip install ./mcp_sentinel-0.1.0-py3-none-any.whl
@@ -56,7 +56,7 @@ sentinel demo --replay-review --verbose
 Windows PowerShell:
 
 ```powershell
-cd C:\path\to\unzipped-wheel
+cd C:\path\to\download-directory
 py -3.12 -m venv sentinel-judge-env
 .\sentinel-judge-env\Scripts\python.exe -m pip install .\mcp_sentinel-0.1.0-py3-none-any.whl
 .\sentinel-judge-env\Scripts\sentinel.exe --version
@@ -154,10 +154,12 @@ The pip-compatible development path is:
 pip install -e ".[dev]"
 ```
 
-Phase 5 CI builds one prebuilt `0.1.0` wheel and retains it in the
-[successful workflow run](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29684340942).
-The quickstart above shows the complete no-rebuild judge path. Install that
-exact wheel directly with either package frontend:
+The [`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0)
+provides the prebuilt wheel produced by the
+[successful release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29686427335).
+It passed the Linux, macOS, and Windows test matrix, pip and pipx installation
+smoke tests, and the installed-wheel Docker replay. Install that exact wheel
+directly with either package frontend:
 
 ```bash
 python -m pip install mcp_sentinel-0.1.0-py3-none-any.whl
@@ -315,12 +317,6 @@ Supporting implementation threads:
 - `019f77a1-f2f0-7ab2-9a5d-e72fa1ebc40e`
 
 Submit `/feedback` from the primary thread as required by the hackathon record.
-
-## SecureMCP suite
-
-Sentinel is the build-time security plane. SecureMCP Gateway provides runtime
-zero-trust enforcement, while SecureMCP Identity brokers short-lived workload
-credentials. Those projects are separate and out of scope here.
 
 ## License
 
