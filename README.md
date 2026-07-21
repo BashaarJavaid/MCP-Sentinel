@@ -70,8 +70,9 @@ py -3.12 -m venv sentinel-judge-env
 .\sentinel-judge-env\Scripts\sentinel.exe demo --replay-review --verbose
 ```
 
-The demo should exit `0` with `Status: COMPLETE`, evaluate all seven static
-rules, and report `SENT-001` through `SENT-011`. It writes validated reports to:
+The demo should exit `0` with `Status: COMPLETE`, evaluate all seven static and
+four dynamic rules, and report `SENT-001` through `SENT-011`. It writes
+validated reports to:
 
 ```text
 sentinel-demo-results/report.json
@@ -196,7 +197,13 @@ sentinel scan ./path/to/server --static-only --allow-degraded
 
 # Compact output is default; bounded evidence is opt-in
 sentinel scan ./path/to/server --verbose
+
+# Set the failure threshold; default is high
+sentinel scan ./path/to/server --fail-on critical
 ```
+
+`--fail-on` accepts `critical`, `high`, `medium`, `low`, or `informational`, and
+determines which findings produce exit code `1`.
 
 `--color/--no-color` overrides display detection. Otherwise `NO_COLOR` disables
 style and interactive TTYs receive color. Presentation flags are rejected for
@@ -301,7 +308,7 @@ make notices-check
 
 `artifacts/example.sarif` is the checked live report.
 `artifacts/gpt-ablation.json` compares rules-only, GPT-reviewed, and
-dynamically proven outcomes over the versioned truth set. Routine generation
+dynamically confirmed outcomes over the versioned truth set. Routine generation
 uses replay and Docker; the final live refresh is hard-capped:
 
 ```bash
