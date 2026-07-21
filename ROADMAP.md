@@ -316,10 +316,10 @@ remains before Phase 5 can be marked complete:
 
 - Record and publish the public YouTube demo (under three minutes, with audio).
 - Complete and submit the Devpost entry.
-- Publish the `v0.1.0` GitHub Release with the tested wheel.
-- Submit `/feedback` from the primary Codex thread recorded in `README.md`.
 
-Phase 6 must not begin until all four items are finished and Phase 5 is marked
+The `v0.1.0` GitHub Release is published with the tested wheel, and `/feedback`
+was submitted from the primary Codex thread recorded in `README.md`. Phase 6
+must not begin until both remaining items are finished and Phase 5 is marked
 complete.
 
 ### Work
@@ -357,7 +357,7 @@ complete.
 - Console, JSON, and SARIF counts and severities agree after deduplication.
 - The Security-tab artifact is available before the live demo.
 - `artifacts/gpt-ablation.json` is generated from the versioned eval truth set and proves the measured contribution of GPT review and dynamic proof.
-- The README accurately distinguishes live, replay, and degraded review and contains the Codex collaboration record and `/feedback` submission instruction.
+- The README accurately distinguishes live, replay, and degraded review and contains the Codex collaboration and `/feedback` submission record.
 - The public video is under three minutes, includes audio, and shows a working product consistent with the repository instructions.
 - The repository has a valid license and a free judge test path that remains available through the judging period.
 - No demo step depends on an external endpoint or live target beyond GPT semantic review.

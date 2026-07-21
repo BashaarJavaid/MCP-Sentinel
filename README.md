@@ -2,13 +2,20 @@
 
 **Build-time security scanning for MCP servers.**
 
-MCP Sentinel combines deterministic static rules, required GPT-5.6 semantic
-review, and Docker-isolated adversarial probes. Every canonical finding maps to
-the OWASP Agentic Top 10 and renders through the same console, JSON, and SARIF
-2.1.0 report pipeline.
+AI agents invoke tools exposed by MCP servers, and a single unsafe tool can leak
+credentials, run arbitrary commands, or hijack the agent. MCP Sentinel catches
+those holes before you ship — it scans an MCP server and reports the security
+findings, each mapped to a known threat class.
 
-> **Status:** Phases 0–4 and the Phase 5 repository work are complete. The
-> public video, Devpost entry, and Codex `/feedback` submission remain pending.
+It works in three layers: deterministic static rules find candidate issues,
+GPT-5.6 reviews each one in context to cut false positives and order and
+parameterize the probe plan, and a Docker-isolated sandbox runs the four probes
+to confirm exploitable or unsafe runtime behavior. Every finding maps to the
+OWASP Agentic Top 10 (the industry threat list for AI agents) and renders as
+console, JSON, or SARIF — the standard format GitHub reads for its security tab.
+
+*Want the overview before running anything? Jump to [What it checks](#what-it-checks)
+and the [Architecture](#architecture) diagram.*
 
 ## Try Sentinel in three minutes
 
@@ -117,6 +124,9 @@ cleanup. GPT can order and bind four permanent inert templates; it cannot emit
 executable probe code or create rule-less findings.
 
 ## What it checks
+
+Each rule maps to a category in the OWASP Agentic Top 10; the `ASI0x:2026` codes
+are that list's threat identifiers (e.g. `ASI03` is Identity & Privilege Abuse).
 
 | Rule | Detection | OWASP | Impact |
 |---|---|---|---|
@@ -267,7 +277,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: sentinel
-        uses: BashaarJavaid/MCP-Sentinel@<immutable-commit-sha>
+        uses: BashaarJavaid/MCP-Sentinel@ee91e07d0fa78106dbb6d85b60bd8288173abd23
         with:
           target-path: .
           fail-on: high
@@ -302,21 +312,24 @@ MAX_USD=0.50 make artifacts-live
 ## Human, Codex, and GPT contribution
 
 The human owner defined product scope, architecture, trust boundaries, threat
-model, phase gates, and release decisions. Codex accelerated implementation,
-tests, debugging, artifact automation, and documentation. GPT-5.6 changes the
-runtime scanner by grounding semantic decisions and prioritizing constrained
-probes; it does not replace deterministic detectors or the Docker boundary.
+model, phase gates, and release decisions. Codex was the implementation partner
+for the rule engine, Docker sandbox, reporting pipeline, cross-platform tests,
+debugging, and documentation. GPT-5.6 is load-bearing at scan time: it reads the
+server code, decides which static candidates are real findings, and orders and
+parameterizes the four probes the sandbox runs — turn it off and you get
+different results. It does not replace the deterministic detectors or the
+Docker boundary.
 
 Primary Codex `/feedback` thread for core implementation:
-`019f7469-e3ed-75a0-9906-7059299b1484`.
+`019f70e6-a5fb-7f13-8eae-bca041fc37ad`.
 
 Supporting implementation threads:
 
-- `019f70e6-a5fb-7f13-8eae-bca041fc37ad`
+- `019f7469-e3ed-75a0-9906-7059299b1484`
 - `019f741f-cf91-7000-b12c-e9aa2a50ff03`
 - `019f77a1-f2f0-7ab2-9a5d-e72fa1ebc40e`
 
-Submit `/feedback` from the primary thread as required by the hackathon record.
+The Phase 5 `/feedback` record was submitted from the primary thread above.
 
 ## License
 

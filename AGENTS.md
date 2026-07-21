@@ -77,10 +77,10 @@ are complete, but the following manual/external submission work remains:
 
 - Record and publish the public YouTube demo (under three minutes, with audio).
 - Complete and submit the Devpost entry.
-- Publish the `v0.1.0` GitHub Release with the tested wheel.
-- Submit `/feedback` from the primary Codex thread recorded in `README.md`.
 
-Do not mark Phase 5 complete or begin Phase 6 until all four items are finished.
+The `v0.1.0` GitHub Release is published with the tested wheel, and `/feedback`
+was submitted from the primary Codex thread recorded in `README.md`. Do not mark
+Phase 5 complete or begin Phase 6 until both remaining items are finished.
 
 ---
 
