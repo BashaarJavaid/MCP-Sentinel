@@ -146,6 +146,62 @@ are that list's threat identifiers (e.g. `ASI03` is Identity & Privilege Abuse).
 See the [rule catalog](docs/rules.md) for boundaries, false-positive risks,
 evidence, and remediation.
 
+## Human, Codex, and GPT contribution
+
+The human owner defined product scope, architecture, trust boundaries, threat
+model, phase gates, and release decisions.
+
+### How Codex was used
+
+Codex was the implementation partner for the entire build. The working pattern
+was design-first: before any implementation, a long Codex session worked through
+scope and architecture — MVP versus deferred features, how findings map to OWASP
+categories, the allowed state transitions for a finding, and whether semantic
+review should be optional (it should not; a flag would have made it decorative).
+That session is the architectural backbone the rest of the project was built
+against.
+
+From there Codex built the static rule engine and Semgrep adapter, the Docker
+sandbox and probe harness, the reporting pipeline, the SARIF validator, the
+cross-platform test matrix, artifact automation, and the documentation. It also
+did the debugging on the harder cross-platform problems — Semgrep output parsing
+and runtime-file isolation on Windows, and the two rounds of SARIF fixes needed
+before GitHub code scanning would render the reports correctly.
+
+The repository ships an [`AGENTS.md`](AGENTS.md) that constrains how Codex works
+in this codebase: ask rather than assume, no speculative complexity, no
+unrelated edits, explicit success criteria. Design decisions stayed with the
+human owner; Codex accelerated everything downstream of them.
+
+### How GPT-5.6 was used
+
+GPT-5.6 is inside the shipped product, not just the build. It is load-bearing at
+scan time: it reads the server code, decides which static candidates are real
+findings, and orders and parameterizes the four probes the sandbox runs — turn it
+off and you get different results. It does not replace the deterministic
+detectors or the Docker boundary.
+
+The constraints are the design: strict Structured Outputs against a versioned
+schema, `store: false`, redacted and capped context, and host-validated source
+ranges, so the model cannot cite a line that does not exist, invent a finding
+outside the rule set, or emit executable probe code. See
+[GPT-5.6 behavior and disclosure](#gpt-56-behavior-and-disclosure) for the full
+runtime contract, and `artifacts/gpt-ablation.json` for a measured comparison of
+rules-only, GPT-reviewed, and dynamically confirmed outcomes.
+
+### Codex session record
+
+Primary Codex `/feedback` thread for core implementation:
+`019f70e6-a5fb-7f13-8eae-bca041fc37ad`.
+
+Supporting implementation threads:
+
+- `019f7469-e3ed-75a0-9906-7059299b1484`
+- `019f741f-cf91-7000-b12c-e9aa2a50ff03`
+- `019f77a1-f2f0-7ab2-9a5d-e72fa1ebc40e`
+
+The Phase 5 `/feedback` record was submitted from the primary thread above.
+
 ## Requirements and installation
 
 Supported CLI environments are Python 3.10–3.12 on Linux, macOS, and Windows.
@@ -315,28 +371,6 @@ uses replay and Docker; the final live refresh is hard-capped:
 make artifacts
 MAX_USD=0.50 make artifacts-live
 ```
-
-## Human, Codex, and GPT contribution
-
-The human owner defined product scope, architecture, trust boundaries, threat
-model, phase gates, and release decisions. Codex was the implementation partner
-for the rule engine, Docker sandbox, reporting pipeline, cross-platform tests,
-debugging, and documentation. GPT-5.6 is load-bearing at scan time: it reads the
-server code, decides which static candidates are real findings, and orders and
-parameterizes the four probes the sandbox runs — turn it off and you get
-different results. It does not replace the deterministic detectors or the
-Docker boundary.
-
-Primary Codex `/feedback` thread for core implementation:
-`019f70e6-a5fb-7f13-8eae-bca041fc37ad`.
-
-Supporting implementation threads:
-
-- `019f7469-e3ed-75a0-9906-7059299b1484`
-- `019f741f-cf91-7000-b12c-e9aa2a50ff03`
-- `019f77a1-f2f0-7ab2-9a5d-e72fa1ebc40e`
-
-The Phase 5 `/feedback` record was submitted from the primary thread above.
 
 ## License
 
