@@ -310,17 +310,11 @@ Make the required implementation understandable, repeatable, and reliable under 
 
 ### Current status
 
-Phase 5 is **incomplete**. The repository implementation and automated
-verification gates are complete. The following manual/external submission work
-remains before Phase 5 can be marked complete:
-
-- Record and publish the public YouTube demo (under three minutes, with audio).
-- Complete and submit the Devpost entry.
-
-The `v0.1.0` GitHub Release is published with the tested wheel, and `/feedback`
-was submitted from the primary Codex thread recorded in `README.md`. Phase 6
-must not begin until both remaining items are finished and Phase 5 is marked
-complete.
+Phase 5 is **complete**. The repository implementation and automated
+verification gates passed, the `v0.1.0` GitHub Release was published with the
+tested wheel, `/feedback` was submitted from the primary Codex thread recorded
+in `README.md`, and the public YouTube demo and Devpost submission were
+completed. Phase 6 is unblocked but has not begun.
 
 ### Work
 
