@@ -126,23 +126,41 @@ jobs:
         shell: bash
         run: |
           mkdir testpypi-dist
-          downloaded=false
-          for attempt in {1..20}; do
-            rm -f testpypi-dist/*
-            if python -m pip download \
-                --index-url https://test.pypi.org/simple/ \
-                --no-cache-dir --no-deps --only-binary=:all: \
-                --dest testpypi-dist "portunusmcp-sentinel==$VERSION" \
-              && python -m pip download \
-                --index-url https://test.pypi.org/simple/ \
-                --no-cache-dir --no-deps --no-binary=:all: \
-                --dest testpypi-dist "portunusmcp-sentinel==$VERSION"; then
-              downloaded=true
-              break
-            fi
-            if test "$attempt" -lt 20; then sleep 15; fi
-          done
-          $downloaded
+          python - "$VERSION" <<'PY'
+          import json
+          import sys
+          import time
+          import urllib.request
+          from pathlib import Path
+
+          version = sys.argv[1]
+          endpoint = f"https://test.pypi.org/pypi/portunusmcp-sentinel/{version}/json"
+          destination = Path("testpypi-dist")
+          for attempt in range(20):
+              for path in destination.iterdir():
+                  path.unlink()
+              try:
+                  with urllib.request.urlopen(endpoint) as response:
+                      files = json.load(response)["urls"]
+                  names = {item["filename"] for item in files}
+                  if (
+                      len(files) != 2
+                      or sum(name.endswith(".whl") for name in names) != 1
+                      or sum(name.endswith(".tar.gz") for name in names) != 1
+                  ):
+                      raise ValueError(f"Expected one wheel and one sdist, found {names}")
+                  for item in files:
+                      filename = item["filename"]
+                      if Path(filename).name != filename:
+                          raise ValueError(f"Unsafe TestPyPI filename: {filename}")
+                      urllib.request.urlretrieve(item["url"], destination / filename)
+              except (OSError, KeyError, ValueError) as error:
+                  if attempt == 19:
+                      raise SystemExit("TestPyPI files unavailable after five minutes") from error
+                  time.sleep(15)
+              else:
+                  break
+          PY
 
       - name: Match canonical filenames and SHA-256 hashes
         shell: bash
@@ -291,10 +309,29 @@ jobs:
         shell: bash
         run: |
           mkdir pypi-dist
-          python -m pip download --no-cache-dir --no-deps --only-binary=:all: \
-            --dest pypi-dist "portunusmcp-sentinel==$VERSION"
-          python -m pip download --no-cache-dir --no-deps --no-binary=:all: \
-            --dest pypi-dist "portunusmcp-sentinel==$VERSION"
+          python - "$VERSION" <<'PY'
+          import json
+          import sys
+          import urllib.request
+          from pathlib import Path
+
+          version = sys.argv[1]
+          endpoint = f"https://pypi.org/pypi/portunusmcp-sentinel/{version}/json"
+          with urllib.request.urlopen(endpoint) as response:
+              files = json.load(response)["urls"]
+          names = {item["filename"] for item in files}
+          if (
+              len(files) != 2
+              or sum(name.endswith(".whl") for name in names) != 1
+              or sum(name.endswith(".tar.gz") for name in names) != 1
+          ):
+              raise SystemExit(f"Expected one wheel and one sdist, found {names}")
+          for item in files:
+              filename = item["filename"]
+              if Path(filename).name != filename:
+                  raise SystemExit(f"Unsafe PyPI filename: {filename}")
+              urllib.request.urlretrieve(item["url"], Path("pypi-dist", filename))
+          PY
 
       - name: Match canonical filenames and SHA-256 hashes
         shell: bash
