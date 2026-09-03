@@ -48,7 +48,7 @@ jobs:
             --arg tag "$GITHUB_REF_NAME" \
             --arg message "Release $VERSION" \
             '.tag == $tag
-              and .message == $message
+              and .message == ($message + "\n" + .verification.signature)
               and .object.type == "commit"
               and .verification.verified
               and .verification.reason == "valid"
