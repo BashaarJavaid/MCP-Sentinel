@@ -73,7 +73,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 6 — package and release readiness (`portunusmcp-sentinel` distribution)
 - [x] Phase 7 — trusted PyPI publishing
 - [x] Phase 8 — GitHub Marketplace distribution
-- [ ] Phase 9 — first-run onboarding (`sentinel init`)
+- [x] Phase 9 — first-run onboarding (`sentinel init`)
 - [ ] Phase 10 — configurable GPT review endpoint
 - [ ] Phase 11 — TypeScript static analysis
 - [ ] Phase 12 — team adoption workflows (baseline, inline suppression)
@@ -97,7 +97,11 @@ all 12 public pipx/uv install jobs passed. Phase 8 is **complete**: the immutabl
 published the [Marketplace Action](https://github.com/marketplace/actions/mcp-sentinel),
 the signed `v1` alias resolves to the release commit, and the paired
 [external proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33808213435)
-passed. Phase 9 is unblocked but has not begun.
+passed. Phase 9 is **complete**: the
+[onboarding gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33816774614)
+passed the full quality and installed-wheel matrices, then generated a clean
+fixture configuration with `sentinel init` and completed `sentinel scan .` in
+Docker without an API key.
 
 ---
 

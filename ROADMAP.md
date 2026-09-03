@@ -497,6 +497,12 @@ major-version reference.
 
 ## 12. Phase 9 — First-run onboarding
 
+**Status: complete.** The
+[onboarding gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33816774614)
+passed the full quality and installed-wheel matrices, then generated a clean
+fixture configuration with `sentinel init` and completed `sentinel scan .` in
+Docker without an API key.
+
 ### Objective
 
 Turn first use into a two-command setup and make each analysis tier explicit.
