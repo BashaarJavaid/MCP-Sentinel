@@ -13,6 +13,7 @@ SecureMCP Gateway and SecureMCP Identity remain separate repositories and are ou
 ### Supported
 
 - Local repository paths only.
+- Sentinel CLI hosts using Python 3.10, 3.11, 3.12, or 3.13.
 - Python MCP servers using Python 3.10, 3.11, or 3.12.
 - The official Python MCP SDK and FastMCP.
 - MCP over stdio.
@@ -22,7 +23,11 @@ SecureMCP Gateway and SecureMCP Identity remain separate repositories and are ou
 - Console, JSON, and SARIF 2.1.0 reporting.
 - A composite GitHub Action on `ubuntu-latest`.
 
-Python 3.12 is the primary development and CI version. Python 3.10 is the compatibility floor. If the target does not specify a compatible version through `pyproject.toml`, `.python-version`, or its Sentinel target configuration, the sandbox defaults to Python 3.11.
+Python 3.12 is the primary development and artifact-build version. Python 3.10
+is the compatibility floor, and the Sentinel host package is tested through
+Python 3.13. If the target does not specify a compatible version through
+`pyproject.toml`, `.python-version`, or its Sentinel target configuration, the
+sandbox defaults to Python 3.11.
 
 ### Deferred or unsupported
 
@@ -726,7 +731,7 @@ The submission package also preserves:
 
 ## 14. Verification and quality gates
 
-- CI matrix: Python 3.10, 3.11, and 3.12 on `ubuntu-latest`.
+- CI matrix: Python 3.10, 3.11, 3.12, and 3.13 on Linux, macOS, and Windows.
 - Unit tests: every rule against vulnerable and clean fixtures.
 - Integration tests: full CLI against fixture repositories.
 - End-to-end tests: composite Action against a throwaway repository.

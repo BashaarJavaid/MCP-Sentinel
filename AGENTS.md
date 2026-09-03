@@ -85,7 +85,9 @@ Phase 5 is **complete**. Its repository implementation and verification gates
 passed, the `v0.1.0` GitHub Release was published with the tested wheel,
 `/feedback` was submitted from the primary Codex thread recorded in `README.md`,
 and the public YouTube demo and Devpost submission were completed. Phase 6 is
-unblocked but has not begun.
+in progress: its implementation and local macOS gates pass on Python 3.12 and
+3.13, but the expanded Linux, macOS, and Windows CI matrices have not passed
+yet.
 
 ---
 

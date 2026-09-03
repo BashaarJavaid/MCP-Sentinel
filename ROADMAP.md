@@ -369,6 +369,14 @@ completed. Phase 6 is unblocked but has not begun.
 Prepare a conflict-free, installable distribution without changing the existing
 `sentinel` import package or CLI command.
 
+### Current status
+
+Implementation and local macOS verification pass on Python 3.12 and 3.13,
+including the zero-exception dependency audit, wheel/sdist metadata checks,
+isolated pip/pipx/uv installs, and installed-wheel Docker replay. The phase
+remains incomplete until the expanded Linux, macOS, and Windows CI matrices
+pass.
+
 ### Work
 
 - Change the PyPI distribution name to `portunusmcp-sentinel` while retaining

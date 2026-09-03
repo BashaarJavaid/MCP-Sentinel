@@ -143,6 +143,10 @@ are that list's threat identifiers (e.g. `ASI03` is Identity & Privilege Abuse).
 | SENT-010 | Injection payload executed | ASI05:2026 | Critical |
 | SENT-011 | Malformed schema input processed | ASI02:2026 | Low |
 
+Published `SENT-xxx` rule IDs are compatibility contracts. Existing IDs are
+never renumbered or reused for a different detection; changed meanings receive
+new IDs.
+
 See the [rule catalog](docs/rules.md) for boundaries, false-positive risks,
 evidence, and remediation.
 
@@ -204,9 +208,10 @@ The Phase 5 `/feedback` record was submitted from the primary thread above.
 
 ## Requirements and installation
 
-Supported CLI environments are Python 3.10–3.12 on Linux, macOS, and Windows.
-Full scans and demos require Docker Engine or Docker Desktop with Buildx. The
-GitHub Action runs on Ubuntu.
+Sentinel supports Python 3.10–3.13 on Linux, macOS, and Windows. Dynamically
+scanned Python targets remain limited to Python 3.10–3.12. Full scans and demos
+require Docker Engine or Docker Desktop with Buildx. The GitHub Action runs on
+Ubuntu.
 
 Development checkout:
 
@@ -235,6 +240,25 @@ pipx install mcp_sentinel-0.1.0-py3-none-any.whl
 ```
 
 The package is not published to PyPI yet.
+
+Version 0.2.0 is prepared under the conflict-free distribution name
+`portunusmcp-sentinel`. After the Phase 7 trusted-publishing gate, the primary
+isolated installs will be:
+
+```bash
+pipx install portunusmcp-sentinel
+# or
+uv tool install portunusmcp-sentinel
+```
+
+Until then, test a locally built 0.2.0 artifact without publishing it:
+
+```bash
+uv build
+pipx install dist/portunusmcp_sentinel-0.2.0-py3-none-any.whl
+# or
+uv tool install dist/portunusmcp_sentinel-0.2.0-py3-none-any.whl
+```
 
 ## CLI
 

@@ -19,7 +19,7 @@ from sentinel.errors import InfrastructureError
 from sentinel.finding import SourceRange
 from sentinel.static.model import StaticFileSet, StaticMatch
 
-SEMGREP_VERSION = "1.170.0"
+SEMGREP_VERSION = "1.176.0"
 SEMGREP_BATCH_SIZE = 200
 SEMGREP_TIMEOUT_SECONDS = 10
 
@@ -129,7 +129,9 @@ def _verify_semgrep_version() -> None:
     try:
         installed = version("semgrep")
     except PackageNotFoundError as error:
-        raise InfrastructureError("Semgrep 1.170.0 is not installed") from error
+        raise InfrastructureError(
+            f"Semgrep {SEMGREP_VERSION} is not installed"
+        ) from error
     if installed != SEMGREP_VERSION:
         raise InfrastructureError(
             f"Semgrep version mismatch: expected {SEMGREP_VERSION}, found {installed}"

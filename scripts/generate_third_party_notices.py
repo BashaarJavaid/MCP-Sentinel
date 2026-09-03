@@ -76,7 +76,7 @@ def render_notices() -> str:
 
 
 def runtime_distributions() -> tuple[importlib.metadata.Distribution, ...]:
-    project = importlib.metadata.distribution("mcp-sentinel")
+    project = importlib.metadata.distribution("portunusmcp-sentinel")
     pending = deque(_requirements(project))
     seen: set[str] = set()
     found: dict[str, importlib.metadata.Distribution] = {}

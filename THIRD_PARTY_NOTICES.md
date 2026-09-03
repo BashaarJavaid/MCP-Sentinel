@@ -14,7 +14,7 @@ dependency changes and review every license before release.
 | bracex | 3.0 | MIT | https://github.com/facelessuser/bracex |
 | certifi | 2026.6.17 | MPL-2.0 | https://github.com/certifi/python-certifi |
 | charset-normalizer | 3.4.9 | MIT | https://github.com/jawah/charset_normalizer |
-| click | 8.1.8 | BSD License | https://github.com/pallets/click/ |
+| click | 8.4.2 | BSD-3-Clause | https://github.com/pallets/click/ |
 | click-option-group | 0.5.9 | BSD-3-Clause | https://github.com/click-contrib/click-option-group |
 | colorama | 0.4.6 | BSD License | https://github.com/tartley/colorama |
 | distro | 1.9.0 | Apache License, Version 2.0 | https://github.com/python-distro/distro |
@@ -32,7 +32,7 @@ dependency changes and review every license before release.
 | jsonschema | 4.25.1 | MIT | https://github.com/python-jsonschema/jsonschema |
 | jsonschema-specifications | 2025.9.1 | MIT | https://github.com/python-jsonschema/jsonschema-specifications |
 | markdown-it-py | 4.2.0 | MIT License | https://github.com/executablebooks/markdown-it-py |
-| mcp | 1.23.3 | MIT | https://modelcontextprotocol.io |
+| mcp | 1.29.0 | MIT | https://modelcontextprotocol.io |
 | mdurl | 0.1.2 | MIT License | https://github.com/executablebooks/mdurl |
 | openai | 2.46.0 | Apache-2.0 | https://github.com/openai/openai-python |
 | opentelemetry-api | 1.37.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-api |
@@ -68,7 +68,7 @@ dependency changes and review every license before release.
 | ruamel.yaml.clib | 0.2.15 | MIT | https://sourceforge.net/p/ruamel-yaml-clib/code/ci/default/tree/ |
 | sarif-om | 1.0.4 | MIT | https://github.com/microsoft/sarif-python-om |
 | semantic-version | 2.10.0 | BSD | https://github.com/rbarrois/python-semanticversion |
-| semgrep | 1.170.0 | LGPL-2.1-or-later | https://semgrep.dev |
+| semgrep | 1.176.0 | LGPL-2.1-or-later | https://semgrep.dev |
 | setuptools | 83.0.0 | MIT | https://github.com/pypa/setuptools |
 | shellingham | 1.5.4 | ISC License | https://github.com/sarugaku/shellingham |
 | sniffio | 1.3.1 | MIT OR Apache-2.0 | https://github.com/python-trio/sniffio |
