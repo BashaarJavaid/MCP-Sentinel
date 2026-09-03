@@ -21,8 +21,10 @@ checked judge artifacts without making GPT calls or launching Docker.
 `generate_third_party_notices.py` generates or checks the locked runtime
 dependency license inventory without an additional package dependency.
 
-`smoke_wheel.py` checks wheel and sdist metadata and packaged resources, then
-installs the wheel through isolated pip, pipx, and uv tool environments.
+`smoke_wheel.py artifacts <directory>` checks wheel and sdist metadata and
+packaged resources, then installs the wheel through isolated pip, pipx, and uv
+tool environments. `--install-sdist` also installs the sdist. `index
+<distribution==version>` checks exact-version pipx and uv installs from PyPI.
 
 `run_github_action.py` is the internal adapter used by the composite Action. It
 runs the public CLI once, validates the generated SARIF offline, writes aggregate

@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -140,7 +141,7 @@ jobs:
         run: python -m pip install pipx
 
       - name: Smoke-test distributions through pip, pipx, and uv
-        run: python scripts/smoke_wheel.py dist
+        run: python scripts/smoke_wheel.py artifacts dist
 
   docker-demo:
     name: Installed-wheel Docker replay

@@ -1,4 +1,4 @@
-"""Verify built distributions through pip, pipx, and uv."""
+"""Verify built or indexed distributions through pip, pipx, and uv."""
 
 from __future__ import annotations
 
@@ -52,12 +52,28 @@ PROJECT_URLS = {
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("distribution_dir", type=Path)
+    commands = parser.add_subparsers(dest="command", required=True)
+    artifacts = commands.add_parser("artifacts")
+    artifacts.add_argument("distribution_dir", type=Path)
+    artifacts.add_argument("--install-sdist", action="store_true")
+    index = commands.add_parser("index")
+    index.add_argument("distribution")
     args = parser.parse_args()
+
+    if args.command == "index":
+        expected = f"{DIST_NAME}=={VERSION}"
+        if args.distribution != expected:
+            parser.error(f"expected exact distribution {expected}")
+        _check_pipx(args.distribution)
+        _check_uv(args.distribution)
+        return 0
+
     wheel = _one(args.distribution_dir, "*.whl", WHEEL_NAME)
     sdist = _one(args.distribution_dir, "*.tar.gz", SDIST_NAME)
     _check_archives(wheel, sdist)
     _check_pip(wheel)
+    if args.install_sdist:
+        _check_pip(sdist)
     _check_pipx(wheel)
     _check_uv(wheel)
     return 0
@@ -171,7 +187,7 @@ def _check_pip(wheel: Path) -> None:
         _check_install(python, _venv_bin(environment), resources=True)
 
 
-def _check_pipx(wheel: Path) -> None:
+def _check_pipx(distribution: str | Path) -> None:
     with tempfile.TemporaryDirectory(prefix="sentinel-pipx-smoke-") as directory:
         root = Path(directory)
         environment = os.environ.copy()
@@ -187,7 +203,7 @@ def _check_pipx(wheel: Path) -> None:
             "-m",
             "pipx",
             "install",
-            str(wheel),
+            str(distribution),
             "--force",
             "--backend",
             "pip",
@@ -196,10 +212,10 @@ def _check_pipx(wheel: Path) -> None:
             env=environment,
         )
         tool = _tool_environment(root / "home" / "venvs")
-        _check_install(_venv_python(tool), root / "bin")
+        _check_install(_venv_python(tool), root / "bin", resources=True)
 
 
-def _check_uv(wheel: Path) -> None:
+def _check_uv(distribution: str | Path) -> None:
     with tempfile.TemporaryDirectory(prefix="sentinel-uv-smoke-") as directory:
         root = Path(directory)
         environment = os.environ.copy()
@@ -214,14 +230,14 @@ def _check_uv(wheel: Path) -> None:
             "uv",
             "tool",
             "install",
-            str(wheel),
+            str(distribution),
             "--force",
             "--python",
             sys.executable,
             env=environment,
         )
         tool = _tool_environment(root / "tools")
-        _check_install(_venv_python(tool), root / "bin")
+        _check_install(_venv_python(tool), root / "bin", resources=True)
 
 
 def _tool_environment(root: Path) -> Path:
@@ -276,16 +292,13 @@ assert scripts == {"sentinel": "sentinel.cli:app"}
 
 _RESOURCE_CHECK = """
 from importlib import resources
+from sentinel.schema import schema_texts
 
 root = resources.files("sentinel")
 schemas = root.joinpath("_schemas")
-for name in (
-    "finding.schema.json",
-    "report.schema.json",
-    "gpt-review.schema.json",
-    "sarif-2.1.0.schema.json",
-):
-    assert schemas.joinpath(name).is_file(), name
+for name, expected in schema_texts().items():
+    assert schemas.joinpath(name).read_text(encoding="utf-8") == expected, name
+assert schemas.joinpath("sarif-2.1.0.schema.json").is_file()
 fixtures = root.joinpath("_fixtures")
 assert fixtures.joinpath("clean_server", "server.py").is_file()
 assert fixtures.joinpath("vulnerable_server", "server.py").is_file()

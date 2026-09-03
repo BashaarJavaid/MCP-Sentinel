@@ -19,24 +19,28 @@ and the [Architecture](#architecture) diagram.*
 
 ## Try Sentinel in three minutes
 
-No source checkout or OpenAI API key is required. Install the prebuilt wheel,
-then run the bundled GPT replay with real Docker probes.
+No source checkout or OpenAI API key is required. Install from
+[PyPI](https://pypi.org/project/portunusmcp-sentinel/), then run the bundled GPT
+replay with real Docker probes.
 
-### 1. Download the wheel
+### 1. Install Sentinel
 
-Download `mcp_sentinel-0.1.0-py3-none-any.whl` from the
-[`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0),
-or use the [direct wheel download](https://github.com/BashaarJavaid/MCP-Sentinel/releases/download/v0.1.0/mcp_sentinel-0.1.0-py3-none-any.whl).
-Its SHA-256 digest is:
+Use Python 3.10, 3.11, 3.12, or 3.13 and install the exact release with pipx:
 
-```text
-4672e63413e87bf750113c06a21133162d00f1e71ca6259a8394028c22b677aa
+```bash
+pipx install portunusmcp-sentinel==0.2.0
+```
+
+Or use uv:
+
+```bash
+uv tool install portunusmcp-sentinel==0.2.0
 ```
 
 ### 2. Check Docker
 
-Use Python 3.10, 3.11, or 3.12 and start Docker Engine on Linux or Docker
-Desktop on macOS/Windows. Docker Desktop on Windows must use Linux containers.
+Start Docker Engine on Linux or Docker Desktop on macOS/Windows. Docker Desktop
+on Windows must use Linux containers.
 
 ```bash
 docker info
@@ -47,15 +51,11 @@ The first run may download Docker images and fixture dependencies through
 Sentinel's restricted build network. The scanned server has no runtime network
 access.
 
-### 3. Install and run
+### 3. Run the demo
 
 macOS or Linux:
 
 ```bash
-cd /path/to/download-directory
-python3 -m venv sentinel-judge-env
-source sentinel-judge-env/bin/activate
-python -m pip install ./mcp_sentinel-0.1.0-py3-none-any.whl
 sentinel --version
 sentinel demo --replay-review --verbose
 ```
@@ -63,11 +63,8 @@ sentinel demo --replay-review --verbose
 Windows PowerShell:
 
 ```powershell
-cd C:\path\to\download-directory
-py -3.12 -m venv sentinel-judge-env
-.\sentinel-judge-env\Scripts\python.exe -m pip install .\mcp_sentinel-0.1.0-py3-none-any.whl
-.\sentinel-judge-env\Scripts\sentinel.exe --version
-.\sentinel-judge-env\Scripts\sentinel.exe demo --replay-review --verbose
+sentinel --version
+sentinel demo --replay-review --verbose
 ```
 
 The demo should exit `0` with `Status: COMPLETE`, evaluate all seven static and
@@ -88,7 +85,7 @@ python -m sentinel.report.validate_sarif sentinel-demo-results/report.sarif
 On Windows PowerShell:
 
 ```powershell
-.\sentinel-judge-env\Scripts\python.exe -m sentinel.report.validate_sarif sentinel-demo-results\report.sarif
+python -m sentinel.report.validate_sarif sentinel-demo-results\report.sarif
 ```
 
 The validator produces no output when the report is valid and exits `0`. Replay
@@ -226,32 +223,28 @@ The pip-compatible development path is:
 pip install -e ".[dev]"
 ```
 
-The [`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0)
-provides the prebuilt wheel produced by the
+Install the exact release from
+[PyPI](https://pypi.org/project/portunusmcp-sentinel/) with pipx:
+
+```bash
+pipx install portunusmcp-sentinel==0.2.0
+```
+
+Or use uv:
+
+```bash
+uv tool install portunusmcp-sentinel==0.2.0
+```
+
+### Historical v0.1.0 artifact
+
+The earlier [`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0)
+contains `mcp_sentinel-0.1.0-py3-none-any.whl`, produced by the
 [successful release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/29686427335).
-It passed the Linux, macOS, and Windows test matrix, pip and pipx installation
-smoke tests, and the installed-wheel Docker replay. Install that exact wheel
-directly with either package frontend:
+Its SHA-256 digest is
+`4672e63413e87bf750113c06a21133162d00f1e71ca6259a8394028c22b677aa`.
 
-```bash
-python -m pip install mcp_sentinel-0.1.0-py3-none-any.whl
-# or
-pipx install mcp_sentinel-0.1.0-py3-none-any.whl
-```
-
-The package is not published to PyPI yet.
-
-Version 0.2.0 is prepared under the conflict-free distribution name
-`portunusmcp-sentinel`. After the Phase 7 trusted-publishing gate, the primary
-isolated installs will be:
-
-```bash
-pipx install portunusmcp-sentinel
-# or
-uv tool install portunusmcp-sentinel
-```
-
-Until then, test a locally built 0.2.0 artifact without publishing it:
+To test a locally built 0.2.0 artifact without an index:
 
 ```bash
 uv build

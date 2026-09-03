@@ -16,6 +16,7 @@ new rule IDs.
 
 - Python 3.13 host-runtime and CI support.
 - PyPI metadata and isolated installation checks for pip, pipx, and uv.
+- Attested TestPyPI-to-PyPI publishing through GitHub OIDC.
 
 ### Changed
 
