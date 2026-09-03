@@ -71,7 +71,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 4 — GitHub Action and live SARIF upload
 - [x] Phase 5 — console/report polish and judged demo
 - [x] Phase 6 — package and release readiness (`portunusmcp-sentinel` distribution)
-- [ ] Phase 7 — trusted PyPI publishing
+- [x] Phase 7 — trusted PyPI publishing
 - [ ] Phase 8 — GitHub Marketplace distribution
 - [ ] Phase 9 — first-run onboarding (`sentinel init`)
 - [ ] Phase 10 — configurable GPT review endpoint
@@ -86,8 +86,14 @@ passed, the `v0.1.0` GitHub Release was published with the tested wheel,
 `/feedback` was submitted from the primary Codex thread recorded in `README.md`,
 and the public YouTube demo and Devpost submission were completed. Phase 6 is
 **complete**: its implementation, local macOS gates, and expanded Linux,
-macOS, and Windows CI matrices pass on Python 3.10–3.13. Phase 7 is unblocked
-but has not begun.
+macOS, and Windows CI matrices pass on Python 3.10–3.13. Phase 7 is
+**complete**: the signed `v0.2.0`
+[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33795399096)
+published and verified the canonical wheel and sdist on
+[TestPyPI](https://test.pypi.org/project/portunusmcp-sentinel/0.2.0/) and
+[PyPI](https://pypi.org/project/portunusmcp-sentinel/0.2.0/) through OIDC, and
+all 12 public pipx/uv install jobs passed. Phase 8 is unblocked but has not
+begun.
 
 ---
 

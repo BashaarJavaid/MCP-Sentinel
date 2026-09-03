@@ -376,7 +376,7 @@ Phase 6 is **complete**. Local macOS verification passed on Python 3.12 and
 passed on Linux, macOS, and Windows with Python 3.10–3.13. The gate included
 the zero-exception dependency audit, canonical wheel/sdist build, isolated
 pip/pipx/uv installs, package metadata and contents checks, and installed-wheel
-Docker replay. Phase 7 is unblocked but has not begun.
+Docker replay. Phase 7 is complete.
 
 ### Work
 
@@ -414,6 +414,18 @@ Docker replay. Phase 7 is unblocked but has not begun.
 ### Objective
 
 Publish reproducible, attested releases without long-lived PyPI credentials.
+
+### Current status
+
+Phase 7 is **complete**. The signed `v0.2.0` tag's
+[Release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33795399096)
+passed the complete Phase 6 matrix, published and verified the same wheel and
+sdist on [TestPyPI](https://test.pypi.org/project/portunusmcp-sentinel/0.2.0/),
+paused for production approval, then published them to
+[PyPI](https://pypi.org/project/portunusmcp-sentinel/0.2.0/) with verified PEP
+740 attestations. Exact-version pipx and uv installs passed on Linux, macOS,
+and Windows with Python 3.10–3.13. No API token or release-please automation was
+added. Phase 8 is unblocked but has not begun.
 
 ### Work
 

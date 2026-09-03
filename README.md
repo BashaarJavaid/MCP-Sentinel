@@ -236,6 +236,17 @@ Or use uv:
 uv tool install portunusmcp-sentinel==0.2.0
 ```
 
+### v0.2.0 release evidence
+
+The signed-tag [Release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33795399096)
+published the tested wheel and sdist through OIDC to
+[TestPyPI](https://test.pypi.org/project/portunusmcp-sentinel/0.2.0/) and then
+[PyPI](https://pypi.org/project/portunusmcp-sentinel/0.2.0/). It verified both
+published hashes and attestations ([wheel](https://pypi.org/integrity/portunusmcp-sentinel/0.2.0/portunusmcp_sentinel-0.2.0-py3-none-any.whl/provenance),
+[sdist](https://pypi.org/integrity/portunusmcp-sentinel/0.2.0/portunusmcp_sentinel-0.2.0.tar.gz/provenance))
+and passed exact-version pipx and uv installs on Linux, macOS, and Windows with
+Python 3.10–3.13.
+
 ### Historical v0.1.0 artifact
 
 The earlier [`v0.1.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0)
