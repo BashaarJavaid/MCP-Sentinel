@@ -323,8 +323,20 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
         "findings-count",
         "highest-severity",
     }
+    assert metadata["runs"]["steps"][0]["with"]["python-version"] == "3.12"
+    assert metadata["runs"]["steps"][1]["run"] == (
+        "python -m pip install --disable-pip-version-check "
+        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.0.0"
+    )
     uses = [step.get("uses", "") for step in metadata["runs"]["steps"]]
     assert any(value.startswith("actions/setup-python@ece7cb06") for value in uses)
     assert any(
         value.startswith("github/codeql-action/upload-sarif@7188fc36") for value in uses
     )
+
+    release_text = (root / ".github/workflows/release.yml").read_text(encoding="utf-8")
+    release = yaml.load(release_text, Loader=yaml.BaseLoader)
+    assert release["on"]["push"]["tags"] == ["v*.*.*"]
+    ci_text = (root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "python -m pip install pipx\n" not in release_text + ci_text
+    assert "python -m pip install pipx==1.16.0" in release_text + ci_text

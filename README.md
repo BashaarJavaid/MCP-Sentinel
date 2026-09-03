@@ -28,13 +28,13 @@ replay with real Docker probes.
 Use Python 3.10, 3.11, 3.12, or 3.13 and install the exact release with pipx:
 
 ```bash
-pipx install portunusmcp-sentinel==0.2.0
+pipx install portunusmcp-sentinel==1.0.0
 ```
 
 Or use uv:
 
 ```bash
-uv tool install portunusmcp-sentinel==0.2.0
+uv tool install portunusmcp-sentinel==1.0.0
 ```
 
 ### 2. Check Docker
@@ -227,13 +227,13 @@ Install the exact release from
 [PyPI](https://pypi.org/project/portunusmcp-sentinel/) with pipx:
 
 ```bash
-pipx install portunusmcp-sentinel==0.2.0
+pipx install portunusmcp-sentinel==1.0.0
 ```
 
 Or use uv:
 
 ```bash
-uv tool install portunusmcp-sentinel==0.2.0
+uv tool install portunusmcp-sentinel==1.0.0
 ```
 
 ### v0.2.0 release evidence
@@ -255,13 +255,13 @@ contains `mcp_sentinel-0.1.0-py3-none-any.whl`, produced by the
 Its SHA-256 digest is
 `4672e63413e87bf750113c06a21133162d00f1e71ca6259a8394028c22b677aa`.
 
-To test a locally built 0.2.0 artifact without an index:
+To test a locally built 1.0.0 artifact without an index:
 
 ```bash
 uv build
-pipx install dist/portunusmcp_sentinel-0.2.0-py3-none-any.whl
+pipx install dist/portunusmcp_sentinel-1.0.0-py3-none-any.whl
 # or
-uv tool install dist/portunusmcp_sentinel-0.2.0-py3-none-any.whl
+uv tool install dist/portunusmcp_sentinel-1.0.0-py3-none-any.whl
 ```
 
 ## CLI
@@ -368,7 +368,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: sentinel
-        uses: BashaarJavaid/MCP-Sentinel@ee91e07d0fa78106dbb6d85b60bd8288173abd23
+        uses: BashaarJavaid/MCP-Sentinel@v1
         with:
           target-path: .
           fail-on: high
@@ -380,6 +380,15 @@ The Action validates SARIF before upload and exposes `sarif-path`,
 they run visibly degraded analysis and skip code-scanning upload. Non-fork runs
 remain fail-closed. The preserved live proof is documented in
 [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
+
+`v1` follows the latest compatible `v1.x.y` Action release. Security-sensitive
+workflows can replace it with that release's full commit SHA. Maintainers move
+only the signed major-version alias after the exact release passes its gates:
+
+```bash
+git tag -s -a -f v1 v1.0.0 -m "MCP Sentinel Action v1.0.0"
+git push --force origin refs/tags/v1
+```
 
 ## Reports and reproducibility
 

@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Python 3.10, 3.11, or 3.12 for the current public v0.1.0 wheel
-- Python 3.10, 3.11, 3.12, or 3.13 for the local v0.2.0 artifact
+- Python 3.10, 3.11, 3.12, or 3.13 for the local v1.0.0 artifact
 - Python 3.10, 3.11, or 3.12 for dynamically scanned targets
 - Docker Engine on Linux, or Docker Desktop on macOS/Windows
 - Docker Buildx
