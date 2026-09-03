@@ -380,7 +380,9 @@ def test_force_refuses_non_regular_destinations(tmp_path: Path) -> None:
         assert "must be a regular file" in result.stderr
 
         fifo_root = _project(tmp_path / "fifo")
-        os.mkfifo(fifo_root / "sentinel.target.yaml")
+        os.mkfifo(  # type: ignore[attr-defined,unused-ignore]
+            fifo_root / "sentinel.target.yaml"
+        )
         result = runner.invoke(app, ["init", str(fifo_root), "--force"])
         assert result.exit_code == 2
         assert "must be a regular file" in result.stderr
