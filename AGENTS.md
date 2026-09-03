@@ -70,7 +70,16 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 3 — Docker sandbox and four adversarial probes
 - [x] Phase 4 — GitHub Action and live SARIF upload
 - [x] Phase 5 — console/report polish and judged demo
-- [ ] Phase 6 — fixture-scoped exploit-confirmation stretch
+- [ ] Phase 6 — package and release readiness (`portunusmcp-sentinel` distribution)
+- [ ] Phase 7 — trusted PyPI publishing
+- [ ] Phase 8 — GitHub Marketplace distribution
+- [ ] Phase 9 — first-run onboarding (`sentinel init`)
+- [ ] Phase 10 — configurable GPT review endpoint
+- [ ] Phase 11 — TypeScript static analysis
+- [ ] Phase 12 — team adoption workflows (baseline, inline suppression)
+- [ ] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
+- [ ] Phase 14 — conditional exploit-confirmation stretch (optional, never blocks Phase 15)
+- [ ] Phase 15 — product launch
 
 Phase 5 is **complete**. Its repository implementation and verification gates
 passed, the `v0.1.0` GitHub Release was published with the tested wheel,
