@@ -70,7 +70,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 3 — Docker sandbox and four adversarial probes
 - [x] Phase 4 — GitHub Action and live SARIF upload
 - [x] Phase 5 — console/report polish and judged demo
-- [ ] Phase 6 — package and release readiness (`portunusmcp-sentinel` distribution)
+- [x] Phase 6 — package and release readiness (`portunusmcp-sentinel` distribution)
 - [ ] Phase 7 — trusted PyPI publishing
 - [ ] Phase 8 — GitHub Marketplace distribution
 - [ ] Phase 9 — first-run onboarding (`sentinel init`)
@@ -85,9 +85,9 @@ Phase 5 is **complete**. Its repository implementation and verification gates
 passed, the `v0.1.0` GitHub Release was published with the tested wheel,
 `/feedback` was submitted from the primary Codex thread recorded in `README.md`,
 and the public YouTube demo and Devpost submission were completed. Phase 6 is
-in progress: its implementation and local macOS gates pass on Python 3.12 and
-3.13, but the expanded Linux, macOS, and Windows CI matrices have not passed
-yet.
+**complete**: its implementation, local macOS gates, and expanded Linux,
+macOS, and Windows CI matrices pass on Python 3.10–3.13. Phase 7 is unblocked
+but has not begun.
 
 ---
 
