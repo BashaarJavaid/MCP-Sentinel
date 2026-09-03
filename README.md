@@ -236,7 +236,19 @@ Or use uv:
 uv tool install portunusmcp-sentinel==1.0.0
 ```
 
-### v0.2.0 release evidence
+### v1.0.0 release and Marketplace evidence
+
+The signed [`v1.0.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.0.0)
+published the exact package through the trusted
+[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33804931403).
+The [MCP Sentinel Marketplace listing](https://github.com/marketplace/actions/mcp-sentinel)
+is backed by the signed `v1` alias, and the paired
+[external Action proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33808213435)
+passed against that consumer reference. Package hashes, provenance, tag
+targets, retained SARIF, cost, and verification details are recorded in
+[`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md).
+
+### Historical v0.2.0 release evidence
 
 The signed-tag [Release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33795399096)
 published the tested wheel and sdist through OIDC to
@@ -378,7 +390,9 @@ jobs:
 The Action validates SARIF before upload and exposes `sarif-path`,
 `findings-count`, and `highest-severity`. Fork pull requests receive no secret;
 they run visibly degraded analysis and skip code-scanning upload. Non-fork runs
-remain fail-closed. The preserved live proof is documented in
+remain fail-closed. The current `v1` live proof is documented in
+[`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md);
+the earlier commit-pinned proof remains in
 [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
 
 `v1` follows the latest compatible `v1.x.y` Action release. Security-sensitive

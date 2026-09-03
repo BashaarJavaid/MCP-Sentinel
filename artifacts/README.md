@@ -7,6 +7,8 @@ Judge-facing evidence in this directory is generated, never hand-edited.
 - `example.sarif` is the final live vulnerable-fixture report. Refresh it only
   with `MAX_USD=0.50 make artifacts-live`; the command enforces that hard ceiling.
 - `phase4-action-evidence.md` records the accepted live GitHub Action proof.
+- `phase8-marketplace-evidence.md` records the stable `v1` Marketplace release,
+  trusted package publication, and paired external Action proof.
 
 Run `make artifacts-check` to validate the ablation quality gate, SARIF schema,
 live-review telemetry, and the exact `SENT-001` through `SENT-011` result set.

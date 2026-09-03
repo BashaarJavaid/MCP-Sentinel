@@ -425,7 +425,7 @@ paused for production approval, then published them to
 [PyPI](https://pypi.org/project/portunusmcp-sentinel/0.2.0/) with verified PEP
 740 attestations. Exact-version pipx and uv installs passed on Linux, macOS,
 and Windows with Python 3.10–3.13. No API token or release-please automation was
-added. Phase 8 is unblocked but has not begun.
+added. Phase 8 is complete.
 
 ### Work
 
@@ -458,6 +458,12 @@ added. Phase 8 is unblocked but has not begun.
   from the public index.
 
 ## 11. Phase 8 — GitHub Marketplace distribution
+
+**Status: complete.** The immutable `v1.0.0` release publishes the root Action
+under Security and Code quality, the signed `v1` alias resolves to the exact
+release commit, and the paired public proof passed with Sentinel `1.0.0`, zero
+clean findings, and exactly `SENT-001` through `SENT-011` for the vulnerable
+target. See `artifacts/phase8-marketplace-evidence.md`. Phase 9 is unblocked.
 
 ### Objective
 
