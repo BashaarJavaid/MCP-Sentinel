@@ -192,11 +192,13 @@ def run_scan(
         execution_successful=complete,
         stages=stages,
         summary=summarize(findings),
-        warnings=(
-            *static_result.warnings,
-            *review.warnings,
-            *dynamic.warnings,
-            *dynamic_review.warnings,
+        warnings=_unique_warnings(
+            (
+                *static_result.warnings,
+                *review.warnings,
+                *dynamic.warnings,
+                *dynamic_review.warnings,
+            )
         ),
         findings=findings,
         static_analysis=static_result.summary,
@@ -397,6 +399,20 @@ def _sum_optional(first: int | None, second: int | None) -> int | None:
     if first is None and second is None:
         return None
     return (first or 0) + (second or 0)
+
+
+def _unique_warnings(warnings: tuple[ReportWarning, ...]) -> tuple[ReportWarning, ...]:
+    result: list[ReportWarning] = []
+    key_guidance_seen: set[str] = set()
+    for warning in warnings:
+        if warning.code == "gpt_review_unavailable" and warning.message.startswith(
+            "OPENAI_API_KEY is not set;"
+        ):
+            if warning.message in key_guidance_seen:
+                continue
+            key_guidance_seen.add(warning.message)
+        result.append(warning)
+    return tuple(result)
 
 
 def _threshold_failed(findings: tuple[object, ...], threshold: FailThreshold) -> bool:

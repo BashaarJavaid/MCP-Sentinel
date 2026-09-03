@@ -153,6 +153,15 @@ def unavailable_review_outcome(
 ) -> ReviewOutcome:
     """Represent a pre-transport failure without hiding deterministic candidates."""
 
+    if reason == "OPENAI_API_KEY is required for GPT review":
+        reason = (
+            "OPENAI_API_KEY is not set; continuing in degraded mode with rules-only "
+            "candidates visible and fail-on eligible."
+            if allow_degraded
+            else "OPENAI_API_KEY is not set; set it for GPT review or rerun with "
+            "--allow-degraded to keep rules-only candidates visible and fail-on "
+            "eligible."
+        )
     updated = (
         tuple(_degrade(item, reason, applied_at) for item in findings)
         if allow_degraded

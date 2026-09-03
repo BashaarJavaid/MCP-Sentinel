@@ -169,6 +169,18 @@ jobs:
       - name: Run packaged replay demo
         run: sentinel demo --replay-review --output-dir "${{ runner.temp }}/sentinel-demo-results"
 
+      - name: Run generated configuration through Docker
+        env:
+          OPENAI_API_KEY: ""
+        shell: bash
+        run: |
+          cp -R tests/fixtures/clean_server "${{ runner.temp }}/onboarding-target"
+          rm "${{ runner.temp }}/onboarding-target/sentinel.target.yaml"
+          rm "${{ runner.temp }}/onboarding-target/sentinel.permissions.yaml"
+          cd "${{ runner.temp }}/onboarding-target"
+          sentinel init
+          sentinel scan .
+
       - name: Validate installed-wheel demo reports
         run: |
           python -c "import json; from pathlib import Path; from sentinel.report.validate_json import validate_report_data; validate_report_data(json.loads(Path(r'${{ runner.temp }}/sentinel-demo-results/report.json').read_text(encoding='utf-8')))"

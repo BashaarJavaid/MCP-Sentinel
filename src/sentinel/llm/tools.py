@@ -50,12 +50,24 @@ class ToolCatalog(ContractModel):
 def extract_tool_catalog(root: Path, ignore_paths: tuple[str, ...] = ()) -> ToolCatalog:
     files = collect_static_files(root, ignore_paths)
     tools: dict[str, ToolMetadata] = {}
+    locations: dict[str, set[tuple[str, int]]] = {}
     for parsed in files.python_files:
         models = _pydantic_models(parsed.tree)
         for tool in _tools_in_file(parsed, models):
+            locations.setdefault(tool.name, set()).add((tool.path, tool.start_line))
             tools.setdefault(tool.name, tool)
 
-    warnings: list[ReportWarning] = []
+    warnings = [
+        ReportWarning(
+            code="tool_catalog_duplicate",
+            message=(
+                f"Tool {name!r} is declared at multiple source locations: "
+                + ", ".join(f"{path}:{line}" for path, line in sorted(found))
+            ),
+        )
+        for name, found in sorted(locations.items())
+        if len(found) > 1
+    ]
     manifest = root / "tools.yaml"
     if manifest.is_file() and not manifest.is_symlink():
         _merge_manifest(manifest, tools, warnings)

@@ -345,7 +345,7 @@ def load_configuration(
     except Exception as error:
         raise ConfigurationError(f"invalid scanner configuration: {error}") from error
 
-    _require_supported_framework(scan_root)
+    _declared_supported_package_roots(scan_root)
 
     target: TargetConfig | None = None
     if not static_only:
@@ -650,7 +650,7 @@ def _validate_relative_text_path(value: str, label: str) -> str:
     return normalized
 
 
-def _require_supported_framework(root: Path) -> None:
+def _declared_supported_package_roots(root: Path) -> frozenset[str]:
     names: set[str] = set()
     pyproject = root / "pyproject.toml"
     if pyproject.is_file() and not pyproject.is_symlink():
@@ -678,10 +678,12 @@ def _require_supported_framework(root: Path) -> None:
         ]
         names.update(_requirement_names(entries))
 
-    if not names.intersection({"mcp", "fastmcp"}):
+    supported = frozenset(names.intersection({"mcp", "fastmcp"}))
+    if not supported:
         raise TargetError(
             "unsupported target: declare the official 'mcp' or 'fastmcp' dependency"
         )
+    return supported
 
 
 def _requirement_names(entries: list[Any]) -> set[str]:

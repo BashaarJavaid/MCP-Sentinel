@@ -10,6 +10,18 @@ new rule IDs.
 
 ## [Unreleased]
 
+### Added
+
+- `sentinel init` safely inspects Python MCP repositories and atomically creates
+  validated starter target and deny-by-default permissions configuration.
+- First-run documentation now distinguishes rules-only degraded, static-plus-GPT,
+  and full Docker analysis prerequisites.
+
+### Changed
+
+- Missing `OPENAI_API_KEY` failures now explain how to enable GPT review or keep
+  rules-only candidates visible with `--allow-degraded`.
+
 ## [1.0.0] - 2026-09-03
 
 ### Added

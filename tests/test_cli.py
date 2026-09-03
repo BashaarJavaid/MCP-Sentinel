@@ -13,7 +13,15 @@ from typer.testing import CliRunner
 
 from sentinel.cli import _use_color, app
 from sentinel.config import LoadedConfiguration
+from sentinel.dynamic.prober import (
+    DEFAULT_ORDER,
+    DynamicScanResult,
+    ProbeBinding,
+    ProbeCampaign,
+)
+from sentinel.dynamic.sandbox import DependencyImage, DockerSandbox
 from sentinel.errors import InfrastructureError
+from sentinel.finding import Finding
 from sentinel.orchestrator import ScanOutcome, run_phase1_scan
 from sentinel.report.model import (
     ScanContext,
@@ -185,6 +193,15 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
     assert fatal_payload["analysisComplete"] is False
     assert fatal_payload["gpt_review"]["failure_count"] == 1
     assert fatal_payload["findings"][0]["review"]["mode"] == "not_reviewed"
+    fatal_guidance = (
+        "OPENAI_API_KEY is not set; set it for GPT review or rerun with "
+        "--allow-degraded to keep rules-only candidates visible and fail-on eligible."
+    )
+    assert fatal.stderr == f"error: {fatal_guidance}\n"
+    assert fatal_payload["warnings"][-1] == {
+        "code": "gpt_review_unavailable",
+        "message": fatal_guidance,
+    }
 
     degraded = runner.invoke(app, [*base, "--allow-degraded"])
     assert degraded.exit_code == 1
@@ -195,6 +212,51 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
     assert review["mode"] == "degraded"
     assert review["reviewed_at"] is None
     assert review["applied_at"] is not None
+    degraded_guidance = (
+        "OPENAI_API_KEY is not set; continuing in degraded mode with rules-only "
+        "candidates visible and fail-on eligible."
+    )
+    assert degraded.stderr == f"warning: {degraded_guidance}\n"
+    assert degraded_payload["warnings"][-1] == {
+        "code": "gpt_review_unavailable",
+        "message": degraded_guidance,
+    }
+
+    dynamic_calls = 0
+
+    def fake_dynamic_scan(
+        sandbox: DockerSandbox,
+        static_findings: tuple[Finding, ...],
+        *,
+        scan_id: UUID,
+        timestamp: datetime,
+    ) -> DynamicScanResult:
+        del sandbox, static_findings, scan_id, timestamp
+        nonlocal dynamic_calls
+        dynamic_calls += 1
+        bindings = {
+            rule_id: ProbeBinding(rule_id, None, None, None)
+            for rule_id in DEFAULT_ORDER
+        }
+        return DynamicScanResult(
+            findings=(),
+            warnings=(),
+            image=DependencyImage("deps:test", "cache-key", True),
+            campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+        )
+
+    monkeypatch.setattr("sentinel.orchestrator.reap_orphans", lambda: None)
+    monkeypatch.setattr("sentinel.orchestrator.run_dynamic_scan", fake_dynamic_scan)
+    normal_base = ["scan", str(target), "--rules", "SENT-002", "--json"]
+    normal_fatal = runner.invoke(app, normal_base)
+    assert normal_fatal.exit_code == 3
+    assert normal_fatal.stderr == f"error: {fatal_guidance}\n"
+    assert dynamic_calls == 0
+
+    normal_degraded = runner.invoke(app, [*normal_base, "--allow-degraded"])
+    assert normal_degraded.exit_code == 1
+    assert normal_degraded.stderr == f"warning: {degraded_guidance}\n"
+    assert dynamic_calls == 1
 
 
 def test_launch_override_and_rule_validation(tmp_path: Path) -> None:

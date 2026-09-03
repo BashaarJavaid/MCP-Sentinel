@@ -262,6 +262,7 @@ def _check_install(
     assert sentinel.is_file(), sentinel
     assert not alias.exists(), alias
     _run(str(sentinel), "--version")
+    _run(str(sentinel), "init", "--help")
     _run(str(sentinel), "scan", "--help")
     check = _IDENTITY_CHECK + (_RESOURCE_CHECK if resources else "")
     _run(str(python), "-c", check)

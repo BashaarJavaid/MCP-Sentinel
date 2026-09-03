@@ -25,6 +25,7 @@ from sentinel.errors import (
     TargetError,
     UsageError,
 )
+from sentinel.onboarding import display_path, initialize_repository, next_scan_command
 from sentinel.orchestrator import run_scan
 from sentinel.report.console import render_console
 from sentinel.report.json_report import render_json
@@ -124,7 +125,20 @@ def scan(
             color=_use_color(color),
         )
         _write_report(rendered, output)
-        if outcome.exit_code == 3:
+        guidance = next(
+            (
+                warning.message
+                for warning in outcome.report.warnings
+                if warning.code == "gpt_review_unavailable"
+                and warning.message.startswith("OPENAI_API_KEY is not set;")
+            ),
+            None,
+        )
+        if guidance is not None:
+            typer.echo(
+                f"{'warning' if allow_degraded else 'error'}: {guidance}", err=True
+            )
+        elif outcome.exit_code == 3:
             typer.echo(
                 "error: analysis incomplete; see report stages and warnings",
                 err=True,
@@ -145,6 +159,44 @@ def scan(
         typer.echo(f"infrastructure error: {error}", err=True)
         raise typer.Exit(3) from error
     except Exception as error:  # defensive exit-code boundary
+        if state.debug:
+            traceback.print_exc()
+        else:
+            typer.echo(f"error: internal Sentinel failure: {error}", err=True)
+        raise typer.Exit(3) from error
+
+
+@app.command("init")
+def init_command(
+    ctx: typer.Context,
+    path: str = typer.Argument(".", help="Local Python MCP repository path."),
+    force: bool = typer.Option(
+        False, "--force", help="Replace generated regular files."
+    ),
+) -> None:
+    """Inspect a local Python MCP repository and generate starter configuration."""
+
+    state = _state(ctx)
+    try:
+        result = initialize_repository(Path(path), force=force)
+        for warning in result.warnings:
+            typer.echo(f"warning: {warning.message}", err=True)
+        for generated in result.files:
+            typer.echo(f"{generated.status}: {display_path(path, generated.name)}")
+        typer.echo(f"Next: {next_scan_command(path)}")
+    except TargetError as error:
+        typer.echo(f"target error: {error}", err=True)
+        raise typer.Exit(2) from error
+    except ConfigurationError as error:
+        typer.echo(f"configuration error: {error}", err=True)
+        raise typer.Exit(2) from error
+    except UsageError as error:
+        typer.echo(f"configuration error: {error}", err=True)
+        raise typer.Exit(2) from error
+    except InfrastructureError as error:
+        typer.echo(f"infrastructure error: {error}", err=True)
+        raise typer.Exit(3) from error
+    except Exception as error:
         if state.debug:
             traceback.print_exc()
         else:

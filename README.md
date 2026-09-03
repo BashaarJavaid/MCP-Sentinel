@@ -97,6 +97,35 @@ See the accepted live
 [`SENT-010` GitHub code-scanning alert](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/security/code-scanning/10)
 and the complete [Action evidence](artifacts/phase4-action-evidence.md).
 
+## Scan your own server
+
+From the root of a local Python MCP server:
+
+```bash
+sentinel init
+# Review sentinel.permissions.yaml and grant only required scopes.
+sentinel scan .
+```
+
+`sentinel init` statically detects one guarded `FastMCP` or `Server` entry point,
+either a root `requirements.txt` or PEP 621 `project.dependencies`, the supported
+`mcp` or `fastmcp` package, and repository-wide tool declarations. It never
+imports or executes target code. Generated permissions are deny-all until you
+review them. Existing generated files are preserved unless you pass `--force`;
+even then, symbolic links and other non-regular destinations are refused.
+
+Choose the analysis tier that matches your environment:
+
+| Tier | Command | Prerequisites |
+|---|---|---|
+| Rules-only degraded | `sentinel scan . --static-only --allow-degraded` | No Docker or paid GPT access |
+| Static plus GPT | `sentinel scan . --static-only` | `OPENAI_API_KEY`; no Docker |
+| Full dynamic proof | `sentinel scan .` | `OPENAI_API_KEY` and Docker |
+
+If a target has deterministic candidates but no API key, Sentinel explains how
+to set `OPENAI_API_KEY` or continue explicitly with `--allow-degraded`. Degraded
+candidates remain visible and count toward `--fail-on`.
+
 ## Architecture
 
 ```mermaid

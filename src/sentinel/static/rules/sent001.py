@@ -102,9 +102,9 @@ def _actual_usage(
 
 def _is_broader(declared: tuple[str, ...], actual: set[str]) -> bool:
     if "<dynamic>" in actual:
-        return True
+        return bool(declared)
     if declared and not actual:
         return True
     if not actual:
         return False
-    return set(declared) != actual
+    return not set(declared).issubset(actual)
