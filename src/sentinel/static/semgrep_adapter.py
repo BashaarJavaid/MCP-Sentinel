@@ -55,7 +55,9 @@ def run_semgrep(
         return results
     _verify_semgrep_version()
     executable = shutil.which("semgrep")
-    sibling = Path(sys.executable).with_name("semgrep")
+    sibling = Path(sys.executable).with_name(
+        "semgrep.exe" if Path(sys.executable).suffix.lower() == ".exe" else "semgrep"
+    )
     if executable is None and sibling.is_file():
         executable = str(sibling)
     if executable is None:
