@@ -46,6 +46,9 @@ publishes list submissions and announcements.
   Python 3.12.14, pipx 1.16.0, Git 2.47.3, installed dependency versions and
   verification-image identity. Semgrep is pinned to 1.176.0.
 - `SHA256SUMS`: retained evidence and candidate distribution hashes.
+  `target-SHA256SUMS` hashes every tracked file under the pinned `src/git`.
+- `links.json`: existing launch links resolve. The 1.2.1 PyPI endpoint and new
+  walkthrough return the expected pre-publication 404; verify both after release.
 - `private-reporting.json`: enabled. The public repository Security page exposes
   `/BashaarJavaid/MCP-Sentinel/security/advisories/new` as “Report a vulnerability”.
   Filing requires GitHub login. No test advisory was submitted.
