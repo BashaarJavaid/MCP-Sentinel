@@ -43,13 +43,16 @@ from tests.conftest import NOW, SCAN_ID
 def _sarif_payload(finding: Finding | None = None) -> dict[str, object]:
     findings = (finding,) if finding is not None else ()
     selected = (finding.rule_id,) if finding is not None else ("SENT-002",)
+    llm = LlmConfig()
     batch = GptBatchRecord(
         batch_id="batch-1",
         request_fingerprint="a" * 64,
         mode="live",
         requested_model=MODEL,
         returned_model=MODEL,
-        reasoning_effort=LlmConfig().reasoning_effort,
+        endpoint_mode=llm.endpoint_mode,
+        endpoint_url_hash=llm.endpoint_url_hash,
+        reasoning_effort=llm.reasoning_effort,
         finding_count=len(findings),
         retry_count=0,
         status="accepted",

@@ -12,13 +12,13 @@ from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import Any, Protocol, cast, overload
 
 import openai
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, Omit
 from pydantic import ValidationError
 
-from sentinel.config import LlmConfig, ReasoningEffort
+from sentinel.config import EndpointMode, LlmConfig
 from sentinel.errors import InfrastructureError
 from sentinel.finding import (
     CachedReview,
@@ -54,10 +54,10 @@ DEFAULT_PROBE_ORDER = ("SENT-008", "SENT-009", "SENT-010", "SENT-011")
 PRICING = GptPricing(
     model=MODEL,
     source="https://developers.openai.com/api/docs/models/gpt-5.6-sol",
-    as_of="2026-07-18",
-    input_micro_usd_per_million=5_000_000,
-    cached_input_micro_usd_per_million=500_000,
-    output_micro_usd_per_million=30_000_000,
+    as_of="2026-09-03",
+    input_micro_usd_per_million=4_000_000,
+    cached_input_micro_usd_per_million=400_000,
+    output_micro_usd_per_million=20_000_000,
     cache_write_multiplier_millionths=1_250_000,
 )
 
@@ -92,11 +92,18 @@ class RawTransport(Protocol):
 class OpenAITransport:
     """One AsyncOpenAI client owned by one scan."""
 
-    def __init__(self, api_key: str, timeout_seconds: int) -> None:
+    def __init__(self, api_key: str, config: LlmConfig) -> None:
+        default_headers = (
+            {"OpenAI-Organization": Omit(), "OpenAI-Project": Omit()}
+            if config.endpoint_mode is EndpointMode.COMPATIBLE
+            else None
+        )
         self.client = AsyncOpenAI(
             api_key=api_key,
-            timeout=timeout_seconds,
+            base_url=config.normalized_base_url,
+            timeout=config.timeout_seconds,
             max_retries=0,
+            default_headers=cast(Any, default_headers),
         )
 
     async def create(self, request: dict[str, Any]) -> dict[str, Any]:
@@ -174,7 +181,7 @@ def unavailable_review_outcome(
         selected_count=len(findings),
         overflow_count=0,
         records=(),
-        effort=config.reasoning_effort,
+        config=config,
         cache_hits=0,
         cache_misses=0,
         cache_writes=0,
@@ -192,7 +199,7 @@ def empty_review_outcome(config: LlmConfig, *, mode: str) -> ReviewOutcome:
         selected_count=0,
         overflow_count=0,
         records=(),
-        effort=config.reasoning_effort,
+        config=config,
         cache_hits=0,
         cache_misses=0,
         cache_writes=0,
@@ -291,7 +298,7 @@ class SemanticReviewer:
         elif mode == "live":
             if not api_key:
                 raise InfrastructureError("OPENAI_API_KEY is required for GPT review")
-            self.transport = OpenAITransport(api_key, config.timeout_seconds)
+            self.transport = OpenAITransport(api_key, config)
         else:
             root_path = (
                 cassette_root or Path(__file__).resolve().parents[1] / "_cassettes"
@@ -338,7 +345,7 @@ class SemanticReviewer:
                         )
                     }
                 )
-        batches = _build_batches(candidates, self.config.reasoning_effort)
+        batches = _build_batches(candidates, self.config)
         stop = asyncio.Event()
         semaphore = asyncio.Semaphore(self.config.max_concurrency)
 
@@ -383,7 +390,7 @@ class SemanticReviewer:
                 batch_records.append(
                     _failed_batch_record(
                         result.batch,
-                        self.config.reasoning_effort,
+                        self.config,
                         message,
                         refusal_count=result.refusal_count,
                         incomplete_count=result.incomplete_count,
@@ -399,10 +406,10 @@ class SemanticReviewer:
                 result.batch.candidates, accepted.decisions, strict=True
             ):
                 applied[candidate.finding.finding_id] = _merge_decision(
-                    candidate.finding, decision, accepted, self.now()
+                    candidate.finding, decision, accepted, self.config, self.now()
                 )
             if accepted.mode == "live":
-                payload = _cache_payload(result.batch, accepted)
+                payload = _cache_payload(result.batch, accepted, self.config)
                 if self.cache.write(result.batch.fingerprint, payload):
                     cache_writes += 1
                 elif self.config.cache_enabled:
@@ -414,9 +421,7 @@ class SemanticReviewer:
                         )
                     )
             batch_records.append(
-                _accepted_batch_record(
-                    result.batch, accepted, self.config.reasoning_effort
-                )
+                _accepted_batch_record(result.batch, accepted, self.config)
             )
 
         if overflow:
@@ -441,7 +446,7 @@ class SemanticReviewer:
             selected_count=len(selected),
             overflow_count=len(overflow),
             records=tuple(batch_records),
-            effort=self.config.reasoning_effort,
+            config=self.config,
             cache_hits=cache_hits,
             cache_misses=cache_misses,
             cache_writes=cache_writes,
@@ -538,7 +543,7 @@ class SemanticReviewer:
                     self.capture_sink(batch.fingerprint, batch.request, raw)
                 return _BatchResult(batch, accepted, None, attempt)
             except Exception as error:
-                failure = _classify(error)
+                failure = _classify(error, self.config)
                 refusal_count += failure.kind == "refusal"
                 incomplete_count += failure.kind == "incomplete"
                 last = str(failure)
@@ -563,7 +568,7 @@ class SemanticReviewer:
 
 
 def _build_batches(
-    candidates: tuple[_Candidate, ...], effort: ReasoningEffort
+    candidates: tuple[_Candidate, ...], config: LlmConfig
 ) -> tuple[_Batch, ...]:
     groups: dict[str, list[_Candidate]] = defaultdict(list)
     for candidate in candidates:
@@ -576,12 +581,12 @@ def _build_batches(
         values = groups[key]
         for offset in range(0, len(values), 10):
             members = tuple(values[offset : offset + 10])
-            fingerprint = _request_fingerprint(members, effort)
+            fingerprint = _request_fingerprint(members, config)
             batch_id = f"batch_{fingerprint[:24]}"
             batches.append(
                 _Batch(
                     candidates=members,
-                    request=_request(members, effort, fingerprint),
+                    request=_request(members, config, fingerprint),
                     fingerprint=fingerprint,
                     batch_id=batch_id,
                 )
@@ -590,7 +595,7 @@ def _build_batches(
 
 
 def _request(
-    candidates: tuple[_Candidate, ...], effort: ReasoningEffort, fingerprint: str
+    candidates: tuple[_Candidate, ...], config: LlmConfig, fingerprint: str
 ) -> dict[str, Any]:
     contexts: dict[str, Any] = {}
     tools: dict[str, Any] = {}
@@ -630,12 +635,12 @@ def _request(
     )
     schema = ReviewBatchResponse.model_json_schema(mode="serialization")
     return {
-        "model": MODEL,
+        "model": config.model,
         "instructions": _INSTRUCTIONS,
         "input": untrusted,
         "store": False,
         "service_tier": "default",
-        "reasoning": {"effort": effort.value},
+        "reasoning": {"effort": config.reasoning_effort.value},
         "text": {
             "format": {
                 "type": "json_schema",
@@ -650,19 +655,19 @@ def _request(
         "stream": False,
         "background": False,
         "max_output_tokens": min(16_384, 1_024 + 1_024 * len(candidates)),
-        "prompt_cache_key": f"{PROMPT_VERSION}:{REVIEW_SCHEMA_VERSION}:{effort.value}",
+        "prompt_cache_key": (
+            f"{PROMPT_VERSION}:{REVIEW_SCHEMA_VERSION}:{config.reasoning_effort.value}"
+        ),
         "metadata": {"sentinel_fingerprint": fingerprint[:64]},
     }
 
 
-def _request_fingerprint(
-    candidates: tuple[_Candidate, ...], effort: ReasoningEffort
-) -> str:
+def _request_fingerprint(candidates: tuple[_Candidate, ...], config: LlmConfig) -> str:
     payload = {
-        "model": MODEL,
+        "model": config.model,
         "prompt_version": PROMPT_VERSION,
         "schema_version": REVIEW_SCHEMA_VERSION,
-        "effort": effort.value,
+        "effort": config.reasoning_effort.value,
         "composition": [
             {
                 "slot": index,
@@ -674,6 +679,8 @@ def _request_fingerprint(
             for index, item in enumerate(candidates)
         ],
     }
+    if config.endpoint_mode is EndpointMode.COMPATIBLE:
+        payload["endpoint_url_hash"] = config.endpoint_url_hash
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -843,6 +850,7 @@ def _merge_decision(
     finding: Finding,
     decision: FindingReviewDecision,
     accepted: _Accepted,
+    config: LlmConfig,
     applied_at: datetime,
 ) -> Finding:
     evidence_refs = tuple(
@@ -875,8 +883,10 @@ def _merge_decision(
     }[accepted.mode]
     review = review_type(
         status=ReviewStatus(decision.status),
-        requested_model=MODEL,
+        requested_model=config.model,
         returned_model=accepted.returned_model,
+        endpoint_mode=config.endpoint_mode.value,
+        endpoint_url_hash=config.endpoint_url_hash,
         confidence=decision.confidence,
         reasoning=decision.reasoning,
         evidence_refs=evidence_refs,
@@ -992,18 +1002,32 @@ def _integer(value: object) -> int | None:
     return value if isinstance(value, int) and value >= 0 else None
 
 
-def _cost(usage: TokenUsage) -> int:
+def _pricing(config: LlmConfig) -> GptPricing | None:
+    return PRICING if config.endpoint_mode is EndpointMode.OPENAI else None
+
+
+@overload
+def _cost(usage: TokenUsage) -> int: ...
+
+
+@overload
+def _cost(usage: TokenUsage, pricing: GptPricing | None) -> int | None: ...
+
+
+def _cost(usage: TokenUsage, pricing: GptPricing | None = PRICING) -> int | None:
+    if pricing is None:
+        return None
     input_tokens = usage.input_tokens or 0
     cached = min(usage.cached_tokens or 0, input_tokens)
     writes = usage.cache_write_tokens or 0
     uncached = max(0, input_tokens - cached - writes)
     numerator = (
-        uncached * PRICING.input_micro_usd_per_million
-        + cached * PRICING.cached_input_micro_usd_per_million
-        + (usage.output_tokens or 0) * PRICING.output_micro_usd_per_million
+        uncached * pricing.input_micro_usd_per_million
+        + cached * pricing.cached_input_micro_usd_per_million
+        + (usage.output_tokens or 0) * pricing.output_micro_usd_per_million
         + writes
-        * PRICING.input_micro_usd_per_million
-        * PRICING.cache_write_multiplier_millionths
+        * pricing.input_micro_usd_per_million
+        * pricing.cache_write_multiplier_millionths
         // 1_000_000
     )
     return (numerator + 999_999) // 1_000_000
@@ -1035,7 +1059,7 @@ def _add_usage(values: tuple[TokenUsage, ...]) -> TokenUsage:
 
 
 def _accepted_batch_record(
-    batch: _Batch, accepted: _Accepted, effort: ReasoningEffort
+    batch: _Batch, accepted: _Accepted, config: LlmConfig
 ) -> GptBatchRecord:
     counts = {status: 0 for status in ("confirmed", "suppressed", "needs_review")}
     for decision in accepted.decisions:
@@ -1045,9 +1069,11 @@ def _accepted_batch_record(
         batch_id=accepted.batch_id,
         request_fingerprint=batch.fingerprint,
         mode=cast(Any, accepted.mode),
-        requested_model=MODEL,
+        requested_model=config.model,
         returned_model=accepted.returned_model,
-        reasoning_effort=effort,
+        endpoint_mode=config.endpoint_mode,
+        endpoint_url_hash=config.endpoint_url_hash,
+        reasoning_effort=config.reasoning_effort,
         finding_count=len(batch.candidates),
         retry_count=accepted.retries,
         status="accepted",
@@ -1058,8 +1084,8 @@ def _accepted_batch_record(
         origin_usage=accepted.usage,
         current_latency_ms=accepted.latency_ms if accepted.mode == "live" else 0,
         origin_latency_ms=accepted.latency_ms,
-        current_cost_micro_usd=_cost(current),
-        origin_cost_micro_usd=_cost(accepted.usage),
+        current_cost_micro_usd=_cost(current, _pricing(config)),
+        origin_cost_micro_usd=_cost(accepted.usage, _pricing(config)),
         confirmed_count=counts["confirmed"],
         suppressed_count=counts["suppressed"],
         needs_review_count=counts["needs_review"],
@@ -1068,7 +1094,7 @@ def _accepted_batch_record(
 
 def _failed_batch_record(
     batch: _Batch,
-    effort: ReasoningEffort,
+    config: LlmConfig,
     failure: str,
     *,
     refusal_count: int,
@@ -1078,9 +1104,11 @@ def _failed_batch_record(
         batch_id=batch.batch_id,
         request_fingerprint=batch.fingerprint,
         mode="degraded",
-        requested_model=MODEL,
+        requested_model=config.model,
         returned_model=None,
-        reasoning_effort=effort,
+        endpoint_mode=config.endpoint_mode,
+        endpoint_url_hash=config.endpoint_url_hash,
+        reasoning_effort=config.reasoning_effort,
         finding_count=len(batch.candidates),
         retry_count=0,
         status="failed",
@@ -1092,8 +1120,8 @@ def _failed_batch_record(
         origin_usage=_zero_usage(),
         current_latency_ms=0,
         origin_latency_ms=0,
-        current_cost_micro_usd=0,
-        origin_cost_micro_usd=0,
+        current_cost_micro_usd=0 if _pricing(config) is not None else None,
+        origin_cost_micro_usd=0 if _pricing(config) is not None else None,
         needs_review_count=len(batch.candidates),
     )
 
@@ -1105,7 +1133,7 @@ def _summarize_review(
     selected_count: int,
     overflow_count: int,
     records: tuple[GptBatchRecord, ...],
-    effort: ReasoningEffort,
+    config: LlmConfig,
     cache_hits: int,
     cache_misses: int,
     cache_writes: int,
@@ -1118,8 +1146,10 @@ def _summarize_review(
     current_usage = _add_usage(tuple(item.current_usage for item in records))
     origin_usage = _add_usage(tuple(item.origin_usage for item in records))
     return GptReviewSummary(
-        requested_model=MODEL,
-        reasoning_effort=effort,
+        requested_model=config.model,
+        reasoning_effort=config.reasoning_effort,
+        endpoint_mode=config.endpoint_mode,
+        endpoint_url_hash=config.endpoint_url_hash,
         mode=cast(Any, mode),
         candidate_count=candidate_count,
         selected_count=selected_count,
@@ -1139,21 +1169,30 @@ def _summarize_review(
         origin_usage=origin_usage,
         current_latency_ms=sum(item.current_latency_ms for item in records),
         origin_latency_ms=sum(item.origin_latency_ms for item in records),
-        current_cost_micro_usd=sum(
-            item.current_cost_micro_usd or 0 for item in records
+        current_cost_micro_usd=(
+            sum(item.current_cost_micro_usd or 0 for item in records)
+            if _pricing(config) is not None
+            else None
         ),
-        origin_cost_micro_usd=sum(item.origin_cost_micro_usd or 0 for item in records),
-        pricing=PRICING,
+        origin_cost_micro_usd=(
+            sum(item.origin_cost_micro_usd or 0 for item in records)
+            if _pricing(config) is not None
+            else None
+        ),
+        pricing=_pricing(config),
         batches=records,
     )
 
 
-def _cache_payload(batch: _Batch, accepted: _Accepted) -> dict[str, Any]:
+def _cache_payload(
+    batch: _Batch, accepted: _Accepted, config: LlmConfig
+) -> dict[str, Any]:
     return {
         "guards": {
-            "model": MODEL,
+            "model": config.model,
             "prompt_version": PROMPT_VERSION,
             "review_schema_version": REVIEW_SCHEMA_VERSION,
+            "endpoint_url_hash": config.endpoint_url_hash,
         },
         "raw_response": accepted.raw,
         "runtime_ids": [str(item.finding.finding_id) for item in batch.candidates],
@@ -1204,25 +1243,47 @@ def _rebind_response(
     return rebound
 
 
-def _classify(error: Exception) -> _ReviewFailure:
+def _classify(error: Exception, config: LlmConfig | None = None) -> _ReviewFailure:
+    config = config or LlmConfig()
     if isinstance(error, _ReviewFailure):
-        return error
+        return _ReviewFailure(
+            _redact_endpoint(str(error), config),
+            retryable=error.retryable,
+            permanent_shared=error.permanent_shared,
+            kind=error.kind,
+        )
     if isinstance(
         error, (openai.APITimeoutError, openai.APIConnectionError, TimeoutError)
     ):
-        return _ReviewFailure(str(error) or "GPT connection failure", retryable=True)
+        return _ReviewFailure(
+            _redact_endpoint(str(error) or "GPT connection failure", config),
+            retryable=True,
+        )
     if isinstance(error, openai.APIStatusError):
         status = error.status_code
         detail = _api_error_detail(error)
-        message = f"GPT HTTP {status}{f': {detail}' if detail else ''}"
+        message = _redact_endpoint(
+            f"GPT HTTP {status}{f': {detail}' if detail else ''}", config
+        )
         if status == 429 or status >= 500:
             return _ReviewFailure(message, retryable=True)
         return _ReviewFailure(
             message, retryable=False, permanent_shared=status in {401, 403}
         )
     if isinstance(error, InfrastructureError):
-        return _ReviewFailure(str(error), retryable=False)
-    return _ReviewFailure(f"GPT transport failure: {error}", retryable=False)
+        return _ReviewFailure(_redact_endpoint(str(error), config), retryable=False)
+    return _ReviewFailure(
+        _redact_endpoint(f"GPT transport failure: {error}", config), retryable=False
+    )
+
+
+def _redact_endpoint(message: str, config: LlmConfig) -> str:
+    if config.endpoint_mode is EndpointMode.OPENAI:
+        return message
+    redacted = message.replace(config.normalized_base_url, "[REDACTED_LLM_ENDPOINT]")
+    if config.base_url:
+        redacted = redacted.replace(config.base_url, "[REDACTED_LLM_ENDPOINT]")
+    return redacted
 
 
 def _api_error_detail(error: openai.APIStatusError) -> str | None:

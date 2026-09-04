@@ -25,6 +25,19 @@
           "title": "Confidence",
           "type": "number"
         },
+        "endpoint_mode": {
+          "enum": [
+            "openai",
+            "compatible"
+          ],
+          "title": "Endpoint Mode",
+          "type": "string"
+        },
+        "endpoint_url_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Endpoint Url Hash",
+          "type": "string"
+        },
         "evidence_refs": {
           "items": {
             "$ref": "#/$defs/EvidenceReference"
@@ -127,7 +140,9 @@
         "latency_ms",
         "batch_id",
         "reviewed_at",
-        "applied_at"
+        "applied_at",
+        "endpoint_mode",
+        "endpoint_url_hash"
       ],
       "title": "CachedReview",
       "type": "object"
@@ -479,6 +494,19 @@
           "title": "Confidence",
           "type": "number"
         },
+        "endpoint_mode": {
+          "enum": [
+            "openai",
+            "compatible"
+          ],
+          "title": "Endpoint Mode",
+          "type": "string"
+        },
+        "endpoint_url_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Endpoint Url Hash",
+          "type": "string"
+        },
         "evidence_refs": {
           "items": {
             "$ref": "#/$defs/EvidenceReference"
@@ -581,7 +609,9 @@
         "latency_ms",
         "batch_id",
         "reviewed_at",
-        "applied_at"
+        "applied_at",
+        "endpoint_mode",
+        "endpoint_url_hash"
       ],
       "title": "LiveReview",
       "type": "object"
@@ -918,6 +948,19 @@
           "title": "Confidence",
           "type": "number"
         },
+        "endpoint_mode": {
+          "enum": [
+            "openai",
+            "compatible"
+          ],
+          "title": "Endpoint Mode",
+          "type": "string"
+        },
+        "endpoint_url_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Endpoint Url Hash",
+          "type": "string"
+        },
         "evidence_refs": {
           "items": {
             "$ref": "#/$defs/EvidenceReference"
@@ -1020,7 +1063,9 @@
         "latency_ms",
         "batch_id",
         "reviewed_at",
-        "applied_at"
+        "applied_at",
+        "endpoint_mode",
+        "endpoint_url_hash"
       ],
       "title": "ReplayReview",
       "type": "object"

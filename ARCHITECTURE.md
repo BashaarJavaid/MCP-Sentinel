@@ -19,7 +19,8 @@ SecureMCP Gateway and SecureMCP Identity remain separate repositories and are ou
 - MCP over stdio.
 - Static analysis using a custom Python AST engine plus a pinned Semgrep CLI.
 - Dynamic analysis inside Docker.
-- Required GPT-5.6 Sol semantic review of deterministic candidates through the Responses API.
+- Required semantic review of deterministic candidates through the Responses API,
+  using GPT-5.6 Sol by default or a validated compatible endpoint.
 - Console, JSON, and SARIF 2.1.0 reporting.
 - A composite GitHub Action on `ubuntu-latest`.
 
@@ -58,7 +59,8 @@ Unsupported target types, frameworks, transports, and configuration values fail 
 11. Rules and probes do not require live access to third-party services. The SARIF schema and GPT test responses are stored locally.
 12. Symlinks are not followed, and the scan root is a hard filesystem boundary.
 13. GPT output uses strict Structured Outputs derived from the Pydantic review schema; free-form JSON is not accepted.
-14. OpenAI requests use `store: false`, transmit the minimum redacted context, and record the actual returned model and usage metadata.
+14. Review requests use `store: false`, transmit the minimum redacted context,
+    and record requested/returned models, endpoint mode/hash, and usage metadata.
 
 ## 4. End-to-end scan pipeline
 
@@ -334,7 +336,14 @@ It may not create a finding without a deterministic rule, change the finding's o
 
 ### API and model contract
 
-The reviewer uses the OpenAI Responses API with the explicit `gpt-5.6-sol` model. The requested model, actual returned `response.model`, and reasoning effort are recorded separately so a model alias or backend revision cannot silently change audit history.
+The reviewer uses the Responses API with configurable model, reasoning effort,
+and base URL. Public OpenAI permits exactly `gpt-5.6-sol` and its documented
+`gpt-5.6` alias. A compatible endpoint accepts a 1–128-character deployment ID
+that begins with an ASCII letter or digit and otherwise contains only letters,
+digits, `.`, `_`, `:`, `/`, or `-`. Sentinel accepts `low` and `medium` effort
+for both endpoint modes. The requested model and actual returned
+`response.model` are recorded separately; a validated mismatch is accepted and
+preserved without warning.
 
 - Default reasoning effort: `medium`.
 - Evaluation comparison: `medium` versus `low` on the versioned review cases.
@@ -349,7 +358,9 @@ The reviewer uses the OpenAI Responses API with the explicit `gpt-5.6-sol` model
 
 ### Request boundary
 
-The host-side reviewer calls GPT-5.6 using `OPENAI_API_KEY`. Each request contains only:
+The host-side reviewer authenticates only with `OPENAI_API_KEY`. Public OpenAI
+retains `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID`; compatible requests suppress
+both headers. Each request contains only:
 
 - Finding and rule IDs.
 - Tool schema and description.
@@ -366,7 +377,7 @@ called same-file helpers contribute at most 40 lines each, with a hard total of
 sanitizer runs over model reasoning and evidence claims before persistence;
 unsafe redaction fails the review stage.
 
-Related candidates are grouped by tool or file so GPT can reason about one local security boundary in one call. Batches contain at most ten findings. Whole validated batches are cached; any member, context, tool metadata, model, prompt/schema version, or effort change invalidates the group.
+Related candidates are grouped by tool or file so GPT can reason about one local security boundary in one call. Batches contain at most ten findings. Whole validated batches are cached; any member, context, tool metadata, model, prompt/schema version, or effort change invalidates the group. Compatible cache identity also includes the normalized endpoint URL hash, so endpoints cannot share reviews. Existing public cache/replay data without endpoint fields is inferred as public OpenAI when applied.
 
 ### Validated response
 
@@ -417,7 +428,7 @@ Host-side validation additionally enforces:
 - Argument bindings are limited to fields declared by the target tool and inert values accepted by the approved probe template.
 - The model cannot provide shell, Python, SQL, or other executable probe programs.
 
-After validation, `semantic_reviewer.py` adds the requested model, returned `response.model`, review mode (`live`, `replay`, `cached`, or `degraded`), `batch_id`, original `reviewed_at`, and current `applied_at`. Cached reviews preserve their original model, usage, latency, and batch provenance. Degraded reviews have `reviewed_at=null`. The raw numeric confidence remains in the nested review record. Top-level confidence is updated to:
+After validation, `semantic_reviewer.py` adds the requested model, returned `response.model`, endpoint mode, SHA-256 URL hash, review mode (`live`, `replay`, `cached`, or `degraded`), `batch_id`, original `reviewed_at`, and current `applied_at`. Cached reviews preserve their original model, usage, latency, and batch provenance. Degraded review objects have no endpoint fields and `reviewed_at=null`. The raw numeric confidence remains in the nested review record. Top-level confidence is updated to:
 
 - `high` for values at or above `0.8`.
 - `medium` for values from `0.5` through `0.79`.
@@ -452,6 +463,10 @@ An invalid plan does not remove or skip probes. Sentinel falls back to the fixed
 - Reaching the configured cap is expected volume control, not an internal failure, and does not produce exit code `3`.
 - Stable prompt and rule prefixes are kept separate from dynamic request data so prompt caching remains measurable. Explicit cache breakpoints are adopted only after the evaluation shows a benefit.
 - Recorded real-response fixtures are replayed in CI; CI does not make live GPT calls.
+- Public pricing for both approved model IDs is canonicalized to
+  `gpt-5.6-sol`: $4/M input, $0.40/M cached input, $20/M output, and 1.25×
+  cache-write input as of 2026-09-03. Compatible endpoints retain usage but
+  set pricing and micro-USD costs to `null`.
 
 Each live batch records:
 
@@ -601,6 +616,30 @@ Precedence is:
 
 `sentinel.toml` contains scanner settings only: rule selection, fail threshold, ignore paths, output format, LLM limits, sandbox registry allowlist, and the optional path to a non-default target configuration. It never duplicates launch or installation settings.
 
+Model, reasoning effort, and base URL resolve independently using that
+precedence through `--llm-model`, `--llm-reasoning-effort`, `--llm-base-url` and
+their `SENTINEL_LLM_*` equivalents. A compatible URL originating in
+`sentinel.toml` is repository-controlled and requires
+`--trust-llm-endpoint` or `SENTINEL_TRUST_LLM_ENDPOINT=true`; CLI/environment
+URLs are implicitly operator-trusted. False trust values are absent, and an
+enabled but unused acknowledgment is rejected.
+
+Base URLs are absolute, at most 2048 characters, contain no userinfo, query, or
+fragment, and end in `/v1`. HTTPS is required except for literal `localhost`,
+`127.0.0.0/8`, or `::1`. Canonicalization lowercases scheme/host, removes default
+ports, preserves path case, and adds exactly one trailing slash. Canonical
+`https://api.openai.com/v1/` is `openai`; every other accepted URL is
+`compatible`. Only the mode and lowercase SHA-256 URL hash enter reports.
+Compatible URLs are redacted from configuration, SDK, and HTTP diagnostics.
+
+Generic Responses-compatible `/v1` endpoints and Azure OpenAI v1 endpoints at
+`/openai/v1` are supported. Azure is locally emulated, not verified against a
+real deployment. Legacy Azure routing, `api-version`, Entra authentication,
+Azure-specific key variables, and custom headers are unsupported.
+`OPENAI_BASE_URL` and `OPENAI_CUSTOM_HEADERS` are rejected. TLS uses native
+system trust plus `SSL_CERT_FILE`/`SSL_CERT_DIR`; Sentinel adds no certificate
+configuration.
+
 The scanner respects the target repository's `.gitignore` and always excludes `.venv/`, `venv/`, `node_modules/`, `__pycache__/`, and `.git/`. It does not follow symlinks or access paths above the scan root.
 
 ### CLI
@@ -629,6 +668,10 @@ Required options include:
 - `--target-launch-cmd`
 - `--static-only`
 - `--rules`
+- `--llm-model`
+- `--llm-reasoning-effort`
+- `--llm-base-url`
+- `--trust-llm-endpoint`
 
 There is no `--dynamic` flag because dynamic analysis is the default.
 
@@ -662,9 +705,11 @@ Uncaught exceptions exit with code `3`.
 ## 12. Reporting and SARIF
 
 Console, JSON, and SARIF renderers consume canonical Findings after
-deduplication. Native report schema `1.2.0` adds nullable top-level `gpt_review`
+deduplication. Native report schema `1.3.0` has nullable top-level `gpt_review`
 with batch-deduplicated current/origin token, latency, cache, failure, status,
-pricing, and integer micro-USD cost telemetry.
+pricing, integer micro-USD cost telemetry, and required endpoint mode/hash on
+every summary and batch. Completed Finding reviews also require endpoint
+mode/hash; individual degraded reviews intentionally do not.
 
 SARIF output uses `sarif-om`. Repository-relative artifact locations are anchored with `originalUriBaseIds`; absolute host paths are never emitted.
 

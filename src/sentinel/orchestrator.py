@@ -360,6 +360,8 @@ def _combine_gpt_summaries(
     return GptReviewSummary(
         requested_model=first.requested_model,
         reasoning_effort=first.reasoning_effort,
+        endpoint_mode=first.endpoint_mode,
+        endpoint_url_hash=first.endpoint_url_hash,
         mode=mode,
         candidate_count=first.candidate_count + second.candidate_count,
         selected_count=first.selected_count + second.selected_count,

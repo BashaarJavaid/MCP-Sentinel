@@ -226,6 +226,8 @@ class CompletedReview(ReviewBase):
     status: ReviewStatus
     requested_model: NonEmptyString
     returned_model: NonEmptyString
+    endpoint_mode: Literal["openai", "compatible"]
+    endpoint_url_hash: Sha256Hex
     confidence: float = Field(ge=0.0, le=1.0)
     reasoning: NonEmptyString
     evidence_refs: tuple[EvidenceReference, ...]

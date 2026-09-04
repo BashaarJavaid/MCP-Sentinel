@@ -8,8 +8,9 @@ from pathlib import Path
 import pytest
 
 from sentinel import __version__
-from sentinel.config import LoadedConfiguration, load_configuration
+from sentinel.config import LlmConfig, LoadedConfiguration, load_configuration
 from sentinel.finding import Exploitability, Finding, FindingStatus
+from sentinel.llm.semantic_reviewer import empty_review_outcome
 from sentinel.orchestrator import run_phase1_scan, run_scan
 from sentinel.report.console import render_console
 from sentinel.report.json_report import render_json
@@ -57,6 +58,7 @@ def test_phase1_report_has_static_results_and_is_explicitly_incomplete(
     assert payload["analysisComplete"] is False
     assert payload["executionSuccessful"] is False
     assert payload["sentinel_version"] == __version__
+    assert payload["schema_version"] == "1.3.0"
     validate_report_data(payload)
 
 
@@ -72,6 +74,24 @@ def test_console_reports_semantic_state(loaded_config: LoadedConfiguration) -> N
     assert "Findings: 0" in console
     assert "static: succeeded" in console
     assert "reporting: succeeded" in console
+
+
+def test_console_redacts_compatible_endpoint_and_marks_cost_unavailable(
+    loaded_config: LoadedConfiguration,
+) -> None:
+    context = ScanContext(
+        scan_id=SCAN_ID, started_at=NOW, target=ScanTarget(display_name="fixture")
+    )
+    report = run_phase1_scan(loaded_config, context, completed_at=NOW).report
+    private = "https://private.example/openai/v1"
+    review = empty_review_outcome(
+        LlmConfig(model="deployment", base_url=private), mode="live"
+    ).summary
+    console = render_console(report.model_copy(update={"gpt_review": review}))
+    assert "model deployment, reasoning medium, endpoint compatible" in console
+    assert "cost unavailable" in console
+    assert private not in console
+    assert review.endpoint_url_hash not in console
 
 
 def test_console_orders_by_severity_then_suppression_and_bounds_detail(
@@ -135,8 +155,9 @@ def test_schema_generate_and_drift_check(tmp_path: Path) -> None:
     assert check(schema_dir) == ["report.schema.json"]
 
 
+@pytest.mark.parametrize("compatible", (False, True))
 def test_completed_gpt_review_survives_console_json_and_sarif(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, compatible: bool
 ) -> None:
     root = Path(__file__).parent / "fixtures" / "gpt_review_eval"
     configuration = load_configuration(
@@ -145,16 +166,14 @@ def test_completed_gpt_review_survives_console_json_and_sarif(
         cli_overrides={"rules": ("SENT-002",)},
         static_only=True,
     )
+    private = "https://private.example/openai/v1"
+    llm = (
+        LlmConfig(model="deployment", base_url=private, cache_enabled=False)
+        if compatible
+        else LlmConfig(cache_enabled=False)
+    )
     configuration = configuration.model_copy(
-        update={
-            "scanner": configuration.scanner.model_copy(
-                update={
-                    "llm": configuration.scanner.llm.model_copy(
-                        update={"cache_enabled": False}
-                    )
-                }
-            )
-        }
+        update={"scanner": configuration.scanner.model_copy(update={"llm": llm})}
     )
     context = ScanContext(
         scan_id=SCAN_ID,
@@ -196,13 +215,31 @@ def test_completed_gpt_review_survives_console_json_and_sarif(
     ).report
     assert report.analysis_complete is True
     assert report.gpt_review is not None
-    assert "GPT review: LIVE" in render_console(report)
+    console = render_console(report)
+    assert "GPT review: LIVE" in console
+    expected_mode = "compatible" if compatible else "openai"
+    expected_model = "deployment" if compatible else "gpt-5.6-sol"
+    assert (
+        f"model {expected_model}, reasoning medium, endpoint {expected_mode}" in console
+    )
+    assert private not in console
     native = json.loads(render_json(report))
     validate_report_data(native)
+    assert native["schema_version"] == "1.3.0"
+    assert native["gpt_review"]["endpoint_mode"] == expected_mode
+    assert len(native["gpt_review"]["endpoint_url_hash"]) == 64
+    if compatible:
+        assert native["gpt_review"]["pricing"] is None
+    else:
+        assert native["gpt_review"]["pricing"] is not None
+    assert private not in json.dumps(native)
     assert native["findings"][0]["review"]["reasoning"].startswith("Direct")
 
     sarif = json.loads(render_sarif(report))
     validate_sarif_data(sarif)
     review = sarif["runs"][0]["results"][0]["properties"]["review"]
     assert review["mode"] == "live"
+    assert review["endpoint_mode"] == expected_mode
+    assert len(review["endpoint_url_hash"]) == 64
+    assert private not in json.dumps(sarif)
     assert review["suggested_severity_override"] is None

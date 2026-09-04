@@ -21,7 +21,7 @@ from scripts.generate_gpt_static_ablation import (
     _ratio,
     _rules_only,
 )
-from sentinel.config import ReasoningEffort, load_configuration
+from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
 from sentinel.dynamic.catalog import RULE_IDS as DYNAMIC_RULE_IDS
 from sentinel.dynamic.prober import (
     INJECTION_MARKER,
@@ -90,9 +90,11 @@ def generate_ablation(output: Path) -> None:
         for effort in (ReasoningEffort.MEDIUM, ReasoningEffort.LOW)
     }
     payload = {
-        "artifact_version": 1,
+        "artifact_version": 2,
         "generated_from": "checked-in GPT replay plus isolated Docker campaigns",
         "model": MODEL,
+        "endpoint_mode": LlmConfig().endpoint_mode.value,
+        "endpoint_url_hash": LlmConfig().endpoint_url_hash,
         "pricing": PRICING.model_dump(mode="json"),
         "truth_policy": {
             "ambiguous_excluded_from_binary_metrics": True,
@@ -323,7 +325,7 @@ class _BudgetedLiveTransport:
         self, *, api_key: str, timeout_seconds: int, budget_micro_usd: int
     ) -> None:
         self.api_key = api_key
-        self.timeout_seconds = timeout_seconds
+        self.config = LlmConfig(timeout_seconds=timeout_seconds)
         self.budget = budget_micro_usd
         self.spent = 0
         self.reserved = 0
@@ -336,9 +338,7 @@ class _BudgetedLiveTransport:
                 raise RuntimeError("live GPT request exceeds the Phase 5 hard ceiling")
             self.reserved += reservation
         try:
-            response = await OpenAITransport(self.api_key, self.timeout_seconds).create(
-                request
-            )
+            response = await OpenAITransport(self.api_key, self.config).create(request)
             actual = _cost(_usage(response))
         finally:
             with self.lock:

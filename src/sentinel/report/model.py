@@ -9,13 +9,14 @@ from uuid import UUID
 
 from pydantic import Field, field_serializer, field_validator, model_validator
 
-from sentinel.config import ReasoningEffort
+from sentinel.config import EndpointMode, ReasoningEffort
 from sentinel.finding import (
     ContractModel,
     Finding,
     FindingStatus,
     NonEmptyString,
     Severity,
+    Sha256Hex,
     TokenUsage,
     ensure_utc,
     format_utc,
@@ -158,6 +159,8 @@ class GptBatchRecord(ContractModel):
     mode: Literal["live", "replay", "cached", "degraded"]
     requested_model: NonEmptyString
     returned_model: str | None
+    endpoint_mode: EndpointMode
+    endpoint_url_hash: Sha256Hex
     reasoning_effort: ReasoningEffort
     finding_count: int = Field(ge=0)
     retry_count: int = Field(ge=0)
@@ -180,6 +183,8 @@ class GptBatchRecord(ContractModel):
 class GptReviewSummary(ContractModel):
     requested_model: NonEmptyString
     reasoning_effort: ReasoningEffort
+    endpoint_mode: EndpointMode
+    endpoint_url_hash: Sha256Hex
     mode: Literal["live", "replay", "cached", "degraded", "mixed"]
     candidate_count: int = Field(ge=0)
     selected_count: int = Field(ge=0)
@@ -204,7 +209,7 @@ class GptReviewSummary(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.2.0"] = "1.2.0"
+    schema_version: Literal["1.3.0"] = "1.3.0"
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime

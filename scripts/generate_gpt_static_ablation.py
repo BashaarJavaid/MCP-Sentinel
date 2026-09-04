@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import yaml
 
-from sentinel.config import ReasoningEffort, load_configuration
+from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
 from sentinel.finding import FindingStatus
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.semantic_reviewer import MODEL, PRICING, SemanticReviewer
@@ -21,6 +21,7 @@ from sentinel.llm.tools import extract_tool_catalog
 from sentinel.static.engine import run_static_scan
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_LLM = LlmConfig()
 
 
 def main() -> int:
@@ -38,9 +39,11 @@ def main() -> int:
     }
     rules = _rules_only(cases)
     payload = {
-        "artifact_version": 1,
+        "artifact_version": 2,
         "generated_from": "checked-in cassette replay",
         "model": MODEL,
+        "endpoint_mode": DEFAULT_LLM.endpoint_mode.value,
+        "endpoint_url_hash": DEFAULT_LLM.endpoint_url_hash,
         "pricing": PRICING.model_dump(mode="json"),
         "truth_policy": {
             "ambiguous_excluded_from_binary_metrics": True,

@@ -70,11 +70,18 @@ def render_console(
                 _style("GPT review", color, bold=True)
                 + f": {label} · {review.reviewed_count}/"
                 f"{review.candidate_count} reviewed",
+                f"  model {review.requested_model}, reasoning "
+                f"{review.reasoning_effort.value}, endpoint "
+                f"{review.endpoint_mode.value}",
                 f"  confirmed {review.confirmed_count}, suppressed "
                 f"{review.suppressed_count}, needs review {review.needs_review_count}",
                 f"  cache {review.cache_hits} hit(s), {review.cache_misses} miss(es)",
                 f"  origin tokens {review.origin_usage.total_tokens or 0}, "
-                f"cost {review.origin_cost_micro_usd or 0} micro-USD",
+                + (
+                    f"cost {review.origin_cost_micro_usd or 0} micro-USD"
+                    if review.origin_cost_micro_usd is not None
+                    else "cost unavailable"
+                ),
             )
         )
         if review.mode == "replay":

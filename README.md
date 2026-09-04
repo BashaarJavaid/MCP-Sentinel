@@ -139,7 +139,7 @@ flowchart LR
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.2.0]
+    H --> J[JSON 1.3.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```
@@ -239,11 +239,14 @@ scanned Python targets remain limited to Python 3.10–3.12. Full scans and demo
 require Docker Engine or Docker Desktop with Buildx. The GitHub Action runs on
 Ubuntu.
 
-Development checkout:
+### Unreleased/source checkout
+
+Phase 10 endpoint configuration is currently available from a source checkout,
+not from the released `1.0.0` package or Marketplace Action:
 
 ```bash
 uv sync --extra dev
-uv run sentinel --version
+uv run sentinel scan ./path/to/server
 ```
 
 The pip-compatible development path is:
@@ -325,6 +328,11 @@ sentinel scan ./path/to/server --verbose
 
 # Set the failure threshold; default is high
 sentinel scan ./path/to/server --fail-on critical
+
+# Use a Responses-compatible organizational endpoint
+sentinel scan ./path/to/server \
+  --llm-model organization-deployment \
+  --llm-base-url https://llm.example/openai/v1
 ```
 
 `--fail-on` accepts `critical`, `high`, `medium`, `low`, or `informational`, and
@@ -339,6 +347,29 @@ A normal scan requires `sentinel.target.yaml` and
 configuration but still requires semantic review. `OPENAI_API_KEY` is read only
 by Sentinel; it is never printed, persisted, forwarded to the target, or stored
 by the Responses API.
+
+Model, reasoning effort, and base URL each use CLI → `SENTINEL_*` environment →
+target-root `sentinel.toml` → built-in-default precedence. Their CLI options are
+`--llm-model`, `--llm-reasoning-effort`, and `--llm-base-url`; the corresponding
+environment variables are `SENTINEL_LLM_MODEL`,
+`SENTINEL_LLM_REASONING_EFFORT`, and `SENTINEL_LLM_BASE_URL`. Public OpenAI
+accepts `gpt-5.6-sol` and the `gpt-5.6` alias with `low` or `medium` effort.
+
+Generic compatible endpoints must expose the Responses API below a `/v1` path.
+Azure OpenAI's v1 protocol shape is supported with a base URL ending in
+`/openai/v1`; it is covered by local emulation, not a live Azure deployment.
+Only `OPENAI_API_KEY` bearer authentication is supported. Legacy Azure routing,
+`api-version`, Microsoft Entra authentication, Azure-specific key variables,
+and custom headers are unsupported. `OPENAI_BASE_URL` and
+`OPENAI_CUSTOM_HEADERS` are rejected so Sentinel can validate routing and record
+endpoint provenance. HTTPS uses the native system certificate store and honors
+`SSL_CERT_FILE` and `SSL_CERT_DIR`.
+
+A compatible URL committed in `sentinel.toml` requires an operator to pass
+`--trust-llm-endpoint` or set `SENTINEL_TRUST_LLM_ENDPOINT=true`. A URL supplied
+directly by CLI or environment is already operator-controlled and needs no
+additional acknowledgment. Reports contain only endpoint mode and a SHA-256 URL
+hash; the compatible URL itself is never printed or serialized.
 
 Exit codes are stable:
 
@@ -374,7 +405,7 @@ See the [judge runbook and narration](docs/demo.md).
 
 ## GPT-5.6 behavior and disclosure
 
-The production reviewer uses the OpenAI Responses API with:
+The production reviewer uses the Responses API with:
 
 - requested model `gpt-5.6-sol` and recorded returned model ID;
 - `store: false`;
@@ -383,6 +414,11 @@ The production reviewer uses the OpenAI Responses API with:
 - deterministic context selection, redaction, batching, and candidate caps;
 - validated source-range claims and constrained probe plans;
 - current/origin latency, tokens, cache, failure, and micro-USD telemetry.
+
+Public OpenAI cost estimates use the documented GPT-5.6 Sol rates as of
+2026-09-03: $4/M input, $0.40/M cached input, and $20/M output, with cache writes
+at 1.25× input. Compatible endpoints retain token usage but report pricing and
+cost as unavailable.
 
 Live mode calls the model. Replay mode feeds checked live responses through the
 same parser, validators, merge logic, dynamic probes, and reports. Degraded mode
@@ -423,6 +459,8 @@ remain fail-closed. The current `v1` live proof is documented in
 [`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md);
 the earlier commit-pinned proof remains in
 [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
+The Marketplace Action remains pinned to released Sentinel `1.0.0`; it does not
+expose the unreleased source-checkout endpoint options.
 
 `v1` follows the latest compatible `v1.x.y` Action release. Security-sensitive
 workflows can replace it with that release's full commit SHA. Maintainers move
@@ -442,7 +480,7 @@ make artifacts-check
 make notices-check
 ```
 
-`artifacts/example.sarif` is the checked live report.
+`artifacts/example.sarif` is retained as historical live schema-1.2 evidence.
 `artifacts/gpt-ablation.json` compares rules-only, GPT-reviewed, and
 dynamically confirmed outcomes over the versioned truth set. Routine generation
 uses replay and Docker; the final live refresh is hard-capped:

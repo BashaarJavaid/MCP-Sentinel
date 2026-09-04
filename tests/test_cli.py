@@ -43,6 +43,10 @@ def test_version_and_help() -> None:
     help_result = runner.invoke(app, ["scan", "--help"])
     assert help_result.exit_code == 0
     assert "--static-only" in unstyle(help_result.stdout)
+    assert "--llm-model" in unstyle(help_result.stdout)
+    assert "--llm-reasoning-ef" in unstyle(help_result.stdout)
+    assert "--llm-base-url" in unstyle(help_result.stdout)
+    assert "--trust-llm-endpoi" in unstyle(help_result.stdout)
 
 
 def test_json_scan_returns_complete_exit_and_clean_stdout(target_root: Path) -> None:
@@ -61,6 +65,66 @@ def test_conflicting_format_is_usage_error(target_root: Path) -> None:
     assert result.exit_code == 2
     assert result.stderr.startswith("configuration error:")
     assert "conflicts" in result.stderr
+
+
+def test_scan_cli_configures_compatible_endpoint_without_printing_url(
+    target_root: Path,
+) -> None:
+    private = "https://private.example/openai/v1"
+    result = runner.invoke(
+        app,
+        [
+            "scan",
+            str(target_root),
+            "--json",
+            "--static-only",
+            "--llm-model",
+            "deployment",
+            "--llm-reasoning-effort",
+            "low",
+            "--llm-base-url",
+            private,
+        ],
+    )
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["gpt_review"]["requested_model"] == "deployment"
+    assert payload["gpt_review"]["reasoning_effort"] == "low"
+    assert payload["gpt_review"]["endpoint_mode"] == "compatible"
+    assert private not in result.stdout
+
+
+def test_invalid_or_untrusted_endpoint_fails_before_analysis(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    untrusted = make_target(
+        tmp_path / "untrusted",
+        scanner_toml='[llm]\nmodel = "deployment"\nbase_url = "https://private.example/v1"\n',
+    )
+
+    def reject_scan(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("analysis must not start")
+
+    monkeypatch.setattr("sentinel.cli.run_scan", reject_scan)
+    result = runner.invoke(app, ["scan", str(untrusted), "--static-only"])
+    assert result.exit_code == 2
+    assert "requires --trust-llm-endpoint" in result.stderr
+
+    invalid = make_target(tmp_path / "invalid")
+    degraded = runner.invoke(
+        app,
+        [
+            "scan",
+            str(invalid),
+            "--static-only",
+            "--allow-degraded",
+            "--llm-base-url",
+            "http://private.example/v1",
+        ],
+    )
+    assert degraded.exit_code == 2
+    assert "configuration error:" in degraded.stderr
 
 
 @pytest.mark.parametrize("flag", ["--verbose", "--color", "--no-color"])

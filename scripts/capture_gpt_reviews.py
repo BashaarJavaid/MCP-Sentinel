@@ -260,7 +260,7 @@ def _batches_for_findings(
         )
         for finding in sorted(findings, key=_candidate_sort_key)
     )
-    return _build_batches(candidates, config.reasoning_effort)
+    return _build_batches(candidates, config)
 
 
 def _capture_into(
@@ -375,7 +375,7 @@ def _planned_batches(
         )
         for item in findings
     )
-    return _build_batches(candidates, effort), llm
+    return _build_batches(candidates, llm), llm
 
 
 def _tool_name(catalog: ToolCatalog, finding: Finding) -> str | None:

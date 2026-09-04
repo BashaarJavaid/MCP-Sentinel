@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import ipaddress
 import os
 import re
 import shlex
@@ -10,6 +12,7 @@ from collections.abc import Mapping
 from enum import Enum
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import SplitResult, urlsplit, urlunsplit
 
 import yaml
 from packaging.requirements import InvalidRequirement, Requirement
@@ -82,6 +85,11 @@ class ReasoningEffort(str, Enum):
     MEDIUM = "medium"
 
 
+class EndpointMode(str, Enum):
+    OPENAI = "openai"
+    COMPATIBLE = "compatible"
+
+
 class ScannerConfig(ContractModel):
     format: OutputFormat = OutputFormat.CONSOLE
     fail_on: FailThreshold = FailThreshold.HIGH
@@ -120,11 +128,61 @@ class ScannerConfig(ContractModel):
 
 
 class LlmConfig(ContractModel):
+    model: str = "gpt-5.6-sol"
+    base_url: str | None = Field(default=None, exclude=True, repr=False)
     reasoning_effort: ReasoningEffort = ReasoningEffort.MEDIUM
     timeout_seconds: int = Field(default=30, ge=1)
     retries: int = Field(default=2, ge=0)
     max_concurrency: int = Field(default=5, ge=1)
     cache_enabled: bool = True
+
+    @field_validator("reasoning_effort", mode="before")
+    @classmethod
+    def validate_reasoning_effort(cls, value: Any) -> Any:
+        return ReasoningEffort(value) if isinstance(value, str) else value
+
+    @field_validator("model")
+    @classmethod
+    def validate_model_text(cls, value: str) -> str:
+        if not value or value != value.strip():
+            raise ValueError(
+                "LLM model cannot be empty or contain surrounding whitespace"
+            )
+        return value
+
+    @field_validator("base_url")
+    @classmethod
+    def validate_base_url(cls, value: str | None) -> str | None:
+        if value is not None:
+            _normalize_llm_base_url(value)
+        return value
+
+    @model_validator(mode="after")
+    def validate_model_for_endpoint(self) -> LlmConfig:
+        if self.endpoint_mode is EndpointMode.OPENAI:
+            if self.model not in {"gpt-5.6-sol", "gpt-5.6"}:
+                raise ValueError(
+                    "public OpenAI review model must be gpt-5.6-sol or gpt-5.6"
+                )
+        elif not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}", self.model):
+            raise ValueError("compatible endpoint deployment ID is invalid")
+        return self
+
+    @property
+    def normalized_base_url(self) -> str:
+        return _normalize_llm_base_url(self.base_url or "https://api.openai.com/v1")
+
+    @property
+    def endpoint_mode(self) -> EndpointMode:
+        return (
+            EndpointMode.OPENAI
+            if self.normalized_base_url == "https://api.openai.com/v1/"
+            else EndpointMode.COMPATIBLE
+        )
+
+    @property
+    def endpoint_url_hash(self) -> str:
+        return hashlib.sha256(self.normalized_base_url.encode()).hexdigest()
 
 
 class SandboxConfig(ContractModel):
@@ -304,6 +362,8 @@ ENV_OVERRIDES: dict[str, tuple[str, str]] = {
     "SENTINEL_IGNORE_PATHS": ("scanner", "ignore_paths"),
     "SENTINEL_TARGET_CONFIG": ("scanner", "target_config"),
     "SENTINEL_MAX_FINDINGS": ("scanner", "max_findings_per_scan"),
+    "SENTINEL_LLM_MODEL": ("llm", "model"),
+    "SENTINEL_LLM_BASE_URL": ("llm", "base_url"),
     "SENTINEL_LLM_REASONING_EFFORT": ("llm", "reasoning_effort"),
     "SENTINEL_LLM_TIMEOUT_SECONDS": ("llm", "timeout_seconds"),
     "SENTINEL_LLM_RETRIES": ("llm", "retries"),
@@ -330,20 +390,50 @@ def load_configuration(
     *,
     environ: Mapping[str, str] | None = None,
     cli_overrides: Mapping[str, Any] | None = None,
+    llm_cli_overrides: Mapping[str, Any] | None = None,
+    trust_llm_endpoint: bool = False,
     target_launch_cmd: str | None = None,
     static_only: bool = False,
 ) -> LoadedConfiguration:
     """Load and validate scanner/target configuration without executing target code."""
 
     scan_root = validate_scan_root(scan_path)
+    environment = os.environ if environ is None else environ
+    _reject_ambient_openai_routing(environment)
     config_data = _read_toml(scan_root / "sentinel.toml", required=False)
+    project_llm = config_data.get("llm")
+    project_base_url = (
+        project_llm.get("base_url") if isinstance(project_llm, Mapping) else None
+    )
     merged = _deep_merge({}, config_data)
-    merged = _apply_environment(merged, environ or os.environ)
+    merged = _apply_environment(merged, environment)
     merged = _apply_cli(merged, cli_overrides or {})
+    merged = _apply_llm_cli(merged, llm_cli_overrides or {})
     try:
         scanner = SentinelConfig.model_validate(merged)
     except Exception as error:
-        raise ConfigurationError(f"invalid scanner configuration: {error}") from error
+        raise ConfigurationError(
+            "invalid scanner configuration: "
+            + _redact_configured_url(str(error), merged.get("llm", {}).get("base_url"))
+        ) from error
+
+    environment_has_url = "SENTINEL_LLM_BASE_URL" in environment
+    cli_has_url = (llm_cli_overrides or {}).get("base_url") is not None
+    trust_from_environment = _trust_environment_value(environment)
+    trust_enabled = trust_llm_endpoint or trust_from_environment
+    repository_compatible_url = (
+        project_base_url is not None
+        and not environment_has_url
+        and not cli_has_url
+        and scanner.llm.endpoint_mode is EndpointMode.COMPATIBLE
+    )
+    if repository_compatible_url and not trust_enabled:
+        raise ConfigurationError(
+            "repository-configured compatible LLM endpoint requires "
+            "--trust-llm-endpoint or SENTINEL_TRUST_LLM_ENDPOINT=true"
+        )
+    if trust_enabled and not repository_compatible_url:
+        raise ConfigurationError("LLM endpoint trust acknowledgment is unused")
 
     _declared_supported_package_roots(scan_root)
 
@@ -525,6 +615,118 @@ def _apply_cli(data: dict[str, Any], overrides: Mapping[str, Any]) -> dict[str, 
         if value is not None:
             scanner[key] = value
     return result
+
+
+def _apply_llm_cli(
+    data: dict[str, Any], overrides: Mapping[str, Any]
+) -> dict[str, Any]:
+    result = _deep_merge({}, data)
+    llm = result.setdefault("llm", {})
+    for key, value in overrides.items():
+        if value is not None:
+            llm[key] = value
+    return result
+
+
+def _trust_environment_value(environ: Mapping[str, str]) -> bool:
+    raw = environ.get("SENTINEL_TRUST_LLM_ENDPOINT")
+    if raw is None:
+        return False
+    if raw not in {"true", "false", "1", "0"}:
+        raise ConfigurationError(
+            "SENTINEL_TRUST_LLM_ENDPOINT must be true, false, 1, or 0"
+        )
+    return raw in {"true", "1"}
+
+
+def _reject_ambient_openai_routing(environ: Mapping[str, str]) -> None:
+    for name in ("OPENAI_BASE_URL", "OPENAI_CUSTOM_HEADERS"):
+        if name in environ:
+            raise ConfigurationError(
+                f"{name} is unsupported; use Sentinel LLM configuration"
+            )
+
+
+def _normalize_llm_base_url(value: str) -> str:
+    if not value or len(value) > 2048 or value != value.strip():
+        raise ValueError(
+            "LLM base URL must be 1-2048 characters without surrounding whitespace"
+        )
+    try:
+        parsed = urlsplit(value)
+        port = parsed.port
+    except ValueError as error:
+        raise ValueError("LLM base URL is invalid") from error
+    if parsed.scheme.lower() not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("LLM base URL must be an absolute HTTP(S) URL")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("LLM base URL cannot contain user information")
+    if parsed.query or parsed.fragment:
+        raise ValueError("LLM base URL cannot contain a query string or fragment")
+    host = parsed.hostname
+    if not host:
+        raise ValueError("LLM base URL must contain a hostname")
+    if parsed.path.rstrip("/").endswith("/v1") is False:
+        raise ValueError("LLM base URL path must end in /v1")
+    if parsed.scheme.lower() == "http" and not _is_loopback_host(host):
+        raise ValueError("HTTP LLM base URLs are limited to literal loopback hosts")
+    if port is not None and not 1 <= port <= 65535:
+        raise ValueError("LLM base URL port is invalid")
+    scheme = parsed.scheme.lower()
+    normalized_host = _normalized_host(host)
+    if ":" in normalized_host:
+        normalized_host = f"[{normalized_host}]"
+    default_port = (scheme == "https" and port == 443) or (
+        scheme == "http" and port == 80
+    )
+    netloc = (
+        normalized_host if port is None or default_port else f"{normalized_host}:{port}"
+    )
+    path = parsed.path.rstrip("/") + "/"
+    return urlunsplit(SplitResult(scheme, netloc, path, "", ""))
+
+
+def _normalized_host(host: str) -> str:
+    try:
+        return ipaddress.ip_address(host).compressed.lower()
+    except ValueError:
+        try:
+            normalized = host.encode("idna").decode("ascii").lower().rstrip(".")
+        except UnicodeError as error:
+            raise ValueError("LLM base URL hostname is invalid") from error
+        labels = normalized.split(".")
+        if not normalized or any(
+            not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+            for label in labels
+        ):
+            raise ValueError("LLM base URL hostname is invalid") from None
+        return normalized
+
+
+def _is_loopback_host(host: str) -> bool:
+    if host.lower() == "localhost":
+        return True
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return (
+        address.is_loopback
+        if isinstance(address, ipaddress.IPv4Address)
+        else address == ipaddress.IPv6Address("::1")
+    )
+
+
+def _redact_configured_url(message: str, value: object) -> str:
+    if not isinstance(value, str):
+        return message
+    redacted = message.replace(value, "[REDACTED_LLM_ENDPOINT]")
+    try:
+        return redacted.replace(
+            _normalize_llm_base_url(value), "[REDACTED_LLM_ENDPOINT]"
+        )
+    except ValueError:
+        return redacted
 
 
 def _parse_launch_override(value: str) -> tuple[str, ...]:

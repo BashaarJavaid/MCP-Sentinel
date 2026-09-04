@@ -83,6 +83,10 @@ def scan(
     target_launch_cmd: str | None = typer.Option(None, "--target-launch-cmd"),
     static_only: bool = typer.Option(False, "--static-only"),
     rules: str | None = typer.Option(None, "--rules"),
+    llm_model: str | None = typer.Option(None, "--llm-model"),
+    llm_reasoning_effort: str | None = typer.Option(None, "--llm-reasoning-effort"),
+    llm_base_url: str | None = typer.Option(None, "--llm-base-url"),
+    trust_llm_endpoint: bool = typer.Option(False, "--trust-llm-endpoint"),
     verbose: bool = typer.Option(False, "--verbose", help="Show bounded evidence."),
     color: bool | None = typer.Option(
         None, "--color/--no-color", help="Override terminal color detection."
@@ -100,6 +104,12 @@ def scan(
         configuration = load_configuration(
             path,
             cli_overrides=overrides,
+            llm_cli_overrides={
+                "model": llm_model,
+                "reasoning_effort": llm_reasoning_effort,
+                "base_url": llm_base_url,
+            },
+            trust_llm_endpoint=trust_llm_endpoint,
             target_launch_cmd=target_launch_cmd,
             static_only=static_only,
         )

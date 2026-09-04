@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from mcp.types import Tool
 
+from sentinel.config import LlmConfig
 from sentinel.dynamic.merge import merge_findings
 from sentinel.dynamic.prober import (
     DEFAULT_ORDER,
@@ -81,6 +82,8 @@ def _reviewed_finding(sample_finding: Finding) -> Finding:
         status=ReviewStatus.CONFIRMED,
         requested_model="gpt-5.6-sol",
         returned_model="gpt-5.6-sol-test",
+        endpoint_mode="openai",
+        endpoint_url_hash=LlmConfig().endpoint_url_hash,
         confidence=0.9,
         reasoning="The supplied evidence confirms the candidate.",
         evidence_refs=(

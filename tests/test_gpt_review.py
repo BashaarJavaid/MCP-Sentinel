@@ -3,18 +3,24 @@
 from __future__ import annotations
 
 import json
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from functools import cache
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 import httpx
 import openai
+import pytest
 
 from scripts.capture_gpt_reviews import _planned_batches, _reserved_micro_usd
 from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
 from sentinel.finding import (
+    CompletedReview,
     DynamicEvidence,
     Finding,
     FindingSource,
@@ -30,7 +36,7 @@ from sentinel.llm.context import (
     build_finding_context,
     sanitize_text,
 )
-from sentinel.llm.semantic_reviewer import SemanticReviewer, _classify
+from sentinel.llm.semantic_reviewer import OpenAITransport, SemanticReviewer, _classify
 from sentinel.llm.tools import extract_tool_catalog
 from sentinel.static.engine import run_static_scan
 
@@ -160,6 +166,16 @@ def test_live_capture_plans_one_attempt_with_per_request_reservations() -> None:
     assert all(_reserved_micro_usd(batch) < 250_000 for batch in batches)
 
 
+def test_default_request_fingerprints_remain_cassette_compatible() -> None:
+    batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+    assert tuple(batch.fingerprint for batch in batches) == (
+        "7825f6a3e27b17820a8484c8743e890f2a988672330158e60e9d8cd8513dc795",
+        "fc78729e36f89e2606290c76401e9b602756599effeb2aa985fc550caee4efa6",
+        "e55341e49ccebc38cf56f670944b75f84aa61c90a813f59b591dd8c86322dfcc",
+        "f036c4a633261dafed00c77f40009cfd4d4539557630e0e6fc544643a569c500",
+    )
+
+
 def test_demo_capture_uses_production_candidate_order() -> None:
     batches, _ = _planned_batches("demo", ReasoningEffort.MEDIUM)
     file_batch = next(batch for batch in batches if len(batch.candidates) > 1)
@@ -262,7 +278,13 @@ def test_live_review_merges_status_plan_usage_and_authority(tmp_path: Path) -> N
     assert reviewed.source == finding.source
     assert reviewed.impact == finding.impact
     assert outcome.summary.origin_usage.total_tokens == 150
-    assert outcome.summary.origin_cost_micro_usd is not None
+    assert outcome.summary.origin_cost_micro_usd == 1328
+    assert outcome.summary.endpoint_mode.value == "openai"
+    assert outcome.summary.pricing is not None
+    assert outcome.summary.pricing.input_micro_usd_per_million == 4_000_000
+    assert reviewed.review.requested_model == "gpt-5.6-sol"
+    assert reviewed.review.returned_model == "gpt-5.6-sol-2026-07-18"
+    assert reviewed.review.endpoint_mode == "openai"
     assert transport.calls == 1
     request = transport.requests[0]
     assert request["model"] == "gpt-5.6-sol"
@@ -275,6 +297,56 @@ def test_live_review_merges_status_plan_usage_and_authority(tmp_path: Path) -> N
     assert "SENT-011 omits a required" in request["instructions"]
     assert "SENT-003 is absence of" in request["instructions"]
     assert request["prompt_cache_key"].startswith("mcp_sentinel_prompt_v3:")
+
+
+def test_compatible_endpoint_model_pricing_and_cache_are_isolated(
+    tmp_path: Path,
+) -> None:
+    finding = _sent002_findings()[0]
+    cache = ReviewCache(enabled=True, root=tmp_path / "cache")
+    first_transport = FakeTransport()
+    first_config = LlmConfig(
+        model="deployment-a",
+        base_url="https://first.example/v1",
+        retries=0,
+    )
+    first = SemanticReviewer(
+        root=ROOT,
+        config=first_config,
+        max_findings=500,
+        mode="live",
+        transport=first_transport,
+        cache=cache,
+        now=lambda: NOW,
+    ).review((finding,), allow_degraded=False)
+    second_transport = FakeTransport()
+    second_config = LlmConfig(
+        model="deployment-a",
+        base_url="https://second.example/v1",
+        retries=0,
+    )
+    second = SemanticReviewer(
+        root=ROOT,
+        config=second_config,
+        max_findings=500,
+        mode="live",
+        transport=second_transport,
+        cache=cache,
+        now=lambda: NOW,
+    ).review((finding,), allow_degraded=False)
+
+    assert first_transport.requests[0]["model"] == "deployment-a"
+    assert first.summary.batches[0].request_fingerprint != (
+        second.summary.batches[0].request_fingerprint
+    )
+    assert second_transport.calls == 1
+    assert second.summary.endpoint_mode.value == "compatible"
+    assert second.summary.pricing is None
+    assert second.summary.origin_cost_micro_usd is None
+    assert second.summary.batches[0].origin_cost_micro_usd is None
+    review = second.findings[0].review
+    assert isinstance(review, CompletedReview)
+    assert review.endpoint_url_hash == second_config.endpoint_url_hash
 
 
 def test_cache_rebinds_new_runtime_finding_ids(tmp_path: Path) -> None:
@@ -355,6 +427,8 @@ def test_replay_rebinds_ids_and_preserves_capture_provenance(tmp_path: Path) -> 
     assert review.reviewed_at == NOW
     assert review.applied_at == datetime(2030, 1, 1, tzinfo=timezone.utc)
     assert review.latency_ms == 123
+    assert review.endpoint_mode == "openai"
+    assert review.endpoint_url_hash == LlmConfig().endpoint_url_hash
     assert outcome.summary.current_usage.total_tokens == 0
     assert outcome.summary.origin_usage.total_tokens == 150
 
@@ -457,6 +531,19 @@ def test_api_contract_errors_preserve_safe_diagnostic_detail() -> None:
         "GPT HTTP 400: Invalid schema for response_format. (param: text.format.schema)"
     )
     assert failure.retryable is False
+
+
+def test_public_transport_preserves_organization_and_project_headers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "sentinel.llm.semantic_reviewer.AsyncOpenAI", openai.AsyncOpenAI
+    )
+    monkeypatch.setenv("OPENAI_ORG_ID", "org-test")
+    monkeypatch.setenv("OPENAI_PROJECT_ID", "project-test")
+    transport = OpenAITransport("public-key", LlmConfig())
+    assert transport.client.default_headers["OpenAI-Organization"] == "org-test"
+    assert transport.client.default_headers["OpenAI-Project"] == "project-test"
 
 
 def test_refusal_can_only_become_explicit_degraded_review(tmp_path: Path) -> None:
@@ -586,3 +673,222 @@ def test_dynamic_candidate_uses_supplied_evidence_and_never_gets_probe_plan(
     assert reviewed.status is FindingStatus.CONFIRMED
     assert reviewed.exploitability.value == "confirmed"
     assert reviewed.review.probe_plan is None
+
+
+@contextmanager
+def _responses_server(
+    *, status: int = 200, malformed: bool = False
+) -> Iterator[tuple[str, list[dict[str, Any]]]]:
+    requests: list[dict[str, Any]] = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            length = int(self.headers["content-length"])
+            body: dict[str, Any] = json.loads(self.rfile.read(length))
+            requests.append(
+                {
+                    "path": self.path,
+                    "headers": {
+                        key.lower(): value for key, value in self.headers.items()
+                    },
+                    "body": body,
+                }
+            )
+            if status != 200:
+                payload: dict[str, Any] = {
+                    "error": {"message": "endpoint rejected the key"}
+                }
+            elif malformed:
+                payload = {
+                    "id": "resp_malformed",
+                    "object": "response",
+                    "created_at": 1,
+                    "status": "completed",
+                    "model": "compatible-returned",
+                    "output": [],
+                    "usage": {},
+                }
+            else:
+                untrusted = json.loads(body["input"])["untrusted_repository_data"]
+                candidate = untrusted["candidates"][0]
+                context = untrusted["contexts"][candidate["context_id"]][0]
+                tool = untrusted["tools"][candidate["tool_id"]]
+                field = next(iter(tool["input_schema"]["properties"]))
+                review = {
+                    "finding_id": candidate["finding_id"],
+                    "status": "confirmed",
+                    "confidence": 0.9,
+                    "reasoning": "The supplied context confirms the unsafe flow.",
+                    "evidence_refs": [
+                        {
+                            "path": context["path"],
+                            "start_line": context["start_line"],
+                            "end_line": context["end_line"],
+                            "claim": "The unsafe operation is in the supplied range.",
+                        }
+                    ],
+                    "probe_plan": {
+                        "ordered_probe_ids": [
+                            "SENT-008",
+                            "SENT-009",
+                            "SENT-010",
+                            "SENT-011",
+                        ],
+                        "target_tool": tool["name"],
+                        "argument_bindings": [
+                            {
+                                "probe_id": "SENT-009",
+                                "field": field,
+                                "value": "__SENTINEL_OVERSIZED__",
+                            },
+                            {
+                                "probe_id": "SENT-010",
+                                "field": field,
+                                "value": "__SENTINEL_INJECTION__",
+                            },
+                            {
+                                "probe_id": "SENT-011",
+                                "field": field,
+                                "value": "__SENTINEL_WRONG_TYPE__",
+                            },
+                        ],
+                    },
+                    "suggested_severity_override": None,
+                }
+                payload = {
+                    "id": "resp_compatible",
+                    "object": "response",
+                    "created_at": 1,
+                    "status": "completed",
+                    "error": None,
+                    "incomplete_details": None,
+                    "model": "compatible-returned",
+                    "output": [
+                        {
+                            "id": "msg_compatible",
+                            "type": "message",
+                            "role": "assistant",
+                            "status": "completed",
+                            "content": [
+                                {
+                                    "type": "output_text",
+                                    "text": json.dumps({"reviews": [review]}),
+                                    "annotations": [],
+                                }
+                            ],
+                        }
+                    ],
+                    "usage": {
+                        "input_tokens": 10,
+                        "input_tokens_details": {"cached_tokens": 0},
+                        "output_tokens": 10,
+                        "output_tokens_details": {"reasoning_tokens": 2},
+                        "total_tokens": 20,
+                    },
+                }
+            encoded = json.dumps(payload).encode()
+            self.send_response(status)
+            self.send_header("content-type", "application/json")
+            self.send_header("content-length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+
+        def log_message(self, format: str, *args: object) -> None:
+            del format, args
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}", requests
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+
+
+@pytest.mark.parametrize("prefix", ("", "/openai"))
+def test_real_transport_uses_responses_compatible_loopback_endpoint(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, prefix: str
+) -> None:
+    monkeypatch.setattr(
+        "sentinel.llm.semantic_reviewer.AsyncOpenAI", openai.AsyncOpenAI
+    )
+    monkeypatch.setenv("OPENAI_ORG_ID", "must-not-be-sent")
+    monkeypatch.setenv("OPENAI_PROJECT_ID", "must-not-be-sent")
+    with _responses_server() as (origin, requests):
+        config = LlmConfig(
+            model="compatible-deployment",
+            base_url=f"{origin}{prefix}/v1",
+            retries=0,
+            cache_enabled=False,
+        )
+        outcome = SemanticReviewer(
+            root=ROOT,
+            config=config,
+            max_findings=500,
+            mode="live",
+            api_key="compatible-secret",
+            cache=ReviewCache(enabled=False, root=tmp_path),
+            now=lambda: NOW,
+        ).review((_sent002_findings()[0],), allow_degraded=False)
+
+    request = requests[0]
+    assert request["path"] == f"{prefix}/v1/responses"
+    assert request["headers"]["authorization"] == "Bearer compatible-secret"
+    assert "openai-organization" not in request["headers"]
+    assert "openai-project" not in request["headers"]
+    assert request["body"]["model"] == "compatible-deployment"
+    assert request["body"]["store"] is False
+    assert request["body"]["text"]["format"]["strict"] is True
+    assert outcome.fatal is False
+    review = outcome.findings[0].review
+    assert isinstance(review, CompletedReview)
+    assert review.returned_model == "compatible-returned"
+    assert review.endpoint_mode == "compatible"
+    assert review.endpoint_url_hash == config.endpoint_url_hash
+    assert outcome.summary.pricing is None
+
+
+@pytest.mark.parametrize("malformed", (False, True))
+def test_compatible_http_failures_are_fatal_or_explicitly_degraded(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, malformed: bool
+) -> None:
+    monkeypatch.setattr(
+        "sentinel.llm.semantic_reviewer.AsyncOpenAI", openai.AsyncOpenAI
+    )
+    with _responses_server(status=200 if malformed else 401, malformed=malformed) as (
+        origin,
+        _,
+    ):
+        config = LlmConfig(
+            model="deployment",
+            base_url=f"{origin}/v1",
+            retries=0,
+            cache_enabled=False,
+        )
+        fatal = SemanticReviewer(
+            root=ROOT,
+            config=config,
+            max_findings=500,
+            mode="live",
+            api_key="bad-key",
+            cache=ReviewCache(enabled=False, root=tmp_path),
+            now=lambda: NOW,
+        ).review((_sent002_findings()[0],), allow_degraded=False)
+        degraded = SemanticReviewer(
+            root=ROOT,
+            config=config,
+            max_findings=500,
+            mode="live",
+            api_key="bad-key",
+            cache=ReviewCache(enabled=False, root=tmp_path),
+            now=lambda: NOW,
+        ).review((_sent002_findings()[0],), allow_degraded=True)
+
+    assert fatal.fatal is True
+    assert fatal.findings[0].review.mode == "not_reviewed"
+    assert degraded.fatal is False
+    assert degraded.findings[0].review.mode == "degraded"
+    assert degraded.summary.batches[0].status == "failed"
+    assert all(origin not in warning.message for warning in degraded.warnings)
