@@ -77,14 +77,17 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 10 — configurable GPT review endpoint
 - [x] Phase 11 — TypeScript static analysis
 - [x] Phase 12 — team adoption workflows (baseline, inline suppression)
-- [ ] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
+- [x] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
 - [ ] Phase 14 — conditional exploit-confirmation stretch (optional, never blocks Phase 15)
 - [ ] Phase 15 — product launch
 
-Phases 0–12 are complete. Their original completion statements, release links,
+Phases 0–13 are complete. Their original completion statements, release links,
 digests, and submission records are preserved in `docs/hackathon.md` and the
-linked evidence artifacts. Phase 13 is active and must not be marked complete
-until its hosted Pages and maintenance gates pass.
+linked evidence artifacts. Phase 13's
+[documentation workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33908643137)
+passed its strict build, Pages deployment, and live page/anchor smoke at the
+[public site](https://bashaarjavaid.github.io/MCP-Sentinel/); its hosted
+contribution and dependency-maintenance gates also passed.
 
 ---
 

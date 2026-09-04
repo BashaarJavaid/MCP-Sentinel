@@ -663,6 +663,13 @@ risk.
 
 ## 16. Phase 13 — Public documentation and maintenance
 
+**Status: complete.** The
+[documentation workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33908643137)
+passed its strict build, Pages deployment, and live page/anchor smoke at the
+[public site](https://bashaarjavaid.github.io/MCP-Sentinel/). The hosted
+contribution templates, bounded Dependabot updates, vulnerability alerts, and
+automated security updates are enabled and verified.
+
 ### Objective
 
 Make the public repository useful to adopters and safe for outside contributors
