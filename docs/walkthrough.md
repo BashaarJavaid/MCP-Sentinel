@@ -16,7 +16,7 @@ access; the scans themselves can run offline. No Docker is needed for this
 walkthrough. The launch rehearsal used Python 3.12.14 and pipx 1.16.0 inside a
 fresh Linux container, installing the candidate wheel through pipx. The exact
 public-index installation below must also pass after publication; the retained
-[launch evidence](https://github.com/BashaarJavaid/MCP-Sentinel/tree/release/1.2.1-launch/artifacts/phase15)
+[launch evidence](https://github.com/BashaarJavaid/MCP-Sentinel/tree/main/artifacts/phase15)
 distinguishes those two checks.
 
 ```sh
