@@ -74,7 +74,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 7 — trusted PyPI publishing
 - [x] Phase 8 — GitHub Marketplace distribution
 - [x] Phase 9 — first-run onboarding (`sentinel init`)
-- [ ] Phase 10 — configurable GPT review endpoint
+- [x] Phase 10 — configurable GPT review endpoint
 - [ ] Phase 11 — TypeScript static analysis
 - [ ] Phase 12 — team adoption workflows (baseline, inline suppression)
 - [ ] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
@@ -101,7 +101,11 @@ passed. Phase 9 is **complete**: the
 [onboarding gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33816774614)
 passed the full quality and installed-wheel matrices, then generated a clean
 fixture configuration with `sentinel init` and completed `sentinel scan .` in
-Docker without an API key.
+Docker without an API key. Phase 10 is **complete**: the
+[configurable-endpoint gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33835113247)
+passed the full Linux, macOS, and Windows Python 3.10–3.13 quality matrix,
+canonical distributions, isolated wheel installs, and installed-wheel Docker
+replay without paid API calls.
 
 ---
 

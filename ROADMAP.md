@@ -535,6 +535,13 @@ Turn first use into a two-command setup and make each analysis tier explicit.
 
 ## 13. Phase 10 — Configurable GPT review endpoint
 
+**Status: complete.** The
+[configurable-endpoint CI gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33835113247)
+passed the full Linux, macOS, and Windows Python 3.10–3.13 quality matrix,
+canonical distribution and isolated wheel checks, and installed-wheel Docker
+replay. Compatible `/v1` routing, endpoint trust, provenance, failure handling,
+and public-default compatibility are covered without paid API calls.
+
 ### Objective
 
 Support approved OpenAI models and OpenAI-compatible organizational endpoints

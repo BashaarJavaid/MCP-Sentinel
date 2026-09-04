@@ -12,6 +12,10 @@ new rule IDs.
 
 ### Added
 
+- Configurable GPT review model, reasoning effort, and Responses-compatible
+  `/v1` endpoint support through project, environment, and CLI configuration.
+- Endpoint provenance in native JSON 1.3.0 and SARIF reports, with compatible
+  endpoint pricing reported as unavailable.
 - `sentinel init` safely inspects Python MCP repositories and atomically creates
   validated starter target and deny-by-default permissions configuration.
 - First-run documentation now distinguishes rules-only degraded, static-plus-GPT,
@@ -21,6 +25,14 @@ new rule IDs.
 
 - Missing `OPENAI_API_KEY` failures now explain how to enable GPT review or keep
   rules-only candidates visible with `--allow-degraded`.
+
+### Security
+
+- Repository-configured compatible endpoints now require explicit operator
+  trust, while endpoint URLs are validated, hashed for provenance, and redacted
+  from diagnostics.
+- Ambient OpenAI base URLs and custom headers are rejected so repository and SDK
+  configuration cannot bypass Sentinel's endpoint trust boundary.
 
 ## [1.0.0] - 2026-09-03
 
