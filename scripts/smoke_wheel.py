@@ -15,9 +15,9 @@ from email.parser import BytesParser
 from pathlib import Path
 
 DIST_NAME = "portunusmcp-sentinel"
-VERSION = "1.2.0"
-WHEEL_NAME = "portunusmcp_sentinel-1.2.0-py3-none-any.whl"
-SDIST_NAME = "portunusmcp_sentinel-1.2.0.tar.gz"
+VERSION = "1.2.1"
+WHEEL_NAME = "portunusmcp_sentinel-1.2.1-py3-none-any.whl"
+SDIST_NAME = "portunusmcp_sentinel-1.2.1.tar.gz"
 CLASSIFIERS = {
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -325,8 +325,8 @@ from importlib import metadata
 import sentinel
 
 distribution = metadata.distribution("portunusmcp-sentinel")
-assert sentinel.__version__ == "1.2.0"
-assert distribution.version == "1.2.0"
+assert sentinel.__version__ == "1.2.1"
+assert distribution.version == "1.2.1"
 scripts = {
     item.name: item.value
     for item in distribution.entry_points

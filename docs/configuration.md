@@ -122,7 +122,7 @@ directives warn.
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.2.0
+    rev: v1.2.1
     hooks:
       - id: mcp-sentinel
 ```

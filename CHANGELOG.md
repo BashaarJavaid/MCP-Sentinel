@@ -10,12 +10,17 @@ new rule IDs.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-04
+
 ### Changed
 
 - Rebranded public source and documentation surfaces as PortunusMCP Sentinel
   while preserving package, CLI, rule, schema, and SARIF driver identities.
 - Added contributor issue/PR paths, bounded Dependabot updates, and a strict
   MkDocs Material site deployed through GitHub Pages.
+
+- Added a pinned real-server walkthrough, launch evidence, and private
+  vulnerability-reporting guidance.
 
 ### Fixed
 
@@ -107,7 +112,8 @@ new rule IDs.
   replay, four Docker-isolated dynamic probes, console/JSON/SARIF reports, and a
   composite GitHub Action.
 
-[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v0.1.0...v0.2.0

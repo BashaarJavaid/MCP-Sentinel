@@ -62,7 +62,7 @@ jobs:
           trap 'rm -rf "$temporary"' EXIT
           base="${{ steps.deployment.outputs.page_url }}"
           deadline=$((SECONDS + 120))
-          pages=("" install configuration rules sarif github-action architecture contributing hackathon)
+          pages=("" install walkthrough configuration rules sarif github-action architecture contributing hackathon)
           while (( SECONDS < deadline )); do
             ok=true
             for page in "${pages[@]}"; do

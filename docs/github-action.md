@@ -1,6 +1,6 @@
 # GitHub Action
 
-The Marketplace Action installs the pinned `portunusmcp-sentinel==1.2.0`
+The Marketplace Action installs the pinned `portunusmcp-sentinel==1.2.1`
 package, runs Sentinel, validates SARIF, uploads eligible reports to GitHub code
 scanning, and preserves exit codes.
 

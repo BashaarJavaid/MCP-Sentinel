@@ -26,9 +26,7 @@ Or use uv:
 uv tool install portunusmcp-sentinel
 ```
 
-Use `portunusmcp-sentinel==1.2.0` only when an exact artifact is required for
-reproducibility. Stable `1.2.0` artifacts still display the former runtime label;
-the PortunusMCP Sentinel label will appear in the next release.
+Use `portunusmcp-sentinel==1.2.1` for exact reproducibility.
 
 ## Quickstart
 
@@ -182,7 +180,7 @@ Use Sentinel from pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.2.0
+    rev: v1.2.1
     hooks:
       - id: mcp-sentinel
 ```
@@ -229,6 +227,8 @@ Compatible endpoints retain token usage but report pricing as unavailable.
 
 ## Project resources
 
+- [Scan a real MCP server before release](https://bashaarjavaid.github.io/MCP-Sentinel/walkthrough/)
+- [Marketplace Action](https://github.com/marketplace/actions/mcp-sentinel)
 - [Documentation](https://bashaarjavaid.github.io/MCP-Sentinel/)
 - [Architecture contract](ARCHITECTURE.md)
 - [Roadmap](ROADMAP.md)

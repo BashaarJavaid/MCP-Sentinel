@@ -1,0 +1,85 @@
+*** RECORDED GPT REPLAY — NO LIVE MODEL CALL ***
+PortunusMCP Sentinel 1.2.1
+Target: vulnerable_server
+Status: COMPLETE
+Findings: 11 · Critical 4, High 2, Medium 4, Low 1 · confirmed 10, needs review 1, suppressed 0
+Files: 5 scanned, 0 ignored
+Static duration: 2455 ms
+
+Rules
+  SENT-001: evaluated, 1 match(es)
+  SENT-002: evaluated, 1 match(es)
+  SENT-003: evaluated, 1 match(es)
+  SENT-004: evaluated, 1 match(es)
+  SENT-005: evaluated, 1 match(es)
+  SENT-006: evaluated, 1 match(es)
+  SENT-007: evaluated, 1 match(es)
+
+GPT review: REPLAY · 11/11 reviewed
+  model gpt-5.6-sol, reasoning medium, endpoint openai
+  confirmed 10, suppressed 0, needs review 1
+  cache 0 hit(s), 5 miss(es)
+  origin tokens 9991, cost 97175 micro-USD
+  RECORDED REPLAY — no live model call
+
+Findings
+  [Critical] SENT-002 Unsafe execution from tool input · confirmed
+    server.py:27:12 · ASI05:2026 Unexpected Code Execution
+    Remediation: Replace dynamic execution with explicit parsers and fixed command allowlists.
+  [Critical] SENT-005 Hardcoded secret · confirmed
+    server.py:13:12 · ASI03:2026 Identity & Privilege Abuse
+    Remediation: Load credentials from an external secret store or environment at runtime.
+  [Critical] SENT-008 Out-of-scope tool execution · confirmed
+    /tools/ungranted_echo · ASI02:2026 Tool Misuse & Exploitation
+    Remediation: Reject tool calls that are not granted by the active capability policy.
+  [Critical] SENT-010 Injection payload executed · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI05:2026 Unexpected Code Execution
+    Remediation: Treat tool arguments as inert data and remove dynamic execution sinks.
+  [High] SENT-001 Overly broad tool permission scope · confirmed
+    server.py:18:12 · ASI03:2026 Identity & Privilege Abuse
+    Remediation: Narrow each declared scope to the resources the handler actually requires.
+  [High] SENT-004 Unsanitized tool content in prompt · confirmed
+    server.py:39:5 · ASI01:2026 Agent Goal Hijack
+    Remediation: Pass tool-controlled text through a configured sanitizer before prompt construction.
+  [Medium] SENT-003 Missing tool input validation · confirmed
+    server.py:31:22 · ASI02:2026 Tool Misuse & Exploitation
+    Remediation: Use an official input schema or explicit validation before first use.
+  [Medium] SENT-006 Missing or ineffective route authentication · needs review
+    server.py:42:2 · ASI03:2026 Identity & Privilege Abuse
+    Remediation: Require credential verification and an explicit rejection path before route execution.
+  [Medium] SENT-007 Unverified tool manifest · confirmed
+    server.py:49:16 · ASI04:2026 Agentic Supply Chain Vulnerabilities
+    Remediation: Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.
+  [Medium] SENT-009 Oversized argument accepted · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI05:2026 Unexpected Code Execution
+    Remediation: Enforce schema and byte-size limits before invoking tool handlers.
+  [Low] SENT-011 Malformed schema input processed · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI02:2026 Tool Misuse & Exploitation
+    Remediation: Validate required fields and declared types before handler execution.
+
+Warnings
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:82
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:86
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:84
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:82
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:86
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:84
+  gpt_probe_plan_unavailable: SENT-003 at server.py has no schema compatible with all constrained probes; a null plan is permitted
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:82
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:86
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:84
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:82
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:86
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:84
+
+Pipeline stages
+  static: succeeded
+  gpt_static: succeeded
+  dynamic: succeeded
+  gpt_dynamic: succeeded
+  merge: succeeded
+  reporting: succeeded
+
+Analysis complete.
+Validated JSON: /Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase15/replay/report.json
+Validated SARIF: /Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase15/replay/report.sarif
