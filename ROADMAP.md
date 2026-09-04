@@ -617,10 +617,12 @@ sandbox.
 
 ## 15. Phase 12 — Team adoption workflows
 
-**Status: implementation and local gates complete; hosted release and external
-Action proof pending.** Native JSON 1.4.0, baseline matching, Python/TypeScript
-inline suppression, Action input/metrics, the public pre-commit hook, local
-schema/SARIF validation, strict typing, and the branch-covered test suite pass.
+**Status: implementation gates and the live GPT checkpoint complete; hosted
+release and external Action proof pending.** Native JSON 1.4.0, baseline
+matching, Python/TypeScript inline suppression, Action input/metrics, the public
+pre-commit hook, local and hosted schema/SARIF validation, strict typing, and
+the branch-covered test suite pass. The two-call GPT-5.6 checkpoint passed with
+zero retries and USD 0.034249 actual spend.
 Do not mark this phase complete until the signed `v1.2.0` release, PyPI proof,
 exact/alias Action proofs, and evidence links are recorded.
 

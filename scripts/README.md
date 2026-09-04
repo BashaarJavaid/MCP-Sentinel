@@ -1,7 +1,8 @@
 # Maintenance scripts
 
-`capture_gpt_reviews.py` plans or captures the five approved GPT checkpoints,
-including the Phase 3 static-review → Docker-probe → dynamic-review chain.
+`capture_gpt_reviews.py` plans or captures the six approved GPT checkpoints,
+including the Phase 3 static-review → Docker-probe → dynamic-review chain
+and the two-call Phase 12 Python/TypeScript smoke.
 It defaults to an offline dry run. Paid calls require all of `--live`, an
 explicit `--max-usd` ceiling, and `OPENAI_API_KEY` in the environment.
 Capture calls use one attempt and reserve each request's worst case immediately

@@ -9,6 +9,8 @@ Judge-facing evidence in this directory is generated, never hand-edited.
 - `phase4-action-evidence.md` records the accepted live GitHub Action proof.
 - `phase8-marketplace-evidence.md` records the stable `v1` Marketplace release,
   trusted package publication, and paired external Action proof.
+- `phase12-gpt-smoke.json` contains non-content telemetry for the accepted,
+  two-call Python/TypeScript GPT-5.6 adoption checkpoint.
 
 Run `make artifacts-check` to validate the ablation quality gate, SARIF schema,
 live-review telemetry, and the exact `SENT-001` through `SENT-011` result set.
