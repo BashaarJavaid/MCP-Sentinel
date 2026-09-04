@@ -12,6 +12,10 @@ new rule IDs.
 
 ### Added
 
+- Static-only TypeScript analysis for official MCP SDK v1 and server v2 targets,
+  retaining `SENT-001`–`SENT-007`, GPT review, and canonical reports.
+- TypeScript-aware `sentinel init`, tool catalog extraction, paired fixtures,
+  and installed-wheel scan gates without installing or executing Node packages.
 - Configurable GPT review model, reasoning effort, and Responses-compatible
   `/v1` endpoint support through project, environment, and CLI configuration.
 - Endpoint provenance in native JSON 1.3.0 and SARIF reports, with compatible
@@ -23,6 +27,10 @@ new rule IDs.
 
 ### Changed
 
+- Source package version is now `1.1.0`; publication is deferred. The Marketplace
+  Action remains pinned to public `1.0.0` and therefore does not yet scan TypeScript.
+- MCP-aware static rules now report the hybrid engine label shared by Python AST
+  and TypeScript recognition.
 - Missing `OPENAI_API_KEY` failures now explain how to enable GPT review or keep
   rules-only candidates visible with `--allow-degraded`.
 

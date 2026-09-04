@@ -18,6 +18,8 @@ from packaging.requirements import InvalidRequirement, Requirement
 from sentinel.config import (
     SentinelConfig,
     TargetConfig,
+    TargetLanguage,
+    _detect_target_language,
     _normalize_package_name,
     _read_toml,
     infer_python_version,
@@ -50,6 +52,7 @@ class GeneratedFile:
 class OnboardingResult:
     files: tuple[GeneratedFile, ...]
     warnings: tuple[ReportWarning, ...]
+    language: TargetLanguage = TargetLanguage.PYTHON
 
 
 @dataclass(frozen=True)
@@ -69,40 +72,55 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
     """Inspect a repository without execution and atomically write starter files."""
 
     root = validate_scan_root(scan_path)
-    destinations = tuple(root / name for name in _GENERATED_NAMES)
-    originals = _preflight_destinations(destinations, force=force)
     scanner = _project_configuration(root)
     ignore_paths = scanner.scanner.ignore_paths
-    if force:
-        ignore_paths = (*ignore_paths, *_GENERATED_NAMES)
-    files = collect_static_files(root, ignore_paths)
-    dependencies = _dependency_layout(root)
-    entry_point = _entry_point(files.python_files, dependencies.package_roots)
-    catalog = extract_tool_catalog(root, ignore_paths)
-
-    target = TargetConfig.model_validate(
-        {
-            "language": "python",
-            "launch_cmd": ["python", entry_point],
-            "install_cmd": list(dependencies.install_cmd)
-            if dependencies.install_cmd is not None
-            else None,
-            "transport": "stdio",
-            "working_dir": ".",
-            "env": {},
-            "env_from": [],
-            "python_version": infer_python_version(root),
-        }
+    try:
+        language = _detect_target_language(root, ignore_paths)
+    except TargetError as error:
+        if not str(error).startswith("unsupported target:"):
+            raise
+        # Preserve the established, more specific Python onboarding diagnostics.
+        language = TargetLanguage.PYTHON
+    names = (
+        (PERMISSIONS_NAME,)
+        if language is TargetLanguage.TYPESCRIPT
+        else _GENERATED_NAMES
     )
+    destinations = tuple(root / name for name in names)
+    originals = _preflight_destinations(destinations, force=force)
+    if force:
+        ignore_paths = (*ignore_paths, *names)
+    files = collect_static_files(root, ignore_paths, language)
+    catalog = extract_tool_catalog(root, ignore_paths, language)
     permissions = PermissionsManifest(
         version=1,
         tools={tool.name: ToolPermissions() for tool in catalog.tools},
     )
     validate_permission_scopes(permissions)
-    contents = (
-        _target_yaml(target, dependencies.description),
-        _permissions_yaml(permissions),
-    )
+    contents: tuple[bytes, ...]
+    if language is TargetLanguage.PYTHON:
+        dependencies = _dependency_layout(root)
+        entry_point = _entry_point(files.python_files, dependencies.package_roots)
+        target = TargetConfig.model_validate(
+            {
+                "language": "python",
+                "launch_cmd": ["python", entry_point],
+                "install_cmd": list(dependencies.install_cmd)
+                if dependencies.install_cmd is not None
+                else None,
+                "transport": "stdio",
+                "working_dir": ".",
+                "env": {},
+                "env_from": [],
+                "python_version": infer_python_version(root),
+            }
+        )
+        contents = (
+            _target_yaml(target, dependencies.description),
+            _permissions_yaml(permissions),
+        )
+    else:
+        contents = (_permissions_yaml(permissions),)
     statuses = _replace_transaction(destinations, originals, contents)
     warnings = list(catalog.warnings)
     if not catalog.tools:
@@ -115,14 +133,15 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
     return OnboardingResult(
         files=tuple(
             GeneratedFile(name=name, status=status)
-            for name, status in zip(_GENERATED_NAMES, statuses, strict=True)
+            for name, status in zip(names, statuses, strict=True)
         ),
         warnings=tuple(warnings),
+        language=language,
     )
 
 
-def next_scan_command(path: str) -> str:
-    command = ("sentinel", "scan", path)
+def next_scan_command(path: str, *, static_only: bool = False) -> str:
+    command = ("sentinel", "scan", path, *(("--static-only",) if static_only else ()))
     return subprocess.list2cmdline(command) if os.name == "nt" else shlex.join(command)
 
 

@@ -179,12 +179,12 @@ def scan(
 @app.command("init")
 def init_command(
     ctx: typer.Context,
-    path: str = typer.Argument(".", help="Local Python MCP repository path."),
+    path: str = typer.Argument(".", help="Local MCP repository path."),
     force: bool = typer.Option(
         False, "--force", help="Replace generated regular files."
     ),
 ) -> None:
-    """Inspect a local Python MCP repository and generate starter configuration."""
+    """Inspect a local MCP repository and generate starter configuration."""
 
     state = _state(ctx)
     try:
@@ -193,7 +193,8 @@ def init_command(
             typer.echo(f"warning: {warning.message}", err=True)
         for generated in result.files:
             typer.echo(f"{generated.status}: {display_path(path, generated.name)}")
-        typer.echo(f"Next: {next_scan_command(path)}")
+        static_only = result.language.value == "typescript"
+        typer.echo(f"Next: {next_scan_command(path, static_only=static_only)}")
     except TargetError as error:
         typer.echo(f"target error: {error}", err=True)
         raise typer.Exit(2) from error

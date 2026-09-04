@@ -281,6 +281,7 @@ class SemanticReviewer:
         now: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
         capture_sink: Callable[[str, dict[str, Any], dict[str, Any]], None]
         | None = None,
+        catalog: ToolCatalog | None = None,
     ) -> None:
         if mode not in {"live", "replay"}:
             raise ValueError("review mode must be live or replay")
@@ -293,6 +294,7 @@ class SemanticReviewer:
         self.clock = clock
         self.now = now
         self.capture_sink = capture_sink
+        self.catalog = catalog
         if transport is not None:
             self.transport = transport
         elif mode == "live":
@@ -313,7 +315,7 @@ class SemanticReviewer:
     async def _review(
         self, findings: tuple[Finding, ...], *, allow_degraded: bool
     ) -> ReviewOutcome:
-        catalog = extract_tool_catalog(self.root)
+        catalog = self.catalog or extract_tool_catalog(self.root)
         ordered = tuple(sorted(findings, key=_candidate_sort_key))
         selected, overflow = ordered[: self.max_findings], ordered[self.max_findings :]
         candidates = tuple(

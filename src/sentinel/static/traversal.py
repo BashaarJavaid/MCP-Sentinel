@@ -11,10 +11,10 @@ from pathlib import Path
 import yaml
 from pathspec import GitIgnoreSpec
 
-from sentinel.config import DEFAULT_IGNORES
+from sentinel.config import DEFAULT_IGNORES, TargetLanguage
 from sentinel.errors import ConfigurationError, TargetError
 from sentinel.report.model import ReportWarning
-from sentinel.static.model import ParsedPythonFile, StaticFileSet
+from sentinel.static.model import ParsedPythonFile, StaticFileSet, TypeScriptSourceFile
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -24,12 +24,19 @@ else:  # pragma: no cover - exercised on the Python 3.10 CI job
 MAX_STATIC_FILE_BYTES = 1024 * 1024
 _CONFIG_SUFFIXES = {".json", ".yaml", ".yml", ".toml"}
 _DEFAULT_DIRS = {item.rstrip("/") for item in DEFAULT_IGNORES}
+_TYPESCRIPT_DEFAULT_DIRS = {"dist", "build", "coverage"}
+_TYPESCRIPT_SUFFIXES = {".ts", ".mts", ".cts"}
 
 
-def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFileSet:
+def collect_static_files(
+    root: Path,
+    ignore_paths: tuple[str, ...],
+    language: TargetLanguage = TargetLanguage.PYTHON,
+) -> StaticFileSet:
     """Return parsed supported files without importing or executing target code."""
 
     python_files: list[ParsedPythonFile] = []
+    typescript_files: list[TypeScriptSourceFile] = []
     config_files: list[Path] = []
     ignored = 0
     symlinks: list[str] = []
@@ -55,19 +62,26 @@ def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFil
                 symlinks.append(relative)
                 continue
             if entry.is_dir(follow_symlinks=False):
-                if entry.name in _DEFAULT_DIRS or _is_ignored(
+                default_dirs = _DEFAULT_DIRS | (
+                    _TYPESCRIPT_DEFAULT_DIRS
+                    if language is TargetLanguage.TYPESCRIPT
+                    else set()
+                )
+                if entry.name in default_dirs or _is_ignored(
                     relative + "/", path, root, ignore_specs, configured
                 ):
                     continue
                 visit(path)
                 continue
-            if not entry.is_file(follow_symlinks=False) or not _is_supported(path):
+            if not entry.is_file(follow_symlinks=False) or not _is_supported(
+                path, language
+            ):
                 continue
             if _is_ignored(relative, path, root, ignore_specs, configured):
                 ignored += 1
                 continue
             source = _read_supported(path)
-            if path.suffix == ".py":
+            if language is TargetLanguage.PYTHON and path.suffix == ".py":
                 try:
                     tree = ast.parse(source, filename=relative)
                 except SyntaxError as error:
@@ -82,8 +96,14 @@ def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFil
                         tree=tree,
                     )
                 )
+            elif language is TargetLanguage.TYPESCRIPT and _is_typescript_source(path):
+                typescript_files.append(
+                    TypeScriptSourceFile(
+                        path=path, relative_path=relative, source=source
+                    )
+                )
             else:
-                _validate_config(path, relative, source)
+                _validate_config(path, relative, source, language)
                 config_files.append(path)
 
     visit(root)
@@ -99,19 +119,76 @@ def collect_static_files(root: Path, ignore_paths: tuple[str, ...]) -> StaticFil
         )
     return StaticFileSet(
         python_files=tuple(python_files),
+        typescript_files=tuple(typescript_files),
         config_files=tuple(config_files),
-        scanned_file_count=len(python_files) + len(config_files),
+        scanned_file_count=len(python_files)
+        + len(typescript_files)
+        + len(config_files),
         ignored_file_count=ignored,
         warnings=tuple(warnings),
     )
 
 
-def _is_supported(path: Path) -> bool:
+def _is_supported(path: Path, language: TargetLanguage) -> bool:
     return (
-        path.suffix == ".py"
+        (language is TargetLanguage.PYTHON and path.suffix == ".py")
+        or (language is TargetLanguage.TYPESCRIPT and _is_typescript_source(path))
         or path.suffix in _CONFIG_SUFFIXES
         or (path.name == ".env" or path.name.startswith(".env."))
     )
+
+
+def _is_typescript_source(path: Path) -> bool:
+    return path.suffix in _TYPESCRIPT_SUFFIXES and not any(
+        path.name.endswith(suffix) for suffix in (".d.ts", ".d.mts", ".d.cts")
+    )
+
+
+def has_included_source(
+    root: Path, ignore_paths: tuple[str, ...], language: TargetLanguage
+) -> bool:
+    """Classify a root using the same ignore semantics as static traversal."""
+
+    configured = GitIgnoreSpec.from_lines(ignore_paths)
+    extra_dirs = (
+        _TYPESCRIPT_DEFAULT_DIRS if language is TargetLanguage.TYPESCRIPT else set()
+    )
+    specs: dict[Path, GitIgnoreSpec] = {}
+
+    def visit(directory: Path) -> bool:
+        gitignore = directory / ".gitignore"
+        if gitignore.is_file() and not gitignore.is_symlink():
+            specs[directory] = _read_gitignore(gitignore)
+        try:
+            entries = sorted(os.scandir(directory), key=lambda item: item.name)
+        except OSError as error:
+            raise TargetError(
+                f"cannot traverse target directory: {directory}"
+            ) from error
+        for entry in entries:
+            path = Path(entry.path)
+            relative = path.relative_to(root).as_posix()
+            if entry.is_symlink():
+                continue
+            if entry.is_dir(follow_symlinks=False):
+                if entry.name in _DEFAULT_DIRS | extra_dirs or _is_ignored(
+                    relative + "/", path, root, specs, configured
+                ):
+                    continue
+                if visit(path):
+                    return True
+            elif entry.is_file(follow_symlinks=False) and not _is_ignored(
+                relative, path, root, specs, configured
+            ):
+                if language is TargetLanguage.PYTHON and path.suffix == ".py":
+                    return True
+                if language is TargetLanguage.TYPESCRIPT and _is_typescript_source(
+                    path
+                ):
+                    return True
+        return False
+
+    return visit(root)
 
 
 def _read_supported(path: Path) -> str:
@@ -167,8 +244,16 @@ def _is_ignored(
     return ignored
 
 
-def _validate_config(path: Path, relative: str, source: str) -> None:
+def _validate_config(
+    path: Path, relative: str, source: str, language: TargetLanguage
+) -> None:
     try:
+        if (
+            language is TargetLanguage.TYPESCRIPT
+            and path.name.startswith("tsconfig")
+            and path.name.endswith(".json")
+        ):
+            return
         if path.suffix == ".json":
             json.loads(source)
         elif path.suffix in {".yaml", ".yml"}:

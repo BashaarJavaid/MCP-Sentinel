@@ -9,6 +9,13 @@
 - Docker Buildx
 - `OPENAI_API_KEY` only for the live path
 
+The Phase 11 live TypeScript checkpoint is separately capped and never runs the
+Node target:
+
+```bash
+python scripts/capture_gpt_reviews.py typescript-smoke --live --max-usd 0.25
+```
+
 Install the prebuilt wheel with either `pip install mcp_sentinel-0.1.0-*.whl`
 or `pipx install mcp_sentinel-0.1.0-*.whl`. Start Docker before the demo.
 

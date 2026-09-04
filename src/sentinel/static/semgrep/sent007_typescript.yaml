@@ -1,0 +1,11 @@
+rules:
+  - id: sentinel.sent007.typescript-manifest-parse
+    message: Discover a TypeScript JSON or YAML parse operation.
+    severity: INFO
+    languages: [typescript]
+    metadata:
+      sentinel_rule_id: SENT-007
+    pattern-either:
+      - pattern: JSON.parse(...)
+      - pattern: $YAML.parse(...)
+      - pattern: $YAML.load(...)

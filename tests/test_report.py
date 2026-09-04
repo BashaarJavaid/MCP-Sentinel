@@ -68,7 +68,7 @@ def test_console_reports_semantic_state(loaded_config: LoadedConfiguration) -> N
     )
     report = run_phase1_scan(loaded_config, context, completed_at=NOW).report
     console = render_console(report)
-    assert "MCP Sentinel 1.0.0" in console
+    assert "MCP Sentinel 1.1.0" in console
     assert "Target: fixture" in console
     assert "Status: INCOMPLETE" in console
     assert "Findings: 0" in console

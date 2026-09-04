@@ -7,7 +7,7 @@ from collections.abc import Callable
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sentinel.config import LoadedConfiguration
+from sentinel.config import LoadedConfiguration, TargetLanguage
 from sentinel.errors import InfrastructureError
 from sentinel.finding import (
     Confidence,
@@ -26,6 +26,7 @@ from sentinel.report.model import (
     StaticRuleOutcome,
     StaticRuleStatus,
 )
+from sentinel.static import typescript
 from sentinel.static.catalog import RULE_BY_ID, RULE_IDS
 from sentinel.static.model import (
     RuleRunState,
@@ -62,14 +63,17 @@ def run_static_scan(
     scan_id: UUID,
     *,
     timestamp: datetime,
+    deadline: float | None = None,
 ) -> StaticScanResult:
     """Execute every selected Phase 1 static rule without target-code execution."""
 
     started = time.monotonic()
+    scan_deadline = deadline or started + STATIC_TIMEOUT_SECONDS
     selected = select_rule_ids(configuration.scanner.scanner.rules)
     files = collect_static_files(
         configuration.scan_root,
         configuration.scanner.scanner.ignore_paths,
+        configuration.language,
     )
     context = StaticContext(configuration=configuration, files=files)
     states = {rule_id: RuleRunState() for rule_id in selected}
@@ -77,13 +81,23 @@ def run_static_scan(
         files,
         selected,
         configuration.scan_root,
-        deadline=started + STATIC_TIMEOUT_SECONDS,
+        deadline=scan_deadline,
     )
 
     for rule_id in selected:
-        _enforce_timeout(started)
+        _enforce_timeout(scan_deadline)
         state = states[rule_id]
-        if rule_id == "SENT-002":
+        if configuration.language is TargetLanguage.TYPESCRIPT:
+            if rule_id == "SENT-005":
+                sent005.run(context, semgrep_matches.get(rule_id, []), state)
+            else:
+                typescript.detect(
+                    rule_id,
+                    context,
+                    state,
+                    semgrep_matches.get(rule_id),
+                )
+        elif rule_id == "SENT-002":
             sent002.run(semgrep_matches.get(rule_id, []), state)
         elif rule_id == "SENT-005":
             sent005.run(context, semgrep_matches.get(rule_id, []), state)
@@ -121,9 +135,20 @@ def run_static_scan(
         duration_ms=duration_ms,
         rule_outcomes=tuple(outcomes),
     )
+    warnings = [*files.warnings]
+    for rule_id in selected:
+        warnings.extend(states[rule_id].warnings)
+    keys = tuple(dict.fromkeys((warning.code, warning.message) for warning in warnings))
     return StaticScanResult(
         findings=tuple(findings),
-        warnings=files.warnings,
+        warnings=tuple(
+            next(
+                warning
+                for warning in warnings
+                if (warning.code, warning.message) == key
+            )
+            for key in keys
+        ),
         summary=summary,
     )
 
@@ -139,8 +164,8 @@ def select_rule_ids(tokens: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(rule_id for rule_id in RULE_IDS if rule_id in selected - excludes)
 
 
-def _enforce_timeout(started: float) -> None:
-    if time.monotonic() - started > STATIC_TIMEOUT_SECONDS:
+def _enforce_timeout(deadline: float) -> None:
+    if time.monotonic() > deadline:
         raise InfrastructureError("static analysis exceeded its 120-second timeout")
 
 
@@ -166,6 +191,7 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             snippet=existing.snippet,
             fingerprint=existing.fingerprint or match.fingerprint,
             match_kinds=tuple(sorted(set((*existing.match_kinds, *match.match_kinds)))),
+            captures=existing.captures or match.captures,
         )
     return tuple(sorted(groups.values(), key=_match_sort_key))
 

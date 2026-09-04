@@ -31,6 +31,9 @@ def run(
     path_sources = {
         item.relative_path: item.source for item in context.files.python_files
     }
+    path_sources.update(
+        {item.relative_path: item.source for item in context.files.typescript_files}
+    )
     for config_path in context.files.config_files:
         relative = config_path.relative_to(context.configuration.scan_root).as_posix()
         if relative in candidate_paths:

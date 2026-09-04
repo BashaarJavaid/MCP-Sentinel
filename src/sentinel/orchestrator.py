@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from sentinel import __version__
-from sentinel.config import FailThreshold, LoadedConfiguration
+from sentinel.config import FailThreshold, LoadedConfiguration, TargetLanguage
 from sentinel.dynamic.merge import merge_findings
 from sentinel.dynamic.prober import run_dynamic_scan
 from sentinel.dynamic.sandbox import DockerSandbox, reap_orphans
@@ -31,8 +32,10 @@ from sentinel.report.model import (
     StageStatus,
     summarize,
 )
-from sentinel.static.engine import run_static_scan
+from sentinel.static.engine import STATIC_TIMEOUT_SECONDS, run_static_scan
 from sentinel.static.model import StaticScanResult
+from sentinel.static.semgrep_adapter import TYPESCRIPT_CATALOG_RULE_ID, run_semgrep
+from sentinel.static.traversal import collect_static_files
 
 
 @dataclass(frozen=True)
@@ -57,10 +60,49 @@ def run_scan(
     if not configuration.static_only:
         reap_orphans()
 
-    static_result = run_static_scan(
-        configuration,
-        context.scan_id,
-        timestamp=completed_at,
+    deadline = time.monotonic() + STATIC_TIMEOUT_SECONDS
+    catalog = None
+    if configuration.language is TargetLanguage.TYPESCRIPT:
+        files = collect_static_files(
+            configuration.scan_root,
+            configuration.scanner.scanner.ignore_paths,
+            configuration.language,
+        )
+        candidates = run_semgrep(
+            files,
+            (TYPESCRIPT_CATALOG_RULE_ID,),
+            configuration.scan_root,
+            deadline=deadline,
+        )[TYPESCRIPT_CATALOG_RULE_ID]
+        catalog = extract_tool_catalog(
+            configuration.scan_root,
+            configuration.scanner.scanner.ignore_paths,
+            configuration.language,
+            typescript_candidates=tuple(candidates),
+        )
+    if configuration.language is TargetLanguage.TYPESCRIPT:
+        static_result = run_static_scan(
+            configuration,
+            context.scan_id,
+            timestamp=completed_at,
+            deadline=deadline,
+        )
+    else:
+        static_result = run_static_scan(
+            configuration,
+            context.scan_id,
+            timestamp=completed_at,
+        )
+    if catalog is None:
+        catalog = extract_tool_catalog(
+            configuration.scan_root,
+            configuration.scanner.scanner.ignore_paths,
+            configuration.language,
+        )
+    static_result = StaticScanResult(
+        findings=static_result.findings,
+        warnings=_unique_warnings((*static_result.warnings, *catalog.warnings)),
+        summary=static_result.summary,
     )
     if not static_result.findings:
         review = empty_review_outcome(configuration.scanner.llm, mode=review_mode)
@@ -74,6 +116,7 @@ def run_scan(
                 api_key=api_key,
                 transport=transport,
                 cassette_root=cassette_root,
+                catalog=catalog,
             )
             review = reviewer.review(
                 static_result.findings, allow_degraded=allow_degraded
@@ -148,6 +191,7 @@ def run_scan(
                 api_key=api_key,
                 transport=transport,
                 cassette_root=cassette_root,
+                catalog=catalog,
             )
             dynamic_review = reviewer.review(
                 dynamic.findings, allow_degraded=allow_degraded
@@ -161,10 +205,6 @@ def run_scan(
                 applied_at=completed_at,
             )
 
-    catalog = extract_tool_catalog(
-        configuration.scan_root,
-        configuration.scanner.scanner.ignore_paths,
-    )
     findings = merge_findings(review.findings, dynamic_review.findings, catalog)
     combined_gpt = _combine_gpt_summaries(review.summary, dynamic_review.summary)
     stages = (
@@ -259,7 +299,7 @@ def _static_only_outcome(
         execution_successful=static_only_complete,
         stages=stages,
         summary=summarize(review.findings),
-        warnings=tuple(warnings),
+        warnings=_unique_warnings(tuple(warnings)),
         findings=review.findings,
         static_analysis=static_result.summary,
         gpt_review=review.summary,

@@ -15,9 +15,9 @@ from email.parser import BytesParser
 from pathlib import Path
 
 DIST_NAME = "portunusmcp-sentinel"
-VERSION = "1.0.0"
-WHEEL_NAME = "portunusmcp_sentinel-1.0.0-py3-none-any.whl"
-SDIST_NAME = "portunusmcp_sentinel-1.0.0.tar.gz"
+VERSION = "1.1.0"
+WHEEL_NAME = "portunusmcp_sentinel-1.1.0-py3-none-any.whl"
+SDIST_NAME = "portunusmcp_sentinel-1.1.0.tar.gz"
 CLASSIFIERS = {
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -110,6 +110,8 @@ def _check_archives(wheel: Path, sdist: Path) -> None:
         "sentinel/_cassettes/demo/manifest.json",
     ):
         assert name in names, name
+    assert not any("typescript_clean_server" in name for name in names)
+    assert not any("typescript_vulnerable_server" in name for name in names)
     assert not any(name.endswith("/CHANGELOG.md") for name in names)
 
     with tarfile.open(sdist, "r:gz") as archive:
@@ -127,6 +129,8 @@ def _check_archives(wheel: Path, sdist: Path) -> None:
         "/src/sentinel/_cassettes/demo/manifest.json",
         "/tests/fixtures/clean_server/server.py",
         "/tests/fixtures/vulnerable_server/server.py",
+        "/tests/fixtures/typescript_clean_server/server.ts",
+        "/tests/fixtures/typescript_vulnerable_server/server.ts",
     ):
         assert any(name.endswith(suffix) for name in names), suffix
 
@@ -185,6 +189,7 @@ def _check_pip(wheel: Path) -> None:
         python = _venv_python(environment)
         _run(str(python), "-m", "pip", "install", str(wheel))
         _check_install(python, _venv_bin(environment), resources=True)
+        _check_typescript_scans(_venv_bin(environment))
 
 
 def _check_pipx(distribution: str | Path) -> None:
@@ -268,6 +273,43 @@ def _check_install(
     _run(str(python), "-c", check)
 
 
+def _check_typescript_scans(executable_dir: Path) -> None:
+    sentinel = executable_dir / ("sentinel.exe" if os.name == "nt" else "sentinel")
+    fixtures = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
+    with tempfile.TemporaryDirectory(prefix="sentinel-typescript-smoke-") as directory:
+        output = Path(directory) / "report.json"
+        clean = subprocess.run(
+            (
+                str(sentinel),
+                "scan",
+                str(fixtures / "typescript_clean_server"),
+                "--static-only",
+                "--allow-degraded",
+                "--format",
+                "json",
+                "--output",
+                str(output),
+            ),
+            check=False,
+        )
+        assert clean.returncode == 0
+        vulnerable = subprocess.run(
+            (
+                str(sentinel),
+                "scan",
+                str(fixtures / "typescript_vulnerable_server"),
+                "--static-only",
+                "--allow-degraded",
+                "--format",
+                "json",
+                "--output",
+                str(output),
+            ),
+            check=False,
+        )
+        assert vulnerable.returncode == 1
+
+
 def _run(
     *command: str,
     cwd: Path | None = None,
@@ -281,8 +323,8 @@ from importlib import metadata
 import sentinel
 
 distribution = metadata.distribution("portunusmcp-sentinel")
-assert sentinel.__version__ == "1.0.0"
-assert distribution.version == "1.0.0"
+assert sentinel.__version__ == "1.1.0"
+assert distribution.version == "1.1.0"
 scripts = {
     item.name: item.value
     for item in distribution.entry_points

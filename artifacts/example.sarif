@@ -678,7 +678,7 @@
                 "timestamp": "2026-07-19T10:10:25.588496Z"
               }
             ],
-            "remediation": "Use concrete handler types, Pydantic models, or JSON Schema before first use.",
+            "remediation": "Use an official input schema or explicit validation before first use.",
             "review": {
               "applied_at": "2026-07-19T10:11:16.492545Z",
               "batch_id": "batch_1d9fb0acc9cf64f746d01d57",
@@ -2004,7 +2004,7 @@
               "id": "SENT-001",
               "name": "Overly broad tool permission scope",
               "properties": {
-                "engine": "ast",
+                "engine": "hybrid",
                 "falsePositiveRisk": "Medium: legitimately broad tools require an explicit capability justification.",
                 "impact": "High",
                 "owaspCategory": {
@@ -2054,13 +2054,13 @@
                 "text": "A tool handler consumes parameters before framework or explicit validation."
               },
               "help": {
-                "text": "Use concrete handler types, Pydantic models, or JSON Schema before first use. FP risk: Medium: custom validators outside the supported boundary may not be recognized."
+                "text": "Use an official input schema or explicit validation before first use. FP risk: Medium: custom validators outside the supported boundary may not be recognized."
               },
               "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-003",
               "id": "SENT-003",
               "name": "Missing tool input validation",
               "properties": {
-                "engine": "ast",
+                "engine": "hybrid",
                 "falsePositiveRisk": "Medium: custom validators outside the supported boundary may not be recognized.",
                 "impact": "Medium",
                 "owaspCategory": {
@@ -2088,7 +2088,7 @@
               "id": "SENT-004",
               "name": "Unsanitized tool content in prompt",
               "properties": {
-                "engine": "ast",
+                "engine": "hybrid",
                 "falsePositiveRisk": "Medium-High: intraprocedural prompt-flow analysis is intentionally heuristic.",
                 "impact": "High",
                 "owaspCategory": {
@@ -2144,7 +2144,7 @@
               "id": "SENT-006",
               "name": "Missing or ineffective route authentication",
               "properties": {
-                "engine": "ast",
+                "engine": "hybrid",
                 "falsePositiveRisk": "Low: intentional public routes must be explicitly configured.",
                 "impact": "High",
                 "owaspCategory": {
@@ -2172,7 +2172,7 @@
               "id": "SENT-007",
               "name": "Unverified tool manifest",
               "properties": {
-                "engine": "ast",
+                "engine": "hybrid",
                 "falsePositiveRisk": "Low: custom verification beyond the supported crypto APIs may require later coverage.",
                 "impact": "Medium",
                 "owaspCategory": {

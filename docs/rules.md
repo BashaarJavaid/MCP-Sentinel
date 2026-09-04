@@ -9,7 +9,7 @@ but it cannot change a rule's identity or delete its audit trail.
 
 ### Overly broad tool permission scope
 
-- Engine: MCP-aware AST analysis plus `sentinel.permissions.yaml`
+- Engine: MCP-aware Python AST/TypeScript analysis plus `sentinel.permissions.yaml`
 - Impact: High
 - OWASP: `ASI03:2026 — Identity & Privilege Abuse`
 - Boundary: literal filesystem/network use in official SDK and FastMCP tools;
@@ -34,7 +34,7 @@ but it cannot change a rule's identity or delete its audit trail.
 
 ### Missing tool input validation
 
-- Engine: MCP-aware AST analysis
+- Engine: MCP-aware Python AST/TypeScript analysis
 - Impact: Medium
 - OWASP: `ASI02:2026 — Tool Misuse & Exploitation`
 - Boundary: decorated tools and SDK dispatchers before first parameter use;
@@ -46,7 +46,7 @@ but it cannot change a rule's identity or delete its audit trail.
 
 ### Unsanitized tool content in prompt
 
-- Engine: intraprocedural AST taint analysis
+- Engine: intraprocedural Python AST/TypeScript taint analysis
 - Impact: High
 - OWASP: `ASI01:2026 — Agent Goal Hijack`
 - Boundary: tool-controlled content entering prompts or model-request fields
@@ -61,7 +61,7 @@ but it cannot change a rule's identity or delete its audit trail.
   fingerprint, and paired allowlist checks
 - Impact: Critical
 - OWASP: `ASI03:2026 — Identity & Privilege Abuse`
-- Boundary: supported Python/configuration files; evidence is redacted
+- Boundary: supported Python/TypeScript/configuration files; evidence is redacted
 - False-positive risk: Low–Medium
 - Remediation: use an external secret store or runtime environment injection
 
@@ -69,7 +69,7 @@ but it cannot change a rule's identity or delete its audit trail.
 
 ### Missing or ineffective route authentication
 
-- Engine: framework-aware AST analysis
+- Engine: framework-aware Python AST/TypeScript analysis
 - Impact: High
 - OWASP: `ASI03:2026 — Identity & Privilege Abuse`
 - Boundary: route decorators, inherited middleware, authentication dependencies,
@@ -81,7 +81,7 @@ but it cannot change a rule's identity or delete its audit trail.
 
 ### Unverified tool manifest
 
-- Engine: AST ordering analysis plus integrity-sidecar validation
+- Engine: Python AST/TypeScript ordering plus integrity-sidecar validation
 - Impact: Medium
 - OWASP: `ASI04:2026 — Agentic Supply Chain Vulnerabilities`
 - Boundary: JSON/YAML manifest loads with an earlier supported digest or signature

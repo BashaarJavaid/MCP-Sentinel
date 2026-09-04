@@ -114,6 +114,19 @@ imports or executes target code. Generated permissions are deny-all until you
 review them. Existing generated files are preserved unless you pass `--force`;
 even then, symbolic links and other non-regular destinations are refused.
 
+For an official TypeScript MCP SDK v1 or server v2 repository, onboarding writes
+only `sentinel.permissions.yaml` and preserves every target file:
+
+```bash
+sentinel init
+sentinel scan . --static-only
+```
+
+TypeScript support covers `.ts`, `.mts`, and `.cts`. JavaScript, TSX,
+declarations, workspaces, imported handlers/schemas, cross-file dataflow, and
+Node dynamic probing remain out of scope. Sentinel never runs Node, package
+scripts, or dependency installation during TypeScript analysis.
+
 Choose the analysis tier that matches your environment:
 
 | Tier | Command | Prerequisites |
@@ -144,7 +157,8 @@ flowchart LR
     K --> L[GitHub code scanning]
 ```
 
-Static analysis never imports or executes target code. Dynamic analysis runs
+Static analysis never imports or executes target code. TypeScript analysis is
+static-only. Dynamic analysis runs
 only local Python MCP targets in fresh containers with read-only source,
 restricted build egress, no runtime network, resource limits, and forced
 cleanup. GPT can order and bind four permanent inert templates; it cannot emit
@@ -241,7 +255,8 @@ Ubuntu.
 
 ### Unreleased/source checkout
 
-Phase 10 endpoint configuration is currently available from a source checkout,
+Phase 10 endpoint configuration and Phase 11 TypeScript analysis are currently
+available from a source checkout,
 not from the released `1.0.0` package or Marketplace Action:
 
 ```bash
@@ -460,7 +475,7 @@ remain fail-closed. The current `v1` live proof is documented in
 the earlier commit-pinned proof remains in
 [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
 The Marketplace Action remains pinned to released Sentinel `1.0.0`; it does not
-expose the unreleased source-checkout endpoint options.
+expose the unreleased source-checkout endpoint options or TypeScript support.
 
 `v1` follows the latest compatible `v1.x.y` Action release. Security-sensitive
 workflows can replace it with that release's full commit SHA. Maintainers move

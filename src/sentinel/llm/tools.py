@@ -9,10 +9,13 @@ from typing import cast
 import yaml
 from pydantic import JsonValue, field_validator
 
+from sentinel.config import TargetLanguage, _detect_target_language
+from sentinel.errors import TargetError
 from sentinel.finding import ContractModel, NonEmptyString
 from sentinel.report.model import ReportWarning
-from sentinel.static.model import ParsedPythonFile
+from sentinel.static.model import ParsedPythonFile, StaticMatch
 from sentinel.static.traversal import collect_static_files
+from sentinel.static.typescript import catalog_warnings, route_warnings, tools_in_file
 
 
 class ToolMetadata(ContractModel):
@@ -47,8 +50,25 @@ class ToolCatalog(ContractModel):
         )
 
 
-def extract_tool_catalog(root: Path, ignore_paths: tuple[str, ...] = ()) -> ToolCatalog:
-    files = collect_static_files(root, ignore_paths)
+def extract_tool_catalog(
+    root: Path,
+    ignore_paths: tuple[str, ...] = (),
+    language: TargetLanguage | None = None,
+    typescript_candidates: tuple[StaticMatch, ...] | None = None,
+) -> ToolCatalog:
+    if language is None:
+        try:
+            language = _detect_target_language(root, ignore_paths)
+        except TargetError:
+            language = (
+                TargetLanguage.TYPESCRIPT
+                if not any(root.rglob("*.py"))
+                and any(
+                    any(root.rglob(pattern)) for pattern in ("*.ts", "*.mts", "*.cts")
+                )
+                else TargetLanguage.PYTHON
+            )
+    files = collect_static_files(root, ignore_paths, language)
     tools: dict[str, ToolMetadata] = {}
     locations: dict[str, set[tuple[str, int]]] = {}
     for parsed in files.python_files:
@@ -56,6 +76,36 @@ def extract_tool_catalog(root: Path, ignore_paths: tuple[str, ...] = ()) -> Tool
         for tool in _tools_in_file(parsed, models):
             locations.setdefault(tool.name, set()).add((tool.path, tool.start_line))
             tools.setdefault(tool.name, tool)
+
+    typescript_warnings: list[ReportWarning] = []
+    candidate_paths = (
+        None
+        if typescript_candidates is None
+        else {candidate.path for candidate in typescript_candidates}
+    )
+    for typescript_file in files.typescript_files:
+        typescript_warnings.extend(route_warnings(typescript_file))
+        if (
+            candidate_paths is not None
+            and typescript_file.relative_path not in candidate_paths
+        ):
+            continue
+        for typescript_tool in tools_in_file(typescript_file):
+            typescript_warnings.extend(catalog_warnings(typescript_tool))
+            if typescript_tool.name is None:
+                continue
+            metadata = ToolMetadata(
+                name=typescript_tool.name,
+                description=typescript_tool.description,
+                input_schema=typescript_tool.input_schema or {},
+                path=typescript_tool.path,
+                start_line=typescript_tool.start_line,
+                end_line=typescript_tool.end_line,
+            )
+            locations.setdefault(metadata.name, set()).add(
+                (metadata.path, metadata.start_line)
+            )
+            tools.setdefault(metadata.name, metadata)
 
     warnings = [
         ReportWarning(
@@ -68,9 +118,15 @@ def extract_tool_catalog(root: Path, ignore_paths: tuple[str, ...] = ()) -> Tool
         for name, found in sorted(locations.items())
         if len(found) > 1
     ]
+    warnings.extend(typescript_warnings)
     manifest = root / "tools.yaml"
     if manifest.is_file() and not manifest.is_symlink():
         _merge_manifest(manifest, tools, warnings)
+    warnings = [
+        warning
+        for warning in warnings
+        if not _typescript_warning_resolved(warning, tools)
+    ]
     return ToolCatalog(
         tools=tuple(sorted(tools.values(), key=lambda item: (item.name, item.path))),
         warnings=tuple(warnings),
@@ -321,3 +377,21 @@ def _merge_manifest(
 
 def _manifest_warning(warnings: list[ReportWarning], message: str) -> None:
     warnings.append(ReportWarning(code="tool_manifest_fallback", message=message))
+
+
+def _typescript_warning_resolved(
+    warning: ReportWarning, tools: dict[str, ToolMetadata]
+) -> bool:
+    if warning.code not in {
+        "typescript_tool_description_unavailable",
+        "typescript_tool_schema_unsupported",
+    }:
+        return False
+    tool = next(
+        (item for name, item in tools.items() if repr(name) in warning.message), None
+    )
+    if tool is None:
+        return False
+    if warning.code == "typescript_tool_description_unavailable":
+        return tool.description is not None
+    return bool(tool.input_schema)

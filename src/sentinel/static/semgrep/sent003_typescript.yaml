@@ -1,0 +1,10 @@
+rules:
+  - id: sentinel.sent003.typescript-tool-registration
+    message: Discover an official high-level TypeScript tool registration.
+    severity: INFO
+    languages: [typescript]
+    metadata:
+      sentinel_rule_id: SENT-003
+    pattern-either:
+      - pattern: $SERVER.registerTool($NAME, $CONFIG, $HANDLER)
+      - pattern: $SERVER.tool($NAME, ...)

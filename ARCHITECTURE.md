@@ -16,8 +16,11 @@ SecureMCP Gateway and SecureMCP Identity remain separate repositories and are ou
 - Sentinel CLI hosts using Python 3.10, 3.11, 3.12, or 3.13.
 - Python MCP servers using Python 3.10, 3.11, or 3.12.
 - The official Python MCP SDK and FastMCP.
+- Static-only TypeScript MCP servers using official `@modelcontextprotocol/sdk`
+  v1 or `@modelcontextprotocol/server` v2 high-level APIs.
 - MCP over stdio.
-- Static analysis using a custom Python AST engine plus a pinned Semgrep CLI.
+- Static analysis using Python AST, bounded TypeScript source recognition, and
+  a pinned Semgrep CLI.
 - Dynamic analysis inside Docker.
 - Required semantic review of deterministic candidates through the Responses API,
   using GPT-5.6 Sol by default or a validated compatible endpoint.
@@ -37,7 +40,9 @@ sandbox defaults to Python 3.11.
 - Streamable HTTP transport in v1.
 - Legacy SSE transport.
 - Custom or hand-rolled MCP implementations beyond best-effort static parsing.
-- Multi-language analysis.
+- Static analysis for languages beyond Python and TypeScript.
+- JavaScript/TSX, workspaces, imported handlers or schemas, cross-file dataflow,
+  low-level SDK handlers, TypeScript type checking, and Node dynamic probing.
 - Free-standing GPT-originated findings.
 - General exploit confirmation against arbitrary user targets.
 - Automated patch generation and automated pull requests.
@@ -69,7 +74,7 @@ flowchart TD
     CLI[Typer CLI] --> CFG[Load and validate configuration]
     CFG --> REAP[Reap stale Sentinel containers]
     REAP --> STATIC[Static analysis]
-    STATIC --> AST[Python AST rules]
+    STATIC --> AST[Python AST + TypeScript high-level API rules]
     STATIC --> SEMGREP[Pinned Semgrep CLI rules]
     AST --> SF[Static candidate Findings]
     SEMGREP --> SF
@@ -288,6 +293,13 @@ Every rule is pinned to the OWASP Top 10 for Agentic Applications 2026 taxonomy.
 
 - Custom AST rules own MCP-specific semantics: declared scopes versus handler behavior, schemas, prompt flow, auth dependencies, and manifest integrity.
 - `src/sentinel/static/semgrep_adapter.py` invokes the pinned Semgrep CLI as a subprocess for generic code patterns such as unsafe execution/deserialization and hardcoded secrets.
+
+TypeScript roots require a strict, bounded root `package.json`, a production
+dependency on an official MCP package, and an included `.ts`, `.mts`, or `.cts`
+source. They always pass through Semgrep's syntax gate, never load Node modules,
+and are rejected before analysis unless `--static-only` is present. The
+orchestrator owns one dedicated Semgrep catalog-discovery pass and reuses that
+catalog for GPT review.
 
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 

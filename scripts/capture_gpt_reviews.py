@@ -51,6 +51,7 @@ def main() -> int:
             "eval-low",
             "demo",
             "phase3-integrated",
+            "typescript-smoke",
         ),
     )
     parser.add_argument("--live", action="store_true")
@@ -343,14 +344,21 @@ def _replay_phase3(
 def _planned_batches(
     checkpoint: str, effort: ReasoningEffort
 ) -> tuple[tuple[_Batch, ...], LlmConfig]:
-    fixture = (
-        ROOT / "tests" / "fixtures" / "vulnerable_server"
-        if checkpoint == "demo"
-        else ROOT / "tests" / "fixtures" / "gpt_review_eval"
-    )
+    if checkpoint == "demo":
+        fixture = ROOT / "tests" / "fixtures" / "vulnerable_server"
+    elif checkpoint == "typescript-smoke":
+        fixture = ROOT / "tests" / "fixtures" / "typescript_vulnerable_server"
+    else:
+        fixture = ROOT / "tests" / "fixtures" / "gpt_review_eval"
     loaded = load_configuration(fixture, environ={}, static_only=True)
     llm = loaded.scanner.llm.model_copy(
-        update={"reasoning_effort": effort, "max_concurrency": 1, "retries": 0}
+        update={
+            "reasoning_effort": effort,
+            "max_concurrency": 1,
+            "retries": loaded.scanner.llm.retries
+            if checkpoint == "typescript-smoke"
+            else 0,
+        }
     )
     loaded = loaded.model_copy(
         update={"scanner": loaded.scanner.model_copy(update={"llm": llm})}
@@ -366,6 +374,8 @@ def _planned_batches(
             if item.rule_id == "SENT-003"
             and _tool_name(catalog, item) == "unchecked_lookup"
         )
+    elif checkpoint == "typescript-smoke":
+        findings = tuple(item for item in findings if item.rule_id == "SENT-003")
     findings = tuple(sorted(findings, key=_candidate_sort_key))
     candidates = tuple(
         _Candidate(
@@ -436,6 +446,19 @@ async def _capture(
         if result.accepted is None:
             raise RuntimeError(result.failure or "GPT capture failed")
         accepted = result.accepted
+        if checkpoint == "typescript-smoke":
+            decision = accepted.decisions[0]
+            if (
+                decision.status != "confirmed"
+                or not decision.evidence_refs
+                or decision.probe_plan is None
+                or set(decision.probe_plan.ordered_probe_ids)
+                != {"SENT-008", "SENT-009", "SENT-010", "SENT-011"}
+            ):
+                raise RuntimeError(
+                    "TypeScript smoke requires confirmed grounded evidence and "
+                    "the constrained four-probe plan"
+                )
         sanitized = _sanitize_raw_response(accepted.raw, batch.fingerprint)
         cost_micro_usd = _cost(accepted.usage)
         payload = {

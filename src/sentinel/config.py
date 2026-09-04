@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import ipaddress
+import json
 import os
 import re
 import shlex
@@ -37,6 +38,7 @@ DEFAULT_IGNORES = (
     "__pycache__/",
     ".git/",
 )
+MAX_MANIFEST_BYTES = 1024 * 1024
 SECRET_NAME_FRAGMENTS = (
     "SECRET",
     "KEY",
@@ -88,6 +90,11 @@ class ReasoningEffort(str, Enum):
 class EndpointMode(str, Enum):
     OPENAI = "openai"
     COMPATIBLE = "compatible"
+
+
+class TargetLanguage(str, Enum):
+    PYTHON = "python"
+    TYPESCRIPT = "typescript"
 
 
 class ScannerConfig(ContractModel):
@@ -353,6 +360,7 @@ class LoadedConfiguration(ContractModel):
     scanner: SentinelConfig
     target: TargetConfig | None
     static_only: bool
+    language: TargetLanguage = TargetLanguage.PYTHON
 
 
 ENV_OVERRIDES: dict[str, tuple[str, str]] = {
@@ -435,7 +443,11 @@ def load_configuration(
     if trust_enabled and not repository_compatible_url:
         raise ConfigurationError("LLM endpoint trust acknowledgment is unused")
 
-    _declared_supported_package_roots(scan_root)
+    language = _detect_target_language(scan_root, scanner.scanner.ignore_paths)
+    if language is TargetLanguage.TYPESCRIPT and not static_only:
+        raise TargetError(
+            "TypeScript targets support static analysis only; rerun with --static-only"
+        )
 
     target: TargetConfig | None = None
     if not static_only:
@@ -476,6 +488,7 @@ def load_configuration(
         scanner=scanner,
         target=target,
         static_only=static_only,
+        language=language,
     )
 
 
@@ -852,7 +865,65 @@ def _validate_relative_text_path(value: str, label: str) -> str:
     return normalized
 
 
-def _declared_supported_package_roots(root: Path) -> frozenset[str]:
+def _detect_target_language(
+    root: Path, ignore_paths: tuple[str, ...]
+) -> TargetLanguage:
+    from sentinel.static.traversal import has_included_source
+
+    # Python classification historically depended on the declared dependency alone.
+    python = bool(_python_package_roots(root))
+    typescript = _typescript_dependency(root) and has_included_source(
+        root, ignore_paths, TargetLanguage.TYPESCRIPT
+    )
+    if python and typescript:
+        raise TargetError(
+            "mixed supported Python and TypeScript targets are unsupported"
+        )
+    if typescript:
+        return TargetLanguage.TYPESCRIPT
+    if python:
+        return TargetLanguage.PYTHON
+    raise TargetError(
+        "unsupported target: declare the official Python 'mcp'/'fastmcp' or "
+        "TypeScript '@modelcontextprotocol/sdk'/'@modelcontextprotocol/server' "
+        "dependency with an included source file"
+    )
+
+
+def _typescript_dependency(root: Path) -> bool:
+    path = root / "package.json"
+    if not path.exists():
+        return False
+    if path.is_symlink() or not path.is_file():
+        raise TargetError("package.json must be a regular file")
+    try:
+        if path.stat().st_size > MAX_MANIFEST_BYTES:
+            raise TargetError("package.json exceeds the 1 MiB limit")
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError as error:
+        raise TargetError("package.json is not valid UTF-8") from error
+    except json.JSONDecodeError as error:
+        raise TargetError(
+            f"cannot parse package.json as strict JSON: {error}"
+        ) from error
+    except OSError as error:
+        raise TargetError("cannot read package.json") from error
+    if not isinstance(data, dict):
+        raise TargetError("package.json must contain a JSON object")
+    dependencies = data.get("dependencies")
+    if dependencies is None:
+        return False
+    if not isinstance(dependencies, dict):
+        raise TargetError("package.json dependencies must be an object")
+    supported = ("@modelcontextprotocol/sdk", "@modelcontextprotocol/server")
+    if not all(
+        isinstance(value, str) and value.strip() for value in dependencies.values()
+    ):
+        raise TargetError("package.json dependency values must be nonblank strings")
+    return any(name in dependencies for name in supported)
+
+
+def _python_package_roots(root: Path) -> frozenset[str]:
     names: set[str] = set()
     pyproject = root / "pyproject.toml"
     if pyproject.is_file() and not pyproject.is_symlink():
@@ -880,7 +951,13 @@ def _declared_supported_package_roots(root: Path) -> frozenset[str]:
         ]
         names.update(_requirement_names(entries))
 
-    supported = frozenset(names.intersection({"mcp", "fastmcp"}))
+    return frozenset(names.intersection({"mcp", "fastmcp"}))
+
+
+def _declared_supported_package_roots(root: Path) -> frozenset[str]:
+    """Backward-compatible Python dependency helper used by onboarding tests."""
+
+    supported = _python_package_roots(root)
     if not supported:
         raise TargetError(
             "unsupported target: declare the official 'mcp' or 'fastmcp' dependency"

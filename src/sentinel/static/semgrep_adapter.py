@@ -15,13 +15,21 @@ from typing import Any
 
 import certifi
 
-from sentinel.errors import InfrastructureError
+from sentinel.errors import InfrastructureError, TargetError
 from sentinel.finding import SourceRange
 from sentinel.static.model import StaticFileSet, StaticMatch
 
 SEMGREP_VERSION = "1.176.0"
 SEMGREP_BATCH_SIZE = 200
 SEMGREP_TIMEOUT_SECONDS = 10
+TYPESCRIPT_CATALOG_RULE_ID = "typescript-tool-catalog"
+_TYPESCRIPT_HYBRID_RULE_IDS = {
+    "SENT-001",
+    "SENT-003",
+    "SENT-004",
+    "SENT-006",
+    "SENT-007",
+}
 
 
 def run_semgrep(
@@ -33,11 +41,17 @@ def run_semgrep(
 ) -> dict[str, list[StaticMatch]]:
     """Run selected bundled Semgrep rules over deterministic file batches."""
 
-    rule_ids = tuple(
-        rule_id for rule_id in selected_rule_ids if rule_id in {"SENT-002", "SENT-005"}
+    is_typescript = bool(files.typescript_files)
+    supported = (
+        {"SENT-002", "SENT-005", *_TYPESCRIPT_HYBRID_RULE_IDS}
+        if is_typescript
+        else {"SENT-002", "SENT-005"}
     )
-    results: dict[str, list[StaticMatch]] = {rule_id: [] for rule_id in rule_ids}
-    if not rule_ids:
+    rule_ids = tuple(rule_id for rule_id in selected_rule_ids if rule_id in supported)
+    catalog = is_typescript and TYPESCRIPT_CATALOG_RULE_ID in selected_rule_ids
+    result_ids = (*rule_ids, *((TYPESCRIPT_CATALOG_RULE_ID,) if catalog else ()))
+    results: dict[str, list[StaticMatch]] = {rule_id: [] for rule_id in result_ids}
+    if not rule_ids and not is_typescript:
         return results
     _verify_semgrep_version()
     executable = shutil.which("semgrep")
@@ -50,16 +64,24 @@ def run_semgrep(
     paths = sorted(
         (
             *(item.path for item in files.python_files),
+            *(item.path for item in files.typescript_files),
             *files.config_files,
         ),
         key=lambda path: path.as_posix(),
     )
     if not paths:
         return results
-    configs = [
-        Path(__file__).parent / "semgrep" / f"{rule_id.lower().replace('-', '')}.yaml"
-        for rule_id in rule_ids
-    ]
+    config_root = Path(__file__).parent / "semgrep"
+    configs = []
+    if is_typescript and not catalog:
+        configs.append(config_root / "typescript_parse_gate.yaml")
+    for rule_id in rule_ids:
+        name = rule_id.lower().replace("-", "")
+        if is_typescript and rule_id != "SENT-005":
+            name += "_typescript"
+        configs.append(config_root / f"{name}.yaml")
+    if catalog:
+        configs.append(config_root / "typescript_tool_catalog.yaml")
     environment = os.environ.copy()
     environment.update(
         {
@@ -120,7 +142,9 @@ def run_semgrep(
             if not output.is_file():
                 detail = completed.stderr.strip() or "Semgrep wrote no JSON report"
                 raise InfrastructureError(f"Semgrep execution failed: {detail}")
-            payload = _parse_payload(output.read_text(encoding="utf-8"))
+            payload = _parse_payload(
+                output.read_text(encoding="utf-8"), typescript=is_typescript
+            )
         _collect_results(payload, results, files, scan_root)
     return results
 
@@ -138,13 +162,22 @@ def _verify_semgrep_version() -> None:
         )
 
 
-def _parse_payload(raw: str) -> dict[str, Any]:
+def _parse_payload(raw: str, *, typescript: bool = False) -> dict[str, Any]:
     try:
         payload = json.loads(raw)
     except json.JSONDecodeError as error:
         raise InfrastructureError("Semgrep returned invalid JSON") from error
     if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
         raise InfrastructureError("Semgrep returned an unexpected JSON shape")
+    if (
+        payload.get("errors")
+        and typescript
+        and any(
+            token in json.dumps(payload["errors"]).lower()
+            for token in ("parse error", "syntax error")
+        )
+    ):
+        raise TargetError("cannot parse TypeScript source")
     if payload.get("errors"):
         raise InfrastructureError(f"Semgrep reported scan errors: {payload['errors']}")
     return payload
@@ -187,6 +220,7 @@ def _collect_results(
                 range=source_range,
                 snippet=snippet,
                 match_kinds=(str(item.get("check_id", "semgrep")),),
+                captures=_captures(extra),
             )
         )
 
@@ -199,7 +233,21 @@ def _relative_path(
     for python_file in files.python_files:
         if python_file.path == path:
             return python_file.relative_path
+    for typescript_file in files.typescript_files:
+        if typescript_file.path == path:
+            return typescript_file.relative_path
     for config_file in files.config_files:
         if config_file == path:
             return path.relative_to(scan_root).as_posix()
     raise InfrastructureError(f"Semgrep returned an out-of-scope path: {path}")
+
+
+def _captures(extra: dict[str, Any]) -> dict[str, str]:
+    raw = extra.get("metavars", {})
+    if not isinstance(raw, dict):
+        return {}
+    captures: dict[str, str] = {}
+    for name, value in raw.items():
+        if isinstance(value, dict) and isinstance(value.get("abstract_content"), str):
+            captures[str(name)] = value["abstract_content"]
+    return dict(sorted(captures.items()))

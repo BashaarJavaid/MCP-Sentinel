@@ -573,6 +573,16 @@ without weakening review validation or auditability.
 
 ## 14. Phase 11 — TypeScript static analysis
 
+**Status: implementation and live GPT smoke complete; hosted verification
+pending.** Local paired-fixture, no-execution, canonical JSON/SARIF, Python
+regression, and distribution checks pass. The budget-capped live TypeScript
+smoke passed on 2026-09-03 with `gpt-5.6-sol`: `confirmed`, one grounded evidence
+reference, and the valid four-probe plan. It used 1,325 input, 542 output, and
+289 reasoning tokens (1,867 total) at a recorded cost of `$0.017462`; the
+[accepted replay cassette](src/sentinel/_cassettes/typescript-smoke/manifest.json)
+passes production replay. Do not mark this phase complete until the hosted
+Linux/macOS/Windows Python 3.10–3.13 matrix passes and its evidence is recorded.
+
 ### Objective
 
 Scan TypeScript MCP servers statically without waiting for a Node dynamic

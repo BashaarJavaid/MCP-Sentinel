@@ -74,13 +74,26 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
     path = root / finding.location.path
     try:
         source = path.read_text(encoding="utf-8")
-        tree = ast.parse(source, filename=finding.location.path)
-    except (OSError, UnicodeDecodeError, SyntaxError) as error:
+    except (OSError, UnicodeDecodeError) as error:
         raise InfrastructureError(
             f"cannot construct GPT context for {finding.location.path}: {error}"
         ) from error
     lines = source.splitlines()
     target_line = finding.location.range.start_line
+    if path.suffix in {".ts", ".mts", ".cts"}:
+        start, end = _centered_window(
+            1, max(1, len(lines)), max(1, len(lines)), 80, focus=target_line
+        )
+        return _finish_context(
+            finding,
+            (_block(finding.location.path, lines, start, end, "primary"),),
+        )
+    try:
+        tree = ast.parse(source, filename=finding.location.path)
+    except SyntaxError as error:
+        raise InfrastructureError(
+            f"cannot construct GPT context for {finding.location.path}: {error}"
+        ) from error
     units = [
         node
         for node in ast.walk(tree)

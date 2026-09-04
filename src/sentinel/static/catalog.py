@@ -40,7 +40,7 @@ RULES = (
         "Narrow each declared scope to the resources the handler actually requires.",
         "Medium: legitimately broad tools require an explicit capability "
         "justification.",
-        RuleEngine.AST,
+        RuleEngine.HYBRID,
     ),
     _rule(
         "SENT-002",
@@ -56,10 +56,10 @@ RULES = (
         "Missing tool input validation",
         "A tool handler consumes parameters before framework or explicit validation.",
         Impact.MEDIUM,
-        "Use concrete handler types, Pydantic models, or JSON Schema before first use.",
+        "Use an official input schema or explicit validation before first use.",
         "Medium: custom validators outside the supported boundary may not be "
         "recognized.",
-        RuleEngine.AST,
+        RuleEngine.HYBRID,
     ),
     _rule(
         "SENT-004",
@@ -70,7 +70,7 @@ RULES = (
         "Pass tool-controlled text through a configured sanitizer before prompt "
         "construction.",
         "Medium-High: intraprocedural prompt-flow analysis is intentionally heuristic.",
-        RuleEngine.AST,
+        RuleEngine.HYBRID,
     ),
     _rule(
         "SENT-005",
@@ -91,7 +91,7 @@ RULES = (
         "Require credential verification and an explicit rejection path before "
         "route execution.",
         "Low: intentional public routes must be explicitly configured.",
-        RuleEngine.AST,
+        RuleEngine.HYBRID,
     ),
     _rule(
         "SENT-007",
@@ -103,7 +103,7 @@ RULES = (
         "parsing and use.",
         "Low: custom verification beyond the supported crypto APIs may require "
         "later coverage.",
-        RuleEngine.AST,
+        RuleEngine.HYBRID,
     ),
 )
 

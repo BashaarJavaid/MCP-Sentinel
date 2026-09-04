@@ -107,6 +107,10 @@ passed the full Linux, macOS, and Windows Python 3.10–3.13 quality matrix,
 canonical distributions, isolated wheel installs, and installed-wheel Docker
 replay without paid API calls.
 
+Phase 11 repository implementation and its budget-capped live TypeScript GPT
+smoke pass, but the phase remains **incomplete** until the hosted cross-platform
+matrix passes.
+
 ---
 
 ## 1. Think Before Coding
@@ -127,7 +131,7 @@ This is a hackathon-scoped build — most design questions should be resolved by
 
 - No features beyond what was asked, and beyond what the current phase (see "Current phase" above) calls for. Don't pull forward Phase 3's GitHub Action work while still on Phase 1's rule engine.
 - No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested — e.g. don't build a general-purpose plugin-loading system for rules when a flat list of rule modules does the job; don't add multi-language support when the hackathon scope is Python MCP servers.
+- No "flexibility" or "configurability" that wasn't requested — e.g. don't build a general-purpose plugin-loading system for rules when a flat list of rule modules does the job; don't add languages beyond the supported Python and static-only TypeScript scope.
 - No error handling for impossible scenarios — but do fail loudly (not silently) when a scan target is malformed or the sandbox fails to start; a scanner that silently produces an empty report on failure is worse than one that errors.
 - If you write 200 lines and it could be 50, rewrite it.
 

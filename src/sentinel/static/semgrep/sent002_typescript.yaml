@@ -1,0 +1,29 @@
+rules:
+  - id: sentinel.sent002.typescript-unsafe-execution
+    message: Tool input reaches an unsafe execution primitive.
+    severity: ERROR
+    languages: [typescript]
+    metadata:
+      sentinel_rule_id: SENT-002
+    mode: taint
+    pattern-sources:
+      - patterns:
+          - pattern-either:
+              - pattern-inside: $SERVER.registerTool(..., ($ARG) => $BODY, ...)
+              - pattern-inside: $SERVER.registerTool(..., async ($ARG) => $BODY, ...)
+              - pattern-inside: $SERVER.tool(..., ($ARG) => $BODY, ...)
+              - pattern-inside: $SERVER.tool(..., async ($ARG) => $BODY, ...)
+          - focus-metavariable: $ARG
+    pattern-sinks:
+      - pattern-either:
+          - pattern: eval(...)
+          - pattern: Function(...)
+          - pattern: $VM.runInContext(...)
+          - pattern: $VM.runInNewContext(...)
+          - pattern: $VM.runInThisContext(...)
+          - pattern: $CP.exec(...)
+          - pattern: $CP.execSync(...)
+          - pattern: $CP.execFile(...)
+          - pattern: $CP.execFileSync(...)
+          - pattern: $CP.spawn(...)
+          - pattern: $CP.spawnSync(...)

@@ -54,7 +54,7 @@ class IntegrityManifest(ContractModel):
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:
-    anchors = _load_anchors(context.configuration.scan_root)
+    anchors = load_integrity_manifest(context.configuration.scan_root)
     del anchors
     for file in context.files.python_files:
         for function in (
@@ -80,7 +80,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
                     )
 
 
-def _load_anchors(root: Path) -> IntegrityManifest | None:
+def load_integrity_manifest(root: Path) -> IntegrityManifest | None:
     path = root / "sentinel.integrity.yaml"
     if not path.exists():
         return None

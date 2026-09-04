@@ -1,0 +1,15 @@
+rules:
+  - id: sentinel.sent006.typescript-http-route
+    message: Discover an Express or Hono route.
+    severity: INFO
+    languages: [typescript]
+    metadata:
+      sentinel_rule_id: SENT-006
+    pattern-either:
+      - pattern: $APP.get(...)
+      - pattern: $APP.post(...)
+      - pattern: $APP.put(...)
+      - pattern: $APP.patch(...)
+      - pattern: $APP.delete(...)
+      - pattern: $APP.options(...)
+      - pattern: $APP.head(...)

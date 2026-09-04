@@ -1,0 +1,11 @@
+rules:
+  - id: sentinel.sent004.typescript-model-sink
+    message: Discover a TypeScript model or MCP sampling call.
+    severity: INFO
+    languages: [typescript]
+    metadata:
+      sentinel_rule_id: SENT-004
+    pattern-either:
+      - pattern: $CLIENT.responses.create(...)
+      - pattern: $CLIENT.chat.completions.create(...)
+      - pattern: $CLIENT.requestSampling(...)

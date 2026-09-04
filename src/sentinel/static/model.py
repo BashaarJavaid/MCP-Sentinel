@@ -15,6 +15,7 @@ from sentinel.report.model import ReportWarning, StaticAnalysisSummary
 class RuleEngine(str, Enum):
     AST = "ast"
     SEMGREP = "semgrep"
+    HYBRID = "hybrid"
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,7 @@ class StaticMatch:
     snippet: str
     fingerprint: str | None = None
     match_kinds: tuple[str, ...] = ()
+    captures: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -49,8 +51,16 @@ class ParsedPythonFile:
 
 
 @dataclass(frozen=True)
+class TypeScriptSourceFile:
+    path: Path
+    relative_path: str
+    source: str
+
+
+@dataclass(frozen=True)
 class StaticFileSet:
     python_files: tuple[ParsedPythonFile, ...]
+    typescript_files: tuple[TypeScriptSourceFile, ...]
     config_files: tuple[Path, ...]
     scanned_file_count: int
     ignored_file_count: int
@@ -62,6 +72,7 @@ class RuleRunState:
     matches: list[StaticMatch] = field(default_factory=list)
     exemptions: dict[str, int] = field(default_factory=dict)
     skip_reason: str | None = None
+    warnings: list[ReportWarning] = field(default_factory=list)
 
     def exempt(self, reason: str) -> None:
         self.exemptions[reason] = self.exemptions.get(reason, 0) + 1
