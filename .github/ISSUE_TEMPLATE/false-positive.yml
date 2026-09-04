@@ -1,0 +1,75 @@
+name: False positive
+description: Report a reproducible Sentinel finding that should not be emitted.
+title: "[False positive] "
+labels:
+  - bug
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Sentinel version
+      description: Run `sentinel --version` and paste the result.
+      placeholder: 1.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: rule
+    attributes:
+      label: Rule
+      options:
+        - SENT-001
+        - SENT-002
+        - SENT-003
+        - SENT-004
+        - SENT-005
+        - SENT-006
+        - SENT-007
+        - SENT-008
+        - SENT-009
+        - SENT-010
+        - SENT-011
+    validations:
+      required: true
+  - type: input
+    id: language-framework
+    attributes:
+      label: Language and framework
+      placeholder: Python 3.12 with FastMCP 1.x
+    validations:
+      required: true
+  - type: textarea
+    id: command-configuration
+    attributes:
+      label: Command and configuration
+      description: Include the command and relevant redacted Sentinel configuration.
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: Redacted finding
+      description: Paste the finding without credentials, tokens, or private source.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Redacted minimal reproduction
+      description: Provide the smallest source and manifest example that reproduces the finding.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Explain why the rule should not report this code.
+    validations:
+      required: true
+  - type: checkboxes
+    id: no-secrets
+    attributes:
+      label: Sensitive data confirmation
+      options:
+        - label: I removed all secrets, credentials, personal data, and private source from this report.
+          required: true

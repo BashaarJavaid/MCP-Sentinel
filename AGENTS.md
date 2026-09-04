@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Project-specific context and instructions for **MCP Sentinel**, merged with a set of general behavioral guidelines (sections 1-4 below, adapted from [andrej-karpathy-skills/CLAUDE.md](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md)) aimed at reducing common LLM coding mistakes: unstated assumptions, speculative complexity, unrelated edits, and vague success criteria.
+Project-specific context and instructions for **PortunusMCP Sentinel**, merged with a set of general behavioral guidelines (sections 1-4 below, adapted from [andrej-karpathy-skills/CLAUDE.md](https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md)) aimed at reducing common LLM coding mistakes: unstated assumptions, speculative complexity, unrelated edits, and vague success criteria.
 
 **Tradeoff:** these guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
@@ -8,20 +8,20 @@ Project-specific context and instructions for **MCP Sentinel**, merged with a se
 
 ## Project
 
-**MCP Sentinel** — a build-time static/dynamic security scanner for MCP (Model Context Protocol) servers, mapped to the OWASP Agentic Top 10, shipped as a CLI tool and a GitHub Action that outputs SARIF.
+**PortunusMCP Sentinel** — a build-time static/dynamic security scanner for MCP (Model Context Protocol) servers, mapped to the OWASP Agentic Top 10, shipped as a CLI tool and a GitHub Action that outputs SARIF.
 
-Sentinel is one of three components of a larger suite called **SecureMCP**:
-1. **SecureMCP Gateway** — runtime zero-trust enforcement gateway (separate repo, out of scope here).
-2. **MCP Sentinel** *(this repo)* — build-time scanner.
-3. **SecureMCP Identity** — short-lived credential broker (separate repo, out of scope here).
+Sentinel is one of three components of the **PortunusMCP** family:
+1. **PortunusMCP Gateway** — runtime zero-trust enforcement gateway (separate repo, out of scope here).
+2. **PortunusMCP Sentinel** *(this repo)* — build-time scanner.
+3. **PortunusMCP Identity** — short-lived credential broker (separate repo, out of scope here).
 
 Sentinel answers one question: *"Does this MCP server have exploitable vulnerabilities before I ever run it?"* It does this via static analysis (AST/pattern rules over source + manifests) and lightweight dynamic analysis (adversarial probes against a sandboxed instance of the target server), with every finding tagged to an OWASP Agentic Top 10 category.
 
-Full build context, architecture, phased plan, and demo script live in `mcp-sentinel-buildplan.md` — read that first.
+The historical build context lives in `mcp-sentinel-buildplan.md`; active contracts and status live in `ARCHITECTURE.md` and `ROADMAP.md`. Read the historical brief first for project context, then use the active documents as authority.
 
 ## Where things live
 
-- `mcp-sentinel-buildplan.md` — the full brief: what Sentinel does, tech stack, repo layout, OWASP mapping table, phased build plan, demo script. Read this first.
+- `mcp-sentinel-buildplan.md` — historical build brief and original scope. Read this first for context; defer to Architecture and Roadmap for current contracts.
 - `README.md` — quickstart, install, usage examples (write once Phase 0 scaffolding exists).
 - `src/sentinel/static/rules/` — one file per detection rule; each rule is independently testable and tagged with its OWASP Agentic Top 10 category (`src/sentinel/owasp_mapping.py` holds the canonical rule-id → category map).
 - `src/sentinel/dynamic/` — the sandbox launcher (`sandbox.py`) and adversarial prober (`prober.py`).
@@ -81,46 +81,10 @@ the GitHub Action. Update this section as each verification gate passes.
 - [ ] Phase 14 — conditional exploit-confirmation stretch (optional, never blocks Phase 15)
 - [ ] Phase 15 — product launch
 
-Phase 5 is **complete**. Its repository implementation and verification gates
-passed, the `v0.1.0` GitHub Release was published with the tested wheel,
-`/feedback` was submitted from the primary Codex thread recorded in `README.md`,
-and the public YouTube demo and Devpost submission were completed. Phase 6 is
-**complete**: its implementation, local macOS gates, and expanded Linux,
-macOS, and Windows CI matrices pass on Python 3.10–3.13. Phase 7 is
-**complete**: the signed `v0.2.0`
-[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33795399096)
-published and verified the canonical wheel and sdist on
-[TestPyPI](https://test.pypi.org/project/portunusmcp-sentinel/0.2.0/) and
-[PyPI](https://pypi.org/project/portunusmcp-sentinel/0.2.0/) through OIDC, and
-all 12 public pipx/uv install jobs passed. Phase 8 is **complete**: the immutable
-[`v1.0.0` release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.0.0)
-published the [Marketplace Action](https://github.com/marketplace/actions/mcp-sentinel),
-the signed `v1` alias resolves to the release commit, and the paired
-[external proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33808213435)
-passed. Phase 9 is **complete**: the
-[onboarding gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33816774614)
-passed the full quality and installed-wheel matrices, then generated a clean
-fixture configuration with `sentinel init` and completed `sentinel scan .` in
-Docker without an API key. Phase 10 is **complete**: the
-[configurable-endpoint gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33835113247)
-passed the full Linux, macOS, and Windows Python 3.10–3.13 quality matrix,
-canonical distributions, isolated wheel installs, and installed-wheel Docker
-replay without paid API calls.
-
-Phase 11 is **complete**: its budget-capped live TypeScript GPT smoke passed, and
-the [hosted gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33845514399)
-passed the full Linux, macOS, and Windows Python 3.10–3.13 quality and
-installed-wheel matrices, canonical distributions, and installed-wheel Docker
-replay.
-
-Phase 12 is **complete**: the signed
-[`v1.2.0` release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.0)
-passed trusted publication and provenance verification, the public pre-commit
-hook passed the hosted OS/Python matrix, and the external
-[exact-tag](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33897900585)
-and signed [`v1` alias](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33898189505)
-baseline proofs passed. Complete evidence is recorded in
-[`artifacts/phase12-adoption-evidence.md`](artifacts/phase12-adoption-evidence.md).
+Phases 0–12 are complete. Their original completion statements, release links,
+digests, and submission records are preserved in `docs/hackathon.md` and the
+linked evidence artifacts. Phase 13 is active and must not be marked complete
+until its hosted Pages and maintenance gates pass.
 
 ---
 

@@ -1,4 +1,4 @@
-.PHONY: install lint format-check typecheck test audit schema-generate schema-check sarif-check notices notices-check artifacts artifacts-live artifacts-check check demo build
+.PHONY: install lint format-check typecheck test audit schema-generate schema-check sarif-check notices notices-check artifacts artifacts-live artifacts-check docs-check check demo build
 
 install:
 	uv sync --extra dev
@@ -42,7 +42,10 @@ artifacts-live:
 artifacts-check:
 	uv run python -m scripts.generate_phase5_artifacts --check
 
-check: lint format-check typecheck schema-check test audit notices-check
+docs-check:
+	uv run --extra docs mkdocs build --strict
+
+check: lint format-check typecheck schema-check test audit notices-check docs-check
 
 demo:
 	uv run sentinel demo

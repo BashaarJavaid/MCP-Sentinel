@@ -1,11 +1,18 @@
-# MCP Sentinel — Full Build Brief & Hackathon Plan
+# PortunusMCP Sentinel — Historical Build Brief
 
-> **Purpose of this document:** This is a complete handoff brief for building **MCP Sentinel** with the help of a GPT-based coding assistant ("Sol"). It contains full context on what Sentinel is, how it fits into the larger SecureMCP suite, the architecture, the build plan, and exactly how ChatGPT/Sol should be used at each phase. Paste this whole file into Sol as the first message of the build session.
+> **Historical brief:** This is the original handoff for building what is now
+> **PortunusMCP Sentinel**. Historical names, scope, and submission language are
+> retained as a record. Active contracts live in `ARCHITECTURE.md`; current
+> phase status lives in `ROADMAP.md`.
 
 > **Current authority:** Phase numbering and release gates in this brief have
 > been reconciled with the implemented system. `ARCHITECTURE.md` owns accepted
 > contracts and `ROADMAP.md` owns gate status if either document becomes more
 > specific than this original handoff.
+
+> **Current phase map:** Phases 0–12 are complete. Phase 13 (public
+> documentation and maintenance) is active. Phase 14 is optional and does not
+> block Phase 15 (product launch).
 
 ---
 
@@ -15,11 +22,11 @@
 
 **One-line description:** A build-time static/dynamic security scanner for MCP (Model Context Protocol) servers, mapped to the OWASP Agentic Top 10, shipped as a CLI tool and a GitHub Action that outputs SARIF.
 
-**Context:** Sentinel is one of three components of a larger suite called **SecureMCP**, a zero-trust agentic AI security architecture. The suite is deliberately split into three independent repos/planes, mirroring how tools like SPIRE and Vault separate concerns:
+**Context:** Sentinel is one of three components of the **PortunusMCP** family, a zero-trust agentic AI security architecture. The suite is deliberately split into three independent repos/planes, mirroring how tools like SPIRE and Vault separate concerns:
 
-1. **SecureMCP Gateway** — runtime zero-trust gateway (RBAC/ABAC policy enforcement, live risk scoring, ECDSA-signed audit logging). Operates *while* an agent runs.
-2. **MCP Sentinel** *(this project)* — build-time scanner. Operates *before* anything is deployed.
-3. **SecureMCP Identity** — short-lived credential broker (OAuth 2.1, Dynamic Client Registration, SPIFFE/SPIRE-style workload identity).
+1. **PortunusMCP Gateway** — runtime zero-trust gateway (RBAC/ABAC policy enforcement, live risk scoring, ECDSA-signed audit logging). Operates *while* an agent runs.
+2. **PortunusMCP Sentinel** *(this project)* — build-time scanner. Operates *before* anything is deployed.
+3. **PortunusMCP Identity** — short-lived credential broker (OAuth 2.1, Dynamic Client Registration, SPIFFE/SPIRE-style workload identity).
 
 **Why Sentinel was chosen for the hackathon (not Gateway or Identity):**
 - Self-contained — no live infrastructure, databases, or long-running services required
@@ -196,7 +203,7 @@ Sol should be used as an active pair-programmer, not just a code generator. Conc
 3. Run `sentinel scan` live.
 4. Show the console report — walk through 2–3 findings, naming the OWASP category each maps to.
 5. Show the SARIF output rendered in GitHub's Security tab (or a PR annotation) — this is the "this fits into a real workflow" moment.
-6. Close with where Sentinel sits in the bigger SecureMCP picture (Gateway + Identity) to show the scope of the broader vision without overclaiming what's built.
+6. Close with where Sentinel sits in the bigger PortunusMCP picture (Gateway + Identity) to show the scope of the broader vision without overclaiming what's built.
 
 ---
 
@@ -296,7 +303,7 @@ hybrid AST and pinned-Semgrep static engine feeds bounded candidates through a
 required GPT-5.6 semantic review, then fresh Docker-contained stdio probes test
 the reviewed attack surface. All canonical findings map to the OWASP Agentic
 Top 10 and feed the Typer CLI's console, JSON, and offline-validated SARIF 2.1.0
-reports. Sentinel ships as that CLI plus a GitHub Action; the SecureMCP Gateway
+reports. Sentinel ships as that CLI plus a GitHub Action; the PortunusMCP Gateway
 and Identity planes remain separate. Build order: scaffold → static rules → GPT
 semantic review → dynamic probes → GitHub Action → polish/demo → optional,
 fixture-scoped exploit confirmation.

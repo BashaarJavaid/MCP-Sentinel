@@ -106,7 +106,7 @@ def render_sarif(report: ScanReport) -> str:
     )
     driver = ToolComponent(
         name="MCP Sentinel",
-        full_name="MCP Sentinel build-time MCP security scanner",
+        full_name="PortunusMCP Sentinel build-time MCP security scanner",
         information_uri="https://github.com/BashaarJavaid/MCP-Sentinel",
         semantic_version=report.sentinel_version,
         version=report.sentinel_version,

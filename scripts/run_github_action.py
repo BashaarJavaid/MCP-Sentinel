@@ -320,7 +320,7 @@ def render_step_summary(result: ActionResult) -> str:
     cache_fields = ("cache_hits", "cache_misses", "cache_writes", "cache_errors")
 
     lines = [
-        "## MCP Sentinel",
+        "## PortunusMCP Sentinel",
         "",
         "| Field | Value |",
         "| --- | --- |",

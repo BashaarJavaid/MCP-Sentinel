@@ -1,4 +1,4 @@
-# MCP Sentinel rule catalog
+# PortunusMCP Sentinel rule catalog
 
 Every rule emits the canonical Finding contract and has a stable permanent ID.
 Static severity begins from impact and theoretical exploitability; dynamic proof
@@ -20,7 +20,7 @@ location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
 directives that match no finding emit `inline_suppression_unused`.
 
-## SENT-001
+## SENT-001 { #sent-001 }
 
 ### Overly broad tool permission scope
 
@@ -33,7 +33,7 @@ directives that match no finding emit `inline_suppression_unused`.
   justification
 - Remediation: narrow each capability to the resources the handler needs
 
-## SENT-002
+## SENT-002 { #sent-002 }
 
 ### Unsafe execution from tool input
 
@@ -45,7 +45,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Low
 - Remediation: use explicit parsers and fixed command allowlists
 
-## SENT-003
+## SENT-003 { #sent-003 }
 
 ### Missing tool input validation
 
@@ -57,7 +57,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Medium for unrecognized custom validators
 - Remediation: validate every declared field before handler behavior
 
-## SENT-004
+## SENT-004 { #sent-004 }
 
 ### Unsanitized tool content in prompt
 
@@ -68,7 +68,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Medium–High; trusted sanitizers must be configured
 - Remediation: sanitize tool-controlled text before prompt construction
 
-## SENT-005
+## SENT-005 { #sent-005 }
 
 ### Hardcoded secret
 
@@ -80,7 +80,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Low–Medium
 - Remediation: use an external secret store or runtime environment injection
 
-## SENT-006
+## SENT-006 { #sent-006 }
 
 ### Missing or ineffective route authentication
 
@@ -92,7 +92,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Low; intentional public routes require configuration
 - Remediation: verify identity and reject invalid credentials before route code
 
-## SENT-007
+## SENT-007 { #sent-007 }
 
 ### Unverified tool manifest
 
@@ -104,7 +104,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - False-positive risk: Low
 - Remediation: verify a pinned digest or trusted detached signature before parsing
 
-## SENT-008
+## SENT-008 { #sent-008 }
 
 ### Out-of-scope tool execution
 
@@ -115,7 +115,7 @@ directives that match no finding emit `inline_suppression_unused`.
   successful non-error response
 - Remediation: reject calls not granted by the active capability policy
 
-## SENT-009
+## SENT-009 { #sent-009 }
 
 ### Oversized argument accepted
 
@@ -126,7 +126,7 @@ directives that match no finding emit `inline_suppression_unused`.
   crashed the server; stored evidence is bounded and redacted
 - Remediation: enforce byte and schema limits before invoking handlers
 
-## SENT-010
+## SENT-010 { #sent-010 }
 
 ### Injection payload executed
 
@@ -136,7 +136,7 @@ directives that match no finding emit `inline_suppression_unused`.
 - Evidence: the inert approved payload caused the Sentinel-only scratch canary
 - Remediation: treat tool arguments as inert data and remove execution sinks
 
-## SENT-011
+## SENT-011 { #sent-011 }
 
 ### Malformed schema input processed
 

@@ -1,6 +1,6 @@
-# Generated artifacts
+# Historical generated artifacts
 
-Judge-facing evidence in this directory is generated, never hand-edited.
+Historical evidence in this directory is generated, never hand-edited.
 
 - `gpt-ablation.json` compares rules-only, GPT-reviewed, and GPT-plus-Docker
   results over the checked truth set. Regenerate it offline with `make artifacts`.

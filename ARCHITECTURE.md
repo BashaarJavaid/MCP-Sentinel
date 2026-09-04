@@ -1,12 +1,12 @@
-# MCP Sentinel Architecture
+# PortunusMCP Sentinel Architecture
 
 ## 1. Purpose and status
 
-This document is the approved architecture baseline for MCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.
+This document is the approved architecture baseline for PortunusMCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.
 
-MCP Sentinel is the build-time security plane of SecureMCP. It scans an MCP server before deployment, combines deterministic static analysis with sandboxed dynamic probes, requires GPT semantic review in the normal pipeline, and emits one auditable Finding shape to console, JSON, and SARIF 2.1.0 outputs.
+PortunusMCP Sentinel is the build-time security plane of the PortunusMCP family. It scans an MCP server before deployment, combines deterministic static analysis with sandboxed dynamic probes, requires GPT semantic review in the normal pipeline, and emits one auditable Finding shape to console, JSON, and SARIF 2.1.0 outputs.
 
-SecureMCP Gateway and SecureMCP Identity remain separate repositories and are outside this architecture.
+The [PortunusMCP Gateway](https://github.com/BashaarJavaid/PortunusMCP) and PortunusMCP Identity remain separate projects and are outside this architecture.
 
 ## 2. v1 scope
 
@@ -477,7 +477,7 @@ An invalid plan does not remove or skip probes. Sentinel falls back to the fixed
 - Recorded real-response fixtures are replayed in CI; CI does not make live GPT calls.
 - Public pricing for both approved model IDs is canonicalized to
   `gpt-5.6-sol`: $4/M input, $0.40/M cached input, $20/M output, and 1.25×
-  cache-write input as of 2026-09-03. Compatible endpoints retain usage but
+  cache-write input as of 2026-09-04. Compatible endpoints retain usage but
   set pricing and micro-USD costs to `null`.
 
 Each live batch records:
@@ -515,11 +515,11 @@ The generated `artifacts/gpt-ablation.json` reports true positives, false positi
 
 The evaluation must demonstrate at least one corroborated true positive, one grounded suppression that remains visible, one ambiguous `needs_review` outcome, and one correctly prioritized dynamic probe. This is the evidence that GPT-5.6 improves the scanner rather than merely rewriting deterministic output.
 
-### Judge replay mode
+### Recorded replay mode
 
-The normal scan and default `sentinel demo` path use live GPT review. `sentinel demo --replay-review` is a separate, visibly labeled judge/offline path that replays the checked-in response cassettes through the same parser, validation, merge, and reporting code.
+The normal scan and default `sentinel demo` path use live GPT review. `sentinel demo --replay-review` is a separate, visibly labeled offline path that replays the checked-in response cassettes through the same parser, validation, merge, and reporting code.
 
-Replay results set `review.mode = "replay"`, display a prominent console/SARIF annotation, and can never be represented as a live model call. Replay mode exists for reproducible testing without an API key; the submission also includes artifacts and video evidence from a real live GPT-5.6 run.
+Replay results set `review.mode = "replay"`, display a prominent console/SARIF annotation, and can never be represented as a live model call. Replay mode exists for reproducible testing without an API key; historical live evidence remains in `artifacts/`.
 
 ## 10. Dynamic analysis and Docker isolation
 
@@ -662,7 +662,7 @@ Typer is the sole CLI framework. The main command is:
 sentinel scan <path>
 ```
 
-The judge/demo command is:
+The packaged demonstration command is:
 
 ```text
 sentinel demo [--replay-review]
@@ -790,27 +790,21 @@ Outputs:
 
 The Action normally fails closed when GPT review cannot run. For forked pull requests where GitHub does not expose secrets, it automatically enables degraded mode and clearly annotates that semantic review was skipped. Missing fork secrets alone do not fail the Action.
 
-A successful upload to the Security tab of a live throwaway repository is a release gate.
+A successful upload to the Security tab of a live throwaway repository is a distribution gate.
 
-### Judge-ready distribution
+### Distribution
 
 The repository supplies two paths that do not require rebuilding Sentinel from source:
 
 - A prebuilt Python wheel attached to the project release, installable with `pipx` or `pip`.
 - A public example GitHub Action run with its validated SARIF artifact and visible Security-tab results.
 
-`make demo` is the source-checkout convenience wrapper around `sentinel demo`; it is not the only judge test path. The bundled vulnerable and clean fixtures are included in the wheel so the demonstration does not depend on cloning another repository.
+`make demo` is the source-checkout convenience wrapper around `sentinel demo`. The bundled vulnerable and clean fixtures are included in the wheel so the demonstration does not depend on cloning another repository.
 
 The public package includes an MIT `LICENSE` file, supported-platform statement, Docker prerequisite, live and replay instructions, and explicit disclosure that replayed GPT output is recorded evidence rather than a new model call.
 
-The submission package also preserves:
-
-- A live GPT-5.6 evaluation artifact and the generated rules-only/GPT/dynamic ablation report.
-- `artifacts/example.sarif` from the bundled vulnerable fixture.
-- Repository commit history created during the submission period.
-- The Codex `/feedback` session ID for the thread containing most core implementation.
-- README documentation of where Codex accelerated implementation, which product/engineering decisions remained human-owned, and how GPT-5.6 changes runtime behavior.
-- A public under-three-minute demo video with audio covering the working product, Codex contribution, and GPT-5.6 contribution.
+The original submission, assistant-collaboration, release, and demonstration
+record is preserved in `docs/hackathon.md` and `artifacts/`.
 
 ## 14. Verification and quality gates
 
@@ -846,7 +840,7 @@ The required v1 architecture deliberately leaves extension points only where fut
 
 ## 17. External design references
 
-- [OpenAI GPT-5.6 model guidance](https://developers.openai.com/api/docs/guides/model-guidance?model=gpt-5.6)
-- [OpenAI Responses API migration guide](https://developers.openai.com/api/docs/guides/migrate-to-responses)
+- [OpenAI GPT-5.6 Sol model and pricing](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+- [OpenAI Responses API create reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
 - [OpenAI Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)

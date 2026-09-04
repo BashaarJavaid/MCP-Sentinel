@@ -281,6 +281,7 @@ def test_live_review_merges_status_plan_usage_and_authority(tmp_path: Path) -> N
     assert outcome.summary.origin_cost_micro_usd == 1328
     assert outcome.summary.endpoint_mode.value == "openai"
     assert outcome.summary.pricing is not None
+    assert outcome.summary.pricing.as_of == "2026-09-04"
     assert outcome.summary.pricing.input_micro_usd_per_million == 4_000_000
     assert reviewed.review.requested_model == "gpt-5.6-sol"
     assert reviewed.review.returned_model == "gpt-5.6-sol-2026-07-18"
