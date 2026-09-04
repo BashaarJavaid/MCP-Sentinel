@@ -143,6 +143,27 @@ class ScanContext(ContractModel):
         return ensure_utc(value)
 
 
+class BaselineSummary(ContractModel):
+    matcher_version: Literal["sentinel-baseline-v1"] = "sentinel-baseline-v1"
+    source_schema_version: Literal["1.3.0", "1.4.0"]
+    source_sha256: Sha256Hex
+    baseline_finding_count: int = Field(ge=0)
+    matched_finding_count: int = Field(ge=0)
+    new_finding_count: int = Field(ge=0)
+    resolved_finding_count: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def validate_counts(self) -> BaselineSummary:
+        if self.resolved_finding_count > self.baseline_finding_count:
+            raise ValueError("resolved baseline count exceeds baseline finding count")
+        if (
+            self.matched_finding_count
+            and self.resolved_finding_count == self.baseline_finding_count
+        ):
+            raise ValueError("matched findings require an unresolved baseline identity")
+        return self
+
+
 class GptPricing(ContractModel):
     model: NonEmptyString
     source: NonEmptyString
@@ -209,7 +230,7 @@ class GptReviewSummary(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.3.0"] = "1.3.0"
+    schema_version: Literal["1.4.0"] = "1.4.0"
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime
@@ -223,6 +244,7 @@ class ScanReport(ContractModel):
     findings: tuple[Finding, ...]
     static_analysis: StaticAnalysisSummary | None
     gpt_review: GptReviewSummary | None
+    baseline: BaselineSummary | None = None
 
     @field_validator("scan_id")
     @classmethod
@@ -252,6 +274,22 @@ class ScanReport(ContractModel):
             raise ValueError("every finding must belong to this scan")
         if self.summary.total != len(self.findings):
             raise ValueError("summary total must equal finding count")
+        matched = sum(item.baseline_matched is True for item in self.findings)
+        new = sum(item.baseline_matched is False for item in self.findings)
+        if self.baseline is None:
+            if any(item.baseline_matched is not None for item in self.findings):
+                raise ValueError(
+                    "findings cannot have baseline state without a baseline"
+                )
+        elif (
+            matched != self.baseline.matched_finding_count
+            or new != self.baseline.new_finding_count
+        ):
+            raise ValueError("baseline summary does not match finding annotations")
+        if self.baseline is not None and matched + new != len(self.findings):
+            raise ValueError(
+                "every finding requires baseline state when a baseline is used"
+            )
         return self
 
 

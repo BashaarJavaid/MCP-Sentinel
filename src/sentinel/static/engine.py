@@ -44,6 +44,7 @@ from sentinel.static.rules import (
     sent007,
 )
 from sentinel.static.semgrep_adapter import run_semgrep
+from sentinel.static.suppression import apply_inline_suppressions
 from sentinel.static.traversal import collect_static_files
 
 STATIC_TIMEOUT_SECONDS = 120
@@ -64,6 +65,7 @@ def run_static_scan(
     *,
     timestamp: datetime,
     deadline: float | None = None,
+    forced_ignored_paths: frozenset[str] = frozenset(),
 ) -> StaticScanResult:
     """Execute every selected Phase 1 static rule without target-code execution."""
 
@@ -74,6 +76,7 @@ def run_static_scan(
         configuration.scan_root,
         configuration.scanner.scanner.ignore_paths,
         configuration.language,
+        forced_ignored_paths,
     )
     context = StaticContext(configuration=configuration, files=files)
     states = {rule_id: RuleRunState() for rule_id in selected}
@@ -126,6 +129,9 @@ def run_static_scan(
             )
         )
     findings.sort(key=_finding_sort_key)
+    suppressed_findings, suppression_warnings = apply_inline_suppressions(
+        files, tuple(findings)
+    )
     duration_ms = round((time.monotonic() - started) * 1000)
     summary = StaticAnalysisSummary(
         selected_rule_ids=selected,
@@ -135,12 +141,12 @@ def run_static_scan(
         duration_ms=duration_ms,
         rule_outcomes=tuple(outcomes),
     )
-    warnings = [*files.warnings]
+    warnings = [*files.warnings, *suppression_warnings]
     for rule_id in selected:
         warnings.extend(states[rule_id].warnings)
     keys = tuple(dict.fromkeys((warning.code, warning.message) for warning in warnings))
     return StaticScanResult(
-        findings=tuple(findings),
+        findings=suppressed_findings,
         warnings=tuple(
             next(
                 warning

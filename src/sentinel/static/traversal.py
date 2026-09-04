@@ -32,13 +32,14 @@ def collect_static_files(
     root: Path,
     ignore_paths: tuple[str, ...],
     language: TargetLanguage = TargetLanguage.PYTHON,
+    forced_ignored_paths: frozenset[str] = frozenset(),
 ) -> StaticFileSet:
     """Return parsed supported files without importing or executing target code."""
 
     python_files: list[ParsedPythonFile] = []
     typescript_files: list[TypeScriptSourceFile] = []
     config_files: list[Path] = []
-    ignored = 0
+    ignored = len(forced_ignored_paths)
     symlinks: list[str] = []
     ignore_specs: dict[Path, GitIgnoreSpec] = {}
     configured = GitIgnoreSpec.from_lines(ignore_paths)
@@ -76,6 +77,8 @@ def collect_static_files(
             if not entry.is_file(follow_symlinks=False) or not _is_supported(
                 path, language
             ):
+                continue
+            if relative in forced_ignored_paths:
                 continue
             if _is_ignored(relative, path, root, ignore_specs, configured):
                 ignored += 1

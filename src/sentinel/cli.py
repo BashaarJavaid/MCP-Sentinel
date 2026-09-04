@@ -18,6 +18,7 @@ from uuid import uuid4
 import typer
 
 from sentinel import __version__
+from sentinel.baseline import load_baseline
 from sentinel.config import FailThreshold, OutputFormat, load_configuration
 from sentinel.errors import (
     ConfigurationError,
@@ -77,6 +78,9 @@ def scan(
     path: Path = typer.Argument(..., help="Local MCP repository path."),
     output_format: OutputFormat | None = typer.Option(None, "--format"),
     output: Path | None = typer.Option(None, "--output"),
+    baseline: Path | None = typer.Option(
+        None, "--baseline", help="Compare against a prior native JSON report."
+    ),
     json_output: bool = typer.Option(False, "--json", help="Alias for --format json."),
     fail_on: FailThreshold | None = typer.Option(None, "--fail-on"),
     allow_degraded: bool = typer.Option(False, "--allow-degraded"),
@@ -96,6 +100,11 @@ def scan(
     state = _state(ctx)
     try:
         selected_format = _select_format(output_format, json_output)
+        loaded_baseline = load_baseline(baseline) if baseline is not None else None
+        if loaded_baseline is not None and output is not None:
+            output_path = output if output.is_absolute() else Path.cwd() / output
+            if output_path.resolve() == loaded_baseline.path:
+                raise UsageError("baseline and output paths must differ")
         overrides: dict[str, Any] = {
             "format": selected_format,
             "fail_on": fail_on,
@@ -127,6 +136,7 @@ def scan(
             completed_at=datetime.now(timezone.utc),
             allow_degraded=allow_degraded,
             api_key=os.environ.get("OPENAI_API_KEY"),
+            baseline=loaded_baseline,
         )
         rendered = _render(
             outcome.report,

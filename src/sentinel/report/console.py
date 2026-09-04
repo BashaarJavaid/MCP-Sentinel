@@ -61,6 +61,21 @@ def render_console(
             )
             for reason, count in outcome.exemptions_by_reason.items():
                 lines.append(f"    exempt {reason}: {count}")
+    if report.baseline is not None:
+        baseline = report.baseline
+        lines.extend(
+            (
+                "",
+                _style("Baseline", color, bold=True),
+                f"  matched {baseline.matched_finding_count}, new "
+                f"{baseline.new_finding_count}, resolved "
+                f"{baseline.resolved_finding_count}, prior "
+                f"{baseline.baseline_finding_count}",
+                f"  {baseline.matcher_version}, schema "
+                f"{baseline.source_schema_version}, source "
+                f"{baseline.source_sha256[:12]}",
+            )
+        )
     if report.gpt_review is not None:
         review = report.gpt_review
         label = review.mode.upper()
@@ -157,11 +172,24 @@ def _finding_lines(finding: Finding, *, verbose: bool, color: bool) -> tuple[str
         bold=finding.severity is Severity.CRITICAL,
     )
     status = _finding_status(finding, color)
+    baseline = (
+        " · baseline"
+        if finding.baseline_matched is True
+        else " · new"
+        if finding.baseline_matched is False
+        else ""
+    )
     lines = [
-        f"  {severity} {finding.rule_id} {finding.title} · {status}",
+        f"  {severity} {finding.rule_id} {finding.title} · {status}{baseline}",
         f"    {where} · {finding.owasp_category.id} {finding.owasp_category.name}",
         f"    Remediation: {finding.remediation}",
     ]
+    if finding.suppression is not None:
+        suppression = finding.suppression
+        lines.append(
+            f"    Inline suppression: {suppression.reason} "
+            f"({suppression.path}:{suppression.line})"
+        )
     if verbose:
         lines.extend(_verbose_finding_lines(finding))
     return tuple(lines)

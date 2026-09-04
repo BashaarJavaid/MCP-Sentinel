@@ -273,6 +273,29 @@ class ProvenanceEntry(ContractModel):
         return format_utc(value)
 
 
+class InlineSuppression(ContractModel):
+    kind: Literal["inline"] = "inline"
+    reason: str
+    path: NonEmptyString
+    line: int = Field(ge=1)
+
+    @field_validator("reason")
+    @classmethod
+    def validate_reason(cls, value: str) -> str:
+        if value != value.strip() or not 1 <= len(value) <= 500:
+            raise ValueError(
+                "inline suppression reason must be 1-500 trimmed characters"
+            )
+        if not all(character.isprintable() for character in value):
+            raise ValueError("inline suppression reason must contain printable text")
+        return value
+
+    @field_validator("path")
+    @classmethod
+    def validate_path(cls, value: str) -> str:
+        return normalize_repo_path(value)
+
+
 class Finding(ContractModel):
     finding_id: UUID
     dedup_key: Sha256Hex
@@ -292,6 +315,8 @@ class Finding(ContractModel):
     timestamp: datetime
     provenance: tuple[ProvenanceEntry, ...]
     review: FindingReview = Field(default_factory=NotReviewedReview)
+    baseline_matched: bool | None = None
+    suppression: InlineSuppression | None = None
 
     @field_validator("finding_id", "scan_id")
     @classmethod
@@ -321,6 +346,22 @@ class Finding(ContractModel):
         origin = self.provenance[0]
         if origin.source != self.source or origin.rule_id != self.rule_id:
             raise ValueError("first provenance entry must match finding origin")
+        if self.suppression is not None:
+            if self.status is not FindingStatus.SUPPRESSED:
+                raise ValueError("inline suppression requires suppressed status")
+            if self.source is not FindingSource.STATIC:
+                raise ValueError("inline suppression requires a static finding")
+            if not isinstance(self.location, FileLocation):
+                raise ValueError("inline suppression requires a file location")
+            if self.suppression.path != self.location.path:
+                raise ValueError("inline suppression must match the finding path")
+            if self.suppression.line not in {
+                self.location.range.start_line - 1,
+                self.location.range.start_line,
+            }:
+                raise ValueError("inline suppression must bind the finding line")
+            if not isinstance(self.review, NotReviewedReview):
+                raise ValueError("inline-suppressed findings cannot be GPT-reviewed")
         return self
 
 

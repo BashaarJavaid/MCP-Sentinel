@@ -1,5 +1,5 @@
 name: MCP Sentinel
-description: Scan released Python MCP targets; TypeScript requires the upcoming 1.1.0 CLI.
+description: Scan Python and TypeScript MCP targets before deployment.
 author: Bashaar Javaid
 
 inputs:
@@ -19,6 +19,10 @@ inputs:
     description: Skip Docker-backed dynamic probing while retaining GPT review.
     required: false
     default: "false"
+  baseline:
+    description: Repository-relative native JSON report used as the scan baseline.
+    required: false
+    default: ""
 
 outputs:
   sarif-path:
@@ -28,7 +32,7 @@ outputs:
     description: Number of visible SARIF results, including suppressed findings.
     value: ${{ steps.scan.outputs.findings-count }}
   highest-severity:
-    description: Highest non-suppressed severity, or none.
+    description: Highest fail-eligible severity, or none.
     value: ${{ steps.scan.outputs.highest-severity }}
 
 runs:
@@ -39,12 +43,12 @@ runs:
       with:
         python-version: "3.12"
 
-    - name: Install MCP Sentinel 1.0.0 from PyPI
+    - name: Install MCP Sentinel 1.2.0 from PyPI
       shell: bash
       run: >-
         python -m pip install --disable-pip-version-check
         --index-url https://pypi.org/simple
-        portunusmcp-sentinel==1.0.0
+        portunusmcp-sentinel==1.2.0
 
     - name: Run and validate MCP Sentinel
       id: scan
@@ -56,6 +60,7 @@ runs:
         --target-path "${{ inputs.target-path }}"
         --fail-on "${{ inputs.fail-on }}"
         --static-only "${{ inputs.static-only }}"
+        --baseline "${{ inputs.baseline }}"
 
     - name: Upload SARIF to GitHub code scanning
       id: upload

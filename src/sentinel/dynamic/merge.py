@@ -46,6 +46,8 @@ def _sent003_index(
     for index, finding in enumerate(findings):
         if finding.rule_id != "SENT-003" or finding.source is not FindingSource.STATIC:
             continue
+        if finding.suppression is not None:
+            continue
         location = finding.location
         if location.kind != "file":
             continue

@@ -63,10 +63,21 @@ jobs:
       - name: Test with branch coverage
         run: uv run --python ${{ matrix.python-version }} pytest
 
+      - name: Exercise public pre-commit hook
+        run: >-
+          uv run --python ${{ matrix.python-version }} python
+          scripts/smoke_pre_commit.py
+
       - name: Plan GPT smoke without credentials or network
         run: >-
           uv run --python ${{ matrix.python-version }} python
           scripts/capture_gpt_reviews.py smoke
+
+      - name: Plan Phase 12 GPT smoke without credentials or network
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        run: >-
+          uv run --python ${{ matrix.python-version }} python
+          scripts/capture_gpt_reviews.py phase12-smoke
 
       - name: Audit locked runtime dependencies
         run: |
@@ -180,6 +191,26 @@ jobs:
           cd "${{ runner.temp }}/onboarding-target"
           sentinel init
           sentinel scan .
+
+      - name: Exercise installed-wheel full baseline workflow
+        env:
+          OPENAI_API_KEY: ""
+        shell: bash
+        run: |
+          cp -R tests/fixtures/vulnerable_server "${{ runner.temp }}/baseline-target"
+          cd "${{ runner.temp }}/baseline-target"
+          set +e
+          sentinel scan . --allow-degraded --format json --output sentinel-baseline.json
+          initial_exit=$?
+          set -e
+          test "$initial_exit" -eq 1
+          sentinel scan . --allow-degraded --baseline sentinel-baseline.json --format json --output "${{ runner.temp }}/baseline-unchanged.json"
+          echo 'phase12_token = "ghp_abcdefghijklmnopqrstuvwxyz1234567890"' >> server.py
+          set +e
+          sentinel scan . --allow-degraded --baseline sentinel-baseline.json --format json --output "${{ runner.temp }}/baseline-changed.json"
+          changed_exit=$?
+          set -e
+          test "$changed_exit" -eq 1
 
       - name: Validate installed-wheel demo reports
         run: |

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import UUID
 
 import pytest
@@ -39,7 +40,7 @@ runner = CliRunner()
 def test_version_and_help() -> None:
     version = runner.invoke(app, ["--version"])
     assert version.exit_code == 0
-    assert version.stdout.strip() == "1.1.0"
+    assert version.stdout.strip() == "1.2.0"
     help_result = runner.invoke(app, ["scan", "--help"])
     assert help_result.exit_code == 0
     assert "--static-only" in unstyle(help_result.stdout)
@@ -47,6 +48,7 @@ def test_version_and_help() -> None:
     assert "--llm-reasoning-ef" in unstyle(help_result.stdout)
     assert "--llm-base-url" in unstyle(help_result.stdout)
     assert "--trust-llm-endpoi" in unstyle(help_result.stdout)
+    assert "--baseline" in unstyle(help_result.stdout)
 
 
 def test_json_scan_returns_complete_exit_and_clean_stdout(target_root: Path) -> None:
@@ -195,6 +197,29 @@ def test_invalid_output_parent_is_usage_error(
     assert result.exit_code == 2
     assert result.stderr.startswith("configuration error:")
     assert "invalid output path" in result.stderr
+
+
+def test_baseline_cannot_collide_with_output(
+    target_root: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "baseline.json"
+    path.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(
+        "sentinel.cli.load_baseline", lambda _: SimpleNamespace(path=path.resolve())
+    )
+    result = runner.invoke(
+        app,
+        [
+            "scan",
+            str(target_root),
+            "--baseline",
+            str(path),
+            "--output",
+            str(path),
+        ],
+    )
+    assert result.exit_code == 2
+    assert "baseline and output paths must differ" in result.stderr
 
 
 def test_missing_target_uses_target_error_prefix(tmp_path: Path) -> None:

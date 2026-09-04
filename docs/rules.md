@@ -5,6 +5,21 @@ Static severity begins from impact and theoretical exploitability; dynamic proof
 raises exploitability to confirmed. GPT review may confirm, suppress, or abstain,
 but it cannot change a rule's identity or delete its audit trail.
 
+Static findings may be suppressed in included Python or TypeScript source with
+an exact reason-bearing directive:
+
+```text
+# sentinel: ignore[SENT-005] reason=reviewed fixture credential
+// sentinel: ignore[SENT-005] reason=reviewed fixture credential
+```
+
+A standalone directive binds the next physical line; a trailing directive binds
+its own line. Only `SENT-001`–`SENT-007` are supported. The finding stays in rule,
+report, JSON, and SARIF counts with status `suppressed`, its reason and directive
+location remain visible, and GPT review is skipped for that finding. Malformed,
+duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
+directives that match no finding emit `inline_suppression_unused`.
+
 ## SENT-001
 
 ### Overly broad tool permission scope

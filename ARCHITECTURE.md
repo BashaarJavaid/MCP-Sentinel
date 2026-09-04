@@ -717,7 +717,7 @@ Uncaught exceptions exit with code `3`.
 ## 12. Reporting and SARIF
 
 Console, JSON, and SARIF renderers consume canonical Findings after
-deduplication. Native report schema `1.3.0` has nullable top-level `gpt_review`
+deduplication. Native report schema `1.4.0` has nullable top-level `gpt_review`
 with batch-deduplicated current/origin token, latency, cache, failure, status,
 pricing, integer micro-USD cost telemetry, and required endpoint mode/hash on
 every summary and batch. Completed Finding reviews also require endpoint
@@ -737,6 +737,31 @@ Result `properties` contain confidence, status, OWASP ID, evidence, evidence ref
 
 Suppressed findings remain visible and use both native SARIF suppressions and the full properties record explaining why.
 
+### Team-adoption contracts
+
+`sentinel scan --baseline <report.json>` accepts a bounded, regular,
+non-symlink native JSON 1.3.0 or 1.4.0 report. Version 1.3.0 is migrated
+additively in memory and validated as strict 1.4.0. Compatible baselines must be
+complete, execution-successful, contain static analysis, select the same ordered
+rules, and use the same static-only/full mode. Target display names and Sentinel
+package versions do not bind a baseline.
+
+Matcher `sentinel-baseline-v1` hashes the existing deduplication key plus exact
+static snippet and optional detector fingerprint, or the dynamic probe ID and
+canonical request/response JSON. Dynamic logs are excluded. Baseline state is
+applied after GPT and dynamic analysis and affects only the final failure
+threshold. Reports retain matched and new findings, expose only aggregate
+resolved counts, and serialize the baseline file's raw SHA-256 without its host
+path.
+
+Included `.py`, `.ts`, `.mts`, and `.cts` files may carry exact lowercase
+reason-bearing inline directives for `SENT-001`–`SENT-007`. Python comments are
+read through the tokenizer; TypeScript line comments use a lexer that excludes
+strings, templates, escapes, and block comments. Applied directives preserve the
+finding with `suppressed` status and typed source location, exclude it from GPT
+review, and do not affect dynamic probing. Unused valid directives warn; invalid
+or duplicate directives fail as configuration errors.
+
 `src/sentinel/report/validate_sarif.py` calls `jsonschema.validate()` against the vendored official OASIS schema at `schemas/sarif-2.1.0.schema.json`:
 
 ```bash
@@ -755,6 +780,7 @@ Inputs:
 - `fail-on`
 - `openai-api-key`
 - `static-only`
+- `baseline`
 
 Outputs:
 
@@ -816,7 +842,7 @@ Reports are security artifacts. They must preserve deterministic findings, prove
 
 ## 16. Deferred evolution
 
-The required v1 architecture deliberately leaves extension points only where future work is already approved: Streamable HTTP, sandbox-only endpoint scanning, remote repository convenience, generalized exploit confirmation, additional languages, expanded fuzzing, IDE integration, policy-as-code, baseline diffing, and eventual patch/PR automation. None of these are dependencies of the v1 pipeline.
+The required v1 architecture deliberately leaves extension points only where future work is already approved: Streamable HTTP, sandbox-only endpoint scanning, remote repository convenience, generalized exploit confirmation, additional languages, expanded fuzzing, IDE integration, policy-as-code, and eventual patch/PR automation. None of these are dependencies of the v1 pipeline.
 
 ## 17. External design references
 

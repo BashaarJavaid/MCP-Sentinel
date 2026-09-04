@@ -15,9 +15,9 @@ from email.parser import BytesParser
 from pathlib import Path
 
 DIST_NAME = "portunusmcp-sentinel"
-VERSION = "1.1.0"
-WHEEL_NAME = "portunusmcp_sentinel-1.1.0-py3-none-any.whl"
-SDIST_NAME = "portunusmcp_sentinel-1.1.0.tar.gz"
+VERSION = "1.2.0"
+WHEEL_NAME = "portunusmcp_sentinel-1.2.0-py3-none-any.whl"
+SDIST_NAME = "portunusmcp_sentinel-1.2.0.tar.gz"
 CLASSIFIERS = {
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -113,6 +113,8 @@ def _check_archives(wheel: Path, sdist: Path) -> None:
     assert not any("typescript_clean_server" in name for name in names)
     assert not any("typescript_vulnerable_server" in name for name in names)
     assert not any(name.endswith("/CHANGELOG.md") for name in names)
+    assert not any(name.endswith(".pre-commit-hooks.yaml") for name in names)
+    assert not any(name.endswith("phase12-gpt-smoke.json") for name in names)
 
     with tarfile.open(sdist, "r:gz") as archive:
         names = {member.name for member in archive.getmembers()}
@@ -323,8 +325,8 @@ from importlib import metadata
 import sentinel
 
 distribution = metadata.distribution("portunusmcp-sentinel")
-assert sentinel.__version__ == "1.1.0"
-assert distribution.version == "1.1.0"
+assert sentinel.__version__ == "1.2.0"
+assert distribution.version == "1.2.0"
 scripts = {
     item.name: item.value
     for item in distribution.entry_points

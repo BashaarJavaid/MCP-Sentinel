@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 from sentinel import __version__
+from sentinel.baseline import LoadedBaseline, annotate_report
 from sentinel.config import FailThreshold, LoadedConfiguration, TargetLanguage
 from sentinel.dynamic.merge import merge_findings
 from sentinel.dynamic.prober import run_dynamic_scan
@@ -54,9 +55,11 @@ def run_scan(
     api_key: str | None = None,
     transport: RawTransport | None = None,
     cassette_root: Path | None = None,
+    baseline: LoadedBaseline | None = None,
 ) -> ScanOutcome:
     """Run the complete static, GPT, Docker probe, merge, and report pipeline."""
 
+    configuration, forced_ignored_paths = _exclude_baseline(configuration, baseline)
     if not configuration.static_only:
         reap_orphans()
 
@@ -81,11 +84,27 @@ def run_scan(
             typescript_candidates=tuple(candidates),
         )
     if configuration.language is TargetLanguage.TYPESCRIPT:
+        if forced_ignored_paths:
+            static_result = run_static_scan(
+                configuration,
+                context.scan_id,
+                timestamp=completed_at,
+                deadline=deadline,
+                forced_ignored_paths=forced_ignored_paths,
+            )
+        else:
+            static_result = run_static_scan(
+                configuration,
+                context.scan_id,
+                timestamp=completed_at,
+                deadline=deadline,
+            )
+    elif forced_ignored_paths:
         static_result = run_static_scan(
             configuration,
             context.scan_id,
             timestamp=completed_at,
-            deadline=deadline,
+            forced_ignored_paths=forced_ignored_paths,
         )
     else:
         static_result = run_static_scan(
@@ -104,7 +123,10 @@ def run_scan(
         warnings=_unique_warnings((*static_result.warnings, *catalog.warnings)),
         summary=static_result.summary,
     )
-    if not static_result.findings:
+    reviewable = tuple(
+        finding for finding in static_result.findings if finding.suppression is None
+    )
+    if not reviewable:
         review = empty_review_outcome(configuration.scanner.llm, mode=review_mode)
     else:
         try:
@@ -118,17 +140,16 @@ def run_scan(
                 cassette_root=cassette_root,
                 catalog=catalog,
             )
-            review = reviewer.review(
-                static_result.findings, allow_degraded=allow_degraded
-            )
+            review = reviewer.review(reviewable, allow_degraded=allow_degraded)
         except InfrastructureError as error:
             review = unavailable_review_outcome(
-                static_result.findings,
+                reviewable,
                 config=configuration.scanner.llm,
                 reason=str(error),
                 allow_degraded=allow_degraded,
                 applied_at=completed_at,
             )
+    review = _restore_inline_suppressions(static_result.findings, review)
 
     if configuration.static_only:
         return _static_only_outcome(
@@ -137,6 +158,7 @@ def run_scan(
             completed_at,
             static_result,
             review,
+            baseline,
         )
 
     if review.fatal:
@@ -148,6 +170,7 @@ def run_scan(
             review,
             reason="static GPT review failed before dynamic probing",
             dynamic_started=False,
+            baseline=baseline,
         )
 
     try:
@@ -166,6 +189,7 @@ def run_scan(
             review,
             reason=str(error),
             dynamic_started=True,
+            baseline=baseline,
         )
 
     remaining = max(
@@ -244,16 +268,7 @@ def run_scan(
         static_analysis=static_result.summary,
         gpt_review=combined_gpt,
     )
-    if dynamic_review.fatal:
-        return ScanOutcome(report=report, exit_code=3)
-    return ScanOutcome(
-        report=report,
-        exit_code=(
-            1
-            if _threshold_failed(findings, configuration.scanner.scanner.fail_on)
-            else 0
-        ),
-    )
+    return _finalize_outcome(report, configuration, baseline)
 
 
 def _static_only_outcome(
@@ -262,6 +277,7 @@ def _static_only_outcome(
     completed_at: datetime,
     static_result: StaticScanResult,
     review: ReviewOutcome,
+    baseline: LoadedBaseline | None,
 ) -> ScanOutcome:
     static_only_complete = not review.fatal
     later_reason = "static-only scan requested"
@@ -304,15 +320,7 @@ def _static_only_outcome(
         static_analysis=static_result.summary,
         gpt_review=review.summary,
     )
-    if review.fatal:
-        exit_code = 3
-    else:
-        exit_code = (
-            1
-            if _threshold_failed(review.findings, configuration.scanner.scanner.fail_on)
-            else 0
-        )
-    return ScanOutcome(report=report, exit_code=exit_code)
+    return _finalize_outcome(report, configuration, baseline)
 
 
 def _failed_dynamic_outcome(
@@ -324,6 +332,7 @@ def _failed_dynamic_outcome(
     *,
     reason: str,
     dynamic_started: bool,
+    baseline: LoadedBaseline | None,
 ) -> ScanOutcome:
     stages = (
         StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
@@ -364,7 +373,7 @@ def _failed_dynamic_outcome(
         static_analysis=static_result.summary,
         gpt_review=review.summary,
     )
-    return ScanOutcome(report=report, exit_code=3)
+    return _finalize_outcome(report, configuration, baseline)
 
 
 def _cap_overflow_review(
@@ -391,6 +400,58 @@ def _cap_overflow_review(
     )
     warning = ReportWarning(code="gpt_review_truncated", message=reason)
     return ReviewOutcome(tuple(updated), (warning,), summary, fatal=False)
+
+
+def _restore_inline_suppressions(
+    original: tuple[Finding, ...], review: ReviewOutcome
+) -> ReviewOutcome:
+    reviewed = {finding.finding_id: finding for finding in review.findings}
+    findings = tuple(
+        finding if finding.suppression is not None else reviewed[finding.finding_id]
+        for finding in original
+    )
+    return ReviewOutcome(findings, review.warnings, review.summary, review.fatal)
+
+
+def _exclude_baseline(
+    configuration: LoadedConfiguration, baseline: LoadedBaseline | None
+) -> tuple[LoadedConfiguration, frozenset[str]]:
+    if baseline is None:
+        return configuration, frozenset()
+    try:
+        relative = baseline.path.relative_to(configuration.scan_root).as_posix()
+    except ValueError:
+        return configuration, frozenset()
+    scanner = configuration.scanner.scanner
+    if relative not in scanner.ignore_paths:
+        scanner = scanner.model_copy(
+            update={"ignore_paths": (*scanner.ignore_paths, relative)}
+        )
+        configuration = configuration.model_copy(
+            update={
+                "scanner": configuration.scanner.model_copy(update={"scanner": scanner})
+            }
+        )
+    return configuration, frozenset({relative})
+
+
+def _finalize_outcome(
+    report: ScanReport,
+    configuration: LoadedConfiguration,
+    baseline: LoadedBaseline | None,
+) -> ScanOutcome:
+    if baseline is not None:
+        report = annotate_report(report, baseline)
+    if not report.analysis_complete or not report.execution_successful:
+        return ScanOutcome(report=report, exit_code=3)
+    return ScanOutcome(
+        report=report,
+        exit_code=(
+            1
+            if _threshold_failed(report.findings, configuration.scanner.scanner.fail_on)
+            else 0
+        ),
+    )
 
 
 def _combine_gpt_summaries(
@@ -471,6 +532,7 @@ def _threshold_failed(findings: tuple[object, ...], threshold: FailThreshold) ->
     return any(
         isinstance(item, Finding)
         and item.status is not FindingStatus.SUPPRESSED
+        and item.baseline_matched is not True
         and ranks[item.severity.value.lower()] >= minimum
         for item in findings
     )

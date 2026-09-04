@@ -52,6 +52,7 @@ def main() -> int:
             "demo",
             "phase3-integrated",
             "typescript-smoke",
+            "phase12-smoke",
         ),
     )
     parser.add_argument("--live", action="store_true")
@@ -61,6 +62,8 @@ def main() -> int:
 
     if args.checkpoint == "phase3-integrated":
         return _capture_phase3_integrated(args, parser)
+    if args.checkpoint == "phase12-smoke":
+        return _capture_phase12_smoke(args, parser)
 
     effort = (
         ReasoningEffort.LOW if args.checkpoint == "eval-low" else ReasoningEffort.MEDIUM
@@ -106,6 +109,115 @@ def main() -> int:
             replace=args.replace,
         )
     )
+
+
+def _capture_phase12_smoke(
+    args: argparse.Namespace, parser: argparse.ArgumentParser
+) -> int:
+    python_batches, config = _planned_batches("smoke", ReasoningEffort.MEDIUM)
+    typescript_batches, _ = _planned_batches("typescript-smoke", ReasoningEffort.MEDIUM)
+    batches = (*python_batches, *typescript_batches)
+    if len(python_batches) != 1 or len(typescript_batches) != 1:
+        raise RuntimeError(
+            "Phase 12 smoke requires one Python and one TypeScript batch"
+        )
+    config = config.model_copy(
+        update={"max_concurrency": 1, "retries": 0, "cache_enabled": False}
+    )
+    reserved = sum(_reserved_micro_usd(batch) for batch in batches)
+    hard_cap = 140_000
+    print("checkpoint: phase12-smoke")
+    print("reasoning effort: medium")
+    print("request count: 2")
+    print(f"aggregate worst-case cost: ${reserved / 1_000_000:.6f}")
+    if reserved > hard_cap:
+        raise RuntimeError("Phase 12 smoke reservation exceeds its $0.14 hard cap")
+    if not args.live:
+        print("dry run: no API key read and no network call made")
+        return 0
+    if args.max_usd is None or not 0 < args.max_usd <= 0.14:
+        parser.error("--live phase12-smoke requires --max-usd at most 0.14")
+    if round(args.max_usd * 1_000_000) < reserved:
+        parser.error("--max-usd cannot reserve both Phase 12 smoke requests")
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        parser.error("--live requires OPENAI_API_KEY in the environment")
+    artifact = ROOT / "artifacts" / "phase12-gpt-smoke.json"
+    if artifact.exists() and not args.replace:
+        parser.error("phase12-gpt-smoke telemetry already exists; use --replace")
+    return asyncio.run(_run_phase12_smoke(batches, config, api_key, artifact))
+
+
+async def _run_phase12_smoke(
+    batches: tuple[_Batch, ...],
+    config: LlmConfig,
+    api_key: str,
+    artifact: Path,
+) -> int:
+    reviewer = SemanticReviewer(
+        root=ROOT,
+        config=config,
+        max_findings=2,
+        mode="live",
+        api_key=api_key,
+        cache=ReviewCache(enabled=False),
+    )
+    calls: list[dict[str, Any]] = []
+    total_cost = 0
+    for language, batch in zip(("python", "typescript"), batches, strict=True):
+        result = await reviewer._run_batch(batch)
+        if result.accepted is None:
+            raise RuntimeError(result.failure or f"{language} Phase 12 smoke failed")
+        accepted = result.accepted
+        if not accepted.returned_model.startswith("gpt-5.6"):
+            raise RuntimeError("Phase 12 smoke did not return GPT-5.6")
+        if len(accepted.decisions) != 1:
+            raise RuntimeError("Phase 12 smoke requires one decision per request")
+        decision = accepted.decisions[0]
+        if (
+            decision.status != "confirmed"
+            or not decision.evidence_refs
+            or decision.probe_plan is None
+            or tuple(sorted(decision.probe_plan.ordered_probe_ids))
+            != ("SENT-008", "SENT-009", "SENT-010", "SENT-011")
+        ):
+            raise RuntimeError(
+                "Phase 12 smoke requires grounded confirmation and four probes"
+            )
+        cost = _cost(accepted.usage)
+        total_cost += cost
+        calls.append(
+            {
+                "language": language,
+                "returned_model": accepted.returned_model,
+                "schema_valid": True,
+                "grounded_confirmation": True,
+                "constrained_probe_count": 4,
+                "retry_count": accepted.retries,
+                "latency_ms": accepted.latency_ms,
+                "usage": accepted.usage.model_dump(mode="json"),
+                "cost_micro_usd": cost,
+            }
+        )
+    _atomic_json(
+        artifact,
+        {
+            "checkpoint": "phase12-smoke",
+            "captured_at": datetime.now(timezone.utc)
+            .isoformat()
+            .replace("+00:00", "Z"),
+            "requested_model": MODEL,
+            "reasoning_effort": "medium",
+            "request_count": 2,
+            "aggregate_reservation_micro_usd": sum(
+                _reserved_micro_usd(batch) for batch in batches
+            ),
+            "aggregate_cost_micro_usd": total_cost,
+            "calls": calls,
+        },
+    )
+    print(f"captured live spend: ${total_cost / 1_000_000:.6f}")
+    return 0
 
 
 def _capture_phase3_integrated(

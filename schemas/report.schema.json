@@ -1,5 +1,59 @@
 {
   "$defs": {
+    "BaselineSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_finding_count": {
+          "minimum": 0,
+          "title": "Baseline Finding Count",
+          "type": "integer"
+        },
+        "matched_finding_count": {
+          "minimum": 0,
+          "title": "Matched Finding Count",
+          "type": "integer"
+        },
+        "matcher_version": {
+          "const": "sentinel-baseline-v1",
+          "default": "sentinel-baseline-v1",
+          "title": "Matcher Version",
+          "type": "string"
+        },
+        "new_finding_count": {
+          "minimum": 0,
+          "title": "New Finding Count",
+          "type": "integer"
+        },
+        "resolved_finding_count": {
+          "minimum": 0,
+          "title": "Resolved Finding Count",
+          "type": "integer"
+        },
+        "source_schema_version": {
+          "enum": [
+            "1.3.0",
+            "1.4.0"
+          ],
+          "title": "Source Schema Version",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_schema_version",
+        "source_sha256",
+        "baseline_finding_count",
+        "matched_finding_count",
+        "new_finding_count",
+        "resolved_finding_count"
+      ],
+      "title": "BaselineSummary",
+      "type": "object"
+    },
     "CachedReview": {
       "additionalProperties": false,
       "properties": {
@@ -883,6 +937,38 @@
       ],
       "title": "Impact",
       "type": "string"
+    },
+    "InlineSuppression": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "inline",
+          "default": "inline",
+          "title": "Kind",
+          "type": "string"
+        },
+        "line": {
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "path",
+        "line"
+      ],
+      "title": "InlineSuppression",
+      "type": "object"
     },
     "JsonValue": {},
     "LiveReview": {
@@ -1911,6 +1997,17 @@
       "title": "Analysiscomplete",
       "type": "boolean"
     },
+    "baseline": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BaselineSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "completed_at": {
       "title": "Completed At",
       "type": "string"
@@ -1942,8 +2039,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "1.3.0",
-      "default": "1.3.0",
+      "const": "1.4.0",
+      "default": "1.4.0",
       "title": "Schema Version",
       "type": "string"
     },

@@ -617,6 +617,13 @@ sandbox.
 
 ## 15. Phase 12 — Team adoption workflows
 
+**Status: implementation and local gates complete; hosted release and external
+Action proof pending.** Native JSON 1.4.0, baseline matching, Python/TypeScript
+inline suppression, Action input/metrics, the public pre-commit hook, local
+schema/SARIF validation, strict typing, and the branch-covered test suite pass.
+Do not mark this phase complete until the signed `v1.2.0` release, PyPI proof,
+exact/alias Action proofs, and evidence links are recorded.
+
 ### Objective
 
 Let existing repositories adopt Sentinel incrementally without hiding accepted
@@ -627,7 +634,7 @@ risk.
 - Add `--baseline <report.json>` so existing findings remain visible while only
   findings absent from the baseline affect the fail threshold.
 - Define stable finding matching from existing canonical fields without changing
-  rule IDs or report schemas unnecessarily.
+  rule IDs and bump the additive native report schema to 1.4.0.
 - Add reason-bearing inline suppressions using
   `# sentinel: ignore[SENT-005] reason=...` alongside the existing `SENT-005`
   allowlist.

@@ -28,13 +28,13 @@ replay with real Docker probes.
 Use Python 3.10, 3.11, 3.12, or 3.13 and install the exact release with pipx:
 
 ```bash
-pipx install portunusmcp-sentinel==1.0.0
+pipx install portunusmcp-sentinel==1.2.0
 ```
 
 Or use uv:
 
 ```bash
-uv tool install portunusmcp-sentinel==1.0.0
+uv tool install portunusmcp-sentinel==1.2.0
 ```
 
 ### 2. Check Docker
@@ -152,7 +152,7 @@ flowchart LR
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.3.0]
+    H --> J[JSON 1.4.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```
@@ -253,11 +253,7 @@ scanned Python targets remain limited to Python 3.10–3.12. Full scans and demo
 require Docker Engine or Docker Desktop with Buildx. The GitHub Action runs on
 Ubuntu.
 
-### Unreleased/source checkout
-
-Phase 10 endpoint configuration and Phase 11 TypeScript analysis are currently
-available from a source checkout,
-not from the released `1.0.0` package or Marketplace Action:
+### Source checkout
 
 ```bash
 uv sync --extra dev
@@ -274,13 +270,13 @@ Install the exact release from
 [PyPI](https://pypi.org/project/portunusmcp-sentinel/) with pipx:
 
 ```bash
-pipx install portunusmcp-sentinel==1.0.0
+pipx install portunusmcp-sentinel==1.2.0
 ```
 
 Or use uv:
 
 ```bash
-uv tool install portunusmcp-sentinel==1.0.0
+uv tool install portunusmcp-sentinel==1.2.0
 ```
 
 ### v1.0.0 release and Marketplace evidence
@@ -314,13 +310,13 @@ contains `mcp_sentinel-0.1.0-py3-none-any.whl`, produced by the
 Its SHA-256 digest is
 `4672e63413e87bf750113c06a21133162d00f1e71ca6259a8394028c22b677aa`.
 
-To test a locally built 1.0.0 artifact without an index:
+To test a locally built 1.2.0 artifact without an index:
 
 ```bash
 uv build
-pipx install dist/portunusmcp_sentinel-1.0.0-py3-none-any.whl
+pipx install dist/portunusmcp_sentinel-1.2.0-py3-none-any.whl
 # or
-uv tool install dist/portunusmcp_sentinel-1.0.0-py3-none-any.whl
+uv tool install dist/portunusmcp_sentinel-1.2.0-py3-none-any.whl
 ```
 
 ## CLI
@@ -352,6 +348,68 @@ sentinel scan ./path/to/server \
 
 `--fail-on` accepts `critical`, `high`, `medium`, `low`, or `informational`, and
 determines which findings produce exit code `1`.
+
+## Incremental adoption
+
+Create a tracked native JSON baseline from a complete scan (the first command
+normally exits `1` because it records existing findings):
+
+```bash
+sentinel scan . --allow-degraded --format json --output sentinel-baseline.json
+```
+
+Then compare later scans against it:
+
+```bash
+sentinel scan . --allow-degraded --baseline sentinel-baseline.json
+```
+
+Matched findings stay visible but do not affect `--fail-on`; new or changed
+findings remain fail-eligible, and resolved findings are reported as an
+aggregate count. Keep `sentinel-baseline.json` under review and protect refreshes
+with CODEOWNERS. Generate deliberate updates into `sentinel-baseline.next.json`,
+review the diff, then replace the accepted baseline. Formatting, line movement,
+static evidence or fingerprint changes, and dynamic request/response changes all
+produce new matcher identities. Dynamic logs do not.
+
+Suppress one static source finding only when the exception is documented:
+
+```python
+# sentinel: ignore[SENT-005] reason=test credential is inert and rotated
+api_key = "ghp_example"
+```
+
+```typescript
+const apiKey = "ghp_example"; // sentinel: ignore[SENT-005] reason=test fixture
+```
+
+A standalone directive applies to the immediately following physical line; a
+trailing directive applies to its own line. Only `SENT-001` through `SENT-007`
+in included `.py`, `.ts`, `.mts`, and `.cts` files are supported. Invalid or
+reasonless directives fail the scan; unused valid directives emit warnings.
+Suppressions stay visible with their reason and source location in console,
+JSON, and SARIF.
+
+### Pre-commit
+
+```yaml
+repos:
+  - repo: https://github.com/BashaarJavaid/MCP-Sentinel
+    rev: v1.2.0
+    hooks:
+      - id: mcp-sentinel
+```
+
+The hook runs the static rules with visible degraded review and respects the
+normal `sentinel.toml` or default failure threshold. To use a baseline:
+
+```yaml
+      - id: mcp-sentinel
+        args: [--baseline, sentinel-baseline.json]
+```
+
+`--baseline` is CLI-only; there is no TOML or environment setting and Sentinel
+never updates a baseline automatically.
 
 `--color/--no-color` overrides display detection. Otherwise `NO_COLOR` disables
 style and interactive TTYs receive color. Presentation flags are rejected for
@@ -464,6 +522,7 @@ jobs:
         with:
           target-path: .
           fail-on: high
+          baseline: sentinel-baseline.json
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
 ```
 
@@ -474,15 +533,16 @@ remain fail-closed. The current `v1` live proof is documented in
 [`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md);
 the earlier commit-pinned proof remains in
 [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
-The Marketplace Action remains pinned to released Sentinel `1.0.0`; it does not
-expose the unreleased source-checkout endpoint options or TypeScript support.
+The Marketplace Action installs the exact `1.2.0` package. Its
+`highest-severity` output excludes both suppressed and baseline-matched
+findings.
 
 `v1` follows the latest compatible `v1.x.y` Action release. Security-sensitive
 workflows can replace it with that release's full commit SHA. Maintainers move
 only the signed major-version alias after the exact release passes its gates:
 
 ```bash
-git tag -s -a -f v1 v1.0.0 -m "MCP Sentinel Action v1.0.0"
+git tag -s -a -f v1 v1.2.0 -m "MCP Sentinel Action v1.2.0"
 git push --force origin refs/tags/v1
 ```
 

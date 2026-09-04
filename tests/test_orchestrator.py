@@ -20,7 +20,7 @@ from sentinel.dynamic.prober import (
 )
 from sentinel.dynamic.sandbox import DependencyImage, DockerSandbox
 from sentinel.errors import InfrastructureError
-from sentinel.finding import Finding, FindingSource
+from sentinel.finding import Finding, FindingSource, FindingStatus, InlineSuppression
 from sentinel.llm.semantic_reviewer import (
     ReviewOutcome,
     empty_review_outcome,
@@ -84,6 +84,43 @@ def _empty_static_result() -> StaticScanResult:
             rule_outcomes=(),
         ),
     )
+
+
+def test_all_inline_suppressed_static_scan_skips_gpt(
+    loaded_config: LoadedConfiguration,
+    sample_finding: Finding,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    suppressed = sample_finding.model_copy(
+        update={
+            "status": FindingStatus.SUPPRESSED,
+            "suppression": InlineSuppression(
+                reason="reviewed fixture", path="server.py", line=3
+            ),
+        }
+    )
+    monkeypatch.setattr(
+        "sentinel.orchestrator.run_static_scan",
+        lambda *args, **kwargs: _static_result(suppressed),
+    )
+    monkeypatch.setattr(
+        "sentinel.orchestrator.SemanticReviewer",
+        lambda **kwargs: pytest.fail("suppressed candidates must not reach GPT"),
+    )
+    configuration = loaded_config.model_copy(update={"static_only": True})
+
+    from sentinel.orchestrator import run_scan
+
+    outcome = run_scan(
+        configuration,
+        _context(),
+        completed_at=NOW,
+        allow_degraded=False,
+    )
+    assert outcome.exit_code == 0
+    assert outcome.report.findings == (suppressed,)
+    assert outcome.report.gpt_review is not None
+    assert outcome.report.gpt_review.candidate_count == 0
 
 
 def test_full_orchestration_orders_both_reviews_and_merge(

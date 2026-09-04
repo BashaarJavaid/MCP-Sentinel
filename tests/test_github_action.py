@@ -18,6 +18,7 @@ from scripts.run_github_action import (
     emit_action_state,
     execute_action,
     render_step_summary,
+    resolve_baseline,
     resolve_target,
     sarif_category,
 )
@@ -143,6 +144,13 @@ def test_analyze_sarif_counts_all_results_but_excludes_suppressed_severity(
     suppressed_metrics = analyze_sarif(_sarif_payload(suppressed))
     assert suppressed_metrics.findings_count == 1
     assert suppressed_metrics.highest_severity == "none"
+
+    runs = cast(list[dict[str, Any]], payload["runs"])
+    result = cast(list[dict[str, Any]], runs[0]["results"])[0]
+    cast(dict[str, Any], result["properties"])["baselineMatched"] = True
+    baseline_metrics = analyze_sarif(payload)
+    assert baseline_metrics.findings_count == 1
+    assert baseline_metrics.highest_severity == "none"
 
 
 @pytest.mark.parametrize("scan_exit", [0, 1, 3])
@@ -270,6 +278,22 @@ def test_target_must_remain_inside_workspace(tmp_path: Path) -> None:
     )
 
 
+def test_baseline_must_be_regular_and_inside_workspace(tmp_path: Path) -> None:
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    baseline = workspace / "baseline.json"
+    baseline.write_text("{}", encoding="utf-8")
+    assert resolve_baseline(workspace.resolve(), "baseline.json") == baseline
+    assert resolve_baseline(workspace.resolve(), "") is None
+
+    link = workspace / "link.json"
+    link.symlink_to(baseline)
+    with pytest.raises(ValueError, match="symlink"):
+        resolve_baseline(workspace.resolve(), "link.json")
+    with pytest.raises(ValueError, match="in GITHUB_WORKSPACE"):
+        resolve_baseline(workspace.resolve(), "../outside.json")
+
+
 def test_outputs_and_summary_are_aggregate_only(tmp_path: Path) -> None:
     output = tmp_path / "output"
     summary = tmp_path / "summary"
@@ -318,9 +342,11 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
         "fail-on",
         "openai-api-key",
         "static-only",
+        "baseline",
     }
     assert metadata["inputs"]["target-path"]["default"] == "."
     assert metadata["inputs"]["fail-on"]["default"] == "high"
+    assert metadata["inputs"]["baseline"]["default"] == ""
     assert set(metadata["outputs"]) == {
         "sarif-path",
         "findings-count",
@@ -329,7 +355,7 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
     assert metadata["runs"]["steps"][0]["with"]["python-version"] == "3.12"
     assert metadata["runs"]["steps"][1]["run"] == (
         "python -m pip install --disable-pip-version-check "
-        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.0.0"
+        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.2.0"
     )
     uses = [step.get("uses", "") for step in metadata["runs"]["steps"]]
     assert any(value.startswith("actions/setup-python@ece7cb06") for value in uses)

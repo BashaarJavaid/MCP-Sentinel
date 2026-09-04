@@ -58,6 +58,15 @@ def render_sarif(report: ScanReport) -> str:
                 properties={"code": "analysis_incomplete"},
             )
         )
+    notifications.extend(
+        Notification(
+            level="warning",
+            message=Message(text=warning.message),
+            time_utc=_format_datetime(report.completed_at),
+            properties={"code": warning.code},
+        )
+        for warning in report.warnings
+    )
     if report.gpt_review is not None and report.gpt_review.mode == "replay":
         notifications.append(
             Notification(
@@ -84,6 +93,7 @@ def render_sarif(report: ScanReport) -> str:
             "findingCount": report.summary.total,
             "staticAnalysis": _model_data(report.static_analysis),
             "gptReview": _model_data(report.gpt_review),
+            "baseline": _model_data(report.baseline),
         },
     )
     selected_static = (
@@ -167,7 +177,15 @@ def _rule_descriptor(rule_id: str) -> ReportingDescriptor:
 def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
     location = _location(finding)
     suppressions = None
-    if finding.status is FindingStatus.SUPPRESSED:
+    if finding.suppression is not None:
+        suppressions = [
+            Suppression(
+                kind="inSource",
+                state="accepted",
+                justification=finding.suppression.reason,
+            )
+        ]
+    elif finding.status is FindingStatus.SUPPRESSED:
         suppressions = [
             Suppression(
                 kind="external",
@@ -181,6 +199,13 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
         level=_sarif_level(finding.severity),
         message=Message(text=f"{finding.title}: {finding.description}"),
         locations=[location],
+        baseline_state=(
+            "unchanged"
+            if finding.baseline_matched is True
+            else "new"
+            if finding.baseline_matched is False
+            else None
+        ),
         fingerprints={"sentinel/v1": finding.dedup_key},
         suppressions=suppressions,
         properties={
@@ -198,6 +223,8 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
             "provenance": [item.model_dump(mode="json") for item in finding.provenance],
             "review": finding.review.model_dump(mode="json"),
             "remediation": finding.remediation,
+            "baselineMatched": finding.baseline_matched,
+            "suppression": _model_data(finding.suppression),
         },
     )
 

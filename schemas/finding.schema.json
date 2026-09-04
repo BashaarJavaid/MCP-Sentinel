@@ -468,6 +468,38 @@
       "title": "Impact",
       "type": "string"
     },
+    "InlineSuppression": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "inline",
+          "default": "inline",
+          "title": "Kind",
+          "type": "string"
+        },
+        "line": {
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason",
+        "path",
+        "line"
+      ],
+      "title": "InlineSuppression",
+      "type": "object"
+    },
     "JsonValue": {},
     "LiveReview": {
       "additionalProperties": false,
@@ -1250,6 +1282,18 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "properties": {
+    "baseline_matched": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Baseline Matched"
+    },
     "confidence": {
       "$ref": "#/$defs/Confidence",
       "default": "high"
@@ -1377,6 +1421,17 @@
     "status": {
       "$ref": "#/$defs/FindingStatus",
       "default": "needs_review"
+    },
+    "suppression": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InlineSuppression"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "timestamp": {
       "title": "Timestamp",

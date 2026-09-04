@@ -1,0 +1,8 @@
+- id: mcp-sentinel
+  name: MCP Sentinel
+  language: python
+  entry: sentinel scan . --static-only --allow-degraded --no-color
+  pass_filenames: false
+  always_run: true
+  stages: [pre-commit]
+  minimum_pre_commit_version: 4.6.2

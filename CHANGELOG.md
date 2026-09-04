@@ -10,15 +10,24 @@ new rule IDs.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-04
+
 ### Added
 
+- Incremental JSON baselines with stable static/dynamic evidence matching,
+  visible matched/new findings, aggregate resolved counts, and fail-threshold
+  isolation.
+- Auditable reason-bearing inline suppression for included Python and TypeScript
+  source, including unused-directive warnings and SARIF `inSource` records.
+- A public `mcp-sentinel` pre-commit hook and a baseline input for the composite
+  GitHub Action.
 - Static-only TypeScript analysis for official MCP SDK v1 and server v2 targets,
   retaining `SENT-001`–`SENT-007`, GPT review, and canonical reports.
 - TypeScript-aware `sentinel init`, tool catalog extraction, paired fixtures,
   and installed-wheel scan gates without installing or executing Node packages.
 - Configurable GPT review model, reasoning effort, and Responses-compatible
   `/v1` endpoint support through project, environment, and CLI configuration.
-- Endpoint provenance in native JSON 1.3.0 and SARIF reports, with compatible
+- Endpoint provenance in native JSON 1.4.0 and SARIF reports, with compatible
   endpoint pricing reported as unavailable.
 - `sentinel init` safely inspects Python MCP repositories and atomically creates
   validated starter target and deny-by-default permissions configuration.
@@ -27,8 +36,9 @@ new rule IDs.
 
 ### Changed
 
-- Source package version is now `1.1.0`; publication is deferred. The Marketplace
-  Action remains pinned to public `1.0.0` and therefore does not yet scan TypeScript.
+- The package and composite Action now share exact version `1.2.0`.
+- Baseline-matched and inline-suppressed findings remain visible but are excluded
+  from failure-threshold and highest-severity calculations.
 - MCP-aware static rules now report the hybrid engine label shared by Python AST
   and TypeScript recognition.
 - Missing `OPENAI_API_KEY` failures now explain how to enable GPT review or keep
@@ -85,7 +95,8 @@ new rule IDs.
   replay, four Docker-isolated dynamic probes, console/JSON/SARIF reports, and a
   composite GitHub Action.
 
-[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v0.1.0
