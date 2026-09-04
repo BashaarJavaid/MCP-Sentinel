@@ -131,7 +131,7 @@ def run_semgrep(
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
-                    timeout=min(SEMGREP_TIMEOUT_SECONDS, remaining),
+                    timeout=remaining,
                     env=environment,
                 )
             except (OSError, subprocess.TimeoutExpired) as error:

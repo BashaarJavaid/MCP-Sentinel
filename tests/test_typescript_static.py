@@ -27,6 +27,7 @@ from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_json import validate_report_data
 from sentinel.report.validate_sarif import validate_sarif_data
 from sentinel.static.engine import run_static_scan
+from sentinel.static.semgrep_adapter import SEMGREP_TIMEOUT_SECONDS
 
 ROOT = Path(__file__).parent / "fixtures"
 NOW = datetime(2026, 9, 3, tzinfo=timezone.utc)
@@ -407,9 +408,11 @@ def test_scan_invokes_only_semgrep_and_never_package_lifecycle(
     )
     original = subprocess.run
     commands: list[tuple[str, ...]] = []
+    process_timeouts: list[float] = []
 
     def record(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         commands.append(tuple(command))
+        process_timeouts.append(cast(float, kwargs["timeout"]))
         return cast(subprocess.CompletedProcess[str], original(command, **kwargs))
 
     monkeypatch.setattr("sentinel.static.semgrep_adapter.subprocess.run", record)
@@ -418,6 +421,13 @@ def test_scan_invokes_only_semgrep_and_never_package_lifecycle(
 
     assert commands and all(
         Path(command[0]).stem.lower() == "semgrep" for command in commands
+    )
+    assert all(
+        command[command.index("--timeout") + 1] == str(SEMGREP_TIMEOUT_SECONDS)
+        for command in commands
+    )
+    assert process_timeouts and all(
+        timeout > SEMGREP_TIMEOUT_SECONDS for timeout in process_timeouts
     )
     assert not (root / "lifecycle-marker").exists()
 

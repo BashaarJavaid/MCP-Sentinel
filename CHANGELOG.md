@@ -17,6 +17,11 @@ new rule IDs.
 - Added contributor issue/PR paths, bounded Dependabot updates, and a strict
   MkDocs Material site deployed through GitHub Pages.
 
+### Fixed
+
+- Prevented cold Semgrep startup on Windows from exhausting the per-file
+  timeout before static analysis begins.
+
 ## [1.2.0] - 2026-09-04
 
 ### Added
