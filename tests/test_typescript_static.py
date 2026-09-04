@@ -114,6 +114,7 @@ def test_typescript_live_smoke_cassette_replays() -> None:
     assert outcome.exit_code == 0
     review = outcome.report.findings[0].review
     assert outcome.report.findings[0].status.value == "confirmed"
+    assert review.evidence_refs is not None
     assert len(review.evidence_refs) == 1
     assert review.probe_plan is not None
     assert set(review.probe_plan.ordered_probe_ids) == {
