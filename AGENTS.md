@@ -75,7 +75,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 8 — GitHub Marketplace distribution
 - [x] Phase 9 — first-run onboarding (`sentinel init`)
 - [x] Phase 10 — configurable GPT review endpoint
-- [ ] Phase 11 — TypeScript static analysis
+- [x] Phase 11 — TypeScript static analysis
 - [ ] Phase 12 — team adoption workflows (baseline, inline suppression)
 - [ ] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
 - [ ] Phase 14 — conditional exploit-confirmation stretch (optional, never blocks Phase 15)
@@ -107,9 +107,11 @@ passed the full Linux, macOS, and Windows Python 3.10–3.13 quality matrix,
 canonical distributions, isolated wheel installs, and installed-wheel Docker
 replay without paid API calls.
 
-Phase 11 repository implementation and its budget-capped live TypeScript GPT
-smoke pass, but the phase remains **incomplete** until the hosted cross-platform
-matrix passes.
+Phase 11 is **complete**: its budget-capped live TypeScript GPT smoke passed, and
+the [hosted gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33845514399)
+passed the full Linux, macOS, and Windows Python 3.10–3.13 quality and
+installed-wheel matrices, canonical distributions, and installed-wheel Docker
+replay.
 
 ---
 
