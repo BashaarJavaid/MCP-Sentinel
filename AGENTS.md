@@ -76,7 +76,7 @@ the GitHub Action. Update this section as each verification gate passes.
 - [x] Phase 9 — first-run onboarding (`sentinel init`)
 - [x] Phase 10 — configurable GPT review endpoint
 - [x] Phase 11 — TypeScript static analysis
-- [ ] Phase 12 — team adoption workflows (baseline, inline suppression)
+- [x] Phase 12 — team adoption workflows (baseline, inline suppression)
 - [ ] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
 - [ ] Phase 14 — conditional exploit-confirmation stretch (optional, never blocks Phase 15)
 - [ ] Phase 15 — product launch
@@ -112,6 +112,15 @@ the [hosted gate](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/338
 passed the full Linux, macOS, and Windows Python 3.10–3.13 quality and
 installed-wheel matrices, canonical distributions, and installed-wheel Docker
 replay.
+
+Phase 12 is **complete**: the signed
+[`v1.2.0` release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.0)
+passed trusted publication and provenance verification, the public pre-commit
+hook passed the hosted OS/Python matrix, and the external
+[exact-tag](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33897900585)
+and signed [`v1` alias](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33898189505)
+baseline proofs passed. Complete evidence is recorded in
+[`artifacts/phase12-adoption-evidence.md`](artifacts/phase12-adoption-evidence.md).
 
 ---
 

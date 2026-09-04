@@ -279,17 +279,19 @@ Or use uv:
 uv tool install portunusmcp-sentinel==1.2.0
 ```
 
-### v1.0.0 release and Marketplace evidence
+### v1.2.0 release and adoption evidence
 
-The signed [`v1.0.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.0.0)
+The signed [`v1.2.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.0)
 published the exact package through the trusted
-[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33804931403).
+[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33895746398).
 The [MCP Sentinel Marketplace listing](https://github.com/marketplace/actions/mcp-sentinel)
-is backed by the signed `v1` alias, and the paired
-[external Action proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33808213435)
-passed against that consumer reference. Package hashes, provenance, tag
-targets, retained SARIF, cost, and verification details are recorded in
-[`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md).
+is backed by the signed `v1` alias. The external
+[exact-tag](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33897900585)
+and [`v1` alias](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33898189505)
+proofs passed baseline and pre-commit adoption workflows. Package hashes,
+provenance, tag targets, retained SARIF, cost, and verification details are
+recorded in
+[`artifacts/phase12-adoption-evidence.md`](artifacts/phase12-adoption-evidence.md).
 
 ### Historical v0.2.0 release evidence
 
@@ -530,9 +532,10 @@ The Action validates SARIF before upload and exposes `sarif-path`,
 `findings-count`, and `highest-severity`. Fork pull requests receive no secret;
 they run visibly degraded analysis and skip code-scanning upload. Non-fork runs
 remain fail-closed. The current `v1` live proof is documented in
-[`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md);
-the earlier commit-pinned proof remains in
-[`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
+[`artifacts/phase12-adoption-evidence.md`](artifacts/phase12-adoption-evidence.md);
+the earlier Marketplace and commit-pinned proofs remain in
+[`artifacts/phase8-marketplace-evidence.md`](artifacts/phase8-marketplace-evidence.md)
+and [`artifacts/phase4-action-evidence.md`](artifacts/phase4-action-evidence.md).
 The Marketplace Action installs the exact `1.2.0` package. Its
 `highest-severity` output excludes both suppressed and baseline-matched
 findings.

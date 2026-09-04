@@ -617,14 +617,16 @@ sandbox.
 
 ## 15. Phase 12 — Team adoption workflows
 
-**Status: implementation gates and the live GPT checkpoint complete; hosted
-release and external Action proof pending.** Native JSON 1.4.0, baseline
-matching, Python/TypeScript inline suppression, Action input/metrics, the public
-pre-commit hook, local and hosted schema/SARIF validation, strict typing, and
-the branch-covered test suite pass. The two-call GPT-5.6 checkpoint passed with
-zero retries and USD 0.034249 actual spend.
-Do not mark this phase complete until the signed `v1.2.0` release, PyPI proof,
-exact/alias Action proofs, and evidence links are recorded.
+**Status: complete.** Native JSON 1.4.0, baseline matching,
+Python/TypeScript inline suppression, Action input/metrics, and the public
+pre-commit hook passed local and hosted gates. The signed
+[`v1.2.0` release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.0)
+was published through the trusted
+[release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33895746398),
+and the external [exact-tag proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33897900585)
+and signed [`v1` alias proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33898189505)
+passed. Full hashes, SARIF links, costs, and tag evidence are recorded in
+[`artifacts/phase12-adoption-evidence.md`](artifacts/phase12-adoption-evidence.md).
 
 ### Objective
 
