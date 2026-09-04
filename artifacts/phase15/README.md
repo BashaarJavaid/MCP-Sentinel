@@ -26,6 +26,9 @@ publishes list submissions and announcements.
   binding was prohibited; the complete rerun with loopback access passed.
 - Ruff lint/format, strict mypy, schema drift, historical artifact checks, and
   generated notices passed. `dependency-audit.txt`: no known vulnerabilities.
+- `maintenance-check.txt`: focused maintenance checks pass after allowing only
+  the exact required historical video label in the branding guard. The first
+  hosted run caught this documentation-only conflict; no scanner change was needed.
 - `docs-build.txt`: strict MkDocs build passed. The new page is 600–900 words;
   navigation and the existing deployed-site smoke include `/walkthrough/`.
 - `package-smoke.txt`: isolated pip, pipx, uv, and sdist verification log.
