@@ -416,7 +416,9 @@ def test_scan_invokes_only_semgrep_and_never_package_lifecycle(
     configuration = load_configuration(root, environ={}, static_only=True)
     run_static_scan(configuration, uuid4(), timestamp=NOW)
 
-    assert commands and all(Path(command[0]).name == "semgrep" for command in commands)
+    assert commands and all(
+        Path(command[0]).stem.lower() == "semgrep" for command in commands
+    )
     assert not (root / "lifecycle-marker").exists()
 
 
