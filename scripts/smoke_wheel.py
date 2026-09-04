@@ -42,7 +42,7 @@ KEYWORDS = {
 }
 PROJECT_URLS = {
     "Repository": "https://github.com/BashaarJavaid/MCP-Sentinel",
-    "Documentation": "https://github.com/BashaarJavaid/MCP-Sentinel#readme",
+    "Documentation": "https://bashaarjavaid.github.io/MCP-Sentinel/",
     "Changelog": (
         "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/CHANGELOG.md"
     ),

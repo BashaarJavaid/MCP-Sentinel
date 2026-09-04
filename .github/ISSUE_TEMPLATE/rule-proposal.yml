@@ -1,0 +1,82 @@
+name: Rule proposal
+description: Propose a new detection within Sentinel's supported scope.
+title: "[Rule proposal] "
+labels:
+  - enhancement
+body:
+  - type: dropdown
+    id: supported-scope
+    attributes:
+      label: Current supported scope
+      options:
+        - Python static analysis
+        - TypeScript static analysis
+        - Python Docker dynamic analysis
+        - Python and TypeScript static analysis
+    validations:
+      required: true
+  - type: textarea
+    id: detection
+    attributes:
+      label: Detection
+      description: Define the exact insecure behavior and detection boundary.
+    validations:
+      required: true
+  - type: textarea
+    id: owasp
+    attributes:
+      label: OWASP category and rationale
+      description: Name the Agentic Top 10 category and explain the mapping.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Security impact
+      description: Describe exploitability, affected assets, and proposed severity.
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Proposed engine
+      options:
+        - Existing Python AST analysis
+        - Existing Semgrep integration
+        - Existing TypeScript analysis
+        - Existing Docker probe framework
+    validations:
+      required: true
+  - type: textarea
+    id: vulnerable-example
+    attributes:
+      label: Vulnerable example
+      description: Provide a minimal supported example that must be reported.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: clean-example
+    attributes:
+      label: Clean example
+      description: Provide the paired safe example that must not be reported.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: false-positive-risks
+    attributes:
+      label: False-positive risks
+      description: Identify legitimate patterns the detector could misclassify.
+    validations:
+      required: true
+  - type: textarea
+    id: remediation
+    attributes:
+      label: Remediation
+      description: State the concrete safe alternative a finding should recommend.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Maintainers assign stable rule IDs after accepting a proposal.

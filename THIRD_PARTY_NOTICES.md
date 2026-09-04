@@ -86,6 +86,6 @@ dependency changes and review every license before release.
 | wrapt | 1.17.3 | BSD | https://github.com/GrahamDumpleton/wrapt |
 | zipp | 4.1.0 | MIT | https://github.com/jaraco/zipp |
 
-MCP Sentinel remains licensed under the repository `LICENSE`. This file
+PortunusMCP Sentinel uses the repository `LICENSE`. This file
 does not replace dependency license texts; those files remain
 authoritative for their respective packages.

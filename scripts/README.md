@@ -17,7 +17,7 @@ orphan-reaper and the final three-treatment ablation.
 Routine mode uses checked GPT cassettes and isolated Docker campaigns. The
 explicit `--live --max-usd 0.50` mode additionally refreshes the checked live
 SARIF through a scan-wide hard-budget transport. `--check` validates both
-checked judge artifacts without making GPT calls or launching Docker.
+checked historical artifacts without making GPT calls or launching Docker.
 
 `generate_third_party_notices.py` generates or checks the locked runtime
 dependency license inventory without an additional package dependency.

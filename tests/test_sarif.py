@@ -30,6 +30,9 @@ def test_sarif_shell_validates_and_preserves_failure_state(
     assert payload["version"] == "2.1.0"
     run = payload["runs"][0]
     assert run["tool"]["driver"]["name"] == "MCP Sentinel"
+    assert run["tool"]["driver"]["fullName"] == (
+        "PortunusMCP Sentinel build-time MCP security scanner"
+    )
     assert [item["id"] for item in run["tool"]["driver"]["rules"]] == [
         f"SENT-{number:03d}" for number in range(1, 8)
     ]

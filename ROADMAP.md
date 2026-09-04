@@ -1,4 +1,4 @@
-# MCP Sentinel Roadmap
+# PortunusMCP Sentinel Roadmap
 
 ## 1. Planning frame
 
@@ -6,10 +6,13 @@ This roadmap is ordered by dependency gates, not calendar dates. It assumes one
 engineer. Unless explicitly marked optional, a phase begins only after the
 previous required phase's verification gate passes.
 
-Phases 0–5 are the complete required hackathon deliverable. Phases 6–13 turn
-that deliverable into an installable, adoptable product. Phase 14 is optional
+Phases 0–5 established the initial working scanner. Phases 6–13 turn that
+scanner into an installable, adoptable product. Phase 14 is optional
 stretch work and does not block the final launch phase. Phase 15 completes the
 product launch.
+
+Historical submission and release records are consolidated in
+`docs/hackathon.md`; this file remains the authoritative phase and gate map.
 
 The architecture and accepted contracts are defined in `ARCHITECTURE.md`. This roadmap tracks implementation and verification; it does not redefine those decisions.
 

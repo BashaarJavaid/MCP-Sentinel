@@ -66,7 +66,7 @@ def render_notices() -> str:
     lines.extend(
         (
             "",
-            "MCP Sentinel remains licensed under the repository `LICENSE`. This file",
+            "PortunusMCP Sentinel uses the repository `LICENSE`. This file",
             "does not replace dependency license texts; those files remain",
             "authoritative for their respective packages.",
             "",

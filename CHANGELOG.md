@@ -1,6 +1,6 @@
-# Changelog
+# PortunusMCP Sentinel changelog
 
-All notable changes to MCP Sentinel are documented here. This project follows
+All notable changes to PortunusMCP Sentinel are documented here. This project follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -9,6 +9,13 @@ never renumbered or reused for a different detection. Changed meanings receive
 new rule IDs.
 
 ## [Unreleased]
+
+### Changed
+
+- Rebranded public source and documentation surfaces as PortunusMCP Sentinel
+  while preserving package, CLI, rule, schema, and SARIF driver identities.
+- Added contributor issue/PR paths, bounded Dependabot updates, and a strict
+  MkDocs Material site deployed through GitHub Pages.
 
 ## [1.2.0] - 2026-09-04
 

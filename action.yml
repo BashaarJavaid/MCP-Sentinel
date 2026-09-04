@@ -1,4 +1,4 @@
-name: MCP Sentinel
+name: PortunusMCP Sentinel
 description: Scan Python and TypeScript MCP targets before deployment.
 author: Bashaar Javaid
 
@@ -43,14 +43,14 @@ runs:
       with:
         python-version: "3.12"
 
-    - name: Install MCP Sentinel 1.2.0 from PyPI
+    - name: Install PortunusMCP Sentinel 1.2.0 from PyPI
       shell: bash
       run: >-
         python -m pip install --disable-pip-version-check
         --index-url https://pypi.org/simple
         portunusmcp-sentinel==1.2.0
 
-    - name: Run and validate MCP Sentinel
+    - name: Run and validate PortunusMCP Sentinel
       id: scan
       shell: bash
       env:
@@ -72,7 +72,7 @@ runs:
         checkout_path: ${{ steps.scan.outputs.checkout-path }}
         category: ${{ steps.scan.outputs.category }}
 
-    - name: Preserve Sentinel exit contract
+    - name: Preserve PortunusMCP Sentinel exit contract
       if: always()
       shell: bash
       env:

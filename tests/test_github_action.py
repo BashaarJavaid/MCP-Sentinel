@@ -328,6 +328,7 @@ def test_outputs_and_summary_are_aggregate_only(tmp_path: Path) -> None:
     summary_text = summary.read_text(encoding="utf-8")
     assert "findings-count=2" in output_text
     assert "highest-severity=critical" in output_text
+    assert summary_text.startswith("## PortunusMCP Sentinel\n")
     assert "Mode | replay" in summary_text
     assert "Reviewed / skipped | 1 / 1" in summary_text
     assert "Truncated | yes (1 overflow)" in summary_text
@@ -337,6 +338,7 @@ def test_outputs_and_summary_are_aggregate_only(tmp_path: Path) -> None:
 def test_action_metadata_exposes_only_approved_interface() -> None:
     root = Path(__file__).resolve().parents[1]
     metadata = yaml.safe_load((root / "action.yml").read_text(encoding="utf-8"))
+    assert metadata["name"] == "PortunusMCP Sentinel"
     assert set(metadata["inputs"]) == {
         "target-path",
         "fail-on",

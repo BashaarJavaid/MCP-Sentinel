@@ -37,7 +37,7 @@ def render_console(
 ) -> str:
     status = "COMPLETE" if report.analysis_complete else "INCOMPLETE"
     lines = [
-        _style(f"MCP Sentinel {report.sentinel_version}", color, bold=True),
+        _style(f"PortunusMCP Sentinel {report.sentinel_version}", color, bold=True),
         f"Target: {report.target.display_name}",
         f"Status: {_status_text(status, report.analysis_complete, color)}",
         _summary_line(report),
