@@ -3,18 +3,67 @@
 ## 1. Planning frame
 
 This roadmap is ordered by dependency gates, not calendar dates. It assumes one
-engineer. Unless explicitly marked optional, a phase begins only after the
-previous required phase's verification gate passes.
+engineer. Phase IDs are retained for existing release and evidence references;
+the execution order below takes precedence over numeric order.
 
-Phases 0–5 established the initial working scanner. Phases 6–13 turn that
-scanner into an installable, adoptable product. Phase 14 is optional
-stretch work and does not block the final launch phase. Phase 15 completes the
-product launch.
+Phases 0–13 are complete. They established the scanner, distribution, and team
+workflows. The September 2026 product review identified detection-quality and
+adoption gaps that those original gates did not measure. Phases 16–26 address
+that review; none is implemented merely by being scheduled here.
+
+**Next phase: 16 — Static detection correctness.** Required execution order:
+**16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
+after its predecessor's verification gate passes. Phase 15 retains existing
+publication artifacts but cannot close on distribution evidence alone. Phase
+14 remains deferred and optional. Phases 25 and 26 are separate conditional
+extensions after Phase 24; neither blocks launch, and deterministic sequence
+testing in Phase 26 does not require AI discovery in Phase 25.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.
 
-The architecture and accepted contracts are defined in `ARCHITECTURE.md`. This roadmap tracks implementation and verification; it does not redefine those decisions.
+The architecture and implemented contracts are defined in `ARCHITECTURE.md`.
+Future phases explicitly schedule changes to those contracts; they do not
+silently change current behavior. Update the architecture, schemas, compatibility
+policy, and user documentation as part of the phase that implements a contract
+change, before claiming the new capability is supported.
+
+### Product direction and review evidence
+
+The initial audience is maintainers and small teams shipping supported MCP
+servers, beginning with Python. The product promise is: **catch MCP server
+security regressions before release, with actionable source findings and
+reproducible evidence for supported runtime checks.** Consumer inventory,
+runtime enforcement, and comprehensive agent security remain different scopes.
+
+The review ran 229 passing tests with 83.32% branch-aware coverage and passing
+schema checks. Source-only counterexamples nevertheless showed a same-file
+helper hiding an execution sink, ineffective validation/authentication/integrity
+checks receiving safety exemptions, and missing path-containment and tool-
+description poisoning coverage. Local probe checks also showed that the
+wrong-type payload can be schema-valid. These are bounded reproductions, not
+ecosystem precision/recall measurements or fresh live-model/Docker evidence.
+Recreate them as durable tests in the owning phases; do not depend on temporary
+review files.
+
+The four-case semantic truth set and zero-finding public walkthrough establish
+integration and execution evidence, not general detection effectiveness. Keep
+their historical results, but qualify claims using the independent benchmark
+and pilot gates below. OWASP mappings classify findings; they do not establish
+coverage of all ten categories. GPT currently reviews existing candidates and
+cannot recover issues missed by both the static rules and fixed probes.
+
+Primary references for benchmark selection and positioning:
+
+- [Official Git-server path traversal advisory](https://github.com/modelcontextprotocol/servers/security/advisories/GHSA-vjqx-cfc4-9h6v)
+- [Official Git-server argument injection advisory](https://github.com/modelcontextprotocol/servers/security/advisories/GHSA-9xwc-hfwc-8w59)
+- [MCP security guidance](https://modelcontextprotocol.io/docs/draft/tutorials/security/security_best_practices)
+- [Starlette authentication and permission enforcement](https://starlette.dev/authentication/)
+- [Snyk Agent Scan](https://github.com/snyk/agent-scan) and [Cisco MCP Scanner](https://github.com/cisco-ai-defense/mcp-scanner)
+
+Competitor documentation establishes available alternatives, not comparative
+accuracy. Need for MCP security does not by itself prove demand for Sentinel or
+willingness to pay; Phases 21 and 24 test those assumptions.
 
 ### GPT-5.6 API cost-control policy
 
@@ -61,6 +110,14 @@ Paid live calls are limited to these dependency gates:
    perform one final live end-to-end demo run. Reuse that successful run for the
    ablation, checked-in artifacts, and recorded submission evidence wherever
    their inputs are identical.
+5. **Product-quality evaluation (Phases 20, 22, 25, and 26):** before any new
+   live evaluation, record the named cases, purpose, model, request/token or
+   monetary ceiling, and stopping condition. Run host-side checks first, reuse
+   unaffected accepted cassettes, and capture the smallest new evaluation that
+   answers the phase's quality question. Optional discovery or model-assisted
+   sequences receive separate caps and do not trigger paid calls during normal
+   tests or keyless pilots. No automatic paid competitor scans or broad
+   repository sweeps are part of these gates.
 
 This schedule is a spending discipline, not permission to claim GPT behavior
 from mocks or replay. The applicable live checkpoint must pass before its
@@ -68,7 +125,8 @@ dependent phase is complete.
 
 ## 2. Delivery definition
 
-The required delivery is complete only when all of the following are true:
+The original Phases 0–5 delivery required all of the following. These remain
+historical acceptance criteria, not evidence that the new product gates pass:
 
 - A local Python MCP repository can be scanned through the Typer CLI.
 - The hybrid AST/Semgrep engine runs all seven static rules without executing target code.
@@ -83,6 +141,13 @@ The required delivery is complete only when all of the following are true:
 - The live demo can show the vulnerable fixture, scan results, OWASP mappings, GPT reasoning, and GitHub SARIF integration.
 - A versioned ablation demonstrates the difference between rules-only, GPT-reviewed, and dynamically confirmed results.
 - Judges can install a prebuilt wheel and run a live or visibly labeled replay demo without rebuilding Sentinel.
+
+The next product delivery additionally requires corrected safety exemptions and
+probe evidence, an explicit offline tier, visible coverage boundaries, an
+independent benchmark, maintained regression feedback, and retained pilot use
+(Phases 16–24). Existing installations and reports must retain documented
+compatibility or receive a tested migration. Launch and optional AI expansion
+cannot substitute for these outcomes.
 
 ## 3. Phase 0 — Scaffold and contracts
 
@@ -709,17 +774,23 @@ to change.
 
 ## 17. Phase 14 — Conditional exploit-confirmation stretch
 
+**Status: deferred, optional.** Retained under its original ID for historical
+references; this fixture demonstration is not the next product milestone.
+
 ### Entry condition
 
-Begin only when every Phase 6–13 gate is passing. This optional phase may be
-skipped and never blocks Phase 15.
+Reconsider only after Phase 24, when a concrete validation need justifies a
+fixture-only generated exploit. This phase never blocks Phase 15 or Phases
+16–26. General sequence testing belongs to Phase 26.
 
 ### Scope
 
 - Implement `src/sentinel/llm/exploit_confirm.py` only for bundled vulnerable fixtures.
 - Generate one context-specific exploit attempt for an eligible finding.
 - Execute it within the existing Docker isolation boundary.
-- Record evidence and set `confirmed` or `likely_false_positive` through the approved status lifecycle.
+- Record observed effects through the canonical evidence/status contract. A
+  failed exploit attempt is inconclusive, not proof of a false positive; revise
+  the historical stretch contract before implementation if necessary.
 - Keep arbitrary user targets, automated patches, and automated pull requests out of this phase.
 
 ### Verification gate
@@ -731,27 +802,40 @@ skipped and never blocks Phase 15.
 
 ## 18. Phase 15 — Product launch
 
+**Status: pending; completion depends on Phase 24.** Retain the public package,
+Action, walkthrough, and `artifacts/phase15/` evidence already produced. Do not
+renumber or recreate historical releases to satisfy the revised launch gate.
+
 ### Objective
 
 Make the released product discoverable with claims backed by public evidence.
 
 ### Work
 
-- Lead launch material with isolated dynamic proof, OWASP Agentic Top 10
-  mapping, SARIF/code-scanning integration, and offline replay.
+- Lead launch material with independently reproduced findings, concrete repairs,
+  supported coverage, and maintainer outcomes from Phases 20–24. Present dynamic
+  proof only where observed effects justify it; explain SARIF integration and
+  OWASP classification without promising comprehensive security.
 - Reuse the existing sub-three-minute YouTube demo instead of rerecording it
   unless the released product behavior has materially changed.
 - Publish a short technical walkthrough that scans a real public MCP repository
   locally and discloses the target version, configuration, and reproducible
-  findings without probing a live endpoint.
+  findings without probing a live endpoint. Preserve the existing zero-finding
+  walkthrough as installation evidence and add a vulnerable/fixed example that
+  demonstrates actionable value, respecting disclosure and maintainer consent.
 - Submit Sentinel to the relevant `awesome-mcp-servers` and MCP security lists.
 - Publish concise announcements to Show HN, `r/mcp`, and the MCP Discord.
+- Prepare concrete list submissions and announcements for review. Public posts,
+  submissions, and messages require the user's explicit authorization; planning
+  this phase is not authorization to contact others.
 - Link the PyPI project, Marketplace listing, documentation site, source,
   changelog, demo, and security policy from the launch material.
 
 ### Verification gate
 
 - The PyPI project and Marketplace listing are public and installable.
+- Phase 24's retained-use gate passes, and every detection or accuracy claim
+  links to applicable benchmark or maintainer evidence.
 - The README begins with the working one-command install and links to the public
   documentation and Action.
 - The list submissions are merged and the announcement posts are publicly
@@ -761,21 +845,432 @@ Make the released product discoverable with claims backed by public evidence.
 - Launch links resolve, and the reused demo is clearly labeled if its displayed
   version predates the product release.
 
-## 19. Unscheduled post-launch and future work
+## 19. Phase 16 — Static detection correctness
 
-These items are intentionally unscheduled and have no phase number.
+**Status: planned; next required phase.** Depends on completed Phase 13.
 
-### Approved product evolution
+### Objective
+
+Correct false safety exemptions and preserve detection through ordinary source
+refactoring before adding broader threat classes.
+
+### Work
+
+- Reproduce the direct-tool `eval` positive control and the same-file helper
+  miss. Trace supported tool inputs through local helpers using existing engine
+  capabilities or bounded analysis; document unresolved flows explicitly.
+- Make `SENT-003` validation exemptions refer to the actual consumed inputs and
+  a check that executes before use. An unrelated `.validate()` call is not
+  sufficient evidence; inspect equivalent TypeScript behavior.
+- Make `SENT-006` distinguish middleware installation from enforced identity
+  checks and rejection. An authentication class name, unrelated application, or
+  bypassed branch cannot exempt an unprotected route.
+- Make `SENT-007` require verification against a trusted value and enforcement
+  of its result. Computing a digest or calling an unrelated verifier does not
+  establish manifest integrity.
+- Audit equivalent safety exemptions in both languages, including configured
+  prompt sanitizers; never claim text sanitization guarantees injection safety.
+- Preserve rule meanings and IDs. Keep uncertain candidates reviewable instead
+  of declaring them safe, and retain valid framework/custom-validator controls.
+
+### Verification gate
+
+- Each reproduced unsafe exemption has a failing-before/passing-after check and
+  a corresponding safe control. Direct and local-helper execution flows are
+  detected without executing target code.
+- Negative controls cover unrelated checks, ignored verification results, and
+  non-enforcing branches; legitimate validation and authentication stay exempt.
+- Python/TypeScript paired fixtures, existing review replay, canonical schemas,
+  and SARIF validation pass, or affected contracts/cassettes are explicitly
+  updated with justified compatibility changes.
+
+## 20. Phase 17 — Dynamic probe correctness and evidence
+
+**Status: planned.** Depends on Phase 16.
+
+### Objective
+
+Ensure a probe demonstrates the condition it reports and distinguish observed
+vulnerability evidence from accepted input or an inconclusive attempt.
+
+### Work
+
+- Establish a valid baseline request for the selected tool before interpreting
+  an adversarial request; report missing prerequisites as inconclusive.
+- Validate malformed probe arguments against the runtime schema locally. Select
+  a genuinely invalid type or omit a required field; support object schemas
+  without treating a valid object as a wrong-type payload.
+- Require an explicit size-policy breach or measured resource failure for
+  oversized-input findings. Successful large-input processing alone is not
+  confirmed exploitation; separate baseline slowness from probe-induced failure.
+- Keep canary side effects distinct from protocol success. Review may interpret
+  evidence but must not silently negate a host-observed security violation.
+- Document that `SENT-008` tests tool-name grants, not per-tool path/network
+  containment. A permissions sidecar declares expectations, not enforcement.
+- Introduce explicit tested, unsupported, untested, and inconclusive outcomes
+  through the canonical report contract. Revise misleading proof/severity
+  semantics without repurposing stable IDs, and version migrations as needed.
+- Preserve network isolation, resource limits, credential boundaries, fresh
+  probe sessions, cleanup, and visible infrastructure failures.
+
+### Verification gate
+
+- An object-typed safe tool does not generate a malformed-input finding for a
+  schema-valid object; the unsafe counterpart processes a verified invalid input.
+- A legitimate large-document tool is not labeled exploited merely for accepting
+  the payload. A controlled resource-policy violation records measurable proof.
+- Live Docker checks on local vulnerable/safe fixtures verify baselines, canary
+  behavior, inconclusive prerequisites, failure reporting, and cleanup.
+- Console, JSON, SARIF, review replay, and exit policy consistently distinguish
+  observed proof from review judgment and incomplete testing.
+
+## 21. Phase 18 — Explicit offline mode and first-use workflow
+
+**Status: planned.** Depends on Phase 17.
+
+### Objective
+
+Provide a predictable first scan with no model calls, Docker, or source upload,
+and make deeper analysis a deliberate choice.
+
+### Work
+
+- Add an explicit rules-only mode using the existing pipeline. Choose and
+  document its CLI/configuration interface in this phase; `--allow-degraded`
+  remains a fallback policy and must not masquerade as a review-disable switch.
+- Guarantee that the offline mode does not construct a model client, use a
+  review cache as if review ran, or invoke Docker, even when API credentials or
+  endpoint overrides exist in the environment. Keep findings fail-on eligible.
+- Expose the same deliberate mode in the Action for ordinary and fork PRs and
+  in pre-commit. Preserve fork secret restrictions and explicit upload behavior.
+- Align `init`, README, CLI help, and missing-prerequisite guidance with the
+  simplest successful scan. Static use must not require launch configuration.
+- Explain source transmission, model requirements, costs, and runtime execution
+  for optional tiers; preserve the existing configurable endpoint support.
+
+### Verification gate
+
+- Tests with absent and dummy-present credentials prove zero model/network and
+  Docker calls in offline mode; review-enabled modes retain their contracts.
+- Fresh supported Python and TypeScript targets reach a completed first scan
+  from documented instructions without undocumented setup or target execution.
+- Keyless ordinary-PR and fork-PR Action tests preserve findings and exit codes;
+  existing reviewed workflows remain compatible or receive migration guidance.
+
+## 22. Phase 19 — Coverage reporting and actionable findings
+
+**Status: planned.** Depends on Phase 18.
+
+### Objective
+
+Let maintainers understand what was examined, what remains unknown, and what
+change a finding calls for.
+
+### Work
+
+- Report recognized tools/handlers, unsupported registrations and imported
+  implementations, unresolved flows, skipped rules, and attempted tool/field
+  probes. Mark unknown discovery totals honestly rather than inventing coverage.
+- Distinguish successful scan execution from security assurance. Zero candidates
+  means no static model review occurred; show that clearly in all output modes.
+- Display decisive bounded evidence and a concrete repair direction by default;
+  keep extended provenance and model reasoning in verbose/machine output.
+- Distinguish static suspicion, model corroboration, dynamic observation, and
+  confirmed security effects without hiding abstentions or suppressed evidence.
+- Document the limits of TypeScript recognition, sidecar permissions, and the
+  current four-attempt campaign. Keep baselines/suppressions auditable and
+  provide explicit schema compatibility for added coverage fields.
+
+### Verification gate
+
+- A partially recognized server reports detected and unresolved handlers; a
+  zero-finding scan cannot imply that unrecognized handlers were inspected.
+- Multi-tool fixtures disclose exactly which tools/fields were probed and which
+  were not; unknown counts remain unknown.
+- Representative findings include location, decisive evidence, and an actionable
+  remediation in default console output; equivalent JSON/SARIF fields validate.
+- Empty review, explicit offline, degraded, cached, and live review states remain
+  distinguishable. Baseline and suppression regression checks pass.
+
+## 23. Phase 20 — Independent detection benchmark
+
+**Status: planned.** Depends on Phase 19.
+
+### Objective
+
+Measure real detection effectiveness separately from implementation coverage,
+fixture demonstrations, and successful installation.
+
+### Work
+
+- Build a versioned corpus with at least ten independently sourced
+  vulnerable/fixed pairs across at least five repositories, plus safe controls
+  and structural mutations (helpers, aliases, imports, renamed functions).
+- Pin revisions, provenance, licenses, expected security conditions, language,
+  prerequisites, and applicable analysis tiers. Include known path/argument
+  injection cases and record unsupported cases instead of discarding them.
+- Separate development and held-out cases before tuning rules or prompts;
+  historical public examples alone cannot establish absence of model exposure.
+- Compare deterministic Sentinel and GPT-reviewed Sentinel on identical inputs.
+  Compare relevant Semgrep configurations and Snyk/Cisco capabilities only where
+  their inputs and scope are comparable, recording versions/configuration.
+- Publish per-case misses, false alarms, abstentions, incorrect GPT suppressions,
+  dynamic confirmations, completion rate, latency, and review cost. Separate
+  candidate recall from reviewed recall and report denominators/support coverage.
+- Preserve the existing four-case ablation and zero-finding walkthrough with
+  their limited interpretation. Do not extrapolate their perfect small-sample
+  metrics to production or claim unrun competitor superiority.
+
+### Verification gate
+
+- A documented command reproduces deterministic results offline from retained
+  inputs; model replay is labeled and traceable to budgeted live captures.
+- An independently checked label manifest and held-out split accompany the
+  report; every case has an outcome, including unsupported/inconclusive cases.
+- Both Sentinel tiers have measured results. Competitor comparisons are either
+  reproducible on applicable cases or explicitly marked unmeasured with reasons.
+- Publish the initial baseline even if detection is poor. Passing this phase
+  means the measurement is trustworthy, not that an accuracy target was met;
+  Phase 22 owns improvements and Phase 24 owns adoption validation.
+
+## 24. Phase 21 — Maintainer pilot and problem validation
+
+**Status: planned.** Depends on Phase 20.
+
+### Objective
+
+Test whether supported-server maintainers have a recurring problem Sentinel
+helps solve and identify the obstacles to voluntary CI adoption.
+
+### Work
+
+- Prepare a pilot for five external maintainers/teams with source ownership,
+  starting with supported Python servers. Prepare invitations for user review;
+  contact participants only with explicit authorization.
+- Ask about their last security issue, existing checks, findings worth fixing,
+  and reasons they would remove a scanner from CI. Record competing workflows.
+- Observe install-to-first-result time, need for assistance, scan completion,
+  alert comprehension, accepted/rejected findings, and desired integrations.
+- Use explicit offline scans by default. Source sharing, paid review, and public
+  attribution require deliberate participant choices; no automatic telemetry.
+- Rank compatibility and coverage blockers by observed impact. Separate pilot
+  enrollment and learning here from the 30-day retention gate in Phase 24.
+
+### Verification gate
+
+- Five external pilot participants have attempted their own repository workflow;
+  retain consented, redacted observations, including unsuccessful attempts.
+- Publish an internal decision record identifying recurring needs, useful
+  findings, and the highest-impact blocker, or evidence that the current audience
+  does not need the product. Do not substitute stars/downloads for this evidence.
+- Select a bounded Phase 22 scope and define its expected adoption improvement
+  before implementing it. A lack of demand triggers a positioning revision,
+  not automatic feature expansion or a fabricated success gate.
+
+## 25. Phase 22 — MCP coverage and compatibility expansion
+
+**Status: planned.** Depends on Phase 21 and uses Phase 20's benchmark.
+
+### Objective
+
+Address measured missed vulnerabilities and real repository incompatibilities
+while keeping the supported boundary explicit.
+
+### Work
+
+- Add bounded path-containment detection, including traversal, absolute paths,
+  unsafe prefix checks, and symlink cases where evidence permits. Add dedicated
+  tool-description poisoning detection rather than relying on prompt sinks.
+- Evaluate command argument injection beyond `shell=True`; use the independent
+  corpus to select supported sinks and safe controls. Assign new stable rule IDs
+  for new meanings rather than stretching existing execution/permission rules.
+- Fix the top pilot compatibility blocker first. Prioritize imported handlers,
+  imported schemas, cross-file flows, and workspace layouts within Python and
+  TypeScript according to observed demand; publish remaining exclusions.
+- Expand fixed dynamic campaigns across eligible tools and relevant parameters
+  with explicit budgets, deterministic scheduling, and per-attempt evidence.
+  Reconcile the old four-attempt/probe-plan contract before implementing this.
+- Reuse installed engines and shared discovery structures before adding parsers
+  or dependencies. Avoid a speculative plugin framework or new language targets.
+- Track ownership/authorization gaps as future discovery/sequence cases; simple
+  type validation is not proof of business-policy enforcement.
+
+### Verification gate
+
+- New threat classes have independent vulnerable/fixed examples, safe controls,
+  documented limits, and stable canonical findings with justified OWASP mapping.
+- A multi-tool fixture with a safe alphabetically first tool and a vulnerable
+  later tool is tested correctly; budget exhaustion discloses untested surface.
+- A previously blocked pilot repository completes meaningful analysis after the
+  selected compatibility fix. Publish before/after benchmark and completion
+  results, reviewing new false alarms and incorrect suppressions explicitly.
+- Existing supported fixtures and migrated reports remain valid. Unimplemented
+  compatibility requests stay documented rather than silently counted as covered.
+
+## 26. Phase 23 — Maintained feedback and regression releases
+
+**Status: planned.** Depends on Phase 22.
+
+### Objective
+
+Keep detection current through reproducible reports and reviewed releases,
+without making offline scans depend on automatically changing rules.
+
+### Work
+
+- Extend existing issue/contribution workflows for missed vulnerabilities and
+  false alarms, with private reporting for sensitive cases and opt-in sharing.
+- Establish the loop: advisory/report → minimized reproduction → detector change
+  → benchmark regression evaluation → human review → versioned release.
+- Track time to triage, reproduce, fix, and release. Record rule/corpus versions
+  and meaningful coverage changes in release notes; preserve rollback and pins.
+- Allow AI-assisted test/rule drafts, but never automatically promote generated
+  rules, trust arbitrary feedback labels, or upload private repositories.
+- Include SDK/security-advisory review in the maintenance cadence and retain
+  affected real-world cases in the corpus after fixes ship.
+
+### Verification gate
+
+- At least one consented pilot report or public advisory completes the entire
+  reproduction-to-reviewed-release loop with retained evidence and timings.
+- Offline CI exercises the updated corpus and rejects a deliberately regressed
+  detector. Released rules remain reproducible by version without live feeds.
+- Contribution guidance explains false-negative reporting, label review,
+  disclosure, and how feedback becomes a tested release.
+
+## 27. Phase 24 — Retained adoption and product decision
+
+**Status: planned.** Depends on Phase 23. Required before closing Phase 15.
+
+### Objective
+
+Demonstrate that maintainers voluntarily keep using Sentinel, and base further
+investment and launch claims on observed value.
+
+### Work
+
+- Revisit the five pilot workflows after the fixes. Target at least three of
+  five maintainers installing without author intervention, reaching a useful
+  first result within five minutes, and retaining the CI check for 30 days.
+- Treat these as proposed pilot goals, not industry benchmarks. Define timing
+  and a useful result in advance; disclose installation/network prerequisites,
+  assistance, removals, and inconclusive observations.
+- Retain maintainer-confirmed findings or prevented regressions and resulting
+  repair evidence. Distinguish useful coverage reports from demonstrated catches.
+- Prepare consented case studies and a vulnerable/fixed walkthrough for Phase
+  15. Position against actual alternatives using measured incremental value.
+- Record a continue, narrow, or pivot decision. Investigate willingness to pay
+  for recurring team policy, private execution, or maintenance needs only if
+  participants report them; do not build billing or a dashboard speculatively.
+
+### Verification gate
+
+- At least three of the five pilots meet the documented onboarding and 30-day
+  retention targets, with participant-confirmed evidence rather than inferred
+  usage. At least one independent finding/fix or prevented regression is verified.
+- If targets fail, retain this phase as incomplete, identify the cause, and
+  iterate on the responsible phase or explicitly revise product scope and goals.
+  Do not replace evidence with more announcements or fixture demonstrations.
+- Phase 15 materials make only supported claims and include limitations,
+  benchmark provenance, and consented maintainer outcomes.
+
+## 28. Phase 25 — Bounded independent AI discovery
+
+**Status: conditional, planned.** Eligible after Phase 24 when measured missed
+semantic issues justify an experiment. Does not block Phase 15.
+
+### Objective
+
+Evaluate whether source-only model discovery finds useful issues that never
+become deterministic candidates, at an acceptable cost and false-alarm rate.
+
+### Work
+
+- Add a separate opt-in advisory discovery path over recognized tools and their
+  bounded reachable implementation, including tools with zero static candidates.
+- Examine path/resource ownership, privilege boundaries, description/behavior
+  mismatches, and suspicious tool-to-tool data flows using explicit context.
+- Define the architecture change allowing independent findings before coding:
+  canonical provenance/source, stable new rule meanings, evidence references,
+  uncertainty, deduplication, baselines, suppression, and report versioning.
+- Reuse strict response validation, redaction, endpoint trust, budgets, and
+  telemetry. Validate that cited evidence supports the claim; a valid line range
+  alone does not establish semantic correctness. Treat target text as untrusted.
+- Keep discovery advisory and source-only: no model-authored code execution,
+  automatic patches, or default CI blocking. Do not weaken the deterministic tier.
+
+### Verification gate
+
+- Held-out cases include independent valid discoveries on zero-candidate targets,
+  safe controls, misleading repository instructions, and insufficient-context
+  abstentions. Human review checks evidence and false alarms.
+- Publish incremental validated findings over Phase 22, maintainer acceptance,
+  false positives, repeatability, latency, and cost against a predeclared budget
+  and acceptance threshold. Ship only if the measured benefit passes that gate.
+- Explicit offline mode makes zero discovery calls; existing report consumers
+  receive tested compatibility/migration behavior. Otherwise retain the feature
+  as an unshipped experiment with its measured outcome.
+
+## 29. Phase 26 — Stateful multi-step security testing
+
+**Status: conditional, planned.** Eligible after Phase 24 when a concrete pilot
+or benchmark scenario needs sequence testing. Phase 25 is required only if its
+model-discovery output is used; fixed sequences can be implemented independently.
+
+### Objective
+
+Test explicit cross-tool and ownership/authorization invariants through bounded
+sequences in Sentinel-controlled sandboxes.
+
+### Work
+
+- Define each scenario's legitimate baseline, identities, allowed resources,
+  state setup, tool sequence, security invariant, and observable violation.
+  Include cross-user resource access and one cross-tool escalation scenario.
+- Preserve state within a scenario and reset it between scenarios. Use synthetic
+  credentials, test-owned data, controlled services, resource limits, and cleanup;
+  no production endpoints or host-side execution of target/generated code.
+- Begin with deterministic parameterized sequences. Model assistance, if
+  justified, proposes schema-validated tool calls under explicit step/time/cost
+  budgets, not arbitrary executable exploit programs.
+- Separate unsupported transport or unavailable prerequisites from a blocked
+  attack. Streamable HTTP/Node infrastructure must pass its own documented
+  isolation and compatibility gates before a scenario can depend on it.
+- Record the complete redacted sequence and before/after effects in canonical
+  evidence; unsuccessful attempts remain inconclusive unless a specific defense
+  is actually demonstrated. Keep automatic patches/PRs out of scope.
+
+### Verification gate
+
+- Reproducible vulnerable/fixed pairs demonstrate the ownership and cross-tool
+  invariants; valid authorized workflows still succeed on fixed targets.
+- Repeat runs establish state isolation, identity separation, step limits,
+  teardown, and truthful unsupported/inconclusive results.
+- An independent applicable benchmark or pilot case demonstrates added coverage
+  over single-call probes, with false alarms and runtime overhead reported.
+- Any model-assisted path has separate budgeted live/replay evidence and remains
+  opt-in. Schema-valid reports preserve the complete causal evidence chain.
+
+## 30. Unscheduled post-launch and future work
+
+These items remain demand-gated and have no dedicated phase number. Phases
+16–26 own the specific review recommendations above; this list is not an
+instruction to build all adjacent capabilities.
+
+### Deferred product options
 
 - Streamable HTTP support.
 - Remote-repository scanning convenience.
 - Running-endpoint scanning restricted to Sentinel-launched sandboxes.
-- Exploit confirmation generalized beyond bundled fixtures.
+- Arbitrary-target generated exploit confirmation beyond the bounded scenarios
+  of Phase 26.
 - Static analysis for languages beyond Python and TypeScript.
 - A Node dynamic sandbox with npm registry egress rules and an isolated stdio
   harness.
 - Automated patch generation.
 - Automated pull-request creation.
+- Dashboards and billing, only after recurring demand and willingness to pay
+  are established in Phase 24.
 
 ### Compatibility investigations
 
@@ -784,7 +1279,8 @@ These items are intentionally unscheduled and have no phase number.
 ### Existing README commitments
 
 - IDE integration for inline findings.
-- An expanded dynamic fuzzing corpus for tool-chain abuse.
+- Broader fuzzing beyond the measured per-tool campaigns and bounded tool-chain
+  scenarios in Phases 22 and 26.
 - Policy-as-code rule authoring.
 
 ### Explicitly outside the product roadmap
@@ -792,8 +1288,13 @@ These items are intentionally unscheduled and have no phase number.
 - Full PortunusMCP Gateway integration.
 - PortunusMCP Identity or SPIFFE/SPIRE credential brokering.
 - Comprehensive coverage of every MCP vulnerability class.
+- Unsupervised promotion of automatically evolved rules or a claim of universal
+  zero-day detection.
 
-## 20. Gate summary
+## 31. Gate summary
+
+Phase IDs below preserve history. Execute **16–24, then 15**; 14, 25, and 26
+are conditional/optional and do not block the required product path.
 
 | Phase | Required outcome | Blocking verification |
 |---|---|---|
@@ -811,5 +1312,16 @@ These items are intentionally unscheduled and have no phase number.
 | 11 | TypeScript static support | Paired seven-rule fixtures, no-execution proof, and valid reports pass. |
 | 12 | Incremental team adoption | Baseline, inline suppression, auditability, and pre-commit gates pass. |
 | 13 | Public docs and maintenance | Repositioned docs, PortunusMCP branding, contributor paths, Dependabot, and docs site pass. |
-| 14 | Fixture-only exploit confirmation | Optional and isolated from the required product path. |
-| 15 | Discoverable product launch | Public distribution, merged list submissions, reproducible walkthrough, and announcements pass. |
+| 14 | Fixture-only exploit confirmation | Deferred until after Phase 24; optional and isolated from product gates. |
+| 15 | Evidence-backed product launch | Phase 24 passes; public distribution, submissions, actionable walkthrough, and authorized announcements support measured claims. |
+| 16 | Correct static safety decisions | Unsafe exemptions and local-helper misses have durable regressions and safe controls. |
+| 17 | Sound dynamic evidence | Valid baselines, genuinely invalid payloads, measured effects, and Docker isolation checks pass. |
+| 18 | Predictable offline onboarding | Zero model/Docker calls with credentials present; keyless CLI, Action, and pre-commit work. |
+| 19 | Visible coverage and actionable findings | Recognized/unknown surface, per-attempt coverage, evidence, and review states are accurate in all formats. |
+| 20 | Independent benchmark | Pinned vulnerable/fixed corpus, held-out cases, honest denominators, and reproducible tier comparisons. |
+| 21 | Maintainer problem validation | Five external pilots attempt their workflows and establish a bounded improvement priority. |
+| 22 | Broader useful MCP coverage | New threat controls, per-tool campaigns, and a pilot compatibility fix improve measured results. |
+| 23 | Maintained detection feedback | A report/advisory reaches a tested, reviewed, reproducible release with recorded timings. |
+| 24 | Retained adoption | Three of five pilots meet onboarding/30-day retention goals and an independent useful catch is verified. |
+| 25 | Independent AI discovery | Conditional; held-out incremental findings justify noise/cost, with advisory provenance and no execution. |
+| 26 | Stateful security testing | Conditional; isolated identity/tool sequences prove violations on vulnerable cases and defenses on fixed cases. |
