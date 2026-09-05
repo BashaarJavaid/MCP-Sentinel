@@ -176,6 +176,7 @@ def detect(
         context = StaticContext(
             configuration=context.configuration,
             files=replace(context.files, typescript_files=files),
+            deadline=context.deadline,
         )
     tools = tuple(tool for file in files for tool in tools_in_file(file))
     for tool in tools:
@@ -329,260 +330,35 @@ def _typescript_capabilities(
 def _sent002(
     context: StaticContext, state: RuleRunState, tools: tuple[TypeScriptTool, ...]
 ) -> None:
-    del context
-    for tool in tools:
-        if tool.name is None or not tool.parameters:
-            continue
-        tainted = set(tool.parameters)
-        for assignment in re.finditer(
-            rf"\b({_IDENTIFIER})\s*=\s*([^;\n]+)", tool.handler
-        ):
-            if _contains_name(assignment.group(2), tainted):
-                tainted.add(assignment.group(1))
-        aliases = dict(tool.aliases)
-        sink_names = {
-            "eval",
-            "Function",
-            "runInContext",
-            "runInNewContext",
-            "runInThisContext",
-            "exec",
-            "execSync",
-            "execFile",
-            "execFileSync",
-            "spawn",
-            "spawnSync",
-        }
-        sink_names.update(
-            local
-            for local, qualified in aliases.items()
-            if qualified.rsplit(".", 1)[-1] in sink_names
-        )
-        sinks = re.compile(
-            rf"\b(?:{'|'.join(sorted(map(re.escape, sink_names)))})\s*\(([^)]*)\)"
-        )
-        for sink in sinks.finditer(tool.handler):
-            if _contains_name(sink.group(1), tainted):
-                state.matches.append(
-                    _tool_match("SENT-002", tool, "typescript-taint", sink.start())
-                )
-                break
+    from sentinel.static.typescript_execution import detect
+
+    detect(context, state, tools)
 
 
 def _sent003(
     context: StaticContext, state: RuleRunState, tools: tuple[TypeScriptTool, ...]
 ) -> None:
-    del context
-    for tool in tools:
-        if tool.name is None or not tool.parameters:
-            continue
-        body = tool.handler
-        used = min(
-            (
-                match.start()
-                for name in tool.parameters
-                for match in re.finditer(rf"\b{re.escape(name)}\b", body)
-            ),
-            default=None,
-        )
-        if used is None:
-            state.exempt("zero_or_unused_input")
-            continue
-        if tool.schema_present:
-            state.exempt("official_input_schema")
-            continue
-        validation = re.search(
-            r"\.(?:parse|safeParse|validate)\s*\(|\b(?:ajv\.)?validate\s*\(", body
-        )
-        if validation and validation.start() < used:
-            state.exempt("validated_before_use")
-        else:
-            state.matches.append(
-                _tool_match("SENT-003", tool, "unchecked-parameter", used)
-            )
+    from sentinel.static.typescript_safety import validation
+
+    validation(context, state, tools)
 
 
 def _sent004(context: StaticContext, state: RuleRunState) -> None:
-    configured = set(context.configuration.scanner.rules.sent004.sanitizers)
-    for file in context.files.typescript_files:
-        aliases = _import_aliases(file.source)
-        regions = [
-            (body, body_start)
-            for _, _parameters, body, body_start, _ in _functions(file.source).values()
-        ]
-        regions.extend(
-            (tool.handler, tool.handler_start) for tool in tools_in_file(file)
-        )
-        for body, body_start in dict.fromkeys(regions):
-            tainted: set[str] = set()
-            sanitized: set[str] = set()
-            events = [
-                (match.start(), "assignment", match)
-                for match in re.finditer(
-                    rf"\b(?:const|let|var)\s+({_IDENTIFIER})\s*=\s*([^;]+)", body
-                )
-            ]
-            events.extend(
-                (match.start(), "sink", match)
-                for match in re.finditer(
-                    r"(?:responses\.create|chat\.completions\.create|"
-                    r"requestSampling)\s*\([^;]+",
-                    body,
-                )
-            )
-            for offset, kind, event in sorted(events, key=lambda item: item[0]):
-                text = event.group(0)
-                if kind == "assignment":
-                    name, value = event.group(1), event.group(2)
-                    if _is_prompt_source(value) or _contains_name(value, tainted):
-                        tainted.add(name)
-                    call = re.search(
-                        rf"\b({_IDENTIFIER}(?:\.{_IDENTIFIER})*)\s*\(", value
-                    )
-                    if call:
-                        qualified = aliases.get(call.group(1), call.group(1))
-                        if qualified in configured and _contains_name(value, tainted):
-                            sanitized.add(name)
-                elif _contains_name(text, tainted - sanitized):
-                    state.matches.append(
-                        _match_at(
-                            "SENT-004",
-                            file,
-                            body_start + offset,
-                            text,
-                            "prompt-taint",
-                        )
-                    )
-                    break
+    from sentinel.static.typescript_safety import prompt
+
+    prompt(context, state)
 
 
 def _sent006(context: StaticContext, state: RuleRunState) -> None:
-    public = context.configuration.scanner.rules.sent006.public_routes
-    for file in context.files.typescript_files:
-        source = file.source
-        functions = _functions(source)
-        receivers = _http_receivers(source)
-        if not receivers:
-            continue
-        route_pattern = re.compile(
-            rf"\b(?P<app>{'|'.join(map(re.escape, sorted(receivers)))})\s*\.\s*"
-            rf"(?P<method>{'|'.join(sorted(_HTTP_METHODS))})\s*\("
-        )
-        middleware: list[tuple[str, int]] = []
-        for match in re.finditer(rf"\b(?P<app>{_IDENTIFIER})\.use\s*\(", source):
-            close = _matching(source, match.end() - 1, "(", ")")
-            if close is not None and _auth_text(source[match.end() : close], functions):
-                middleware.append((match.group("app"), match.start()))
-        for route in route_pattern.finditer(source):
-            close = _matching(source, route.end() - 1, "(", ")")
-            if close is None:
-                continue
-            args = _split_top_level(source[route.end() : close])
-            path = _string_literal(args[0]) if args else None
-            if path is None:
-                _warn(
-                    state,
-                    ReportWarning(
-                        code="typescript_route_path_dynamic",
-                        message=(
-                            "Skipped a computed route path at "
-                            f"{file.relative_path}:{_line(source, route.start())}"
-                        ),
-                    ),
-                )
-                continue
-            method = route.group("method").upper()
-            if _is_public(method, path, public):
-                state.exempt("configured_public_route")
-                continue
-            local_auth = any(_auth_text(arg, functions) for arg in args[1:-1])
-            global_auth = any(
-                app == route.group("app") and offset < route.start()
-                for app, offset in middleware
-            )
-            if local_auth or global_auth:
-                state.exempt("verified_auth")
-            else:
-                state.matches.append(
-                    _match_at(
-                        "SENT-006", file, route.start(), route.group(0), "missing-auth"
-                    )
-                )
+    from sentinel.static.typescript_safety import authentication
+
+    authentication(context, state)
 
 
 def _sent007(context: StaticContext, state: RuleRunState) -> None:
-    from sentinel.static.rules.sent007 import load_integrity_manifest
+    from sentinel.static.typescript_safety import integrity
 
-    load_integrity_manifest(context.configuration.scan_root)
-    for file in context.files.typescript_files:
-        for name, _, body, body_start, _ in _functions(file.source).values():
-            if "manifest" not in name.lower() and name not in {
-                "loadTools",
-                "registerTools",
-            }:
-                continue
-            reads = {
-                match.group(1)
-                for match in re.finditer(
-                    rf"\b(?:const|let|var)\s+({_IDENTIFIER})\s*=\s*"
-                    r"(?:await\s+)?(?:\w+\.)?(?:readFile|readFileSync)\s*\(",
-                    body,
-                )
-            }
-            parses = [
-                match
-                for match in re.finditer(
-                    r"\b(?:JSON\.(?:parse)|(?:yaml|YAML)\.(?:parse|load))\s*\(([^)]*)\)",
-                    body,
-                )
-                if _contains_name(match.group(1), reads)
-                or re.search(r"\b(?:readFile|readFileSync)\s*\(", match.group(1))
-            ]
-            if not parses:
-                continue
-            parse = parses[0]
-            verification = re.search(
-                r"\b(?:createHash\s*\(\s*['\"]sha256['\"]|verify\s*\(|timingSafeEqual\s*\()",
-                body,
-            )
-            if verification and verification.start() < parse.start():
-                state.exempt("verified_manifest")
-            else:
-                state.matches.append(
-                    _match_at(
-                        "SENT-007",
-                        file,
-                        body_start + parse.start(),
-                        parse.group(0),
-                        "unverified-manifest",
-                    )
-                )
-
-
-def _auth_text(
-    text: str, functions: dict[str, tuple[str, tuple[str, ...], str, int, int]]
-) -> bool:
-    if re.search(r"\b(?:bearerAuth|BearerAuth)\b", text):
-        return True
-    reference = text.strip()
-    function = functions.get(reference)
-    body = function[2] if function is not None else text
-    reads = re.search(r"authorization|credential|token|bearer", body, re.IGNORECASE)
-    verifies = re.search(
-        r"jwtVerify|jwt\.verify|jose|verify\s*\(|timingSafeEqual", body
-    )
-    rejects = re.search(
-        r"\bthrow\b|\.status\s*\(\s*(?:401|403)\s*\)|\b(?:401|403)\b", body
-    )
-    return bool(reads and verifies and rejects)
-
-
-def _is_prompt_source(text: str) -> bool:
-    return bool(
-        re.search(
-            r"\.(?:content|text|description)\b|\b(?:callTool|listTools)\s*\(", text
-        )
-    )
+    integrity(context, state)
 
 
 def _functions(source: str) -> dict[str, tuple[str, tuple[str, ...], str, int, int]]:
@@ -770,18 +546,16 @@ def _mcp_server_receivers(source: str) -> set[str]:
 
 def _http_receivers(source: str) -> set[str]:
     aliases = _import_aliases(source)
-    express_factories = {"express"}
-    hono_classes = {"Hono"}
+    express_factories: set[str] = set()
+    hono_classes: set[str] = set()
     express_factories.update(
         local for local, qualified in aliases.items() if qualified == "express"
     )
     hono_classes.update(
-        local
-        for local, qualified in aliases.items()
-        if qualified.startswith("hono") and qualified.endswith(".Hono")
+        local for local, qualified in aliases.items() if qualified == "hono.Hono"
     )
-    express_pattern = "|".join(map(re.escape, sorted(express_factories)))
-    hono_pattern = "|".join(map(re.escape, sorted(hono_classes)))
+    express_pattern = "|".join(map(re.escape, sorted(express_factories))) or r"(?!)"
+    hono_pattern = "|".join(map(re.escape, sorted(hono_classes))) or r"(?!)"
     receivers = {
         match.group("name")
         for match in re.finditer(

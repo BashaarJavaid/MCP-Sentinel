@@ -41,7 +41,7 @@ def safe_calculator(expression: str) -> object:
 
 @mcp.tool()
 def validated_lookup(arguments: dict[str, object]) -> object:
-    ValidatedArguments.model_validate(arguments)
+    arguments = ValidatedArguments.model_validate(arguments).model_dump()
     return arguments["record_id"]
 
 
@@ -73,7 +73,9 @@ def load_manifest() -> object:
     with open("tools.yaml", "rb") as handle:
         raw = handle.read()
     actual = hashlib.sha256(raw).hexdigest()
-    if not hmac.compare_digest(actual, "0" * 64):
+    if not hmac.compare_digest(
+        actual, "e98c7dbabf0b0bfba8338980a3eae2e099bf9d7ab5c2e2717f2fb850b4f7054b"
+    ):
         raise ValueError("manifest digest mismatch")
     return yaml.safe_load(raw)
 

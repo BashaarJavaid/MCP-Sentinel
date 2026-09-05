@@ -1,0 +1,318 @@
+[
+  {
+    "finding_id": "df898ca7-29bd-47f9-8273-1c9053f6d340",
+    "dedup_key": "9eeaf824a35638ff0878b0a86dda48fe8068c2263823910dfdfd85515666820b",
+    "rule_id": "SENT-001",
+    "title": "Overly broad tool permission scope",
+    "description": "The tool declares filesystem or network access broader than its handler uses.",
+    "impact": "High",
+    "exploitability": "theoretical",
+    "confidence": "high",
+    "status": "needs_review",
+    "owasp_category": {
+      "id": "ASI03:2026",
+      "name": "Identity & Privilege Abuse"
+    },
+    "source": "static",
+    "location": {
+      "kind": "file",
+      "path": "server.py",
+      "range": {
+        "start_line": 11,
+        "start_column": 1,
+        "end_line": 12,
+        "end_column": 31
+      }
+    },
+    "evidence": {
+      "kind": "static",
+      "snippet": "def indirect_reader(path: str) -> str:\n    return read_one_file(path)",
+      "range": {
+        "start_line": 11,
+        "start_column": 1,
+        "end_line": 12,
+        "end_column": 31
+      },
+      "fingerprint": null
+    },
+    "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+    "scan_id": "1b73f9b5-f297-4b6e-a98d-cf232370269b",
+    "timestamp": "2026-09-05T17:43:05.169206Z",
+    "provenance": [
+      {
+        "source": "static",
+        "rule_id": "SENT-001",
+        "evidence": {
+          "kind": "static",
+          "snippet": "def indirect_reader(path: str) -> str:\n    return read_one_file(path)",
+          "range": {
+            "start_line": 11,
+            "start_column": 1,
+            "end_line": 12,
+            "end_column": 31
+          },
+          "fingerprint": null
+        },
+        "timestamp": "2026-09-05T17:43:05.169206Z"
+      }
+    ],
+    "review": {
+      "reviewed": false,
+      "status": null,
+      "requested_model": null,
+      "returned_model": null,
+      "confidence": null,
+      "reasoning": null,
+      "evidence_refs": null,
+      "probe_plan": null,
+      "suggested_severity_override": null,
+      "usage": null,
+      "latency_ms": null,
+      "batch_id": null,
+      "reviewed_at": null,
+      "applied_at": null,
+      "reason": null,
+      "mode": "not_reviewed"
+    },
+    "baseline_matched": null,
+    "suppression": null,
+    "severity": "Medium"
+  },
+  {
+    "finding_id": "9f9e86f9-8ad1-4c32-ae26-08a72cedc792",
+    "dedup_key": "293f153ab0befe74fe2f0659ef2f3ceef8d43df91b97dba76a0c6e508337c15a",
+    "rule_id": "SENT-002",
+    "title": "Unsafe execution from tool input",
+    "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+    "impact": "Critical",
+    "exploitability": "theoretical",
+    "confidence": "high",
+    "status": "needs_review",
+    "owasp_category": {
+      "id": "ASI05:2026",
+      "name": "Unexpected Code Execution"
+    },
+    "source": "static",
+    "location": {
+      "kind": "file",
+      "path": "server.py",
+      "range": {
+        "start_line": 17,
+        "start_column": 12,
+        "end_line": 17,
+        "end_column": 28
+      }
+    },
+    "evidence": {
+      "kind": "static",
+      "snippet": "requires login",
+      "range": {
+        "start_line": 17,
+        "start_column": 12,
+        "end_line": 17,
+        "end_column": 28
+      },
+      "fingerprint": null
+    },
+    "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+    "scan_id": "1b73f9b5-f297-4b6e-a98d-cf232370269b",
+    "timestamp": "2026-09-05T17:43:05.169206Z",
+    "provenance": [
+      {
+        "source": "static",
+        "rule_id": "SENT-002",
+        "evidence": {
+          "kind": "static",
+          "snippet": "requires login",
+          "range": {
+            "start_line": 17,
+            "start_column": 12,
+            "end_line": 17,
+            "end_column": 28
+          },
+          "fingerprint": null
+        },
+        "timestamp": "2026-09-05T17:43:05.169206Z"
+      }
+    ],
+    "review": {
+      "reviewed": false,
+      "status": null,
+      "requested_model": null,
+      "returned_model": null,
+      "confidence": null,
+      "reasoning": null,
+      "evidence_refs": null,
+      "probe_plan": null,
+      "suggested_severity_override": null,
+      "usage": null,
+      "latency_ms": null,
+      "batch_id": null,
+      "reviewed_at": null,
+      "applied_at": null,
+      "reason": null,
+      "mode": "not_reviewed"
+    },
+    "baseline_matched": null,
+    "suppression": null,
+    "severity": "High"
+  },
+  {
+    "finding_id": "ac575dd9-049f-47af-b607-3b39735dc657",
+    "dedup_key": "81c9d2f2621f1e8a7900662b5ecbc823553ab29c612bb4cdcf5536fc674a08c6",
+    "rule_id": "SENT-003",
+    "title": "Missing tool input validation",
+    "description": "A tool handler consumes parameters before framework or explicit validation.",
+    "impact": "Medium",
+    "exploitability": "theoretical",
+    "confidence": "high",
+    "status": "needs_review",
+    "owasp_category": {
+      "id": "ASI02:2026",
+      "name": "Tool Misuse & Exploitation"
+    },
+    "source": "static",
+    "location": {
+      "kind": "file",
+      "path": "server.py",
+      "range": {
+        "start_line": 26,
+        "start_column": 22,
+        "end_line": 26,
+        "end_column": 50
+      }
+    },
+    "evidence": {
+      "kind": "static",
+      "snippet": "def custom_validated(arguments: dict[str, object]) -> object:",
+      "range": {
+        "start_line": 26,
+        "start_column": 22,
+        "end_line": 26,
+        "end_column": 50
+      },
+      "fingerprint": null
+    },
+    "remediation": "Use an official input schema or explicit validation before first use.",
+    "scan_id": "1b73f9b5-f297-4b6e-a98d-cf232370269b",
+    "timestamp": "2026-09-05T17:43:05.169206Z",
+    "provenance": [
+      {
+        "source": "static",
+        "rule_id": "SENT-003",
+        "evidence": {
+          "kind": "static",
+          "snippet": "def custom_validated(arguments: dict[str, object]) -> object:",
+          "range": {
+            "start_line": 26,
+            "start_column": 22,
+            "end_line": 26,
+            "end_column": 50
+          },
+          "fingerprint": null
+        },
+        "timestamp": "2026-09-05T17:43:05.169206Z"
+      }
+    ],
+    "review": {
+      "reviewed": false,
+      "status": null,
+      "requested_model": null,
+      "returned_model": null,
+      "confidence": null,
+      "reasoning": null,
+      "evidence_refs": null,
+      "probe_plan": null,
+      "suggested_severity_override": null,
+      "usage": null,
+      "latency_ms": null,
+      "batch_id": null,
+      "reviewed_at": null,
+      "applied_at": null,
+      "reason": null,
+      "mode": "not_reviewed"
+    },
+    "baseline_matched": null,
+    "suppression": null,
+    "severity": "Low"
+  },
+  {
+    "finding_id": "b3eb3fcf-4bee-4503-b238-630c7ebe855b",
+    "dedup_key": "ad260347898e99f37e603ccedc1459be199f57b25655b504601eb2689999ad30",
+    "rule_id": "SENT-003",
+    "title": "Missing tool input validation",
+    "description": "A tool handler consumes parameters before framework or explicit validation.",
+    "impact": "Medium",
+    "exploitability": "theoretical",
+    "confidence": "high",
+    "status": "needs_review",
+    "owasp_category": {
+      "id": "ASI02:2026",
+      "name": "Tool Misuse & Exploitation"
+    },
+    "source": "static",
+    "location": {
+      "kind": "file",
+      "path": "server.py",
+      "range": {
+        "start_line": 32,
+        "start_column": 22,
+        "end_line": 32,
+        "end_column": 50
+      }
+    },
+    "evidence": {
+      "kind": "static",
+      "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:",
+      "range": {
+        "start_line": 32,
+        "start_column": 22,
+        "end_line": 32,
+        "end_column": 50
+      },
+      "fingerprint": null
+    },
+    "remediation": "Use an official input schema or explicit validation before first use.",
+    "scan_id": "1b73f9b5-f297-4b6e-a98d-cf232370269b",
+    "timestamp": "2026-09-05T17:43:05.169206Z",
+    "provenance": [
+      {
+        "source": "static",
+        "rule_id": "SENT-003",
+        "evidence": {
+          "kind": "static",
+          "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:",
+          "range": {
+            "start_line": 32,
+            "start_column": 22,
+            "end_line": 32,
+            "end_column": 50
+          },
+          "fingerprint": null
+        },
+        "timestamp": "2026-09-05T17:43:05.169206Z"
+      }
+    ],
+    "review": {
+      "reviewed": false,
+      "status": null,
+      "requested_model": null,
+      "returned_model": null,
+      "confidence": null,
+      "reasoning": null,
+      "evidence_refs": null,
+      "probe_plan": null,
+      "suggested_severity_override": null,
+      "usage": null,
+      "latency_ms": null,
+      "batch_id": null,
+      "reviewed_at": null,
+      "applied_at": null,
+      "reason": null,
+      "mode": "not_reviewed"
+    },
+    "baseline_matched": null,
+    "suppression": null,
+    "severity": "Low"
+  }
+]

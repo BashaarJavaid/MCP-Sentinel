@@ -303,6 +303,65 @@ catalog for GPT review.
 
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
+### Phase 16 flow and safety recognition
+
+`SENT-002` combines the installed engine with bounded Python AST and TypeScript
+source analysis. It traces tool inputs through top-level same-file named
+helpers, assignments, explicit argument bindings, and returned values. Python
+keyword arguments and simple TypeScript object-field destructuring are supported.
+Constant arguments or helper returns do not establish input-derived execution.
+There is no fixed helper-hop limit; the existing 120-second scan deadline bounds
+the analysis. Expiry is an infrastructure failure, not a completed clean scan.
+
+Imported helpers, recursion, ambiguous bindings, spreads, dynamic aliases,
+methods, nested functions, and unsupported control/mutation paths produce
+`static_flow_unresolved` where encountered by this analysis. An unknown call
+alone does not establish an execution sink. A helper finding points at the
+tool's call site and describes its known sink locations; direct finding
+locations and identity construction are preserved. Inline suppression binds to
+the primary call site. Existing GPT context windows remain unchanged; a flow
+outside those windows adds `static_review_context_incomplete`.
+
+Safety exemptions follow the relevant value across simple assignments and
+ordinary `if`/`else` paths, including rejecting exits:
+
+- `SENT-003` recognizes consumed Pydantic/Zod parsed results, enforced
+  non-transforming JSON Schema/Ajv checks, primitive framework schemas, and
+  supported custom type/allowlist guards. Unrelated checks, ignored parse
+  results, unprotected fields, use before validation, and replacement after
+  validation do not establish protection.
+- `SENT-004` treats configured sanitizers as explicit user trust. Only the
+  sanitizer result loses taint; discarded results, overwrites, and raw-content
+  reintroduction remain candidates. This does not establish that a sanitizer
+  prevents prompt injection.
+- `SENT-006` requires recognized imports and applicable FastAPI dependencies,
+  Starlette authentication plus authenticated permissions, Express middleware,
+  or Hono bearer authentication. Recognized credential checks must compare
+  request-derived data to literal/environment anchors and reject failures
+  before route continuation. Installation alone, wrong applications or paths,
+  bypasses, no-op callbacks, and request-derived anchors do not exempt a route.
+- `SENT-007` requires enforced SHA-256 comparison or native signature
+  verification over the consumed manifest bytes. Supported signatures are
+  Ed25519, RSA-PSS-SHA256, and ECDSA-SHA256 through Python `cryptography` or
+  Node crypto. Trust comes from a literal pin/key or a validated
+  `sentinel.integrity.yaml` reference bound to the manifest. Native Python
+  verification rejects by raising; Node's boolean result must be enforced.
+  Hashing alone, unrelated bytes, self-comparison, ignored results, and
+  replacement after verification do not establish integrity.
+
+These recognizers do not interpret arbitrary language or framework behavior.
+Unrecognized protection can retain a candidate for review, and unresolved flows
+are not proof of safety. The canonical Finding and report schemas, rule IDs,
+CLI behavior, and candidate-bound review contract are unchanged.
+
+The historical Phase 2 evaluation uses the frozen canonical Findings in
+`tests/evals/phase16-prechange-findings.json`, with unchanged source and captures.
+The current detector emits three candidates for that source because it now
+recognizes the enforced custom validator; the historical comparison retains
+its original four inputs. Historical replay is not a current-detector accuracy
+measurement. Reproductions and compatibility evidence are recorded in
+[`docs/phase16-verification.md`](docs/phase16-verification.md).
+
 ### Initial permanent rule catalog
 
 | ID | Detection boundary | OWASP | Impact | False-positive risk | Fixture acceptance |

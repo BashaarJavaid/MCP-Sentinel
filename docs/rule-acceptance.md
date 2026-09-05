@@ -18,3 +18,10 @@ Finding's exploitability; it is not copied from this table.
 
 The detailed detection boundaries and exemption mechanisms are versioned in the
 [`docs/rules.md`](rules.md) catalog.
+
+This table preserves the original acceptance record. Phase 16 extends
+`SENT-002` with bounded same-file flow analysis and corrects safety exemptions
+without reassigning rule IDs. Its [verification record](phase16-verification.md)
+retains failing-before cases, paired controls, and historical-review compatibility
+evidence. Those development cases and code coverage do not measure independent
+detection accuracy.

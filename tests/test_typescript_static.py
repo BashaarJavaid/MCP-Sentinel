@@ -282,6 +282,7 @@ def test_typescript_metadata_warnings_and_tools_manifest_recovery(
     root = _typescript_target(
         tmp_path / "target",
         """
+import express from "express";
 const server = new McpServer({name: "v2", version: "2"});
 const app = express();
 const dynamicName = process.env.TOOL_NAME;

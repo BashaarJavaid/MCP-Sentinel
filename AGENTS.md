@@ -77,7 +77,8 @@ do not document Phase 18's new offline interface as available before it ships.
 ## Current phase
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
-**Phase 16 is next.** Existing phase IDs are preserved for historical releases
+**Phase 16 is complete; Phase 17 is next and has not started.**
+Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
 23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or
 conditional and never block launch. Update this section only when the relevant
@@ -99,7 +100,7 @@ gate actually passes; a roadmap entry is not implemented behavior.
 - [x] Phase 13 — public documentation and maintenance (PortunusMCP rebrand)
 - [ ] Phase 14 — conditional exploit-confirmation stretch (deferred until after Phase 24; optional)
 - [ ] Phase 15 — product launch (retain existing artifacts; completion depends on Phase 24)
-- [ ] Phase 16 — static detection correctness (next: helper flows and unsafe safety exemptions)
+- [x] Phase 16 — static detection correctness (helper flows and safety exemptions; local gates passed)
 - [ ] Phase 17 — dynamic probe correctness and evidence (valid baselines, schema violations, observed effects)
 - [ ] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
 - [ ] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence)

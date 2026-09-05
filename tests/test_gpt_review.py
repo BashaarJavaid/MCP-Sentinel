@@ -17,8 +17,12 @@ import httpx
 import openai
 import pytest
 
-from scripts.capture_gpt_reviews import _planned_batches, _reserved_micro_usd
-from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
+from scripts.capture_gpt_reviews import (
+    _planned_batches,
+    _reserved_micro_usd,
+    historical_eval_findings,
+)
+from sentinel.config import LlmConfig, ReasoningEffort
 from sentinel.finding import (
     CompletedReview,
     DynamicEvidence,
@@ -38,7 +42,6 @@ from sentinel.llm.context import (
 )
 from sentinel.llm.semantic_reviewer import OpenAITransport, SemanticReviewer, _classify
 from sentinel.llm.tools import extract_tool_catalog
-from sentinel.static.engine import run_static_scan
 
 ROOT = Path(__file__).parent / "fixtures" / "gpt_review_eval"
 NOW = datetime(2026, 7, 18, tzinfo=timezone.utc)
@@ -150,8 +153,7 @@ class FakeTransport:
 
 @cache
 def _all_eval_findings() -> tuple[Finding, ...]:
-    configuration = load_configuration(ROOT, environ={}, static_only=True)
-    return run_static_scan(configuration, uuid4(), timestamp=NOW).findings
+    return historical_eval_findings()
 
 
 def _sent002_findings() -> tuple[Finding, ...]:

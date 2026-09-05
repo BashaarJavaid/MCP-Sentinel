@@ -89,3 +89,4 @@ class StaticScanResult:
 class StaticContext:
     configuration: LoadedConfiguration
     files: StaticFileSet
+    deadline: float = float("inf")

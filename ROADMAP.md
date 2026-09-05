@@ -11,7 +11,9 @@ workflows. The September 2026 product review identified detection-quality and
 adoption gaps that those original gates did not measure. Phases 16–26 address
 that review; none is implemented merely by being scheduled here.
 
-**Next phase: 16 — Static detection correctness.** Required execution order:
+Phase 16 is complete: its static-correctness gate passed and the user authorized
+committing the implementation. **Next phase: 17 — Dynamic probe correctness and evidence.**
+Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
 after its predecessor's verification gate passes. Phase 15 retains existing
 publication artifacts but cannot close on distribution evidence alone. Phase
@@ -847,7 +849,9 @@ Make the released product discoverable with claims backed by public evidence.
 
 ## 19. Phase 16 — Static detection correctness
 
-**Status: planned; next required phase.** Depends on completed Phase 13.
+**Status: complete.** Local verification passed and the user authorized committing
+and pushing the completed implementation to `main`.
+Depends on completed Phase 13. Phase 17 has not started.
 
 ### Objective
 
@@ -883,6 +887,16 @@ refactoring before adding broader threat classes.
 - Python/TypeScript paired fixtures, existing review replay, canonical schemas,
   and SARIF validation pass, or affected contracts/cassettes are explicitly
   updated with justified compatibility changes.
+
+Local verification on macOS/Python 3.12 passed **426 tests** with **85.83%**
+branch-aware coverage, lint, formatting, type checks, canonical schemas, retained
+SARIF artifacts, strict documentation build, and built-wheel fixture/SARIF
+checks. The historical four-candidate review inputs are frozen separately from
+the corrected detector's three current candidates; existing captures and
+request fingerprints are preserved. See the
+[Phase 16 verification record](docs/phase16-verification.md) for failing-before
+evidence, supported boundaries, compatibility details, and the final review.
+No release, hosted CI run, or new live model evaluation is claimed.
 
 ## 20. Phase 17 — Dynamic probe correctness and evidence
 

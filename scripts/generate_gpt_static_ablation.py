@@ -6,10 +6,8 @@ import argparse
 import json
 import os
 import tempfile
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, cast
-from uuid import uuid4
+from typing import TYPE_CHECKING, Any, cast
 
 import yaml
 
@@ -18,7 +16,11 @@ from sentinel.finding import FindingStatus
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.semantic_reviewer import MODEL, PRICING, SemanticReviewer
 from sentinel.llm.tools import extract_tool_catalog
-from sentinel.static.engine import run_static_scan
+
+if TYPE_CHECKING or __package__:
+    from .capture_gpt_reviews import historical_eval_findings
+else:
+    from capture_gpt_reviews import historical_eval_findings
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LLM = LlmConfig()
@@ -83,12 +85,7 @@ def _evaluate(effort: ReasoningEffort, cases: list[dict[str, Any]]) -> dict[str,
     llm = loaded.scanner.llm.model_copy(
         update={"reasoning_effort": effort, "cache_enabled": False}
     )
-    loaded = loaded.model_copy(
-        update={"scanner": loaded.scanner.model_copy(update={"llm": llm})}
-    )
-    findings = run_static_scan(
-        loaded, uuid4(), timestamp=datetime.now(timezone.utc)
-    ).findings
+    findings = historical_eval_findings()
     outcome = SemanticReviewer(
         root=fixture,
         config=llm,

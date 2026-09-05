@@ -61,6 +61,13 @@ files, workspaces, cross-file dataflow, imported handlers or schemas, and Node
 execution are outside the supported boundary. Dynamic targets are local Python
 3.10–3.12 MCP servers.
 
+The current source includes Phase 16 static-correctness changes: same-file
+named-helper execution flows and value-specific validation, authentication,
+integrity, and configured-sanitizer checks. Unsupported flows remain unresolved;
+see the [rule boundaries](docs/rules.md) and
+[verification record](docs/phase16-verification.md). These changes are
+not included in the pinned release above until a new release is published.
+
 ## Rules
 
 Every finding uses a stable rule ID and maps to the OWASP Agentic Top 10.

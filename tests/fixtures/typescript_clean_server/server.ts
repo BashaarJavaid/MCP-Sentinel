@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import { readFile, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
 import { z } from "zod";
 
@@ -22,6 +23,8 @@ server.registerTool(
 const app = new Hono();
 app.use(bearerAuth({ token: process.env.PUBLIC_TOKEN }));
 app.get("/admin", (context) => context.text("ok"));
+
+const EXPECTED_DIGEST = "eaaebc2f0c6668f39706937041962e93208a89fbc329f3c61af3811a51034700";
 
 function loadTools() {
   const bytes = readFileSync("tools.json", "utf8");

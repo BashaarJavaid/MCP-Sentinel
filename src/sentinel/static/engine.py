@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from collections.abc import Callable
 from datetime import datetime
@@ -22,6 +23,7 @@ from sentinel.finding import (
     make_dedup_key,
 )
 from sentinel.report.model import (
+    ReportWarning,
     StaticAnalysisSummary,
     StaticRuleOutcome,
     StaticRuleStatus,
@@ -78,7 +80,9 @@ def run_static_scan(
         configuration.language,
         forced_ignored_paths,
     )
-    context = StaticContext(configuration=configuration, files=files)
+    context = StaticContext(
+        configuration=configuration, files=files, deadline=scan_deadline
+    )
     states = {rule_id: RuleRunState() for rule_id in selected}
     semgrep_matches = run_semgrep(
         files,
@@ -101,7 +105,7 @@ def run_static_scan(
                     semgrep_matches.get(rule_id),
                 )
         elif rule_id == "SENT-002":
-            sent002.run(semgrep_matches.get(rule_id, []), state)
+            sent002.run(context, semgrep_matches.get(rule_id, []), state)
         elif rule_id == "SENT-005":
             sent005.run(context, semgrep_matches.get(rule_id, []), state)
         else:
@@ -113,9 +117,29 @@ def run_static_scan(
         state = states[rule_id]
         matches = _deduplicate(state.matches)
         if state.skip_reason is None:
-            findings.extend(
-                _finding_from_match(match, scan_id, timestamp) for match in matches
-            )
+            for match in matches:
+                finding = _finding_from_match(match, scan_id, timestamp)
+                findings.append(finding)
+                if "flow_lines" in match.captures:
+                    from sentinel.llm.context import build_finding_context
+
+                    review_context = build_finding_context(
+                        configuration.scan_root, finding
+                    )
+                    if any(
+                        not review_context.contains(match.path, line, line)
+                        for line in json.loads(match.captures["flow_lines"])
+                    ):
+                        state.warnings.append(
+                            ReportWarning(
+                                code="static_review_context_incomplete",
+                                message=(
+                                    f"SENT-002 at {match.path}:"
+                                    f"{match.range.start_line}: helper flow extends "
+                                    "beyond the existing model-review context."
+                                ),
+                            )
+                        )
             status = StaticRuleStatus.EVALUATED
         else:
             status = StaticRuleStatus.SKIPPED
@@ -233,7 +257,13 @@ def _finding_from_match(
         ),
         rule_id=match.rule_id,
         title=definition.title,
-        description=definition.description,
+        description=definition.description
+        + (
+            f" Tool input reaches {match.captures['execution_sinks']} "
+            "through a same-file helper."
+            if "execution_sinks" in match.captures
+            else ""
+        ),
         impact=definition.impact,
         exploitability=Exploitability.THEORETICAL,
         confidence=Confidence.HIGH,

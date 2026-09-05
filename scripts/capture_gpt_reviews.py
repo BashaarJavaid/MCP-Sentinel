@@ -453,6 +453,19 @@ def _replay_phase3(
         raise RuntimeError("captured Phase 3 responses failed production replay")
 
 
+def historical_eval_findings() -> tuple[Finding, ...]:
+    """Load Phase 2 candidates independently of the current detector."""
+    snapshot = ROOT / "tests/evals/phase16-prechange-findings.json"
+    findings = []
+    for value in json.loads(snapshot.read_text(encoding="utf-8")):
+        severity = value.pop("severity")  # Computed field, as in the baseline loader.
+        finding = Finding.model_validate_json(json.dumps(value))
+        if finding.severity.value != severity:
+            raise ValueError("Historical finding severity changed")
+        findings.append(finding)
+    return tuple(findings)
+
+
 def _planned_batches(
     checkpoint: str, effort: ReasoningEffort
 ) -> tuple[tuple[_Batch, ...], LlmConfig]:
@@ -475,9 +488,12 @@ def _planned_batches(
     loaded = loaded.model_copy(
         update={"scanner": loaded.scanner.model_copy(update={"llm": llm})}
     )
-    findings = run_static_scan(
-        loaded, uuid4(), timestamp=datetime.now(timezone.utc)
-    ).findings
+    if checkpoint in {"eval-medium", "eval-low"}:
+        findings = historical_eval_findings()
+    else:
+        findings = run_static_scan(
+            loaded, uuid4(), timestamp=datetime.now(timezone.utc)
+        ).findings
     catalog = extract_tool_catalog(fixture, loaded.scanner.scanner.ignore_paths)
     if checkpoint == "smoke":
         findings = tuple(

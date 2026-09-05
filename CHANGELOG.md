@@ -10,6 +10,17 @@ new rule IDs.
 
 ## [Unreleased]
 
+### Fixed
+
+- Trace supported Python and TypeScript tool inputs through same-file named
+  helpers, explicit bindings, assignments, and returns for `SENT-002`; retain
+  unresolved-flow and limited-review-context warnings.
+- Require validation of the consumed input, enforced authentication, and
+  integrity verification of the consumed manifest bytes before granting static
+  safety exemptions. Configured sanitizer trust follows its returned value.
+- Preserve historical GPT evaluation inputs separately from current detector
+  output, retaining existing captures and request fingerprints.
+
 ## [1.2.1] - 2026-09-04
 
 ### Changed
