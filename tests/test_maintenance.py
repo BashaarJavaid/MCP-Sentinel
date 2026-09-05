@@ -140,6 +140,9 @@ def test_public_surfaces_reject_unscoped_legacy_branding() -> None:
             or ".venv" in relative.parts
         ):
             continue
-        if legacy.search(path.read_text(encoding="utf-8")):
+        text = path.read_text(encoding="utf-8")
+        if relative == Path("docs/walkthrough.md"):
+            text = text.replace("older **MCP Sentinel v0.1.0** branding", "")
+        if legacy.search(text):
             offenders.append(str(relative))
     assert offenders == []

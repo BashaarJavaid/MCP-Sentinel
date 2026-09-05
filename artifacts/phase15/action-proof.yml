@@ -1,0 +1,71 @@
+name: PortunusMCP Sentinel 1.2.1 clean proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Action reference to verify
+        required: true
+        default: exact
+        type: choice
+        options: [exact, alias]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  exact:
+    if: inputs.release == 'exact'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - id: sentinel
+        uses: BashaarJavaid/MCP-Sentinel@v1.2.1
+        with:
+          target-path: clean_server
+          fail-on: high
+          openai-api-key: ""
+      - name: Verify complete clean output and installed version
+        env:
+          SARIF_PATH: ${{ steps.sentinel.outputs.sarif-path }}
+          FINDINGS_COUNT: ${{ steps.sentinel.outputs.findings-count }}
+          HIGHEST_SEVERITY: ${{ steps.sentinel.outputs.highest-severity }}
+        run: |
+          test "$(sentinel --version)" = "1.2.1"
+          python verify_action_outputs.py "$SARIF_PATH" "$FINDINGS_COUNT" "$HIGHEST_SEVERITY" --require-complete
+          test "$FINDINGS_COUNT" = "0"
+          test "$HIGHEST_SEVERITY" = "none"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: phase15-exact-clean-sarif
+          path: ${{ steps.sentinel.outputs.sarif-path }}
+          retention-days: 90
+          if-no-files-found: error
+  alias:
+    if: inputs.release == 'alias'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - id: sentinel
+        uses: BashaarJavaid/MCP-Sentinel@v1
+        with:
+          target-path: clean_server
+          fail-on: high
+          openai-api-key: ""
+      - name: Verify complete clean output and installed version
+        env:
+          SARIF_PATH: ${{ steps.sentinel.outputs.sarif-path }}
+          FINDINGS_COUNT: ${{ steps.sentinel.outputs.findings-count }}
+          HIGHEST_SEVERITY: ${{ steps.sentinel.outputs.highest-severity }}
+        run: |
+          test "$(sentinel --version)" = "1.2.1"
+          python verify_action_outputs.py "$SARIF_PATH" "$FINDINGS_COUNT" "$HIGHEST_SEVERITY" --require-complete
+          test "$FINDINGS_COUNT" = "0"
+          test "$HIGHEST_SEVERITY" = "none"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: phase15-alias-clean-sarif
+          path: ${{ steps.sentinel.outputs.sarif-path }}
+          retention-days: 90
+          if-no-files-found: error

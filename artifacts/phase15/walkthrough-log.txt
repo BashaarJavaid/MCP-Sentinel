@@ -1,0 +1,29 @@
+Python 3.12.14
+1.2.1
+1.16.0
+git version 2.47.3
+d73f99efbfd40c3aa1b61e88728b3d49fb52608f
+PATH=/root/.local/bin:/usr/local/bin:/usr/bin:/bin
+PWD=/work
+Traceback (most recent call last):
+  File "/root/.local/share/pipx/venvs/portunusmcp-sentinel/lib/python3.12/site-packages/sentinel/config.py", line 421, in load_configuration
+    scanner = SentinelConfig.model_validate(merged)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/pipx/venvs/portunusmcp-sentinel/lib/python3.12/site-packages/pydantic/main.py", line 732, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for SentinelConfig
+scanner.format
+  Input should be an instance of OutputFormat [type=is_instance_of, input_value='json', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/is_instance_of
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+  File "/root/.local/share/pipx/venvs/portunusmcp-sentinel/lib/python3.12/site-packages/sentinel/config.py", line 423, in load_configuration
+    raise ConfigurationError(
+sentinel.errors.ConfigurationError: invalid scanner configuration: 1 validation error for SentinelConfig
+scanner.format
+  Input should be an instance of OutputFormat [type=is_instance_of, input_value='json', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.13/v/is_instance_of

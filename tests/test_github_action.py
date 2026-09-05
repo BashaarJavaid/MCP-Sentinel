@@ -357,7 +357,7 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
     assert metadata["runs"]["steps"][0]["with"]["python-version"] == "3.12"
     assert metadata["runs"]["steps"][1]["run"] == (
         "python -m pip install --disable-pip-version-check "
-        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.2.0"
+        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.2.1"
     )
     uses = [step.get("uses", "") for step in metadata["runs"]["steps"]]
     assert any(value.startswith("actions/setup-python@ece7cb06") for value in uses)

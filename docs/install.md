@@ -18,8 +18,7 @@ The uv equivalent is:
 uv tool install portunusmcp-sentinel
 ```
 
-Pin `portunusmcp-sentinel==1.2.0` only for exact reproducibility. Stable `1.2.0`
-artifacts still display the former runtime label until the next release.
+Pin `portunusmcp-sentinel==1.2.1` for exact reproducibility.
 
 Confirm the command is available:
 
