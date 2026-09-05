@@ -1,0 +1,55 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 295B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 1.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/5] FROM docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea
+#4 resolve docker.io/library/python:3.12-slim@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea done
+#4 DONE 0.0s
+
+#5 [2/5] RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [3/5] RUN python -m pip install pipx==1.16.0
+#6 CACHED
+
+#7 [4/5] RUN pipx install portunusmcp-sentinel==1.2.1
+#7 0.398 creating virtual environment...
+#7 0.434 creating shared libraries...
+#7 2.294 upgrading shared libraries...
+#7 3.673 WARNING: Skipping setuptools as it is not installed.
+#7 3.716 installing portunusmcp-sentinel from spec 'portunusmcp-sentinel==1.2.1'...
+#7 24.35   installed package portunusmcp-sentinel 1.2.1, installed using Python 3.12.14
+#7 24.35   These apps are now available
+#7 24.35     - sentinel
+#7 24.35 ⚠️  Note: '/root/.local/bin' is not on your PATH environment variable. These
+#7 24.35     apps will not be globally accessible until your PATH is updated. Run `pipx
+#7 24.35     ensurepath` to automatically add it, or manually modify your PATH in your
+#7 24.35     shell's config file (e.g. ~/.bashrc).
+#7 24.35 done! ✨ 🌟 ✨
+#7 DONE 24.9s
+
+#8 [5/5] WORKDIR /work
+#8 DONE 0.1s
+
+#9 exporting to image
+#9 exporting layers
+#9 exporting layers 13.0s done
+#9 exporting manifest sha256:cc5431485abcd558ef610db747bf5b832237443ef72d42a02d4057f43838248f done
+#9 exporting config sha256:56de179eb1f28f752dd06441d8d4057be51eb81d46484f47259ec7b1fc068922 done
+#9 exporting attestation manifest sha256:3271bfff77e4d88255b854e0b1f744b366f72e40f49651273ad6f1c7cc38b42c done
+#9 exporting manifest list sha256:56c791d0007e6fbc9da843ecb0f900cbc8fb22dfea885a77c281ea40ea61d202 done
+#9 naming to docker.io/library/sentinel-phase15-public:latest done
+#9 unpacking to docker.io/library/sentinel-phase15-public:latest
+#9 unpacking to docker.io/library/sentinel-phase15-public:latest 3.6s done
+#9 DONE 16.7s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jla4j54gjnz19b9ootvmfnds6

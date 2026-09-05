@@ -1,8 +1,10 @@
 # Phase 15 — 1.2.1 launch evidence and approval packet
 
-Prepared 2026-09-04. **Release candidate; publication is not approved. Phase 15
-remains incomplete and Phase 14 remains deferred.** No paid GPT calls were made.
-The branch is `release/1.2.1-launch`, based on
+Prepared and approved 2026-09-04 (America/Los_Angeles). **1.2.1 publication
+and verification are recorded below. Phase 15 remains incomplete while owner
+submissions and announcements are pending; Phase 14 remains deferred.** No paid
+GPT calls were made.
+The preparation branch was `release/1.2.1-launch`, based on
 `4e38916` (the existing cold Semgrep startup fix).
 
 ## Prepared changes
@@ -18,6 +20,51 @@ interfaces are preserved.
 Review [release notes](release-notes.md), [launch drafts](launch-drafts.md), and
 the [walkthrough source](../../docs/walkthrough.md). The owner revises and
 publishes list submissions and announcements.
+
+## Public release evidence
+
+Release commit: `9fae385c684781f12702f50cbae60a6cfc48c867`. The owner approved
+PR #16, publication, and the signed alias update in this conversation.
+
+- [Release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/33932405826):
+  all 43 jobs passed, including the 12 quality and 12 isolated distribution jobs,
+  Docker replay, TestPyPI, public provenance, and 12 public installation jobs.
+  Four initial public installs received stale PyPI index responses; retrying only
+  those failed jobs passed, with no artifact republishing or source changes.
+- The [immutable GitHub release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.1)
+  is published. [Marketplace](https://github.com/marketplace/actions/mcp-sentinel)
+  reports `v1.2.1` as latest; `public/github-release.json` and
+  `public/marketplace.json` retain the observed state.
+- [Exact-tag clean proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33933771928)
+  and [alias clean proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/33933933476)
+  passed. `public/action-exact/` and `public/action-alias/` retain independently
+  validated SARIF: driver 1.2.1, complete analysis, successful execution, no findings.
+  The proof repository commit is `1581c32021d81559c1b2569e8b273813194d3839`; its
+  version assertion now expects 1.2.1 and its new workflow is manual-only.
+- `public/links.json` records post-publication launch link checks.
+  `public/private-reporting.json` confirms private reporting remains enabled.
+- `public/canonical-distributions.json`, `public/testpypi.json`, `public/pypi.json`,
+  and the four provenance documents retain matching canonical artifact hashes.
+  `public/deployment-approvals.json` records the owner’s protected PyPI approval.
+- `public/exact-tag.json` and `public/alias-tag.json` retain GitHub-verified SSH
+  signatures. Both refs point to the release commit; the old alias object was
+  `80509d603cf053a2e4dbbd148fd3aeb84cf8f9fe`, replaced with an explicit lease.
+- `public/walkthrough.*`, `public/walkthrough-config.json`, and
+  `public/walkthrough-log.txt` are the authoritative **public PyPI pipx** check.
+  Python 3.12.14/Linux, no credentials or ambient Sentinel overrides, network
+  disabled during scans, target read-only, both exits 0, five files, no findings,
+  SENT-001 skipped for missing permissions. The wrapper and both validators exit 0.
+- `public/linux-installed.txt`, `public/linux-image.txt`, `public/linux-build.txt`,
+  and `public/walkthrough.Dockerfile` retain the public verification environment.
+  Run the public image with the rehearsal mounts below, mounting this directory
+  read-only at `/runbook` and `public/` at `/evidence`, then invoke
+  `sh /runbook/walkthrough-scan.sh` with the same empty environment.
+- The initial rehearsal collector logged a strict-enum error **after** its two
+  scans and report validators succeeded. The collector now uses `OutputFormat.JSON`;
+  the successful public run supersedes the earlier default configuration snapshot.
+  The old log remains preserved; no scanner/package change was needed.
+- `publication.json` records publication and proof links, leaving owner-posted
+  submission/announcement URLs null until supplied and verified.
 
 ## Rehearsal evidence
 
@@ -41,8 +88,9 @@ publishes list submissions and announcements.
   All seven static rules selected; SENT-001 skipped for absent permissions;
   SENT-002–007 evaluated; dynamic stages intentionally skipped. No target code
   or target dependency installation was executed.
-- `walkthrough-config.json`: effective native-JSON scanner configuration;
-  SARIF changes only the output format. `--static-only` and `--allow-degraded`
+- `walkthrough-config.json`: initial default configuration snapshot, superseded
+  by `public/walkthrough-config.json` because the first collector failed. The
+  public JSON configuration includes CLI rules and format; SARIF changes only format. `--static-only` and `--allow-degraded`
   are explicit CLI switches. `walkthrough-log.txt` records the entire scan
   environment: PATH and shell PWD only, with no GPT/Sentinel overrides.
 - `linux-installed.txt`, `linux-image.txt`, `linux-build.txt`: Linux arm64,
@@ -51,7 +99,8 @@ publishes list submissions and announcements.
 - `SHA256SUMS`: retained evidence and candidate distribution hashes.
   `target-SHA256SUMS` hashes every tracked file under the pinned `src/git`.
 - `links.json`: existing launch links resolve. The 1.2.1 PyPI endpoint and new
-  walkthrough return the expected pre-publication 404; verify both after release.
+  walkthrough returned the expected pre-publication 404; the successful public
+  checks supersede those observations.
 - `private-reporting.json`: enabled. The public repository Security page exposes
   `/BashaarJavaid/MCP-Sentinel/security/advisories/new` as “Report a vulnerability”.
   Filing requires GitHub login. No test advisory was submitted.
@@ -65,10 +114,9 @@ model spend, installed branding, and the replay rule/stage outcomes:
 /tmp/sentinel-phase15-wheel-env/bin/python artifacts/phase15/verify-reports.py
 ```
 
-The pipx rehearsal installed a **local candidate wheel**, because 1.2.1 is not
-published yet. It does not establish that `pipx install
-portunusmcp-sentinel==1.2.1` works from PyPI. Public-index installation and
-provenance are post-approval gates. Candidate artifacts are under
+The initial pipx rehearsal installed a **local candidate wheel**. The separate
+public check now verifies `pipx install portunusmcp-sentinel==1.2.1` from PyPI;
+its environment and reports live under `public/`. Candidate artifacts are under
 `/tmp/sentinel-phase15-dist`; the release workflow builds its canonical artifacts.
 Compare source/content and use the workflow's canonical hashes for publication,
 not these rehearsal archive hashes.
@@ -120,7 +168,7 @@ docker run --rm --network none \
   PATH=/root/.local/bin:/usr/local/bin:/usr/bin:/bin sh /evidence/walkthrough-scan.sh
 ```
 
-## Publication procedure — requires owner approval
+## Approved publication procedure (retained runbook)
 
 1. Review the PR, final commit, changelog, notes and all hosted checks. Obtain
    explicit approval before merging/publishing and before updating signed `v1`.
@@ -158,14 +206,15 @@ docker run --rm --network none \
 10. Only after every gate passes, update ROADMAP.md and AGENTS.md to mark Phase 15
     complete. Until then leave both phase-completion markers unchanged.
 
-## Pending gates
+## Remaining launch gates
 
-Hosted PR checks and exact tested commit are recorded with the PR. Product
-publication, canonical TestPyPI/PyPI provenance, public installs, clean exact/alias
-Action runs, published walkthrough smoke, two merged list submissions, and three
-accessible announcements remain required. Local evidence never substitutes for
-these external gates. `publication.json` starts with null URLs deliberately.
+The owner revises and publishes the two selected list submissions and the Show HN,
+Reddit, and Glama-linked Discord announcements using `launch-drafts.md`, then
+provides URLs. Confirm the eligible Discord showcase channel and its rules before
+posting. Verify both list merges and accessible announcements before changing
+ROADMAP.md or AGENTS.md to mark Phase 15 complete. Rejected submissions or scope
+changes return to the owner; no replacement destinations are selected implicitly.
 
 Historical positive code-scanning upload proof remains
-[v0.1.0 on 2026-07-21](../phase4-action-evidence.md). A new clean workflow run is
-integration proof only and must not be described as fresh positive-alert proof.
+[v0.1.0 on 2026-07-21](../phase4-action-evidence.md). The new clean workflow runs
+are integration proof only and are not fresh positive-alert evidence.
