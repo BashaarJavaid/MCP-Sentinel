@@ -13,11 +13,11 @@ vulnerability-free.
 Use Linux, Python 3.12, Git, and [pipx](https://pipx.pypa.io/stable/installation/).
 Start in a new working directory. Package installation and cloning need network
 access; the scans themselves can run offline. No Docker is needed for this
-walkthrough. The launch rehearsal used Python 3.12.14 and pipx 1.16.0 inside a
-fresh Linux container, installing the candidate wheel through pipx. The exact
-public-index installation below must also pass after publication; the retained
+walkthrough. The published-package verification used Python 3.12.14 and pipx 1.16.0
+inside a fresh Linux container, installing 1.2.1 directly from public PyPI. The
 [launch evidence](https://github.com/BashaarJavaid/MCP-Sentinel/tree/main/artifacts/phase15)
-distinguishes those two checks.
+retains both the earlier candidate-wheel rehearsal and the successful public
+installation, including validated reports, effective configuration, and hashes.
 
 ```sh
 python3 --version

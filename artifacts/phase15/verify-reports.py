@@ -7,10 +7,10 @@ from sentinel.report.validate_json import validate_report_data
 from sentinel.report.validate_sarif import validate_sarif_data
 
 root = Path(__file__).parent
-walkthrough = json.loads((root / "walkthrough.json").read_text())
+walkthrough = json.loads((root / "public/walkthrough.json").read_text())
 replay = json.loads((root / "replay/report.json").read_text())
 for report, sarif_path in (
-    (walkthrough, root / "walkthrough.sarif"),
+    (walkthrough, root / "public/walkthrough.sarif"),
     (replay, root / "replay/report.sarif"),
 ):
     validate_report_data(report)

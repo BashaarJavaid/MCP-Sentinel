@@ -1,7 +1,8 @@
 # Phase 15 launch drafts — owner revises and publishes
 
 Prepared 2026-09-04. These are unpublished maker drafts, not submitted posts.
-Publish only after the release readiness gates in [README.md](README.md) pass.
+Product readiness gates in [README.md](README.md) have passed; the public
+1.2.1 release and both Action proofs are linked in [publication.json](publication.json).
 List reviews may remain pending while announcements publish; Phase 15 cannot
 close until both selected list PRs merge and all three announcements are accessible.
 
@@ -14,10 +15,10 @@ positive evidence is the [1.2.1 installed-wheel replay](replay/report.json): all
 probes executed during this rehearsal; GPT responses came from existing captures.
 Current cost is zero; recorded origin cost is historical, not new spend.
 
-The [pinned real-server scan](walkthrough.json) has zero findings and skips
+The [pinned real-server scan](public/walkthrough.json) has zero findings and skips
 SENT-001 because permissions are absent. It proves repeatability and discloses
-coverage, not that the Git server is secure. New exact-tag/alias Action checks
-will use the clean fixture and prove integration, not positive alert creation.
+coverage, not that the Git server is secure. The new exact-tag/alias Action checks
+passed on the clean fixture and prove integration, not positive alert creation.
 For historical positive upload evidence cite [v0.1.0, 2026-07-21](../phase4-action-evidence.md)
 and its [public run](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/29874088698).
 
