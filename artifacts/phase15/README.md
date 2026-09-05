@@ -17,7 +17,7 @@ and coordinated disclosure without promising deadlines. Historical records,
 scanner capabilities, dependencies, rule IDs, JSON 1.4.0, SARIF 2.1.0, and Action
 interfaces are preserved.
 
-Review [release notes](release-notes.md), [launch drafts](launch-drafts.md), and
+Review [release notes](release-notes.md) and
 the [walkthrough source](../../docs/walkthrough.md). The owner revises and
 publishes list submissions and announcements.
 
@@ -209,7 +209,7 @@ docker run --rm --network none \
 ## Remaining launch gates
 
 The owner revises and publishes the two selected list submissions and the Show HN,
-Reddit, and Glama-linked Discord announcements using `launch-drafts.md`, then
+Reddit, and Glama-linked Discord announcements using locally retained drafts, then
 provides URLs. Confirm the eligible Discord showcase channel and its rules before
 posting. Verify both list merges and accessible announcements before changing
 ROADMAP.md or AGENTS.md to mark Phase 15 complete. Rejected submissions or scope
