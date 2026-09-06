@@ -1,0 +1,2601 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T04:14:06.478403Z",
+  "dynamic_analysis": {
+    "probe_outcomes": [
+      {
+        "argument_path": [],
+        "attack": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "value": "sentinel"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": \"sentinel\"\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": "sentinel"
+            }
+          }
+        },
+        "baseline": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "path": "data/users.json"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": \"[{\\\"id\\\": \\\"sentinel-record\\\", \\\"name\\\": \\\"Synthetic probe record\\\"}]\\n\"\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": "[{\"id\": \"sentinel-record\", \"name\": \"Synthetic probe record\"}]\n"
+            }
+          },
+          "schema_sha256": "39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194",
+          "schema_valid": true,
+          "tool": "broad_reader"
+        },
+        "effects": {
+          "policy_sha256": "8fe23542a8300d421842dfd83201b1e67b68d937e8a752c501dee52cc52ecfd2",
+          "request_sha256": "40eb133e2b7ec9a0f3d8c85945c2083c4f140b0b1d0d54cee24c6cc85df3eb91",
+          "request_size_bytes": 21,
+          "schema_sha256": "12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7"
+        },
+        "execution_successful": true,
+        "field": null,
+        "probe_id": "SENT-008",
+        "reason": "security violation observed after a successful baseline",
+        "schema_checks": [],
+        "status": "tested",
+        "timings": {
+          "attack_ms": 929.6129589783959,
+          "baseline_ms": 886.428750003688
+        },
+        "tool": "ungranted_echo",
+        "verdict": "violation_observed"
+      },
+      {
+        "argument_path": [
+          "expression"
+        ],
+        "attack": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "__SENTINEL_OVERSIZED__"
+          },
+          "response": {
+            "is_error": false,
+            "original_size_bytes": 2097287,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "truncated": true
+          }
+        },
+        "baseline": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "1"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": 1\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": 1
+            }
+          },
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+          "schema_valid": true,
+          "tool": "unsafe_calculator"
+        },
+        "effects": {
+          "request_sha256": "6206a371e74319ae8632bf56a027201945cda44a759e37f65aea68f666894b8d",
+          "request_size_bytes": 1048576,
+          "resource_failure": false,
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+        },
+        "execution_successful": true,
+        "field": "expression",
+        "probe_id": "SENT-009",
+        "reason": "security violation observed after a successful baseline",
+        "schema_checks": [
+          {
+            "constraint": 4096,
+            "instance_path": [
+              "expression"
+            ],
+            "keyword": "maxLength",
+            "measured_size": 1048558,
+            "schema_path": [
+              "properties",
+              "expression",
+              "maxLength"
+            ]
+          }
+        ],
+        "status": "tested",
+        "timings": {
+          "attack_ms": 961.7908339714631,
+          "baseline_ms": 1064.9603750207461
+        },
+        "tool": "unsafe_calculator",
+        "verdict": "violation_observed"
+      },
+      {
+        "argument_path": [
+          "expression"
+        ],
+        "attack": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "__SENTINEL_INJECTION__"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": null\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": null
+            }
+          }
+        },
+        "baseline": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "1"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": 1\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": 1
+            }
+          },
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+          "schema_valid": true,
+          "tool": "unsafe_calculator"
+        },
+        "effects": {
+          "baseline_canary_after": false,
+          "baseline_canary_before": false,
+          "canary_after": true,
+          "canary_before": false,
+          "request_sha256": "0412fef26e6038e9165cac0dcd73fc3dc1f63db58e8c4f23f95f3c17f622d2cf",
+          "request_size_bytes": 93,
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+        },
+        "execution_successful": true,
+        "field": "expression",
+        "probe_id": "SENT-010",
+        "reason": "security violation observed after a successful baseline",
+        "schema_checks": [],
+        "status": "tested",
+        "timings": {
+          "attack_ms": 1094.203834014479,
+          "baseline_ms": 1263.211042038165
+        },
+        "tool": "unsafe_calculator",
+        "verdict": "violation_observed"
+      },
+      {
+        "argument_path": [
+          "expression"
+        ],
+        "attack": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "__SENTINEL_WRONG_TYPE__"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": {\n    \"__sentinel_wrong_type__\": true\n  }\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": {
+                "__sentinel_wrong_type__": true
+              }
+            }
+          }
+        },
+        "baseline": {
+          "logs": [
+            "Processing request of type ListToolsRequest",
+            "Processing request of type CallToolRequest"
+          ],
+          "request": {
+            "expression": "1"
+          },
+          "response": {
+            "content": [
+              {
+                "annotations": null,
+                "meta": null,
+                "text": "{\n  \"result\": 1\n}",
+                "type": "text"
+              }
+            ],
+            "isError": false,
+            "is_error": false,
+            "meta": null,
+            "process_state": {
+              "Error": "",
+              "ExitCode": 0,
+              "OOMKilled": false,
+              "Running": true
+            },
+            "structuredContent": {
+              "result": 1
+            }
+          },
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+          "schema_valid": true,
+          "tool": "unsafe_calculator"
+        },
+        "effects": {
+          "request_sha256": "d41882a5ca4fcc49e4bc5976e72c71a7f6289b7023f8413801f5e513bab6e272",
+          "request_size_bytes": 49,
+          "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+        },
+        "execution_successful": true,
+        "field": "expression",
+        "probe_id": "SENT-011",
+        "reason": "security violation observed after a successful baseline",
+        "schema_checks": [
+          {
+            "constraint": "string",
+            "instance_path": [
+              "expression"
+            ],
+            "keyword": "type",
+            "measured_size": null,
+            "schema_path": [
+              "properties",
+              "expression",
+              "type"
+            ]
+          }
+        ],
+        "status": "tested",
+        "timings": {
+          "attack_ms": 906.0859170276672,
+          "baseline_ms": 922.3265830078162
+        },
+        "tool": "unsafe_calculator",
+        "verdict": "violation_observed"
+      }
+    ]
+  },
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c589dfc3a55623bacd0a4d38e492b761f234559d4ff05e914369445a88e51c1d",
+      "description": "The tool declares filesystem or network access broader than its handler uses.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 53,
+          "end_line": 18,
+          "start_column": 12,
+          "start_line": 18
+        },
+        "snippet": "    return open(\"data/users.json\", encoding=\"utf-8\").read()"
+      },
+      "exploitability": "likely",
+      "finding_id": "f9e78840-d971-4e47-a737-651903e9c51f",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 53,
+          "end_line": 18,
+          "start_column": 12,
+          "start_line": 18
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 53,
+              "end_line": 18,
+              "start_column": 12,
+              "start_line": 18
+            },
+            "snippet": "    return open(\"data/users.json\", encoding=\"utf-8\").read()"
+          },
+          "review": null,
+          "rule_id": "SENT-001",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306462Z",
+        "batch_id": "batch_52e691ed64ffa15f877a2b0b",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "`broad_reader` declares a path parameter but reads only the hardcoded `data/users.json` path.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 18,
+              "start_column": 1,
+              "start_line": 17
+            }
+          }
+        ],
+        "latency_ms": 12803,
+        "mode": "cached",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "path": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "path": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "path": "__SENTINEL_OMIT__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-010",
+            "SENT-011",
+            "SENT-009",
+            "SENT-008"
+          ],
+          "target_tool": "broad_reader"
+        },
+        "reason": null,
+        "reasoning": "The declared `path` input is broader than the demonstrated implementation need: the function ignores it and always reads a fixed file.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:58.176868Z",
+        "status": "confirmed",
+        "suggested_severity_override": "Low",
+        "usage": {
+          "cache_write_tokens": 1073,
+          "cached_tokens": 0,
+          "input_tokens": 1076,
+          "output_tokens": 631,
+          "reasoning_tokens": 382,
+          "total_tokens": 1707
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-001",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "High",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Overly broad tool permission scope"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "b9db96738433dd3969a8666ca7f7f3176316b3da24304e34af7d039eb49616c0",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 28,
+          "end_line": 27,
+          "start_column": 12,
+          "start_line": 27
+        },
+        "snippet": "requires login"
+      },
+      "exploitability": "likely",
+      "finding_id": "24161517-92c0-4acd-85e8-2764e10b226c",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 28,
+          "end_line": 27,
+          "start_column": 12,
+          "start_line": 27
+        }
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 28,
+              "end_line": 27,
+              "start_column": 12,
+              "start_line": 27
+            },
+            "snippet": "requires login"
+          },
+          "review": null,
+          "rule_id": "SENT-002",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306713Z",
+        "batch_id": "batch_99a008e1be20cfca0897fb07",
+        "confidence": 1.0,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool accepts expression and passes it directly to eval without restricting or safely parsing its contents.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 22
+            }
+          }
+        ],
+        "latency_ms": 6614,
+        "mode": "cached",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "expression": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "expression": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "expression": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-010",
+            "SENT-011",
+            "SENT-009",
+            "SENT-008"
+          ],
+          "target_tool": "unsafe_calculator"
+        },
+        "reason": null,
+        "reasoning": "The declared string input reaches Python eval directly after only type and length checks, enabling unsafe expression execution.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:51.992020Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1089,
+          "cached_tokens": 0,
+          "input_tokens": 1092,
+          "output_tokens": 390,
+          "reasoning_tokens": 150,
+          "total_tokens": 1482
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-002",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Critical",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Unsafe execution from tool input"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a81c4976708d749cba16202d7d82f1f9c65464369a7cee285bda52183aef123e",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 50,
+          "end_line": 31,
+          "start_column": 22,
+          "start_line": 31
+        },
+        "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:"
+      },
+      "exploitability": "likely",
+      "finding_id": "9eca97b7-e001-4e47-947b-52d15b76e536",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 50,
+          "end_line": 31,
+          "start_column": 22,
+          "start_line": 31
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 50,
+              "end_line": 31,
+              "start_column": 22,
+              "start_line": 31
+            },
+            "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306611Z",
+        "batch_id": "batch_1d9fb0acc9cf64f746d01d57",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The function directly reads `record_id` from the arguments object without validating its type.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 31
+            }
+          }
+        ],
+        "latency_ms": 18796,
+        "mode": "cached",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The tool schema validates only that `arguments` is an object and permits arbitrary nested properties. The function uses `arguments[\"record_id\"]` without a schema-declared type or an explicit runtime type check.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T11:00:04.169177Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1077,
+          "cached_tokens": 0,
+          "input_tokens": 1080,
+          "output_tokens": 681,
+          "reasoning_tokens": 411,
+          "total_tokens": 1761
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Medium",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c648a62fbb6794717a8e1ef567a2716037919fa53629f3fb80a92eeea157000b",
+      "description": "Tool output or description flows into a later model prompt without a trusted sanitizer.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 53,
+          "end_line": 39,
+          "start_column": 5,
+          "start_line": 39
+        },
+        "snippet": "    return f\"Follow these tool instructions: {text}\""
+      },
+      "exploitability": "likely",
+      "finding_id": "e7ae26a0-f03a-4a70-9da0-6401b8eb9383",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 53,
+          "end_line": 39,
+          "start_column": 5,
+          "start_line": 39
+        }
+      },
+      "owasp_category": {
+        "id": "ASI01:2026",
+        "name": "Agent Goal Hijack"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 53,
+              "end_line": 39,
+              "start_column": 5,
+              "start_line": 39
+            },
+            "snippet": "    return f\"Follow these tool instructions: {text}\""
+          },
+          "review": null,
+          "rule_id": "SENT-004",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Pass tool-controlled text through a configured sanitizer before prompt construction.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306128Z",
+        "batch_id": "batch_c9738662d82b105023701144",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "Content returned by remote_tool is embedded directly into an instruction string.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 36
+            }
+          }
+        ],
+        "latency_ms": 14833,
+        "mode": "cached",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "Tool-controlled content is interpolated directly into a model-style instruction prompt without sanitization.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:59.933566Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1490,
+          "cached_tokens": 0,
+          "input_tokens": 1493,
+          "output_tokens": 761,
+          "reasoning_tokens": 293,
+          "total_tokens": 2254
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-004",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "High",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Unsanitized tool content in prompt"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c9a1f0b309c367a4fb069d355ce8353fbc3767dd3f1cdbfdd723bb226bd33873",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "evidence": {
+        "fingerprint": "eab94b70c7862a1dbc9f25c2b396ea76fba2d845dbc07aeb69d185dc821ab927",
+        "kind": "static",
+        "range": {
+          "end_column": 42,
+          "end_line": 13,
+          "start_column": 12,
+          "start_line": 13
+        },
+        "snippet": "api_key = \"<redacted>\""
+      },
+      "exploitability": "likely",
+      "finding_id": "fc98092c-f5f5-4ae5-af01-ad7214c0bdda",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 42,
+          "end_line": 13,
+          "start_column": 12,
+          "start_line": 13
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": "eab94b70c7862a1dbc9f25c2b396ea76fba2d845dbc07aeb69d185dc821ab927",
+            "kind": "static",
+            "range": {
+              "end_column": 42,
+              "end_line": 13,
+              "start_column": 12,
+              "start_line": 13
+            },
+            "snippet": "api_key = \"<redacted>\""
+          },
+          "review": null,
+          "rule_id": "SENT-005",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.305819Z",
+        "batch_id": "batch_c9738662d82b105023701144",
+        "confidence": 0.96,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The source line is marked as containing a redacted secret.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          }
+        ],
+        "latency_ms": 14833,
+        "mode": "cached",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The supplied line is explicitly redacted as a detected secret, corroborating a hardcoded credential.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:59.933566Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1490,
+          "cached_tokens": 0,
+          "input_tokens": 1493,
+          "output_tokens": 761,
+          "reasoning_tokens": 293,
+          "total_tokens": 2254
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-005",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Critical",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Hardcoded secret"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "086a128df4552efc1f322ef7a23404e2a75240b56e4167e77c04a16db879c41e",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 20,
+          "end_line": 42,
+          "start_column": 2,
+          "start_line": 42
+        },
+        "snippet": "@app.post(\"/admin\")"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "8ce6debc-c495-4935-b33e-6ac56998d6ae",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 20,
+          "end_line": 42,
+          "start_column": 2,
+          "start_line": 42
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 20,
+              "end_line": 42,
+              "start_column": 2,
+              "start_line": 42
+            },
+            "snippet": "@app.post(\"/admin\")"
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306219Z",
+        "batch_id": "batch_c9738662d82b105023701144",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "An /admin POST route is declared, but no authentication context is supplied.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          }
+        ],
+        "latency_ms": 14833,
+        "mode": "cached",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The route declaration is shown, but the supplied context omits its handler and any application-level authentication controls, so effective authentication cannot be determined.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:59.933566Z",
+        "status": "needs_review",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1490,
+          "cached_tokens": 0,
+          "input_tokens": 1493,
+          "output_tokens": 761,
+          "reasoning_tokens": 293,
+          "total_tokens": 2254
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Missing or ineffective route authentication"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "11261c7deb6c6b3fcff75231e6732670c9f8e511d69f6f3677ec36fea1b77347",
+      "description": "Manifest bytes reach registration without a trusted hash or signature verification.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 38,
+          "end_line": 49,
+          "start_column": 16,
+          "start_line": 49
+        },
+        "snippet": "        return yaml.safe_load(handle)"
+      },
+      "exploitability": "likely",
+      "finding_id": "e27cc63f-9ad4-4288-b6ca-ffdd24d309d2",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 38,
+          "end_line": 49,
+          "start_column": 16,
+          "start_line": 49
+        }
+      },
+      "owasp_category": {
+        "id": "ASI04:2026",
+        "name": "Agentic Supply Chain Vulnerabilities"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 38,
+              "end_line": 49,
+              "start_column": 16,
+              "start_line": 49
+            },
+            "snippet": "        return yaml.safe_load(handle)"
+          },
+          "review": null,
+          "rule_id": "SENT-007",
+          "source": "static",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:12.306281Z",
+        "batch_id": "batch_c9738662d82b105023701144",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "tools.yaml is read and loaded directly with yaml.safe_load.",
+            "path": "server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 47
+            }
+          }
+        ],
+        "latency_ms": 14833,
+        "mode": "cached",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The manifest is opened and parsed directly without any visible signature, digest, or other integrity verification.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-07-20T10:59:59.933566Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1490,
+          "cached_tokens": 0,
+          "input_tokens": 1493,
+          "output_tokens": 761,
+          "reasoning_tokens": 293,
+          "total_tokens": 2254
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-007",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Medium",
+      "source": "static",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Unverified tool manifest"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c50d36fa05a2c338ce6c773c8e3e4b803a777b98004f289dabcbafcbfc75732f",
+      "description": "After a successful granted-tool control, the server processed valid arguments through a listed tool omitted from its declared tool-name grants.",
+      "evidence": {
+        "kind": "dynamic",
+        "logs": [
+          "Processing request of type ListToolsRequest",
+          "Processing request of type CallToolRequest"
+        ],
+        "probe_id": "SENT-008",
+        "proof": {
+          "argument_path": [],
+          "baseline": {
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "request": {
+              "path": "data/users.json"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": \"[{\\\"id\\\": \\\"sentinel-record\\\", \\\"name\\\": \\\"Synthetic probe record\\\"}]\\n\"\n}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": "[{\"id\": \"sentinel-record\", \"name\": \"Synthetic probe record\"}]\n"
+              }
+            },
+            "schema_sha256": "39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194",
+            "schema_valid": true,
+            "tool": "broad_reader"
+          },
+          "effects": {
+            "policy_sha256": "8fe23542a8300d421842dfd83201b1e67b68d937e8a752c501dee52cc52ecfd2",
+            "request_sha256": "40eb133e2b7ec9a0f3d8c85945c2083c4f140b0b1d0d54cee24c6cc85df3eb91",
+            "request_size_bytes": 21,
+            "schema_sha256": "12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7"
+          },
+          "field": null,
+          "schema_checks": [],
+          "tool": "ungranted_echo",
+          "verdict": "violation_observed",
+          "version": 1
+        },
+        "request": {
+          "value": "sentinel"
+        },
+        "response": {
+          "content": [
+            {
+              "annotations": null,
+              "meta": null,
+              "text": "{\n  \"result\": \"sentinel\"\n}",
+              "type": "text"
+            }
+          ],
+          "diagnostics": {
+            "timings": {
+              "attack_ms": 929.6129589783959,
+              "baseline_ms": 886.428750003688
+            }
+          },
+          "isError": false,
+          "is_error": false,
+          "meta": null,
+          "process_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false,
+            "Running": true
+          },
+          "structuredContent": {
+            "result": "sentinel"
+          }
+        }
+      },
+      "exploitability": "confirmed",
+      "finding_id": "3deddec0-7ad0-4b27-96c6-0abfbf2d66ea",
+      "impact": "Critical",
+      "location": {
+        "kind": "logical",
+        "path": "/tools/ungranted_echo"
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "kind": "dynamic",
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "probe_id": "SENT-008",
+            "proof": {
+              "argument_path": [],
+              "baseline": {
+                "logs": [
+                  "Processing request of type ListToolsRequest",
+                  "Processing request of type CallToolRequest"
+                ],
+                "request": {
+                  "path": "data/users.json"
+                },
+                "response": {
+                  "content": [
+                    {
+                      "annotations": null,
+                      "meta": null,
+                      "text": "{\n  \"result\": \"[{\\\"id\\\": \\\"sentinel-record\\\", \\\"name\\\": \\\"Synthetic probe record\\\"}]\\n\"\n}",
+                      "type": "text"
+                    }
+                  ],
+                  "isError": false,
+                  "is_error": false,
+                  "meta": null,
+                  "process_state": {
+                    "Error": "",
+                    "ExitCode": 0,
+                    "OOMKilled": false,
+                    "Running": true
+                  },
+                  "structuredContent": {
+                    "result": "[{\"id\": \"sentinel-record\", \"name\": \"Synthetic probe record\"}]\n"
+                  }
+                },
+                "schema_sha256": "39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194",
+                "schema_valid": true,
+                "tool": "broad_reader"
+              },
+              "effects": {
+                "policy_sha256": "8fe23542a8300d421842dfd83201b1e67b68d937e8a752c501dee52cc52ecfd2",
+                "request_sha256": "40eb133e2b7ec9a0f3d8c85945c2083c4f140b0b1d0d54cee24c6cc85df3eb91",
+                "request_size_bytes": 21,
+                "schema_sha256": "12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7"
+              },
+              "field": null,
+              "schema_checks": [],
+              "tool": "ungranted_echo",
+              "verdict": "violation_observed",
+              "version": 1
+            },
+            "request": {
+              "value": "sentinel"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": \"sentinel\"\n}",
+                  "type": "text"
+                }
+              ],
+              "diagnostics": {
+                "timings": {
+                  "attack_ms": 929.6129589783959,
+                  "baseline_ms": 886.428750003688
+                }
+              },
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": "sentinel"
+              }
+            }
+          },
+          "review": null,
+          "rule_id": "SENT-008",
+          "source": "dynamic",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Reject tool calls that are not granted by the active capability policy.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:20.470130Z",
+        "batch_id": "batch_c99dbce21e1a3a859f78c7ba",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "SENT-008 records violation_observed for ungranted_echo with is_error false.",
+            "path": ".sentinel/dynamic-evidence.json",
+            "range": {
+              "end_column": 2,
+              "end_line": 31,
+              "start_column": 1,
+              "start_line": 10
+            }
+          }
+        ],
+        "latency_ms": 13558,
+        "mode": "replay",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The out-of-scope ungranted_echo call produced a violation verdict and completed without error.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T01:39:59.544657Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 2932,
+          "cached_tokens": 0,
+          "input_tokens": 2935,
+          "output_tokens": 630,
+          "reasoning_tokens": 113,
+          "total_tokens": 3565
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-008",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Critical",
+      "source": "dynamic",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Out-of-scope tool execution"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a2244aaac41e9fed5b4038671dfb42cfd8800e46195a8f4c9caa8438814a566b",
+      "description": "After a successful baseline, the server processed an explicit size-limit violation or suffered an observed OOM/crash on an oversized argument.",
+      "evidence": {
+        "kind": "dynamic",
+        "logs": [
+          "Processing request of type ListToolsRequest",
+          "Processing request of type CallToolRequest"
+        ],
+        "probe_id": "SENT-009",
+        "proof": {
+          "argument_path": [
+            "expression"
+          ],
+          "baseline": {
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "request": {
+              "expression": "1"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": 1\n}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": 1
+              }
+            },
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+            "schema_valid": true,
+            "tool": "unsafe_calculator"
+          },
+          "effects": {
+            "request_sha256": "6206a371e74319ae8632bf56a027201945cda44a759e37f65aea68f666894b8d",
+            "request_size_bytes": 1048576,
+            "resource_failure": false,
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+          },
+          "field": "expression",
+          "schema_checks": [
+            {
+              "constraint": 4096,
+              "instance_path": [
+                "expression"
+              ],
+              "keyword": "maxLength",
+              "measured_size": 1048558,
+              "schema_path": [
+                "properties",
+                "expression",
+                "maxLength"
+              ]
+            }
+          ],
+          "tool": "unsafe_calculator",
+          "verdict": "violation_observed",
+          "version": 1
+        },
+        "request": {
+          "expression": "__SENTINEL_OVERSIZED__"
+        },
+        "response": {
+          "diagnostics": {
+            "timings": {
+              "attack_ms": 961.7908339714631,
+              "baseline_ms": 1064.9603750207461
+            }
+          },
+          "is_error": false,
+          "original_size_bytes": 2097287,
+          "process_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false,
+            "Running": true
+          },
+          "truncated": true
+        }
+      },
+      "exploitability": "confirmed",
+      "finding_id": "de5aada9-788f-4005-84f6-3a4747a9ded4",
+      "impact": "Medium",
+      "location": {
+        "kind": "logical",
+        "path": "/tools/unsafe_calculator/inputSchema/expression"
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "kind": "dynamic",
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "probe_id": "SENT-009",
+            "proof": {
+              "argument_path": [
+                "expression"
+              ],
+              "baseline": {
+                "logs": [
+                  "Processing request of type ListToolsRequest",
+                  "Processing request of type CallToolRequest"
+                ],
+                "request": {
+                  "expression": "1"
+                },
+                "response": {
+                  "content": [
+                    {
+                      "annotations": null,
+                      "meta": null,
+                      "text": "{\n  \"result\": 1\n}",
+                      "type": "text"
+                    }
+                  ],
+                  "isError": false,
+                  "is_error": false,
+                  "meta": null,
+                  "process_state": {
+                    "Error": "",
+                    "ExitCode": 0,
+                    "OOMKilled": false,
+                    "Running": true
+                  },
+                  "structuredContent": {
+                    "result": 1
+                  }
+                },
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+                "schema_valid": true,
+                "tool": "unsafe_calculator"
+              },
+              "effects": {
+                "request_sha256": "6206a371e74319ae8632bf56a027201945cda44a759e37f65aea68f666894b8d",
+                "request_size_bytes": 1048576,
+                "resource_failure": false,
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+              },
+              "field": "expression",
+              "schema_checks": [
+                {
+                  "constraint": 4096,
+                  "instance_path": [
+                    "expression"
+                  ],
+                  "keyword": "maxLength",
+                  "measured_size": 1048558,
+                  "schema_path": [
+                    "properties",
+                    "expression",
+                    "maxLength"
+                  ]
+                }
+              ],
+              "tool": "unsafe_calculator",
+              "verdict": "violation_observed",
+              "version": 1
+            },
+            "request": {
+              "expression": "__SENTINEL_OVERSIZED__"
+            },
+            "response": {
+              "diagnostics": {
+                "timings": {
+                  "attack_ms": 961.7908339714631,
+                  "baseline_ms": 1064.9603750207461
+                }
+              },
+              "is_error": false,
+              "original_size_bytes": 2097287,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "truncated": true
+            }
+          },
+          "review": null,
+          "rule_id": "SENT-009",
+          "source": "dynamic",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Enforce schema and byte-size limits before invoking tool handlers.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:20.470819Z",
+        "batch_id": "batch_c99dbce21e1a3a859f78c7ba",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "SENT-009 records a measured size of 1,048,558 against maxLength 4096, violation_observed, and is_error false.",
+            "path": ".sentinel/dynamic-evidence.json",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 11
+            }
+          }
+        ],
+        "latency_ms": 13558,
+        "mode": "replay",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The tool accepted an oversized expression despite the declared 4096-character maximum and returned without error.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T01:39:59.544657Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 2932,
+          "cached_tokens": 0,
+          "input_tokens": 2935,
+          "output_tokens": 630,
+          "reasoning_tokens": 113,
+          "total_tokens": 3565
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-009",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Medium",
+      "source": "dynamic",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Oversized argument violates a limit or crashes the target"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c1b319c1bf469afd0075e2ec9e07b824274341afb82582c1c72406fe9adbba02",
+      "description": "A tool argument caused the Sentinel scratch canary side effect.",
+      "evidence": {
+        "kind": "dynamic",
+        "logs": [
+          "Processing request of type ListToolsRequest",
+          "Processing request of type CallToolRequest"
+        ],
+        "probe_id": "SENT-010",
+        "proof": {
+          "argument_path": [
+            "expression"
+          ],
+          "baseline": {
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "request": {
+              "expression": "1"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": 1\n}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": 1
+              }
+            },
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+            "schema_valid": true,
+            "tool": "unsafe_calculator"
+          },
+          "effects": {
+            "baseline_canary_after": false,
+            "baseline_canary_before": false,
+            "canary_after": true,
+            "canary_before": false,
+            "request_sha256": "0412fef26e6038e9165cac0dcd73fc3dc1f63db58e8c4f23f95f3c17f622d2cf",
+            "request_size_bytes": 93,
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+          },
+          "field": "expression",
+          "schema_checks": [],
+          "tool": "unsafe_calculator",
+          "verdict": "violation_observed",
+          "version": 1
+        },
+        "request": {
+          "expression": "__SENTINEL_INJECTION__"
+        },
+        "response": {
+          "content": [
+            {
+              "annotations": null,
+              "meta": null,
+              "text": "{\n  \"result\": null\n}",
+              "type": "text"
+            }
+          ],
+          "diagnostics": {
+            "timings": {
+              "attack_ms": 1094.203834014479,
+              "baseline_ms": 1263.211042038165
+            }
+          },
+          "isError": false,
+          "is_error": false,
+          "meta": null,
+          "process_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false,
+            "Running": true
+          },
+          "structuredContent": {
+            "result": null
+          }
+        }
+      },
+      "exploitability": "confirmed",
+      "finding_id": "ac11f46e-23d2-43e0-95e6-959c2be63cbd",
+      "impact": "Critical",
+      "location": {
+        "kind": "logical",
+        "path": "/tools/unsafe_calculator/inputSchema/expression"
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "kind": "dynamic",
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "probe_id": "SENT-010",
+            "proof": {
+              "argument_path": [
+                "expression"
+              ],
+              "baseline": {
+                "logs": [
+                  "Processing request of type ListToolsRequest",
+                  "Processing request of type CallToolRequest"
+                ],
+                "request": {
+                  "expression": "1"
+                },
+                "response": {
+                  "content": [
+                    {
+                      "annotations": null,
+                      "meta": null,
+                      "text": "{\n  \"result\": 1\n}",
+                      "type": "text"
+                    }
+                  ],
+                  "isError": false,
+                  "is_error": false,
+                  "meta": null,
+                  "process_state": {
+                    "Error": "",
+                    "ExitCode": 0,
+                    "OOMKilled": false,
+                    "Running": true
+                  },
+                  "structuredContent": {
+                    "result": 1
+                  }
+                },
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+                "schema_valid": true,
+                "tool": "unsafe_calculator"
+              },
+              "effects": {
+                "baseline_canary_after": false,
+                "baseline_canary_before": false,
+                "canary_after": true,
+                "canary_before": false,
+                "request_sha256": "0412fef26e6038e9165cac0dcd73fc3dc1f63db58e8c4f23f95f3c17f622d2cf",
+                "request_size_bytes": 93,
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+              },
+              "field": "expression",
+              "schema_checks": [],
+              "tool": "unsafe_calculator",
+              "verdict": "violation_observed",
+              "version": 1
+            },
+            "request": {
+              "expression": "__SENTINEL_INJECTION__"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": null\n}",
+                  "type": "text"
+                }
+              ],
+              "diagnostics": {
+                "timings": {
+                  "attack_ms": 1094.203834014479,
+                  "baseline_ms": 1263.211042038165
+                }
+              },
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": null
+              }
+            }
+          },
+          "review": null,
+          "rule_id": "SENT-010",
+          "source": "dynamic",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Treat tool arguments as inert data and remove dynamic execution sinks.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:20.470673Z",
+        "batch_id": "batch_c99dbce21e1a3a859f78c7ba",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "SENT-010 records canary_after true and violation_observed for unsafe_calculator.expression.",
+            "path": ".sentinel/dynamic-evidence.json",
+            "range": {
+              "end_column": 2,
+              "end_line": 34,
+              "start_column": 1,
+              "start_line": 11
+            }
+          }
+        ],
+        "latency_ms": 13558,
+        "mode": "replay",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The inert injection probe changed the execution canary from false to true, directly demonstrating unexpected execution.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T01:39:59.544657Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 2932,
+          "cached_tokens": 0,
+          "input_tokens": 2935,
+          "output_tokens": 630,
+          "reasoning_tokens": 113,
+          "total_tokens": 3565
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-010",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Critical",
+      "source": "dynamic",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Injection payload executed"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "e8f383fc0529523a7c7377c4e541bcafcaf6adf99f21a190dc9d97fbe1ea7bbd",
+      "description": "After a successful baseline, the server processed locally verified invalid arguments that violate a required-field or type constraint.",
+      "evidence": {
+        "kind": "dynamic",
+        "logs": [
+          "Processing request of type ListToolsRequest",
+          "Processing request of type CallToolRequest"
+        ],
+        "probe_id": "SENT-011",
+        "proof": {
+          "argument_path": [
+            "expression"
+          ],
+          "baseline": {
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "request": {
+              "expression": "1"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": 1\n}",
+                  "type": "text"
+                }
+              ],
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": 1
+              }
+            },
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+            "schema_valid": true,
+            "tool": "unsafe_calculator"
+          },
+          "effects": {
+            "request_sha256": "d41882a5ca4fcc49e4bc5976e72c71a7f6289b7023f8413801f5e513bab6e272",
+            "request_size_bytes": 49,
+            "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+          },
+          "field": "expression",
+          "schema_checks": [
+            {
+              "constraint": "string",
+              "instance_path": [
+                "expression"
+              ],
+              "keyword": "type",
+              "measured_size": null,
+              "schema_path": [
+                "properties",
+                "expression",
+                "type"
+              ]
+            }
+          ],
+          "tool": "unsafe_calculator",
+          "verdict": "violation_observed",
+          "version": 1
+        },
+        "request": {
+          "expression": "__SENTINEL_WRONG_TYPE__"
+        },
+        "response": {
+          "content": [
+            {
+              "annotations": null,
+              "meta": null,
+              "text": "{\n  \"result\": {\n    \"__sentinel_wrong_type__\": true\n  }\n}",
+              "type": "text"
+            }
+          ],
+          "diagnostics": {
+            "timings": {
+              "attack_ms": 906.0859170276672,
+              "baseline_ms": 922.3265830078162
+            }
+          },
+          "isError": false,
+          "is_error": false,
+          "meta": null,
+          "process_state": {
+            "Error": "",
+            "ExitCode": 0,
+            "OOMKilled": false,
+            "Running": true
+          },
+          "structuredContent": {
+            "result": {
+              "__sentinel_wrong_type__": true
+            }
+          }
+        }
+      },
+      "exploitability": "confirmed",
+      "finding_id": "1421f165-b702-473a-a19f-47bcc55c4bbe",
+      "impact": "Low",
+      "location": {
+        "kind": "logical",
+        "path": "/tools/unsafe_calculator/inputSchema/expression"
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "kind": "dynamic",
+            "logs": [
+              "Processing request of type ListToolsRequest",
+              "Processing request of type CallToolRequest"
+            ],
+            "probe_id": "SENT-011",
+            "proof": {
+              "argument_path": [
+                "expression"
+              ],
+              "baseline": {
+                "logs": [
+                  "Processing request of type ListToolsRequest",
+                  "Processing request of type CallToolRequest"
+                ],
+                "request": {
+                  "expression": "1"
+                },
+                "response": {
+                  "content": [
+                    {
+                      "annotations": null,
+                      "meta": null,
+                      "text": "{\n  \"result\": 1\n}",
+                      "type": "text"
+                    }
+                  ],
+                  "isError": false,
+                  "is_error": false,
+                  "meta": null,
+                  "process_state": {
+                    "Error": "",
+                    "ExitCode": 0,
+                    "OOMKilled": false,
+                    "Running": true
+                  },
+                  "structuredContent": {
+                    "result": 1
+                  }
+                },
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c",
+                "schema_valid": true,
+                "tool": "unsafe_calculator"
+              },
+              "effects": {
+                "request_sha256": "d41882a5ca4fcc49e4bc5976e72c71a7f6289b7023f8413801f5e513bab6e272",
+                "request_size_bytes": 49,
+                "schema_sha256": "050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c"
+              },
+              "field": "expression",
+              "schema_checks": [
+                {
+                  "constraint": "string",
+                  "instance_path": [
+                    "expression"
+                  ],
+                  "keyword": "type",
+                  "measured_size": null,
+                  "schema_path": [
+                    "properties",
+                    "expression",
+                    "type"
+                  ]
+                }
+              ],
+              "tool": "unsafe_calculator",
+              "verdict": "violation_observed",
+              "version": 1
+            },
+            "request": {
+              "expression": "__SENTINEL_WRONG_TYPE__"
+            },
+            "response": {
+              "content": [
+                {
+                  "annotations": null,
+                  "meta": null,
+                  "text": "{\n  \"result\": {\n    \"__sentinel_wrong_type__\": true\n  }\n}",
+                  "type": "text"
+                }
+              ],
+              "diagnostics": {
+                "timings": {
+                  "attack_ms": 906.0859170276672,
+                  "baseline_ms": 922.3265830078162
+                }
+              },
+              "isError": false,
+              "is_error": false,
+              "meta": null,
+              "process_state": {
+                "Error": "",
+                "ExitCode": 0,
+                "OOMKilled": false,
+                "Running": true
+              },
+              "structuredContent": {
+                "result": {
+                  "__sentinel_wrong_type__": true
+                }
+              }
+            }
+          },
+          "review": null,
+          "rule_id": "SENT-011",
+          "source": "dynamic",
+          "timestamp": "2026-09-06T04:14:06.478403Z"
+        }
+      ],
+      "remediation": "Validate required fields and declared types before handler execution.",
+      "review": {
+        "applied_at": "2026-09-06T04:14:20.470947Z",
+        "batch_id": "batch_c99dbce21e1a3a859f78c7ba",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "SENT-011 records a type constraint violation, violation_observed, and is_error false.",
+            "path": ".sentinel/dynamic-evidence.json",
+            "range": {
+              "end_column": 2,
+              "end_line": 46,
+              "start_column": 1,
+              "start_line": 11
+            }
+          }
+        ],
+        "latency_ms": 13558,
+        "mode": "replay",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "The tool accepted a wrong-type value despite the expression field's declared string type and returned without error.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T01:39:59.544657Z",
+        "status": "confirmed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 2932,
+          "cached_tokens": 0,
+          "input_tokens": 2935,
+          "output_tokens": 630,
+          "reasoning_tokens": 113,
+          "total_tokens": 3565
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-011",
+      "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+      "severity": "Low",
+      "source": "dynamic",
+      "status": "confirmed",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:14:06.478403Z",
+      "title": "Malformed schema input processed"
+    }
+  ],
+  "gpt_review": {
+    "batches": [
+      {
+        "batch_id": "batch_c9738662d82b105023701144",
+        "confirmed_count": 3,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 4,
+        "incomplete_count": 0,
+        "mode": "cached",
+        "needs_review_count": 1,
+        "origin_cost_micro_usd": 22682,
+        "origin_latency_ms": 14833,
+        "origin_usage": {
+          "cache_write_tokens": 1490,
+          "cached_tokens": 0,
+          "input_tokens": 1493,
+          "output_tokens": 761,
+          "reasoning_tokens": 293,
+          "total_tokens": 2254
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "c9738662d82b105023701144342c342f8bc8fe8e68ebd816c2bc6998a96eb79b",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_52e691ed64ffa15f877a2b0b",
+        "confirmed_count": 1,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "cached",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 17997,
+        "origin_latency_ms": 12803,
+        "origin_usage": {
+          "cache_write_tokens": 1073,
+          "cached_tokens": 0,
+          "input_tokens": 1076,
+          "output_tokens": 631,
+          "reasoning_tokens": 382,
+          "total_tokens": 1707
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "52e691ed64ffa15f877a2b0b5654250109324d5c2819449f657f62907b1c1f39",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_1d9fb0acc9cf64f746d01d57",
+        "confirmed_count": 1,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "cached",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 19017,
+        "origin_latency_ms": 18796,
+        "origin_usage": {
+          "cache_write_tokens": 1077,
+          "cached_tokens": 0,
+          "input_tokens": 1080,
+          "output_tokens": 681,
+          "reasoning_tokens": 411,
+          "total_tokens": 1761
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "1d9fb0acc9cf64f746d01d57845fb73028d8c3930d3b6279ec5941880a417118",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_99a008e1be20cfca0897fb07",
+        "confirmed_count": 1,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "cached",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 13257,
+        "origin_latency_ms": 6614,
+        "origin_usage": {
+          "cache_write_tokens": 1089,
+          "cached_tokens": 0,
+          "input_tokens": 1092,
+          "output_tokens": 390,
+          "reasoning_tokens": 150,
+          "total_tokens": 1482
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "99a008e1be20cfca0897fb0791f692013f04dc910f9e3e8cae395614110721ab",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_c99dbce21e1a3a859f78c7ba",
+        "confirmed_count": 4,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 4,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 27272,
+        "origin_latency_ms": 13558,
+        "origin_usage": {
+          "cache_write_tokens": 2932,
+          "cached_tokens": 0,
+          "input_tokens": 2935,
+          "output_tokens": 630,
+          "reasoning_tokens": 113,
+          "total_tokens": 3565
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "c99dbce21e1a3a859f78c7ba30c27b3cb819a01dcad419eca48a9238d66e5594",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      }
+    ],
+    "cache_errors": 0,
+    "cache_hits": 4,
+    "cache_misses": 1,
+    "cache_writes": 0,
+    "candidate_count": 11,
+    "confirmed_count": 10,
+    "current_cost_micro_usd": 0,
+    "current_latency_ms": 0,
+    "current_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "disagreement_count": 0,
+    "endpoint_mode": "openai",
+    "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+    "failure_count": 0,
+    "mode": "mixed",
+    "needs_review_count": 1,
+    "origin_cost_micro_usd": 100225,
+    "origin_latency_ms": 66604,
+    "origin_usage": {
+      "cache_write_tokens": 7661,
+      "cached_tokens": 0,
+      "input_tokens": 7676,
+      "output_tokens": 3093,
+      "reasoning_tokens": 1349,
+      "total_tokens": 10769
+    },
+    "overflow_count": 0,
+    "pricing": {
+      "as_of": "2026-09-04",
+      "cache_write_multiplier_millionths": 1250000,
+      "cached_input_micro_usd_per_million": 400000,
+      "input_micro_usd_per_million": 4000000,
+      "model": "gpt-5.6-sol",
+      "output_micro_usd_per_million": 20000000,
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.6-sol",
+    "reviewed_count": 11,
+    "selected_count": 11,
+    "suppressed_count": 0
+  },
+  "scan_id": "b1d97301-f3c0-4224-bc3a-0a55e4f92f89",
+  "schema_version": "1.5.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "dynamic",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T04:14:06.478173Z",
+  "static_analysis": {
+    "duration_ms": 2434,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 6,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 7
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 4,
+      "High": 2,
+      "Informational": 0,
+      "Low": 1,
+      "Medium": 4
+    },
+    "by_status": {
+      "confirmed": 10,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 0
+    },
+    "total": 11
+  },
+  "target": {
+    "display_name": "vulnerable_server",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe."
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95"
+    },
+    {
+      "code": "gpt_probe_plan_unavailable",
+      "message": "SENT-003 at server.py has no schema compatible with all constrained probes; a null plan is permitted"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95"
+    }
+  ]
+}

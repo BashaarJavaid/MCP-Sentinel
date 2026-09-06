@@ -1,0 +1,168 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T04:03:11.451462Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [],
+  "gpt_review": null,
+  "scan_id": "31d4b7f1-3b0f-45d8-86d2-5c1a89eb8d21",
+  "schema_version": "1.5.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T04:03:11.451330Z",
+  "static_analysis": {
+    "duration_ms": 1606,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {
+          "justified_filesystem.read": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "validated_before_use": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "sanitizer_or_no_taint": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "configured_public_route": 1,
+          "verified_auth": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "verified_manifest": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 8,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 0
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 0
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 0,
+      "suppressed": 0
+    },
+    "total": 0
+  },
+  "target": {
+    "display_name": "clean_server",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:39: unresolved call to ast.literal_eval; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:44: unresolved call to ValidatedArguments.model_validate; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:44: unresolved call to model_dump; this flow is not established as safe."
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'justified_reader' is declared at multiple source locations: server.py:31, server.py:118"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'safe_calculator' is declared at multiple source locations: server.py:36, server.py:120"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'validated_lookup' is declared at multiple source locations: server.py:43, server.py:122"
+    }
+  ]
+}

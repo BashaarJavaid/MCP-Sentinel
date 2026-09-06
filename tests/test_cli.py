@@ -460,6 +460,7 @@ def test_rules_only_prohibited_paths_and_reports(
 ) -> None:
     import shutil
 
+    from sentinel.llm.cache import ReviewCache
     from sentinel.report.validate_json import validate_report_data
     from sentinel.report.validate_sarif import validate_sarif_data
 
@@ -468,9 +469,11 @@ def test_rules_only_prohibited_paths_and_reports(
     (root / "sentinel.target.yaml").write_text(
         "invalid runtime config", encoding="utf-8"
     )
-    cache = root / ".sentinel-cache"
-    cache.mkdir()
-    (cache / "existing").write_text("preserve", encoding="utf-8")
+    cache = tmp_path / "user-cache"
+    review_cache = ReviewCache(enabled=True, root=cache / "gpt-review-v1")
+    assert review_cache.write("existing", {"retained": True})
+    cache_file = review_cache.root / "existing.json"
+    original_cache = cache_file.read_bytes()
     if key:
         monkeypatch.setenv("OPENAI_API_KEY", key)
 
@@ -525,7 +528,7 @@ def test_rules_only_prohibited_paths_and_reports(
             validate_sarif_data(payload)
             stages = payload["runs"][0]["invocations"][0]["properties"]["stages"]
         assert sum(s.get("reason") == "rules-only scan requested" for s in stages) == 3
-    assert (cache / "existing").read_text() == "preserve"
+    assert cache_file.read_bytes() == original_cache
 
 
 def test_rules_only_baseline_suppression_threshold_and_exits(

@@ -950,7 +950,7 @@ vulnerability evidence from accepted input or an inconclusive attempt.
 
 ## 21. Phase 18 — Explicit offline mode and first-use workflow
 
-**Status: implementation in progress; final acceptance pending.** Depends on completed Phase 17.
+**Status: implementation and local/hosted verification passed; final user acceptance pending.** Depends on completed Phase 17.
 
 The agreed interface is `--rules-only/--no-rules-only`, `[scanner].rules_only`,
 and `SENTINEL_RULES_ONLY` (default false). Release 1.3.0 is prepared separately
