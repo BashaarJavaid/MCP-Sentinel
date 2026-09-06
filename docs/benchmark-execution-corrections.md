@@ -22,10 +22,11 @@ not establish detection effectiveness or authorize paid review.
 - CI and documentation cancel obsolete runs for the same PR. Distribution
   building starts alongside source checks. The full matrix remains required;
   release and main verification are not canceled by PR updates.
-  Corpus/metadata validation uses the PR revision; historical full-corpus
-  reproduction then checks out the exact original scanner and harness.
-  Current-source regression tests remain in the platform matrix. Corrected
-  full-corpus measurements are explicit, separately retained observations.
+  Corpus/metadata validation uses the PR revision; full-corpus reproduction
+  checks out the exact scanner and harness for the separately versioned
+  [completion measurement](phase20-completion-v2.md). Deterministic and replay
+  verification run in parallel. Current-source regression tests remain in the
+  platform matrix; original baseline evidence remains unchanged.
 
 The official [Python image source](https://github.com/docker-library/python/blob/f2c5d1b8a6adecb5b00b3c9331d4f863beade6b3/3.12/bookworm/Dockerfile)
 uses buildpack-deps. Its [SCM image includes Git](https://github.com/docker-library/buildpack-deps/blob/master/debian/bookworm/scm/Dockerfile).

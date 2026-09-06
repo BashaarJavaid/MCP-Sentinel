@@ -1,0 +1,2566 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T23:23:11.439470Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "4536f6b878ceeb19fc4fe968f80eec126d71dbda870c54b88b1ea88e32bddec9",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 28,
+          "end_line": 185,
+          "start_column": 5,
+          "start_line": 185
+        },
+        "snippet": "    end_cell: Optional[str] = None,"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "e48563ba-9291-4a17-9de2-a9574aa97cd9",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 28,
+          "end_line": 185,
+          "start_column": 5,
+          "start_line": 185
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 28,
+              "end_line": 185,
+              "start_column": 5,
+              "start_line": 185
+            },
+            "snippet": "    end_cell: Optional[str] = None,"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.441662Z",
+        "batch_id": "batch_37b1ae375610074e3d86b82f",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool exposes a generated input schema matching the typed parameters, including required fields, declared types, and additionalProperties=false.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 202,
+              "start_column": 1,
+              "start_line": 181
+            }
+          }
+        ],
+        "latency_ms": 9742,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "sheet_name": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "start_cell": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "filepath": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "format_range"
+        },
+        "reason": null,
+        "reasoning": "Suppressed because the supplied tool schema provides framework-level declared-type validation, required-field enforcement, and rejection of undeclared properties before invocation. SENT-003 does not require unrelated length or content restrictions.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:28:00.006761Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 2098,
+          "cached_tokens": 0,
+          "input_tokens": 2101,
+          "output_tokens": 725,
+          "reasoning_tokens": 449,
+          "total_tokens": 2826
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "42d679fbcdbf184befdbe7decb2bdb7faae46fac7b548e5b84889bb464fb049a",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 28,
+          "end_line": 244,
+          "start_column": 5,
+          "start_line": 244
+        },
+        "snippet": "    end_cell: Optional[str] = None,"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "98e81906-9181-4899-936f-1ab24e51a297",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 28,
+          "end_line": 244,
+          "start_column": 5,
+          "start_line": 244
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 28,
+              "end_line": 244,
+              "start_column": 5,
+              "start_line": 244
+            },
+            "snippet": "    end_cell: Optional[str] = None,"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.441833Z",
+        "batch_id": "batch_6779744a70a5a2bc8a1ef3ad",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool declaration provides typed fields corresponding to the supplied input schema, including optional and defaulted parameters.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 246,
+              "start_column": 1,
+              "start_line": 240
+            }
+          }
+        ],
+        "latency_ms": 7119,
+        "mode": "replay",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": "Suppressed because the supplied tool input schema validates every declared field's type, requires filepath and sheet_name, and rejects additional properties. This is direct safety evidence against SENT-003; unrelated length or content checks are not required by this rule.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:40:13.120607Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1827,
+          "cached_tokens": 0,
+          "input_tokens": 1830,
+          "output_tokens": 420,
+          "reasoning_tokens": 249,
+          "total_tokens": 2250
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "4ad5491722218fa4c7149a785107517dd26eddfadba135c8a86b53601ab8794a",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 21,
+          "end_line": 290,
+          "start_column": 5,
+          "start_line": 290
+        },
+        "snippet": "    data: List[List],"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "2a5b81f8-c2c6-4ba0-90bd-514186f0cc5c",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 21,
+          "end_line": 290,
+          "start_column": 5,
+          "start_line": 290
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 21,
+              "end_line": 290,
+              "start_column": 5,
+              "start_line": 290
+            },
+            "snippet": "    data: List[List],"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.442190Z",
+        "batch_id": "batch_622c20d808b3387aa2fc3b1e",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool has a framework input schema enforcing object shape, required fields, and every declared field's type before invocation.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 312,
+              "start_column": 1,
+              "start_line": 287
+            }
+          }
+        ],
+        "latency_ms": 16100,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "filepath": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "sheet_name": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "filepath": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "write_data_to_excel"
+        },
+        "reason": null,
+        "reasoning": "Suppress: the supplied framework schema explicitly validates each declared field's type, rejects additional properties, and requires filepath, sheet_name, and data. SENT-003 does not require unrelated length or content restrictions.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:40:05.997514Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1686,
+          "cached_tokens": 0,
+          "input_tokens": 1689,
+          "output_tokens": 852,
+          "reasoning_tokens": 580,
+          "total_tokens": 2541
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "f1614e32709253f3a7ba7fc6fd315f3e0f9ccfaa91510f20fce69f514b747ace",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 20,
+          "end_line": 398,
+          "start_column": 5,
+          "start_line": 398
+        },
+        "snippet": "    rows: List[str],"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "260572f5-6e1b-4a5f-82ae-34319a6a4d80",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 20,
+          "end_line": 398,
+          "start_column": 5,
+          "start_line": 398
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 20,
+              "end_line": 398,
+              "start_column": 5,
+              "start_line": 398
+            },
+            "snippet": "    rows: List[str],"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.441264Z",
+        "batch_id": "batch_5e25ee1bb17cc77ffc2f5f44",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool definition corresponds to a supplied input schema that validates every declared field's type and required fields before invocation.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 420,
+              "start_column": 1,
+              "start_line": 394
+            }
+          }
+        ],
+        "latency_ms": 13759,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "data_range": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "agg_func": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "rows": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "create_pivot_table"
+        },
+        "reason": null,
+        "reasoning": "Suppressed: the supplied tool schema enforces declared types for all parameters, required fields, and rejects additional properties. This is direct safety evidence under SENT-003; unrelated length or content checks are not required.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:39:41.870722Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1655,
+          "cached_tokens": 0,
+          "input_tokens": 1658,
+          "output_tokens": 743,
+          "reasoning_tokens": 467,
+          "total_tokens": 2401
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "da83f67774d05df2611e0fa1747f692475519f25b0b1f6a5366e0137ec03b1b3",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 30,
+          "end_line": 432,
+          "start_column": 5,
+          "start_line": 432
+        },
+        "snippet": "    table_name: Optional[str] = None,"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "1c14c677-2e6f-406e-82a7-d6a0f1ce158e",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 30,
+          "end_line": 432,
+          "start_column": 5,
+          "start_line": 432
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 30,
+              "end_line": 432,
+              "start_column": 5,
+              "start_line": 432
+            },
+            "snippet": "    table_name: Optional[str] = None,"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.441469Z",
+        "batch_id": "batch_7cf99e2bdd9215fa1cf8274f",
+        "confidence": 0.97,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool has a closed input schema declaring types for every field and required status for filepath, sheet_name, and data_range.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 450,
+              "start_column": 1,
+              "start_line": 428
+            }
+          },
+          {
+            "claim": "The implementation\u2019s parameters correspond to the schema-declared fields.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 446,
+              "start_column": 1,
+              "start_line": 428
+            }
+          }
+        ],
+        "latency_ms": 11812,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "data_range": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "table_name": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "filepath": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "create_table"
+        },
+        "reason": null,
+        "reasoning": "The supplied tool schema provides declared-type validation for every input, marks required fields, and rejects additional properties. This directly contradicts SENT-003\u2019s claimed absence of schema or explicit type validation.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T23:10:14.846719Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1592,
+          "cached_tokens": 0,
+          "input_tokens": 1595,
+          "output_tokens": 823,
+          "reasoning_tokens": 516,
+          "total_tokens": 2418
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "e82c5f570e554f2ca858a325a5af434c9c8f0984262db00d4fa18d0e0c71d7cd",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 32,
+          "end_line": 603,
+          "start_column": 5,
+          "start_line": 603
+        },
+        "snippet": "    target_sheet: Optional[str] = None"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "8b72dd4f-0f5b-43b4-ba2c-aac3cefbd5fb",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 32,
+          "end_line": 603,
+          "start_column": 5,
+          "start_line": 603
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 32,
+              "end_line": 603,
+              "start_column": 5,
+              "start_line": 603
+            },
+            "snippet": "    target_sheet: Optional[str] = None"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.440732Z",
+        "batch_id": "batch_de43f1fb82efea789e4d6a1f",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The supplied tool schema declares types for every input, rejects additional properties, and marks required fields; the function signature also carries matching type annotations.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 603,
+              "start_column": 1,
+              "start_line": 597
+            }
+          }
+        ],
+        "latency_ms": 9307,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "source_end": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "target_start": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "source_start": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "copy_range"
+        },
+        "reason": null,
+        "reasoning": "Direct safety evidence is present: copy_range has a framework input schema covering every declared field with explicit types, required-field enforcement, and additionalProperties disabled. SENT-003 therefore does not apply.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T23:12:21.474968Z",
+        "status": "suppressed",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1622,
+          "cached_tokens": 0,
+          "input_tokens": 1625,
+          "output_tokens": 605,
+          "reasoning_tokens": 327,
+          "total_tokens": 2230
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "suppressed",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "0148e58683eafed225632739fa147ccaacaf4b315c1b60d9aa8ce7319529cacf",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 28,
+          "end_line": 665,
+          "start_column": 5,
+          "start_line": 665
+        },
+        "snippet": "    end_cell: Optional[str] = None"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "ca45c7ab-0ddd-4786-9ef8-fc368553d112",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/excel_mcp/server.py",
+        "range": {
+          "end_column": 28,
+          "end_line": 665,
+          "start_column": 5,
+          "start_line": 665
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 28,
+              "end_line": 665,
+              "start_column": 5,
+              "start_line": 665
+            },
+            "snippet": "    end_cell: Optional[str] = None"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T23:23:11.439470Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": {
+        "applied_at": "2026-09-06T23:23:17.442010Z",
+        "batch_id": "batch_b86fbe47a75d2e6deb90b187",
+        "confidence": 0.9,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The function uses filepath, start_cell, end_cell, and sheet_name without explicit declared-type checks in the supplied implementation.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 671,
+              "start_column": 1,
+              "start_line": 661
+            }
+          },
+          {
+            "claim": "The filepath helper performs path/content checks but does not explicitly validate that filename is a string.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 91
+            }
+          }
+        ],
+        "latency_ms": 10675,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "start_cell": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "start_cell": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "start_cell": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-008",
+            "SENT-009",
+            "SENT-010"
+          ],
+          "target_tool": "validate_excel_range"
+        },
+        "reason": null,
+        "reasoning": "The tool schema declares field types, but the supplied code does not show whether a framework enforces that schema before invocation. The implementation itself lacks explicit type validation, so runtime probing is needed to determine whether effective schema validation exists.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T23:11:34.895158Z",
+        "status": "needs_review",
+        "suggested_severity_override": null,
+        "usage": {
+          "cache_write_tokens": 1558,
+          "cached_tokens": 0,
+          "input_tokens": 1561,
+          "output_tokens": 838,
+          "reasoning_tokens": 516,
+          "total_tokens": 2399
+        }
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T23:23:11.439470Z",
+      "title": "Missing tool input validation"
+    }
+  ],
+  "gpt_review": {
+    "batches": [
+      {
+        "batch_id": "batch_de43f1fb82efea789e4d6a1f",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 20222,
+        "origin_latency_ms": 9307,
+        "origin_usage": {
+          "cache_write_tokens": 1622,
+          "cached_tokens": 0,
+          "input_tokens": 1625,
+          "output_tokens": 605,
+          "reasoning_tokens": 327,
+          "total_tokens": 2230
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "de43f1fb82efea789e4d6a1f64b9b39539e27015237091040c0a3cc63dc7a297",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      },
+      {
+        "batch_id": "batch_5e25ee1bb17cc77ffc2f5f44",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 23147,
+        "origin_latency_ms": 13759,
+        "origin_usage": {
+          "cache_write_tokens": 1655,
+          "cached_tokens": 0,
+          "input_tokens": 1658,
+          "output_tokens": 743,
+          "reasoning_tokens": 467,
+          "total_tokens": 2401
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "5e25ee1bb17cc77ffc2f5f444221886e157710fabe6ce8400329ace735b3c597",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      },
+      {
+        "batch_id": "batch_7cf99e2bdd9215fa1cf8274f",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 24432,
+        "origin_latency_ms": 11812,
+        "origin_usage": {
+          "cache_write_tokens": 1592,
+          "cached_tokens": 0,
+          "input_tokens": 1595,
+          "output_tokens": 823,
+          "reasoning_tokens": 516,
+          "total_tokens": 2418
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "7cf99e2bdd9215fa1cf8274fc5a75b256e70aae05a2a03ecfd14fa0a232cee58",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      },
+      {
+        "batch_id": "batch_37b1ae375610074e3d86b82f",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 25002,
+        "origin_latency_ms": 9742,
+        "origin_usage": {
+          "cache_write_tokens": 2098,
+          "cached_tokens": 0,
+          "input_tokens": 2101,
+          "output_tokens": 725,
+          "reasoning_tokens": 449,
+          "total_tokens": 2826
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "37b1ae375610074e3d86b82fa3482826ab6af63d3035b0839a1a1a2dd372c5d5",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      },
+      {
+        "batch_id": "batch_6779744a70a5a2bc8a1ef3ad",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 17547,
+        "origin_latency_ms": 7119,
+        "origin_usage": {
+          "cache_write_tokens": 1827,
+          "cached_tokens": 0,
+          "input_tokens": 1830,
+          "output_tokens": 420,
+          "reasoning_tokens": 249,
+          "total_tokens": 2250
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "6779744a70a5a2bc8a1ef3adeb7daad6b6d458ceec738a5e244268848dc4f473",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      },
+      {
+        "batch_id": "batch_b86fbe47a75d2e6deb90b187",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 1,
+        "origin_cost_micro_usd": 24562,
+        "origin_latency_ms": 10675,
+        "origin_usage": {
+          "cache_write_tokens": 1558,
+          "cached_tokens": 0,
+          "input_tokens": 1561,
+          "output_tokens": 838,
+          "reasoning_tokens": 516,
+          "total_tokens": 2399
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "b86fbe47a75d2e6deb90b187cdc3843fc12de5e5a368be6fe34c4e291f8736ac",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_622c20d808b3387aa2fc3b1e",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": null,
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "replay",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 25482,
+        "origin_latency_ms": 16100,
+        "origin_usage": {
+          "cache_write_tokens": 1686,
+          "cached_tokens": 0,
+          "input_tokens": 1689,
+          "output_tokens": 852,
+          "reasoning_tokens": 580,
+          "total_tokens": 2541
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "622c20d808b3387aa2fc3b1edb49e17606374f661285ca5531e13acad43dbca3",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
+      }
+    ],
+    "cache_errors": 0,
+    "cache_hits": 0,
+    "cache_misses": 7,
+    "cache_writes": 0,
+    "candidate_count": 7,
+    "confirmed_count": 0,
+    "current_cost_micro_usd": 0,
+    "current_latency_ms": 0,
+    "current_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "disagreement_count": 0,
+    "endpoint_mode": "openai",
+    "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+    "failure_count": 0,
+    "mode": "replay",
+    "needs_review_count": 1,
+    "origin_cost_micro_usd": 160394,
+    "origin_latency_ms": 78514,
+    "origin_usage": {
+      "cache_write_tokens": 12038,
+      "cached_tokens": 0,
+      "input_tokens": 12059,
+      "output_tokens": 5006,
+      "reasoning_tokens": 3104,
+      "total_tokens": 17065
+    },
+    "overflow_count": 0,
+    "pricing": {
+      "as_of": "2026-09-04",
+      "cache_write_multiplier_millionths": 1250000,
+      "cached_input_micro_usd_per_million": 400000,
+      "input_micro_usd_per_million": 4000000,
+      "model": "gpt-5.6-sol",
+      "output_micro_usd_per_million": 20000000,
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.6-sol",
+    "reviewed_count": 7,
+    "selected_count": 7,
+    "suppressed_count": 6
+  },
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 7,
+      "excluded_count": 0,
+      "modes": [
+        "replay"
+      ],
+      "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+      "reviewed_count": 7,
+      "selected_count": 7,
+      "state": "completed",
+      "unreviewed_count": 0
+    }
+  },
+  "scan_id": "da2e1494-bcd5-4464-a16b-bf5cc0cb34c5",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T23:23:11.439369Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 150,
+              "start_column": 1,
+              "start_line": 125
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 124,
+              "start_column": 2,
+              "start_line": 119
+            }
+          },
+          "name": "apply_formula",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 173,
+              "start_column": 1,
+              "start_line": 158
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 157,
+              "start_column": 2,
+              "start_line": 152
+            }
+          },
+          "name": "validate_formula_syntax",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 232,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 2,
+              "start_line": 175
+            }
+          },
+          "name": "format_range",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 279,
+              "start_column": 1,
+              "start_line": 240
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 239,
+              "start_column": 2,
+              "start_line": 234
+            }
+          },
+          "name": "read_data_from_excel",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 312,
+              "start_column": 1,
+              "start_line": 287
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 286,
+              "start_column": 2,
+              "start_line": 281
+            }
+          },
+          "name": "write_data_to_excel",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 331,
+              "start_column": 1,
+              "start_line": 320
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 319,
+              "start_column": 2,
+              "start_line": 314
+            }
+          },
+          "name": "create_workbook",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 350,
+              "start_column": 1,
+              "start_line": 339
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 338,
+              "start_column": 2,
+              "start_line": 333
+            }
+          },
+          "name": "create_worksheet",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 386,
+              "start_column": 1,
+              "start_line": 358
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 357,
+              "start_column": 2,
+              "start_line": 352
+            }
+          },
+          "name": "create_chart",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 420,
+              "start_column": 1,
+              "start_line": 394
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 393,
+              "start_column": 2,
+              "start_line": 388
+            }
+          },
+          "name": "create_pivot_table",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 450,
+              "start_column": 1,
+              "start_line": 428
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 427,
+              "start_column": 2,
+              "start_line": 422
+            }
+          },
+          "name": "create_table",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 472,
+              "start_column": 1,
+              "start_line": 458
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 457,
+              "start_column": 2,
+              "start_line": 452
+            }
+          },
+          "name": "copy_worksheet",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 493,
+              "start_column": 1,
+              "start_line": 480
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 479,
+              "start_column": 2,
+              "start_line": 474
+            }
+          },
+          "name": "delete_worksheet",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 515,
+              "start_column": 1,
+              "start_line": 501
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 500,
+              "start_column": 2,
+              "start_line": 495
+            }
+          },
+          "name": "rename_worksheet",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 536,
+              "start_column": 1,
+              "start_line": 523
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 522,
+              "start_column": 2,
+              "start_line": 517
+            }
+          },
+          "name": "get_workbook_metadata",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 554,
+              "start_column": 1,
+              "start_line": 544
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 543,
+              "start_column": 2,
+              "start_line": 538
+            }
+          },
+          "name": "merge_cells",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 572,
+              "start_column": 1,
+              "start_line": 562
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 561,
+              "start_column": 2,
+              "start_line": 556
+            }
+          },
+          "name": "unmerge_cells",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 589,
+              "start_column": 1,
+              "start_line": 580
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 579,
+              "start_column": 2,
+              "start_line": 574
+            }
+          },
+          "name": "get_merged_cells",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 622,
+              "start_column": 1,
+              "start_line": 597
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 596,
+              "start_column": 2,
+              "start_line": 591
+            }
+          },
+          "name": "copy_range",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 653,
+              "start_column": 1,
+              "start_line": 630
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 629,
+              "start_column": 2,
+              "start_line": 624
+            }
+          },
+          "name": "delete_range",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 677,
+              "start_column": 1,
+              "start_line": 661
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 660,
+              "start_column": 2,
+              "start_line": 655
+            }
+          },
+          "name": "validate_excel_range",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 726,
+              "start_column": 1,
+              "start_line": 685
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 684,
+              "start_column": 2,
+              "start_line": 679
+            }
+          },
+          "name": "get_data_validation_info",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 749,
+              "start_column": 1,
+              "start_line": 734
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 733,
+              "start_column": 2,
+              "start_line": 728
+            }
+          },
+          "name": "insert_rows",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 772,
+              "start_column": 1,
+              "start_line": 757
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 756,
+              "start_column": 2,
+              "start_line": 751
+            }
+          },
+          "name": "insert_columns",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 795,
+              "start_column": 1,
+              "start_line": 780
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 779,
+              "start_column": 2,
+              "start_line": 774
+            }
+          },
+          "name": "delete_sheet_rows",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003",
+            "SENT-004"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 14,
+              "end_line": 818,
+              "start_column": 1,
+              "start_line": 803
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 802,
+              "start_column": 2,
+              "start_line": 797
+            }
+          },
+          "name": "delete_sheet_columns",
+          "reasons": [],
+          "status": "recognized"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 135,
+              "start_column": 1,
+              "start_line": 135
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:135: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 165,
+              "start_column": 1,
+              "start_line": 165
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:165: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 202,
+              "start_column": 1,
+              "start_line": 202
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:202: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 261,
+              "start_column": 1,
+              "start_line": 261
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:261: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 304,
+              "start_column": 1,
+              "start_line": 304
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:304: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 322,
+              "start_column": 1,
+              "start_line": 322
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:322: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 341,
+              "start_column": 1,
+              "start_line": 341
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:341: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 369,
+              "start_column": 1,
+              "start_line": 369
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:369: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 404,
+              "start_column": 1,
+              "start_line": 404
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:404: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 436,
+              "start_column": 1,
+              "start_line": 436
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:436: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 464,
+              "start_column": 1,
+              "start_line": 464
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:464: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 485,
+              "start_column": 1,
+              "start_line": 485
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:485: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 507,
+              "start_column": 1,
+              "start_line": 507
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:507: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 528,
+              "start_column": 1,
+              "start_line": 528
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:528: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 546,
+              "start_column": 1,
+              "start_line": 546
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:546: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 564,
+              "start_column": 1,
+              "start_line": 564
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:564: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 582,
+              "start_column": 1,
+              "start_line": 582
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:582: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 606,
+              "start_column": 1,
+              "start_line": 606
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:606: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 638,
+              "start_column": 1,
+              "start_line": 638
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:638: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 668,
+              "start_column": 1,
+              "start_line": 668
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:668: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 702,
+              "start_column": 1,
+              "start_line": 702
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:702: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 741,
+              "start_column": 1,
+              "start_line": 741
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:741: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 764,
+              "start_column": 1,
+              "start_line": 764
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:764: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 787,
+              "start_column": 1,
+              "start_line": 787
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:787: unsupported Try flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 810,
+              "start_column": 1,
+              "start_line": 810
+            }
+          },
+          "message": "SENT-002 at src/excel_mcp/server.py:810: unsupported Try flow; this flow is not established as safe."
+        }
+      ]
+    },
+    "duration_ms": 5799,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 7,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 18,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 7
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 7,
+      "Medium": 0
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 6
+    },
+    "total": 7
+  },
+  "target": {
+    "display_name": "excel-boundary-fixed-mutation",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:135: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:165: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:202: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:261: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:304: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:322: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:341: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:369: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:404: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:436: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:464: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:485: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:507: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:528: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:546: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:564: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:582: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:606: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:638: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:668: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:702: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:741: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:764: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:787: unsupported Try flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/excel_mcp/server.py:810: unsupported Try flow; this flow is not established as safe."
+    }
+  ]
+}

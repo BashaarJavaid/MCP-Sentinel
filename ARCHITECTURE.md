@@ -1184,6 +1184,12 @@ The harness validates membership and uniqueness and preserves the original packe
 order. Excluding a failed request from further paid capture leaves its findings
 and input incomplete in the benchmark; it does not remove them from scoring.
 
+The corrected-scanner completion evidence lives under
+`artifacts/phase20/completion-v2`, preserving the original partial baseline.
+Its approved resumption completed all 35 static request captures, reusing 17
+unchanged responses and retaining all four earlier failed-attempt reservations.
+Source, request, ledger, and approval hashes distinguish the two measurements.
+
 Eligible normal-pipeline runs reuse accepted static captures and execute only in
 native Docker isolation. New runtime evidence receives its own budget checkpoint.
 Raw runtime Findings and native coverage summaries are retained before review;
@@ -1209,6 +1215,9 @@ Rule bytes are not redistributed. Raw comparator results, errors, commands, and
 actual coverage remain evidence even when the process exits successfully with
 rule timeouts. Linux Python 3.12 CI compares repeated deterministic/replay findings,
 coverage and outcomes without paid calls. Docker and community-rule measurements
-remain explicit external prerequisites. The local baseline is in
-[Phase 20 verification](docs/phase20-verification.md); Phase 20 remains open until
-all evidence gates pass and the user accepts the final phase.
+remain explicit external prerequisites. CI verifies the versioned completion
+evidence against its exact measured scanner/harness revision, with deterministic
+and replay treatments in parallel. The original local baseline is in
+[Phase 20 verification](docs/phase20-verification.md), followed by the
+[completion measurement](docs/phase20-completion-v2.md); Phase 20 remains open
+until all evidence gates pass and the user accepts the final phase.
