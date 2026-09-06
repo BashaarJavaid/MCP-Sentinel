@@ -2,7 +2,10 @@
 
 Packet SHA-256: `4a5c620836f9764729e8bb92f0ceed56228e2ea8b26998e6a4d51366b23530af`.
 
-35 distinct production requests; aggregate conservative reservation **$3.720000**. No live calls have run. User approval is pending.
+35 distinct production requests; aggregate conservative reservation **$3.720000**.
+At preparation, no live calls had run and approval was pending. The user later
+approved this packet; see [the capture outcome](checkpoint2-capture-outcome.md)
+for the five accepted captures and first-failure stop. The machine packet is unchanged.
 
 Requests cover the 70 deterministic candidates on 15 inputs. Exact repeated request fingerprints share one capture; the packet lists every participating input. Atlassian configuration failures produce no requests; zero-candidate stages produce no requests. No candidates were manufactured from labels.
 

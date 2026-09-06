@@ -1,6 +1,6 @@
 # Phase 20 — Independent detection benchmark
 
-**Partial baseline. Checkpoint 1 is approved; paid review and runtime gates remain open.**
+**Partial baseline retained; final Phase 20 acceptance is pending.**
 
 Frozen manifest: `f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682`.
 
@@ -13,6 +13,13 @@ The 45 condition-labeled inputs comprise ten original vulnerable/fixed pairs, te
 | dynamic | 0 | 13 | 32 | 0 | 0 | 0 | unmeasured | 0 |
 | semgrep | 33 | 12 | 0 | 0 | 0 | 14 | 0.0% | 271 |
 
+| Treatment | Vulnerable total / applicable / completed | Candidate / retained / confirmed detections on completed cases | Safe conditions with alerts / completed |
+| --- | ---: | ---: | ---: |
+| rules | 20 / 20 / 14 | 0 / 0 / 0 | 0 / 18 |
+| replay | 20 / 20 / 8 | 0 / 0 / 0 | 0 / 9 |
+| dynamic | 20 / 6 / 0 | 0 / 0 / 0 | 0 / 0 |
+| semgrep | 20 / 20 / 14 | 0 / 0 / 0 | 0 / 19 |
+
 ## Observed limitations
 
 Sentinel cannot parse Atlassian's JSON-with-comments devcontainer configuration under the frozen input configuration: all 13 inputs remain incomplete. Git's low-level tool dispatch is reported as an unsupported registration by source coverage; completed rules do not imply the vulnerable handler flow was covered. The 70 Sentinel warnings concern generic validation, credentials or authentication and do not identify the labeled conditions.
@@ -21,7 +28,13 @@ The comparator returned 271 raw alerts. Kubernetes command-injection warnings co
 
 All 13 eligible Docker runs failed because the native image lacks the Git executable. No legitimate baseline or attack completed. The remaining probes are untested; no defense or exploit confirmation is inferred. The retained runtime review packet has zero requests.
 
-Paid attempts recorded: 0. Review cost is counted once per capture in the ledger, not once per replayed input. With no captures, completed static replay entries are zero-candidate stages, not evidence of model accuracy.
+Paid attempts recorded: 6 ({'accepted': 5, 'failed': 1}). Accepted usage cost: $0.110620; cost including uncertain failed/interrupted reservations: $0.212125. Review cost is counted once per capture in the ledger, not once per replayed input. Zero-candidate stages make no model request and do not establish model accuracy.
+
+Checkpoint 2 approved 35 requests and $3.72. Capture stopped on request 6 after production validation rejected its probe plan (`injection probe requires a string field`). Five captures remain accepted. The rejected response has no accepted usage telemetry; its full reservation remains charged conservatively. Missing captures leave reviewed inputs incomplete. The original request packet is unchanged; the retained proposal names the remaining requests and requires a new user decision before any retry.
+
+Accepted capture token usage: {'input_tokens': 8691, 'cached_tokens': 0, 'cache_write_tokens': 8676, 'output_tokens': 3359, 'reasoning_tokens': 2044, 'total_tokens': 12050}. Original accepted live latency summed across unique requests: 60.251 seconds. Reasoning, cached and cache-write counts are subsets of the input/output totals; they must not be added again.
+
+Accepted GPT decisions across all static candidate instances: {'suppressed': 3, 'needs_review': 2, 'confirmed': 1}. These include unrelated warnings and repeated use of shared captures. They are distinct from condition-matched abstentions and incorrect suppressions, and do not establish whole-repository correctness.
 
 `replay` is the GPT-reviewed static treatment; `dynamic` is the normal reviewed pipeline. Original live latency is retained in native review telemetry; replay wall duration is separate. Runtime has 13 eligible Python Git inputs and 32 unsupported inputs. Eligibility does not imply successful probing.
 
@@ -50,6 +63,10 @@ Phase 20 remains open until all evidence gates pass. Detectors, prompts and prob
 - [checkpoint1-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-packet.md)
 - [checkpoint1-independent-review.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-independent-review.md)
 - [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-packet.md)
+- [checkpoint2-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-approval.json)
+- [checkpoint2-capture-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-capture-outcome.md)
+- [checkpoint2-resume-proposal.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal.json)
+- [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/captures/ledger.json)
 - [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/measurement-environment.json)
 - [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/adjudications.json)
 - [results.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/results.json)

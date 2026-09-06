@@ -1034,7 +1034,9 @@ change a finding calls for.
 Checkpoint 1 was approved on 2026-09-06. The frozen corpus, independent review,
 deterministic/comparator measurements and runtime prerequisite failures are
 retained in [Phase 20 verification](docs/phase20-verification.md). Paid static
-review awaits its separate budget decision; final phase acceptance is pending.
+review received its separate budget approval and stopped on the sixth request's
+validation failure, retaining five accepted captures. Further paid attempts and
+final phase acceptance await separate user decisions.
 
 ### Objective
 

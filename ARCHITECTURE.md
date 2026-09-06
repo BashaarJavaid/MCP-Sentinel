@@ -1173,6 +1173,10 @@ candidate recall, retained alerts including `needs_review`, confirmed-only alert
 abstentions, incorrect suppressions, false alarms on labeled safe conditions, and
 runtime proof. Total, applicable, and completed denominators and repository,
 language, split, and mutation/control breakdowns are retained in generated JSON.
+All-candidate review decisions are reported separately from condition-matched
+decisions. Usage, original live latency, and cost are summed across unique
+accepted captures; failed requests retain their uncertain reservations. Reusing
+one capture across multiple labeled inputs does not multiply paid cost.
 
 Semgrep uses the installed 1.176.0 engine and the prepared local community-rule
 directory, checked against the preselected rule identities/configuration hashes.

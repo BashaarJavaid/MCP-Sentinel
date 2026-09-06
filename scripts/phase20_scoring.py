@@ -52,6 +52,13 @@ def score(
         "condition_adjudicated": adjudicated,
         "matched_keys": sorted(matched),
         "unadjudicated_keys": sorted(unique.keys() - matched),
+        "review_decisions_all_candidates": dict(
+            Counter(
+                f["review"]["status"]
+                for f in unique.values()
+                if (f.get("review") or {}).get("reviewed") is True
+            )
+        ),
         "candidate_detected": bool(related) if adjudicated else None,
         "retained_detected": bool(retained) if adjudicated else None,
         "confirmed_detected": bool(confirmed) if adjudicated else None,
@@ -122,6 +129,12 @@ def metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "abstentions": sum(r["abstentions"] for r in rows),
         "incorrect_suppressions": sum(r["incorrect_suppressions"] for r in rows),
         "runtime_confirmations": sum(r["runtime_confirmations"] for r in rows),
+        "review_decisions_all_candidates": dict(
+            sum(
+                (Counter(r["review_decisions_all_candidates"]) for r in rows),
+                Counter(),
+            )
+        ),
     }
     for name in ("candidate", "retained", "confirmed"):
         observed = sum(bool(r[f"{name}_detected"]) for r in positive)
@@ -201,6 +214,13 @@ def build_results(manifest: Manifest) -> dict[str, Any]:
         if ledger_path.exists()
         else {"attempts": [], "decisions": {}}
     )
+    captures = []
+    for attempt in ledger["attempts"]:
+        if attempt["state"] == "accepted":
+            path = ARTIFACTS / "captures" / f"{attempt['fingerprint']}.json"
+            if digest(path.read_bytes()) != attempt["cassette_sha256"]:
+                raise ValueError("accepted capture accounting drift")
+            captures.append(json.loads(path.read_text()))
     result["capture_accounting"] = {
         "attempted_requests": len(ledger["attempts"]),
         "states": dict(Counter(a["state"] for a in ledger["attempts"])),
@@ -211,6 +231,18 @@ def build_results(manifest: Manifest) -> dict[str, Any]:
             if a["state"] == "accepted"
         ),
         "decisions": ledger["decisions"],
+        "accepted_usage_tokens": {
+            name: sum(c["usage"].get(name) or 0 for c in captures)
+            for name in (
+                "input_tokens",
+                "cached_tokens",
+                "cache_write_tokens",
+                "output_tokens",
+                "reasoning_tokens",
+                "total_tokens",
+            )
+        },
+        "accepted_original_live_latency_ms": sum(c["latency_ms"] for c in captures),
     }
     for treatment in TREATMENTS:
         directory = ARTIFACTS / treatment
@@ -311,8 +343,7 @@ def render_results(result: dict[str, Any]) -> str:
     lines = [
         "# Phase 20 — Independent detection benchmark",
         "",
-        "**Partial baseline. Checkpoint 1 is approved; paid review and "
-        "runtime gates remain open.**",
+        "**Partial baseline retained; final Phase 20 acceptance is pending.**",
         "",
         f"Frozen manifest: `{result['manifest_sha256']}`.",
         "",
@@ -345,6 +376,30 @@ def render_results(result: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "| Treatment | Vulnerable total / applicable / completed | "
+            "Candidate / retained / confirmed detections on completed cases | "
+            "Safe conditions with alerts / completed |",
+            "| --- | ---: | ---: | ---: |",
+        ]
+    )
+    for name, treatment in result["treatments"].items():
+        m = treatment["metrics"]
+        lines.append(
+            f"| {name} | {m['vulnerable_total']} / "
+            f"{m['vulnerable_applicable']} / {m['vulnerable_completed_adjudicated']} | "
+            + " / ".join(
+                str(m[k]["completed_detections"])
+                for k in ("candidate", "retained", "confirmed")
+            )
+            + f" | {m['false_alarm_conditions']} / {m['safe_completed_adjudicated']} |"
+        )
+    accounting = result["capture_accounting"]
+    review_decisions = result["treatments"]["replay"]["metrics"][
+        "review_decisions_all_candidates"
+    ]
+    lines.extend(
+        [
+            "",
             "## Observed limitations",
             "",
             "Sentinel cannot parse Atlassian's JSON-with-comments devcontainer "
@@ -373,10 +428,35 @@ def render_results(result: dict[str, Any]) -> str:
             "is inferred. The retained runtime review packet has zero requests.",
             "",
             "Paid attempts recorded: "
-            f"{result['capture_accounting']['attempted_requests']}. "
+            f"{accounting['attempted_requests']} "
+            f"({accounting['states']}). Accepted usage cost: "
+            f"${accounting['accepted_usage_cost_micro_usd'] / 1_000_000:.6f}; "
+            "cost including uncertain failed/interrupted reservations: "
+            f"${accounting['charged_micro_usd'] / 1_000_000:.6f}. "
             "Review cost is counted once per capture in the ledger, not once per "
-            "replayed input. With no captures, completed static replay entries "
-            "are zero-candidate stages, not evidence of model accuracy.",
+            "replayed input. Zero-candidate stages make no model request and "
+            "do not establish model accuracy.",
+            "",
+            "Checkpoint 2 approved 35 requests and $3.72. Capture stopped on "
+            "request 6 after production validation rejected its probe plan "
+            "(`injection probe requires a string field`). Five captures remain "
+            "accepted. The rejected response has no accepted usage telemetry; "
+            "its full reservation remains charged conservatively. Missing "
+            "captures leave reviewed inputs incomplete. The original request "
+            "packet is unchanged; the retained proposal names the remaining "
+            "requests and requires a new user decision before any retry.",
+            "",
+            f"Accepted capture token usage: {accounting['accepted_usage_tokens']}. "
+            "Original accepted live latency summed across unique requests: "
+            f"{accounting['accepted_original_live_latency_ms'] / 1000:.3f} seconds. "
+            "Reasoning, cached and cache-write counts are subsets of the "
+            "input/output totals; they must not be added again.",
+            "",
+            "Accepted GPT decisions across all static candidate instances: "
+            f"{review_decisions}. "
+            "These include unrelated warnings and repeated use of shared captures. "
+            "They are distinct from condition-matched abstentions and incorrect "
+            "suppressions, and do not establish whole-repository correctness.",
             "",
             "`replay` is the GPT-reviewed static treatment; `dynamic` is the "
             "normal reviewed pipeline. Original live latency is retained in "

@@ -61,6 +61,13 @@ def test_empty_unrelated_duplicate_and_false_alarm_accounting() -> None:
     )
     assert unrelated_result["completed_miss"]
     assert unrelated_result["unadjudicated_keys"] == ["a"]
+    reviewed_unrelated = [finding(reviewed=True)]
+    assert score(
+        label="vulnerable",
+        state="completed",
+        findings=reviewed_unrelated,
+        assessment=assess(reviewed_unrelated, []),
+    )["review_decisions_all_candidates"] == {"needs_review": 1}
     duplicate = unrelated * 2
     false_alarm = score(
         label="fixed",
