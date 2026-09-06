@@ -459,3 +459,13 @@ checkpoint hashes retain their earlier meaning.
 The user's final acceptance ("yes" in response to the Phase 17 completion
 question) closes Checkpoint 4. This acceptance authorizes recording completion;
 committing, pushing, publishing, and starting Phase 18 remain separate actions.
+
+### Hosted CI follow-up
+
+The user subsequently authorized committing and pushing to `main` and waiting
+for CI. The first run on `be94581` exposed Windows checkout line-ending
+conversion in four capture integrity tests. A local checkout with
+`core.autocrlf=true` reproduced zero of four retained capture hashes matching.
+Disabling text conversion for retained cassettes and artifacts through
+`.gitattributes` restored all four exact hashes; all five capture tests passed.
+The capture bytes and the strict integrity checks remain unchanged.
