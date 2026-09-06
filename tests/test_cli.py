@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any
 from uuid import UUID
 
 import pytest
@@ -488,6 +490,35 @@ def test_rules_only_prohibited_paths_and_reports(
         "empty_review_outcome",
     ):
         monkeypatch.setattr(f"sentinel.orchestrator.{name}", forbidden)
+    from sentinel.static import semgrep_adapter
+
+    run_process = subprocess.run
+    semgrep_calls: list[list[str]] = []
+    bundled_rules = Path(semgrep_adapter.__file__).parent / "semgrep"
+
+    def checked_process(
+        command: list[str], **kwargs: Any
+    ) -> subprocess.CompletedProcess[str]:
+        assert Path(command[0]).stem.lower() == "semgrep"
+        assert command[1] == "scan"
+        assert command[command.index("--metrics") + 1] == "off"
+        assert "--disable-version-check" in command
+        assert kwargs["env"]["SEMGREP_SEND_METRICS"] == "off"
+        assert kwargs["env"]["SEMGREP_ENABLE_VERSION_CHECK"] == "0"
+        configs = [
+            Path(command[index + 1])
+            for index, value in enumerate(command)
+            if value == "--config"
+        ]
+        assert configs and all(
+            path.is_file() and path.parent == bundled_rules for path in configs
+        )
+        semgrep_calls.append(command)
+        return run_process(command, **kwargs)
+
+    monkeypatch.setattr(
+        "sentinel.static.semgrep_adapter.subprocess.run", checked_process
+    )
     monkeypatch.setattr("socket.socket.connect", forbidden)
     monkeypatch.setattr("sentinel.llm.semantic_reviewer.AsyncOpenAI", forbidden)
     monkeypatch.setattr("sentinel.llm.semantic_reviewer.ReviewCache", forbidden)
@@ -528,6 +559,7 @@ def test_rules_only_prohibited_paths_and_reports(
             validate_sarif_data(payload)
             stages = payload["runs"][0]["invocations"][0]["properties"]["stages"]
         assert sum(s.get("reason") == "rules-only scan requested" for s in stages) == 3
+    assert semgrep_calls
     assert cache_file.read_bytes() == original_cache
 
 

@@ -60,6 +60,9 @@ were corrected before the final gate. The initial log remains separately named
 
 The final cache-fixture follow-up creates an entry using `ReviewCache.write`
 before installing failing constructor/read/write/client/network/Docker spies.
+The same cases wrap actual Semgrep subprocesses and assert bundled local rule
+files, `--metrics off`, `--disable-version-check`, and disabled telemetry/version
+check environment settings. Any other subprocess executable fails the check.
 All eight Python/TypeScript, absent/dummy-key cases passed locally
 (`artifacts/phase18/offline-boundary.log`); the entry remained byte-identical.
 This test-only refinement does not change the scanner or namespace harness.
