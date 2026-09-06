@@ -1,0 +1,249 @@
+*** RECORDED GPT REPLAY — NO LIVE MODEL CALL ***
+PortunusMCP Sentinel 1.3.0
+Target: vulnerable_server
+Status: COMPLETE
+Findings: 11 · Critical 4, High 2, Medium 4, Low 1 · confirmed 10, needs review 1, suppressed 0
+Files: 6 scanned, 0 ignored
+Static duration: 7611 ms
+
+Rules
+  SENT-001: evaluated, 1 match(es)
+  SENT-002: evaluated, 1 match(es)
+  SENT-003: evaluated, 1 match(es)
+  SENT-004: evaluated, 1 match(es)
+  SENT-005: evaluated, 1 match(es)
+  SENT-006: evaluated, 1 match(es)
+  SENT-007: evaluated, 1 match(es)
+
+Static surface inventory: 5 observed; total possible unknown
+  tool 'broad_reader' at server.py:16:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:17:1
+  tool 'unsafe_calculator' at server.py:21:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:22:1
+  tool 'unchecked_lookup' at server.py:30:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:31:1
+  prompt 'poisoned_prompt' at server.py:35:2: recognized; examined by SENT-004
+    handler server.py:36:1
+  http_route '/admin' at server.py:42:2: recognized; examined by SENT-004, SENT-006
+    handler server.py:43:1
+  static_flow_unresolved at server.py:23: SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe.
+  Configuration-excluded rules: none
+  File/configuration-wide rules: SENT-005, SENT-007
+  Rule evaluated does not mean every implementation was recognized.
+
+Runtime discovery: separate baseline/attack sessions; four fixed attempts
+  Planned SENT-008: tool=None, field=None (null uses runtime fallback)
+  Planned SENT-009: tool='unsafe_calculator', field='expression' (null uses runtime fallback)
+  Planned SENT-010: tool='unsafe_calculator', field='expression' (null uses runtime fallback)
+  Planned SENT-011: tool='unsafe_calculator', field='expression' (null uses runtime fallback)
+  SENT-010 baseline: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack not sent in this session; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: []; fields not attacked: [["expression"]]
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-010 attack: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack sent; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: [["expression"]]; fields not attacked: []
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-011 baseline: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack not sent in this session; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: []; fields not attacked: [["expression"]]
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-011 attack: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack sent; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: [["expression"]]; fields not attacked: []
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-009 baseline: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack not sent in this session; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: []; fields not attacked: [["expression"]]
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-009 attack: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack sent; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: [["expression"]]; fields not attacked: []
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-008 baseline: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack not sent in this session; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: []; fields not attacked: [["expression"]]
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack not sent in this session; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+  SENT-008 attack: 4 observed, session total 4, more pages=False
+    'broad_reader': attack not sent in this session; schema 39b714704935190561ed407980480b9a4a0b346b97346e0bff71fb9ace820194
+      fields attacked: []; fields not attacked: [["path"]]
+    'unsafe_calculator': attack not sent in this session; schema 050bfca610372cdc115fe1e38371fc543c5207c2c20400923ad38fbd7650fd0c
+      fields attacked: []; fields not attacked: [["expression"]]
+    'unchecked_lookup': attack not sent in this session; schema 2806c05c70f3a0bbd2aa45b1498b21f3b3090fca09d22adb30fc3a5a040ed42f
+      fields attacked: []; fields not attacked: [["arguments"], ["arguments", "record_id"]]
+      unresolved ["arguments"]: open-ended object properties
+    'ungranted_echo': attack sent; schema 12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7
+      fields attacked: []; fields not attacked: [["value"]]
+      exact attempted path: [] (outside enumeration or tool-level call)
+
+Review activity by stage
+  static: completed; candidates 7, excluded 0, selected 7, reviewed 7, unreviewed 0; modes cached
+    all eligible candidates reviewed; abstentions remain needs_review
+  dynamic: completed; candidates 4, excluded 0, selected 4, reviewed 4, unreviewed 0; modes replay
+    all eligible candidates reviewed; abstentions remain needs_review
+
+Dynamic probes
+  SENT-008: tested · violation_observed · ungranted_echo — security violation observed after a successful baseline · baseline sent=True, attack sent=True
+    baseline control succeeded=True
+  SENT-009: tested · violation_observed · unsafe_calculator.expression — security violation observed after a successful baseline · baseline sent=True, attack sent=True
+    baseline control succeeded=True
+  SENT-010: tested · violation_observed · unsafe_calculator.expression — security violation observed after a successful baseline · baseline sent=True, attack sent=True
+    baseline control succeeded=True
+  SENT-011: tested · violation_observed · unsafe_calculator.expression — security violation observed after a successful baseline · baseline sent=True, attack sent=True
+    baseline control succeeded=True
+
+GPT review: MIXED · 11/11 reviewed
+  model gpt-5.6-sol, reasoning medium, endpoint openai
+  model judgments: confirmed 10, suppressed 0, needs review 1
+  cache 4 hit(s), 1 miss(es)
+  origin tokens 10769, cost 100225 micro-USD
+
+Findings
+  [Critical] SENT-002 Unsafe execution from tool input · confirmed
+    server.py:27:12 · ASI05:2026 Unexpected Code Execution
+    server.py:27:12 · static suspicion, model corroboration
+    Tool-controlled input reaches an unsafe execution or deserialization sink.
+    Source evidence:
+    requires login
+    Remediation: Replace dynamic execution with explicit parsers and fixed command allowlists.
+  [Critical] SENT-005 Hardcoded secret · confirmed
+    server.py:13:12 · ASI03:2026 Identity & Privilege Abuse
+    server.py:13:12 · static suspicion, model corroboration
+    Source or configuration contains a credential signature or contextual high-entropy secret.
+    Source evidence:
+    <SENTINEL_SECRET:REDACTED>
+    Remediation: Load credentials from an external secret store or environment at runtime.
+  [Critical] SENT-008 Out-of-scope tool execution · confirmed
+    /tools/ungranted_echo · ASI02:2026 Tool Misuse & Exploitation
+    /tools/ungranted_echo · model corroboration, runtime observation, verified security effect
+    After a successful granted-tool control, the server processed valid arguments through a listed tool omitted from its declared tool-name grants.
+    Runtime evidence: SENT-008: ungranted_echo path []; baseline success=True
+    Runtime evidence: SENT-008: {}; attack is_error=False
+    Remediation: Reject tool calls that are not granted by the active capability policy.
+  [Critical] SENT-010 Injection payload executed · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI05:2026 Unexpected Code Execution
+    /tools/unsafe_calculator/inputSchema/expression · model corroboration, runtime observation, verified security effect
+    A tool argument caused the Sentinel scratch canary side effect.
+    Runtime evidence: SENT-010: unsafe_calculator path ["expression"]; baseline success=True
+    Runtime evidence: SENT-010: {"canary_after": true, "canary_before": false}; attack is_error=False
+    Remediation: Treat tool arguments as inert data and remove dynamic execution sinks.
+  [High] SENT-001 Overly broad tool permission scope · confirmed
+    server.py:18:12 · ASI03:2026 Identity & Privilege Abuse
+    server.py:18:12 · static suspicion, model corroboration
+    The tool declares filesystem or network access broader than its handler uses.
+    Source evidence:
+        return open("data/users.json", encoding="utf-8").read()
+    Remediation: Narrow each declared scope to the resources the handler actually requires.
+  [High] SENT-004 Unsanitized tool content in prompt · confirmed
+    server.py:39:5 · ASI01:2026 Agent Goal Hijack
+    server.py:39:5 · static suspicion, model corroboration
+    Tool output or description flows into a later model prompt without a trusted sanitizer.
+    Source evidence:
+        return f"Follow these tool instructions: {text}"
+    Remediation: Pass tool-controlled text through a configured sanitizer before prompt construction.
+  [Medium] SENT-003 Missing tool input validation · confirmed
+    server.py:31:22 · ASI02:2026 Tool Misuse & Exploitation
+    server.py:31:22 · static suspicion, model corroboration
+    A tool handler consumes parameters before framework or explicit validation.
+    Source evidence:
+    def unchecked_lookup(arguments: dict[str, object]) -> object:
+    Remediation: Use an official input schema or explicit validation before first use.
+  [Medium] SENT-006 Missing or ineffective route authentication · needs review
+    server.py:42:2 · ASI03:2026 Identity & Privilege Abuse
+    server.py:42:2 · static suspicion
+    An HTTP route lacks inherited authentication or uses a no-op verifier.
+    Source evidence:
+    @app.post("/admin")
+    Remediation: Require credential verification and an explicit rejection path before route execution.
+    Model abstained: needs_review judgment retained
+  [Medium] SENT-007 Unverified tool manifest · confirmed
+    server.py:49:16 · ASI04:2026 Agentic Supply Chain Vulnerabilities
+    server.py:49:16 · static suspicion, model corroboration
+    Manifest bytes reach registration without a trusted hash or signature verification.
+    Source evidence:
+            return yaml.safe_load(handle)
+    Remediation: Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.
+  [Medium] SENT-009 Oversized argument violates a limit or crashes the target · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI05:2026 Unexpected Code Execution
+    /tools/unsafe_calculator/inputSchema/expression · model corroboration, runtime observation, verified security effect
+    After a successful baseline, the server processed an explicit size-limit violation or suffered an observed OOM/crash on an oversized argument.
+    Runtime evidence: SENT-009: unsafe_calculator path ["expression"]; baseline success=True
+    Runtime evidence: SENT-009: {"resource_failure": false, "schema_checks": [{"constraint": 4096, "instance_path": ["expression"], "keyword": "maxLength", "measured_size": 1048558, "schema_path": ["properties", "expression", "maxLength"]}]}; attack is_error=False
+    Remediation: Enforce schema and byte-size limits before invoking tool handlers.
+  [Low] SENT-011 Malformed schema input processed · confirmed
+    /tools/unsafe_calculator/inputSchema/expression · ASI02:2026 Tool Misuse & Exploitation
+    /tools/unsafe_calculator/inputSchema/expression · model corroboration, runtime observation, verified security effect
+    After a successful baseline, the server processed locally verified invalid arguments that violate a required-field or type constraint.
+    Runtime evidence: SENT-011: unsafe_calculator path ["expression"]; baseline success=True
+    Runtime evidence: SENT-011: {"schema_checks": [{"constraint": "string", "instance_path": ["expression"], "keyword": "type", "measured_size": null, "schema_path": ["properties", "expression", "type"]}]}; attack is_error=False
+    Remediation: Validate required fields and declared types before handler execution.
+
+Warnings
+  static_flow_unresolved: SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe.
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95
+  gpt_probe_plan_unavailable: SENT-003 at server.py has no schema compatible with all constrained probes; a null plan is permitted
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95
+
+Pipeline stages
+  static: succeeded
+  gpt_static: succeeded
+  dynamic: succeeded
+  gpt_dynamic: succeeded
+  merge: succeeded
+  reporting: succeeded
+
+Selected analysis complete. Coverage limits remain; this is not proof of safety.
+Validated JSON: /Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase19/installed-wheel-final/report.json
+Validated SARIF: /Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase19/installed-wheel-final/report.sarif

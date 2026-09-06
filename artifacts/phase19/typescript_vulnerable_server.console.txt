@@ -1,0 +1,96 @@
+PortunusMCP Sentinel 1.3.0
+Target: typescript_vulnerable_server
+Status: COMPLETE
+Findings: 7 · Critical 0, High 2, Medium 3, Low 2 · confirmed 0, needs review 7, suppressed 0
+Tier: RULES-ONLY · GPT review and dynamic probes skipped
+Files: 4 scanned, 0 ignored
+Static duration: 4744 ms
+
+Rules
+  SENT-001: evaluated, 1 match(es)
+  SENT-002: evaluated, 1 match(es)
+  SENT-003: evaluated, 1 match(es)
+  SENT-004: evaluated, 1 match(es)
+  SENT-005: evaluated, 1 match(es)
+  SENT-006: evaluated, 1 match(es)
+  SENT-007: evaluated, 1 match(es)
+
+Static surface inventory: 2 observed; total possible unknown
+  tool 'unsafe' at server.ts:9:1: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.ts:12:20
+  http_route '/admin' at server.ts:25:1: recognized; examined by SENT-006
+    handler server.ts:25:42
+  static_flow_unresolved at server.ts:13: SENT-002 at server.ts:13: unresolved call to readFile; this flow is not established as safe.
+  Configuration-excluded rules: none
+  File/configuration-wide rules: SENT-005, SENT-007
+  Rule evaluated does not mean every implementation was recognized.
+
+Review activity by stage
+  static: not_requested; candidates 7, excluded 0, selected 0, reviewed 0, unreviewed 7; modes none
+    selected scan tier excludes this review stage
+  dynamic: not_requested; candidates None, excluded None, selected 0, reviewed 0, unreviewed None; modes none
+    selected scan tier excludes this review stage
+
+Findings
+  [High] SENT-002 Unsafe execution from tool input · needs review
+    server.ts:11:1 · ASI05:2026 Unexpected Code Execution
+    server.ts:11:1 · static suspicion
+    Tool-controlled input reaches an unsafe execution or deserialization sink.
+    Source evidence:
+    eval(source);
+    Remediation: Replace dynamic execution with explicit parsers and fixed command allowlists.
+  [High] SENT-005 Hardcoded secret · needs review
+    server.ts:7:17 · ASI03:2026 Identity & Privilege Abuse
+    server.ts:7:17 · static suspicion
+    Source or configuration contains a credential signature or contextual high-entropy secret.
+    Source evidence:
+    const <SENTINEL_SECRET:REDACTED>;
+    Remediation: Load credentials from an external secret store or environment at runtime.
+  [Medium] SENT-001 Overly broad tool permission scope · needs review
+    server.ts:10:1 · ASI03:2026 Identity & Privilege Abuse
+    server.ts:10:1 · static suspicion
+    The tool declares filesystem or network access broader than its handler uses.
+    Source evidence:
+    readFile(path, "utf8");
+    Remediation: Narrow each declared scope to the resources the handler actually requires.
+  [Medium] SENT-004 Unsanitized tool content in prompt · needs review
+    server.ts:21:1 · ASI01:2026 Agent Goal Hijack
+    server.ts:21:1 · static suspicion
+    Tool output or description flows into a later model prompt without a trusted sanitizer.
+    Source evidence:
+    responses.create({ input: text })
+    Remediation: Pass tool-controlled text through a configured sanitizer before prompt construction.
+  [Medium] SENT-006 Missing or ineffective route authentication · needs review
+    server.ts:25:1 · ASI03:2026 Identity & Privilege Abuse
+    server.ts:25:1 · static suspicion
+    An HTTP route lacks inherited authentication or uses a no-op verifier.
+    Source evidence:
+    app.get(
+    Remediation: Require credential verification and an explicit rejection path before route execution.
+  [Low] SENT-003 Missing tool input validation · needs review
+    server.ts:10:1 · ASI02:2026 Tool Misuse & Exploitation
+    server.ts:10:1 · static suspicion
+    A tool handler consumes parameters before framework or explicit validation.
+    Source evidence:
+    path, "utf8");
+    Remediation: Use an official input schema or explicit validation before first use.
+  [Low] SENT-007 Unverified tool manifest · needs review
+    server.ts:29:1 · ASI04:2026 Agentic Supply Chain Vulnerabilities
+    server.ts:29:1 · static suspicion
+    Manifest bytes reach registration without a trusted hash or signature verification.
+    Source evidence:
+    JSON.parse(bytes)
+    Remediation: Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.
+
+Warnings
+  static_flow_unresolved: SENT-002 at server.ts:13: unresolved call to readFile; this flow is not established as safe.
+
+Pipeline stages
+  static: succeeded
+  gpt_static: skipped — rules-only scan requested
+  dynamic: skipped — rules-only scan requested
+  gpt_dynamic: skipped — rules-only scan requested
+  merge: succeeded
+  reporting: succeeded
+
+Selected analysis complete. Coverage limits remain; this is not proof of safety.

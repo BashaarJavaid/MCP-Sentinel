@@ -1,0 +1,8 @@
+{
+  "label": "synthetic source-only control; never executed",
+  "files": {
+    "pyproject.toml": "[project]\nname = \"partial-fixture\"\nversion = \"0.0.0\"\ndependencies = [\"mcp>=1,<2\"]\n",
+    "server.py": "from mcp.server.fastmcp import FastMCP\nfrom elsewhere import imported\nmcp = FastMCP(\"partial\")\n@mcp.tool()\ndef echo(value: str):\n    return value\nmcp.add_tool(imported)\n",
+    "sentinel.permissions.yaml": "version: 1\ntools:\n  echo: {}\n"
+  }
+}

@@ -1,0 +1,105 @@
+PortunusMCP Sentinel 1.3.0
+Target: vulnerable_server
+Status: COMPLETE
+Findings: 7 · Critical 0, High 2, Medium 3, Low 2 · confirmed 0, needs review 7, suppressed 0
+Tier: RULES-ONLY · GPT review and dynamic probes skipped
+Files: 6 scanned, 0 ignored
+Static duration: 7984 ms
+
+Rules
+  SENT-001: evaluated, 1 match(es)
+  SENT-002: evaluated, 1 match(es)
+  SENT-003: evaluated, 1 match(es)
+  SENT-004: evaluated, 1 match(es)
+  SENT-005: evaluated, 1 match(es)
+  SENT-006: evaluated, 1 match(es)
+  SENT-007: evaluated, 1 match(es)
+
+Static surface inventory: 5 observed; total possible unknown
+  tool 'broad_reader' at server.py:16:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:17:1
+  tool 'unsafe_calculator' at server.py:21:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:22:1
+  tool 'unchecked_lookup' at server.py:30:2: recognized; examined by SENT-001, SENT-002, SENT-003, SENT-004
+    handler server.py:31:1
+  prompt 'poisoned_prompt' at server.py:35:2: recognized; examined by SENT-004
+    handler server.py:36:1
+  http_route '/admin' at server.py:42:2: recognized; examined by SENT-004, SENT-006
+    handler server.py:43:1
+  static_flow_unresolved at server.py:23: SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe.
+  Configuration-excluded rules: none
+  File/configuration-wide rules: SENT-005, SENT-007
+  Rule evaluated does not mean every implementation was recognized.
+
+Review activity by stage
+  static: not_requested; candidates 7, excluded 0, selected 0, reviewed 0, unreviewed 7; modes none
+    selected scan tier excludes this review stage
+  dynamic: not_requested; candidates None, excluded None, selected 0, reviewed 0, unreviewed None; modes none
+    selected scan tier excludes this review stage
+
+Findings
+  [High] SENT-002 Unsafe execution from tool input · needs review
+    server.py:27:12 · ASI05:2026 Unexpected Code Execution
+    server.py:27:12 · static suspicion
+    Tool-controlled input reaches an unsafe execution or deserialization sink.
+    Source evidence:
+    requires login
+    Remediation: Replace dynamic execution with explicit parsers and fixed command allowlists.
+  [High] SENT-005 Hardcoded secret · needs review
+    server.py:13:12 · ASI03:2026 Identity & Privilege Abuse
+    server.py:13:12 · static suspicion
+    Source or configuration contains a credential signature or contextual high-entropy secret.
+    Source evidence:
+    <SENTINEL_SECRET:REDACTED>
+    Remediation: Load credentials from an external secret store or environment at runtime.
+  [Medium] SENT-001 Overly broad tool permission scope · needs review
+    server.py:18:12 · ASI03:2026 Identity & Privilege Abuse
+    server.py:18:12 · static suspicion
+    The tool declares filesystem or network access broader than its handler uses.
+    Source evidence:
+        return open("data/users.json", encoding="utf-8").read()
+    Remediation: Narrow each declared scope to the resources the handler actually requires.
+  [Medium] SENT-004 Unsanitized tool content in prompt · needs review
+    server.py:39:5 · ASI01:2026 Agent Goal Hijack
+    server.py:39:5 · static suspicion
+    Tool output or description flows into a later model prompt without a trusted sanitizer.
+    Source evidence:
+        return f"Follow these tool instructions: {text}"
+    Remediation: Pass tool-controlled text through a configured sanitizer before prompt construction.
+  [Medium] SENT-006 Missing or ineffective route authentication · needs review
+    server.py:42:2 · ASI03:2026 Identity & Privilege Abuse
+    server.py:42:2 · static suspicion
+    An HTTP route lacks inherited authentication or uses a no-op verifier.
+    Source evidence:
+    @app.post("/admin")
+    Remediation: Require credential verification and an explicit rejection path before route execution.
+  [Low] SENT-003 Missing tool input validation · needs review
+    server.py:31:22 · ASI02:2026 Tool Misuse & Exploitation
+    server.py:31:22 · static suspicion
+    A tool handler consumes parameters before framework or explicit validation.
+    Source evidence:
+    def unchecked_lookup(arguments: dict[str, object]) -> object:
+    Remediation: Use an official input schema or explicit validation before first use.
+  [Low] SENT-007 Unverified tool manifest · needs review
+    server.py:49:16 · ASI04:2026 Agentic Supply Chain Vulnerabilities
+    server.py:49:16 · static suspicion
+    Manifest bytes reach registration without a trusted hash or signature verification.
+    Source evidence:
+            return yaml.safe_load(handle)
+    Remediation: Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.
+
+Warnings
+  static_flow_unresolved: SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe.
+  tool_catalog_duplicate: Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93
+  tool_catalog_duplicate: Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97
+  tool_catalog_duplicate: Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95
+
+Pipeline stages
+  static: succeeded
+  gpt_static: skipped — rules-only scan requested
+  dynamic: skipped — rules-only scan requested
+  gpt_dynamic: skipped — rules-only scan requested
+  merge: succeeded
+  reporting: succeeded
+
+Selected analysis complete. Coverage limits remain; this is not proof of safety.
