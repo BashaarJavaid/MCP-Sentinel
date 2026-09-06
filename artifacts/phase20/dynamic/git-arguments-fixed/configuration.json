@@ -1,0 +1,108 @@
+{
+  "language": "python",
+  "scanner": {
+    "llm": {
+      "cache_enabled": false,
+      "max_concurrency": 1,
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "retries": 0,
+      "timeout_seconds": 30
+    },
+    "rules": {
+      "sent004": {
+        "sanitizers": []
+      },
+      "sent005": {
+        "allowlist": []
+      },
+      "sent006": {
+        "public_routes": []
+      }
+    },
+    "sandbox": {
+      "allowed_registries": [
+        "pypi.org",
+        "files.pythonhosted.org"
+      ]
+    },
+    "scanner": {
+      "fail_on": "high",
+      "format": "console",
+      "ignore_paths": [
+        ".phase20/**"
+      ],
+      "max_findings_per_scan": 500,
+      "rules": [],
+      "rules_only": false,
+      "target_config": "sentinel.target.yaml"
+    }
+  },
+  "static_only": false,
+  "target": {
+    "env": {
+      "PYTHONPATH": "/workspace/src"
+    },
+    "env_from": [],
+    "install_cmd": null,
+    "language": "python",
+    "launch_cmd": [
+      "python",
+      ".phase20/bootstrap.py"
+    ],
+    "probe_baselines": {
+      "git_add": {
+        "files": [
+          "control.txt"
+        ],
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_branch": {
+        "branch_type": "local",
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_checkout": {
+        "branch_name": "main",
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_commit": {
+        "message": "benchmark control",
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_create_branch": {
+        "branch_name": "benchmark-branch",
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_diff": {
+        "context_lines": 3,
+        "repo_path": "/tmp/phase20-repo",
+        "target": "HEAD"
+      },
+      "git_diff_staged": {
+        "context_lines": 3,
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_diff_unstaged": {
+        "context_lines": 3,
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_log": {
+        "max_count": 1,
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_reset": {
+        "repo_path": "/tmp/phase20-repo"
+      },
+      "git_show": {
+        "repo_path": "/tmp/phase20-repo",
+        "revision": "HEAD"
+      },
+      "git_status": {
+        "repo_path": "/tmp/phase20-repo"
+      }
+    },
+    "python_version": "3.12",
+    "transport": "stdio",
+    "working_dir": "."
+  }
+}

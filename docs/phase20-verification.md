@@ -1,50 +1,84 @@
 # Phase 20 — Independent detection benchmark
 
-**Preparation only. Checkpoint 1 approval is pending; the baseline has not been measured.**
+**Partial baseline. Checkpoint 1 is approved; paid review and runtime gates remain open.**
 
-Manifest SHA-256: `f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682`.
+Frozen manifest: `f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682`.
 
-The prepared corpus has 45 condition-labeled inputs across five repositories: 20 original pair members, 20 structural mutation members, and five safe controls. It retains 17 upstream snapshots and 37 unique source trees. Safe controls reuse fixed trees; multiple labels can also share an upstream revision. These are correlated observations.
+The 45 condition-labeled inputs comprise ten original vulnerable/fixed pairs, ten paired structural mutations, and five safe controls across five repositories. Development and held-out repositories were separated before evaluation. Correlated variants are reported separately; public historical cases cannot establish absence of model exposure.
 
-Development: 27 inputs. Held out: 18 inputs. Native runtime prerequisites: 13 Git inputs eligible for stdio; 32 other inputs require unsupported HTTP/SSE or TypeScript runtime. Eligibility is not successful execution.
+| Treatment | Completed / 45 | Incomplete | Unsupported | Inconclusive | Unmeasured | Vulnerable completed / 20 | Candidate recall on completed, adjudicated cases | Unadjudicated findings |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| rules | 32 | 13 | 0 | 0 | 0 | 14 | 0.0% | 70 |
+| replay | 17 | 28 | 0 | 0 | 0 | 8 | 0.0% | 70 |
+| dynamic | 0 | 13 | 32 | 0 | 0 | 0 | unmeasured | 0 |
+| semgrep | 33 | 12 | 0 | 0 | 0 | 14 | 0.0% | 271 |
 
-No Sentinel, GPT, Docker, or Semgrep corpus measurements have run. All treatment outcomes are `not_evaluated`; finding counts and detection metrics are null. No miss, false alarm, completion, or accuracy is inferred.
+## Observed limitations
 
-## Preparation evidence
+Sentinel cannot parse Atlassian's JSON-with-comments devcontainer configuration under the frozen input configuration: all 13 inputs remain incomplete. Git's low-level tool dispatch is reported as an unsupported registration by source coverage; completed rules do not imply the vulnerable handler flow was covered. The 70 Sentinel warnings concern generic validation, credentials or authentication and do not identify the labeled conditions.
 
-- [Checkpoint 1 packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-packet.md)
-- [Independent review](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-independent-review.md)
-- [Manifest](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/tests/evals/phase20/manifest.yaml)
-- [All pending input outcomes](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/preparation-results.json)
-- [Pinned Semgrep metadata](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/semgrep-preparation.json)
+The comparator returned 271 raw alerts. Kubernetes command-injection warnings concern other handlers, not the labeled kubectl_get flow. Filesystem audit warnings do not identify failure of the colliding directory-prefix check. These stay unadjudicated under the frozen input/enforcement-failure/sink criterion. This is not evidence that those warnings are useless or false positives. Twelve comparator runs include a rule timeout and remain incomplete. The initial certificate-setup failure is retained separately and is not an accuracy observation. Actual engine rule and file counts are in the raw evidence; the selected 533 rule identities are not a claim that every rule ran on every input.
 
-## Reproduce preparation offline
+All 13 eligible Docker runs failed because the native image lacks the Git executable. No legitimate baseline or attack completed. The remaining probes are untested; no defense or exploit confirmation is inferred. The retained runtime review packet has zero requests.
 
-Install the repository's locked development environment before disconnecting:
+Paid attempts recorded: 0. Review cost is counted once per capture in the ledger, not once per replayed input. With no captures, completed static replay entries are zero-candidate stages, not evidence of model accuracy.
+
+`replay` is the GPT-reviewed static treatment; `dynamic` is the normal reviewed pipeline. Original live latency is retained in native review telemetry; replay wall duration is separate. Runtime has 13 eligible Python Git inputs and 32 unsupported inputs. Eligibility does not imply successful probing.
+
+Candidate, retained (including `needs_review`), and confirmed-only recall, false alarms on labeled safe conditions, abstentions, incorrect suppressions, coverage, and all split/language/repository/variant breakdowns are in the generated JSON. Total-corpus observed fractions include unfinished inputs in their denominator and are not completed-treatment recall. Zero denominators are null. Unmatched findings remain unadjudicated; whole-repository precision is not claimed.
+
+## Reproduction
 
 ```sh
-uv sync --frozen --extra dev
 python -m scripts.run_phase20_benchmark validate
+python -m scripts.run_phase20_benchmark rules --output /tmp/phase20-rules-repeat
+python -m scripts.run_phase20_benchmark prepare-live --output /tmp/phase20-requests-repeat
+python -m scripts.run_phase20_benchmark replay --output /tmp/phase20-replay-repeat
+python -m scripts.run_phase20_benchmark semgrep --rules-dir /tmp/phase20-community-rules --output /tmp/phase20-comparator-repeat
 python -m scripts.run_phase20_benchmark report
-pytest tests/test_phase20.py --no-cov -q
 ```
 
-`validate` checks the retained source/packet hashes, Pydantic manifest, safe archive handling, source evidence and repository split/lineage. `report` writes this preparation record and every pending outcome. Neither command executes/imports target code or performs scanner evaluation. `python -m scripts.prepare_phase20_corpus` regenerates the proposed manifest and overlays from retained originals; changes invalidate the review hash.
+Install the locked development environment first (`uv sync --frozen --extra dev`). Obtain the exact private community-rule snapshot using the Checkpoint 1 packet; do not commit rule bytes. Measurement commands refuse to overwrite evidence. Repeated static execution is reproducibility verification, not an additional accuracy observation. Full native JSON 1.6.0 and SARIF 2.1.0 reports are retained per input; failures without native reports remain in `results.json`.
 
-Semgrep 1.176.0 preparation selected 533 security rules in 511 configurations from the pinned community snapshot before seeing scanner results. Rules are kept in a separate local directory and are not redistributed. Reproduction requires the pinned download and preparation command in the packet.
+`prepare-live` runs the production request builder offline, serially, with GPT-5.6 Sol medium, retries disabled, cache disabled, and the 500-finding default. It never reads an API key. `capture-live --stage static --approval <file>` requires a separately approved packet hash and cumulative request/dollar ceilings. Runtime capture uses `--stage runtime` and a separate Checkpoint 3 decision. `dynamic` requires completed eligible static replay and uses native Docker isolation. It preserves runtime proof and prepares new runtime review requests offline.
 
-## Remaining gated work
+Phase 20 remains open until all evidence gates pass. Detectors, prompts and probes have not been tuned. Historical ablation/walkthrough artifacts and native scanner contracts are unchanged. Draft PR merge, public deployment and final acceptance still require explicit approval.
 
-Checkpoint 1 must approve the exact manifest and independent review before freeze or evaluation. The downstream `rules`, `replay`, `prepare-live`, `capture-live`, `dynamic`, and explicit `semgrep` measurement commands are not implemented in this preparation checkpoint. They remain required before Phase 20 can close. No placeholder measurement is substituted.
+## Evidence
 
-Checkpoint 2 will separately approve exact static-review requests, dated pricing and a user-selected budget. Checkpoint 3 will separately approve review of new runtime evidence. Production findings, native report 1.6.0, SARIF 2.1.0, detector behavior and historical artifacts remain unchanged.
-
-Adjudication/scoring, full deterministic/replay CI, Docker evidence, paid captures and a measured baseline remain required deliverables. Public historical cases cannot establish absence of model exposure. Merge, public deployment and final phase acceptance require explicit approval.
+- [freeze.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/freeze.json)
+- [checkpoint1-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-packet.md)
+- [checkpoint1-independent-review.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-independent-review.md)
+- [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-packet.md)
+- [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/measurement-environment.json)
+- [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/adjudications.json)
+- [results.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/results.json)
+- [prepare-live/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/prepare-live/budget-packet.json)
+- [dynamic/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/dynamic/budget-packet.json)
 
 ## Documented comparator capabilities (2026-09-06)
 
-Snyk Agent Scan documents discovery of agent configurations and skills, connection to MCP servers to retrieve declared capabilities, local checks, and transmission of analysis data to its API. The documented MCP workflow takes client configurations and may launch their stdio commands; this corpus instead supplies source snapshots. Performance is **unmeasured**: no equivalent configuration/metadata corpus, isolated vendor execution setup, or approved external-analysis treatment was prepared. [Snyk scanning documentation](https://github.com/snyk/agent-scan/blob/main/docs/scanning.md), [Snyk CLI execution contract](https://github.com/snyk/agent-scan/blob/main/docs/cli-reference.md).
+Snyk Agent Scan documents discovery of agent configurations and skills, connection
+to MCP servers to retrieve declared capabilities, local checks, and transmission of
+analysis data to its API. The documented MCP workflow takes client configurations
+and may launch their stdio commands; this corpus instead supplies source snapshots.
+Performance is **unmeasured**: no equivalent configuration/metadata corpus, isolated
+vendor execution setup, or approved external-analysis treatment was prepared. [Snyk
+scanning
+documentation](https://github.com/snyk/agent-scan/blob/main/docs/scanning.md), [Snyk
+CLI execution
+contract](https://github.com/snyk/agent-scan/blob/main/docs/cli-reference.md).
 
-Cisco MCP Scanner documents offline scanning of pre-generated MCP JSON with YARA and optional LLM/API analyzers. It separately documents source behavioral analysis with LLM alignment checks and cross-file dataflow, including Python and TypeScript. Performance is **unmeasured**: the JSON input treatment differs from source scanning, and no pinned behavioral analyzer/provider configuration or paid budget was selected for this benchmark. This is not a claim that Cisco only scans metadata or cannot analyze the corpus. [Cisco source analysis documentation](https://github.com/cisco-ai-defense/mcp-scanner#behavioral-code-scanning-multi-language), [Cisco offline JSON documentation](https://github.com/cisco-ai-defense/mcp-scanner/blob/main/docs/static-scanning.md).
+Cisco MCP Scanner documents offline scanning of pre-generated MCP JSON with YARA and
+optional LLM/API analyzers. It separately documents source behavioral analysis with
+LLM alignment checks and cross-file dataflow, including Python and TypeScript.
+Performance is **unmeasured**: the JSON input treatment differs from source
+scanning, and no pinned behavioral analyzer/provider configuration or paid budget
+was selected for this benchmark. This is not a claim that Cisco only scans metadata
+or cannot analyze the corpus. [Cisco source analysis
+documentation](https://github.com/cisco-ai-defense/mcp-scanner#behavioral-code-scanning-multi-language),
+[Cisco offline JSON
+documentation](https://github.com/cisco-ai-defense/mcp-scanner/blob/main/docs/static-scanning.md).
 
-These are vendor-documented capabilities, not measured comparative results. No performance or superiority ranking is supported.
+These are vendor-documented capabilities, not measured comparative results. No
+performance or superiority ranking is supported.

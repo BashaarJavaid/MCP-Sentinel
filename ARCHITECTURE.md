@@ -1127,34 +1127,59 @@ The required v1 architecture deliberately leaves extension points only where fut
 - [OpenAI Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)
 
-## 18. Phase 20 benchmark preparation (approval pending)
+## 18. Phase 20 independent benchmark (evidence gates open)
 
-The independent benchmark is repository tooling, not a scanner mode. Its
-preparation manifest and compressed inputs live under `tests/evals/phase20`;
-provenance, independent review and comparator metadata live under
-`artifacts/phase20`. `python -m scripts.run_phase20_benchmark validate` validates
-the Pydantic manifest, source/configuration identities, bounded archives,
-evidence locations and repository split/lineage without evaluating targets.
-`report` generates a preparation record with explicit pending outcomes for all
-45 labeled inputs. Neither command imports target modules or calls a model.
+The benchmark is repository tooling under `scripts`, not a public scanner mode.
+The versioned Pydantic manifest, compressed upstream snapshots, revision-specific
+licenses, and paired mutation overlays live in `tests/evals/phase20`. The approved
+manifest hash and independent source review are bound by
+[the freeze record](artifacts/phase20/freeze.json). Source/configuration changes
+invalidate that approval. Fixed and safe labels describe specific conditions;
+shared snapshots and mutations are correlated observations. Historical public
+cases cannot establish absence of model exposure.
 
-Checkpoint 1 requires independent source review and user approval of the exact
-manifest hash before corpus freeze or evaluation. Compressed originals retain
-revision-specific licenses; separate paired mutation overlays preserve original
-archive bytes. Fixed/safe labels refer only to named conditions. Reused source
-trees and bundled fixing commits remain correlated observations. Public historical
-cases cannot establish absence of model exposure. Semgrep community rules stay
-outside the repository; only the preselected identities, hashes and commands are
-retained. The [preparation packet](artifacts/phase20/checkpoint1-packet.md) defines
-exact conditions, transformations, proposed matching and runtime prerequisites.
+`python -m scripts.run_phase20_benchmark` provides `validate`, `rules`, `replay`,
+`prepare-live`, `capture-live`, `dynamic`, `semgrep`, and `report`. Checked archives
+are materialized in temporary directories without importing target modules.
+Both static tiers receive identical source and approved configuration additions.
+The harness invokes production configuration loading, scan orchestration,
+canonical Findings, review batching/validation, and JSON/SARIF writers. It does
+not tune rules, prompts, or probes; native report 1.6.0 and SARIF 2.1.0 are unchanged.
 
-The remaining measurement harness is pending this checkpoint. It must reuse
-configuration loading, orchestration, canonical Findings, cassette validation,
-Docker isolation and native report writers. Deterministic and reviewed static
-treatments must receive identical source/configuration bytes. Native report
-1.6.0 and SARIF 2.1.0 contracts, production candidate limits, rules, prompts and
-probes remain unchanged. Candidate recall, retained-alert recall, confirmed-only
-reviewed recall and runtime proof are distinct; unmatched findings remain
-unadjudicated. Unsupported/incomplete observations stay in denominators.
-Separate named-request budget approvals precede static and runtime live captures.
-No preparation record constitutes a measured baseline or Phase 20 acceptance.
+Request preparation intercepts production batches before transport, preserving
+exact contexts, candidate identities, schemas, model settings, and fingerprints.
+The 500-finding cap remains in force. Zero candidates and overflow remain visible.
+GPT-5.6 Sol medium requests are serial, with retries and local cache disabled.
+A separate packet binds every request and its conservative token/cost reservation.
+Paid capture requires the user-approved packet hash and stage-specific cumulative
+request/dollar ceilings. The ledger reserves before sending and stops on the first
+failure or unaffordable request; failed/interrupted reservations remain charged
+until resolved. A new decision is required for another attempt. A filesystem lock
+prevents simultaneous capture processes. Replay verifies exact requests and the
+accepted-capture ledger, preserves original live telemetry, and reports offline
+wall duration separately.
+
+Eligible normal-pipeline runs reuse accepted static captures and execute only in
+native Docker isolation. New runtime evidence receives its own budget checkpoint.
+Raw runtime Findings and native coverage summaries are retained before review;
+`replay --stage runtime` can review that retained proof without rerunning Docker.
+Unsupported transport, prerequisite failures, inconclusive probes, and incomplete
+review remain explicit. No target is executed on the host.
+
+Condition adjudication binds stable candidate identities to the independently
+approved source conditions and records rationale. An unrelated warning is not a
+hit and stays unadjudicated for whole-repository correctness. Scoring separates
+candidate recall, retained alerts including `needs_review`, confirmed-only alerts,
+abstentions, incorrect suppressions, false alarms on labeled safe conditions, and
+runtime proof. Total, applicable, and completed denominators and repository,
+language, split, and mutation/control breakdowns are retained in generated JSON.
+
+Semgrep uses the installed 1.176.0 engine and the prepared local community-rule
+directory, checked against the preselected rule identities/configuration hashes.
+Rule bytes are not redistributed. Raw comparator results, errors, commands, and
+actual coverage remain evidence even when the process exits successfully with
+rule timeouts. Linux Python 3.12 CI compares repeated deterministic/replay findings,
+coverage and outcomes without paid calls. Docker and community-rule measurements
+remain explicit external prerequisites. The local baseline is in
+[Phase 20 verification](docs/phase20-verification.md); Phase 20 remains open until
+all evidence gates pass and the user accepts the final phase.

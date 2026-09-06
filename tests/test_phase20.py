@@ -28,7 +28,7 @@ from scripts.phase20_corpus import (
 )
 from scripts.prepare_phase20_corpus import mutate, write_overlay
 from scripts.prepare_phase20_semgrep import select
-from scripts.run_phase20_benchmark import preparation_result, render_preparation
+from scripts.run_phase20_benchmark import validate_comparator_metadata
 from sentinel.config import load_configuration
 
 
@@ -217,7 +217,10 @@ def test_materialization_loads_config_without_target_execution(
 def test_pending_measurements_cannot_become_completed_misses(
     manifest: Manifest,
 ) -> None:
-    result = preparation_result(manifest, CORPUS / "manifest.yaml")
+    validate_comparator_metadata()
+    result = json.loads(
+        (ROOT / "artifacts/phase20/preparation-results.json").read_text()
+    )
     assert result["metrics"] is None
     assert result["model_requests"] == result["live_spend_micro_usd"] == 0
     assert len(result["outcomes"]) == 45
@@ -225,7 +228,7 @@ def test_pending_measurements_cannot_become_completed_misses(
         for treatment in row["treatments"].values():
             assert treatment["state"] == "not_evaluated"
             assert treatment["finding_count"] is None
-    assert "not implemented" in render_preparation(result)
+    assert result["manifest_sha256"] == digest((CORPUS / "manifest.yaml").read_bytes())
 
 
 def test_comparator_selection_uses_category_and_language() -> None:

@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  phase20-preparation:
-    name: Phase 20 corpus preparation (no evaluation)
+  phase20-offline:
+    name: Phase 20 deterministic and replay verification
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -29,6 +29,18 @@ jobs:
         run: uv sync --frozen --extra dev --python 3.12
       - name: Validate corpus and retained comparator metadata offline
         run: uv run python -m scripts.run_phase20_benchmark validate
+      - name: Verify full deterministic corpus without paid calls
+        run: uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase20-rules" --compare-to artifacts/phase20/rules
+      - name: Verify full static replay without paid calls
+        run: uv run python -m scripts.run_phase20_benchmark replay --output "${{ runner.temp }}/phase20-replay" --compare-to artifacts/phase20/replay
+      - name: Retain offline verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: phase20-offline-verification
+          path: |
+            ${{ runner.temp }}/phase20-rules
+            ${{ runner.temp }}/phase20-replay
 
   quality:
     name: Quality (${{ matrix.os }}, Python ${{ matrix.python-version }})

@@ -223,7 +223,10 @@ def artifact(path: Path) -> dict[str, str]:
 
 
 def rename_python(data: bytes, names: dict[str, str]) -> bytes:
-    tokens = tokenize.tokenize(io.BytesIO(data).readline)
+    tokens = tuple(tokenize.tokenize(io.BytesIO(data).readline))
+    # Older untokenize versions can rewrite unrelated multiline f-strings.
+    if not any(t.type == tokenize.NAME and t.string in names for t in tokens):
+        return data
     result = tokenize.untokenize(
         token._replace(string=names.get(token.string, token.string))
         if token.type == tokenize.NAME
