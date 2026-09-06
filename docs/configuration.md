@@ -80,7 +80,7 @@ reported as unavailable.
 | `0` | Complete; no finding reached the failure threshold |
 | `1` | Complete; one or more findings reached the threshold |
 | `2` | Target, usage, framework, transport, or configuration error |
-| `3` | GPT, Docker, Semgrep, report-validation, or internal failure |
+| `3` | Incomplete probes or GPT, Docker, Semgrep, report-validation, or internal failure |
 
 Treat `0` and `1` as completed scans. Treat `2` and `3` as missing analysis.
 
@@ -97,6 +97,44 @@ The baseline must use the same ordered rules and static/full mode. Matched
 findings remain visible but do not affect `--fail-on`; resolved findings appear
 as an aggregate count. Sentinel never updates a baseline automatically. Generate
 a separate candidate file, review its diff, then replace the accepted baseline.
+
+Native 1.5.0 reports use `sentinel-baseline-v2`. Supported 1.3/1.4 baselines
+migrate in memory without changing their files or claiming completed dynamic
+testing. Static matching is preserved. Historical entries cannot hide newly
+verified runtime proof, including proof appended to a static finding. Timings
+and incidental logs do not invalidate otherwise identical proof.
+
+## Dynamic outcomes and valid examples
+
+Provide complete legitimate argument objects in `sentinel.target.yaml`:
+
+```yaml
+probe_baselines:
+  reader:
+    path: data/users.json
+  calculator:
+    expression: "1"
+```
+
+Examples replace generated arguments. Both must validate against the listed
+runtime schema and succeed in a fresh baseline container. Examples share depth-8
+and 16-KiB bounds; generated arrays are limited to 16 items. References resolve
+locally only. Each probe has separate fresh baseline and attack sessions, with
+10-second session and 120-second campaign deadlines.
+
+Default console, native JSON `dynamic_analysis.probe_outcomes`, and SARIF
+invocation `properties.dynamicAnalysis` show all four probe outcomes. A `tested`
+probe has verdict `violation_observed` or `no_violation_observed`. Unsupported,
+untested, and inconclusive probes have null verdicts and make analysis incomplete
+(exit 3), preserving any findings. Timeout alone cannot prove a violation.
+Skipped analysis and unavailable historical summaries use null `dynamic_analysis`.
+A completed negative attempt does not establish general safety.
+
+Verified runtime findings remain confirmed with high confidence even if GPT
+abstains, disagrees, or is unavailable. GPT judgments and reasons remain under
+`review`; disagreements are visible in every output format. Model judgment
+counts are separate from finding status counts. Required GPT failures still make
+a normal scan incomplete unless the existing degraded-mode policy applies.
 
 ## Inline suppressions
 

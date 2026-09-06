@@ -68,6 +68,11 @@ see the [rule boundaries](docs/rules.md) and
 [verification record](docs/phase16-verification.md). These changes are
 not included in the pinned release above until a new release is published.
 
+Phase 17 source changes add validated dynamic baselines, explicit probe outcomes,
+and proof-preserving review in native JSON 1.5.0. The current replay bundle uses
+one approved runtime-review refresh and four unchanged static captures. See the
+[Phase 17 verification record](docs/phase17-verification.md) for gates and acceptance status.
+
 ## Rules
 
 Every finding uses a stable rule ID and maps to the OWASP Agentic Top 10.
@@ -82,7 +87,7 @@ Every finding uses a stable rule ID and maps to the OWASP Agentic Top 10.
 | [SENT-006](docs/rules.md#sent-006) | Missing or ineffective route authentication | ASI03:2026 | High |
 | [SENT-007](docs/rules.md#sent-007) | Unverified tool manifest | ASI04:2026 | Medium |
 | [SENT-008](docs/rules.md#sent-008) | Out-of-scope tool execution | ASI02:2026 | Critical |
-| [SENT-009](docs/rules.md#sent-009) | Oversized argument accepted | ASI05:2026 | Medium |
+| [SENT-009](docs/rules.md#sent-009) | Size-limit breach or observed OOM/crash | ASI05:2026 | Medium |
 | [SENT-010](docs/rules.md#sent-010) | Injection payload executed | ASI05:2026 | Critical |
 | [SENT-011](docs/rules.md#sent-011) | Malformed schema input processed | ASI02:2026 | Low |
 
@@ -138,7 +143,7 @@ flowchart LR
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.4.0]
+    H --> J[JSON 1.5.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```

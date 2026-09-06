@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+from collections.abc import Generator
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
@@ -27,6 +29,21 @@ from sentinel.finding import (
 SCAN_ID = UUID("00000000-0000-4000-8000-000000000001")
 FINDING_ID = UUID("00000000-0000-4000-8000-000000000002")
 NOW = datetime(2026, 7, 17, 12, 0, 0, 123456, tzinfo=timezone.utc)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(
+    item: pytest.Item, call: pytest.CallInfo[None]
+) -> Generator[None, pytest.TestReport, pytest.TestReport]:
+    report = yield
+    if (
+        os.environ.get("SENTINEL_RUN_DOCKER_TESTS") == "1"
+        and item.get_closest_marker("docker") is not None
+        and report.skipped
+    ):
+        report.outcome = "failed"
+        report.longrepr = "A required, explicitly selected Docker control was skipped."
+    return report
 
 
 @pytest.fixture(autouse=True)

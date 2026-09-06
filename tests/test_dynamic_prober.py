@@ -98,7 +98,9 @@ def _reviewed_finding(sample_finding: Finding) -> Finding:
         reviewed_at=NOW,
         applied_at=NOW,
     )
-    data = sample_finding.model_dump(mode="python", exclude={"severity"})
+    data = sample_finding.model_dump(
+        mode="python", exclude={"severity", "review_disagrees"}
+    )
     data.update(
         finding_id=uuid4(),
         status=FindingStatus.CONFIRMED,
@@ -167,7 +169,7 @@ def test_payloads_are_schema_shaped_and_evidence_is_redacted() -> None:
         (tool,),
     )
 
-    assert len(oversized["expression"]) == OVERSIZED_LENGTH
+    assert len(json.dumps(oversized).encode()) == OVERSIZED_LENGTH
     assert oversized_evidence["expression"] == OVERSIZED_MARKER
     assert "sent-010-canary" in injected["expression"]
     assert injection_evidence["expression"] == INJECTION_MARKER
@@ -222,7 +224,9 @@ def test_runtime_binding_uses_ungranted_tool_and_schema_fallback() -> None:
     assert malformed.marker == WRONG_TYPE_MARKER
 
 
-def test_runtime_binding_preserves_logical_field_inside_object_envelope() -> None:
+def test_malformed_binding_targets_constrained_envelope_not_unconstrained_field() -> (
+    None
+):
     manifest = PermissionsManifest.model_validate(
         {"version": 1, "tools": {"wrapped": {}}}
     )
@@ -247,9 +251,9 @@ def test_runtime_binding_preserves_logical_field_inside_object_envelope() -> Non
     )
     arguments, evidence = _probe_arguments(binding, (tool,))
 
-    assert binding.container_field == "arguments"
-    assert arguments == {"arguments": {"record_id": {"__sentinel_wrong_type__": True}}}
-    assert evidence == {"arguments": {"record_id": WRONG_TYPE_MARKER}}
+    assert binding.container_field is None
+    assert arguments == {"arguments": "sentinel"}
+    assert evidence == {"arguments": WRONG_TYPE_MARKER}
 
 
 def test_dynamic_finding_is_confirmed_and_redacts_pointer_tokens() -> None:
@@ -276,7 +280,9 @@ def test_malformed_dynamic_proof_merges_into_matching_sent003(
     sample_finding: Finding,
 ) -> None:
     assert isinstance(sample_finding.location, FileLocation)
-    static_data = sample_finding.model_dump(mode="python", exclude={"severity"})
+    static_data = sample_finding.model_dump(
+        mode="python", exclude={"severity", "review_disagrees"}
+    )
     static_data.update(
         finding_id=uuid4(),
         rule_id="SENT-003",
@@ -291,6 +297,9 @@ def test_malformed_dynamic_proof_merges_into_matching_sent003(
             sample_finding.provenance[0].model_copy(update={"rule_id": "SENT-003"}),
         ),
     )
+    static_data["evidence"] = sample_finding.evidence.model_copy(
+        update={"snippet": "expression"}
+    )
     static = Finding.model_validate(static_data)
     dynamic = _finding_from_observation(
         _Observation(
@@ -298,8 +307,15 @@ def test_malformed_dynamic_proof_merges_into_matching_sent003(
             target_tool="unsafe_calculator",
             field="expression",
             request={"expression": WRONG_TYPE_MARKER},
-            response={"isError": False},
+            response={"is_error": False},
             logs=(),
+            schema_checks=[
+                {
+                    "keyword": "type",
+                    "instance_path": ["expression"],
+                    "constraint": "string",
+                }
+            ],
             vulnerable=True,
         ),
         static.scan_id,

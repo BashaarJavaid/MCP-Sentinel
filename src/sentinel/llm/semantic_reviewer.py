@@ -35,6 +35,7 @@ from sentinel.finding import (
     ReviewStatus,
     SourceRange,
     TokenUsage,
+    runtime_evidence,
 )
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.context import FindingContext, build_finding_context, sanitize_text
@@ -918,7 +919,11 @@ def _merge_decision(
         if decision.confidence >= 0.5
         else Confidence.LOW
     )
-    data = finding.model_dump(mode="python", exclude={"severity"})
+    if runtime_evidence(finding):
+        status = FindingStatus.CONFIRMED
+        exploitability = Exploitability.CONFIRMED
+        confidence = Confidence.HIGH
+    data = finding.model_dump(mode="python", exclude={"severity", "review_disagrees"})
     data.update(
         status=status,
         exploitability=exploitability,
@@ -929,7 +934,7 @@ def _merge_decision(
 
 
 def _degrade(finding: Finding, reason: str, applied_at: datetime) -> Finding:
-    data = finding.model_dump(mode="python", exclude={"severity"})
+    data = finding.model_dump(mode="python", exclude={"severity", "review_disagrees"})
     data.update(
         status=FindingStatus.NEEDS_REVIEW,
         exploitability=(
@@ -939,6 +944,12 @@ def _degrade(finding: Finding, reason: str, applied_at: datetime) -> Finding:
         ),
         review=DegradedReview(reason=sanitize_text(reason), applied_at=applied_at),
     )
+    if runtime_evidence(finding):
+        data.update(
+            status=FindingStatus.CONFIRMED,
+            exploitability=Exploitability.CONFIRMED,
+            confidence=Confidence.HIGH,
+        )
     return Finding.model_validate(data)
 
 
@@ -1124,7 +1135,7 @@ def _failed_batch_record(
         origin_latency_ms=0,
         current_cost_micro_usd=0 if _pricing(config) is not None else None,
         origin_cost_micro_usd=0 if _pricing(config) is not None else None,
-        needs_review_count=len(batch.candidates),
+        needs_review_count=0,
     )
 
 
@@ -1157,11 +1168,19 @@ def _summarize_review(
         selected_count=selected_count,
         overflow_count=overflow_count,
         reviewed_count=sum(finding.review.reviewed for finding in findings),
-        confirmed_count=sum(f.status is FindingStatus.CONFIRMED for f in findings),
-        suppressed_count=sum(f.status is FindingStatus.SUPPRESSED for f in findings),
-        needs_review_count=sum(
-            f.status is FindingStatus.NEEDS_REVIEW for f in findings
+        confirmed_count=sum(
+            f.review.reviewed and f.review.status is ReviewStatus.CONFIRMED
+            for f in findings
         ),
+        suppressed_count=sum(
+            f.review.reviewed and f.review.status is ReviewStatus.SUPPRESSED
+            for f in findings
+        ),
+        needs_review_count=sum(
+            f.review.reviewed and f.review.status is ReviewStatus.NEEDS_REVIEW
+            for f in findings
+        ),
+        disagreement_count=sum(f.review_disagrees for f in findings),
         failure_count=sum(item.status == "failed" for item in records),
         cache_hits=cache_hits,
         cache_misses=cache_misses,

@@ -1,0 +1,107 @@
+F...FFF.F..FFF..F.F.FFFFF                                                [100%]
+=================================== FAILURES ===================================
+_____________ test_wrong_type_mutation_is_actually_invalid[object] _____________
+tests/test_dynamic_correctness.py:148: in test_wrong_type_mutation_is_actually_invalid
+    assert not Draft202012Validator(tool.inputSchema).is_valid(arguments)
+E   AssertionError: assert not True
+E    +  where True = is_valid({'value': {'__sentinel_wrong_type__': True}})
+E    +    where is_valid = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'value': {'type': 'object'}}, 'required': ['value'], 'type': 'object'}, format_checker=None).is_valid
+E    +      where Draft202012Validator(schema={'additionalProperties': False, 'properties': {'value': {'type': 'object'}}, 'required': ['value'], 'type': 'object'}, format_checker=None) = Draft202012Validator({'additionalProperties': False, 'properties': {'value': {'type': 'object'}}, 'required': ['value'], 'type': 'object'})
+E    +        where {'additionalProperties': False, 'properties': {'value': {'type': 'object'}}, 'required': ['value'], 'type': 'object'} = Tool(name='process', title=None, description=None, inputSchema={'type': 'object', 'properties': {'value': {'type': 'ob... ['value'], 'additionalProperties': False}, outputSchema=None, icons=None, annotations=None, meta=None, execution=None).inputSchema
+____________ test_unconstrained_nested_field_is_not_malformed_input ____________
+tests/test_dynamic_correctness.py:162: in test_unconstrained_nested_field_is_not_malformed_input
+    assert not Draft202012Validator(tool.inputSchema).is_valid(arguments)
+E   AssertionError: assert not True
+E    +  where True = is_valid({'value': {'record_id': {'__sentinel_wrong_type__': True}}})
+E    +    where is_valid = Draft202012Validator(schema={'additionalProperties': False, 'properties': {'value': {'additionalProperties': True, 'type': 'object'}}, 'required': ['value'], 'type': 'object'}, format_checker=None).is_valid
+E    +      where Draft202012Validator(schema={'additionalProperties': False, 'properties': {'value': {'additionalProperties': True, 'type': 'object'}}, 'required': ['value'], 'type': 'object'}, format_checker=None) = Draft202012Validator({'additionalProperties': False, 'properties': {'value': {'additionalProperties': True, 'type': 'object'}}, 'required': ['value'], 'type': 'object'})
+E    +        where {'additionalProperties': False, 'properties': {'value': {'additionalProperties': True, 'type': 'object'}}, 'required': ['value'], 'type': 'object'} = Tool(name='process', title=None, description=None, inputSchema={'type': 'object', 'properties': {'value': {'type': 'ob... ['value'], 'additionalProperties': False}, outputSchema=None, icons=None, annotations=None, meta=None, execution=None).inputSchema
+__________ test_malformed_mutation_preserves_valid_sibling_arguments ___________
+tests/test_dynamic_correctness.py:178: in test_malformed_mutation_preserves_valid_sibling_arguments
+    assert all(list(error.path) == ["value"] for error in errors)
+E   assert False
+E    +  where False = all(<generator object test_malformed_mutation_preserves_valid_sibling_arguments.<locals>.<genexpr> at 0x105553e00>)
+______ test_object_schema_distinguishes_safe_and_unsafe_processing[safe] _______
+tests/test_dynamic_correctness.py:187: in test_object_schema_distinguishes_safe_and_unsafe_processing
+    assert result.vulnerable is (not enforce_schema)
+E   AssertionError: assert True is not True
+E    +  where True = _Observation(probe_id='SENT-011', target_tool='process', field='value', request={'value': '__SENTINEL_WRONG_TYPE__'}, ...: None, 'content': [], 'structuredContent': None, 'isError': False, 'canary_created': False}, logs=(), vulnerable=True).vulnerable
+______ test_large_input_needs_a_policy_breach[legitimate-large-document] _______
+tests/test_dynamic_correctness.py:203: in test_large_input_needs_a_policy_breach
+    assert result.vulnerable is violation
+E   AssertionError: assert True is False
+E    +  where True = _Observation(probe_id='SENT-009', target_tool='process', field='value', request={'value': '__SENTINEL_OVERSIZED__'}, r...: None, 'content': [], 'structuredContent': None, 'isError': False, 'canary_created': False}, logs=(), vulnerable=True).vulnerable
+________ test_successful_baseline_precedes_attack_in_a_separate_session ________
+tests/test_dynamic_correctness.py:209: in test_successful_baseline_precedes_attack_in_a_separate_session
+    assert len(sandbox.calls) == 2
+E   AssertionError: assert 1 == 2
+E    +  where 1 = len([(1, 'process', {'value': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'})])
+E    +    where [(1, 'process', {'value': 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'})] = <tests.test_dynamic_correctness.SyntheticSandbox object at 0x1055ce4b0>.calls
+_____________ test_failed_baseline_does_not_establish_a_violation ______________
+tests/test_dynamic_correctness.py:224: in test_failed_baseline_does_not_establish_a_violation
+    assert not result.vulnerable
+E   AssertionError: assert not True
+E    +  where True = _Observation(probe_id='SENT-009', target_tool='process', field='value', request={'value': '__SENTINEL_OVERSIZED__'}, r...: None, 'content': [], 'structuredContent': None, 'isError': False, 'canary_created': False}, logs=(), vulnerable=True).vulnerable
+_______ test_timeout_alone_is_not_proof_and_independent_probes_continue ________
+tests/test_dynamic_correctness.py:260: in test_timeout_alone_is_not_proof_and_independent_probes_continue
+    assert not any(item.vulnerable for item in results)
+E   assert not True
+E    +  where True = any(<generator object test_timeout_alone_is_not_proof_and_independent_probes_continue.<locals>.<genexpr> at 0x105615840>)
+____________ test_canary_inspection_failure_is_not_absence[failure] ____________
+tests/test_dynamic_correctness.py:279: in test_canary_inspection_failure_is_not_absence
+    with pytest.raises(InfrastructureError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'sentinel.errors.InfrastructureError'>
+_ test_canary_requires_a_new_effect_independent_of_protocol_success[pre-existing-canary] _
+tests/test_dynamic_correctness.py:303: in test_canary_requires_a_new_effect_independent_of_protocol_success
+    assert _attempt(sandbox, "SENT-010", INJECTION_MARKER).vulnerable is violation
+E   AssertionError: assert True is False
+E    +  where True = _Observation(probe_id='SENT-010', target_tool='process', field='value', request={'value': '__SENTINEL_INJECTION__'}, r...': None, 'content': [], 'structuredContent': None, 'isError': False, 'canary_created': True}, logs=(), vulnerable=True).vulnerable
+E    +    where _Observation(probe_id='SENT-010', target_tool='process', field='value', request={'value': '__SENTINEL_INJECTION__'}, r...': None, 'content': [], 'structuredContent': None, 'isError': False, 'canary_created': True}, logs=(), vulnerable=True) = _attempt(<tests.test_dynamic_correctness.SyntheticSandbox object at 0x1056337d0>, 'SENT-010', '__SENTINEL_INJECTION__')
+_____________ test_observed_proof_is_confirmed_before_model_review _____________
+tests/test_dynamic_correctness.py:324: in test_observed_proof_is_confirmed_before_model_review
+    assert finding.status is FindingStatus.CONFIRMED
+E   AssertionError: assert <FindingStatus.NEEDS_REVIEW: 'needs_review'> is <FindingStatus.CONFIRMED: 'confirmed'>
+E    +  where <FindingStatus.NEEDS_REVIEW: 'needs_review'> = Finding(finding_id=UUID('ae5250e8-fe3b-45b1-9c91-521ebcc3b713'), dedup_key='7370ed2805b3e887fdc307afdaa686ab5f7ca08817..., reason=None, mode='not_reviewed'), baseline_matched=None, suppression=None, severity=<Severity.CRITICAL: 'Critical'>).status
+E    +  and   <FindingStatus.CONFIRMED: 'confirmed'> = FindingStatus.CONFIRMED
+________ test_model_judgment_cannot_downgrade_observed_proof[confirmed] ________
+tests/test_dynamic_correctness.py:358: in test_model_judgment_cannot_downgrade_observed_proof
+    assert reviewed.confidence is Confidence.HIGH
+E   AssertionError: assert <Confidence.LOW: 'low'> is <Confidence.HIGH: 'high'>
+E    +  where <Confidence.LOW: 'low'> = Finding(finding_id=UUID('6b781ba9-b443-4c28-a084-c71650f13fb5'), dedup_key='7370ed2805b3e887fdc307afdaa686ab5f7ca08817...750438c16611063af89c', mode='live'), baseline_matched=None, suppression=None, severity=<Severity.CRITICAL: 'Critical'>).confidence
+E    +  and   <Confidence.HIGH: 'high'> = Confidence.HIGH
+_______ test_model_judgment_cannot_downgrade_observed_proof[suppressed] ________
+tests/test_dynamic_correctness.py:357: in test_model_judgment_cannot_downgrade_observed_proof
+    assert reviewed.status is FindingStatus.CONFIRMED
+E   AssertionError: assert <FindingStatus.SUPPRESSED: 'suppressed'> is <FindingStatus.CONFIRMED: 'confirmed'>
+E    +  where <FindingStatus.SUPPRESSED: 'suppressed'> = Finding(finding_id=UUID('ef7a8f55-cddd-4dd8-bda1-b7575bbe1e75'), dedup_key='7370ed2805b3e887fdc307afdaa686ab5f7ca08817...750438c16611063af89c', mode='live'), baseline_matched=None, suppression=None, severity=<Severity.CRITICAL: 'Critical'>).status
+E    +  and   <FindingStatus.CONFIRMED: 'confirmed'> = FindingStatus.CONFIRMED
+______ test_model_judgment_cannot_downgrade_observed_proof[needs_review] _______
+tests/test_dynamic_correctness.py:357: in test_model_judgment_cannot_downgrade_observed_proof
+    assert reviewed.status is FindingStatus.CONFIRMED
+E   AssertionError: assert <FindingStatus.NEEDS_REVIEW: 'needs_review'> is <FindingStatus.CONFIRMED: 'confirmed'>
+E    +  where <FindingStatus.NEEDS_REVIEW: 'needs_review'> = Finding(finding_id=UUID('a4e8113e-a79c-4285-bffa-a21d136fd524'), dedup_key='7370ed2805b3e887fdc307afdaa686ab5f7ca08817...750438c16611063af89c', mode='live'), baseline_matched=None, suppression=None, severity=<Severity.CRITICAL: 'Critical'>).status
+E    +  and   <FindingStatus.CONFIRMED: 'confirmed'> = FindingStatus.CONFIRMED
+______________ test_model_absence_cannot_downgrade_observed_proof ______________
+tests/test_dynamic_correctness.py:370: in test_model_absence_cannot_downgrade_observed_proof
+    assert outcome.findings[0].status is FindingStatus.CONFIRMED
+E   AssertionError: assert <FindingStatus.NEEDS_REVIEW: 'needs_review'> is <FindingStatus.CONFIRMED: 'confirmed'>
+E    +  where <FindingStatus.NEEDS_REVIEW: 'needs_review'> = Finding(finding_id=UUID('502f5beb-c477-4ad7-8a9d-eaf14d9d1764'), dedup_key='7370ed2805b3e887fdc307afdaa686ab5f7ca08817...ail-on eligible.', mode='degraded'), baseline_matched=None, suppression=None, severity=<Severity.CRITICAL: 'Critical'>).status
+E    +  and   <FindingStatus.CONFIRMED: 'confirmed'> = FindingStatus.CONFIRMED
+=========================== short test summary info ============================
+FAILED tests/test_dynamic_correctness.py::test_wrong_type_mutation_is_actually_invalid[object]
+FAILED tests/test_dynamic_correctness.py::test_unconstrained_nested_field_is_not_malformed_input
+FAILED tests/test_dynamic_correctness.py::test_malformed_mutation_preserves_valid_sibling_arguments
+FAILED tests/test_dynamic_correctness.py::test_object_schema_distinguishes_safe_and_unsafe_processing[safe]
+FAILED tests/test_dynamic_correctness.py::test_large_input_needs_a_policy_breach[legitimate-large-document]
+FAILED tests/test_dynamic_correctness.py::test_successful_baseline_precedes_attack_in_a_separate_session
+FAILED tests/test_dynamic_correctness.py::test_failed_baseline_does_not_establish_a_violation
+FAILED tests/test_dynamic_correctness.py::test_timeout_alone_is_not_proof_and_independent_probes_continue
+FAILED tests/test_dynamic_correctness.py::test_canary_inspection_failure_is_not_absence[failure]
+FAILED tests/test_dynamic_correctness.py::test_canary_requires_a_new_effect_independent_of_protocol_success[pre-existing-canary]
+FAILED tests/test_dynamic_correctness.py::test_observed_proof_is_confirmed_before_model_review
+FAILED tests/test_dynamic_correctness.py::test_model_judgment_cannot_downgrade_observed_proof[confirmed]
+FAILED tests/test_dynamic_correctness.py::test_model_judgment_cannot_downgrade_observed_proof[suppressed]
+FAILED tests/test_dynamic_correctness.py::test_model_judgment_cannot_downgrade_observed_proof[needs_review]
+FAILED tests/test_dynamic_correctness.py::test_model_absence_cannot_downgrade_observed_proof
+15 failed, 10 passed in 0.94s

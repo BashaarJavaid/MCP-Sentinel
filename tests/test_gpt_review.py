@@ -645,7 +645,9 @@ def test_dynamic_candidate_uses_supplied_evidence_and_never_gets_probe_plan(
         request={"value": "__SENTINEL_INJECTION__"},
         response={"accepted": True},
     )
-    data = sample_finding.model_dump(mode="python", exclude={"severity"})
+    data = sample_finding.model_dump(
+        mode="python", exclude={"severity", "review_disagrees"}
+    )
     data.update(
         finding_id=uuid4(),
         dedup_key=make_dedup_key(("SENT-010", "tool", "probe")),

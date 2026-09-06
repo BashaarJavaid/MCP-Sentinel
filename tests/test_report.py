@@ -58,7 +58,7 @@ def test_phase1_report_has_static_results_and_is_explicitly_incomplete(
     assert payload["analysisComplete"] is False
     assert payload["executionSuccessful"] is False
     assert payload["sentinel_version"] == __version__
-    assert payload["schema_version"] == "1.4.0"
+    assert payload["schema_version"] == "1.5.0"
     assert payload["baseline"] is None
     validate_report_data(payload)
 
@@ -226,7 +226,7 @@ def test_completed_gpt_review_survives_console_json_and_sarif(
     assert private not in console
     native = json.loads(render_json(report))
     validate_report_data(native)
-    assert native["schema_version"] == "1.4.0"
+    assert native["schema_version"] == "1.5.0"
     assert native["gpt_review"]["endpoint_mode"] == expected_mode
     assert len(native["gpt_review"]["endpoint_url_hash"]) == 64
     if compatible:

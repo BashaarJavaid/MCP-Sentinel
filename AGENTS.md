@@ -77,7 +77,8 @@ do not document Phase 18's new offline interface as available before it ships.
 ## Current phase
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
-**Phase 16 is complete; Phase 17 is next and has not started.**
+**Phases 16–17 are complete. All four Phase 17 checkpoints passed and are accepted;
+Phase 18 remains planned.**
 Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
 23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or
@@ -101,7 +102,7 @@ gate actually passes; a roadmap entry is not implemented behavior.
 - [ ] Phase 14 — conditional exploit-confirmation stretch (deferred until after Phase 24; optional)
 - [ ] Phase 15 — product launch (retain existing artifacts; completion depends on Phase 24)
 - [x] Phase 16 — static detection correctness (helper flows and safety exemptions; local gates passed)
-- [ ] Phase 17 — dynamic probe correctness and evidence (valid baselines, schema violations, observed effects)
+- [x] Phase 17 — dynamic probe correctness and evidence (valid baselines, schema violations, observed effects)
 - [ ] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
 - [ ] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence)
 - [ ] Phase 20 — independent detection benchmark (vulnerable/fixed pairs, safe controls, held-out cases)

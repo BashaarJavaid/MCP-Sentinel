@@ -15,7 +15,7 @@ from collections.abc import AsyncIterator, Callable, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TextIO, cast
+from typing import Any, TextIO, cast
 from uuid import UUID
 
 from mcp import ClientSession, StdioServerParameters
@@ -71,12 +71,35 @@ class ProbeSession:
     container_name: str
     stderr: TextIO
     sandbox: DockerSandbox
+    deadline: float = 0
+
+    def process_state(self) -> dict[str, Any]:
+        result = self.sandbox.docker(
+            ("inspect", "--format", "{{json .State}}", self.container_name)
+        )
+        try:
+            state = json.loads(result.stdout)
+            if (
+                not isinstance(state, dict)
+                or not isinstance(state.get("Running"), bool)
+                or not isinstance(state.get("OOMKilled"), bool)
+                or type(state.get("ExitCode")) is not int
+                or not isinstance(state.get("Error"), str)
+            ):
+                raise ValueError("invalid process state")
+        except (ValueError, TypeError) as error:
+            raise InfrastructureError("cannot inspect probe process state") from error
+        return {
+            key: state[key] for key in ("Running", "OOMKilled", "ExitCode", "Error")
+        }
 
     def canary_exists(self) -> bool:
         result = self.sandbox.docker(
             ("exec", self.container_name, "test", "-f", CANARY_PATH),
             check=False,
         )
+        if result.returncode not in {0, 1} or result.stderr.strip():
+            raise InfrastructureError("cannot inspect probe canary")
         return result.returncode == 0
 
     def logs(self) -> tuple[str, ...]:
@@ -277,11 +300,12 @@ class DockerSandbox:
 
     @asynccontextmanager
     async def probe_session(
-        self, image: str, probe_id: str
+        self, image: str, probe_id: str, *, timeout: float = PROBE_TIMEOUT_SECONDS
     ) -> AsyncIterator[ProbeSession]:
         suffix = probe_id.removeprefix("SENT-").lower()
         token = str(self.scan_id).replace("-", "")[:12]
         name = f"sentinel-probe-{token}-{suffix}"
+        deadline = asyncio.get_running_loop().time() + timeout
         with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
             errlog = cast(TextIO, stderr)
             parameters = StdioServerParameters(
@@ -289,16 +313,43 @@ class DockerSandbox:
                 args=list(self._probe_run_args(image, name, probe_id)),
                 env=None,
             )
+            initialized = False
             try:
                 async with (
                     stdio_client(parameters, errlog=errlog) as (read, write),
                     ClientSession(read, write) as client,
                 ):
-                    await client.initialize()
-                    yield ProbeSession(client, name, errlog, self)
+                    probe = ProbeSession(client, name, errlog, self, deadline)
+                    try:
+                        await asyncio.wait_for(
+                            client.initialize(),
+                            timeout=max(
+                                0, deadline - asyncio.get_running_loop().time()
+                            ),
+                        )
+                        initialized = True
+                        yield probe
+                    finally:
+                        # Proof was sampled inside yield. Stop the target now,
+                        # rather than letting SDK shutdown extend its session.
+                        if probe.process_state()["Running"]:
+                            killed = self.docker(("kill", name), check=False)
+                            if (
+                                killed.returncode != 0
+                                and probe.process_state()["Running"]
+                            ):
+                                raise InfrastructureError(
+                                    "cannot terminate probe container"
+                                )
             except BaseException as error:
                 if isinstance(error, asyncio.CancelledError):
                     raise
+                if initialized:
+                    # MCP's nested task groups wrap exceptions raised by the
+                    # caller inside yield; preserve a single original cause.
+                    while len(getattr(error, "exceptions", ())) == 1:
+                        error = error.exceptions[0]  # type: ignore[attr-defined]
+                    raise error
                 stderr.flush()
                 stderr.seek(0)
                 detail = "\n".join(stderr.read().splitlines()[-50:]).strip()
@@ -306,9 +357,17 @@ class DockerSandbox:
                     f"probe container {name} failed: {detail or error}"
                 ) from error
             finally:
-                cleanup = self.docker(("rm", "--force", name), check=False)
-                if cleanup.returncode not in {0, 1}:
-                    raise InfrastructureError(f"failed to clean probe container {name}")
+                try:
+                    # This post-shutdown inspection is diagnostic only: stdio
+                    # teardown may have terminated the target. Proof is sampled
+                    # by the prober before leaving the session.
+                    self.docker(("inspect", "--format", "{{json .State}}", name))
+                finally:
+                    cleanup = self.docker(("rm", "--force", name), check=False)
+                    if cleanup.returncode != 0:
+                        raise InfrastructureError(
+                            f"failed to clean probe container {name}"
+                        )
 
     def _probe_run_args(self, image: str, name: str, probe_id: str) -> tuple[str, ...]:
         target = self.target
@@ -317,7 +376,6 @@ class DockerSandbox:
             workdir = f"{workdir}/{target.working_dir}"
         args = [
             "run",
-            "--rm",
             "--interactive",
             "--name",
             name,
@@ -521,7 +579,11 @@ def _run_command(command: Sequence[str]) -> subprocess.CompletedProcess[str]:
             check=False,
             capture_output=True,
             text=True,
-            timeout=PASS_TIMEOUT_SECONDS,
+            timeout=(
+                PROBE_TIMEOUT_SECONDS
+                if len(command) > 1 and command[1] in {"exec", "inspect", "kill", "rm"}
+                else PASS_TIMEOUT_SECONDS
+            ),
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise InfrastructureError(f"cannot execute Docker: {error}") from error

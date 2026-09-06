@@ -12,7 +12,7 @@ adoption gaps that those original gates did not measure. Phases 16–26 address
 that review; none is implemented merely by being scheduled here.
 
 Phase 16 is complete: its static-correctness gate passed and the user authorized
-committing the implementation. **Next phase: 17 — Dynamic probe correctness and evidence.**
+committing the implementation. **Active phase: 17 — Dynamic probe correctness and evidence.**
 Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
 after its predecessor's verification gate passes. Phase 15 retains existing
@@ -851,7 +851,7 @@ Make the released product discoverable with claims backed by public evidence.
 
 **Status: complete.** Local verification passed and the user authorized committing
 and pushing the completed implementation to `main`.
-Depends on completed Phase 13. Phase 17 has not started.
+Depends on completed Phase 13. Phase 17 is also complete.
 
 ### Objective
 
@@ -900,7 +900,17 @@ No release, hosted CI run, or new live model evaluation is claimed.
 
 ## 20. Phase 17 — Dynamic probe correctness and evidence
 
-**Status: planned.** Depends on Phase 16.
+**Status: complete.** Depends on completed Phase 16.
+
+The user accepted Checkpoints 1–3 and authorized Checkpoint 4. Baselines,
+probe conditions, sandbox evidence, native 1.5.0 outcomes, proof-preserving review,
+precise merging, and baseline-v2 migration are implemented locally. The ordinary/coverage, Docker, and distribution gates passed locally. The final
+current-pipeline replay and the approved single runtime-review refresh passed.
+All required local verification passed, and the user accepted the final checkpoint.
+Phase 17 is complete. See
+[`docs/phase17-verification.md`](docs/phase17-verification.md) for failing-before
+evidence, safe controls, historical input preservation, and the four approval
+checkpoints. The implementation contract is in `ARCHITECTURE.md`, section 10.
 
 ### Objective
 

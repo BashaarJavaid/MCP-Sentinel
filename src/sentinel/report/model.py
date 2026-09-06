@@ -7,7 +7,13 @@ from enum import Enum
 from typing import Literal
 from uuid import UUID
 
-from pydantic import Field, field_serializer, field_validator, model_validator
+from pydantic import (
+    Field,
+    JsonValue,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 from sentinel.config import EndpointMode, ReasoningEffort
 from sentinel.finding import (
@@ -90,6 +96,47 @@ class StaticAnalysisSummary(ContractModel):
         return self
 
 
+ProbeId = Literal["SENT-008", "SENT-009", "SENT-010", "SENT-011"]
+PROBE_IDS: tuple[ProbeId, ...] = ("SENT-008", "SENT-009", "SENT-010", "SENT-011")
+
+
+class DynamicProbeOutcome(ContractModel):
+    probe_id: ProbeId
+    status: Literal["tested", "unsupported", "untested", "inconclusive"]
+    verdict: Literal["violation_observed", "no_violation_observed"] | None
+    tool: str | None
+    field: str | None
+    argument_path: tuple[str, ...] = ()
+    reason: NonEmptyString
+    baseline: dict[str, JsonValue] = Field(default_factory=dict)
+    attack: dict[str, JsonValue] = Field(default_factory=dict)
+    schema_checks: tuple[dict[str, JsonValue], ...] = ()
+    effects: dict[str, JsonValue] = Field(default_factory=dict)
+    timings: dict[str, float] = Field(default_factory=dict)
+    execution_successful: bool = True
+
+    @model_validator(mode="after")
+    def validate_verdict(self) -> DynamicProbeOutcome:
+        if (self.status == "tested") != (self.verdict is not None):
+            raise ValueError("only tested probes require a verdict")
+        return self
+
+
+class DynamicAnalysisSummary(ContractModel):
+    probe_outcomes: tuple[DynamicProbeOutcome, ...]
+
+    @model_validator(mode="after")
+    def validate_probes(self) -> DynamicAnalysisSummary:
+        if sorted(item.probe_id for item in self.probe_outcomes) != [
+            "SENT-008",
+            "SENT-009",
+            "SENT-010",
+            "SENT-011",
+        ]:
+            raise ValueError("dynamic analysis requires each fixed probe exactly once")
+        return self
+
+
 class ScanTarget(ContractModel):
     display_name: NonEmptyString
     root: Literal["."] = "."
@@ -144,8 +191,10 @@ class ScanContext(ContractModel):
 
 
 class BaselineSummary(ContractModel):
-    matcher_version: Literal["sentinel-baseline-v1"] = "sentinel-baseline-v1"
-    source_schema_version: Literal["1.3.0", "1.4.0"]
+    matcher_version: Literal["sentinel-baseline-v1", "sentinel-baseline-v2"] = (
+        "sentinel-baseline-v2"
+    )
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0"]
     source_sha256: Sha256Hex
     baseline_finding_count: int = Field(ge=0)
     matched_finding_count: int = Field(ge=0)
@@ -202,6 +251,7 @@ class GptBatchRecord(ContractModel):
 
 
 class GptReviewSummary(ContractModel):
+    disagreement_count: int | None = Field(default=0, ge=0)
     requested_model: NonEmptyString
     reasoning_effort: ReasoningEffort
     endpoint_mode: EndpointMode
@@ -230,7 +280,7 @@ class GptReviewSummary(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.4.0"] = "1.4.0"
+    schema_version: Literal["1.5.0"] = "1.5.0"
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime
@@ -243,6 +293,7 @@ class ScanReport(ContractModel):
     warnings: tuple[ReportWarning, ...]
     findings: tuple[Finding, ...]
     static_analysis: StaticAnalysisSummary | None
+    dynamic_analysis: DynamicAnalysisSummary | None = None
     gpt_review: GptReviewSummary | None
     baseline: BaselineSummary | None = None
 
@@ -264,6 +315,16 @@ class ScanReport(ContractModel):
 
     @model_validator(mode="after")
     def validate_report(self) -> ScanReport:
+        if self.dynamic_analysis is not None:
+            outcomes = self.dynamic_analysis.probe_outcomes
+            if self.analysis_complete and any(
+                item.status != "tested" for item in outcomes
+            ):
+                raise ValueError("incomplete probes cannot establish complete analysis")
+            if self.execution_successful and any(
+                not item.execution_successful for item in outcomes
+            ):
+                raise ValueError("probe infrastructure failure must fail execution")
         if self.completed_at < self.started_at:
             raise ValueError("completed_at cannot precede started_at")
         if {stage.name for stage in self.stages} != set(StageName):

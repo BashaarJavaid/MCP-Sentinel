@@ -54,7 +54,12 @@ async def list_runtime_tools() -> list[Tool]:
     def string_input(name: str) -> dict[str, object]:
         return {
             "type": "object",
-            "properties": {name: {"type": "string"}},
+            "properties": {
+                name: {
+                    "type": "string",
+                    **({"maxLength": 4096} if name == "expression" else {}),
+                }
+            },
             "required": [name],
             "additionalProperties": False,
         }
@@ -66,7 +71,13 @@ async def list_runtime_tools() -> list[Tool]:
             name="unchecked_lookup",
             inputSchema={
                 "type": "object",
-                "properties": {"arguments": {"type": "object"}},
+                "properties": {
+                    "arguments": {
+                        "type": "object",
+                        "properties": {"record_id": {"type": "string"}},
+                        "required": ["record_id"],
+                    }
+                },
                 "required": ["arguments"],
                 "additionalProperties": False,
             },

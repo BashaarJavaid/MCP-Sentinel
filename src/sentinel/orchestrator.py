@@ -24,6 +24,9 @@ from sentinel.llm.semantic_reviewer import (
 )
 from sentinel.llm.tools import extract_tool_catalog
 from sentinel.report.model import (
+    PROBE_IDS,
+    DynamicAnalysisSummary,
+    DynamicProbeOutcome,
     GptReviewSummary,
     ReportWarning,
     ScanContext,
@@ -234,7 +237,15 @@ def run_scan(
     stages = (
         StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
         StageRecord(name=StageName.GPT_STATIC, status=StageStatus.SUCCEEDED),
-        StageRecord(name=StageName.DYNAMIC, status=StageStatus.SUCCEEDED),
+        StageRecord(
+            name=StageName.DYNAMIC,
+            status=StageStatus.SUCCEEDED
+            if dynamic.execution_successful
+            else StageStatus.FAILED,
+            reason=None
+            if dynamic.execution_successful
+            else "dynamic infrastructure failed; partial results retained",
+        ),
         StageRecord(
             name=StageName.GPT_DYNAMIC,
             status=(
@@ -245,7 +256,7 @@ def run_scan(
         StageRecord(name=StageName.MERGE, status=StageStatus.SUCCEEDED),
         StageRecord(name=StageName.REPORTING, status=StageStatus.SUCCEEDED),
     )
-    complete = not dynamic_review.fatal
+    complete = not dynamic_review.fatal and dynamic.complete
     report = ScanReport(
         scan_id=context.scan_id,
         sentinel_version=__version__,
@@ -253,7 +264,7 @@ def run_scan(
         completed_at=completed_at,
         target=context.target,
         analysis_complete=complete,
-        execution_successful=complete,
+        execution_successful=not dynamic_review.fatal and dynamic.execution_successful,
         stages=stages,
         summary=summarize(findings),
         warnings=_unique_warnings(
@@ -267,6 +278,7 @@ def run_scan(
         findings=findings,
         static_analysis=static_result.summary,
         gpt_review=combined_gpt,
+        dynamic_analysis=dynamic.summary,
     )
     return _finalize_outcome(report, configuration, baseline)
 
@@ -372,6 +384,22 @@ def _failed_dynamic_outcome(
         findings=review.findings,
         static_analysis=static_result.summary,
         gpt_review=review.summary,
+        dynamic_analysis=DynamicAnalysisSummary(
+            probe_outcomes=tuple(
+                DynamicProbeOutcome(
+                    probe_id=probe_id,
+                    status="untested",
+                    verdict=None,
+                    tool=None,
+                    field=None,
+                    reason=reason,
+                    execution_successful=False,
+                )
+                for probe_id in PROBE_IDS
+            )
+        )
+        if dynamic_started
+        else None,
     )
     return _finalize_outcome(report, configuration, baseline)
 
@@ -386,7 +414,9 @@ def _cap_overflow_review(
     reason = "scan-wide GPT review cap was exhausted before dynamic review"
     updated: list[Finding] = []
     for finding in findings:
-        data = finding.model_dump(mode="python", exclude={"severity"})
+        data = finding.model_dump(
+            mode="python", exclude={"severity", "review_disagrees"}
+        )
         data["review"] = DegradedReview(reason=reason, applied_at=applied_at)
         updated.append(Finding.model_validate(data))
     empty = empty_review_outcome(configuration.scanner.llm, mode="degraded")
@@ -395,7 +425,7 @@ def _cap_overflow_review(
             "mode": "degraded",
             "candidate_count": len(updated),
             "overflow_count": len(updated),
-            "needs_review_count": len(updated),
+            "needs_review_count": 0,
         }
     )
     warning = ReportWarning(code="gpt_review_truncated", message=reason)
@@ -469,6 +499,8 @@ def _combine_gpt_summaries(
         overflow_count=first.overflow_count + second.overflow_count,
         reviewed_count=first.reviewed_count + second.reviewed_count,
         confirmed_count=first.confirmed_count + second.confirmed_count,
+        disagreement_count=(first.disagreement_count or 0)
+        + (second.disagreement_count or 0),
         suppressed_count=first.suppressed_count + second.suppressed_count,
         needs_review_count=first.needs_review_count + second.needs_review_count,
         failure_count=first.failure_count + second.failure_count,

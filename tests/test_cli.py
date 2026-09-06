@@ -19,6 +19,7 @@ from sentinel.dynamic.prober import (
     DynamicScanResult,
     ProbeBinding,
     ProbeCampaign,
+    _Observation,
 )
 from sentinel.dynamic.sandbox import DependencyImage, DockerSandbox
 from sentinel.errors import InfrastructureError
@@ -332,6 +333,10 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
             warnings=(),
             image=DependencyImage("deps:test", "cache-key", True),
             campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+            observations=tuple(
+                _Observation(rule_id, "test", None, {}, {}, (), False)
+                for rule_id in DEFAULT_ORDER
+            ),
         )
 
     monkeypatch.setattr("sentinel.orchestrator.reap_orphans", lambda: None)

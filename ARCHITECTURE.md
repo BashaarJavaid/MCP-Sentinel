@@ -212,7 +212,7 @@ The planned Pydantic model at `src/sentinel/finding.py` is authoritative. Its ge
 | `remediation` | Actionable mitigation guidance. |
 | `scan_id` | Identifier shared by all findings from one scan. |
 | `timestamp` | Finding creation timestamp. |
-| `provenance` | Array of `{source, rule_id, evidence, timestamp}` entries. |
+| `provenance` | Array of `{source, rule_id, evidence, timestamp, review}` entries; review is nullable. |
 | `review` | Nested GPT audit record containing mode, returned model, raw confidence, reasoning, grounded evidence references, probe plan, advisory severity, usage, latency, and review time. |
 
 Static evidence contains a code snippet and line range. Dynamic evidence contains probe IDs, redacted request/response payloads, and logs. Secret values are redacted before evidence is stored.
@@ -229,7 +229,9 @@ Static evidence contains a code snippet and line range. Dynamic evidence contain
 
 ### Status lifecycle
 
-Every finding starts in `needs_review`.
+Static candidates and historical unverified observations follow the review
+lifecycle below. Newly verified runtime violations start `confirmed` with high
+confidence; GPT review cannot downgrade or suppress that proof.
 
 ```mermaid
 stateDiagram-v2
@@ -547,11 +549,14 @@ Each live batch records:
 - Input, output, reasoning, cached, and cache-write tokens when returned by the API.
 - End-to-end latency, retries, refusal/incomplete state, and schema-validation outcome.
 - Cache hits and misses.
-- Counts of confirmed, suppressed, and still-needs-review findings.
+- Counts of confirmed, suppressed, and needs-review model judgments, separately
+  from top-level finding statuses and explicit runtime-proof disagreements.
 
 Aggregate telemetry appears in console/JSON summaries and SARIF invocation properties. It contains no source snippets, secrets, or absolute paths.
 
-GPT unavailability is exit code `3` by default. With `--allow-degraded`, the finding stays `needs_review` and receives:
+GPT unavailability is exit code `3` by default. With `--allow-degraded`, static
+candidates stay `needs_review`; verified runtime proof stays confirmed/high.
+The nested review records the unavailable model:
 
 ```json
 {
@@ -624,6 +629,7 @@ Dynamic scans require either a valid `sentinel.target.yaml` or a `--target-launc
 - `env` for literal non-secret values
 - `env_from` for explicitly named host variables
 - optional `python_version`
+- optional `probe_baselines` containing complete argument examples by tool name
 
 Only `transport: stdio` is accepted in v1. `http`, `port`, SSE, and other transport values are rejected during configuration loading.
 
@@ -645,7 +651,8 @@ Only `transport: stdio` is accepted in v1. `http`, `port`, SSE, and other transp
 
 ### Probe runtime
 
-Each probe gets a fresh ephemeral container from the dependency image so state cannot persist between probes.
+Each probe gets separate fresh baseline and attack containers from the dependency
+image so state cannot persist between sessions.
 
 - Target source: read-only mount.
 - Scratch space: ephemeral tmpfs.
@@ -657,9 +664,10 @@ Each probe gets a fresh ephemeral container from the dependency image so state c
 - Processes: `--pids-limit=64` and one process tree.
 - CPU: 1 CPU.
 - Memory: 512 MB.
-- Per-probe wall-clock timeout: 10 seconds.
+- Per-session protocol deadline: 10 seconds, including initialization and discovery.
 - Full dynamic-pass timeout: 120 seconds.
-- Cleanup: automatic container removal plus `try/finally` force cleanup.
+- Cleanup: inspect before teardown for proof, inspect stopped state for diagnostics,
+  then `try/finally` force removal. Probe containers do not use `--rm`.
 
 `scripts/reap_orphans.py` runs at the beginning of every dynamic invocation and force-removes Sentinel-labeled scan containers older than 120 seconds. Docker unavailability, startup failure, probe infrastructure failure, or cleanup failure is exit code `3`; Sentinel never silently falls back to static-only.
 
@@ -668,11 +676,111 @@ Each probe gets a fresh ephemeral container from the dependency image so state c
 | ID | Probe | Safe behavior | Finding behavior | OWASP | Impact |
 |---|---|---|---|---|---|
 | `SENT-008` | Call a tool not granted to the session. | Reject before execution. | The tool executes. | `ASI02:2026` | Critical |
-| `SENT-009` | Send a grossly oversized argument. | Reject on size or schema. | Accept, hang, or crash. | `ASI05:2026` | Medium |
+| `SENT-009` | Send a bounded oversized argument after a valid baseline. | Reject a violated size limit, or process legitimate large input. | Accept an explicit size-limit breach or suffer an observed OOM/crash. Timeout alone is inconclusive. | `ASI05:2026` | Medium |
 | `SENT-010` | Send shell, SQL, or template-injection strings. | Treat them as inert data. | Observe a canary side effect such as a Sentinel scratch file. | `ASI05:2026` | Critical |
 | `SENT-011` | Omit a required field or send the wrong type. | Reject with a validation error. | Process without error. | `ASI02:2026` | Low |
 
 The validated GPT probe plan may reorder and bind approved inert template values for these probes. Sentinel independently validates the target tool, field names, values, and probe set; all four probes run even when the plan is absent or invalid.
+
+### Phase 17 accepted contract (complete)
+
+Baseline execution, proof conditions, sandbox lifecycle, report 1.5.0, GPT proof
+preservation, precise merging, and baseline/replay identity are implemented.
+All four checkpoints are accepted. Final verification and the separately
+budgeted live-review gate passed; Phase 17 is complete.
+See [`docs/phase17-verification.md`](docs/phase17-verification.md).
+
+#### Baseline and execution
+
+`sentinel.target.yaml` gains optional `probe_baselines`, mapping each tool name
+to a complete JSON argument object. A configured example takes precedence over
+generation and is never merged with generated fields. Both paths validate
+against the runtime tool schema using the installed JSON Schema validator,
+honoring supported declared dialects and defaulting to 2020-12. References are
+local only; validation must never retrieve schemas or execute target code.
+
+Generation uses validated defaults, constants, enums, simple scalars, arrays,
+and nested objects. Generation is bounded to depth 8, 16 array items, and 16 KiB
+serialized arguments; configured examples share the depth and serialized-size
+limits. Unsupported schemas get an explicit outcome. Missing prerequisites,
+locally invalid examples, and unsuccessful runtime baselines cannot prove a
+vulnerability.
+
+Each fixed probe has one legitimate baseline and one adversarial call in
+separate fresh containers, with 10 seconds per session and 120 seconds per
+campaign. Baseline and attack timings are separate diagnostics. Oversized
+payloads retain the 1 MiB cap. Validated-plan selection and deterministic
+fallback ordering remain; this is still a four-probe campaign, not broader
+per-tool coverage. A timeout alone is inconclusive. Independent probes continue
+after unsupported or inconclusive attempts, retaining completed results.
+Docker, startup, inspection, or cleanup failure stops the campaign and marks
+remaining probes untested.
+
+Probe containers omit `--rm` so stopped-container state can be inspected before
+cleanup. Force-removal runs in `finally`, including interruption paths. Orphan
+reaping and all existing network, filesystem, credential, CPU, memory, process,
+and scratch-space restrictions remain required.
+
+#### Decisive security conditions
+
+| Probe | Evidence required for a violation |
+|---|---|
+| `SENT-008` | A successful granted-tool control, then successful processing of valid arguments by a listed ungranted tool. Unknown-name fallback rejection is a completed negative attempt; unknown-name success is inconclusive because real tool execution is unproven. Sidecars declare tool-name expectations; this does not test path/network containment. |
+| `SENT-009` | Successful processing that violates explicit `maxLength`, `maxItems`, or `maxProperties`, or a successful baseline followed by an attributable Docker-observed OOM/crash. Retain limits, measured sizes, and decisive process state. Startup failure, scanner termination, timeout alone, and legitimate large-input success are not proof. |
+| `SENT-010` | Canary absent before attack, absent after the separate baseline, and present after attack. Preserve the effect even when the MCP response reports an error. A pre-existing canary is inconclusive; failed inspection is infrastructure failure. |
+| `SENT-011` | Preserve valid siblings, omit an actually required field or use a genuinely invalid type, and validate the complete mutation locally before sending. Record the violated constraint. Schema-valid objects and unconstrained nested fields do not establish malformed input. Successful processing of verified invalid arguments establishes the violation. |
+
+Impacts remain Critical, Medium, Critical, and Low respectively. Stable rule IDs
+and the severity rubric do not change. A completed applicable attempt without a
+violation is `no_violation_observed`; it is not general evidence of safety.
+
+#### Canonical outcomes and review
+
+Native report schema **1.5.0** adds nullable `dynamic_analysis`. It is null for
+skipped analysis and unavailable historical summaries. Otherwise record exactly
+one outcome for each fixed probe, including binding (tool/field), reason,
+bounded baseline/attack evidence, schema checks, and observed effects:
+
+| `status` | Meaning | `verdict` |
+|---|---|---|
+| `tested` | Applicable attempt completed with the required control and observation. | `violation_observed` or `no_violation_observed` |
+| `unsupported` | Schema or binding cannot support a sound attempt. | null |
+| `untested` | Attempt did not run, including remaining work after infrastructure failure. | null |
+| `inconclusive` | Prerequisite or observation cannot resolve the security condition. | null |
+
+Any required unsupported, untested, or inconclusive outcome sets
+`analysisComplete=false`. `executionSuccessful` describes infrastructure health.
+Exit 3 takes precedence over finding thresholds, preserving partial findings.
+Console and JSON show outcomes by default; SARIF stores scan-level outcomes in
+invocation properties. Finding evidence remains in canonical Finding/provenance.
+
+Newly verified runtime violations start `confirmed` with high confidence.
+Nested GPT status, confidence, reasoning, and suggested suppression remain
+separate judgments. Model absence, abstention, or disagreement cannot downgrade
+or suppress host proof, including proof merged into static provenance. Normal
+GPT completion requirements still apply. Summary model counts use model
+judgments, independently of finding statuses; disagreements are explicit.
+
+Merge `SENT-009`/`SENT-011` into `SENT-003` only when tool and parameter mapping
+establish the same validation cause. Preserve static ID/source and append
+runtime evidence. Uncertain mappings and resource-only failures stay separate.
+
+#### Stable identity and historical compatibility
+
+`sentinel-baseline-v2` identifies proof by probe/tool/field, schema or policy
+identity, normalized request, and decisive result. Timing, container identifiers,
+and incidental logs remain diagnostic and do not affect replay or baseline
+identity. Supported 1.3/1.4 report migrations must not invent verified proof or
+completed probe outcomes. Preserve static matching; historical entries cannot
+suppress newly verified runtime proof, including proof merged into static
+findings.
+
+Retain original artifacts, source inputs, and captures with their original
+semantics. Refresh only affected captures, following separate budget approval;
+never relabel an old response as a review of changed evidence. Generated schemas,
+compatibility guidance, user docs, and release notes change together in the
+owning implementation checkpoint. Package version remains unchanged pending
+separate release authorization.
 
 ## 11. Configuration and CLI
 
@@ -769,14 +877,14 @@ The default failure threshold is `--fail-on=high`.
 | `0` | Scan completed and no finding met the failure threshold. |
 | `1` | One or more findings met or exceeded `--fail-on`. |
 | `2` | Usage, target, framework, transport, or configuration error attributable to input. |
-| `3` | Sentinel infrastructure or internal failure, including GPT, Docker, probe infrastructure, Semgrep, or SARIF validation failure. |
+| `3` | Incomplete required analysis, including unsupported/inconclusive/untested probes, or GPT, Docker, Semgrep, report, or internal failure. |
 
 Uncaught exceptions exit with code `3`.
 
 ## 12. Reporting and SARIF
 
 Console, JSON, and SARIF renderers consume canonical Findings after
-deduplication. Native report schema `1.4.0` has nullable top-level `gpt_review`
+deduplication. Native report schema `1.5.0` has nullable top-level `gpt_review`
 with batch-deduplicated current/origin token, latency, cache, failure, status,
 pricing, integer micro-USD cost telemetry, and required endpoint mode/hash on
 every summary and batch. Completed Finding reviews also require endpoint
@@ -799,19 +907,43 @@ Suppressed findings remain visible and use both native SARIF suppressions and th
 ### Team-adoption contracts
 
 `sentinel scan --baseline <report.json>` accepts a bounded, regular,
-non-symlink native JSON 1.3.0 or 1.4.0 report. Version 1.3.0 is migrated
-additively in memory and validated as strict 1.4.0. Compatible baselines must be
-complete, execution-successful, contain static analysis, select the same ordered
-rules, and use the same static-only/full mode. Target display names and Sentinel
+non-symlink native JSON 1.3.0, 1.4.0, or 1.5.0 report. Historical reports are
+migrated in memory and validated as strict 1.5.0; source bytes remain untouched.
+Historical `dynamic_analysis` and `DynamicEvidence.proof` are null. Historical
+model counts are recovered from accepted batch judgments, and disagreement
+counts are unavailable (null). Compatible baselines must be complete,
+execution-successful, contain static analysis, select the same ordered rules,
+and use the same static-only/full mode. Target display names and Sentinel
 package versions do not bind a baseline.
 
-Matcher `sentinel-baseline-v1` hashes the existing deduplication key plus exact
-static snippet and optional detector fingerprint, or the dynamic probe ID and
-canonical request/response JSON. Dynamic logs are excluded. Baseline state is
-applied after GPT and dynamic analysis and affects only the final failure
-threshold. Reports retain matched and new findings, expose only aggregate
-resolved counts, and serialize the baseline file's raw SHA-256 without its host
-path.
+Matcher `sentinel-baseline-v2` preserves static dedup/snippet/fingerprint matching.
+Verified dynamic identity contains probe, tool, exact argument path, schema or
+policy hash, normalized request hash, verified constraint/measurement, baseline
+success, and decisive response/process effects. Timing, container identifiers,
+incidental response content, and logs are diagnostics outside identity and model
+input. Historical dynamic entries retain their old request/response matching
+semantics and cannot match verified proof. A static finding with appended runtime
+proof also gets a new identity. Baseline state affects the final finding threshold;
+exit 3 still takes precedence. Reports retain matched/new findings, aggregate
+resolved counts, and the baseline file's raw SHA-256 without its host path.
+
+`DynamicEvidence.proof` is a typed `RuntimeProof`, present only for newly verified
+violations. Full bounded responses/logs remain in evidence; baseline evidence,
+checks, policy/schema/request hashes, and observed effects remain in proof.
+`response.diagnostics.timings` records session durations. Model requests contain
+the stable proof projection, including runtime evidence appended to a static
+finding. `Finding.review_disagrees` and `gpt_review.disagreement_count` expose
+model abstention/suppression against host proof; a lower numerical model confidence
+is retained separately. Confirmed/suppressed/needs-review model counts include
+completed judgments only; candidate minus reviewed count is unreviewed work.
+Merged provenance retains each originating review as well as each proof.
+
+Merging requires a unique catalog tool/location and an exact parameter or literal
+subscript matching an accepted type/required violation's argument path. SENT-003
+concerns declared-type validation: a size breach alone is a different cause, even
+on the same parameter. SENT-009 can merge only if successful processing also
+proves that same type/required violation. Ambiguous bindings, unconstrained paths,
+size-only violations, and resource-only failures stay separate.
 
 Included `.py`, `.ts`, `.mts`, and `.cts` files may carry exact lowercase
 reason-bearing inline directives for `SENT-001`–`SENT-007`. Python comments are

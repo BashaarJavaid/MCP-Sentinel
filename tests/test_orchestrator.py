@@ -210,6 +210,10 @@ def test_full_orchestration_orders_both_reviews_and_merge(
             warnings=(),
             image=DependencyImage("deps:test", "cache-key", True),
             campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+            observations=tuple(
+                _Observation(rule_id, "test", None, {}, {}, (), False)
+                for rule_id in DEFAULT_ORDER
+            ),
         )
 
     def fake_merge(

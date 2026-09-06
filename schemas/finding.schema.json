@@ -357,6 +357,17 @@
           "title": "Probe Id",
           "type": "string"
         },
+        "proof": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuntimeProof"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "request": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
@@ -933,6 +944,44 @@
           ],
           "title": "Evidence"
         },
+        "review": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "cached": "#/$defs/CachedReview",
+                  "degraded": "#/$defs/DegradedReview",
+                  "live": "#/$defs/LiveReview",
+                  "not_reviewed": "#/$defs/NotReviewedReview",
+                  "replay": "#/$defs/ReplayReview"
+                },
+                "propertyName": "mode"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/NotReviewedReview"
+                },
+                {
+                  "$ref": "#/$defs/DegradedReview"
+                },
+                {
+                  "$ref": "#/$defs/LiveReview"
+                },
+                {
+                  "$ref": "#/$defs/ReplayReview"
+                },
+                {
+                  "$ref": "#/$defs/CachedReview"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review"
+        },
         "rule_id": {
           "minLength": 1,
           "title": "Rule Id",
@@ -1110,6 +1159,81 @@
       ],
       "title": "ReviewStatus",
       "type": "string"
+    },
+    "RuntimeProof": {
+      "additionalProperties": false,
+      "description": "Host-observed violation; absent on historical dynamic evidence.",
+      "properties": {
+        "argument_path": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Argument Path",
+          "type": "array"
+        },
+        "baseline": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Baseline",
+          "type": "object"
+        },
+        "effects": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Effects",
+          "type": "object"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "schema_checks": {
+          "items": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Schema Checks",
+          "type": "array"
+        },
+        "tool": {
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "verdict": {
+          "const": "violation_observed",
+          "default": "violation_observed",
+          "title": "Verdict",
+          "type": "string"
+        },
+        "version": {
+          "const": 1,
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool",
+        "field",
+        "argument_path",
+        "baseline",
+        "schema_checks",
+        "effects"
+      ],
+      "title": "RuntimeProof",
+      "type": "object"
     },
     "Severity": {
       "enum": [
@@ -1401,6 +1525,11 @@
       ],
       "title": "Review"
     },
+    "review_disagrees": {
+      "readOnly": true,
+      "title": "Review Disagrees",
+      "type": "boolean"
+    },
     "rule_id": {
       "minLength": 1,
       "title": "Rule Id",
@@ -1458,6 +1587,7 @@
     "scan_id",
     "timestamp",
     "provenance",
+    "review_disagrees",
     "severity"
   ],
   "title": "Finding",

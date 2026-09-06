@@ -75,8 +75,13 @@ def _report(findings: tuple[Finding, ...], *, complete: bool = True) -> ScanRepo
     )
 
 
-def _write(path: Path, report: ScanReport, *, version: str = "1.4.0") -> None:
+def _write(path: Path, report: ScanReport, *, version: str = "1.5.0") -> None:
     payload = json.loads(render_json(report))
+    payload["schema_version"] = version
+    if version in {"1.3.0", "1.4.0"}:
+        payload.pop("dynamic_analysis")
+        for finding in payload["findings"]:
+            finding.pop("review_disagrees")
     if version == "1.3.0":
         payload["schema_version"] = version
         payload.pop("baseline")

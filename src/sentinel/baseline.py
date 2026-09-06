@@ -12,7 +12,13 @@ from typing import Any, Literal
 from pydantic import ValidationError
 
 from sentinel.errors import InfrastructureError, UsageError
-from sentinel.finding import DynamicEvidence, Finding, StaticEvidence
+from sentinel.finding import (
+    DynamicEvidence,
+    Finding,
+    StaticEvidence,
+    proof_identity,
+    runtime_evidence,
+)
 from sentinel.report.model import (
     BaselineSummary,
     ScanReport,
@@ -23,20 +29,20 @@ from sentinel.report.model import (
 from sentinel.report.validate_json import validate_report_data
 
 MAX_BASELINE_BYTES = 10 * 1024 * 1024
-MATCHER_VERSION = "sentinel-baseline-v1"
+MATCHER_VERSION = "sentinel-baseline-v2"
 
 
 @dataclass(frozen=True)
 class LoadedBaseline:
     path: Path
     report: ScanReport
-    source_schema_version: Literal["1.3.0", "1.4.0"]
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0"]
     source_sha256: str
     identities: frozenset[str]
 
 
 def load_baseline(path: Path) -> LoadedBaseline:
-    """Load one strict native 1.3/1.4 report without mutating it."""
+    """Load one strict native 1.3/1.4/1.5 report without mutating it."""
 
     candidate = path if path.is_absolute() else Path.cwd() / path
     try:
@@ -60,10 +66,10 @@ def load_baseline(path: Path) -> LoadedBaseline:
     if not isinstance(data, dict):
         raise UsageError("baseline report must be a JSON object")
     raw_version = data.get("schema_version")
-    if raw_version not in {"1.3.0", "1.4.0"}:
-        raise UsageError("baseline schema_version must be 1.3.0 or 1.4.0")
-    version: Literal["1.3.0", "1.4.0"] = raw_version
-    normalized = _migrate_13(data) if version == "1.3.0" else data
+    if raw_version not in {"1.3.0", "1.4.0", "1.5.0"}:
+        raise UsageError("baseline schema_version must be 1.3.0, 1.4.0, or 1.5.0")
+    version: Literal["1.3.0", "1.4.0", "1.5.0"] = raw_version
+    normalized = migrate_report_data(data)
     try:
         validate_report_data(normalized)
         report = ScanReport.model_validate_json(_model_input(normalized))
@@ -128,6 +134,10 @@ def finding_identity(finding: Finding) -> str:
         ]
     else:  # pragma: no cover - discriminated contract is exhaustive
         raise TypeError("unsupported finding evidence")
+    proofs = runtime_evidence(finding)
+    if proofs:
+        origin = payload if isinstance(evidence, StaticEvidence) else finding.dedup_key
+        payload = [MATCHER_VERSION, origin, [proof_identity(item) for item in proofs]]
     encoded = json.dumps(
         payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
     ).encode("utf-8")
@@ -194,6 +204,64 @@ def _migrate_13(data: dict[str, Any]) -> dict[str, Any]:
     return migrated
 
 
+def migrate_report_data(data: dict[str, Any]) -> dict[str, Any]:
+    """Migrate historical reports in memory without claiming newly verified proof."""
+    version = data.get("schema_version")
+    if version == "1.5.0":
+        return data
+    if version not in {"1.3.0", "1.4.0"}:
+        raise UsageError("unsupported native report schema version")
+    migrated = _migrate_13(data) if version == "1.3.0" else dict(data)
+    migrated["schema_version"] = "1.5.0"
+    migrated["dynamic_analysis"] = None
+    findings = []
+    raw_findings = migrated.get("findings")
+    if not isinstance(raw_findings, list):
+        return migrated
+    for raw in raw_findings:
+        if not isinstance(raw, dict):
+            findings.append(raw)
+            continue
+        finding = dict(raw)
+        finding["review_disagrees"] = False
+        evidence = finding.get("evidence")
+        if isinstance(evidence, dict) and evidence.get("kind") == "dynamic":
+            finding["evidence"] = {**evidence, "proof": None}
+        provenance = finding.get("provenance")
+        if isinstance(provenance, list):
+            finding["provenance"] = [
+                {**entry, "evidence": {**entry["evidence"], "proof": None}}
+                if isinstance(entry, dict)
+                and isinstance(entry.get("evidence"), dict)
+                and entry["evidence"].get("kind") == "dynamic"
+                else entry
+                for entry in provenance
+            ]
+        findings.append(finding)
+    migrated["findings"] = findings
+    review = migrated.get("gpt_review")
+    if isinstance(review, dict):
+        # Historical counters represented final statuses; recover model judgments
+        # from the retained pre-merge batch records, never from final findings.
+        review = dict(review)
+        batches = review.get("batches")
+        keys = ("confirmed_count", "suppressed_count", "needs_review_count")
+        if isinstance(batches, list) and all(
+            isinstance(batch, dict)
+            and all(isinstance(batch.get(key, 0), int) for key in keys)
+            for batch in batches
+        ):
+            for key in keys:
+                review[key] = sum(
+                    batch.get(key, 0)
+                    for batch in batches
+                    if batch.get("status") == "accepted"
+                )
+        review["disagreement_count"] = None
+        migrated["gpt_review"] = review
+    return migrated
+
+
 def _model_input(data: dict[str, Any]) -> str:
     payload = dict(data)
     payload["analysis_complete"] = payload.pop("analysisComplete", None)
@@ -205,6 +273,7 @@ def _model_input(data: dict[str, Any]) -> str:
             if isinstance(raw, dict):
                 finding = dict(raw)
                 finding.pop("severity", None)
+                finding.pop("review_disagrees", None)
                 findings.append(finding)
             else:
                 findings.append(raw)

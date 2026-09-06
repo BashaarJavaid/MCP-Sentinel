@@ -61,6 +61,17 @@ def render_console(
             )
             for reason, count in outcome.exemptions_by_reason.items():
                 lines.append(f"    exempt {reason}: {count}")
+    if report.dynamic_analysis is not None:
+        lines.extend(("", _style("Dynamic probes", color, bold=True)))
+        for probe in report.dynamic_analysis.probe_outcomes:
+            binding = ".".join(
+                part for part in (probe.tool, *probe.argument_path) if part
+            )
+            verdict = f" · {probe.verdict}" if probe.verdict else ""
+            lines.append(
+                f"  {probe.probe_id}: {probe.status}{verdict} · "
+                f"{binding or 'unbound'} — {probe.reason}"
+            )
     if report.baseline is not None:
         baseline = report.baseline
         lines.extend(
@@ -88,7 +99,7 @@ def render_console(
                 f"  model {review.requested_model}, reasoning "
                 f"{review.reasoning_effort.value}, endpoint "
                 f"{review.endpoint_mode.value}",
-                f"  confirmed {review.confirmed_count}, suppressed "
+                f"  model judgments: confirmed {review.confirmed_count}, suppressed "
                 f"{review.suppressed_count}, needs review {review.needs_review_count}",
                 f"  cache {review.cache_hits} hit(s), {review.cache_misses} miss(es)",
                 f"  origin tokens {review.origin_usage.total_tokens or 0}, "
@@ -99,6 +110,8 @@ def render_console(
                 ),
             )
         )
+        if review.disagreement_count:
+            lines.append(f"  runtime proof disagreements: {review.disagreement_count}")
         if review.mode == "replay":
             lines.append(
                 _style("  RECORDED REPLAY — no live model call", color, fg="yellow")
@@ -184,6 +197,10 @@ def _finding_lines(finding: Finding, *, verbose: bool, color: bool) -> tuple[str
         f"    {where} · {finding.owasp_category.id} {finding.owasp_category.name}",
         f"    Remediation: {finding.remediation}",
     ]
+    if finding.review_disagrees:
+        lines.append(
+            "    GPT disagrees with runtime proof — confirmed host evidence retained"
+        )
     if finding.suppression is not None:
         suppression = finding.suppression
         lines.append(

@@ -1,0 +1,11 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_independent_docker_controls[slow_baseline-SENT-009-inconclusive-False] __
+tests/test_dynamic_docker.py:157: in test_independent_docker_controls
+    assert result.timings[stage] < 12_500
+E   assert 14185.21637498634 < 12500
+----------------------------- Captured stdout call -----------------------------
+{"case": "slow_baseline", "outcome": {"baseline": {"logs": [], "request": {"value": "sentinel"}, "response": {"is_error": true, "process_state": {"Error": "", "ExitCode": 0, "OOMKilled": false, "Running": true}, "timed_out": true}, "schema_sha256": "12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7", "schema_valid": true, "tool": "process"}, "effects": {"request_sha256": "144429196546a9c8559d1d1e777f3174411d7eb4d4e071ccae460c992360c14f", "request_size_bytes": 1048576, "schema_sha256": "12ed9447fbbb261381b19f521a226cefef9dd3f6250b42a14873a051886c18e7"}, "execution_successful": true, "field": "value", "logs": [], "probe_id": "SENT-009", "reason": "legitimate runtime baseline did not succeed", "request": {"value": "__SENTINEL_OVERSIZED__"}, "response": {}, "schema_checks": [], "status": "inconclusive", "target_tool": "process", "timings": {"baseline_ms": 14185.21637498634}, "vulnerable": false}}
+=========================== short test summary info ============================
+FAILED tests/test_dynamic_docker.py::test_independent_docker_controls[slow_baseline-SENT-009-inconclusive-False]
+1 failed, 31 deselected in 15.42s

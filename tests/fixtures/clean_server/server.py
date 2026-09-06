@@ -97,7 +97,13 @@ async def list_runtime_tools() -> list[Tool]:
             name="validated_lookup",
             inputSchema={
                 "type": "object",
-                "properties": {"arguments": {"type": "object"}},
+                "properties": {
+                    "arguments": {
+                        "type": "object",
+                        "properties": {"record_id": {"type": "string"}},
+                        "required": ["record_id"],
+                    }
+                },
                 "required": ["arguments"],
                 "additionalProperties": False,
             },

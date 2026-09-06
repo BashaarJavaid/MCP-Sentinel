@@ -73,7 +73,7 @@ the diagnostics and resolve the cause before interpreting any report.
 ## Read the actual result
 
 Both retained scans exited `0`, inspected five files, and produced no findings
-or warnings. Native JSON reports schema `1.4.0`; SARIF remains `2.1.0`.
+or warnings. Native JSON reports schema `1.5.0`; SARIF remains `2.1.0`.
 The JSON and SARIF came from separate invocations, so timestamps and scan IDs
 differ. Their substantive results agree.
 

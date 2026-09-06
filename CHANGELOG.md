@@ -12,6 +12,17 @@ new rule IDs.
 
 ### Fixed
 
+- Require valid runtime baselines and demonstrated tool-grant, size-limit,
+  process-state, canary, or schema violations for the four dynamic probes.
+- Emit native 1.5.0 per-probe outcomes in console, JSON, and SARIF; retain partial
+  findings and return exit 3 for incomplete testing.
+- Preserve confirmed runtime proof through GPT review, count model judgments
+  separately, expose disagreements, and merge only established validation causes.
+- Introduce baseline-v2 stable proof identity and migrate 1.3/1.4 reports without
+  inventing proof. Preserve historical captures and provide a separately
+  refreshed runtime-review bundle for current-pipeline replay. Package version
+  is unchanged pending a separately authorized release.
+
 - Trace supported Python and TypeScript tool inputs through same-file named
   helpers, explicit bindings, assignments, and returns for `SENT-002`; retain
   unresolved-flow and limited-review-context warnings.

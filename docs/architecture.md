@@ -14,7 +14,7 @@ flowchart LR
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.4.0]
+    H --> J[JSON 1.5.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```

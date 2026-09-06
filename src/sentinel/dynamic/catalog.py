@@ -36,14 +36,16 @@ RULES = (
     _rule(
         "SENT-008",
         "Out-of-scope tool execution",
-        "The server executed a tool omitted from its declared permissions manifest.",
+        "After a successful granted-tool control, the server processed valid "
+        "arguments through a listed tool omitted from its declared tool-name grants.",
         Impact.CRITICAL,
         "Reject tool calls that are not granted by the active capability policy.",
     ),
     _rule(
         "SENT-009",
-        "Oversized argument accepted",
-        "The server accepted, hung, or crashed on a grossly oversized tool argument.",
+        "Oversized argument violates a limit or crashes the target",
+        "After a successful baseline, the server processed an explicit size-limit "
+        "violation or suffered an observed OOM/crash on an oversized argument.",
         Impact.MEDIUM,
         "Enforce schema and byte-size limits before invoking tool handlers.",
     ),
@@ -57,7 +59,8 @@ RULES = (
     _rule(
         "SENT-011",
         "Malformed schema input processed",
-        "The server processed a missing or wrong-type required tool argument.",
+        "After a successful baseline, the server processed locally verified "
+        "invalid arguments that violate a required-field or type constraint.",
         Impact.LOW,
         "Validate required fields and declared types before handler execution.",
     ),

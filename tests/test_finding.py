@@ -129,12 +129,16 @@ def test_suppression_requires_reason_and_disallowed_transition_fails(
 def test_finding_rejects_non_uuid4_and_mismatched_provenance(
     sample_finding: Finding,
 ) -> None:
-    data = sample_finding.model_dump(mode="python", exclude={"severity"})
+    data = sample_finding.model_dump(
+        mode="python", exclude={"severity", "review_disagrees"}
+    )
     data["finding_id"] = UUID(int=sample_finding.finding_id.int, version=1)
     with pytest.raises(ValidationError, match="UUIDv4"):
         Finding.model_validate(data)
 
-    data = sample_finding.model_dump(mode="python", exclude={"severity"})
+    data = sample_finding.model_dump(
+        mode="python", exclude={"severity", "review_disagrees"}
+    )
     provenance = data["provenance"][0]
     provenance["rule_id"] = "SENT-001"
     with pytest.raises(ValidationError, match="origin"):

@@ -19,7 +19,7 @@ import yaml
 from packaging.requirements import InvalidRequirement, Requirement
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import Version
-from pydantic import AliasChoices, Field, field_validator, model_validator
+from pydantic import AliasChoices, Field, JsonValue, field_validator, model_validator
 
 from sentinel.errors import ConfigurationError, TargetError
 from sentinel.finding import ContractModel, FindingStatus, Severity
@@ -309,6 +309,29 @@ class SentinelConfig(ContractModel):
     rules: RulesConfig = Field(default_factory=RulesConfig)
 
 
+def validate_baseline_bounds(arguments: dict[str, Any]) -> None:
+    """Bound complete configured/generated arguments before recursive validation."""
+    pending: list[tuple[Any, int]] = [(arguments, 0)]
+    visited = 0
+    while pending:
+        value, depth = pending.pop()
+        visited += 1
+        if depth > 8 or visited > 16_384:
+            raise ValueError("probe baseline exceeds depth 8 or 16 KiB")
+        if isinstance(value, dict):
+            if any(not isinstance(key, str) for key in value):
+                raise ValueError("probe baseline object keys must be strings")
+            pending.extend((item, depth + 1) for item in value.values())
+        elif isinstance(value, list):
+            pending.extend((item, depth + 1) for item in value)
+    try:
+        size = len(json.dumps(arguments, ensure_ascii=False, allow_nan=False).encode())
+    except (ValueError, TypeError, UnicodeError) as error:
+        raise ValueError("probe baseline must contain finite JSON values") from error
+    if size > 16_384:
+        raise ValueError("probe baseline exceeds 16 KiB")
+
+
 class TargetConfig(ContractModel):
     language: Literal["python"]
     launch_cmd: tuple[str, ...]
@@ -318,6 +341,20 @@ class TargetConfig(ContractModel):
     env: dict[str, str] = Field(default_factory=dict)
     env_from: tuple[str, ...] = ()
     python_version: Literal["3.10", "3.11", "3.12"]
+    probe_baselines: dict[str, dict[str, JsonValue]] = Field(default_factory=dict)
+
+    @field_validator("probe_baselines", mode="before")
+    @classmethod
+    def validate_probe_baselines(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            raise ValueError("probe_baselines must map tool names to argument objects")
+        for name, arguments in value.items():
+            if not isinstance(name, str) or not name or not isinstance(arguments, dict):
+                raise ValueError(
+                    "probe_baselines requires tool names and argument objects"
+                )
+            validate_baseline_bounds(arguments)
+        return value
 
     @field_validator("launch_cmd", "install_cmd", "env_from", mode="before")
     @classmethod

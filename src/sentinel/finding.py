@@ -141,12 +141,26 @@ class StaticEvidence(ContractModel):
     fingerprint: Sha256Hex | None = None
 
 
+class RuntimeProof(ContractModel):
+    """Host-observed violation; absent on historical dynamic evidence."""
+
+    version: Literal[1] = 1
+    verdict: Literal["violation_observed"] = "violation_observed"
+    tool: NonEmptyString
+    field: str | None
+    argument_path: tuple[str, ...]
+    baseline: dict[str, JsonValue]
+    schema_checks: tuple[dict[str, JsonValue], ...]
+    effects: dict[str, JsonValue]
+
+
 class DynamicEvidence(ContractModel):
     kind: Literal["dynamic"] = "dynamic"
     probe_id: NonEmptyString
     request: dict[str, JsonValue]
     response: dict[str, JsonValue]
     logs: tuple[str, ...] = ()
+    proof: RuntimeProof | None = None
 
 
 FindingEvidence = Annotated[
@@ -258,6 +272,7 @@ FindingReview = Annotated[
 
 
 class ProvenanceEntry(ContractModel):
+    review: FindingReview | None = None
     source: FindingSource
     rule_id: NonEmptyString
     evidence: FindingEvidence
@@ -334,6 +349,27 @@ class Finding(ContractModel):
     def serialize_timestamp(self, value: datetime) -> str:
         return format_utc(value)
 
+    @computed_field(return_type=bool)  # type: ignore[prop-decorator]
+    @property
+    def review_disagrees(self) -> bool:
+        return bool(
+            runtime_evidence(self)
+            and any(
+                review is not None
+                and review.reviewed
+                and review.status is not ReviewStatus.CONFIRMED
+                for review in (
+                    self.review,
+                    *(
+                        entry.review
+                        for entry in self.provenance
+                        if isinstance(entry.evidence, DynamicEvidence)
+                        and entry.evidence.proof is not None
+                    ),
+                )
+            )
+        )
+
     @computed_field(return_type=Severity)  # type: ignore[prop-decorator]
     @property
     def severity(self) -> Severity:
@@ -363,6 +399,51 @@ class Finding(ContractModel):
             if not isinstance(self.review, NotReviewedReview):
                 raise ValueError("inline-suppressed findings cannot be GPT-reviewed")
         return self
+
+
+def runtime_evidence(finding: Finding) -> tuple[DynamicEvidence, ...]:
+    """Only explicit host proof counts, including proof merged into static origin."""
+    return tuple(
+        sorted(
+            (
+                entry.evidence
+                for entry in finding.provenance
+                if isinstance(entry.evidence, DynamicEvidence)
+                and entry.evidence.proof is not None
+            ),
+            key=lambda evidence: evidence.probe_id,
+        )
+    )
+
+
+def proof_identity(evidence: DynamicEvidence) -> dict[str, JsonValue]:
+    """Stable proof for matching and review; diagnostics stay in reports."""
+    proof = evidence.proof
+    if proof is None:
+        raise ValueError("historical evidence has no verified runtime proof")
+    baseline = proof.baseline
+    baseline_response = baseline.get("response")
+    if evidence.probe_id == "SENT-010":
+        # Canary creation proves this violation regardless of protocol completion.
+        result: dict[str, JsonValue] = {}
+    elif proof.effects.get("resource_failure"):
+        result = {"process_state": evidence.response.get("process_state")}
+    else:
+        result = {"is_error": evidence.response.get("is_error")}
+
+    return {
+        "probe_id": evidence.probe_id,
+        "proof": proof.model_dump(mode="json", exclude={"baseline"}),
+        "request": evidence.request,
+        "baseline": {
+            key: baseline[key]
+            for key in ("tool", "request", "schema_valid", "schema_sha256")
+            if key in baseline
+        },
+        "baseline_succeeded": isinstance(baseline_response, dict)
+        and baseline_response.get("is_error") is False,
+        "result": result,
+    }
 
 
 _SEVERITY_ORDER = (
@@ -456,7 +537,7 @@ def transition_status(
         review_data["reason"] = normalized_reason
     review = type(finding.review).model_validate(review_data)
 
-    data = finding.model_dump(mode="python", exclude={"severity"})
+    data = finding.model_dump(mode="python", exclude={"severity", "review_disagrees"})
     data.update(status=target, timestamp=ensure_utc(at), review=review)
     return Finding.model_validate(data)
 

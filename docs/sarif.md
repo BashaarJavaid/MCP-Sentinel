@@ -33,6 +33,13 @@ Inline suppressions use native SARIF `inSource` suppressions while preserving
 their reason and directive location in result properties. Baseline-matched
 findings remain results with `baselineMatched: true`; they are not removed.
 
+Native report 1.5.0 places all four probe outcomes in
+`invocations[].properties.dynamicAnalysis`. Unsupported, untested, or inconclusive
+probes set `analysisComplete: false` and exit 3 while retaining partial findings.
+`executionSuccessful` describes infrastructure health. Finding properties retain
+typed runtime proof, `reviewDisagrees`, and independent GPT judgments; model
+suppression cannot suppress a verified host observation.
+
 ## GitHub code scanning
 
 The [composite Action](github-action.md) validates SARIF before upload. GitHub

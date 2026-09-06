@@ -14,8 +14,11 @@
           "type": "integer"
         },
         "matcher_version": {
-          "const": "sentinel-baseline-v1",
-          "default": "sentinel-baseline-v1",
+          "default": "sentinel-baseline-v2",
+          "enum": [
+            "sentinel-baseline-v1",
+            "sentinel-baseline-v2"
+          ],
           "title": "Matcher Version",
           "type": "string"
         },
@@ -32,7 +35,8 @@
         "source_schema_version": {
           "enum": [
             "1.3.0",
-            "1.4.0"
+            "1.4.0",
+            "1.5.0"
           ],
           "title": "Source Schema Version",
           "type": "string"
@@ -389,6 +393,23 @@
       "title": "DegradedReview",
       "type": "object"
     },
+    "DynamicAnalysisSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "probe_outcomes": {
+          "items": {
+            "$ref": "#/$defs/DynamicProbeOutcome"
+          },
+          "title": "Probe Outcomes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "probe_outcomes"
+      ],
+      "title": "DynamicAnalysisSummary",
+      "type": "object"
+    },
     "DynamicEvidence": {
       "additionalProperties": false,
       "properties": {
@@ -411,6 +432,17 @@
           "title": "Probe Id",
           "type": "string"
         },
+        "proof": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RuntimeProof"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "request": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
@@ -432,6 +464,135 @@
         "response"
       ],
       "title": "DynamicEvidence",
+      "type": "object"
+    },
+    "DynamicProbeOutcome": {
+      "additionalProperties": false,
+      "properties": {
+        "argument_path": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Argument Path",
+          "type": "array"
+        },
+        "attack": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Attack",
+          "type": "object"
+        },
+        "baseline": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Baseline",
+          "type": "object"
+        },
+        "effects": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Effects",
+          "type": "object"
+        },
+        "execution_successful": {
+          "default": true,
+          "title": "Execution Successful",
+          "type": "boolean"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "probe_id": {
+          "enum": [
+            "SENT-008",
+            "SENT-009",
+            "SENT-010",
+            "SENT-011"
+          ],
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "schema_checks": {
+          "default": [],
+          "items": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Schema Checks",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "tested",
+            "unsupported",
+            "untested",
+            "inconclusive"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "timings": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Timings",
+          "type": "object"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool"
+        },
+        "verdict": {
+          "anyOf": [
+            {
+              "enum": [
+                "violation_observed",
+                "no_violation_observed"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Verdict"
+        }
+      },
+      "required": [
+        "probe_id",
+        "status",
+        "verdict",
+        "tool",
+        "field",
+        "reason"
+      ],
+      "title": "DynamicProbeOutcome",
       "type": "object"
     },
     "EndpointMode": {
@@ -809,6 +970,19 @@
         },
         "current_usage": {
           "$ref": "#/$defs/TokenUsage"
+        },
+        "disagreement_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Disagreement Count"
         },
         "endpoint_mode": {
           "$ref": "#/$defs/EndpointMode"
@@ -1403,6 +1577,44 @@
           ],
           "title": "Evidence"
         },
+        "review": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "cached": "#/$defs/CachedReview",
+                  "degraded": "#/$defs/DegradedReview",
+                  "live": "#/$defs/LiveReview",
+                  "not_reviewed": "#/$defs/NotReviewedReview",
+                  "replay": "#/$defs/ReplayReview"
+                },
+                "propertyName": "mode"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/NotReviewedReview"
+                },
+                {
+                  "$ref": "#/$defs/DegradedReview"
+                },
+                {
+                  "$ref": "#/$defs/LiveReview"
+                },
+                {
+                  "$ref": "#/$defs/ReplayReview"
+                },
+                {
+                  "$ref": "#/$defs/CachedReview"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review"
+        },
         "rule_id": {
           "minLength": 1,
           "title": "Rule Id",
@@ -1609,6 +1821,81 @@
       ],
       "title": "ReviewStatus",
       "type": "string"
+    },
+    "RuntimeProof": {
+      "additionalProperties": false,
+      "description": "Host-observed violation; absent on historical dynamic evidence.",
+      "properties": {
+        "argument_path": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Argument Path",
+          "type": "array"
+        },
+        "baseline": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Baseline",
+          "type": "object"
+        },
+        "effects": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Effects",
+          "type": "object"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "schema_checks": {
+          "items": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Schema Checks",
+          "type": "array"
+        },
+        "tool": {
+          "minLength": 1,
+          "title": "Tool",
+          "type": "string"
+        },
+        "verdict": {
+          "const": "violation_observed",
+          "default": "violation_observed",
+          "title": "Verdict",
+          "type": "string"
+        },
+        "version": {
+          "const": 1,
+          "default": 1,
+          "title": "Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tool",
+        "field",
+        "argument_path",
+        "baseline",
+        "schema_checks",
+        "effects"
+      ],
+      "title": "RuntimeProof",
+      "type": "object"
     },
     "ScanSummary": {
       "additionalProperties": false,
@@ -2012,6 +2299,17 @@
       "title": "Completed At",
       "type": "string"
     },
+    "dynamic_analysis": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DynamicAnalysisSummary"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "executionSuccessful": {
       "title": "Executionsuccessful",
       "type": "boolean"
@@ -2039,8 +2337,8 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "1.4.0",
-      "default": "1.4.0",
+      "const": "1.5.0",
+      "default": "1.5.0",
       "title": "Schema Version",
       "type": "string"
     },

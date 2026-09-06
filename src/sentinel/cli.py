@@ -402,6 +402,9 @@ def _materialized_demo_resources() -> Iterator[tuple[Path, Path]]:
     package = resources.files("sentinel")
     fixture = package.joinpath("_fixtures").joinpath("vulnerable_server")
     cassettes = package.joinpath("_cassettes").joinpath("demo")
+    current = package.joinpath("_cassettes").joinpath("phase17")
+    if current.is_dir():
+        cassettes = current
     if not fixture.is_dir():
         source_fixture = (
             Path(__file__).resolve().parents[2]

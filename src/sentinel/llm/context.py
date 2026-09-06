@@ -9,7 +9,15 @@ import re
 from pathlib import Path
 
 from sentinel.errors import InfrastructureError
-from sentinel.finding import ContractModel, FileLocation, Finding, NonEmptyString
+from sentinel.finding import (
+    ContractModel,
+    DynamicEvidence,
+    FileLocation,
+    Finding,
+    NonEmptyString,
+    proof_identity,
+    runtime_evidence,
+)
 
 SECRET_PLACEHOLDER = "<SENTINEL_SECRET:REDACTED>"
 PATH_PLACEHOLDER = "<SENTINEL_ABSOLUTE_PATH:REDACTED>"
@@ -52,7 +60,10 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
     if not isinstance(finding.location, FileLocation):
         evidence_text = sanitize_text(
             json.dumps(
-                finding.evidence.model_dump(mode="json"),
+                proof_identity(finding.evidence)
+                if isinstance(finding.evidence, DynamicEvidence)
+                and finding.evidence.proof is not None
+                else finding.evidence.model_dump(mode="json", exclude={"proof"}),
                 ensure_ascii=False,
                 indent=2,
                 sort_keys=True,
@@ -178,6 +189,25 @@ def _block(
 def _finish_context(
     finding: Finding, blocks: tuple[ContextBlock, ...]
 ) -> FindingContext:
+    if isinstance(finding.location, FileLocation) and runtime_evidence(finding):
+        text = sanitize_text(
+            json.dumps(
+                [proof_identity(item) for item in runtime_evidence(finding)],
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        blocks = (
+            *blocks,
+            ContextBlock(
+                path=".sentinel/dynamic-evidence.json",
+                start_line=1,
+                end_line=len(text.splitlines()),
+                text=text,
+                role="dynamic_evidence",
+            ),
+        )
     payload = [block.model_dump(mode="json") for block in blocks]
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()

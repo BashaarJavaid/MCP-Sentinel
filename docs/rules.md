@@ -142,19 +142,26 @@ supported source forms and does not execute the target.
 - Engine: Docker-isolated dynamic probe
 - Impact: Critical
 - OWASP: `ASI02:2026 — Tool Misuse & Exploitation`
-- Evidence: a tool omitted from the active permissions manifest returned a
-  successful non-error response
+- Evidence: a successful granted-tool control followed by successful processing
+  of valid arguments by a listed ungranted tool
 - Remediation: reject calls not granted by the active capability policy
+
+The permissions sidecar declares expectations; it does not enforce a runtime
+boundary. This probe tests tool-name grants, not path or network containment.
+An unknown-name rejection is a completed negative; success for an unknown name
+is inconclusive because real tool execution is unproven.
 
 ## SENT-009 { #sent-009 }
 
-### Oversized argument accepted
+### Size-limit violation or attributable resource failure
 
 - Engine: Docker-isolated dynamic probe
 - Impact: Medium
 - OWASP: `ASI05:2026 — Unexpected Code Execution`
-- Evidence: a grossly oversized schema-shaped argument was accepted, hung, or
-  crashed the server; stored evidence is bounded and redacted
+- Evidence: successful processing beyond an explicit `maxLength`, `maxItems`, or
+  `maxProperties` limit, or Docker-observed OOM/crash after a successful baseline
+- Control: legitimate large-input success produces no finding; timeout alone is
+  inconclusive, and scanner shutdown/startup failure is not crash proof
 - Remediation: enforce byte and schema limits before invoking handlers
 
 ## SENT-010 { #sent-010 }
@@ -164,7 +171,9 @@ supported source forms and does not execute the target.
 - Engine: Docker-isolated scratch-canary probe
 - Impact: Critical
 - OWASP: `ASI05:2026 — Unexpected Code Execution`
-- Evidence: the inert approved payload caused the Sentinel-only scratch canary
+- Evidence: the canary was absent before/after the separate baseline and before
+  the attack, then present after the attack, even if the response reports an error
+- Control: pre-existing canaries are inconclusive; inspection failure fails infrastructure
 - Remediation: treat tool arguments as inert data and remove execution sinks
 
 ## SENT-011 { #sent-011 }
@@ -177,3 +186,8 @@ supported source forms and does not execute the target.
 - Evidence: a missing or wrong-type required argument produced a successful
   non-error response
 - Remediation: validate required fields and declared types before handler entry
+
+SENT-011 preserves valid sibling arguments and verifies the complete mutation
+against the actual schema before calling. Only an actually missing required
+field or invalid type supports proof. Every dynamic finding carries baseline
+and attack evidence; completed negative attempts do not establish general safety.
