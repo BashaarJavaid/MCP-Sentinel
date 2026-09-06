@@ -18,7 +18,9 @@ The uv equivalent is:
 uv tool install portunusmcp-sentinel
 ```
 
-Pin `portunusmcp-sentinel==1.2.1` for exact reproducibility.
+This branch prepares **1.3.0**, pending separate publication authorization.
+The rules-only interface requires 1.3.0; use the source checkout below until
+publication. Published 1.2.1 does not provide this interface.
 
 Confirm the command is available:
 
@@ -52,12 +54,21 @@ the supported boundary.
 
 ```bash
 cd your-mcp-server
-sentinel init
-# Review sentinel.permissions.yaml before granting scopes.
-sentinel scan . --static-only --allow-degraded
+sentinel scan . --rules-only
 ```
 
-`sentinel init` never imports target code. For Python it creates starter target
-and permissions configuration when safely detectable. For TypeScript it creates
-only `sentinel.permissions.yaml`. Existing files are preserved unless `--force`
-is passed, and symlink destinations are refused.
+Optional: run `sentinel init` to generate only `sentinel.permissions.yaml` for
+Python or TypeScript. No launch inference, main guard, runtime installation,
+import, or execution is required. Existing files require `--force` for
+replacement; symlinks are rejected and writes are atomic.
+
+For Python Docker probing, use `sentinel init --dynamic`. It creates runtime
+configuration and preserves validated existing permissions during an upgrade.
+Then run `sentinel scan . --no-rules-only`. Review requires model credentials,
+transmits bounded redacted source context, and incurs model costs. Docker and
+target dependency installation are separate prerequisites. TypeScript rejects
+`init --dynamic`.
+
+After dependency installation, rules-only scanning needs no network. Installing
+dependencies, auditing dependencies, and the Action's SARIF upload have separate
+network requirements. A completed scan is not proof of security.

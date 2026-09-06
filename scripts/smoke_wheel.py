@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import configparser
+import json
 import os
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -15,9 +17,9 @@ from email.parser import BytesParser
 from pathlib import Path
 
 DIST_NAME = "portunusmcp-sentinel"
-VERSION = "1.2.1"
-WHEEL_NAME = "portunusmcp_sentinel-1.2.1-py3-none-any.whl"
-SDIST_NAME = "portunusmcp_sentinel-1.2.1.tar.gz"
+VERSION = "1.3.0"
+WHEEL_NAME = "portunusmcp_sentinel-1.3.0-py3-none-any.whl"
+SDIST_NAME = "portunusmcp_sentinel-1.3.0.tar.gz"
 CLASSIFIERS = {
     "Environment :: Console",
     "Intended Audience :: Developers",
@@ -58,7 +60,16 @@ def main() -> int:
     artifacts.add_argument("--install-sdist", action="store_true")
     index = commands.add_parser("index")
     index.add_argument("distribution")
+    offline = commands.add_parser("offline")
+    offline.add_argument("executable_dir", type=Path)
     args = parser.parse_args()
+
+    if args.command == "offline":
+        interfaces = Path("/proc/net/dev").read_text().splitlines()[2:]
+        assert {line.split(":")[0].strip() for line in interfaces} <= {"lo"}
+        assert len(Path("/proc/net/route").read_text().splitlines()) == 1
+        _check_rules_only_scans(args.executable_dir)
+        return 0
 
     if args.command == "index":
         expected = f"{DIST_NAME}=={VERSION}"
@@ -192,6 +203,7 @@ def _check_pip(wheel: Path) -> None:
         _run(str(python), "-m", "pip", "install", str(wheel))
         _check_install(python, _venv_bin(environment), resources=True)
         _check_typescript_scans(_venv_bin(environment))
+        _check_rules_only_scans(_venv_bin(environment))
 
 
 def _check_pipx(distribution: str | Path) -> None:
@@ -312,6 +324,57 @@ def _check_typescript_scans(executable_dir: Path) -> None:
         assert vulnerable.returncode == 1
 
 
+def _check_rules_only_scans(executable_dir: Path) -> None:
+    sentinel = executable_dir / ("sentinel.exe" if os.name == "nt" else "sentinel")
+    fixtures = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
+    with tempfile.TemporaryDirectory(prefix="sentinel-offline-smoke-") as raw:
+        temporary = Path(raw)
+        for fixture in (
+            "clean_server",
+            "vulnerable_server",
+            "typescript_clean_server",
+            "typescript_vulnerable_server",
+        ):
+            target = temporary / fixture
+            shutil.copytree(fixtures / fixture, target)
+            (target / "sentinel.target.yaml").unlink(missing_ok=True)
+            (target / "sentinel.permissions.yaml").unlink(missing_ok=True)
+            for key in ("", "dummy-not-a-real-key"):
+                output = temporary / "report.json"
+                environment = {
+                    **os.environ,
+                    "OPENAI_API_KEY": key,
+                    "OPENAI_BASE_URL": "invalid",
+                    "SENTINEL_LLM_BASE_URL": "http://untrusted.invalid/v1",
+                    "SENTINEL_LLM_TIMEOUT_SECONDS": "invalid",
+                    "SENTINEL_TRUST_LLM_ENDPOINT": "invalid",
+                }
+                completed = subprocess.run(
+                    (
+                        str(sentinel),
+                        "scan",
+                        str(target),
+                        "--rules-only",
+                        "--format",
+                        "json",
+                        "--output",
+                        str(output),
+                    ),
+                    env=environment,
+                    check=False,
+                )
+                assert completed.returncode == (1 if "vulnerable" in fixture else 0)
+                report = json.loads(output.read_text(encoding="utf-8"))
+                assert report["analysisComplete"] and report["executionSuccessful"]
+                assert report["gpt_review"] is None
+                assert report["dynamic_analysis"] is None
+                assert all(finding["review"] is None for finding in report["findings"])
+                print(
+                    f"rules-only {fixture}, key={bool(key)}: "
+                    f"exit {completed.returncode}"
+                )
+
+
 def _run(
     *command: str,
     cwd: Path | None = None,
@@ -325,8 +388,8 @@ from importlib import metadata
 import sentinel
 
 distribution = metadata.distribution("portunusmcp-sentinel")
-assert sentinel.__version__ == "1.2.1"
-assert distribution.version == "1.2.1"
+assert sentinel.__version__ == "1.3.0"
+assert distribution.version == "1.3.0"
 scripts = {
     item.name: item.value
     for item in distribution.entry_points

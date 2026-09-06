@@ -30,11 +30,18 @@ def main() -> int:
         cases = (
             ("clean", ROOT / "tests/fixtures/clean_server", 0),
             ("vulnerable", ROOT / "tests/fixtures/vulnerable_server", 1),
+            ("typescript-clean", ROOT / "tests/fixtures/typescript_clean_server", 0),
+            (
+                "typescript-vulnerable",
+                ROOT / "tests/fixtures/typescript_vulnerable_server",
+                1,
+            ),
             ("suppressed", ROOT / "tests/fixtures/vulnerable_server", 0),
         )
         for name, fixture, expected in cases:
             target = temporary / name
             shutil.copytree(fixture, target)
+            (target / "sentinel.target.yaml").unlink(missing_ok=True)
             if name == "suppressed":
                 server = target / "server.py"
                 server.write_text(
@@ -78,7 +85,12 @@ def main() -> int:
                     "--show-diff-on-failure",
                 ),
                 cwd=target,
-                env={**os.environ, "PRE_COMMIT_HOME": str(cache)},
+                env={
+                    **os.environ,
+                    "PRE_COMMIT_HOME": str(cache),
+                    "OPENAI_API_KEY": "dummy-not-a-real-key",
+                    "SENTINEL_LLM_BASE_URL": "invalid",
+                },
                 check=False,
             )
             output = completed.stdout + completed.stderr
@@ -87,6 +99,8 @@ def main() -> int:
                     f"{name} pre-commit exit {completed.returncode}, expected "
                     f"{expected}:\n{output}"
                 )
+            if "Tier: RULES-ONLY" not in output:
+                raise RuntimeError("pre-commit did not select rules-only")
             if name == "suppressed" and "Inline suppression:" not in output:
                 raise RuntimeError("suppressed pre-commit case hid its audit reason")
             print(f"{name}: exit {completed.returncode}")

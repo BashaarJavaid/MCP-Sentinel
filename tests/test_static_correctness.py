@@ -989,6 +989,7 @@ def test_frozen_historical_candidates_replay(effort: ReasoningEffort) -> None:
         )
         assert tool is not None
         observed[tool.name] = finding.status
+        assert finding.review is not None
         assert finding.review.mode == "replay"
     assert observed == expected
 

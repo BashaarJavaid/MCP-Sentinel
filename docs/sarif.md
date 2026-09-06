@@ -3,7 +3,7 @@
 Generate a SARIF 2.1.0 report without mixing diagnostics into stdout:
 
 ```bash
-sentinel scan . --format sarif --output results.sarif
+sentinel scan . --rules-only --format sarif --output results.sarif
 ```
 
 Both completed exit codes (`0` and `1`) produce a report. Exit `1` means a
@@ -39,6 +39,11 @@ probes set `analysisComplete: false` and exit 3 while retaining partial findings
 `executionSuccessful` describes infrastructure health. Finding properties retain
 typed runtime proof, `reviewDisagrees`, and independent GPT judgments; model
 suppression cannot suppress a verified host observation.
+
+Rules-only exports existing stages in `invocations[].properties.stages`: GPT
+and dynamic stages are skipped with `rules-only scan requested`. Finding review
+and GPT summary properties are null. Older SARIF without stage properties is
+still accepted by the Action adapter.
 
 ## GitHub code scanning
 

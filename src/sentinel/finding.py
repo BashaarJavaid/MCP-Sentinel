@@ -329,7 +329,7 @@ class Finding(ContractModel):
     scan_id: UUID
     timestamp: datetime
     provenance: tuple[ProvenanceEntry, ...]
-    review: FindingReview = Field(default_factory=NotReviewedReview)
+    review: FindingReview | None = Field(default_factory=NotReviewedReview)
     baseline_matched: bool | None = None
     suppression: InlineSuppression | None = None
 
@@ -396,7 +396,9 @@ class Finding(ContractModel):
                 self.location.range.start_line,
             }:
                 raise ValueError("inline suppression must bind the finding line")
-            if not isinstance(self.review, NotReviewedReview):
+            if self.review is not None and not isinstance(
+                self.review, NotReviewedReview
+            ):
                 raise ValueError("inline-suppressed findings cannot be GPT-reviewed")
         return self
 
@@ -527,7 +529,7 @@ def transition_status(
     if needs_reason and not normalized_reason:
         raise ValueError("this transition requires a non-empty reason")
 
-    review_data = finding.review.model_dump(mode="python")
+    review_data = (finding.review or NotReviewedReview()).model_dump(mode="python")
     review_data["status"] = (
         ReviewStatus(target.value)
         if target.value in {item.value for item in ReviewStatus}
@@ -535,7 +537,7 @@ def transition_status(
     )
     if normalized_reason:
         review_data["reason"] = normalized_reason
-    review = type(finding.review).model_validate(review_data)
+    review = type(finding.review or NotReviewedReview()).model_validate(review_data)
 
     data = finding.model_dump(mode="python", exclude={"severity", "review_disagrees"})
     data.update(status=target, timestamp=ensure_utc(at), review=review)

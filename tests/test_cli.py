@@ -41,14 +41,14 @@ runner = CliRunner()
 def test_version_and_help() -> None:
     version = runner.invoke(app, ["--version"])
     assert version.exit_code == 0
-    assert version.stdout.strip() == "1.2.1"
-    help_result = runner.invoke(app, ["scan", "--help"])
+    assert version.stdout.strip() == "1.3.0"
+    help_result = runner.invoke(app, ["scan", "--help"], terminal_width=160)
     assert help_result.exit_code == 0
     assert "--static-only" in unstyle(help_result.stdout)
     assert "--llm-model" in unstyle(help_result.stdout)
-    assert "--llm-reasoning-ef" in unstyle(help_result.stdout)
+    assert "--llm-reasoning-" in unstyle(help_result.stdout)
     assert "--llm-base-url" in unstyle(help_result.stdout)
-    assert "--trust-llm-endpoi" in unstyle(help_result.stdout)
+    assert "--trust-llm-endp" in unstyle(help_result.stdout)
     assert "--baseline" in unstyle(help_result.stdout)
 
 
@@ -285,7 +285,8 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
     assert fatal_payload["findings"][0]["review"]["mode"] == "not_reviewed"
     fatal_guidance = (
         "OPENAI_API_KEY is not set; set it for GPT review or rerun with "
-        "--allow-degraded to keep rules-only candidates visible and fail-on eligible."
+        "--rules-only for offline static analysis. Use --allow-degraded to "
+        "permit unavailable review while keeping candidates fail-on eligible."
     )
     assert fatal.stderr == f"error: {fatal_guidance}\n"
     assert fatal_payload["warnings"][-1] == {
@@ -439,3 +440,130 @@ def test_debug_controls_internal_tracebacks(
     assert debug.exit_code == 3
     assert "Traceback" in debug.stderr
     assert "synthetic internal failure" in debug.stderr
+
+
+@pytest.mark.parametrize("key", (None, "dummy-not-a-real-key"))
+@pytest.mark.parametrize(
+    "fixture",
+    (
+        "clean_server",
+        "vulnerable_server",
+        "typescript_clean_server",
+        "typescript_vulnerable_server",
+    ),
+)
+def test_rules_only_prohibited_paths_and_reports(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, key: str | None, fixture: str
+) -> None:
+    import shutil
+
+    from sentinel.report.validate_json import validate_report_data
+    from sentinel.report.validate_sarif import validate_sarif_data
+
+    root = tmp_path / fixture
+    shutil.copytree(Path(__file__).parent / "fixtures" / fixture, root)
+    (root / "sentinel.target.yaml").write_text(
+        "invalid runtime config", encoding="utf-8"
+    )
+    cache = root / ".sentinel-cache"
+    cache.mkdir()
+    (cache / "existing").write_text("preserve", encoding="utf-8")
+    if key:
+        monkeypatch.setenv("OPENAI_API_KEY", key)
+
+    def forbidden(*args: object, **kwargs: object) -> None:
+        pytest.fail("rules-only reached a prohibited path")
+
+    for name in (
+        "SemanticReviewer",
+        "reap_orphans",
+        "DockerSandbox",
+        "run_dynamic_scan",
+        "empty_review_outcome",
+    ):
+        monkeypatch.setattr(f"sentinel.orchestrator.{name}", forbidden)
+    monkeypatch.setattr("socket.socket.connect", forbidden)
+    monkeypatch.setattr("sentinel.llm.semantic_reviewer.AsyncOpenAI", forbidden)
+    monkeypatch.setattr("sentinel.llm.semantic_reviewer.ReviewCache", forbidden)
+    monkeypatch.setattr("sentinel.llm.cache.ReviewCache.read", forbidden)
+    monkeypatch.setattr("sentinel.llm.cache.ReviewCache.write", forbidden)
+    monkeypatch.setattr("sentinel.llm.cache.user_cache_path", lambda *args: cache)
+    monkeypatch.setenv("SENTINEL_LLM_BASE_URL", "invalid")
+    monkeypatch.setenv("OPENAI_BASE_URL", "invalid")
+    for output_format in ("json", "sarif"):
+        result = runner.invoke(
+            app,
+            [
+                "scan",
+                str(root),
+                "--rules-only",
+                "--format",
+                output_format,
+                "--static-only",
+                "--allow-degraded",
+                "--target-launch-cmd",
+                "invalid | shell",
+            ],
+        )
+        assert result.exit_code == (1 if "vulnerable" in fixture else 0), result.output
+        payload = json.loads(result.stdout)
+        if output_format == "json":
+            validate_report_data(payload)
+            assert payload["analysisComplete"] is True
+            assert payload["gpt_review"] is None
+            assert payload["dynamic_analysis"] is None
+            assert all(
+                f["review"] is None
+                and all(p["review"] is None for p in f["provenance"])
+                for f in payload["findings"]
+            )
+            stages = payload["stages"]
+        else:
+            validate_sarif_data(payload)
+            stages = payload["runs"][0]["invocations"][0]["properties"]["stages"]
+        assert sum(s.get("reason") == "rules-only scan requested" for s in stages) == 3
+    assert (cache / "existing").read_text() == "preserve"
+
+
+def test_rules_only_baseline_suppression_threshold_and_exits(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = make_target(tmp_path / "first", target_yaml="")
+    source = root / "server.py"
+    source.write_text('token = "ghp_0123456789abcdefghijklmnop"\n', encoding="utf-8")
+    args = ["scan", str(root), "--rules-only", "--rules", "SENT-005", "--json"]
+    baseline = tmp_path / "baseline.json"
+    first = runner.invoke(app, [*args, "--output", str(baseline)])
+    assert first.exit_code == 1
+    assert runner.invoke(app, [*args, "--baseline", str(baseline)]).exit_code == 0
+    assert runner.invoke(app, [*args, "--fail-on", "critical"]).exit_code == 0
+    suppressed = (
+        source.read_text().rstrip()
+        + " # sentinel: ignore[SENT-005] reason=test credential\n"
+    )
+    source.write_text(suppressed, encoding="utf-8")
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0
+    finding = json.loads(result.stdout)["findings"][0]
+    assert finding["status"] == "suppressed"
+    assert finding["review"] is None
+    assert finding["suppression"]["reason"] == "test credential"
+    assert runner.invoke(app, [*args, "--rules", "INVALID"]).exit_code == 2
+    monkeypatch.setattr(
+        "sentinel.orchestrator.run_static_scan",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            InfrastructureError("engine unavailable")
+        ),
+    )
+    assert runner.invoke(app, args).exit_code == 3
+
+
+def test_cli_negative_rules_only_override(
+    target_root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("SENTINEL_RULES_ONLY", "true")
+    result = runner.invoke(
+        app, ["scan", str(target_root), "--no-rules-only", "--static-only", "--json"]
+    )
+    assert result.exit_code == 0
+    assert json.loads(result.stdout)["gpt_review"] is not None

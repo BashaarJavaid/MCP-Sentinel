@@ -433,3 +433,56 @@ def test_python_version_inference_and_symlink_rejection(tmp_path: Path) -> None:
     os.symlink(target, link)
     with pytest.raises(UsageError, match="symbolic link"):
         load_configuration(link, environ={}, static_only=True)
+
+
+@pytest.mark.parametrize(
+    ("project", "environment", "cli", "expected"),
+    (
+        (False, None, None, False),
+        (True, None, None, True),
+        (False, "1", None, True),
+        (True, "0", None, False),
+        (False, "false", True, True),
+        (True, "true", False, False),
+    ),
+)
+def test_rules_only_precedence(
+    target_root: Path,
+    project: bool,
+    environment: str | None,
+    cli: bool | None,
+    expected: bool,
+) -> None:
+    (target_root / "sentinel.toml").write_text(
+        f"[scanner]\nrules_only = {str(project).lower()}\n", encoding="utf-8"
+    )
+    env = {} if environment is None else {"SENTINEL_RULES_ONLY": environment}
+    loaded = load_configuration(
+        target_root, environ=env, cli_overrides={"rules_only": cli}
+    )
+    assert loaded.scanner.scanner.rules_only is expected
+    assert loaded.static_only is expected
+    assert (loaded.target is None) is expected
+
+
+def test_rules_only_ignores_inactive_llm_configuration(target_root: Path) -> None:
+    (target_root / "sentinel.toml").write_text(
+        '[llm]\nmodel = 42\nbase_url = "invalid"\n', encoding="utf-8"
+    )
+    loaded = load_configuration(
+        target_root,
+        environ={
+            "SENTINEL_RULES_ONLY": "true",
+            "SENTINEL_LLM_TIMEOUT_SECONDS": "invalid",
+            "SENTINEL_LLM_CACHE_ENABLED": "invalid",
+            "SENTINEL_TRUST_LLM_ENDPOINT": "invalid",
+            "OPENAI_BASE_URL": "invalid",
+        },
+        llm_cli_overrides={"base_url": "invalid", "reasoning_effort": "invalid"},
+        trust_llm_endpoint=True,
+        target_launch_cmd="invalid | shell",
+    )
+    assert loaded.static_only
+    assert loaded.target is None
+    with pytest.raises(UsageError):
+        load_configuration(target_root, environ={}, static_only=True)

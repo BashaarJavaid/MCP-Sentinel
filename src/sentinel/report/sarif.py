@@ -90,6 +90,7 @@ def render_sarif(report: ScanReport) -> str:
         properties={
             "analysisComplete": report.analysis_complete,
             "schemaVersion": report.schema_version,
+            "stages": [stage.model_dump(mode="json") for stage in report.stages],
             "findingCount": report.summary.total,
             "staticAnalysis": _model_data(report.static_analysis),
             "dynamicAnalysis": _model_data(report.dynamic_analysis),
@@ -191,7 +192,8 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
             Suppression(
                 kind="external",
                 state="accepted",
-                justification=finding.review.reason or "Suppressed by Sentinel review",
+                justification=(finding.review.reason if finding.review else None)
+                or "Suppressed by Sentinel review",
             )
         ]
     return Result(
@@ -222,7 +224,7 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
             "owaspName": finding.owasp_category.name,
             "evidence": finding.evidence.model_dump(mode="json"),
             "provenance": [item.model_dump(mode="json") for item in finding.provenance],
-            "review": finding.review.model_dump(mode="json"),
+            "review": _model_data(finding.review),
             "reviewDisagrees": finding.review_disagrees,
             "remediation": finding.remediation,
             "baselineMatched": finding.baseline_matched,

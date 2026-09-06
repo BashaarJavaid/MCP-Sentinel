@@ -63,7 +63,7 @@ def run_scan(
     """Run the complete static, GPT, Docker probe, merge, and report pipeline."""
 
     configuration, forced_ignored_paths = _exclude_baseline(configuration, baseline)
-    if not configuration.static_only:
+    if not configuration.static_only and not configuration.scanner.scanner.rules_only:
         reap_orphans()
 
     deadline = time.monotonic() + STATIC_TIMEOUT_SECONDS
@@ -126,6 +126,10 @@ def run_scan(
         warnings=_unique_warnings((*static_result.warnings, *catalog.warnings)),
         summary=static_result.summary,
     )
+    if configuration.scanner.scanner.rules_only:
+        return _static_only_outcome(
+            configuration, context, completed_at, static_result, None, baseline
+        )
     reviewable = tuple(
         finding for finding in static_result.findings if finding.suppression is None
     )
@@ -288,18 +292,30 @@ def _static_only_outcome(
     context: ScanContext,
     completed_at: datetime,
     static_result: StaticScanResult,
-    review: ReviewOutcome,
+    review: ReviewOutcome | None,
     baseline: LoadedBaseline | None,
 ) -> ScanOutcome:
-    static_only_complete = not review.fatal
-    later_reason = "static-only scan requested"
-    gpt_status = StageStatus.FAILED if review.fatal else StageStatus.SUCCEEDED
+    static_only_complete = review is None or not review.fatal
+    later_reason = (
+        "rules-only scan requested" if review is None else "static-only scan requested"
+    )
+    gpt_status = (
+        StageStatus.SKIPPED
+        if review is None
+        else StageStatus.FAILED
+        if review.fatal
+        else StageStatus.SUCCEEDED
+    )
     stages = (
         StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
         StageRecord(
             name=StageName.GPT_STATIC,
             status=gpt_status,
-            reason="GPT semantic review failed" if review.fatal else None,
+            reason=later_reason
+            if review is None
+            else "GPT semantic review failed"
+            if review.fatal
+            else None,
         ),
         StageRecord(
             name=StageName.DYNAMIC, status=StageStatus.SKIPPED, reason=later_reason
@@ -316,7 +332,15 @@ def _static_only_outcome(
         ),
         StageRecord(name=StageName.REPORTING, status=StageStatus.SUCCEEDED),
     )
-    warnings = [*static_result.warnings, *review.warnings]
+    warnings = [*static_result.warnings, *(review.warnings if review else ())]
+    findings = (
+        tuple(
+            finding.model_copy(update={"review": None})
+            for finding in static_result.findings
+        )
+        if review is None
+        else review.findings
+    )
     report = ScanReport(
         scan_id=context.scan_id,
         sentinel_version=__version__,
@@ -326,11 +350,11 @@ def _static_only_outcome(
         analysis_complete=static_only_complete,
         execution_successful=static_only_complete,
         stages=stages,
-        summary=summarize(review.findings),
+        summary=summarize(findings),
         warnings=_unique_warnings(tuple(warnings)),
-        findings=review.findings,
+        findings=findings,
         static_analysis=static_result.summary,
-        gpt_review=review.summary,
+        gpt_review=review.summary if review else None,
     )
     return _finalize_outcome(report, configuration, baseline)
 

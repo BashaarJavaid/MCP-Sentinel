@@ -340,6 +340,7 @@ def test_diagnostics_do_not_change_proof_baseline_or_replay_input(
         cassette_root=tmp_path,
     ).review((original,), allow_degraded=False)
     assert not replay.fatal
+    assert replay.findings[0].review is not None
     assert replay.findings[0].review.mode == "replay"
     assert replay.summary.current_usage.total_tokens == 0
 

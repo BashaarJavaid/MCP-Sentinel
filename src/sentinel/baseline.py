@@ -178,10 +178,10 @@ def _validate_compatibility(current: ScanReport, previous: ScanReport) -> None:
 
 def _static_only(report: ScanReport) -> bool:
     dynamic = next(stage for stage in report.stages if stage.name is StageName.DYNAMIC)
-    return (
-        dynamic.status is StageStatus.SKIPPED
-        and dynamic.reason == "static-only scan requested"
-    )
+    return dynamic.status is StageStatus.SKIPPED and dynamic.reason in {
+        "static-only scan requested",
+        "rules-only scan requested",
+    }
 
 
 def _migrate_13(data: dict[str, Any]) -> dict[str, Any]:

@@ -42,6 +42,8 @@ def render_console(
         f"Status: {_status_text(status, report.analysis_complete, color)}",
         _summary_line(report),
     ]
+    if any(stage.reason == "rules-only scan requested" for stage in report.stages):
+        lines.append("Tier: RULES-ONLY · GPT review and dynamic probes skipped")
     if report.static_analysis is not None:
         static = report.static_analysis
         lines.extend(
@@ -225,9 +227,9 @@ def _verbose_finding_lines(finding: Finding) -> tuple[str, ...]:
         lines.append(f"    Outcome: {response[:240]}")
         if evidence.logs:
             lines.append(f"    Logs: {' | '.join(evidence.logs[-3:])[:240]}")
-    if finding.review.reasoning:
+    if finding.review and finding.review.reasoning:
         lines.append(f"    GPT reasoning: {finding.review.reasoning[:500]}")
-    for reference in finding.review.evidence_refs or ():
+    for reference in (finding.review.evidence_refs or ()) if finding.review else ():
         lines.append(
             f"    Claim: {reference.path}:{reference.range.start_line} — "
             f"{reference.claim[:300]}"

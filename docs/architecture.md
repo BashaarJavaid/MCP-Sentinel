@@ -7,17 +7,23 @@ and three analysis tiers.
 flowchart LR
     A[Untrusted MCP repository] --> B[AST + Semgrep rules]
     B --> C[Canonical candidates]
+    C -->|rules-only| H[Static finalization]
     C --> D[GPT-5.6 semantic review]
     D --> E[Constrained four-probe plan]
     E --> F[Docker sandbox]
     F --> G[Reviewed dynamic evidence]
-    D --> H[Deduplication + provenance merge]
+    D --> H
     G --> H
     H --> I[Console]
     H --> J[JSON 1.5.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```
+
+Rules-only explicitly skips GPT and Docker, including clients, review cache,
+network calls, and runtime configuration. Reports complete for that selected
+tier with null reviews and skipped-stage reasons. Completion is not assurance
+that a server is secure. The default reviewed and dynamic pipeline is preserved.
 
 ## Trust boundaries
 
