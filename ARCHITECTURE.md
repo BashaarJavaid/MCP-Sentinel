@@ -692,7 +692,11 @@ Only `transport: stdio` is accepted in v1. `http`, `port`, SSE, and other transp
 - Build-time network is restricted to registries listed in `[sandbox].allowed_registries`.
 - The default registry allowlist is `pypi.org` and `files.pythonhosted.org`.
 - Credentials are never passed to the build.
-- The cache key hashes Python version, install command, Sentinel version, and dependency-lockfile hash.
+- Base images are pinned official Python bookworm images containing Git for
+  Git-backed MCP servers. These larger images retain the same build-network
+  and runtime isolation boundaries.
+- The cache key hashes Python version, base-image digest, install command,
+  Sentinel version, and dependency-lockfile hash.
 
 ### Probe runtime
 
@@ -1137,6 +1141,13 @@ The required v1 architecture deliberately leaves extension points only where fut
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)
 
 ## 18. Phase 20 independent benchmark (evidence gates open)
+
+Execution corrections and their offline regression observations are recorded
+separately in [the correction report](docs/benchmark-execution-corrections.md).
+Devcontainer JSONC validation accepts comments and trailing commas without
+rewriting source files or executing development-container commands. Other JSON
+files remain strict, apart from the existing TypeScript tsconfig exemption.
+These compatibility changes do not alter detectors, prompts, or probes.
 
 The benchmark is repository tooling under `scripts`, not a public scanner mode.
 The versioned Pydantic manifest, compressed upstream snapshots, revision-specific

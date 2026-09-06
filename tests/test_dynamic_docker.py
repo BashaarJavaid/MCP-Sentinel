@@ -26,7 +26,12 @@ from sentinel.dynamic.prober import (
     _run_campaign,
     _run_one,
 )
-from sentinel.dynamic.sandbox import SCAN_LABEL, DependencyImage, DockerSandbox
+from sentinel.dynamic.sandbox import (
+    PYTHON_IMAGES,
+    SCAN_LABEL,
+    DependencyImage,
+    DockerSandbox,
+)
 from sentinel.errors import InfrastructureError
 from sentinel.permissions import PermissionsManifest, load_permissions_manifest
 
@@ -47,6 +52,50 @@ def dependency_image() -> DependencyImage:
     )
     sandbox.preflight()  # Selected Docker gates fail, never skip, on unavailability.
     return sandbox.prepare_dependency_image()
+
+
+@pytest.mark.parametrize("python_version", list(PYTHON_IMAGES))
+def test_pinned_runtime_has_git(python_version: str) -> None:
+    configuration = load_configuration(FIXTURES / "vulnerable_server", environ={})
+    assert configuration.target is not None
+    target = configuration.target.model_copy(
+        update={"python_version": python_version, "launch_cmd": ("git", "--version")}
+    )
+    sandbox = DockerSandbox(
+        configuration.model_copy(update={"target": target}), uuid4()
+    )
+    name = f"sentinel-git-check-{sandbox.scan_id}"
+    try:
+        result = sandbox.docker(
+            sandbox._probe_run_args(PYTHON_IMAGES[python_version], name, "SENT-010")
+        )
+        assert result.stdout.startswith("git version ")
+    finally:
+        sandbox.docker(("rm", "--force", name))
+    _assert_clean(sandbox)
+
+
+@pytest.mark.parametrize("input_id", ["git-staging-vulnerable", "git-staging-fixed"])
+def test_phase20_git_legitimate_baseline(tmp_path: Path, input_id: str) -> None:
+    from scripts.phase20_corpus import materialize, validate
+
+    manifest = validate()
+    item = next(i for i in manifest.inputs if i.id == input_id)
+    snapshot = next(s for s in manifest.snapshots if s.revision == item.snapshot)
+    root = materialize(item, snapshot, tmp_path.resolve() / "source", manifest.packet)
+    sandbox = DockerSandbox(load_configuration(root, environ={}), uuid4())
+    image = sandbox.prepare_dependency_image()
+
+    async def baseline() -> None:
+        async with sandbox.probe_session(image.reference, "SENT-008") as session:
+            response = await session.client.call_tool(
+                "git_status", {"repo_path": "/tmp/phase20-repo"}
+            )
+            assert not response.isError
+            assert "On branch main" in str(response.content)
+
+    asyncio.run(baseline())
+    _assert_clean(sandbox)
 
 
 def _sandbox(tmp_path: Path, case: str) -> DockerSandbox:

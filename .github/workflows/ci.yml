@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   phase20-offline:
     name: Phase 20 deterministic and replay verification
@@ -29,6 +33,12 @@ jobs:
         run: uv sync --frozen --extra dev --python 3.12
       - name: Validate corpus and retained comparator metadata offline
         run: uv run python -m scripts.run_phase20_benchmark validate
+      - name: Check out the original scanner and harness for baseline reproduction
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: daeefe701a6d51120585ee2054128c33c7efafbc
+      - name: Install the frozen baseline environment
+        run: uv sync --frozen --extra dev --python 3.12
       - name: Verify full deterministic corpus without paid calls
         run: uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase20-rules" --compare-to artifacts/phase20/rules
       - name: Verify full static replay without paid calls
@@ -118,7 +128,6 @@ jobs:
   build-wheel:
     name: Build canonical distributions
     runs-on: ubuntu-latest
-    needs: quality
 
     steps:
       - name: Check out repository

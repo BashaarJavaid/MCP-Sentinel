@@ -12,6 +12,10 @@ new rule IDs.
 
 ### Fixed
 
+- Accept comments and trailing commas in devcontainer JSON configuration while
+  retaining original source evidence and rejecting malformed content.
+- Include Git in pinned Python runtime images and include the base-image digest
+  in dependency cache keys so outdated runtime images are not reused.
 - Recognize nullable and union field types consistently when validating GPT
   injection/oversized probe bindings and determining probe-plan eligibility.
   Preserve the original Phase 20 measurements separately from this correction.
@@ -26,6 +30,8 @@ new rule IDs.
 
 ### Changed
 
+- Cancel superseded PR CI/documentation runs and build distributions alongside
+  source checks while retaining the full platform matrix and release gates.
 - Empty enabled review uses `not_run`; it does not imply live/replay activity.
   Baseline resolved counts are qualified as findings not observed in this scan.
 - Accept native 1.3–1.6 baselines through in-memory migration, preserving matching,

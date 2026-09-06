@@ -44,14 +44,15 @@ SQUID_IMAGE = (
     "6a097f68bae708cedbabd6188d68c7e2e7a38cedd05a176e1cc0ba29e3bbe029"
 )
 PYTHON_IMAGES = {
+    # Official bookworm variants include Git; keep the multi-platform indexes pinned.
     "3.10": (
-        "python@sha256:c1e4e6c01eb489c422288b2de34b0761ca316f7a2d98e2c33f47659a73ed108a"
+        "python@sha256:94c362db08c5b38857943d31b10558ff1856e918605c474d205d72a534929d4e"
     ),
     "3.11": (
-        "python@sha256:db3ff2e1800a8581e2c48a27c3995339d47bdf046da21c7627accd3d51053a93"
+        "python@sha256:35d3a4a3d5e42e02ab916d44513a050689f12c0533d45598d229672503fe77ca"
     ),
     "3.12": (
-        "python@sha256:57cd7c3a7a273101a6485ba99423ee568157882804b1124b4dd04266317710de"
+        "python@sha256:581429e3df12d76e6af4be5ab7d0e7fc2013eb57dc23d2de691411c8efdbb970"
     ),
 }
 
@@ -509,6 +510,7 @@ def _dependency_inputs(
         )
     digest = hashlib.sha256()
     digest.update(target.python_version.encode())
+    digest.update(PYTHON_IMAGES[target.python_version].encode())
     digest.update(json.dumps(target.install_cmd, separators=(",", ":")).encode())
     digest.update(__version__.encode())
     for path in sorted(files):

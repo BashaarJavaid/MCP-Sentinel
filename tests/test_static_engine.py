@@ -175,6 +175,53 @@ def test_traversal_rejects_malformed_supported_files(
         collect_static_files(tmp_path, ())
 
 
+@pytest.mark.parametrize("name", ["devcontainer.json", ".devcontainer.json"])
+def test_devcontainer_jsonc_keeps_source_for_secret_scanning(
+    tmp_path: Path, name: str
+) -> None:
+    root = make_target(tmp_path / "target")
+    config = root / ".devcontainer" / name
+    config.parent.mkdir()
+    source = (
+        "// Development configuration\n{\n"
+        '  "url": "https://example.test/a/*literal*/",\n'
+        '  "escaped": "quote: \\" // still a string",\n'
+        '  /* multiline\n     comment */ "features": ["git",],\n'
+        '  "token": "ghp_abcdefghijklmnopqrstuvwxyz1234567890",\n}\n'
+    )
+    config.write_text(source, encoding="utf-8")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    secrets = [f for f in result.findings if f.rule_id == "SENT-005"]
+    assert any(
+        isinstance(f.location, FileLocation)
+        and f.location.path == f".devcontainer/{name}"
+        and f.location.range.start_line == 7
+        for f in secrets
+    )
+    assert config.read_text(encoding="utf-8") == source
+
+
+@pytest.mark.parametrize(
+    "source",
+    ["{/* unterminated", '{"value": 1/* gap */2}', "{,}", "[1,,]", '{"value": }'],
+)
+def test_devcontainer_jsonc_rejects_malformed_content(
+    tmp_path: Path, source: str
+) -> None:
+    (tmp_path / "devcontainer.json").write_text(source, encoding="utf-8")
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
+def test_other_json_stays_strict(tmp_path: Path) -> None:
+    (tmp_path / "settings.json").write_text('{/*comment*/ "value": 1,}')
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
 def test_traversal_rejects_oversized_supported_file(tmp_path: Path) -> None:
     (tmp_path / "large.py").write_text(
         "x" * (MAX_STATIC_FILE_BYTES + 1), encoding="utf-8"
