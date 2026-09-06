@@ -27,6 +27,11 @@ from sentinel.finding import (
     ensure_utc,
     format_utc,
 )
+from sentinel.report.coverage import (
+    DynamicCoverage,
+    StageReviewActivity,
+    StaticCoverage,
+)
 
 
 class StageName(str, Enum):
@@ -80,6 +85,7 @@ class StaticRuleOutcome(ContractModel):
 
 
 class StaticAnalysisSummary(ContractModel):
+    coverage: StaticCoverage | None = None
     selected_rule_ids: tuple[NonEmptyString, ...]
     scanned_file_count: int = Field(ge=0)
     ignored_file_count: int = Field(ge=0)
@@ -108,6 +114,8 @@ class DynamicProbeOutcome(ContractModel):
     field: str | None
     argument_path: tuple[str, ...] = ()
     reason: NonEmptyString
+    baseline_attempted: bool | None = None
+    attack_attempted: bool | None = None
     baseline: dict[str, JsonValue] = Field(default_factory=dict)
     attack: dict[str, JsonValue] = Field(default_factory=dict)
     schema_checks: tuple[dict[str, JsonValue], ...] = ()
@@ -123,6 +131,7 @@ class DynamicProbeOutcome(ContractModel):
 
 
 class DynamicAnalysisSummary(ContractModel):
+    coverage: DynamicCoverage | None = None
     probe_outcomes: tuple[DynamicProbeOutcome, ...]
 
     @model_validator(mode="after")
@@ -194,7 +203,7 @@ class BaselineSummary(ContractModel):
     matcher_version: Literal["sentinel-baseline-v1", "sentinel-baseline-v2"] = (
         "sentinel-baseline-v2"
     )
-    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0"]
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"]
     source_sha256: Sha256Hex
     baseline_finding_count: int = Field(ge=0)
     matched_finding_count: int = Field(ge=0)
@@ -256,7 +265,7 @@ class GptReviewSummary(ContractModel):
     reasoning_effort: ReasoningEffort
     endpoint_mode: EndpointMode
     endpoint_url_hash: Sha256Hex
-    mode: Literal["live", "replay", "cached", "degraded", "mixed"]
+    mode: Literal["live", "replay", "cached", "degraded", "mixed", "not_run"]
     candidate_count: int = Field(ge=0)
     selected_count: int = Field(ge=0)
     overflow_count: int = Field(ge=0)
@@ -280,7 +289,8 @@ class GptReviewSummary(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.5.0"] = "1.5.0"
+    schema_version: Literal["1.6.0"] = "1.6.0"
+    review_activity: StageReviewActivity = Field(default_factory=StageReviewActivity)
     scan_id: UUID
     sentinel_version: NonEmptyString
     started_at: datetime

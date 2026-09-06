@@ -110,10 +110,10 @@ sentinel scan . --rules-only --baseline sentinel-baseline.json
 
 The baseline must use the same ordered rules and static/full mode. Matched
 findings remain visible but do not affect `--fail-on`; resolved findings appear
-as an aggregate count. Sentinel never updates a baseline automatically. Generate
+as an aggregate count of findings not observed in this scan. Sentinel never updates a baseline automatically. Generate
 a separate candidate file, review its diff, then replace the accepted baseline.
 
-Native 1.5.0 reports use `sentinel-baseline-v2`. Supported 1.3/1.4 baselines
+Native 1.6.0 reports use `sentinel-baseline-v2`. Supported 1.3/1.4/1.5 baselines
 migrate in memory without changing their files or claiming completed dynamic
 testing. Static matching is preserved. Historical entries cannot hide newly
 verified runtime proof, including proof appended to a static finding. Timings
@@ -185,7 +185,7 @@ sentinel-baseline.json]` to use a reviewed baseline.
 
 ## Rules-only report compatibility
 
-Native schema 1.5.0 retains the canonical Finding shape, with nullable finding
+Native schema 1.6.0 retains the canonical Finding shape, with nullable finding
 review for explicitly unreviewed rules-only results. Provenance reviews and the
 GPT summary are null. Existing `not_reviewed`, degraded, and completed review
 records remain readable. Consumers must handle null review; older validators

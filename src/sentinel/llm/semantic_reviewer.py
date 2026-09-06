@@ -206,7 +206,7 @@ def empty_review_outcome(config: LlmConfig, *, mode: str) -> ReviewOutcome:
         cache_writes=0,
         cache_errors=0,
     )
-    summary = summary.model_copy(update={"mode": mode})
+    summary = summary.model_copy(update={"mode": "not_run"})
     return ReviewOutcome((), (), summary, fatal=False)
 
 
@@ -1153,9 +1153,9 @@ def _summarize_review(
     cache_errors: int,
 ) -> GptReviewSummary:
     modes = {item.mode for item in records}
-    mode = next(iter(modes)) if len(modes) == 1 else "mixed"
+    mode: str = next(iter(modes)) if len(modes) == 1 else "mixed"
     if not modes:
-        mode = "degraded"
+        mode = "degraded" if candidate_count else "not_run"
     current_usage = _add_usage(tuple(item.current_usage for item in records))
     origin_usage = _add_usage(tuple(item.origin_usage for item in records))
     return GptReviewSummary(

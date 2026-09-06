@@ -922,7 +922,7 @@ Uncaught exceptions exit with code `3`.
 ## 12. Reporting and SARIF
 
 Console, JSON, and SARIF renderers consume canonical Findings after
-deduplication. Native report schema `1.5.0` has nullable top-level `gpt_review`
+deduplication. Native report schema `1.6.0` has nullable top-level `gpt_review`
 with batch-deduplicated current/origin token, latency, cache, failure, status,
 pricing, integer micro-USD cost telemetry, and required endpoint mode/hash on
 every summary and batch. Completed Finding reviews also require endpoint
@@ -942,11 +942,63 @@ Result `properties` contain confidence, status, OWASP ID, evidence, evidence ref
 
 Suppressed findings remain visible and use both native SARIF suppressions and the full properties record explaining why.
 
+### Phase 19 coverage and actionable findings (acceptance pending)
+
+Native **1.6.0** adds nullable `static_analysis.coverage`,
+`dynamic_analysis.coverage`, and `review_activity.static` / `.dynamic`.
+Historical migrations set unavailable coverage and stage activity to null;
+1.5 probe outcomes also receive null `baseline_attempted` and `attack_attempted`.
+Old source files and captures stay unchanged. Finding shape, baseline-v2,
+thresholds, rule order, model payloads, and scan completion semantics are retained.
+SARIF invocation properties mirror these records under `staticAnalysis`,
+`dynamicAnalysis`, and `reviewActivity`.
+
+Static inventory uses included files and existing recognizers. Registrations
+are distinguished by kind and source location, preserving duplicate names and
+resolved handler locations. Reasons identify computed names, imported schemas
+or implementations, unsupported handler forms, and unresolved execution flows.
+Rule visits are recorded inside the actual detector loops, before exemptions,
+and are independent of the broader model-context catalog. File/configuration
+rules (`SENT-005`, `SENT-007`) stay separate. Configuration-excluded IDs are
+separate from selected rules skipped at execution. Exact observed counts do not
+establish the total possible surface; no global percentage is reported.
+
+Runtime discovery records only the existing tools/list responses, separately by
+probe and baseline/attack session. No additional calls or pages are requested.
+Each snapshot retains names, schema hashes, explicit property paths to depth 8,
+unresolved field space, and the presence of another page; it retains neither
+full schemas nor pagination cursors. Only a complete returned catalog establishes
+a session-scoped tool total. Arrays, alternatives, open properties, external or
+recursive references, unsupported schemas, and deadlines leave field space
+unresolved. Local references reuse the installed resolver without network access.
+Planned bindings, actual sent baseline/attack calls, successful controls, and
+completed outcomes remain distinct. Partial observations survive failures.
+
+Stage review activity states are `not_requested`, `not_reached`, `no_candidates`,
+`all_suppressed`, `completed`, and `incomplete`. Counts record candidates before
+inline exclusion, excluded/selected/reviewed/unreviewed work, actual modes, and
+a reason. Accepted abstention counts as reviewed while remaining `needs_review`.
+Unreviewed counts exclude inline suppression. Unreached producer counts remain
+unknown. Enabled review with no candidates has aggregate mode `not_run`; empty
+stages do not create misleading live/replay/mixed modes. Rules-only keeps null
+`gpt_review`.
+
+Default console and SARIF finding messages share source location, remediation,
+and concise evidence: at most three source lines / 480 source characters, or
+three bounded runtime facts, with explicit omissions. Helper sinks retain their
+existing source references; omitted bodies are not represented as displayed.
+Presentation distinguishes static suspicion, accepted model corroboration,
+runtime observation, and verified security effects, including merged provenance.
+Full evidence, model judgments, suppressions, and disagreements remain auditable
+in machine output. Baseline resolved means not observed in this scan; it does not
+compare baseline coverage or prove remediation. Completion refers only to the
+selected analysis and never establishes security assurance.
+
 ### Team-adoption contracts
 
 `sentinel scan --baseline <report.json>` accepts a bounded, regular,
-non-symlink native JSON 1.3.0, 1.4.0, or 1.5.0 report. Historical reports are
-migrated in memory and validated as strict 1.5.0; source bytes remain untouched.
+non-symlink native JSON 1.3.0, 1.4.0, 1.5.0, or 1.6.0 report. Historical reports are
+migrated in memory and validated as strict 1.6.0; source bytes remain untouched.
 Historical `dynamic_analysis` and `DynamicEvidence.proof` are null. Historical
 model counts are recovered from accepted batch judgments, and disagreement
 counts are unavailable (null). Compatible baselines must be complete,

@@ -25,6 +25,7 @@ from sentinel.dynamic.arguments import (
     schema_validator,
 )
 from sentinel.dynamic.catalog import RULE_BY_ID, RULE_IDS
+from sentinel.dynamic.coverage import discovery_snapshot
 from sentinel.dynamic.sandbox import (
     CANARY_PATH,
     PROBE_TIMEOUT_SECONDS,
@@ -50,6 +51,11 @@ from sentinel.finding import (
 from sentinel.llm.context import sanitize_text
 from sentinel.llm.tools import ToolCatalog, extract_tool_catalog
 from sentinel.permissions import PermissionsManifest, load_permissions_manifest
+from sentinel.report.coverage import (
+    DiscoverySnapshot,
+    DynamicCoverage,
+    PlannedProbeBinding,
+)
 from sentinel.report.model import (
     PROBE_IDS,
     DynamicAnalysisSummary,
@@ -103,10 +109,25 @@ class DynamicScanResult:
     def summary(self) -> DynamicAnalysisSummary:
         by_id = {item.probe_id: item for item in self.observations}
         return DynamicAnalysisSummary(
+            coverage=DynamicCoverage(
+                discovery=tuple(
+                    snapshot
+                    for item in self.observations
+                    for snapshot in item.discovery
+                ),
+                planned_bindings=tuple(
+                    PlannedProbeBinding(
+                        probe_id=item.probe_id, tool=item.target_tool, field=item.field
+                    )
+                    for item in self.campaign.bindings.values()
+                ),
+            ),
             probe_outcomes=tuple(
                 DynamicProbeOutcome(
                     probe_id=probe_id,
                     status=item.status,
+                    baseline_attempted=item.baseline_attempted,
+                    attack_attempted=item.attack_attempted,
                     verdict=item.verdict,
                     tool=item.target_tool or None,
                     field=item.field,
@@ -140,7 +161,7 @@ class DynamicScanResult:
                         reason="probe result unavailable",
                     ),
                 )
-            )
+            ),
         )
 
     @property
@@ -165,6 +186,9 @@ class _Observation:
     timings: dict[str, float] = dataclass_field(default_factory=dict)
     execution_successful: bool = True
     argument_path: tuple[str, ...] = ()
+    baseline_attempted: bool = False
+    attack_attempted: bool = False
+    discovery: list[DiscoverySnapshot] = dataclass_field(default_factory=list)
 
     @property
     def verdict(self) -> Literal["violation_observed", "no_violation_observed"] | None:
@@ -367,29 +391,59 @@ def _session_timeout(state: dict[str, Any]) -> float:
     return float(min(PROBE_TIMEOUT_SECONDS, remaining))
 
 
-async def _list_tools(probe: ProbeSession) -> tuple[Tool, ...]:
+async def _list_tools(
+    probe: ProbeSession, observation: _Observation, role: Literal["baseline", "attack"]
+) -> tuple[Tool, ...]:
     try:
         listed = await asyncio.wait_for(
             probe.client.list_tools(),
             timeout=max(0, probe.deadline - asyncio.get_running_loop().time()),
         )
     except Exception as error:
+        observation.discovery.append(
+            DiscoverySnapshot(
+                probe_id=observation.probe_id,
+                role=role,
+                tools=(),
+                more_pages=None,
+                tool_total=None,
+                reason="runtime tool discovery failed",
+            )
+        )
         raise InfrastructureError("runtime tool discovery failed") from error
     tools = tuple(listed.tools)
+    observation.discovery.append(
+        discovery_snapshot(
+            observation.probe_id,
+            role,
+            tools,
+            more_pages=listed.nextCursor is not None,
+            deadline=probe.deadline,
+        )
+    )
     if len({tool.name for tool in tools}) != len(tools):
         raise InfrastructureError("runtime tool catalog contains duplicate names")
     return tools
 
 
 async def _call(
-    probe: ProbeSession, name: str, arguments: dict[str, Any]
+    probe: ProbeSession,
+    name: str,
+    arguments: dict[str, Any],
+    observation: _Observation,
+    role: Literal["baseline", "attack"],
 ) -> dict[str, Any]:
     before = probe.process_state()
     if not before["Running"] or before["Error"] or before["OOMKilled"]:
         raise InfrastructureError("target was not healthy before the tool call")
     try:
+
+        async def send() -> Any:
+            setattr(observation, f"{role}_attempted", True)
+            return await probe.client.call_tool(name, arguments=arguments)
+
         result = await asyncio.wait_for(
-            probe.client.call_tool(name, arguments=arguments),
+            send(),
             timeout=max(0, probe.deadline - asyncio.get_running_loop().time()),
         )
         response = _bounded_response(
@@ -445,7 +499,7 @@ async def _baseline_and_attack(
             image, binding.probe_id, timeout=_session_timeout(state)
         ) as probe:
             state["initialized"] = True
-            tools = await _list_tools(probe)
+            tools = await _list_tools(probe, observation, "baseline")
             selected = _select_runtime_binding(binding, tools, manifest)
             observation.target_tool = selected.target_tool or OUT_OF_SCOPE_CANARY
             observation.field = selected.field
@@ -499,7 +553,9 @@ async def _baseline_and_attack(
                 if probe.canary_exists():
                     raise InvalidBaseline("canary exists before the baseline")
                 observation.effects["baseline_canary_before"] = False
-            response = await _call(probe, control.name, arguments)
+            response = await _call(
+                probe, control.name, arguments, observation, "baseline"
+            )
             observation.baseline["response"] = response
             observation.baseline["logs"] = [
                 sanitize_text(item)[:1024] for item in probe.logs()
@@ -520,7 +576,7 @@ async def _baseline_and_attack(
         async with sandbox.probe_session(
             image, binding.probe_id, timeout=_session_timeout(state)
         ) as probe:
-            listed = await _list_tools(probe)
+            listed = await _list_tools(probe, observation, "attack")
             expected = {item.name: item.inputSchema for item in tools}
             if {item.name: item.inputSchema for item in listed} != expected:
                 raise InvalidBaseline(
@@ -530,7 +586,9 @@ async def _baseline_and_attack(
                 observation.effects["canary_before"] = probe.canary_exists()
                 if observation.effects["canary_before"]:
                     raise InvalidBaseline("canary exists before the attack")
-            response = await _call(probe, observation.target_tool, attack)
+            response = await _call(
+                probe, observation.target_tool, attack, observation, "attack"
+            )
             observation.response = _sanitize_json_dict(response)
             if binding.probe_id == "SENT-010":
                 observation.effects["canary_after"] = probe.canary_exists()

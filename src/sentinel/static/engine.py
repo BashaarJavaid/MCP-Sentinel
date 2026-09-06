@@ -30,6 +30,7 @@ from sentinel.report.model import (
 )
 from sentinel.static import typescript
 from sentinel.static.catalog import RULE_BY_ID, RULE_IDS
+from sentinel.static.coverage import inventory
 from sentinel.static.model import (
     RuleRunState,
     StaticContext,
@@ -158,6 +159,7 @@ def run_static_scan(
     )
     duration_ms = round((time.monotonic() - started) * 1000)
     summary = StaticAnalysisSummary(
+        coverage=inventory(context, states),
         selected_rule_ids=selected,
         scanned_file_count=files.scanned_file_count,
         ignored_file_count=files.ignored_file_count,

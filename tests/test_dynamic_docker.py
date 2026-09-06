@@ -136,7 +136,13 @@ def test_independent_docker_controls(
                 {},
             )
         )
-        print(json.dumps({"case": case, "outcome": asdict(result)}, sort_keys=True))
+        print(
+            json.dumps(
+                {"case": case, "outcome": asdict(result)},
+                sort_keys=True,
+                default=lambda value: value.model_dump(mode="json"),
+            )
+        )
         assert result.status == status, result
         assert result.vulnerable is violation, (result.response, result.effects)
         assert (
@@ -156,6 +162,8 @@ def test_independent_docker_controls(
             # Allow bounded Docker-command overhead, not the SDK's two shutdown waits.
             assert result.timings[stage] < 12_500
         if status == "tested":
+            assert result.baseline_attempted and result.attack_attempted
+            assert [item.role for item in result.discovery] == ["baseline", "attack"]
             assert result.baseline["response"]["is_error"] is False
             assert set(result.timings) == {"baseline_ms", "attack_ms"}
     finally:
@@ -316,5 +324,41 @@ def test_infrastructure_failure_retains_proof_and_stops_independent_work(
         index = 2 if failure == "canary-inspection" else 1
         assert not results[index].execution_successful
         assert all(item.status == "untested" for item in results[index + 1 :])
+    finally:
+        _assert_clean(sandbox)
+
+
+def test_multitool_discovery_records_unprobed_fields(
+    tmp_path: Path,
+    dependency_image: DependencyImage,
+) -> None:
+    sandbox = _sandbox(tmp_path, "multi_tool")
+    try:
+        result = asyncio.run(
+            _run_one(
+                sandbox,
+                dependency_image.reference,
+                ProbeBinding("SENT-011", "process", "value", WRONG_TYPE_MARKER),
+                PermissionsManifest.model_validate(
+                    {"version": 1, "tools": {"process": {}}}
+                ),
+                {},
+            )
+        )
+        assert result.status == "tested"
+        assert result.baseline_attempted and result.attack_attempted
+        assert result.target_tool == "process" and result.argument_path == ("value",)
+        assert len(result.discovery) == 2
+        for snapshot in result.discovery:
+            assert snapshot.tool_total == 2 and snapshot.more_pages is False
+            assert snapshot.tools[1].name == "unprobed"
+            assert snapshot.tools[1].field_paths == (("nested",), ("nested", "field"))
+        print(
+            json.dumps(
+                {"phase19_multi_tool": asdict(result)},
+                sort_keys=True,
+                default=lambda value: value.model_dump(mode="json"),
+            )
+        )
     finally:
         _assert_clean(sandbox)

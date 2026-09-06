@@ -33,6 +33,7 @@ from sentinel.static.typescript import (
     _matching,
     _split_top_level,
     _tool_match,
+    offset_range,
 )
 
 
@@ -189,6 +190,7 @@ def detect(
                 or not tool.parameters
             ):
                 continue
+            state.visit(tool.path, offset_range(file.source, tool.start, tool.end))
             root = _Function(
                 tool.parameters,
                 (),

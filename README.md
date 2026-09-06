@@ -29,6 +29,17 @@ uv tool install portunusmcp-sentinel
 Rules-only commands below require **1.3.0 or newer**. Upgrade an existing install
 with `pipx upgrade portunusmcp-sentinel` or `uv tool upgrade portunusmcp-sentinel`.
 
+Reports expose observed handlers and recognition gaps, actual rule visits,
+per-session runtime catalogs and sent attacks, and separate static/dynamic review
+activity. Default findings include bounded evidence and repair guidance. Static
+surface totals remain unknown; zero findings are not proof of safety. See the
+[coverage and schema compatibility guide](docs/sarif.md#coverage-and-review-activity-native-160).
+TypeScript recognition stays bounded to supported high-level APIs: imported
+handlers/schemas, computed registrations, and unsupported forms remain gaps.
+Permission sidecars express intended grants; they do not enforce runtime
+boundaries. Dynamic probing still makes four fixed attempts, not a campaign
+against every discovered tool and field.
+
 ## Quickstart
 
 From a local Python or TypeScript MCP server repository:
@@ -82,7 +93,7 @@ see the [rule boundaries](docs/rules.md) and
 [verification record](docs/phase16-verification.md).
 
 Phase 17 source changes add validated dynamic baselines, explicit probe outcomes,
-and proof-preserving review in native JSON 1.5.0. The current replay bundle uses
+and proof-preserving review in native JSON 1.6.0. The current replay bundle uses
 one approved runtime-review refresh and four unchanged static captures. See the
 [Phase 17 verification record](docs/phase17-verification.md) for gates and acceptance status.
 
@@ -156,7 +167,7 @@ flowchart LR
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.5.0]
+    H --> J[JSON 1.6.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```

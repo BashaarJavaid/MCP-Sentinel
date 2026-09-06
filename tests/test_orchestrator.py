@@ -121,9 +121,16 @@ def test_all_inline_suppressed_static_scan_skips_gpt(
     assert outcome.report.findings == (suppressed,)
     assert outcome.report.gpt_review is not None
     assert outcome.report.gpt_review.candidate_count == 0
+    assert outcome.report.gpt_review.mode == "not_run"
+    activity = outcome.report.review_activity.static
+    assert activity and activity.state == "all_suppressed"
+    assert activity.candidate_count == activity.excluded_count == 1
+    assert activity.unreviewed_count == activity.reviewed_count == 0
 
 
+@pytest.mark.parametrize("empty_static", [False, True])
 def test_full_orchestration_orders_both_reviews_and_merge(
+    empty_static: bool,
     loaded_config: LoadedConfiguration,
     sample_finding: Finding,
     monkeypatch: pytest.MonkeyPatch,
@@ -158,7 +165,7 @@ def test_full_orchestration_orders_both_reviews_and_merge(
         assert scan_id == SCAN_ID
         assert timestamp == NOW
         calls.append("static")
-        return _static_result(static)
+        return _empty_static_result() if empty_static else _static_result(static)
 
     class FakeReviewer:
         def __init__(
@@ -181,6 +188,7 @@ def test_full_orchestration_orders_both_reviews_and_merge(
             summary = empty_review_outcome(self.config, mode="replay").summary
             summary = summary.model_copy(
                 update={
+                    "mode": "replay",
                     "candidate_count": len(findings),
                     "selected_count": len(findings),
                     "reviewed_count": len(findings),
@@ -197,7 +205,7 @@ def test_full_orchestration_orders_both_reviews_and_merge(
         timestamp: datetime,
     ) -> DynamicScanResult:
         assert sandbox.configuration == loaded_config
-        assert static_findings == (static,)
+        assert static_findings == (() if empty_static else (static,))
         assert scan_id == SCAN_ID
         assert timestamp == NOW
         calls.append("dynamic")
@@ -243,27 +251,34 @@ def test_full_orchestration_orders_both_reviews_and_merge(
     assert calls == [
         "reap",
         "static",
-        "review:static",
+        *([] if empty_static else ["review:static"]),
         "dynamic",
         "review:dynamic",
         "merge",
     ]
-    assert reviewer_limits == [500, 499]
+    assert reviewer_limits == ([500] if empty_static else [500, 499])
     assert outcome.exit_code == 1
     assert outcome.report.analysis_complete is True
     assert outcome.report.execution_successful is True
     assert {item.source for item in outcome.report.findings} == {
-        FindingSource.STATIC,
+        *([] if empty_static else [FindingSource.STATIC]),
         FindingSource.DYNAMIC,
     }
     assert all(stage.status is StageStatus.SUCCEEDED for stage in outcome.report.stages)
     sarif = json.loads(render_sarif(outcome.report))
     validate_sarif_data(sarif)
     assert [rule["id"] for rule in sarif["runs"][0]["tool"]["driver"]["rules"]] == [
-        "SENT-002",
+        *([] if empty_static else ["SENT-002"]),
         "SENT-008",
     ]
-    dynamic_result = sarif["runs"][0]["results"][1]
+    assert outcome.report.gpt_review and outcome.report.gpt_review.mode == "replay"
+    activity = outcome.report.review_activity.static
+    assert activity and activity.state == (
+        "no_candidates" if empty_static else "completed"
+    )
+    assert outcome.report.review_activity.dynamic
+    assert outcome.report.review_activity.dynamic.state == "completed"
+    dynamic_result = sarif["runs"][0]["results"][-1]
     dynamic_location = dynamic_result["locations"][0]
     physical = dynamic_location["physicalLocation"]
     assert physical["artifactLocation"]["uri"] == "sentinel.target.yaml"

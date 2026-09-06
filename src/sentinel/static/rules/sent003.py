@@ -9,6 +9,7 @@ from sentinel.static.ast_utils import (
     import_aliases,
     match_from_node,
     qualified_name,
+    range_for_node,
     resolve_name,
 )
 from sentinel.static.model import ParsedPythonFile, RuleRunState, StaticContext
@@ -100,6 +101,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
             name: _helper_guards(fn, context.deadline) for name, fn in helpers.items()
         }
         for region in discover_tool_regions(file):
+            state.visit(file.relative_path, range_for_node(region.node))
             function = region.function
             parameters = (
                 *function.args.posonlyargs,

@@ -37,6 +37,26 @@ if CASE == "startup_crash":
 
 @runtime.list_tools()
 async def list_tools():
+    if CASE == "multi_tool":
+        return [
+            Tool(name="process", inputSchema=SCHEMA),
+            Tool(
+                name="unprobed",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "nested": {
+                            "type": "object",
+                            "properties": {
+                                "field": {"type": "string"},
+                            },
+                            "additionalProperties": False,
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            ),
+        ]
     names = ["process", "denied"] if CASE.startswith("grant_") else ["process"]
     return [Tool(name=name, inputSchema=SCHEMA) for name in names]
 

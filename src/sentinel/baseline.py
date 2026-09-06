@@ -36,7 +36,7 @@ MATCHER_VERSION = "sentinel-baseline-v2"
 class LoadedBaseline:
     path: Path
     report: ScanReport
-    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0"]
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"]
     source_sha256: str
     identities: frozenset[str]
 
@@ -66,9 +66,11 @@ def load_baseline(path: Path) -> LoadedBaseline:
     if not isinstance(data, dict):
         raise UsageError("baseline report must be a JSON object")
     raw_version = data.get("schema_version")
-    if raw_version not in {"1.3.0", "1.4.0", "1.5.0"}:
-        raise UsageError("baseline schema_version must be 1.3.0, 1.4.0, or 1.5.0")
-    version: Literal["1.3.0", "1.4.0", "1.5.0"] = raw_version
+    if raw_version not in {"1.3.0", "1.4.0", "1.5.0", "1.6.0"}:
+        raise UsageError(
+            "baseline schema_version must be 1.3.0, 1.4.0, 1.5.0, or 1.6.0"
+        )
+    version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"] = raw_version
     normalized = migrate_report_data(data)
     try:
         validate_report_data(normalized)
@@ -205,6 +207,26 @@ def _migrate_13(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def migrate_report_data(data: dict[str, Any]) -> dict[str, Any]:
+    """Keep historical activity unknown and preserve all original bytes."""
+    if data.get("schema_version") == "1.6.0":
+        return data
+    migrated = dict(_migrate_to_15(data))
+    migrated["schema_version"] = "1.6.0"
+    migrated["review_activity"] = {"static": None, "dynamic": None}
+    for stage in ("static_analysis", "dynamic_analysis"):
+        summary = migrated.get(stage)
+        if isinstance(summary, dict):
+            summary = {**summary, "coverage": None}
+            if stage == "dynamic_analysis":
+                summary["probe_outcomes"] = [
+                    {**item, "baseline_attempted": None, "attack_attempted": None}
+                    for item in summary.get("probe_outcomes", [])
+                ]
+            migrated[stage] = summary
+    return migrated
+
+
+def _migrate_to_15(data: dict[str, Any]) -> dict[str, Any]:
     """Migrate historical reports in memory without claiming newly verified proof."""
     version = data.get("schema_version")
     if version == "1.5.0":

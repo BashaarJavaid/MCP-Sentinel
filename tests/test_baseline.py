@@ -75,7 +75,7 @@ def _report(findings: tuple[Finding, ...], *, complete: bool = True) -> ScanRepo
     )
 
 
-def _write(path: Path, report: ScanReport, *, version: str = "1.5.0") -> None:
+def _write(path: Path, report: ScanReport, *, version: str = "1.6.0") -> None:
     payload = json.loads(render_json(report))
     payload["schema_version"] = version
     if version in {"1.3.0", "1.4.0"}:
@@ -91,7 +91,7 @@ def _write(path: Path, report: ScanReport, *, version: str = "1.5.0") -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-@pytest.mark.parametrize("version", ("1.3.0", "1.4.0"))
+@pytest.mark.parametrize("version", ("1.3.0", "1.4.0", "1.5.0", "1.6.0"))
 def test_load_and_annotate_baseline(
     tmp_path: Path, sample_finding: Finding, version: str
 ) -> None:

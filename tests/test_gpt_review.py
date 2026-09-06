@@ -42,6 +42,7 @@ from sentinel.llm.context import (
 )
 from sentinel.llm.semantic_reviewer import OpenAITransport, SemanticReviewer, _classify
 from sentinel.llm.tools import extract_tool_catalog
+from sentinel.orchestrator import _review_activity
 
 ROOT = Path(__file__).parent / "fixtures" / "gpt_review_eval"
 NOW = datetime(2026, 7, 18, tzinfo=timezone.utc)
@@ -272,6 +273,8 @@ def test_live_review_merges_status_plan_usage_and_authority(tmp_path: Path) -> N
     assert reviewed.exploitability.value == "likely"
     assert reviewed.review is not None
     assert reviewed.review.mode == "live"
+    activity = _review_activity((finding,), outcome)
+    assert activity.state == "completed" and activity.modes == ("live",)
     assert reviewed.review.probe_plan is not None
     assert reviewed.review.probe_plan.ordered_probe_ids[0] == "SENT-011"
     assert reviewed.review.probe_plan.argument_bindings["SENT-010"] == {
@@ -381,6 +384,8 @@ def test_cache_rebinds_new_runtime_finding_ids(tmp_path: Path) -> None:
     assert outcome.findings[0].finding_id == second.finding_id
     assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.mode == "cached"
+    activity = _review_activity((second,), outcome)
+    assert activity.state == "completed" and activity.modes == ("cached",)
     assert outcome.summary.current_usage.total_tokens == 0
     assert outcome.summary.origin_usage.total_tokens == 150
     assert unused.calls == 0
@@ -430,6 +435,8 @@ def test_replay_rebinds_ids_and_preserves_capture_provenance(tmp_path: Path) -> 
     review = outcome.findings[0].review
     assert review is not None
     assert review.mode == "replay"
+    activity = _review_activity((second,), outcome)
+    assert activity.state == "completed" and activity.modes == ("replay",)
     assert review.reviewed_at == NOW
     assert review.applied_at == datetime(2030, 1, 1, tzinfo=timezone.utc)
     assert review.latency_ms == 123
