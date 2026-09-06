@@ -169,9 +169,21 @@ def capture(stage: str, approval_path: Path) -> int:
         or approval["max_requests"] < 0
     ):
         raise ValueError("approval, budget, packet, or scanner identity mismatch")
+    selected = approval.get("request_fingerprints")
+    if "request_fingerprints" in approval and (
+        not isinstance(selected, list)
+        or not selected
+        or any(not isinstance(fingerprint, str) for fingerprint in selected)
+        or len(set(selected)) != len(selected)
+        or not set(selected) <= {r["fingerprint"] for r in packet["requests"]}
+    ):
+        raise ValueError(
+            "approved request selection must name unique packet fingerprints"
+        )
     batches = [
         restore_batch(measurement["requests"][r["fingerprint"]])
         for r in packet["requests"]
+        if selected is None or r["fingerprint"] in selected
     ]
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:

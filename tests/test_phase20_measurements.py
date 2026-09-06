@@ -13,6 +13,7 @@ import pytest
 from scripts.phase20_measurements import LLM, frozen, serialize_batch, stable_report
 from scripts.phase20_review import (
     CheckedCassettes,
+    capture,
     capture_batches,
     request_hash,
     reservation,
@@ -319,3 +320,30 @@ def test_missing_usage_keeps_full_reservation(tmp_path: Path, batch: _Batch) -> 
         == reservation(batch.request)["cost_micro_usd_reservation"]
     )
     assert not (tmp_path / f"{batch.fingerprint}.json").exists()
+
+
+def test_approved_subset_preserves_packet_order_and_rejects_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = Path("artifacts/phase20")
+    packet = json.loads((root / "prepare-live/budget-packet.json").read_text())
+    approval = json.loads((root / "checkpoint2-approval.json").read_text())
+    first, last = (
+        packet["requests"][0]["fingerprint"],
+        packet["requests"][-1]["fingerprint"],
+    )
+    path = tmp_path / "approval.json"
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-offline-key")
+    with patch("scripts.phase20_review.capture_batches", return_value=0) as send:
+        approval["request_fingerprints"] = [last, first]
+        path.write_text(json.dumps(approval))
+        assert capture("static", path) == 0
+        assert [b.fingerprint for b in send.call_args.args[0]] == [first, last]
+        send.reset_mock()
+        invalid: Any
+        for invalid in ([], None, first, [first, first], ["unknown"], [{}]):
+            approval["request_fingerprints"] = invalid
+            path.write_text(json.dumps(approval))
+            with pytest.raises(ValueError, match="approved request selection"):
+                capture("static", path)
+        send.assert_not_called()

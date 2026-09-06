@@ -1159,6 +1159,11 @@ prevents simultaneous capture processes. Replay verifies exact requests and the
 accepted-capture ledger, preserves original live telemetry, and reports offline
 wall duration separately.
 
+A new approval may explicitly name a subset of the frozen request fingerprints.
+The harness validates membership and uniqueness and preserves the original packet
+order. Excluding a failed request from further paid capture leaves its findings
+and input incomplete in the benchmark; it does not remove them from scoring.
+
 Eligible normal-pipeline runs reuse accepted static captures and execute only in
 native Docker isolation. New runtime evidence receives its own budget checkpoint.
 Raw runtime Findings and native coverage summaries are retained before review;

@@ -7,7 +7,9 @@ At preparation, no live calls had run and approval was pending. The user later
 approved this packet; see [the capture outcome](checkpoint2-capture-outcome.md)
 for the first five accepted captures and first-failure stop, followed by
 [the first](checkpoint2-resume-outcome.md) and
-[second](checkpoint2-resume-outcome-2.md) authorized resumptions. The machine packet is unchanged.
+[second](checkpoint2-resume-outcome-2.md) authorized resumptions, followed by
+[the third stop and proposed request selection](checkpoint2-resume-outcome-3.md).
+The machine packet is unchanged.
 
 Requests cover the 70 deterministic candidates on 15 inputs. Exact repeated request fingerprints share one capture; the packet lists every participating input. Atlassian configuration failures produce no requests; zero-candidate stages produce no requests. No candidates were manufactured from labels.
 
