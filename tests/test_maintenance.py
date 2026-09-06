@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -146,3 +147,35 @@ def test_public_surfaces_reject_unscoped_legacy_branding() -> None:
         if legacy.search(text):
             offenders.append(str(relative))
     assert offenders == []
+
+
+@pytest.mark.parametrize(
+    ("interfaces", "routes", "accepted"),
+    (
+        ("lo: 0", "", True),
+        ("lo: 0", "Iface Destination\n\n", True),
+        ("lo: 0", "Iface Destination\nlo 00000000\n", True),
+        ("eth0: 0", "Iface Destination\n", False),
+        ("lo: 0", "Iface Destination\neth0 00000000\n", False),
+    ),
+)
+def test_offline_gate_checks_network_state_not_route_file_length(
+    monkeypatch: pytest.MonkeyPatch, interfaces: str, routes: str, accepted: bool
+) -> None:
+    from scripts import smoke_wheel
+
+    monkeypatch.setattr("sys.argv", ["smoke_wheel.py", "offline", "bin"])
+    scans: list[Path] = []
+    monkeypatch.setattr(smoke_wheel, "_check_rules_only_scans", scans.append)
+
+    def read_text(path: Path, *args: object, **kwargs: object) -> str:
+        return "header\nheader\n" + interfaces if path.name == "dev" else routes
+
+    monkeypatch.setattr(Path, "read_text", read_text)
+    if accepted:
+        assert smoke_wheel.main() == 0
+        assert scans == [Path("bin")]
+    else:
+        with pytest.raises(AssertionError):
+            smoke_wheel.main()
+        assert scans == []
