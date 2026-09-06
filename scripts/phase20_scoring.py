@@ -224,6 +224,11 @@ def build_results(manifest: Manifest) -> dict[str, Any]:
     result["capture_accounting"] = {
         "attempted_requests": len(ledger["attempts"]),
         "states": dict(Counter(a["state"] for a in ledger["attempts"])),
+        "failures": [
+            {"attempt": n, "fingerprint": a["fingerprint"], "reason": a.get("reason")}
+            for n, a in enumerate(ledger["attempts"], 1)
+            if a["state"] == "failed"
+        ],
         "charged_micro_usd": sum(a["charged_micro_usd"] for a in ledger["attempts"]),
         "accepted_usage_cost_micro_usd": sum(
             a["charged_micro_usd"]
@@ -397,6 +402,12 @@ def render_results(result: dict[str, Any]) -> str:
     review_decisions = result["treatments"]["replay"]["metrics"][
         "review_decisions_all_candidates"
     ]
+    failures = (
+        "; ".join(
+            f"attempt {f['attempt']}: {f['reason']}" for f in accounting["failures"]
+        )
+        or "none"
+    )
     lines.extend(
         [
             "",
@@ -437,14 +448,14 @@ def render_results(result: dict[str, Any]) -> str:
             "replayed input. Zero-candidate stages make no model request and "
             "do not establish model accuracy.",
             "",
-            "Checkpoint 2 approved 35 requests and $3.72. Capture stopped on "
-            "request 6 after production validation rejected its probe plan "
-            "(`injection probe requires a string field`). Five captures remain "
-            "accepted. The rejected response has no accepted usage telemetry; "
-            "its full reservation remains charged conservatively. Missing "
+            f"Failed attempts: {failures}. "
+            "Each failure stops capture until a new user decision. Rejected "
+            "responses have no accepted usage telemetry; their full "
+            "reservations remain charged conservatively. Missing "
             "captures leave reviewed inputs incomplete. The original request "
-            "packet is unchanged; the retained proposal names the remaining "
-            "requests and requires a new user decision before any retry.",
+            "packet is unchanged; the ledger binds each approved cumulative "
+            "request/cost ceiling and the retained capture history records "
+            "each separately authorized resumption.",
             "",
             f"Accepted capture token usage: {accounting['accepted_usage_tokens']}. "
             "Original accepted live latency summed across unique requests: "

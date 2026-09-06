@@ -1,19 +1,34 @@
 {
-  "adjudications_sha256": "5f234282ac2d5d395f5ad20966dc7bbbe2230513c58a7eeef00db13656c1a675",
+  "adjudications_sha256": "ec9a1b95946a17b96323607291673c306c774edc4db2687d530df28565ed4043",
   "capture_accounting": {
-    "accepted_original_live_latency_ms": 60251,
-    "accepted_usage_cost_micro_usd": 110620,
+    "accepted_original_live_latency_ms": 191290,
+    "accepted_usage_cost_micro_usd": 374996,
     "accepted_usage_tokens": {
-      "cache_write_tokens": 8676,
-      "cached_tokens": 0,
-      "input_tokens": 8691,
-      "output_tokens": 3359,
-      "reasoning_tokens": 2044,
-      "total_tokens": 12050
+      "cache_write_tokens": 28776,
+      "cached_tokens": 1579,
+      "input_tokens": 30406,
+      "output_tokens": 11514,
+      "reasoning_tokens": 7149,
+      "total_tokens": 41920
     },
-    "attempted_requests": 6,
-    "charged_micro_usd": 212125,
+    "attempted_requests": 19,
+    "charged_micro_usd": 578226,
     "decisions": {
+      "1000f0f8c44b678e32679763898c4fa9aa34e41b589b8be89bdd2ffc506d3d76": {
+        "approval": {
+          "approved_at": "2026-09-06T20:38:42.191302+00:00",
+          "checkpoint": 2,
+          "decision_context": "Reply approving the 30 remaining requests, 36 cumulative attempts, unchanged $3.72 ceiling, and stopping again on the first failure.",
+          "max_micro_usd": 3720000,
+          "max_requests": 36,
+          "packet_sha256": "4a5c620836f9764729e8bb92f0ceed56228e2ea8b26998e6a4d51366b23530af",
+          "proposal_sha256": "0012d07bc4588e99253e4c8ca4fec14054d6b84b4c6c3af96a3701abd3fb2f76",
+          "stage": "static",
+          "user_decision": "continue"
+        },
+        "reason": "first failed request; billing uncertain, reservation retained",
+        "state": "stopped"
+      },
       "22176c78546e7b2cec0ec83aa221810903584248cc4bb226d1c4ec2a3da5e80c": {
         "approval": {
           "approved_on": "2026-09-06",
@@ -29,9 +44,21 @@
         "state": "stopped"
       }
     },
+    "failures": [
+      {
+        "attempt": 6,
+        "fingerprint": "38216d4d980fc9c94938465cf53abb77e7eae56243c1b80a9fe4ed7045fa7306",
+        "reason": "injection probe requires a string field"
+      },
+      {
+        "attempt": 19,
+        "fingerprint": "7cf99e2bdd9215fa1cf8274fc5a75b256e70aae05a2a03ecfd14fa0a232cee58",
+        "reason": "injection probe requires a string field"
+      }
+    ],
     "states": {
-      "accepted": 5,
-      "failed": 1
+      "accepted": 17,
+      "failed": 2
     }
   },
   "environment": {
@@ -5790,7 +5817,7 @@
             },
             "review_decisions_all_candidates": {
               "needs_review": 2,
-              "suppressed": 3
+              "suppressed": 16
             },
             "runtime_confirmations": 0,
             "safe_completed_adjudicated": 7,
@@ -5827,17 +5854,17 @@
               "total_corpus_observed_fraction": 0.0
             },
             "review_decisions_all_candidates": {
-              "confirmed": 1
+              "confirmed": 21
             },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 2,
+            "safe_completed_adjudicated": 5,
             "states": {
-              "completed": 4,
-              "incomplete": 10
+              "completed": 9,
+              "incomplete": 5
             },
             "unadjudicated_findings": 35,
             "vulnerable_applicable": 6,
-            "vulnerable_completed_adjudicated": 2,
+            "vulnerable_completed_adjudicated": 4,
             "vulnerable_total": 6
           }
         },
@@ -5846,13 +5873,13 @@
             "abstentions": 0,
             "candidate": {
               "completed_detections": 0,
-              "completed_recall": null,
+              "completed_recall": 0.0,
               "observed_detections": 0,
               "total_corpus_observed_fraction": 0.0
             },
             "confirmed": {
               "completed_detections": 0,
-              "completed_recall": null,
+              "completed_recall": 0.0,
               "observed_detections": 0,
               "total_corpus_observed_fraction": 0.0
             },
@@ -5861,19 +5888,21 @@
             "inputs": 5,
             "retained": {
               "completed_detections": 0,
-              "completed_recall": null,
+              "completed_recall": 0.0,
               "observed_detections": 0,
               "total_corpus_observed_fraction": 0.0
             },
-            "review_decisions_all_candidates": {},
+            "review_decisions_all_candidates": {
+              "confirmed": 20
+            },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 0,
+            "safe_completed_adjudicated": 3,
             "states": {
-              "incomplete": 5
+              "completed": 5
             },
             "unadjudicated_findings": 20,
             "vulnerable_applicable": 2,
-            "vulnerable_completed_adjudicated": 0,
+            "vulnerable_completed_adjudicated": 2,
             "vulnerable_total": 2
           },
           "haris-musa/excel-mcp-server": {
@@ -5901,7 +5930,7 @@
             },
             "review_decisions_all_candidates": {
               "needs_review": 2,
-              "suppressed": 3
+              "suppressed": 16
             },
             "runtime_confirmations": 0,
             "safe_completed_adjudicated": 0,
@@ -6043,18 +6072,19 @@
               "total_corpus_observed_fraction": 0.0
             },
             "review_decisions_all_candidates": {
+              "confirmed": 20,
               "needs_review": 2,
-              "suppressed": 3
+              "suppressed": 16
             },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 9,
+            "safe_completed_adjudicated": 12,
             "states": {
-              "completed": 17,
-              "incomplete": 10
+              "completed": 22,
+              "incomplete": 5
             },
             "unadjudicated_findings": 55,
             "vulnerable_applicable": 12,
-            "vulnerable_completed_adjudicated": 8,
+            "vulnerable_completed_adjudicated": 10,
             "vulnerable_total": 12
           },
           "held_out": {
@@ -6119,18 +6149,18 @@
               "total_corpus_observed_fraction": 0.0
             },
             "review_decisions_all_candidates": {
-              "confirmed": 1,
-              "suppressed": 2
+              "confirmed": 9,
+              "suppressed": 8
             },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 4,
+            "safe_completed_adjudicated": 5,
             "states": {
-              "completed": 8,
-              "incomplete": 12
+              "completed": 10,
+              "incomplete": 10
             },
             "unadjudicated_findings": 28,
             "vulnerable_applicable": 10,
-            "vulnerable_completed_adjudicated": 4,
+            "vulnerable_completed_adjudicated": 5,
             "vulnerable_total": 10
           },
           "original": {
@@ -6157,18 +6187,19 @@
               "total_corpus_observed_fraction": 0.0
             },
             "review_decisions_all_candidates": {
+              "confirmed": 8,
               "needs_review": 1,
-              "suppressed": 1
+              "suppressed": 5
             },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 4,
+            "safe_completed_adjudicated": 5,
             "states": {
-              "completed": 8,
-              "incomplete": 12
+              "completed": 10,
+              "incomplete": 10
             },
             "unadjudicated_findings": 28,
             "vulnerable_applicable": 10,
-            "vulnerable_completed_adjudicated": 4,
+            "vulnerable_completed_adjudicated": 5,
             "vulnerable_total": 10
           },
           "safe_control": {
@@ -6195,13 +6226,15 @@
               "total_corpus_observed_fraction": null
             },
             "review_decisions_all_candidates": {
-              "needs_review": 1
+              "confirmed": 4,
+              "needs_review": 1,
+              "suppressed": 3
             },
             "runtime_confirmations": 0,
-            "safe_completed_adjudicated": 1,
+            "safe_completed_adjudicated": 2,
             "states": {
-              "completed": 1,
-              "incomplete": 4
+              "completed": 2,
+              "incomplete": 3
             },
             "unadjudicated_findings": 14,
             "vulnerable_applicable": 0,
@@ -6214,11 +6247,11 @@
         "manifest_sha256": "f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682",
         "model_calls": 0,
         "scanner": {
-          "harness_sha256": "0b0692921755855e5472213a8f704ec1bbeb8cc36ba1bb0293bb4ae3503e099e",
-          "revision": "476c2b9b68a4fd73344910b1fdcb13916995872b",
+          "harness_sha256": "ae799d74a3cee6aa4ad5253f04df3be9bfe768d5ddb951102608f820290f2783",
+          "revision": "bbcda560a15873745430e1efa9ddb09d69ff2026",
           "source_sha256": "2163f6947c9b843cc28d428b75c11ba30d06bf1d63a0eeb6df30d9749abd9816"
         },
-        "started_at": "2026-09-06T20:29:32.328792+00:00",
+        "started_at": "2026-09-06T20:41:38.863533+00:00",
         "treatment": "replay",
         "version": 1
       },
@@ -6246,19 +6279,19 @@
           "total_corpus_observed_fraction": 0.0
         },
         "review_decisions_all_candidates": {
-          "confirmed": 1,
+          "confirmed": 21,
           "needs_review": 2,
-          "suppressed": 3
+          "suppressed": 16
         },
         "runtime_confirmations": 0,
-        "safe_completed_adjudicated": 9,
+        "safe_completed_adjudicated": 12,
         "states": {
-          "completed": 17,
-          "incomplete": 28
+          "completed": 22,
+          "incomplete": 23
         },
         "unadjudicated_findings": 70,
         "vulnerable_applicable": 20,
-        "vulnerable_completed_adjudicated": 8,
+        "vulnerable_completed_adjudicated": 10,
         "vulnerable_total": 20
       },
       "outcomes": [
@@ -6323,7 +6356,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2647,
+            "duration_ms": 2632,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -6477,7 +6510,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2741
+          "wall_duration_ms": 2732
         },
         {
           "abstentions": 0,
@@ -6540,7 +6573,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 1942,
+            "duration_ms": 1964,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -6694,7 +6727,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2043
+          "wall_duration_ms": 2056
         },
         {
           "abstentions": 0,
@@ -6757,7 +6790,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2064,
+            "duration_ms": 2061,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -6911,7 +6944,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2154
+          "wall_duration_ms": 2151
         },
         {
           "abstentions": 0,
@@ -6974,7 +7007,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 1928,
+            "duration_ms": 1964,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -7128,7 +7161,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2020
+          "wall_duration_ms": 2054
         },
         {
           "abstentions": 0,
@@ -7191,7 +7224,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 1972,
+            "duration_ms": 1953,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -7345,7 +7378,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2054
+          "wall_duration_ms": 2037
         },
         {
           "abstentions": 0,
@@ -7408,7 +7441,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2065,
+            "duration_ms": 2012,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -7562,7 +7595,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2147
+          "wall_duration_ms": 2095
         },
         {
           "abstentions": 0,
@@ -7625,7 +7658,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2109,
+            "duration_ms": 1985,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -7779,7 +7812,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2194
+          "wall_duration_ms": 2072
         },
         {
           "abstentions": 0,
@@ -7842,7 +7875,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2008,
+            "duration_ms": 1952,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -7996,7 +8029,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2094
+          "wall_duration_ms": 2035
         },
         {
           "abstentions": 0,
@@ -8059,7 +8092,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2121,
+            "duration_ms": 2096,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -8213,7 +8246,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2203
+          "wall_duration_ms": 2182
         },
         {
           "abstentions": 0,
@@ -8276,7 +8309,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 1965,
+            "duration_ms": 2027,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -8430,7 +8463,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2047
+          "wall_duration_ms": 2112
         },
         {
           "abstentions": 0,
@@ -8493,7 +8526,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 1947,
+            "duration_ms": 2035,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -8647,7 +8680,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 2029
+          "wall_duration_ms": 2117
         },
         {
           "abstentions": 0,
@@ -8710,7 +8743,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2047,
+            "duration_ms": 2042,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -8864,7 +8897,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 2131
+          "wall_duration_ms": 2128
         },
         {
           "abstentions": 0,
@@ -8884,7 +8917,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2549,
+            "duration_ms": 2583,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -9038,7 +9071,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 4444
+          "wall_duration_ms": 4491
         },
         {
           "abstentions": 0,
@@ -9058,7 +9091,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2476,
+            "duration_ms": 2561,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -9212,7 +9245,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 4410
+          "wall_duration_ms": 4506
         },
         {
           "abstentions": 0,
@@ -9232,7 +9265,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2940,
+            "duration_ms": 2971,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -9386,7 +9419,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 5301
+          "wall_duration_ms": 5280
         },
         {
           "abstentions": 0,
@@ -9406,7 +9439,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2950,
+            "duration_ms": 2909,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -9560,7 +9593,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 5358
+          "wall_duration_ms": 5250
         },
         {
           "abstentions": 0,
@@ -9589,7 +9622,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 78
+          "wall_duration_ms": 80
         },
         {
           "abstentions": 0,
@@ -9647,7 +9680,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 76
+          "wall_duration_ms": 75
         },
         {
           "abstentions": 0,
@@ -9676,7 +9709,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 78
+          "wall_duration_ms": 82
         },
         {
           "abstentions": 0,
@@ -9705,7 +9738,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 106
+          "wall_duration_ms": 113
         },
         {
           "abstentions": 0,
@@ -9734,7 +9767,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 151
+          "wall_duration_ms": 191
         },
         {
           "abstentions": 0,
@@ -9792,7 +9825,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 108
+          "wall_duration_ms": 105
         },
         {
           "abstentions": 0,
@@ -9821,7 +9854,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 106
+          "wall_duration_ms": 102
         },
         {
           "abstentions": 0,
@@ -9850,7 +9883,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 119
+          "wall_duration_ms": 109
         },
         {
           "abstentions": 0,
@@ -9879,7 +9912,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "original",
-          "wall_duration_ms": 105
+          "wall_duration_ms": 109
         },
         {
           "abstentions": 0,
@@ -9908,7 +9941,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "mutation",
-          "wall_duration_ms": 114
+          "wall_duration_ms": 106
         },
         {
           "abstentions": 0,
@@ -11055,7 +11088,7 @@
                 }
               ]
             },
-            "duration_ms": 2899,
+            "duration_ms": 3000,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -11150,14 +11183,14 @@
                 "replay"
               ],
               "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 1,
+              "reviewed_count": 2,
               "selected_count": 7,
               "state": "incomplete",
-              "unreviewed_count": 6
+              "unreviewed_count": 5
             }
           },
           "review_decisions_all_candidates": {
-            "suppressed": 1
+            "suppressed": 2
           },
           "review_usage": {
             "batches": [
@@ -11216,30 +11249,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 22492,
+                "origin_latency_ms": 10144,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1576,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1579,
+                  "output_tokens": 730,
+                  "reasoning_tokens": 466,
+                  "total_tokens": 2309
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "4f6e00f44383a3dcc480eb76697618ea591b60433f3df07cd31daae33b5fa794",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_a8791af49d12489e3da9de30",
@@ -11444,7 +11477,7 @@
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 1,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 7,
             "confirmed_count": 0,
@@ -11461,18 +11494,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 6,
+            "failure_count": 5,
             "mode": "mixed",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 22007,
-            "origin_latency_ms": 15335,
+            "origin_cost_micro_usd": 44499,
+            "origin_latency_ms": 25479,
             "origin_usage": {
-              "cache_write_tokens": 1483,
+              "cache_write_tokens": 3059,
               "cached_tokens": 0,
-              "input_tokens": 1486,
-              "output_tokens": 729,
-              "reasoning_tokens": 460,
-              "total_tokens": 2215
+              "input_tokens": 3065,
+              "output_tokens": 1459,
+              "reasoning_tokens": 926,
+              "total_tokens": 4524
             },
             "overflow_count": 0,
             "pricing": {
@@ -11486,9 +11519,9 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 1,
+            "reviewed_count": 2,
             "selected_count": 7,
-            "suppressed_count": 1
+            "suppressed_count": 2
           },
           "runtime_confirmations": 0,
           "split": "development",
@@ -11503,7 +11536,7 @@
             "b4458942f09ff59e3462cfd3cd0123336db03f4de806dcd13269ccdb19cdaf46"
           ],
           "variant": "original",
-          "wall_duration_ms": 3071
+          "wall_duration_ms": 3173
         },
         {
           "abstentions": 0,
@@ -12650,7 +12683,7 @@
                 }
               ]
             },
-            "duration_ms": 2835,
+            "duration_ms": 2790,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -12745,14 +12778,14 @@
                 "replay"
               ],
               "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 1,
+              "reviewed_count": 4,
               "selected_count": 7,
               "state": "incomplete",
-              "unreviewed_count": 6
+              "unreviewed_count": 3
             }
           },
           "review_decisions_all_candidates": {
-            "suppressed": 1
+            "suppressed": 4
           },
           "review_usage": {
             "batches": [
@@ -12891,30 +12924,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 30577,
+                "origin_latency_ms": 15317,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2033,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2036,
+                  "output_tokens": 1020,
+                  "reasoning_tokens": 755,
+                  "total_tokens": 3056
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "6bd7c922feba0898645f3e449291222291bba78a69ce053ec435a4b799f858d2",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_8c0b2b3a36e28c222b855271",
@@ -12971,30 +13004,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 22772,
+                "origin_latency_ms": 9498,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1492,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1495,
+                  "output_tokens": 765,
+                  "reasoning_tokens": 492,
+                  "total_tokens": 2260
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "67a984d5ebd158b989bec45ac86e418a0eb1981113702ace86ecddb20b993f93",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_783e0f47cc7fd6b6eedc1167",
@@ -13011,35 +13044,35 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 24007,
+                "origin_latency_ms": 11587,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1623,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1626,
+                  "output_tokens": 794,
+                  "reasoning_tokens": 516,
+                  "total_tokens": 2420
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "783e0f47cc7fd6b6eedc1167cab00cdf989b28b4519b9deea15d6661e188b93d",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 1,
+            "cache_misses": 4,
             "cache_writes": 0,
             "candidate_count": 7,
             "confirmed_count": 0,
@@ -13056,18 +13089,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 6,
+            "failure_count": 3,
             "mode": "mixed",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 22272,
-            "origin_latency_ms": 13333,
+            "origin_cost_micro_usd": 99628,
+            "origin_latency_ms": 49735,
             "origin_usage": {
-              "cache_write_tokens": 1592,
+              "cache_write_tokens": 6740,
               "cached_tokens": 0,
-              "input_tokens": 1595,
-              "output_tokens": 715,
-              "reasoning_tokens": 442,
-              "total_tokens": 2310
+              "input_tokens": 6752,
+              "output_tokens": 3294,
+              "reasoning_tokens": 2205,
+              "total_tokens": 10046
             },
             "overflow_count": 0,
             "pricing": {
@@ -13081,9 +13114,9 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 1,
+            "reviewed_count": 4,
             "selected_count": 7,
-            "suppressed_count": 1
+            "suppressed_count": 4
           },
           "runtime_confirmations": 0,
           "split": "development",
@@ -13098,7 +13131,7 @@
             "edc964c774977302339245d90e2edacd2e38f546f1db53a29acee4f51297a5bf"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 3005
+          "wall_duration_ms": 2966
         },
         {
           "abstentions": 0,
@@ -14245,7 +14278,7 @@
                 }
               ]
             },
-            "duration_ms": 3164,
+            "duration_ms": 2937,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -14340,14 +14373,15 @@
                 "degraded"
               ],
               "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 1,
+              "reviewed_count": 4,
               "selected_count": 7,
               "state": "incomplete",
-              "unreviewed_count": 6
+              "unreviewed_count": 3
             }
           },
           "review_decisions_all_candidates": {
-            "needs_review": 1
+            "needs_review": 1,
+            "suppressed": 3
           },
           "review_usage": {
             "batches": [
@@ -14446,30 +14480,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 15704,
+                "origin_latency_ms": 11308,
                 "origin_usage": {
                   "cache_write_tokens": 0,
-                  "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "cached_tokens": 1579,
+                  "input_tokens": 1582,
+                  "output_tokens": 753,
+                  "reasoning_tokens": 492,
+                  "total_tokens": 2335
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "38216d4d980fc9c94938465cf53abb77e7eae56243c1b80a9fe4ed7045fa7306",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_3afa37e322545ba0fe4e456f",
@@ -14486,30 +14520,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 24107,
+                "origin_latency_ms": 11767,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2079,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2082,
+                  "output_tokens": 685,
+                  "reasoning_tokens": 429,
+                  "total_tokens": 2767
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "3afa37e322545ba0fe4e456f8f0c188e4e07e89d8d87a0fcfa80bd5e72e9acfd",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_f715d0fc37500735cf0e3e1c",
@@ -14566,30 +14600,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 16397,
+                "origin_latency_ms": 7849,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1548,
+                  "output_tokens": 433,
+                  "reasoning_tokens": 270,
+                  "total_tokens": 1981
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "67dc6cebac971c072e811855c9846c040fc7af8173314c2f507953fedef5514b",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_97e1ecbf8b85af54d290d08a",
@@ -14634,7 +14668,7 @@
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 1,
+            "cache_misses": 4,
             "cache_writes": 0,
             "candidate_count": 7,
             "confirmed_count": 0,
@@ -14651,18 +14685,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 6,
+            "failure_count": 3,
             "mode": "mixed",
             "needs_review_count": 1,
-            "origin_cost_micro_usd": 19312,
-            "origin_latency_ms": 11158,
+            "origin_cost_micro_usd": 75520,
+            "origin_latency_ms": 42082,
             "origin_usage": {
-              "cache_write_tokens": 1612,
-              "cached_tokens": 0,
-              "input_tokens": 1615,
-              "output_tokens": 562,
-              "reasoning_tokens": 228,
-              "total_tokens": 2177
+              "cache_write_tokens": 5236,
+              "cached_tokens": 1579,
+              "input_tokens": 6827,
+              "output_tokens": 2433,
+              "reasoning_tokens": 1419,
+              "total_tokens": 9260
             },
             "overflow_count": 0,
             "pricing": {
@@ -14676,9 +14710,9 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 1,
+            "reviewed_count": 4,
             "selected_count": 7,
-            "suppressed_count": 0
+            "suppressed_count": 3
           },
           "runtime_confirmations": 0,
           "split": "development",
@@ -14693,7 +14727,7 @@
             "d8f04b2351d2a38d92acf0a988b39690e2a570d34686b51f1295dd1831304d30"
           ],
           "variant": "original",
-          "wall_duration_ms": 3342
+          "wall_duration_ms": 3159
         },
         {
           "abstentions": 0,
@@ -15840,7 +15874,7 @@
                 }
               ]
             },
-            "duration_ms": 2907,
+            "duration_ms": 2844,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -15935,14 +15969,14 @@
                 "replay"
               ],
               "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 1,
+              "reviewed_count": 4,
               "selected_count": 7,
               "state": "incomplete",
-              "unreviewed_count": 6
+              "unreviewed_count": 3
             }
           },
           "review_decisions_all_candidates": {
-            "suppressed": 1
+            "suppressed": 4
           },
           "review_usage": {
             "batches": [
@@ -16001,30 +16035,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 23147,
+                "origin_latency_ms": 13759,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1655,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1658,
+                  "output_tokens": 743,
+                  "reasoning_tokens": 467,
+                  "total_tokens": 2401
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "5e25ee1bb17cc77ffc2f5f444221886e157710fabe6ce8400329ace735b3c597",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_7cf99e2bdd9215fa1cf8274f",
@@ -16121,30 +16155,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 17547,
+                "origin_latency_ms": 7119,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1827,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1830,
+                  "output_tokens": 420,
+                  "reasoning_tokens": 249,
+                  "total_tokens": 2250
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "6779744a70a5a2bc8a1ef3adeb7daad6b6d458ceec738a5e244268848dc4f473",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_b86fbe47a75d2e6deb90b187",
@@ -16201,35 +16235,35 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 25482,
+                "origin_latency_ms": 16100,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1686,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1689,
+                  "output_tokens": 852,
+                  "reasoning_tokens": 580,
+                  "total_tokens": 2541
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "622c20d808b3387aa2fc3b1edb49e17606374f661285ca5531e13acad43dbca3",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 1,
+            "cache_misses": 4,
             "cache_writes": 0,
             "candidate_count": 7,
             "confirmed_count": 0,
@@ -16246,18 +16280,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 6,
+            "failure_count": 3,
             "mode": "mixed",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 25002,
-            "origin_latency_ms": 9742,
+            "origin_cost_micro_usd": 91178,
+            "origin_latency_ms": 46720,
             "origin_usage": {
-              "cache_write_tokens": 2098,
+              "cache_write_tokens": 7266,
               "cached_tokens": 0,
-              "input_tokens": 2101,
-              "output_tokens": 725,
-              "reasoning_tokens": 449,
-              "total_tokens": 2826
+              "input_tokens": 7278,
+              "output_tokens": 2740,
+              "reasoning_tokens": 1745,
+              "total_tokens": 10018
             },
             "overflow_count": 0,
             "pricing": {
@@ -16271,9 +16305,9 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 1,
+            "reviewed_count": 4,
             "selected_count": 7,
-            "suppressed_count": 1
+            "suppressed_count": 4
           },
           "runtime_confirmations": 0,
           "split": "development",
@@ -16288,7 +16322,7 @@
             "f1614e32709253f3a7ba7fc6fd315f3e0f9ccfaa91510f20fce69f514b747ace"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 3159
+          "wall_duration_ms": 3098
         },
         {
           "abstentions": 0,
@@ -16482,7 +16516,7 @@
                 }
               ]
             },
-            "duration_ms": 4973,
+            "duration_ms": 5087,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -16725,7 +16759,7 @@
             "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03"
           ],
           "variant": "original",
-          "wall_duration_ms": 8797
+          "wall_duration_ms": 8968
         },
         {
           "abstentions": 0,
@@ -16919,7 +16953,7 @@
                 }
               ]
             },
-            "duration_ms": 4784,
+            "duration_ms": 4985,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -17165,7 +17199,7 @@
             "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 8608
+          "wall_duration_ms": 8815
         },
         {
           "abstentions": 0,
@@ -17359,7 +17393,7 @@
                 }
               ]
             },
-            "duration_ms": 5072,
+            "duration_ms": 5070,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -17602,7 +17636,7 @@
             "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03"
           ],
           "variant": "original",
-          "wall_duration_ms": 8796
+          "wall_duration_ms": 9411
         },
         {
           "abstentions": 0,
@@ -17796,7 +17830,7 @@
                 }
               ]
             },
-            "duration_ms": 4869,
+            "duration_ms": 4913,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -18039,13 +18073,13 @@
             "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 8796
+          "wall_duration_ms": 8683
         },
         {
           "abstentions": 0,
           "candidate_count": 4,
           "candidate_detected": false,
-          "completed_miss": false,
+          "completed_miss": true,
           "condition_adjudicated": true,
           "confirmed_detected": false,
           "coverage": {
@@ -18176,7 +18210,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 8619,
+            "duration_ms": 8821,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -18249,7 +18283,7 @@
           "label": "vulnerable",
           "language": "typescript",
           "matched_keys": [],
-          "reason": "GPT semantic review failed",
+          "reason": null,
           "repository": "Flux159/mcp-server-kubernetes",
           "retained_detected": false,
           "review_activity": {
@@ -18267,21 +18301,23 @@
               "candidate_count": 4,
               "excluded_count": 0,
               "modes": [
-                "degraded"
+                "replay"
               ],
-              "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 0,
+              "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+              "reviewed_count": 4,
               "selected_count": 4,
-              "state": "incomplete",
-              "unreviewed_count": 4
+              "state": "completed",
+              "unreviewed_count": 0
             }
           },
-          "review_decisions_all_candidates": {},
+          "review_decisions_all_candidates": {
+            "confirmed": 4
+          },
           "review_usage": {
             "batches": [
               {
                 "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -18294,34 +18330,34 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 20527,
+                "origin_latency_ms": 8019,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2039,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2042,
+                  "output_tokens": 516,
+                  "reasoning_tokens": 217,
+                  "total_tokens": 2558
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               },
               {
                 "batch_id": "batch_52dd3ff2da57a769156f3eba",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -18334,38 +18370,38 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 21617,
+                "origin_latency_ms": 8572,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2548,
+                  "output_tokens": 444,
+                  "reasoning_tokens": 172,
+                  "total_tokens": 2992
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 0,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 4,
-            "confirmed_count": 0,
+            "confirmed_count": 4,
             "current_cost_micro_usd": 0,
             "current_latency_ms": 0,
             "current_usage": {
@@ -18379,18 +18415,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 2,
-            "mode": "degraded",
+            "failure_count": 0,
+            "mode": "replay",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 0,
-            "origin_latency_ms": 0,
+            "origin_cost_micro_usd": 42144,
+            "origin_latency_ms": 16591,
             "origin_usage": {
-              "cache_write_tokens": 0,
+              "cache_write_tokens": 4584,
               "cached_tokens": 0,
-              "input_tokens": 0,
-              "output_tokens": 0,
-              "reasoning_tokens": 0,
-              "total_tokens": 0
+              "input_tokens": 4590,
+              "output_tokens": 960,
+              "reasoning_tokens": 389,
+              "total_tokens": 5550
             },
             "overflow_count": 0,
             "pricing": {
@@ -18404,13 +18440,13 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 0,
+            "reviewed_count": 4,
             "selected_count": 4,
             "suppressed_count": 0
           },
           "runtime_confirmations": 0,
           "split": "development",
-          "state": "incomplete",
+          "state": "completed",
           "unadjudicated_keys": [
             "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
             "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
@@ -18418,13 +18454,13 @@
             "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c"
           ],
           "variant": "original",
-          "wall_duration_ms": 15784
+          "wall_duration_ms": 15845
         },
         {
           "abstentions": 0,
           "candidate_count": 4,
           "candidate_detected": false,
-          "completed_miss": false,
+          "completed_miss": true,
           "condition_adjudicated": true,
           "confirmed_detected": false,
           "coverage": {
@@ -18555,7 +18591,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 8495,
+            "duration_ms": 8801,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -18628,7 +18664,7 @@
           "label": "vulnerable",
           "language": "typescript",
           "matched_keys": [],
-          "reason": "GPT semantic review failed",
+          "reason": null,
           "repository": "Flux159/mcp-server-kubernetes",
           "retained_detected": false,
           "review_activity": {
@@ -18646,21 +18682,23 @@
               "candidate_count": 4,
               "excluded_count": 0,
               "modes": [
-                "degraded"
+                "replay"
               ],
-              "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 0,
+              "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+              "reviewed_count": 4,
               "selected_count": 4,
-              "state": "incomplete",
-              "unreviewed_count": 4
+              "state": "completed",
+              "unreviewed_count": 0
             }
           },
-          "review_decisions_all_candidates": {},
+          "review_decisions_all_candidates": {
+            "confirmed": 4
+          },
           "review_usage": {
             "batches": [
               {
                 "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -18673,34 +18711,34 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 20527,
+                "origin_latency_ms": 8019,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2039,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2042,
+                  "output_tokens": 516,
+                  "reasoning_tokens": 217,
+                  "total_tokens": 2558
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               },
               {
                 "batch_id": "batch_52dd3ff2da57a769156f3eba",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -18713,38 +18751,38 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 21617,
+                "origin_latency_ms": 8572,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2548,
+                  "output_tokens": 444,
+                  "reasoning_tokens": 172,
+                  "total_tokens": 2992
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 0,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 4,
-            "confirmed_count": 0,
+            "confirmed_count": 4,
             "current_cost_micro_usd": 0,
             "current_latency_ms": 0,
             "current_usage": {
@@ -18758,18 +18796,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 2,
-            "mode": "degraded",
+            "failure_count": 0,
+            "mode": "replay",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 0,
-            "origin_latency_ms": 0,
+            "origin_cost_micro_usd": 42144,
+            "origin_latency_ms": 16591,
             "origin_usage": {
-              "cache_write_tokens": 0,
+              "cache_write_tokens": 4584,
               "cached_tokens": 0,
-              "input_tokens": 0,
-              "output_tokens": 0,
-              "reasoning_tokens": 0,
-              "total_tokens": 0
+              "input_tokens": 4590,
+              "output_tokens": 960,
+              "reasoning_tokens": 389,
+              "total_tokens": 5550
             },
             "overflow_count": 0,
             "pricing": {
@@ -18783,13 +18821,13 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 0,
+            "reviewed_count": 4,
             "selected_count": 4,
             "suppressed_count": 0
           },
           "runtime_confirmations": 0,
           "split": "development",
-          "state": "incomplete",
+          "state": "completed",
           "unadjudicated_keys": [
             "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
             "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
@@ -18797,7 +18835,7 @@
             "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 15489
+          "wall_duration_ms": 15850
         },
         {
           "abstentions": 0,
@@ -18934,7 +18972,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 8673,
+            "duration_ms": 8720,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -19007,7 +19045,7 @@
           "label": "fixed",
           "language": "typescript",
           "matched_keys": [],
-          "reason": "GPT semantic review failed",
+          "reason": null,
           "repository": "Flux159/mcp-server-kubernetes",
           "retained_detected": false,
           "review_activity": {
@@ -19025,21 +19063,23 @@
               "candidate_count": 4,
               "excluded_count": 0,
               "modes": [
-                "degraded"
+                "replay"
               ],
-              "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 0,
+              "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+              "reviewed_count": 4,
               "selected_count": 4,
-              "state": "incomplete",
-              "unreviewed_count": 4
+              "state": "completed",
+              "unreviewed_count": 0
             }
           },
-          "review_decisions_all_candidates": {},
+          "review_decisions_all_candidates": {
+            "confirmed": 4
+          },
           "review_usage": {
             "batches": [
               {
                 "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -19052,34 +19092,34 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 20527,
+                "origin_latency_ms": 8019,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2039,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2042,
+                  "output_tokens": 516,
+                  "reasoning_tokens": 217,
+                  "total_tokens": 2558
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               },
               {
                 "batch_id": "batch_52dd3ff2da57a769156f3eba",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -19092,38 +19132,38 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 21617,
+                "origin_latency_ms": 8572,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2548,
+                  "output_tokens": 444,
+                  "reasoning_tokens": 172,
+                  "total_tokens": 2992
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 0,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 4,
-            "confirmed_count": 0,
+            "confirmed_count": 4,
             "current_cost_micro_usd": 0,
             "current_latency_ms": 0,
             "current_usage": {
@@ -19137,18 +19177,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 2,
-            "mode": "degraded",
+            "failure_count": 0,
+            "mode": "replay",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 0,
-            "origin_latency_ms": 0,
+            "origin_cost_micro_usd": 42144,
+            "origin_latency_ms": 16591,
             "origin_usage": {
-              "cache_write_tokens": 0,
+              "cache_write_tokens": 4584,
               "cached_tokens": 0,
-              "input_tokens": 0,
-              "output_tokens": 0,
-              "reasoning_tokens": 0,
-              "total_tokens": 0
+              "input_tokens": 4590,
+              "output_tokens": 960,
+              "reasoning_tokens": 389,
+              "total_tokens": 5550
             },
             "overflow_count": 0,
             "pricing": {
@@ -19162,13 +19202,13 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 0,
+            "reviewed_count": 4,
             "selected_count": 4,
             "suppressed_count": 0
           },
           "runtime_confirmations": 0,
           "split": "development",
-          "state": "incomplete",
+          "state": "completed",
           "unadjudicated_keys": [
             "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
             "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
@@ -19176,7 +19216,7 @@
             "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c"
           ],
           "variant": "original",
-          "wall_duration_ms": 15983
+          "wall_duration_ms": 15778
         },
         {
           "abstentions": 0,
@@ -19313,7 +19353,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 8757,
+            "duration_ms": 8691,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -19386,7 +19426,7 @@
           "label": "fixed",
           "language": "typescript",
           "matched_keys": [],
-          "reason": "GPT semantic review failed",
+          "reason": null,
           "repository": "Flux159/mcp-server-kubernetes",
           "retained_detected": false,
           "review_activity": {
@@ -19404,21 +19444,23 @@
               "candidate_count": 4,
               "excluded_count": 0,
               "modes": [
-                "degraded"
+                "replay"
               ],
-              "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 0,
+              "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+              "reviewed_count": 4,
               "selected_count": 4,
-              "state": "incomplete",
-              "unreviewed_count": 4
+              "state": "completed",
+              "unreviewed_count": 0
             }
           },
-          "review_decisions_all_candidates": {},
+          "review_decisions_all_candidates": {
+            "confirmed": 4
+          },
           "review_usage": {
             "batches": [
               {
                 "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -19431,34 +19473,34 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 20527,
+                "origin_latency_ms": 8019,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2039,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2042,
+                  "output_tokens": 516,
+                  "reasoning_tokens": 217,
+                  "total_tokens": 2558
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               },
               {
                 "batch_id": "batch_52dd3ff2da57a769156f3eba",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -19471,38 +19513,38 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 21617,
+                "origin_latency_ms": 8572,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2548,
+                  "output_tokens": 444,
+                  "reasoning_tokens": 172,
+                  "total_tokens": 2992
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 0,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 4,
-            "confirmed_count": 0,
+            "confirmed_count": 4,
             "current_cost_micro_usd": 0,
             "current_latency_ms": 0,
             "current_usage": {
@@ -19516,18 +19558,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 2,
-            "mode": "degraded",
+            "failure_count": 0,
+            "mode": "replay",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 0,
-            "origin_latency_ms": 0,
+            "origin_cost_micro_usd": 42144,
+            "origin_latency_ms": 16591,
             "origin_usage": {
-              "cache_write_tokens": 0,
+              "cache_write_tokens": 4584,
               "cached_tokens": 0,
-              "input_tokens": 0,
-              "output_tokens": 0,
-              "reasoning_tokens": 0,
-              "total_tokens": 0
+              "input_tokens": 4590,
+              "output_tokens": 960,
+              "reasoning_tokens": 389,
+              "total_tokens": 5550
             },
             "overflow_count": 0,
             "pricing": {
@@ -19541,13 +19583,13 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 0,
+            "reviewed_count": 4,
             "selected_count": 4,
             "suppressed_count": 0
           },
           "runtime_confirmations": 0,
           "split": "development",
-          "state": "incomplete",
+          "state": "completed",
           "unadjudicated_keys": [
             "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
             "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
@@ -19555,7 +19597,7 @@
             "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c"
           ],
           "variant": "mutation",
-          "wall_duration_ms": 15881
+          "wall_duration_ms": 15764
         },
         {
           "abstentions": 0,
@@ -19618,7 +19660,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 2083,
+            "duration_ms": 2023,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -19772,7 +19814,7 @@
           "state": "completed",
           "unadjudicated_keys": [],
           "variant": "safe_control",
-          "wall_duration_ms": 2177
+          "wall_duration_ms": 2114
         },
         {
           "abstentions": 0,
@@ -19801,7 +19843,7 @@
           "state": "incomplete",
           "unadjudicated_keys": [],
           "variant": "safe_control",
-          "wall_duration_ms": 111
+          "wall_duration_ms": 108
         },
         {
           "abstentions": 0,
@@ -20948,7 +20990,7 @@
                 }
               ]
             },
-            "duration_ms": 2964,
+            "duration_ms": 2926,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -21043,14 +21085,15 @@
                 "degraded"
               ],
               "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 1,
+              "reviewed_count": 4,
               "selected_count": 7,
               "state": "incomplete",
-              "unreviewed_count": 6
+              "unreviewed_count": 3
             }
           },
           "review_decisions_all_candidates": {
-            "needs_review": 1
+            "needs_review": 1,
+            "suppressed": 3
           },
           "review_usage": {
             "batches": [
@@ -21149,30 +21192,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 15704,
+                "origin_latency_ms": 11308,
                 "origin_usage": {
                   "cache_write_tokens": 0,
-                  "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "cached_tokens": 1579,
+                  "input_tokens": 1582,
+                  "output_tokens": 753,
+                  "reasoning_tokens": 492,
+                  "total_tokens": 2335
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "38216d4d980fc9c94938465cf53abb77e7eae56243c1b80a9fe4ed7045fa7306",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_3afa37e322545ba0fe4e456f",
@@ -21189,30 +21232,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 24107,
+                "origin_latency_ms": 11767,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2079,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2082,
+                  "output_tokens": 685,
+                  "reasoning_tokens": 429,
+                  "total_tokens": 2767
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "3afa37e322545ba0fe4e456f8f0c188e4e07e89d8d87a0fcfa80bd5e72e9acfd",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_f715d0fc37500735cf0e3e1c",
@@ -21269,30 +21312,30 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 1,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 16397,
+                "origin_latency_ms": 7849,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 1545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 1548,
+                  "output_tokens": 433,
+                  "reasoning_tokens": 270,
+                  "total_tokens": 1981
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "67dc6cebac971c072e811855c9846c040fc7af8173314c2f507953fedef5514b",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
-                "suppressed_count": 0
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
+                "suppressed_count": 1
               },
               {
                 "batch_id": "batch_97e1ecbf8b85af54d290d08a",
@@ -21337,7 +21380,7 @@
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 1,
+            "cache_misses": 4,
             "cache_writes": 0,
             "candidate_count": 7,
             "confirmed_count": 0,
@@ -21354,18 +21397,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 6,
+            "failure_count": 3,
             "mode": "mixed",
             "needs_review_count": 1,
-            "origin_cost_micro_usd": 19312,
-            "origin_latency_ms": 11158,
+            "origin_cost_micro_usd": 75520,
+            "origin_latency_ms": 42082,
             "origin_usage": {
-              "cache_write_tokens": 1612,
-              "cached_tokens": 0,
-              "input_tokens": 1615,
-              "output_tokens": 562,
-              "reasoning_tokens": 228,
-              "total_tokens": 2177
+              "cache_write_tokens": 5236,
+              "cached_tokens": 1579,
+              "input_tokens": 6827,
+              "output_tokens": 2433,
+              "reasoning_tokens": 1419,
+              "total_tokens": 9260
             },
             "overflow_count": 0,
             "pricing": {
@@ -21379,9 +21422,9 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 1,
+            "reviewed_count": 4,
             "selected_count": 7,
-            "suppressed_count": 0
+            "suppressed_count": 3
           },
           "runtime_confirmations": 0,
           "split": "development",
@@ -21396,7 +21439,7 @@
             "d8f04b2351d2a38d92acf0a988b39690e2a570d34686b51f1295dd1831304d30"
           ],
           "variant": "safe_control",
-          "wall_duration_ms": 3139
+          "wall_duration_ms": 3108
         },
         {
           "abstentions": 0,
@@ -21590,7 +21633,7 @@
                 }
               ]
             },
-            "duration_ms": 4828,
+            "duration_ms": 4897,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -21833,7 +21876,7 @@
             "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03"
           ],
           "variant": "safe_control",
-          "wall_duration_ms": 8562
+          "wall_duration_ms": 8550
         },
         {
           "abstentions": 0,
@@ -21970,7 +22013,7 @@
               "total_possible_surfaces": null,
               "unresolved_flows": []
             },
-            "duration_ms": 8725,
+            "duration_ms": 8626,
             "ignored_file_count": 0,
             "rule_outcomes": [
               {
@@ -22043,7 +22086,7 @@
           "label": "safe",
           "language": "typescript",
           "matched_keys": [],
-          "reason": "GPT semantic review failed",
+          "reason": null,
           "repository": "Flux159/mcp-server-kubernetes",
           "retained_detected": false,
           "review_activity": {
@@ -22061,21 +22104,23 @@
               "candidate_count": 4,
               "excluded_count": 0,
               "modes": [
-                "degraded"
+                "replay"
               ],
-              "reason": "eligible candidates remain unreviewed: cap or review failure",
-              "reviewed_count": 0,
+              "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+              "reviewed_count": 4,
               "selected_count": 4,
-              "state": "incomplete",
-              "unreviewed_count": 4
+              "state": "completed",
+              "unreviewed_count": 0
             }
           },
-          "review_decisions_all_candidates": {},
+          "review_decisions_all_candidates": {
+            "confirmed": 4
+          },
           "review_usage": {
             "batches": [
               {
                 "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -22088,34 +22133,34 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 20527,
+                "origin_latency_ms": 8019,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2039,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2042,
+                  "output_tokens": 516,
+                  "reasoning_tokens": 217,
+                  "total_tokens": 2558
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               },
               {
                 "batch_id": "batch_52dd3ff2da57a769156f3eba",
-                "confirmed_count": 0,
+                "confirmed_count": 2,
                 "current_cost_micro_usd": 0,
                 "current_latency_ms": 0,
                 "current_usage": {
@@ -22128,38 +22173,38 @@
                 },
                 "endpoint_mode": "openai",
                 "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-                "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+                "failure": null,
                 "finding_count": 2,
                 "incomplete_count": 0,
-                "mode": "degraded",
+                "mode": "replay",
                 "needs_review_count": 0,
-                "origin_cost_micro_usd": 0,
-                "origin_latency_ms": 0,
+                "origin_cost_micro_usd": 21617,
+                "origin_latency_ms": 8572,
                 "origin_usage": {
-                  "cache_write_tokens": 0,
+                  "cache_write_tokens": 2545,
                   "cached_tokens": 0,
-                  "input_tokens": 0,
-                  "output_tokens": 0,
-                  "reasoning_tokens": 0,
-                  "total_tokens": 0
+                  "input_tokens": 2548,
+                  "output_tokens": 444,
+                  "reasoning_tokens": 172,
+                  "total_tokens": 2992
                 },
                 "reasoning_effort": "medium",
                 "refusal_count": 0,
                 "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
                 "requested_model": "gpt-5.6-sol",
                 "retry_count": 0,
-                "returned_model": null,
-                "schema_valid": false,
-                "status": "failed",
+                "returned_model": "gpt-5.6-sol",
+                "schema_valid": true,
+                "status": "accepted",
                 "suppressed_count": 0
               }
             ],
             "cache_errors": 0,
             "cache_hits": 0,
-            "cache_misses": 0,
+            "cache_misses": 2,
             "cache_writes": 0,
             "candidate_count": 4,
-            "confirmed_count": 0,
+            "confirmed_count": 4,
             "current_cost_micro_usd": 0,
             "current_latency_ms": 0,
             "current_usage": {
@@ -22173,18 +22218,18 @@
             "disagreement_count": 0,
             "endpoint_mode": "openai",
             "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-            "failure_count": 2,
-            "mode": "degraded",
+            "failure_count": 0,
+            "mode": "replay",
             "needs_review_count": 0,
-            "origin_cost_micro_usd": 0,
-            "origin_latency_ms": 0,
+            "origin_cost_micro_usd": 42144,
+            "origin_latency_ms": 16591,
             "origin_usage": {
-              "cache_write_tokens": 0,
+              "cache_write_tokens": 4584,
               "cached_tokens": 0,
-              "input_tokens": 0,
-              "output_tokens": 0,
-              "reasoning_tokens": 0,
-              "total_tokens": 0
+              "input_tokens": 4590,
+              "output_tokens": 960,
+              "reasoning_tokens": 389,
+              "total_tokens": 5550
             },
             "overflow_count": 0,
             "pricing": {
@@ -22198,13 +22243,13 @@
             },
             "reasoning_effort": "medium",
             "requested_model": "gpt-5.6-sol",
-            "reviewed_count": 0,
+            "reviewed_count": 4,
             "selected_count": 4,
             "suppressed_count": 0
           },
           "runtime_confirmations": 0,
           "split": "development",
-          "state": "incomplete",
+          "state": "completed",
           "unadjudicated_keys": [
             "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
             "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
@@ -22212,7 +22257,7 @@
             "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c"
           ],
           "variant": "safe_control",
-          "wall_duration_ms": 15877
+          "wall_duration_ms": 15616
         }
       ]
     },

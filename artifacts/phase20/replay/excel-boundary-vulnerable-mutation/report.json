@@ -1,7 +1,7 @@
 {
   "analysisComplete": false,
   "baseline": null,
-  "completed_at": "2026-09-06T20:30:22.028767Z",
+  "completed_at": "2026-09-06T20:42:28.620197Z",
   "dynamic_analysis": null,
   "executionSuccessful": false,
   "findings": [
@@ -22,7 +22,7 @@
         "snippet": "    end_cell: Optional[str] = None,"
       },
       "exploitability": "theoretical",
-      "finding_id": "627f451e-584b-49a9-9bf5-2f73def1e630",
+      "finding_id": "4108c4b6-042e-4314-93c6-aec60097e1ea",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -54,36 +54,75 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
-        "probe_plan": null,
+        "applied_at": "2026-09-06T20:42:31.517161Z",
+        "batch_id": "batch_6bd7c922feba0898645f3e44",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The supplied tool schema enforces declared field types, required fields, and rejects additional properties for format_range.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 213,
+              "start_column": 1,
+              "start_line": 162
+            }
+          }
+        ],
+        "latency_ms": 15317,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "sheet_name": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "start_cell": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "filepath": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-008",
+            "SENT-009",
+            "SENT-010"
+          ],
+          "target_tool": "format_range"
+        },
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
+        "reasoning": "The explicit input schema directly contradicts SENT-003: every declared field has a type, required inputs are identified, and unknown properties are disallowed.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:40:45.795768Z",
+        "status": "suppressed",
         "suggested_severity_override": null,
-        "usage": null
+        "usage": {
+          "cache_write_tokens": 2033,
+          "cached_tokens": 0,
+          "input_tokens": 2036,
+          "output_tokens": 1020,
+          "reasoning_tokens": 755,
+          "total_tokens": 3056
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
-      "status": "needs_review",
+      "status": "suppressed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -103,7 +142,7 @@
         "snippet": "    end_cell: Optional[str] = None,"
       },
       "exploitability": "theoretical",
-      "finding_id": "3a412378-b928-4adc-8d79-53c432069bf0",
+      "finding_id": "aa7717d4-a7de-436c-bba6-743483d85492",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -135,7 +174,7 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
@@ -159,12 +198,12 @@
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
       "status": "needs_review",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -184,7 +223,7 @@
         "snippet": "    data: List[List],"
       },
       "exploitability": "theoretical",
-      "finding_id": "d06d391a-f02d-482d-95e2-73a94bb74d5a",
+      "finding_id": "3e4a0019-bf4d-44d6-b924-5bd700e75207",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -216,36 +255,75 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
-        "probe_plan": null,
+        "applied_at": "2026-09-06T20:42:31.517490Z",
+        "batch_id": "batch_783e0f47cc7fd6b6eedc1167",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool declaration has a framework input schema enforcing object shape, required fields, and each declared field's type before invocation.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 293,
+              "start_column": 1,
+              "start_line": 268
+            }
+          }
+        ],
+        "latency_ms": 11587,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "filepath": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "sheet_name": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "data": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "write_data_to_excel"
+        },
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
+        "reasoning": "The supplied framework schema validates all declared top-level field types, required fields, and rejects additional properties. This is direct safety evidence against SENT-003; unrelated content or length restrictions are not required by this rule.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:40:57.386597Z",
+        "status": "suppressed",
         "suggested_severity_override": null,
-        "usage": null
+        "usage": {
+          "cache_write_tokens": 1623,
+          "cached_tokens": 0,
+          "input_tokens": 1626,
+          "output_tokens": 794,
+          "reasoning_tokens": 516,
+          "total_tokens": 2420
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
-      "status": "needs_review",
+      "status": "suppressed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -265,7 +343,7 @@
         "snippet": "    rows: List[str],"
       },
       "exploitability": "theoretical",
-      "finding_id": "cc57220f-4e6a-49ca-91ef-ee5f1beff8f5",
+      "finding_id": "e3cca5bf-06a8-495b-a4f8-44cc1d54a7e2",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -297,12 +375,12 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
       "review": {
-        "applied_at": "2026-09-06T20:30:24.966443Z",
+        "applied_at": "2026-09-06T20:42:31.516929Z",
         "batch_id": "batch_2a2d4811dabc89625e73e273",
         "confidence": 0.98,
         "endpoint_mode": "openai",
@@ -360,12 +438,12 @@
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
       "status": "suppressed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -385,7 +463,7 @@
         "snippet": "    table_name: Optional[str] = None,"
       },
       "exploitability": "theoretical",
-      "finding_id": "2ce11e92-d623-48f5-b0c6-053a6ff0d8b2",
+      "finding_id": "973f2dbd-3def-42cc-9476-7124cd2b1175",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -417,7 +495,7 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
@@ -441,12 +519,12 @@
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
       "status": "needs_review",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -466,7 +544,7 @@
         "snippet": "    target_sheet: Optional[str] = None"
       },
       "exploitability": "theoretical",
-      "finding_id": "6d1bfedf-e256-4080-81f4-1cd6351366ad",
+      "finding_id": "d56893b2-41aa-4fec-b741-c081ce276386",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -498,7 +576,7 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
@@ -522,12 +600,12 @@
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
       "status": "needs_review",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     },
     {
@@ -547,7 +625,7 @@
         "snippet": "    end_cell: Optional[str] = None"
       },
       "exploitability": "theoretical",
-      "finding_id": "13676735-6d5f-48ee-a403-7b191615c10a",
+      "finding_id": "1831fa12-0134-4029-95e1-071f7d498317",
       "impact": "Medium",
       "location": {
         "kind": "file",
@@ -579,36 +657,75 @@
           "review": null,
           "rule_id": "SENT-003",
           "source": "static",
-          "timestamp": "2026-09-06T20:30:22.028767Z"
+          "timestamp": "2026-09-06T20:42:28.620197Z"
         }
       ],
       "remediation": "Use an official input schema or explicit validation before first use.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
-        "probe_plan": null,
+        "applied_at": "2026-09-06T20:42:31.517380Z",
+        "batch_id": "batch_67a984d5ebd158b989bec45a",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The tool declaration supplies an object input schema with declared types, required fields, and additionalProperties disabled for this function.",
+            "path": "src/excel_mcp/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 658,
+              "start_column": 1,
+              "start_line": 642
+            }
+          }
+        ],
+        "latency_ms": 9498,
+        "mode": "replay",
+        "probe_plan": {
+          "argument_bindings": {
+            "SENT-009": {
+              "filepath": "__SENTINEL_OVERSIZED__"
+            },
+            "SENT-010": {
+              "start_cell": "__SENTINEL_INJECTION__"
+            },
+            "SENT-011": {
+              "filepath": "__SENTINEL_WRONG_TYPE__"
+            }
+          },
+          "ordered_probe_ids": [
+            "SENT-011",
+            "SENT-009",
+            "SENT-010",
+            "SENT-008"
+          ],
+          "target_tool": "validate_excel_range"
+        },
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
+        "reasoning": "The supplied tool schema directly declares and constrains every input field before invocation. SENT-003 does not require unrelated length or content policies, so the alleged absence of schema/type validation is disproven.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:40:22.622338Z",
+        "status": "suppressed",
         "suggested_severity_override": null,
-        "usage": null
+        "usage": {
+          "cache_write_tokens": 1492,
+          "cached_tokens": 0,
+          "input_tokens": 1495,
+          "output_tokens": 765,
+          "reasoning_tokens": 492,
+          "total_tokens": 2260
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-003",
-      "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+      "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
       "severity": "Low",
       "source": "static",
-      "status": "needs_review",
+      "status": "suppressed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:30:22.028767Z",
+      "timestamp": "2026-09-06T20:42:28.620197Z",
       "title": "Missing tool input validation"
     }
   ],
@@ -749,30 +866,30 @@
         },
         "endpoint_mode": "openai",
         "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "failure": null,
         "finding_count": 1,
         "incomplete_count": 0,
-        "mode": "degraded",
+        "mode": "replay",
         "needs_review_count": 0,
-        "origin_cost_micro_usd": 0,
-        "origin_latency_ms": 0,
+        "origin_cost_micro_usd": 30577,
+        "origin_latency_ms": 15317,
         "origin_usage": {
-          "cache_write_tokens": 0,
+          "cache_write_tokens": 2033,
           "cached_tokens": 0,
-          "input_tokens": 0,
-          "output_tokens": 0,
-          "reasoning_tokens": 0,
-          "total_tokens": 0
+          "input_tokens": 2036,
+          "output_tokens": 1020,
+          "reasoning_tokens": 755,
+          "total_tokens": 3056
         },
         "reasoning_effort": "medium",
         "refusal_count": 0,
         "request_fingerprint": "6bd7c922feba0898645f3e449291222291bba78a69ce053ec435a4b799f858d2",
         "requested_model": "gpt-5.6-sol",
         "retry_count": 0,
-        "returned_model": null,
-        "schema_valid": false,
-        "status": "failed",
-        "suppressed_count": 0
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
       },
       {
         "batch_id": "batch_8c0b2b3a36e28c222b855271",
@@ -829,30 +946,30 @@
         },
         "endpoint_mode": "openai",
         "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "failure": null,
         "finding_count": 1,
         "incomplete_count": 0,
-        "mode": "degraded",
+        "mode": "replay",
         "needs_review_count": 0,
-        "origin_cost_micro_usd": 0,
-        "origin_latency_ms": 0,
+        "origin_cost_micro_usd": 22772,
+        "origin_latency_ms": 9498,
         "origin_usage": {
-          "cache_write_tokens": 0,
+          "cache_write_tokens": 1492,
           "cached_tokens": 0,
-          "input_tokens": 0,
-          "output_tokens": 0,
-          "reasoning_tokens": 0,
-          "total_tokens": 0
+          "input_tokens": 1495,
+          "output_tokens": 765,
+          "reasoning_tokens": 492,
+          "total_tokens": 2260
         },
         "reasoning_effort": "medium",
         "refusal_count": 0,
         "request_fingerprint": "67a984d5ebd158b989bec45ac86e418a0eb1981113702ace86ecddb20b993f93",
         "requested_model": "gpt-5.6-sol",
         "retry_count": 0,
-        "returned_model": null,
-        "schema_valid": false,
-        "status": "failed",
-        "suppressed_count": 0
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
       },
       {
         "batch_id": "batch_783e0f47cc7fd6b6eedc1167",
@@ -869,35 +986,35 @@
         },
         "endpoint_mode": "openai",
         "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "failure": null,
         "finding_count": 1,
         "incomplete_count": 0,
-        "mode": "degraded",
+        "mode": "replay",
         "needs_review_count": 0,
-        "origin_cost_micro_usd": 0,
-        "origin_latency_ms": 0,
+        "origin_cost_micro_usd": 24007,
+        "origin_latency_ms": 11587,
         "origin_usage": {
-          "cache_write_tokens": 0,
+          "cache_write_tokens": 1623,
           "cached_tokens": 0,
-          "input_tokens": 0,
-          "output_tokens": 0,
-          "reasoning_tokens": 0,
-          "total_tokens": 0
+          "input_tokens": 1626,
+          "output_tokens": 794,
+          "reasoning_tokens": 516,
+          "total_tokens": 2420
         },
         "reasoning_effort": "medium",
         "refusal_count": 0,
         "request_fingerprint": "783e0f47cc7fd6b6eedc1167cab00cdf989b28b4519b9deea15d6661e188b93d",
         "requested_model": "gpt-5.6-sol",
         "retry_count": 0,
-        "returned_model": null,
-        "schema_valid": false,
-        "status": "failed",
-        "suppressed_count": 0
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
+        "suppressed_count": 1
       }
     ],
     "cache_errors": 0,
     "cache_hits": 0,
-    "cache_misses": 1,
+    "cache_misses": 4,
     "cache_writes": 0,
     "candidate_count": 7,
     "confirmed_count": 0,
@@ -914,18 +1031,18 @@
     "disagreement_count": 0,
     "endpoint_mode": "openai",
     "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-    "failure_count": 6,
+    "failure_count": 3,
     "mode": "mixed",
     "needs_review_count": 0,
-    "origin_cost_micro_usd": 22272,
-    "origin_latency_ms": 13333,
+    "origin_cost_micro_usd": 99628,
+    "origin_latency_ms": 49735,
     "origin_usage": {
-      "cache_write_tokens": 1592,
+      "cache_write_tokens": 6740,
       "cached_tokens": 0,
-      "input_tokens": 1595,
-      "output_tokens": 715,
-      "reasoning_tokens": 442,
-      "total_tokens": 2310
+      "input_tokens": 6752,
+      "output_tokens": 3294,
+      "reasoning_tokens": 2205,
+      "total_tokens": 10046
     },
     "overflow_count": 0,
     "pricing": {
@@ -939,9 +1056,9 @@
     },
     "reasoning_effort": "medium",
     "requested_model": "gpt-5.6-sol",
-    "reviewed_count": 1,
+    "reviewed_count": 4,
     "selected_count": 7,
-    "suppressed_count": 1
+    "suppressed_count": 4
   },
   "review_activity": {
     "dynamic": {
@@ -962,13 +1079,13 @@
         "replay"
       ],
       "reason": "eligible candidates remain unreviewed: cap or review failure",
-      "reviewed_count": 1,
+      "reviewed_count": 4,
       "selected_count": 7,
       "state": "incomplete",
-      "unreviewed_count": 6
+      "unreviewed_count": 3
     }
   },
-  "scan_id": "d87ac302-a1c6-4df7-9d9a-fe5209ef1a3e",
+  "scan_id": "51e767af-fbc2-40e5-8af2-cd9b854470f5",
   "schema_version": "1.6.0",
   "sentinel_version": "1.3.0",
   "stages": [
@@ -1003,7 +1120,7 @@
       "status": "succeeded"
     }
   ],
-  "started_at": "2026-09-06T20:30:22.028696Z",
+  "started_at": "2026-09-06T20:42:28.620127Z",
   "static_analysis": {
     "coverage": {
       "excluded_rule_ids": [],
@@ -2142,7 +2259,7 @@
         }
       ]
     },
-    "duration_ms": 2835,
+    "duration_ms": 2790,
     "ignored_file_count": 0,
     "rule_outcomes": [
       {
@@ -2218,8 +2335,8 @@
     "by_status": {
       "confirmed": 0,
       "likely_false_positive": 0,
-      "needs_review": 6,
-      "suppressed": 1
+      "needs_review": 3,
+      "suppressed": 4
     },
     "total": 7
   },
@@ -2338,19 +2455,7 @@
     },
     {
       "code": "gpt_review_failed",
-      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/6bd7c922feba0898645f3e449291222291bba78a69ce053ec435a4b799f858d2.json'"
-    },
-    {
-      "code": "gpt_review_failed",
       "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/8c0b2b3a36e28c222b855271c17086262d843f2d889e4ae1f9e30253c5e8fe5f.json'"
-    },
-    {
-      "code": "gpt_review_failed",
-      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/67a984d5ebd158b989bec45ac86e418a0eb1981113702ace86ecddb20b993f93.json'"
-    },
-    {
-      "code": "gpt_review_failed",
-      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/783e0f47cc7fd6b6eedc1167cab00cdf989b28b4519b9deea15d6661e188b93d.json'"
     }
   ]
 }

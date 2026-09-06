@@ -1,9 +1,9 @@
 {
-  "analysisComplete": false,
+  "analysisComplete": true,
   "baseline": null,
-  "completed_at": "2026-09-06T20:32:23.684959Z",
+  "completed_at": "2026-09-06T20:44:30.865866Z",
   "dynamic_analysis": null,
-  "executionSuccessful": false,
+  "executionSuccessful": true,
   "findings": [
     {
       "baseline_matched": null,
@@ -21,8 +21,8 @@
         },
         "snippet": "app.get("
       },
-      "exploitability": "theoretical",
-      "finding_id": "6aa0819d-b41b-4a0e-b801-92c1feef47ac",
+      "exploitability": "likely",
+      "finding_id": "ac77c0ca-9082-426f-98c9-de1a0fc20186",
       "impact": "High",
       "location": {
         "kind": "file",
@@ -54,36 +54,56 @@
           "review": null,
           "rule_id": "SENT-006",
           "source": "static",
-          "timestamp": "2026-09-06T20:32:23.684959Z"
+          "timestamp": "2026-09-06T20:44:30.865866Z"
         }
       ],
       "remediation": "Require credential verification and an explicit rejection path before route execution.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
+        "applied_at": "2026-09-06T20:44:46.415665Z",
+        "batch_id": "batch_609a5b36bcc35a5ef8344da7",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The GET /sse route connects clients without authentication, and the source explicitly warns that any web client could connect until authentication exists.",
+            "path": "src/utils/sse.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ],
+        "latency_ms": 8019,
+        "mode": "replay",
         "probe_plan": null,
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
+        "reasoning": "Directly corroborated: /sse has no authentication middleware or identity check before server connection.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:39:49.893430Z",
+        "status": "confirmed",
         "suggested_severity_override": null,
-        "usage": null
+        "usage": {
+          "cache_write_tokens": 2039,
+          "cached_tokens": 0,
+          "input_tokens": 2042,
+          "output_tokens": 516,
+          "reasoning_tokens": 217,
+          "total_tokens": 2558
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-006",
-      "scan_id": "1c4ffc95-2683-4c1c-84f5-8d2f899fe384",
-      "severity": "Medium",
+      "scan_id": "5e1edb3d-279b-4584-bcaf-78f2b4421e18",
+      "severity": "High",
       "source": "static",
-      "status": "needs_review",
+      "status": "confirmed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:32:23.684959Z",
+      "timestamp": "2026-09-06T20:44:30.865866Z",
       "title": "Missing or ineffective route authentication"
     },
     {
@@ -102,8 +122,8 @@
         },
         "snippet": "app.post("
       },
-      "exploitability": "theoretical",
-      "finding_id": "2e0e5d83-d41b-4784-906c-6f429c780a71",
+      "exploitability": "likely",
+      "finding_id": "93c99616-08b8-486d-9cd8-f29e06c35c11",
       "impact": "High",
       "location": {
         "kind": "file",
@@ -135,36 +155,66 @@
           "review": null,
           "rule_id": "SENT-006",
           "source": "static",
-          "timestamp": "2026-09-06T20:32:23.684959Z"
+          "timestamp": "2026-09-06T20:44:30.865866Z"
         }
       ],
       "remediation": "Require credential verification and an explicit rejection path before route execution.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
+        "applied_at": "2026-09-06T20:44:46.415795Z",
+        "batch_id": "batch_609a5b36bcc35a5ef8344da7",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The POST /messages route only matches a caller-supplied sessionId and performs no authentication.",
+            "path": "src/utils/sse.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 28,
+              "start_column": 1,
+              "start_line": 18
+            }
+          },
+          {
+            "claim": "The source explicitly describes the HTTP transport as unsafe until a proper authentication solution exists.",
+            "path": "src/utils/sse.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 9,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ],
+        "latency_ms": 8019,
+        "mode": "replay",
         "probe_plan": null,
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
+        "reasoning": "Directly corroborated: session lookup routes the request but does not authenticate the caller.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:39:49.893430Z",
+        "status": "confirmed",
         "suggested_severity_override": null,
-        "usage": null
+        "usage": {
+          "cache_write_tokens": 2039,
+          "cached_tokens": 0,
+          "input_tokens": 2042,
+          "output_tokens": 516,
+          "reasoning_tokens": 217,
+          "total_tokens": 2558
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-006",
-      "scan_id": "1c4ffc95-2683-4c1c-84f5-8d2f899fe384",
-      "severity": "Medium",
+      "scan_id": "5e1edb3d-279b-4584-bcaf-78f2b4421e18",
+      "severity": "High",
       "source": "static",
-      "status": "needs_review",
+      "status": "confirmed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:32:23.684959Z",
+      "timestamp": "2026-09-06T20:44:30.865866Z",
       "title": "Missing or ineffective route authentication"
     },
     {
@@ -183,8 +233,8 @@
         },
         "snippet": "app.get("
       },
-      "exploitability": "theoretical",
-      "finding_id": "fbbe150b-dd8d-4d64-b08f-c3c41c57ac8f",
+      "exploitability": "likely",
+      "finding_id": "c6042cc8-023a-4c51-957c-543254933a2e",
       "impact": "High",
       "location": {
         "kind": "file",
@@ -216,36 +266,56 @@
           "review": null,
           "rule_id": "SENT-006",
           "source": "static",
-          "timestamp": "2026-09-06T20:32:23.684959Z"
+          "timestamp": "2026-09-06T20:44:30.865866Z"
         }
       ],
       "remediation": "Require credential verification and an explicit rejection path before route execution.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
+        "applied_at": "2026-09-06T20:44:46.415924Z",
+        "batch_id": "batch_52dd3ff2da57a769156f3eba",
+        "confidence": 0.99,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The test helper defines a GET /sse route that connects clients without authentication middleware or an explicit authentication check.",
+            "path": "tests/sse.test.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 41,
+              "start_column": 1,
+              "start_line": 37
+            }
+          }
+        ],
+        "latency_ms": 8572,
+        "mode": "replay",
         "probe_plan": null,
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
-        "suggested_severity_override": null,
-        "usage": null
+        "reasoning": "Direct corroboration of a route without effective authentication. Because this is test-only code, Low severity is more appropriate.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:39:28.108221Z",
+        "status": "confirmed",
+        "suggested_severity_override": "Low",
+        "usage": {
+          "cache_write_tokens": 2545,
+          "cached_tokens": 0,
+          "input_tokens": 2548,
+          "output_tokens": 444,
+          "reasoning_tokens": 172,
+          "total_tokens": 2992
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-006",
-      "scan_id": "1c4ffc95-2683-4c1c-84f5-8d2f899fe384",
-      "severity": "Medium",
+      "scan_id": "5e1edb3d-279b-4584-bcaf-78f2b4421e18",
+      "severity": "High",
       "source": "static",
-      "status": "needs_review",
+      "status": "confirmed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:32:23.684959Z",
+      "timestamp": "2026-09-06T20:44:30.865866Z",
       "title": "Missing or ineffective route authentication"
     },
     {
@@ -264,8 +334,8 @@
         },
         "snippet": "app.post("
       },
-      "exploitability": "theoretical",
-      "finding_id": "aecbf7d5-cf34-4882-9abf-16e6e2a978c7",
+      "exploitability": "likely",
+      "finding_id": "7edde8fd-5085-4a97-b4e1-3219bb74d768",
       "impact": "High",
       "location": {
         "kind": "file",
@@ -297,36 +367,56 @@
           "review": null,
           "rule_id": "SENT-006",
           "source": "static",
-          "timestamp": "2026-09-06T20:32:23.684959Z"
+          "timestamp": "2026-09-06T20:44:30.865866Z"
         }
       ],
       "remediation": "Require credential verification and an explicit rejection path before route execution.",
       "review": {
-        "applied_at": null,
-        "batch_id": null,
-        "confidence": null,
-        "evidence_refs": null,
-        "latency_ms": null,
-        "mode": "not_reviewed",
+        "applied_at": "2026-09-06T20:44:46.416028Z",
+        "batch_id": "batch_52dd3ff2da57a769156f3eba",
+        "confidence": 0.98,
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "evidence_refs": [
+          {
+            "claim": "The POST /messages route checks only whether the supplied sessionId matches a transport; it performs no authentication.",
+            "path": "tests/sse.test.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 56,
+              "start_column": 1,
+              "start_line": 43
+            }
+          }
+        ],
+        "latency_ms": 8572,
+        "mode": "replay",
         "probe_plan": null,
         "reason": null,
-        "reasoning": null,
-        "requested_model": null,
-        "returned_model": null,
-        "reviewed": false,
-        "reviewed_at": null,
-        "status": null,
-        "suggested_severity_override": null,
-        "usage": null
+        "reasoning": "Direct corroboration of a route lacking effective authentication; transport lookup by session ID is not an explicit authentication control. Test-only scope reduces severity.",
+        "requested_model": "gpt-5.6-sol",
+        "returned_model": "gpt-5.6-sol",
+        "reviewed": true,
+        "reviewed_at": "2026-09-06T20:39:28.108221Z",
+        "status": "confirmed",
+        "suggested_severity_override": "Low",
+        "usage": {
+          "cache_write_tokens": 2545,
+          "cached_tokens": 0,
+          "input_tokens": 2548,
+          "output_tokens": 444,
+          "reasoning_tokens": 172,
+          "total_tokens": 2992
+        }
       },
       "review_disagrees": false,
       "rule_id": "SENT-006",
-      "scan_id": "1c4ffc95-2683-4c1c-84f5-8d2f899fe384",
-      "severity": "Medium",
+      "scan_id": "5e1edb3d-279b-4584-bcaf-78f2b4421e18",
+      "severity": "High",
       "source": "static",
-      "status": "needs_review",
+      "status": "confirmed",
       "suppression": null,
-      "timestamp": "2026-09-06T20:32:23.684959Z",
+      "timestamp": "2026-09-06T20:44:30.865866Z",
       "title": "Missing or ineffective route authentication"
     }
   ],
@@ -334,7 +424,7 @@
     "batches": [
       {
         "batch_id": "batch_609a5b36bcc35a5ef8344da7",
-        "confirmed_count": 0,
+        "confirmed_count": 2,
         "current_cost_micro_usd": 0,
         "current_latency_ms": 0,
         "current_usage": {
@@ -347,34 +437,34 @@
         },
         "endpoint_mode": "openai",
         "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "failure": null,
         "finding_count": 2,
         "incomplete_count": 0,
-        "mode": "degraded",
+        "mode": "replay",
         "needs_review_count": 0,
-        "origin_cost_micro_usd": 0,
-        "origin_latency_ms": 0,
+        "origin_cost_micro_usd": 20527,
+        "origin_latency_ms": 8019,
         "origin_usage": {
-          "cache_write_tokens": 0,
+          "cache_write_tokens": 2039,
           "cached_tokens": 0,
-          "input_tokens": 0,
-          "output_tokens": 0,
-          "reasoning_tokens": 0,
-          "total_tokens": 0
+          "input_tokens": 2042,
+          "output_tokens": 516,
+          "reasoning_tokens": 217,
+          "total_tokens": 2558
         },
         "reasoning_effort": "medium",
         "refusal_count": 0,
         "request_fingerprint": "609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1",
         "requested_model": "gpt-5.6-sol",
         "retry_count": 0,
-        "returned_model": null,
-        "schema_valid": false,
-        "status": "failed",
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
         "suppressed_count": 0
       },
       {
         "batch_id": "batch_52dd3ff2da57a769156f3eba",
-        "confirmed_count": 0,
+        "confirmed_count": 2,
         "current_cost_micro_usd": 0,
         "current_latency_ms": 0,
         "current_usage": {
@@ -387,38 +477,38 @@
         },
         "endpoint_mode": "openai",
         "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "failure": null,
         "finding_count": 2,
         "incomplete_count": 0,
-        "mode": "degraded",
+        "mode": "replay",
         "needs_review_count": 0,
-        "origin_cost_micro_usd": 0,
-        "origin_latency_ms": 0,
+        "origin_cost_micro_usd": 21617,
+        "origin_latency_ms": 8572,
         "origin_usage": {
-          "cache_write_tokens": 0,
+          "cache_write_tokens": 2545,
           "cached_tokens": 0,
-          "input_tokens": 0,
-          "output_tokens": 0,
-          "reasoning_tokens": 0,
-          "total_tokens": 0
+          "input_tokens": 2548,
+          "output_tokens": 444,
+          "reasoning_tokens": 172,
+          "total_tokens": 2992
         },
         "reasoning_effort": "medium",
         "refusal_count": 0,
         "request_fingerprint": "52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240",
         "requested_model": "gpt-5.6-sol",
         "retry_count": 0,
-        "returned_model": null,
-        "schema_valid": false,
-        "status": "failed",
+        "returned_model": "gpt-5.6-sol",
+        "schema_valid": true,
+        "status": "accepted",
         "suppressed_count": 0
       }
     ],
     "cache_errors": 0,
     "cache_hits": 0,
-    "cache_misses": 0,
+    "cache_misses": 2,
     "cache_writes": 0,
     "candidate_count": 4,
-    "confirmed_count": 0,
+    "confirmed_count": 4,
     "current_cost_micro_usd": 0,
     "current_latency_ms": 0,
     "current_usage": {
@@ -432,18 +522,18 @@
     "disagreement_count": 0,
     "endpoint_mode": "openai",
     "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
-    "failure_count": 2,
-    "mode": "degraded",
+    "failure_count": 0,
+    "mode": "replay",
     "needs_review_count": 0,
-    "origin_cost_micro_usd": 0,
-    "origin_latency_ms": 0,
+    "origin_cost_micro_usd": 42144,
+    "origin_latency_ms": 16591,
     "origin_usage": {
-      "cache_write_tokens": 0,
+      "cache_write_tokens": 4584,
       "cached_tokens": 0,
-      "input_tokens": 0,
-      "output_tokens": 0,
-      "reasoning_tokens": 0,
-      "total_tokens": 0
+      "input_tokens": 4590,
+      "output_tokens": 960,
+      "reasoning_tokens": 389,
+      "total_tokens": 5550
     },
     "overflow_count": 0,
     "pricing": {
@@ -457,7 +547,7 @@
     },
     "reasoning_effort": "medium",
     "requested_model": "gpt-5.6-sol",
-    "reviewed_count": 0,
+    "reviewed_count": 4,
     "selected_count": 4,
     "suppressed_count": 0
   },
@@ -476,16 +566,16 @@
       "candidate_count": 4,
       "excluded_count": 0,
       "modes": [
-        "degraded"
+        "replay"
       ],
-      "reason": "eligible candidates remain unreviewed: cap or review failure",
-      "reviewed_count": 0,
+      "reason": "all eligible candidates reviewed; abstentions remain needs_review",
+      "reviewed_count": 4,
       "selected_count": 4,
-      "state": "incomplete",
-      "unreviewed_count": 4
+      "state": "completed",
+      "unreviewed_count": 0
     }
   },
-  "scan_id": "1c4ffc95-2683-4c1c-84f5-8d2f899fe384",
+  "scan_id": "5e1edb3d-279b-4584-bcaf-78f2b4421e18",
   "schema_version": "1.6.0",
   "sentinel_version": "1.3.0",
   "stages": [
@@ -496,8 +586,8 @@
     },
     {
       "name": "gpt_static",
-      "reason": "GPT semantic review failed",
-      "status": "failed"
+      "reason": null,
+      "status": "succeeded"
     },
     {
       "name": "dynamic",
@@ -511,8 +601,8 @@
     },
     {
       "name": "merge",
-      "reason": "static-only scan requested",
-      "status": "skipped"
+      "reason": null,
+      "status": "succeeded"
     },
     {
       "name": "reporting",
@@ -520,7 +610,7 @@
       "status": "succeeded"
     }
   ],
-  "started_at": "2026-09-06T20:32:23.684893Z",
+  "started_at": "2026-09-06T20:44:30.865795Z",
   "static_analysis": {
     "coverage": {
       "excluded_rule_ids": [],
@@ -649,7 +739,7 @@
       "total_possible_surfaces": null,
       "unresolved_flows": []
     },
-    "duration_ms": 8725,
+    "duration_ms": 8626,
     "ignored_file_count": 0,
     "rule_outcomes": [
       {
@@ -717,15 +807,15 @@
   "summary": {
     "by_severity": {
       "Critical": 0,
-      "High": 0,
+      "High": 4,
       "Informational": 0,
       "Low": 0,
-      "Medium": 4
+      "Medium": 0
     },
     "by_status": {
-      "confirmed": 0,
+      "confirmed": 4,
       "likely_false_positive": 0,
-      "needs_review": 4,
+      "needs_review": 0,
       "suppressed": 0
     },
     "total": 4
@@ -734,14 +824,5 @@
     "display_name": "kubernetes-formatting-safe",
     "root": "."
   },
-  "warnings": [
-    {
-      "code": "gpt_review_failed",
-      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/609a5b36bcc35a5ef8344da7b1fa50864c76c2387fcdf1a72c6a6f0503dbc8a1.json'"
-    },
-    {
-      "code": "gpt_review_failed",
-      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/52dd3ff2da57a769156f3eba93cbe614bad1c6194646d53206f789f3c1aee240.json'"
-    }
-  ]
+  "warnings": []
 }
