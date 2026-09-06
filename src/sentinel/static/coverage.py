@@ -40,6 +40,7 @@ def inventory(
         *,
         unsupported: bool = False,
     ) -> None:
+        check_deadline(context.deadline)
         where = FileLocation(path=path, range=location)
         visits = tuple(
             rule_id
@@ -412,6 +413,7 @@ def inventory(
                         ),
                     )
                 )
+    check_deadline(context.deadline)
     return StaticCoverage(
         surfaces=tuple(
             sorted(

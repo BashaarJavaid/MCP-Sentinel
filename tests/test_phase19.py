@@ -563,3 +563,30 @@ def test_missing_historical_baseline_control_stays_unknown() -> None:
     )
     text = render_console(report)
     assert text.count("baseline control succeeded=unknown") == 4
+
+
+def test_inventory_cannot_finish_after_the_static_deadline(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static.coverage import inventory
+    from sentinel.static.model import StaticContext
+    from sentinel.static.traversal import collect_static_files
+
+    root = _typescript_target(tmp_path / "target", "export const value = 1;")
+    config = load_configuration(root, environ={}, static_only=True)
+    files = collect_static_files(root, (), config.language)
+    expired = False
+
+    def recognize(file: Any) -> tuple[()]:
+        nonlocal expired
+        expired = True
+        return ()
+
+    monkeypatch.setattr("sentinel.static.coverage.ts.tools_in_file", recognize)
+    monkeypatch.setattr(
+        "sentinel.static.execution.time.monotonic", lambda: 2 if expired else 0
+    )
+    with pytest.raises(InfrastructureError, match="timeout"):
+        inventory(StaticContext(config, files, deadline=1), {})
