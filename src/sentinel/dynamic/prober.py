@@ -219,11 +219,12 @@ def build_probe_campaign(
         finding
         for finding in findings
         if finding.status is not FindingStatus.SUPPRESSED
+        and finding.review is not None
         and finding.review.probe_plan is not None
     ]
     candidates.sort(key=_primary_plan_key)
     for finding in candidates:
-        plan = finding.review.probe_plan
+        plan = finding.review.probe_plan if finding.review else None
         if plan is None or not _valid_plan(plan, catalog):
             continue
         bindings: dict[str, ProbeBinding] = {

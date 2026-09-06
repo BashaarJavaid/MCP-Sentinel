@@ -26,22 +26,34 @@ Or use uv:
 uv tool install portunusmcp-sentinel
 ```
 
-Use `portunusmcp-sentinel==1.2.1` for exact reproducibility.
+This branch prepares **1.3.0**. Rules-only commands below require that version;
+publication is pending separate authorization. Until then, use the source install
+(`pip install -e ".[dev]"`) from `phase18-rules-only`. The published 1.2.1 package
+does not provide `--rules-only`.
 
 ## Quickstart
 
 From a local Python or TypeScript MCP server repository:
 
 ```bash
-sentinel init
-# Review the generated sentinel.permissions.yaml and grant only required scopes.
-sentinel scan . --static-only --allow-degraded
+sentinel scan . --rules-only
 ```
 
-`sentinel init` inspects source without importing or executing it. Generated
-permissions deny access until reviewed, and existing configuration is preserved
-unless `--force` is supplied. The scan above needs neither an OpenAI API key nor
-Docker and keeps deterministic candidates visible for review.
+Rules-only needs no model credentials, review cache, network, Docker, target
+configuration, or target execution. It ignores inactive LLM settings even when
+credentials and endpoint overrides are present. Installation and dependency
+auditing need network access separately.
+
+Optionally run `sentinel init` afterward to generate a deny-by-default
+`sentinel.permissions.yaml`; review scopes before granting them. It never imports
+or executes source and needs no main guard or launch inference. Existing files
+require `--force` for replacement; symlinks are rejected.
+
+For Python runtime scaffolding, run `sentinel init --dynamic`, then
+`sentinel scan . --no-rules-only`. Adding missing runtime configuration preserves
+and validates an existing permissions file. Dynamic scans require Docker,
+model credentials, source-context transmission, and model cost; dependency
+installation also needs network access. TypeScript does not support `--dynamic`.
 
 Exit `0` and exit `1` both mean the scan completed: `0` means no finding reached
 the configured threshold, while `1` means at least one did. Exit `2` is a target
@@ -51,9 +63,13 @@ or configuration error; exit `3` means analysis was incomplete.
 
 | Tier | Command | Requirements | Result |
 |---|---|---|---|
-| Rules-only | `sentinel scan . --static-only --allow-degraded` | None beyond Sentinel | Deterministic findings remain `needs_review` and fail-on eligible |
+| Rules-only | `sentinel scan . --rules-only` | None beyond Sentinel | Deterministic findings remain `needs_review` and fail-on eligible |
 | Static + GPT review | `sentinel scan . --static-only` | `OPENAI_API_KEY` | GPT reviews every selected deterministic candidate |
 | Full dynamic proof | `sentinel scan .` | `OPENAI_API_KEY`, Docker, and a Python target | GPT review plus four isolated runtime probes |
+
+`--allow-degraded` permits unavailable review; it still calls the model when a
+key is available. Use `--rules-only` to disable review explicitly. Completion
+describes the selected analysis tier and does not prove a server is secure.
 
 TypeScript support is static-only and covers `.ts`, `.mts`, and `.cts` sources
 using the official MCP SDK v1 and server v2 shapes. JavaScript, TSX, declaration
@@ -61,12 +77,12 @@ files, workspaces, cross-file dataflow, imported handlers or schemas, and Node
 execution are outside the supported boundary. Dynamic targets are local Python
 3.10–3.12 MCP servers.
 
-The current source includes Phase 16 static-correctness changes: same-file
+The prepared 1.3.0 source includes Phase 16 static-correctness changes: same-file
 named-helper execution flows and value-specific validation, authentication,
 integrity, and configured-sanitizer checks. Unsupported flows remain unresolved;
 see the [rule boundaries](docs/rules.md) and
 [verification record](docs/phase16-verification.md). These changes are
-not included in the pinned release above until a new release is published.
+not publicly available until 1.3.0 is separately published.
 
 Phase 17 source changes add validated dynamic baselines, explicit probe outcomes,
 and proof-preserving review in native JSON 1.5.0. The current replay bundle uses
@@ -192,7 +208,7 @@ Use Sentinel from pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.2.1
+    rev: v1.3.0  # Available after separately authorized publication
     hooks:
       - id: mcp-sentinel
 ```

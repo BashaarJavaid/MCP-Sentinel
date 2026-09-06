@@ -59,7 +59,10 @@ y = 2  # sentinel: ignore[SENT-002] reason=legacy compatibility
     assert warnings == ()
     assert all(item.status is FindingStatus.SUPPRESSED for item in updated)
     assert [item.suppression.line for item in updated if item.suppression] == [1, 3]
-    assert all(item.review.mode == "not_reviewed" for item in updated)
+    assert all(
+        item.review is not None and item.review.mode == "not_reviewed"
+        for item in updated
+    )
 
 
 def test_typescript_ignores_strings_templates_and_blocks(

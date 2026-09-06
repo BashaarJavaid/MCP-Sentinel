@@ -37,6 +37,7 @@ class ActionInputs:
     fail_on: str
     static_only: str
     baseline: str = ""
+    rules_only: str = ""
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,7 @@ class SarifMetrics:
     analysis_complete: bool
     review: dict[str, Any] | None
     baseline: dict[str, Any] | None = None
+    rules_only: bool = False
 
 
 @dataclass(frozen=True)
@@ -78,6 +80,9 @@ def execute_action(
         baseline = resolve_baseline(workspace, inputs.baseline)
         fail_on = _fail_on(inputs.fail_on)
         static_only = _boolean(inputs.static_only, "static-only")
+        rules_only = (
+            _boolean(inputs.rules_only, "rules-only") if inputs.rules_only else None
+        )
         fork = is_fork_pull_request(environ)
     except ActionUsageError as error:
         return ActionResult(
@@ -107,6 +112,8 @@ def execute_action(
         "--fail-on",
         fail_on,
     ]
+    if rules_only is not None:
+        command.append("--rules-only" if rules_only else "--no-rules-only")
     if static_only:
         command.append("--static-only")
     if baseline is not None:
@@ -293,7 +300,17 @@ def analyze_sarif(payload: Any) -> SarifMetrics:
             raise ActionUsageError(f"SARIF result severity is invalid: {raw_severity}")
         severities.append(severity)
     highest = max(severities, key=_SEVERITY_RANK.__getitem__) if severities else "none"
-    return SarifMetrics(declared_count, highest, analysis_complete, review, baseline)
+    stages = invocation_properties.get("stages", [])
+    rules_only = isinstance(stages, list) and any(
+        isinstance(stage, dict)
+        and stage.get("name") == "gpt_static"
+        and stage.get("status") == "skipped"
+        and stage.get("reason") == "rules-only scan requested"
+        for stage in stages
+    )
+    return SarifMetrics(
+        declared_count, highest, analysis_complete, review, baseline, rules_only
+    )
 
 
 def render_step_summary(result: ActionResult) -> str:
@@ -358,7 +375,24 @@ def render_step_summary(result: ActionResult) -> str:
         )
         + " |",
     ]
-    if result.fork_pull_request:
+    if result.metrics.rules_only:
+        lines = lines[: lines.index("### GPT review")]
+        lines.extend(
+            (
+                "Tier: **RULES-ONLY**. GPT review and dynamic probes skipped.",
+                "Completion applies to the selected tier; it is not proof of security.",
+                "SARIF upload is a separate network operation.",
+            )
+        )
+    if result.fork_pull_request and result.metrics.rules_only:
+        lines.extend(
+            (
+                "",
+                "> Fork pull request: GPT credentials were withheld and "
+                "code-scanning upload was skipped.",
+            )
+        )
+    elif result.fork_pull_request:
         lines.extend(
             (
                 "",
@@ -422,12 +456,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--fail-on", default="high")
     parser.add_argument("--static-only", default="false")
     parser.add_argument("--baseline", default="")
+    parser.add_argument("--rules-only", default="")
     args = parser.parse_args(argv)
     environ = dict(os.environ)
     try:
         result = execute_action(
             ActionInputs(
-                args.target_path, args.fail_on, args.static_only, args.baseline
+                args.target_path,
+                args.fail_on,
+                args.static_only,
+                args.baseline,
+                args.rules_only,
             ),
             environ,
         )

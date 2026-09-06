@@ -83,9 +83,25 @@ def scan(
     ),
     json_output: bool = typer.Option(False, "--json", help="Alias for --format json."),
     fail_on: FailThreshold | None = typer.Option(None, "--fail-on"),
-    allow_degraded: bool = typer.Option(False, "--allow-degraded"),
+    allow_degraded: bool = typer.Option(
+        False,
+        "--allow-degraded",
+        help=(
+            "Permit unavailable GPT review; does not disable model calls. "
+            "No additional effect with --rules-only."
+        ),
+    ),
     target_launch_cmd: str | None = typer.Option(None, "--target-launch-cmd"),
-    static_only: bool = typer.Option(False, "--static-only"),
+    static_only: bool = typer.Option(
+        False,
+        "--static-only",
+        help="Skip Docker, retain GPT review. No additional effect with --rules-only.",
+    ),
+    rules_only: bool | None = typer.Option(
+        None,
+        "--rules-only/--no-rules-only",
+        help="Offline rules: no GPT, review cache, Docker, or target execution.",
+    ),
     rules: str | None = typer.Option(None, "--rules"),
     llm_model: str | None = typer.Option(None, "--llm-model"),
     llm_reasoning_effort: str | None = typer.Option(None, "--llm-reasoning-effort"),
@@ -96,7 +112,7 @@ def scan(
         None, "--color/--no-color", help="Override terminal color detection."
     ),
 ) -> None:
-    """Run static checks, required GPT review, and available later stages."""
+    """Scan with GPT and Docker by default; select --rules-only for offline use."""
     state = _state(ctx)
     try:
         selected_format = _select_format(output_format, json_output)
@@ -107,6 +123,7 @@ def scan(
                 raise UsageError("baseline and output paths must differ")
         overrides: dict[str, Any] = {
             "format": selected_format,
+            "rules_only": rules_only,
             "fail_on": fail_on,
             "rules": _parse_rule_tokens(rules) if rules is not None else None,
         }
@@ -189,6 +206,9 @@ def scan(
 @app.command("init")
 def init_command(
     ctx: typer.Context,
+    dynamic: bool = typer.Option(
+        False, "--dynamic", help="Also scaffold Python Docker launch configuration."
+    ),
     path: str = typer.Argument(".", help="Local MCP repository path."),
     force: bool = typer.Option(
         False, "--force", help="Replace generated regular files."
@@ -198,13 +218,18 @@ def init_command(
 
     state = _state(ctx)
     try:
-        result = initialize_repository(Path(path), force=force)
+        result = initialize_repository(Path(path), force=force, dynamic=dynamic)
         for warning in result.warnings:
             typer.echo(f"warning: {warning.message}", err=True)
         for generated in result.files:
             typer.echo(f"{generated.status}: {display_path(path, generated.name)}")
-        static_only = result.language.value == "typescript"
-        typer.echo(f"Next: {next_scan_command(path, static_only=static_only)}")
+        typer.echo(f"Next: {next_scan_command(path, dynamic=dynamic)}")
+        if dynamic:
+            typer.echo(
+                "Dynamic scanning requires Docker and model credentials. "
+                "GPT review transmits redacted source context and incurs model costs; "
+                "dependency installation requires network access."
+            )
     except TargetError as error:
         typer.echo(f"target error: {error}", err=True)
         raise typer.Exit(2) from error
@@ -249,7 +274,9 @@ def demo(
     try:
         destination = _prepare_demo_output_dir(output_dir)
         with _materialized_demo_resources() as (root, cassettes):
-            configuration = load_configuration(root)
+            configuration = load_configuration(
+                root, cli_overrides={"rules_only": False}
+            )
             now = datetime.now(timezone.utc)
             context = ScanContext(
                 scan_id=uuid4(),

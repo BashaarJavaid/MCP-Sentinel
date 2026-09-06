@@ -461,6 +461,7 @@ def test_model_judgment_cannot_downgrade_observed_proof(
     ).review((finding,), allow_degraded=False)
     assert not outcome.fatal
     reviewed = outcome.findings[0]
+    assert reviewed.review is not None
     assert reviewed.review.status is not None
     assert reviewed.review.status.value == judgment
     assert reviewed.review.confidence == 0.2
@@ -483,4 +484,5 @@ def test_model_absence_cannot_downgrade_observed_proof() -> None:
         applied_at=NOW,
     )
     assert outcome.findings[0].status is FindingStatus.CONFIRMED
+    assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.mode == "degraded"

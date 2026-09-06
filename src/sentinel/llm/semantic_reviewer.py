@@ -167,8 +167,8 @@ def unavailable_review_outcome(
             "candidates visible and fail-on eligible."
             if allow_degraded
             else "OPENAI_API_KEY is not set; set it for GPT review or rerun with "
-            "--allow-degraded to keep rules-only candidates visible and fail-on "
-            "eligible."
+            "--rules-only for offline static analysis. Use --allow-degraded to "
+            "permit unavailable review while keeping candidates fail-on eligible."
         )
     updated = (
         tuple(_degrade(item, reason, applied_at) for item in findings)
@@ -1167,17 +1167,31 @@ def _summarize_review(
         candidate_count=candidate_count,
         selected_count=selected_count,
         overflow_count=overflow_count,
-        reviewed_count=sum(finding.review.reviewed for finding in findings),
+        reviewed_count=sum(
+            bool(finding.review and finding.review.reviewed) for finding in findings
+        ),
         confirmed_count=sum(
-            f.review.reviewed and f.review.status is ReviewStatus.CONFIRMED
+            bool(
+                f.review
+                and f.review.reviewed
+                and f.review.status is ReviewStatus.CONFIRMED
+            )
             for f in findings
         ),
         suppressed_count=sum(
-            f.review.reviewed and f.review.status is ReviewStatus.SUPPRESSED
+            bool(
+                f.review
+                and f.review.reviewed
+                and f.review.status is ReviewStatus.SUPPRESSED
+            )
             for f in findings
         ),
         needs_review_count=sum(
-            f.review.reviewed and f.review.status is ReviewStatus.NEEDS_REVIEW
+            bool(
+                f.review
+                and f.review.reviewed
+                and f.review.status is ReviewStatus.NEEDS_REVIEW
+            )
             for f in findings
         ),
         disagreement_count=sum(f.review_disagrees for f in findings),

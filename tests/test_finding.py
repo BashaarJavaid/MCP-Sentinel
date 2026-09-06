@@ -93,6 +93,7 @@ def test_status_transitions_are_immutable_and_audited(sample_finding: Finding) -
     )
     assert sample_finding.status is FindingStatus.NEEDS_REVIEW
     assert confirmed.status is FindingStatus.CONFIRMED
+    assert confirmed.review is not None
     assert confirmed.review.status is ReviewStatus.CONFIRMED
     assert confirmed.timestamp == NOW + timedelta(seconds=1)
 
@@ -106,6 +107,7 @@ def test_status_transitions_are_immutable_and_audited(sample_finding: Finding) -
         at=NOW + timedelta(seconds=2),
         reason="New review event",
     )
+    assert reopened.review is not None
     assert reopened.review.reason == "New review event"
     assert transition_status(reopened, reopened.status, at=NOW) is reopened
 
@@ -121,6 +123,7 @@ def test_suppression_requires_reason_and_disallowed_transition_fails(
         at=NOW + timedelta(seconds=1),
         reason="Accepted risk",
     )
+    assert suppressed.review is not None
     assert suppressed.review.reason == "Accepted risk"
     with pytest.raises(ValueError, match="disallowed"):
         transition_status(suppressed, FindingStatus.CONFIRMED, at=NOW)

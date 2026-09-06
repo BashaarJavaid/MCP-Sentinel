@@ -276,6 +276,7 @@ def _capture_phase3_integrated(
     ).review(static_findings, allow_degraded=False)
     if static_review.fatal:
         raise RuntimeError("live static review failed during Phase 3 checkpoint")
+    assert static_review.findings[0].review is not None
     plan = static_review.findings[0].review.probe_plan
     if plan is None or plan.target_tool != "unsafe_calculator":
         raise RuntimeError("live static review did not produce the intended probe plan")
@@ -316,6 +317,7 @@ def _capture_phase3_integrated(
         raise RuntimeError("live dynamic review failed during Phase 3 checkpoint")
     if any(
         finding.source is not FindingSource.DYNAMIC
+        or finding.review is None
         or finding.review.probe_plan is not None
         for finding in dynamic_review.findings
     ):

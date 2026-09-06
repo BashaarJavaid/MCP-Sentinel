@@ -30,6 +30,7 @@ from sentinel.llm.tools import extract_tool_catalog
 from sentinel.permissions import (
     PermissionsManifest,
     ToolPermissions,
+    load_permissions_manifest,
     validate_permission_scopes,
 )
 from sentinel.report.model import ReportWarning
@@ -68,7 +69,9 @@ class _OriginalFile:
     mode: int
 
 
-def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
+def initialize_repository(
+    scan_path: Path, *, force: bool, dynamic: bool = False
+) -> OnboardingResult:
     """Inspect a repository without execution and atomically write starter files."""
 
     root = validate_scan_root(scan_path)
@@ -77,15 +80,20 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
     try:
         language = _detect_target_language(root, ignore_paths)
     except TargetError as error:
-        if not str(error).startswith("unsupported target:"):
+        if not dynamic or not str(error).startswith("unsupported target:"):
             raise
         # Preserve the established, more specific Python onboarding diagnostics.
         language = TargetLanguage.PYTHON
-    names = (
-        (PERMISSIONS_NAME,)
-        if language is TargetLanguage.TYPESCRIPT
-        else _GENERATED_NAMES
+    if dynamic and language is TargetLanguage.TYPESCRIPT:
+        raise TargetError("--dynamic supports Python targets only")
+    names = _GENERATED_NAMES if dynamic else (PERMISSIONS_NAME,)
+    preserve_permissions = (
+        dynamic and not force and os.path.lexists(root / PERMISSIONS_NAME)
     )
+    if preserve_permissions:
+        _preflight_destinations((root / PERMISSIONS_NAME,), force=True)
+        load_permissions_manifest(root, required=True)
+        names = (TARGET_NAME,)
     destinations = tuple(root / name for name in names)
     originals = _preflight_destinations(destinations, force=force)
     if force:
@@ -98,7 +106,7 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
     )
     validate_permission_scopes(permissions)
     contents: tuple[bytes, ...]
-    if language is TargetLanguage.PYTHON:
+    if dynamic:
         dependencies = _dependency_layout(root)
         entry_point = _entry_point(files.python_files, dependencies.package_roots)
         target = TargetConfig.model_validate(
@@ -121,6 +129,8 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
         )
     else:
         contents = (_permissions_yaml(permissions),)
+    if preserve_permissions:
+        contents = contents[:1]
     statuses = _replace_transaction(destinations, originals, contents)
     warnings = list(catalog.warnings)
     if not catalog.tools:
@@ -140,8 +150,13 @@ def initialize_repository(scan_path: Path, *, force: bool) -> OnboardingResult:
     )
 
 
-def next_scan_command(path: str, *, static_only: bool = False) -> str:
-    command = ("sentinel", "scan", path, *(("--static-only",) if static_only else ()))
+def next_scan_command(path: str, *, dynamic: bool = False) -> str:
+    command = (
+        "sentinel",
+        "scan",
+        path,
+        "--no-rules-only" if dynamic else "--rules-only",
+    )
     return subprocess.list2cmdline(command) if os.name == "nt" else shlex.join(command)
 
 
@@ -151,6 +166,7 @@ def display_path(root: str, name: str) -> str:
 
 def _project_configuration(root: Path) -> SentinelConfig:
     data = _read_toml(root / "sentinel.toml", required=False)
+    data.pop("llm", None)
     try:
         return SentinelConfig.model_validate(data)
     except Exception as error:

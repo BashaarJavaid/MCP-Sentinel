@@ -74,13 +74,13 @@ def test_init_generates_model_valid_fixture_configuration(
     (root / "sentinel.target.yaml").unlink()
     (root / "sentinel.permissions.yaml").unlink()
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 0
-    assert result.stdout == (
+    assert result.stdout.startswith(
         f"Created: {root / 'sentinel.target.yaml'}\n"
         f"Created: {root / 'sentinel.permissions.yaml'}\n"
-        f"Next: sentinel scan {root}\n"
+        f"Next: sentinel scan {root} --no-rules-only\n"
     )
     loaded = load_configuration(root, environ={})
     assert loaded.target is not None
@@ -135,7 +135,7 @@ dependencies = ["fastmcp>=2"]
 """,
     )
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 0
     assert not (root / "executed").exists()
@@ -207,7 +207,7 @@ def test_init_rejects_unsupported_dependency_layouts(
 ) -> None:
     root = _project(tmp_path / "target", pyproject=pyproject, requirements=requirements)
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 2
     assert message in result.stderr
@@ -219,14 +219,14 @@ def test_requirements_is_preferred_and_nested_requirements_are_rejected(
     tmp_path: Path,
 ) -> None:
     preferred = _project(tmp_path / "preferred", requirements="requests>=2\n")
-    result = runner.invoke(app, ["init", str(preferred)])
+    result = runner.invoke(app, ["init", "--dynamic", str(preferred)])
     assert result.exit_code == 2
     assert "requirements.txt must declare" in result.stderr
 
     nested = _project(tmp_path / "nested", pyproject="")
     (nested / "requirements").mkdir()
     (nested / "requirements" / "base.txt").write_text("mcp>=1\n", encoding="utf-8")
-    result = runner.invoke(app, ["init", str(nested)])
+    result = runner.invoke(app, ["init", "--dynamic", str(nested)])
     assert result.exit_code == 2
     assert "nested requirements files are unsupported" in result.stderr
 
@@ -257,7 +257,7 @@ def test_init_rejects_missing_ambiguous_or_mismatched_entry_points(
     for name, source in sources.items():
         (root / name).write_text(source, encoding="utf-8")
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 2
     assert message in result.stderr
@@ -275,7 +275,7 @@ def test_gitignore_and_project_ignore_paths_remove_entry_candidates(
     )
     monkeypatch.setenv("SENTINEL_IGNORE_PATHS", "server.py")
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 0
 
@@ -284,7 +284,7 @@ def test_malformed_unrelated_configuration_stops_before_writes(tmp_path: Path) -
     root = _project(tmp_path / "target")
     (root / "unrelated.json").write_text("{broken", encoding="utf-8")
 
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
 
     assert result.exit_code == 2
     assert "cannot parse configuration unrelated.json" in result.stderr
@@ -294,7 +294,7 @@ def test_malformed_unrelated_configuration_stops_before_writes(tmp_path: Path) -
 
 def test_empty_and_duplicate_catalog_warnings(tmp_path: Path) -> None:
     empty = _project(tmp_path / "empty", source=SERVER.replace("@mcp.tool()", "", 2))
-    result = runner.invoke(app, ["init", str(empty)])
+    result = runner.invoke(app, ["init", "--dynamic", str(empty)])
     assert result.exit_code == 0
     assert "warning: No MCP tools were discovered" in result.stderr
     assert (
@@ -309,7 +309,7 @@ def test_empty_and_duplicate_catalog_warnings(tmp_path: Path) -> None:
         SERVER.replace('if __name__ == "__main__":', "if False:"),
         encoding="utf-8",
     )
-    result = runner.invoke(app, ["init", str(duplicate)])
+    result = runner.invoke(app, ["init", "--dynamic", str(duplicate)])
     assert result.exit_code == 0
     assert (
         "warning: Tool 'alpha' is declared at multiple source locations"
@@ -325,14 +325,14 @@ def test_overwrite_refusal_force_repair_and_identical_preservation(
     tmp_path: Path,
 ) -> None:
     root = _project(tmp_path / "target")
-    created = runner.invoke(app, ["init", str(root)])
+    created = runner.invoke(app, ["init", "--dynamic", str(root)])
     assert created.exit_code == 0
     target = root / "sentinel.target.yaml"
     permissions = root / "sentinel.permissions.yaml"
     original = (target.read_bytes(), permissions.read_bytes())
 
     (root / "server.py").write_text("invalid python !!!", encoding="utf-8")
-    refused = runner.invoke(app, ["init", str(root)])
+    refused = runner.invoke(app, ["init", "--dynamic", str(root)])
     assert refused.exit_code == 2
     assert "use --force" in refused.stderr
     assert (target.read_bytes(), permissions.read_bytes()) == original
@@ -343,18 +343,20 @@ def test_overwrite_refusal_force_repair_and_identical_preservation(
     if os.name != "nt":
         target.chmod(0o640)
         permissions.chmod(0o600)
-    repaired = runner.invoke(app, ["init", str(root), "--force"])
+    repaired = runner.invoke(app, ["init", "--dynamic", str(root), "--force"])
     assert repaired.exit_code == 0
-    assert repaired.stdout == (
-        f"Updated: {target}\nUpdated: {permissions}\nNext: sentinel scan {root}\n"
+    assert repaired.stdout.startswith(
+        f"Updated: {target}\nUpdated: {permissions}\n"
+        f"Next: sentinel scan {root} --no-rules-only\n"
     )
     modes = tuple(stat.S_IMODE(path.stat().st_mode) for path in (target, permissions))
     metadata = tuple(path.stat() for path in (target, permissions))
 
-    unchanged = runner.invoke(app, ["init", str(root), "--force"])
+    unchanged = runner.invoke(app, ["init", "--dynamic", str(root), "--force"])
     assert unchanged.exit_code == 0
-    assert unchanged.stdout == (
-        f"Unchanged: {target}\nUnchanged: {permissions}\nNext: sentinel scan {root}\n"
+    assert unchanged.stdout.startswith(
+        f"Unchanged: {target}\nUnchanged: {permissions}\n"
+        f"Next: sentinel scan {root} --no-rules-only\n"
     )
     assert (
         tuple(stat.S_IMODE(path.stat().st_mode) for path in (target, permissions))
@@ -368,14 +370,14 @@ def test_overwrite_refusal_force_repair_and_identical_preservation(
 def test_force_refuses_non_regular_destinations(tmp_path: Path) -> None:
     directory_root = _project(tmp_path / "directory")
     (directory_root / "sentinel.target.yaml").mkdir()
-    result = runner.invoke(app, ["init", str(directory_root), "--force"])
+    result = runner.invoke(app, ["init", "--dynamic", str(directory_root), "--force"])
     assert result.exit_code == 2
     assert "must be a regular file" in result.stderr
 
     if os.name != "nt":
         symlink_root = _project(tmp_path / "symlink")
         (symlink_root / "sentinel.target.yaml").symlink_to("missing")
-        result = runner.invoke(app, ["init", str(symlink_root), "--force"])
+        result = runner.invoke(app, ["init", "--dynamic", str(symlink_root), "--force"])
         assert result.exit_code == 2
         assert "must be a regular file" in result.stderr
 
@@ -383,7 +385,7 @@ def test_force_refuses_non_regular_destinations(tmp_path: Path) -> None:
         os.mkfifo(  # type: ignore[attr-defined,unused-ignore]
             fifo_root / "sentinel.target.yaml"
         )
-        result = runner.invoke(app, ["init", str(fifo_root), "--force"])
+        result = runner.invoke(app, ["init", "--dynamic", str(fifo_root), "--force"])
         assert result.exit_code == 2
         assert "must be a regular file" in result.stderr
 
@@ -415,7 +417,7 @@ def test_second_replace_failure_rolls_back_both_files(
 
     monkeypatch.setattr("sentinel.onboarding.os.replace", fail_second)
 
-    result = runner.invoke(app, ["init", str(root), "--force"])
+    result = runner.invoke(app, ["init", "--dynamic", str(root), "--force"])
 
     assert result.exit_code == 3
     assert result.stderr.startswith("infrastructure error: configuration transaction")
@@ -444,7 +446,7 @@ def test_second_replace_failure_removes_new_peer(
     monkeypatch.setattr("sentinel.onboarding.os.replace", fail_second)
 
     with pytest.raises(InfrastructureError, match="configuration transaction failed"):
-        initialize_repository(root, force=False)
+        initialize_repository(root, force=False, dynamic=True)
 
     assert not (root / "sentinel.target.yaml").exists()
     assert not (root / "sentinel.permissions.yaml").exists()
@@ -454,21 +456,63 @@ def test_default_path_output_quoting_and_debug_behavior(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     root = _project(tmp_path / "path with spaces")
-    result = runner.invoke(app, ["init", str(root)])
+    result = runner.invoke(app, ["init", "--dynamic", str(root)])
     assert result.exit_code == 0
     if os.name == "nt":
-        assert result.stdout.endswith(f'Next: sentinel scan "{root}"\n')
+        assert f'Next: sentinel scan "{root}" --no-rules-only\n' in result.stdout
     else:
-        assert result.stdout.endswith(f"Next: sentinel scan '{root}'\n")
+        assert f"Next: sentinel scan '{root}' --no-rules-only\n" in result.stdout
 
     monkeypatch.setattr(
         "sentinel.cli.initialize_repository",
         lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("synthetic init")),
     )
-    concise = runner.invoke(app, ["init", str(root), "--force"])
+    concise = runner.invoke(app, ["init", "--dynamic", str(root), "--force"])
     assert concise.exit_code == 3
     assert "Traceback" not in concise.stderr
-    debug = runner.invoke(app, ["--debug", "init", str(root), "--force"])
+    debug = runner.invoke(app, ["--debug", "init", "--dynamic", str(root), "--force"])
     assert debug.exit_code == 3
     assert "Traceback" in debug.stderr
-    assert next_scan_command(".") == "sentinel scan ."
+    assert next_scan_command(".") == "sentinel scan . --rules-only"
+
+
+def test_default_init_without_main_guard_and_dynamic_upgrade(tmp_path: Path) -> None:
+    root = _project(tmp_path / "first", source=SERVER.split("if __name__")[0])
+    result = runner.invoke(app, ["init", str(root)])
+    assert result.exit_code == 0, result.output
+    assert "--rules-only" in result.stdout
+    assert not (root / "sentinel.target.yaml").exists()
+    permissions = root / "sentinel.permissions.yaml"
+    original = permissions.read_bytes()
+    (root / "server.py").write_text(SERVER, encoding="utf-8")
+    upgraded = runner.invoke(app, ["init", str(root), "--dynamic"])
+    assert upgraded.exit_code == 0, upgraded.output
+    assert "--no-rules-only" in upgraded.stdout
+    assert permissions.read_bytes() == original
+    assert (root / "sentinel.target.yaml").is_file()
+
+
+@pytest.mark.parametrize("permissions", ("invalid yaml: [", "version: 1\ntools: {}\n"))
+def test_dynamic_upgrade_validates_and_preserves_permissions_on_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, permissions: str
+) -> None:
+    root = _project(tmp_path / "upgrade")
+    path = root / "sentinel.permissions.yaml"
+    path.write_text(permissions, encoding="utf-8")
+
+    def fail_replace(*args: object) -> None:
+        raise OSError("write failed")
+
+    monkeypatch.setattr("sentinel.onboarding.os.replace", fail_replace)
+    result = runner.invoke(app, ["init", str(root), "--dynamic"])
+    assert result.exit_code == (2 if permissions.startswith("invalid") else 3)
+    assert path.read_text(encoding="utf-8") == permissions
+    assert not (root / "sentinel.target.yaml").exists()
+
+
+def test_typescript_dynamic_init_rejected(tmp_path: Path) -> None:
+    root = tmp_path / "ts"
+    shutil.copytree(FIXTURES / "typescript_clean_server", root)
+    result = runner.invoke(app, ["init", str(root), "--dynamic"])
+    assert result.exit_code == 2
+    assert "Python targets only" in result.stderr

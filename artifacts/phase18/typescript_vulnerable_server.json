@@ -1,0 +1,586 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T04:03:33.051680Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "ada67f6a23ea8ef3dcaae7c0385935a950ec787d726332bcd36070578c680d18",
+      "description": "The tool declares filesystem or network access broader than its handler uses.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 24,
+          "end_line": 10,
+          "start_column": 1,
+          "start_line": 10
+        },
+        "snippet": "readFile(path, \"utf8\");"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "e7458ce8-2ff6-4506-adfd-9e310041e88d",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 24,
+          "end_line": 10,
+          "start_column": 1,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 24,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            },
+            "snippet": "readFile(path, \"utf8\");"
+          },
+          "review": null,
+          "rule_id": "SENT-001",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-001",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Overly broad tool permission scope"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "b8acd8058adcc1165079f1cb3ea8d25ab5f3f95848390943c06f23f676d8f72c",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 14,
+          "end_line": 11,
+          "start_column": 1,
+          "start_line": 11
+        },
+        "snippet": "eval(source);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "9532afe5-4247-4a7a-add4-e1cc1313ec34",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 14,
+          "end_line": 11,
+          "start_column": 1,
+          "start_line": 11
+        }
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 14,
+              "end_line": 11,
+              "start_column": 1,
+              "start_line": 11
+            },
+            "snippet": "eval(source);"
+          },
+          "review": null,
+          "rule_id": "SENT-002",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-002",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Unsafe execution from tool input"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "aabd2ace34e5ef75ed3b9c5083d38dee79b3d4437b13ce5c7bd21cb39607ce3e",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 15,
+          "end_line": 10,
+          "start_column": 1,
+          "start_line": 10
+        },
+        "snippet": "path, \"utf8\");"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "4d25d0f1-fde7-4da3-8cac-0ad726bedef4",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 15,
+          "end_line": 10,
+          "start_column": 1,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 15,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            },
+            "snippet": "path, \"utf8\");"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "aca2798dbe715b6af36400b94c210c06076d76b7ceab9127456d079acd3bc29a",
+      "description": "Tool output or description flows into a later model prompt without a trusted sanitizer.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 34,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        },
+        "snippet": "responses.create({ input: text })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "867c3768-6994-4f35-804f-784f1e9a974d",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 34,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        }
+      },
+      "owasp_category": {
+        "id": "ASI01:2026",
+        "name": "Agent Goal Hijack"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 34,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            },
+            "snippet": "responses.create({ input: text })"
+          },
+          "review": null,
+          "rule_id": "SENT-004",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Pass tool-controlled text through a configured sanitizer before prompt construction.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-004",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Unsanitized tool content in prompt"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "30a1b6d875afbbc898913e6bc858764ca5f4051c09278e42d58e38a9d84a94a9",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "evidence": {
+        "fingerprint": "ae8754608195aafb81001fbdb911f6019eb8b13fa6e5ef7229ea71b0b9a7f976",
+        "kind": "static",
+        "range": {
+          "end_column": 53,
+          "end_line": 7,
+          "start_column": 17,
+          "start_line": 7
+        },
+        "snippet": "const apiKey = \"<redacted>\";"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "bdc336e0-360e-45e0-abf7-701c8d756a04",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 53,
+          "end_line": 7,
+          "start_column": 17,
+          "start_line": 7
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": "ae8754608195aafb81001fbdb911f6019eb8b13fa6e5ef7229ea71b0b9a7f976",
+            "kind": "static",
+            "range": {
+              "end_column": 53,
+              "end_line": 7,
+              "start_column": 17,
+              "start_line": 7
+            },
+            "snippet": "const apiKey = \"<redacted>\";"
+          },
+          "review": null,
+          "rule_id": "SENT-005",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-005",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Hardcoded secret"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "07b3da6ee368f1c336d37a359a1a1d2f49246577bd08ee00317fecc584af69f6",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 9,
+          "end_line": 25,
+          "start_column": 1,
+          "start_line": 25
+        },
+        "snippet": "app.get("
+      },
+      "exploitability": "theoretical",
+      "finding_id": "b36d4c71-3b58-45a3-8d1e-a5260addb698",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 9,
+          "end_line": 25,
+          "start_column": 1,
+          "start_line": 25
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 9,
+              "end_line": 25,
+              "start_column": 1,
+              "start_line": 25
+            },
+            "snippet": "app.get("
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Missing or ineffective route authentication"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "bea5f1762a5dec59f6cec05567a412135452ad8c7b49be619b95cd0f9f4a7397",
+      "description": "Manifest bytes reach registration without a trusted hash or signature verification.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 18,
+          "end_line": 29,
+          "start_column": 1,
+          "start_line": 29
+        },
+        "snippet": "JSON.parse(bytes)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "18f2136f-bcda-4a1d-a71c-ba5cb6695fed",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.ts",
+        "range": {
+          "end_column": 18,
+          "end_line": 29,
+          "start_column": 1,
+          "start_line": 29
+        }
+      },
+      "owasp_category": {
+        "id": "ASI04:2026",
+        "name": "Agentic Supply Chain Vulnerabilities"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 18,
+              "end_line": 29,
+              "start_column": 1,
+              "start_line": 29
+            },
+            "snippet": "JSON.parse(bytes)"
+          },
+          "review": null,
+          "rule_id": "SENT-007",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:33.051680Z"
+        }
+      ],
+      "remediation": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-007",
+      "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:33.051680Z",
+      "title": "Unverified tool manifest"
+    }
+  ],
+  "gpt_review": null,
+  "scan_id": "0ca9c8f8-d3d9-41e5-afbc-f140751545dc",
+  "schema_version": "1.5.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T04:03:33.051557Z",
+  "static_analysis": {
+    "duration_ms": 2354,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 4,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 7
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 2,
+      "Informational": 0,
+      "Low": 2,
+      "Medium": 3
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 7,
+      "suppressed": 0
+    },
+    "total": 7
+  },
+  "target": {
+    "display_name": "typescript_vulnerable_server",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.ts:13: unresolved call to readFile; this flow is not established as safe."
+    }
+  ]
+}

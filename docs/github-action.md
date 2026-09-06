@@ -1,8 +1,10 @@
 # GitHub Action
 
-The Marketplace Action installs the pinned `portunusmcp-sentinel==1.2.1`
+The prepared Action pins `portunusmcp-sentinel==1.3.0`
 package, runs Sentinel, validates SARIF, uploads eligible reports to GitHub code
-scanning, and preserves exit codes.
+scanning, and preserves exit codes. **1.3.0 publication is separately authorized
+and still pending**; this new pin becomes usable only after release verification.
+The existing published Action retains its previous behavior.
 
 ## Full scan
 
@@ -43,9 +45,15 @@ The Action outputs:
 - `highest-severity`: highest fail-eligible severity, excluding suppressed and
   baseline-matched findings.
 
-Forked pull requests do not receive `OPENAI_API_KEY`. Sentinel makes that state
-visible, runs degraded static analysis, and skips code-scanning upload. Other
-missing review or upload requirements fail closed.
+Add `rules-only: "true"` for keyless offline scanning. The optional input defaults
+to empty, inheriting environment/project configuration; explicit `"true"` or
+`"false"` overrides it through the CLI. Ordinary runs remain eligible for SARIF
+upload. Installation and upload use the network separately from scanning.
+
+Forked pull requests never receive model credentials and always skip upload.
+With rules-only selected, summaries label intentionally skipped GPT review.
+Legacy reviewed fork runs retain `--allow-degraded` fallback. Missing required
+review or ordinary upload requirements still fail closed.
 
 `BashaarJavaid/MCP-Sentinel@v1` follows the compatible v1 Action line. Consumers
 that require an immutable supply-chain reference should pin the Action to the

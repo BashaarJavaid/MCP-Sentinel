@@ -7,15 +7,20 @@ before deployment. It combines deterministic Python and TypeScript checks,
 GPT-5.6 semantic review, Docker-isolated runtime probes for Python targets, OWASP
 Agentic Top 10 mappings, and SARIF output for GitHub code scanning.
 
+The source prepares **1.3.0**; publication is pending. Until publication, use
+the [source installation](install.md#source-checkout) for these commands.
+
 ## Start without credentials or Docker
 
 ```bash
 pipx install portunusmcp-sentinel
 cd your-mcp-server
-sentinel init
-# Review sentinel.permissions.yaml and grant only required scopes.
-sentinel scan . --static-only --allow-degraded
+sentinel scan . --rules-only
 ```
+
+`sentinel init` is optional and generates only the permissions sidecar.
+Rules-only performs no model/cache/network/Docker operations or target execution.
+Installation and Action upload have separate network requirements.
 
 Exit `0` and exit `1` both mean analysis completed. Exit `1` means at least one
 finding reached the configured failure threshold.
@@ -24,7 +29,7 @@ finding reached the configured failure threshold.
 
 | Tier | Command | Requirements |
 |---|---|---|
-| Rules-only | `sentinel scan . --static-only --allow-degraded` | Sentinel only |
+| Rules-only | `sentinel scan . --rules-only` | Sentinel only |
 | Static + GPT review | `sentinel scan . --static-only` | `OPENAI_API_KEY` |
 | Full dynamic proof | `sentinel scan .` | `OPENAI_API_KEY`, Docker, Python target |
 

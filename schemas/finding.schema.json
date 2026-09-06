@@ -1496,31 +1496,38 @@
       "type": "string"
     },
     "review": {
-      "discriminator": {
-        "mapping": {
-          "cached": "#/$defs/CachedReview",
-          "degraded": "#/$defs/DegradedReview",
-          "live": "#/$defs/LiveReview",
-          "not_reviewed": "#/$defs/NotReviewedReview",
-          "replay": "#/$defs/ReplayReview"
-        },
-        "propertyName": "mode"
-      },
-      "oneOf": [
+      "anyOf": [
         {
-          "$ref": "#/$defs/NotReviewedReview"
+          "discriminator": {
+            "mapping": {
+              "cached": "#/$defs/CachedReview",
+              "degraded": "#/$defs/DegradedReview",
+              "live": "#/$defs/LiveReview",
+              "not_reviewed": "#/$defs/NotReviewedReview",
+              "replay": "#/$defs/ReplayReview"
+            },
+            "propertyName": "mode"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NotReviewedReview"
+            },
+            {
+              "$ref": "#/$defs/DegradedReview"
+            },
+            {
+              "$ref": "#/$defs/LiveReview"
+            },
+            {
+              "$ref": "#/$defs/ReplayReview"
+            },
+            {
+              "$ref": "#/$defs/CachedReview"
+            }
+          ]
         },
         {
-          "$ref": "#/$defs/DegradedReview"
-        },
-        {
-          "$ref": "#/$defs/LiveReview"
-        },
-        {
-          "$ref": "#/$defs/ReplayReview"
-        },
-        {
-          "$ref": "#/$defs/CachedReview"
+          "type": "null"
         }
       ],
       "title": "Review"

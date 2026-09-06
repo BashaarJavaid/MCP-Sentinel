@@ -52,7 +52,7 @@ Unsupported target types, frameworks, transports, and configuration values fail 
 ## 3. Architectural invariants
 
 1. Static analysis never imports or executes target code.
-2. Dynamic analysis is enabled by default and runs only inside Docker.
+2. Dynamic analysis is enabled by default and runs only inside Docker; explicit rules-only scanning bypasses GPT, cache, network, Docker, runtime configuration, and target execution.
 3. Target source is mounted read-only and the host filesystem is otherwise unavailable to target code.
 4. Runtime containers have no credentials and no external network or DNS access.
 5. GPT review runs in the host-side Sentinel process. `OPENAI_API_KEY` is never forwarded to target installation or runtime containers.
@@ -78,6 +78,7 @@ flowchart TD
     STATIC --> SEMGREP[Pinned Semgrep CLI rules]
     AST --> SF[Static candidate Findings]
     SEMGREP --> SF
+    SF -->|rules-only| MERGE[Static finalization / provenance merge]
     SF --> BATCH1[Batch related static candidates]
     BATCH1 --> GPT1[GPT semantic review]
     GPT1 --> PRIORITY[Order dynamic probes]
@@ -86,7 +87,7 @@ flowchart TD
     PROBES --> DF[Dynamic candidate Findings]
     DF --> BATCH2[Batch related dynamic candidates]
     BATCH2 --> GPT2[GPT semantic review]
-    GPT1 --> MERGE[Deduplicate and merge provenance]
+    GPT1 --> MERGE
     GPT2 --> MERGE
     MERGE --> REPORT[Canonical Findings]
     REPORT --> CONSOLE[Console report]
@@ -111,6 +112,41 @@ The normal order is:
 9. Render reports, validate SARIF, and apply the exit-code policy.
 
 `--static-only` skips target launch configuration, orphan reaping, Docker, and probes. It does not skip GPT review of static candidates. `--allow-degraded` permits unreviewed static or dynamic results when GPT is unavailable; without it, GPT failure is fatal.
+
+### Explicit rules-only selection (Phase 18)
+
+`--rules-only/--no-rules-only`, `SENTINEL_RULES_ONLY`, and
+`[scanner].rules_only` resolve using the existing precedence; default false.
+Resolve selection before validating inactive LLM values, endpoint routing, trust
+acknowledgments, or loading runtime configuration. Rules-only implies static;
+legacy static/degraded/launch options have no additional effect. Scanner and
+syntax validation, filesystem boundaries, and target support remain required.
+
+The existing pipeline branches after deterministic analysis and before reviewer
+construction. Orphan reaping is bypassed. No review cache, model client, network,
+Docker, or target execution occurs. Findings, evidence, severities, inline
+suppression, baselines, and thresholds remain in the shared static finalizer.
+`sentinel demo` explicitly disables inherited rules-only selection.
+
+Native 1.5.0 keeps the canonical Finding shape and admits null finding reviews
+for this tier; older `not_reviewed` objects remain valid. GPT summaries and
+provenance reviews are null. Consumers and validators must support this nullable
+field. GPT-static, dynamic, and GPT-dynamic stages are skipped with reason
+`rules-only scan requested`. Static, merge/finalization, and reporting succeed;
+completion describes the selected tier. SARIF invocation properties export the
+existing stage records; Action readers still accept older SARIF without stages.
+
+Default `init` writes only the permissions sidecar, without launch inference or
+runtime prerequisites. Python-only `init --dynamic` adds launch scaffolding,
+preserving and validating existing permissions when adding missing runtime
+configuration. Replacement requires `--force`; regular-file checks, symlink
+rejection, atomic staging, and rollback remain enforced.
+
+The Action defaults are preserved. Rules-only input inherits when empty and
+explicitly overrides when true/false. Fork credentials remain withheld and fork
+uploads skipped. Ordinary SARIF upload, dependency installation, and dependency
+auditing need network access separately. The existing pre-commit hook now runs
+`sentinel scan . --rules-only --no-color`.
 
 ## 5. Planned repository layout
 
@@ -299,7 +335,7 @@ Every rule is pinned to the OWASP Top 10 for Agentic Applications 2026 taxonomy.
 TypeScript roots require a strict, bounded root `package.json`, a production
 dependency on an official MCP package, and an included `.ts`, `.mts`, or `.cts`
 source. They always pass through Semgrep's syntax gate, never load Node modules,
-and are rejected before analysis unless `--static-only` is present. The
+and are rejected before analysis unless `--static-only` or `--rules-only` is selected. The
 orchestrator owns one dedicated Semgrep catalog-discovery pass and reuses that
 catalog for GPT review.
 
@@ -617,7 +653,7 @@ flowchart LR
 
 ### Target contract
 
-Dynamic scans require either a valid `sentinel.target.yaml` or a `--target-launch-cmd` override. An ordinary scan without target launch configuration exits with code `2`. `--static-only` is the sole exception.
+Dynamic scans require either a valid `sentinel.target.yaml` or a `--target-launch-cmd` override. An ordinary scan without target launch configuration exits with code `2`. `--static-only` and `--rules-only` skip runtime configuration.
 
 `sentinel.target.yaml` owns target execution settings:
 
@@ -846,19 +882,21 @@ Required options include:
 - `--allow-degraded`
 - `--target-launch-cmd`
 - `--static-only`
+- `--rules-only/--no-rules-only`
 - `--rules`
 - `--llm-model`
 - `--llm-reasoning-effort`
 - `--llm-base-url`
 - `--trust-llm-endpoint`
 
-There is no `--dynamic` flag because dynamic analysis is the default.
+Scanning has no `--dynamic` flag because dynamic analysis is the default.
+`sentinel init --dynamic` opts into Python runtime scaffolding.
 
 After the offline Phase 2 implementation, `--static-only` runs static analysis
 and GPT review and exits `0` or `1`. `--allow-degraded` explicitly permits a
 complete static-only result with `needs_review` candidates when GPT is
-unavailable. Normal scans still mark dynamic work incomplete and exit `3` until
-Phase 3 lands.
+unavailable. Normal scans run Phase 17 dynamic probing and exit `3` when
+required analysis is incomplete.
 The global `--debug` option exposes tracebacks for internal failures; the
 default error surface remains concise.
 
@@ -971,6 +1009,7 @@ Inputs:
 - `fail-on`
 - `openai-api-key`
 - `static-only`
+- `rules-only` (empty inherits; true/false explicitly overrides)
 - `baseline`
 
 Outputs:

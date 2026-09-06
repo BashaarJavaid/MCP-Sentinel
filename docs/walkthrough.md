@@ -1,5 +1,10 @@
 # Scan a real MCP server before release
 
+> Historical 1.2.1 walkthrough. Its keyless `--allow-degraded` commands are
+> fallback evidence, not a review-disable interface. Prepared 1.3.0 adds
+> `--rules-only`; see [installation](install.md) for the new first-use workflow.
+
+
 A useful first scan should be repeatable without trusting the target enough to
 run it. This walkthrough uses PortunusMCP Sentinel 1.2.1 to inspect the official
 [MCP Git server source](https://github.com/modelcontextprotocol/servers/tree/d73f99efbfd40c3aa1b61e88728b3d49fb52608f/src/git).

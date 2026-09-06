@@ -106,6 +106,7 @@ def _evaluate(effort: ReasoningEffort, cases: list[dict[str, Any]]) -> dict[str,
         tool = catalog.for_location(location.path, line)
         case = case_by_key[(finding.rule_id, tool.name if tool else "")]
         decisions.append((case, finding.status))
+        assert finding.review is not None
         plan = finding.review.probe_plan
         first_probes[case["id"]] = plan.ordered_probe_ids[0] if plan else None
     binary = [item for item in decisions if item[0]["truth"] != "ambiguous"]

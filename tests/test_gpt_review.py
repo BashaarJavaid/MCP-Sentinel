@@ -270,6 +270,7 @@ def test_live_review_merges_status_plan_usage_and_authority(tmp_path: Path) -> N
     assert outcome.fatal is False
     assert reviewed.status is FindingStatus.CONFIRMED
     assert reviewed.exploitability.value == "likely"
+    assert reviewed.review is not None
     assert reviewed.review.mode == "live"
     assert reviewed.review.probe_plan is not None
     assert reviewed.review.probe_plan.ordered_probe_ids[0] == "SENT-011"
@@ -378,6 +379,7 @@ def test_cache_rebinds_new_runtime_finding_ids(tmp_path: Path) -> None:
         now=lambda: NOW,
     ).review((second,), allow_degraded=False)
     assert outcome.findings[0].finding_id == second.finding_id
+    assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.mode == "cached"
     assert outcome.summary.current_usage.total_tokens == 0
     assert outcome.summary.origin_usage.total_tokens == 150
@@ -426,6 +428,7 @@ def test_replay_rebinds_ids_and_preserves_capture_provenance(tmp_path: Path) -> 
         now=lambda: datetime(2030, 1, 1, tzinfo=timezone.utc),
     ).review((second,), allow_degraded=False)
     review = outcome.findings[0].review
+    assert review is not None
     assert review.mode == "replay"
     assert review.reviewed_at == NOW
     assert review.applied_at == datetime(2030, 1, 1, tzinfo=timezone.utc)
@@ -449,6 +452,7 @@ def test_invalid_batch_is_atomic_and_fails_closed(tmp_path: Path) -> None:
     ).review((finding,), allow_degraded=False)
     assert outcome.fatal is True
     assert outcome.findings[0].status is FindingStatus.NEEDS_REVIEW
+    assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.mode == "not_reviewed"
 
 
@@ -477,6 +481,7 @@ def test_suppressed_static_finding_can_use_fixed_probe_fallback(
 
     assert outcome.fatal is False
     assert outcome.findings[0].status is FindingStatus.SUPPRESSED
+    assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.probe_plan is None
 
 
@@ -578,6 +583,7 @@ def test_refusal_can_only_become_explicit_degraded_review(tmp_path: Path) -> Non
         now=lambda: NOW,
     ).review((finding,), allow_degraded=True)
     assert outcome.fatal is False
+    assert outcome.findings[0].review is not None
     assert outcome.findings[0].review.mode == "degraded"
     assert outcome.findings[0].review.reviewed_at is None
     assert outcome.findings[0].review.applied_at == NOW
@@ -599,7 +605,13 @@ def test_finding_cap_keeps_overflow_visible_without_failure(tmp_path: Path) -> N
     assert outcome.fatal is False
     assert outcome.summary.selected_count == 1
     assert outcome.summary.overflow_count == 3
-    assert sum(item.review.mode == "degraded" for item in outcome.findings) == 3
+    assert (
+        sum(
+            item.review is not None and item.review.mode == "degraded"
+            for item in outcome.findings
+        )
+        == 3
+    )
     assert any(warning.code == "gpt_review_truncated" for warning in outcome.warnings)
 
 
@@ -677,6 +689,7 @@ def test_dynamic_candidate_uses_supplied_evidence_and_never_gets_probe_plan(
     reviewed = outcome.findings[0]
     assert reviewed.status is FindingStatus.CONFIRMED
     assert reviewed.exploitability.value == "confirmed"
+    assert reviewed.review is not None
     assert reviewed.review.probe_plan is None
 
 
@@ -892,8 +905,10 @@ def test_compatible_http_failures_are_fatal_or_explicitly_degraded(
         ).review((_sent002_findings()[0],), allow_degraded=True)
 
     assert fatal.fatal is True
+    assert fatal.findings[0].review is not None
     assert fatal.findings[0].review.mode == "not_reviewed"
     assert degraded.fatal is False
+    assert degraded.findings[0].review is not None
     assert degraded.findings[0].review.mode == "degraded"
     assert degraded.summary.batches[0].status == "failed"
     assert all(origin not in warning.message for warning in degraded.warnings)

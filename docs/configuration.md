@@ -15,6 +15,7 @@ GPT, sandbox, and `SENT-005` allowlist settings only.
 
 ```toml
 [scanner]
+rules_only = false
 format = "console"
 fail_on = "high"
 rules = []
@@ -42,11 +43,25 @@ default threshold is `--fail-on high`; accepted values are `critical`, `high`,
 
 | Tier | Command | What runs |
 |---|---|---|
-| Rules-only | `sentinel scan . --static-only --allow-degraded` | Static rules; candidates remain visible and fail-on eligible |
+| Rules-only | `sentinel scan . --rules-only` | Static rules; candidates remain visible and fail-on eligible |
 | Static + GPT review | `sentinel scan . --static-only` | Static rules and required semantic review |
 | Full dynamic proof | `sentinel scan .` | Static rules, GPT review, and four Docker probes |
 
-`--static-only` still requires GPT review unless `--allow-degraded` is explicit.
+`--rules-only/--no-rules-only`, `SENTINEL_RULES_ONLY`, and `[scanner].rules_only`
+use CLI > environment > project > default precedence. The default is `false`.
+Environment booleans accept `true`, `false`, `1`, and `0` (case-insensitive).
+Rules-only implies static execution and bypasses model clients, cache, network,
+Docker, runtime configuration, and target execution. LLM values, endpoint
+settings, ambient OpenAI routing, and trust acknowledgments are inactive and
+ignored. Scanner configuration, TOML/CLI syntax, supported-target validation,
+and filesystem boundaries remain enforced.
+
+`--static-only`, `--allow-degraded`, and `--target-launch-cmd` have no additional
+effect with rules-only. `--no-rules-only` explicitly restores the normal selection;
+`sentinel demo` always overrides inherited rules-only configuration.
+
+`--static-only` retains GPT review. `--allow-degraded` permits unavailable review
+but does not disable calls when credentials are available.
 TypeScript targets support only the first two tiers.
 
 ## GPT review and endpoint trust
@@ -89,8 +104,8 @@ Treat `0` and `1` as completed scans. Treat `2` and `3` as missing analysis.
 Create a baseline only from a complete native JSON report:
 
 ```bash
-sentinel scan . --allow-degraded --format json --output sentinel-baseline.json
-sentinel scan . --allow-degraded --baseline sentinel-baseline.json
+sentinel scan . --rules-only --format json --output sentinel-baseline.json
+sentinel scan . --rules-only --baseline sentinel-baseline.json
 ```
 
 The baseline must use the same ordered rules and static/full mode. Matched
@@ -160,10 +175,25 @@ directives warn.
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.2.1
+    rev: v1.3.0  # Available after separately authorized publication
     hooks:
       - id: mcp-sentinel
 ```
 
 The hook runs the Rules-only tier. Add `args: [--baseline,
 sentinel-baseline.json]` to use a reviewed baseline.
+
+## Rules-only report compatibility
+
+Native schema 1.5.0 retains the canonical Finding shape, with nullable finding
+review for explicitly unreviewed rules-only results. Provenance reviews and the
+GPT summary are null. Existing `not_reviewed`, degraded, and completed review
+records remain readable. Consumers must handle null review; older validators
+that required a review object need the prepared 1.3.0 schema. Baseline-v2 and
+supported historical baseline migration remain compatible. Rules-only and
+reviewed static scans share static-mode baseline compatibility.
+
+GPT-static, dynamic, and GPT-dynamic stages are skipped with
+`rules-only scan requested`; static finalization and reporting succeed. SARIF
+exports stages in invocation properties; older SARIF lacking stages is readable.
+Completion applies to the selected tier and does not establish security assurance.

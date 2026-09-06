@@ -98,8 +98,9 @@ class TargetLanguage(str, Enum):
 
 
 class ScannerConfig(ContractModel):
-    format: OutputFormat = OutputFormat.CONSOLE
-    fail_on: FailThreshold = FailThreshold.HIGH
+    rules_only: bool = False
+    format: OutputFormat = Field(default=OutputFormat.CONSOLE, strict=False)
+    fail_on: FailThreshold = Field(default=FailThreshold.HIGH, strict=False)
     rules: tuple[str, ...] = ()
     ignore_paths: tuple[str, ...] = ()
     target_config: str = "sentinel.target.yaml"
@@ -401,6 +402,7 @@ class LoadedConfiguration(ContractModel):
 
 
 ENV_OVERRIDES: dict[str, tuple[str, str]] = {
+    "SENTINEL_RULES_ONLY": ("scanner", "rules_only"),
     "SENTINEL_FORMAT": ("scanner", "format"),
     "SENTINEL_FAIL_ON": ("scanner", "fail_on"),
     "SENTINEL_RULES": ("scanner", "rules"),
@@ -427,7 +429,7 @@ INTEGER_ENV_VARS = {
     "SENTINEL_LLM_RETRIES",
     "SENTINEL_LLM_MAX_CONCURRENCY",
 }
-BOOLEAN_ENV_VARS = {"SENTINEL_LLM_CACHE_ENABLED"}
+BOOLEAN_ENV_VARS = {"SENTINEL_LLM_CACHE_ENABLED", "SENTINEL_RULES_ONLY"}
 
 
 def load_configuration(
@@ -444,12 +446,39 @@ def load_configuration(
 
     scan_root = validate_scan_root(scan_path)
     environment = os.environ if environ is None else environ
-    _reject_ambient_openai_routing(environment)
     config_data = _read_toml(scan_root / "sentinel.toml", required=False)
     project_llm = config_data.get("llm")
     project_base_url = (
         project_llm.get("base_url") if isinstance(project_llm, Mapping) else None
     )
+    # Resolve the selected tier before parsing inactive model settings.
+    selection = _apply_environment(
+        {"scanner": config_data.get("scanner", {})},
+        {
+            key: value
+            for key, value in environment.items()
+            if key in ENV_OVERRIDES and ENV_OVERRIDES[key][0] == "scanner"
+        },
+    )
+    selection = _apply_cli(selection, cli_overrides or {})
+    try:
+        rules_only = ScannerConfig.model_validate(selection["scanner"]).rules_only
+    except Exception as error:
+        raise ConfigurationError(f"invalid scanner configuration: {error}") from error
+    if rules_only:
+        config_data.pop("llm", None)
+        environment = {
+            key: value
+            for key, value in environment.items()
+            if not key.startswith("SENTINEL_LLM_")
+            and key != "SENTINEL_TRUST_LLM_ENDPOINT"
+        }
+        llm_cli_overrides = {}
+        trust_llm_endpoint = False
+        project_base_url = None
+        static_only = True
+    else:
+        _reject_ambient_openai_routing(environment)
     merged = _deep_merge({}, config_data)
     merged = _apply_environment(merged, environment)
     merged = _apply_cli(merged, cli_overrides or {})
@@ -483,7 +512,8 @@ def load_configuration(
     language = _detect_target_language(scan_root, scanner.scanner.ignore_paths)
     if language is TargetLanguage.TYPESCRIPT and not static_only:
         raise TargetError(
-            "TypeScript targets support static analysis only; rerun with --static-only"
+            "TypeScript targets support static analysis only; "
+            "rerun with --rules-only or --static-only"
         )
 
     target: TargetConfig | None = None
@@ -508,7 +538,8 @@ def load_configuration(
         else:
             raise TargetError(
                 "dynamic analysis requires sentinel.target.yaml or "
-                "--target-launch-cmd; use --static-only to opt out"
+                "--target-launch-cmd; use --rules-only for an offline scan "
+                "or --static-only to skip Docker"
             )
         target_data.setdefault("python_version", infer_python_version(scan_root))
         try:
@@ -654,13 +685,18 @@ def _apply_environment(
             value = lowered in {"true", "1"}
         else:
             value = raw
-        result.setdefault(section, {})[key] = value
+        section_data = result.setdefault(section, {})
+        if not isinstance(section_data, dict):
+            raise ConfigurationError(f"{section} configuration must be a table")
+        section_data[key] = value
     return result
 
 
 def _apply_cli(data: dict[str, Any], overrides: Mapping[str, Any]) -> dict[str, Any]:
     result = _deep_merge({}, data)
     scanner = result.setdefault("scanner", {})
+    if not isinstance(scanner, dict):
+        raise ConfigurationError("scanner configuration must be a table")
     for key, value in overrides.items():
         if value is not None:
             scanner[key] = value
@@ -672,6 +708,8 @@ def _apply_llm_cli(
 ) -> dict[str, Any]:
     result = _deep_merge({}, data)
     llm = result.setdefault("llm", {})
+    if not isinstance(llm, dict):
+        raise ConfigurationError("llm configuration must be a table")
     for key, value in overrides.items():
         if value is not None:
             llm[key] = value

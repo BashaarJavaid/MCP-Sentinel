@@ -78,7 +78,8 @@ do not document Phase 18's new offline interface as available before it ships.
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
 **Phases 16–17 are complete. All four Phase 17 checkpoints passed and are accepted;
-Phase 18 remains planned.**
+Phase 18 implementation and local/hosted verification have passed; final user
+acceptance remains pending.**
 Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
 23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or

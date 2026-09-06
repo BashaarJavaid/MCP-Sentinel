@@ -187,6 +187,7 @@ def _run_dynamic_case(case: dict[str, Any]) -> dict[str, Any]:
     if review.fatal:
         raise RuntimeError(f"dynamic truth case {case['id']} GPT review failed")
     planned = review.findings[0]
+    assert planned.review is not None
     plan = planned.review.probe_plan
     plan_source = "gpt"
     if plan is None:

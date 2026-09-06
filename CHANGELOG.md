@@ -10,6 +10,20 @@ new rule IDs.
 
 ## [Unreleased]
 
+### Prepared 1.3.0 — publication pending
+
+- Add explicit rules-only CLI/config/environment selection and Action input;
+  bypass model clients, review cache, network, Docker, and target execution.
+- Default `init` generates only permissions; migrate Python runtime scaffolding
+  to `init --dynamic`, followed by `scan --no-rules-only`.
+- Move pre-commit and first-use examples to rules-only. Preserve scan/Action
+  defaults, fork credential/upload policy, findings, thresholds, and baselines.
+- Keep native schema 1.5.0, with nullable finding review for rules-only results;
+  export stage records in SARIF and label the selected tier in console/Action.
+  Existing object review records remain readable; consumers must handle null.
+- Retain baseline-v2 and historical 1.3/1.4 migration from Phase 17.
+
+
 ### Fixed
 
 - Require valid runtime baselines and demonstrated tool-grant, size-limit,
@@ -20,8 +34,8 @@ new rule IDs.
   separately, expose disagreements, and merge only established validation causes.
 - Introduce baseline-v2 stable proof identity and migrate 1.3/1.4 reports without
   inventing proof. Preserve historical captures and provide a separately
-  refreshed runtime-review bundle for current-pipeline replay. Package version
-  is unchanged pending a separately authorized release.
+  refreshed runtime-review bundle for current-pipeline replay. These Phase 16–18
+  changes are prepared together as 1.3.0; publication requires separate authorization.
 
 - Trace supported Python and TypeScript tool inputs through same-file named
   helpers, explicit bindings, assignments, and returns for `SENT-002`; retain

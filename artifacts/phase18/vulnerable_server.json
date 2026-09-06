@@ -1,0 +1,598 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T04:03:17.107737Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c589dfc3a55623bacd0a4d38e492b761f234559d4ff05e914369445a88e51c1d",
+      "description": "The tool declares filesystem or network access broader than its handler uses.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 53,
+          "end_line": 18,
+          "start_column": 12,
+          "start_line": 18
+        },
+        "snippet": "    return open(\"data/users.json\", encoding=\"utf-8\").read()"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "5d039671-cbe9-4e91-b1ac-f692456ab317",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 53,
+          "end_line": 18,
+          "start_column": 12,
+          "start_line": 18
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 53,
+              "end_line": 18,
+              "start_column": 12,
+              "start_line": 18
+            },
+            "snippet": "    return open(\"data/users.json\", encoding=\"utf-8\").read()"
+          },
+          "review": null,
+          "rule_id": "SENT-001",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-001",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Overly broad tool permission scope"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "b9db96738433dd3969a8666ca7f7f3176316b3da24304e34af7d039eb49616c0",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 28,
+          "end_line": 27,
+          "start_column": 12,
+          "start_line": 27
+        },
+        "snippet": "requires login"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "f53b84e3-614e-4f60-95f5-d38dcd719fad",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 28,
+          "end_line": 27,
+          "start_column": 12,
+          "start_line": 27
+        }
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 28,
+              "end_line": 27,
+              "start_column": 12,
+              "start_line": 27
+            },
+            "snippet": "requires login"
+          },
+          "review": null,
+          "rule_id": "SENT-002",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-002",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Unsafe execution from tool input"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a81c4976708d749cba16202d7d82f1f9c65464369a7cee285bda52183aef123e",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 50,
+          "end_line": 31,
+          "start_column": 22,
+          "start_line": 31
+        },
+        "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "187a75a5-764f-4c01-af2a-02c466aeb0bb",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 50,
+          "end_line": 31,
+          "start_column": 22,
+          "start_line": 31
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 50,
+              "end_line": 31,
+              "start_column": 22,
+              "start_line": 31
+            },
+            "snippet": "def unchecked_lookup(arguments: dict[str, object]) -> object:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c648a62fbb6794717a8e1ef567a2716037919fa53629f3fb80a92eeea157000b",
+      "description": "Tool output or description flows into a later model prompt without a trusted sanitizer.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 53,
+          "end_line": 39,
+          "start_column": 5,
+          "start_line": 39
+        },
+        "snippet": "    return f\"Follow these tool instructions: {text}\""
+      },
+      "exploitability": "theoretical",
+      "finding_id": "696bca43-87d1-45e6-8ba3-043987d60cf7",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 53,
+          "end_line": 39,
+          "start_column": 5,
+          "start_line": 39
+        }
+      },
+      "owasp_category": {
+        "id": "ASI01:2026",
+        "name": "Agent Goal Hijack"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 53,
+              "end_line": 39,
+              "start_column": 5,
+              "start_line": 39
+            },
+            "snippet": "    return f\"Follow these tool instructions: {text}\""
+          },
+          "review": null,
+          "rule_id": "SENT-004",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Pass tool-controlled text through a configured sanitizer before prompt construction.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-004",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Unsanitized tool content in prompt"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c9a1f0b309c367a4fb069d355ce8353fbc3767dd3f1cdbfdd723bb226bd33873",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "evidence": {
+        "fingerprint": "eab94b70c7862a1dbc9f25c2b396ea76fba2d845dbc07aeb69d185dc821ab927",
+        "kind": "static",
+        "range": {
+          "end_column": 42,
+          "end_line": 13,
+          "start_column": 12,
+          "start_line": 13
+        },
+        "snippet": "api_key = \"<redacted>\""
+      },
+      "exploitability": "theoretical",
+      "finding_id": "0c0f6b5f-6321-4e17-94fa-e7a4f0919b3f",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 42,
+          "end_line": 13,
+          "start_column": 12,
+          "start_line": 13
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": "eab94b70c7862a1dbc9f25c2b396ea76fba2d845dbc07aeb69d185dc821ab927",
+            "kind": "static",
+            "range": {
+              "end_column": 42,
+              "end_line": 13,
+              "start_column": 12,
+              "start_line": 13
+            },
+            "snippet": "api_key = \"<redacted>\""
+          },
+          "review": null,
+          "rule_id": "SENT-005",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-005",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Hardcoded secret"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "086a128df4552efc1f322ef7a23404e2a75240b56e4167e77c04a16db879c41e",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 20,
+          "end_line": 42,
+          "start_column": 2,
+          "start_line": 42
+        },
+        "snippet": "@app.post(\"/admin\")"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "301bbd6a-db23-4ab3-9010-14279a7e735c",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 20,
+          "end_line": 42,
+          "start_column": 2,
+          "start_line": 42
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 20,
+              "end_line": 42,
+              "start_column": 2,
+              "start_line": 42
+            },
+            "snippet": "@app.post(\"/admin\")"
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Missing or ineffective route authentication"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "11261c7deb6c6b3fcff75231e6732670c9f8e511d69f6f3677ec36fea1b77347",
+      "description": "Manifest bytes reach registration without a trusted hash or signature verification.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 38,
+          "end_line": 49,
+          "start_column": 16,
+          "start_line": 49
+        },
+        "snippet": "        return yaml.safe_load(handle)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "5af44eb7-c99e-48d8-8e59-eafdf8b20578",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 38,
+          "end_line": 49,
+          "start_column": 16,
+          "start_line": 49
+        }
+      },
+      "owasp_category": {
+        "id": "ASI04:2026",
+        "name": "Agentic Supply Chain Vulnerabilities"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 38,
+              "end_line": 49,
+              "start_column": 16,
+              "start_line": 49
+            },
+            "snippet": "        return yaml.safe_load(handle)"
+          },
+          "review": null,
+          "rule_id": "SENT-007",
+          "source": "static",
+          "timestamp": "2026-09-06T04:03:17.107737Z"
+        }
+      ],
+      "remediation": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-007",
+      "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T04:03:17.107737Z",
+      "title": "Unverified tool manifest"
+    }
+  ],
+  "gpt_review": null,
+  "scan_id": "5e4deac3-b04f-42e4-984b-66e1015b72ea",
+  "schema_version": "1.5.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T04:03:17.107618Z",
+  "static_analysis": {
+    "duration_ms": 1685,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 6,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 7
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 2,
+      "Informational": 0,
+      "Low": 2,
+      "Medium": 3
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 7,
+      "suppressed": 0
+    },
+    "total": 7
+  },
+  "target": {
+    "display_name": "vulnerable_server",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:23: unresolved call to isinstance; this flow is not established as safe."
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'broad_reader' is declared at multiple source locations: server.py:17, server.py:93"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unchecked_lookup' is declared at multiple source locations: server.py:31, server.py:97"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'unsafe_calculator' is declared at multiple source locations: server.py:22, server.py:95"
+    }
+  ]
+}

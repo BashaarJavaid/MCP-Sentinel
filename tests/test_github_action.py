@@ -344,6 +344,7 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
         "fail-on",
         "openai-api-key",
         "static-only",
+        "rules-only",
         "baseline",
     }
     assert metadata["inputs"]["target-path"]["default"] == "."
@@ -357,7 +358,7 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
     assert metadata["runs"]["steps"][0]["with"]["python-version"] == "3.12"
     assert metadata["runs"]["steps"][1]["run"] == (
         "python -m pip install --disable-pip-version-check "
-        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.2.1"
+        "--index-url https://pypi.org/simple portunusmcp-sentinel==1.3.0"
     )
     uses = [step.get("uses", "") for step in metadata["runs"]["steps"]]
     assert any(value.startswith("actions/setup-python@ece7cb06") for value in uses)
@@ -371,3 +372,80 @@ def test_action_metadata_exposes_only_approved_interface() -> None:
     ci_text = (root / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "python -m pip install pipx\n" not in release_text + ci_text
     assert "python -m pip install pipx==1.16.0" in release_text + ci_text
+
+
+@pytest.mark.parametrize("fork", (False, True))
+@pytest.mark.parametrize("selection", ("", "true", "false"))
+def test_rules_only_action_inheritance_override_and_summary(
+    tmp_path: Path, fork: bool, selection: str
+) -> None:
+    import shutil
+
+    from typer.testing import CliRunner
+
+    from sentinel.cli import app
+
+    workspace = tmp_path / "workspace"
+    target = workspace / "server"
+    shutil.copytree(Path(__file__).parent / "fixtures/vulnerable_server", target)
+    (target / "sentinel.toml").write_text(
+        "[scanner]\nrules_only = true\n", encoding="utf-8"
+    )
+    temporary = tmp_path / "runner"
+    temporary.mkdir()
+    environment = _environment(workspace, temporary)
+    environment.pop("SENTINEL_ACTION_OPENAI_API_KEY")
+    event = tmp_path / "event.json"
+    event.write_text(
+        json.dumps(
+            {
+                "pull_request": {
+                    "head": {
+                        "repo": {
+                            "full_name": "fork/repo"
+                            if fork
+                            else environment["GITHUB_REPOSITORY"]
+                        }
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    environment.update(GITHUB_EVENT_NAME="pull_request", GITHUB_EVENT_PATH=str(event))
+
+    def run(
+        command: list[str], *, env: dict[str, str], check: bool
+    ) -> subprocess.CompletedProcess[str]:
+        assert "OPENAI_API_KEY" not in env
+        if selection:
+            assert (
+                "--rules-only" if selection == "true" else "--no-rules-only"
+            ) in command
+        else:
+            assert "--rules-only" not in command and "--no-rules-only" not in command
+        result = CliRunner().invoke(app, command[3:], env=env)
+        return subprocess.CompletedProcess(command, result.exit_code)
+
+    result = execute_action(
+        ActionInputs("server", "high", "true", rules_only=selection),
+        environment,
+        command_runner=run,
+    )
+    assert result.effective_exit_code == (3 if selection == "false" and not fork else 1)
+    assert result.upload_ready is not fork
+    summary = render_step_summary(result)
+    if selection != "false":
+        assert result.metrics.rules_only
+        assert "RULES-ONLY" in summary
+        assert "degraded" not in summary.lower()
+        assert result.metrics.review is None
+
+
+def test_legacy_sarif_without_stages_remains_readable() -> None:
+    payload = _sarif_payload()
+    runs = cast(list[dict[str, Any]], payload["runs"])
+    runs[0]["invocations"][0]["properties"].pop("stages")
+    metrics = analyze_sarif(payload)
+    assert metrics.analysis_complete
+    assert metrics.rules_only is False
