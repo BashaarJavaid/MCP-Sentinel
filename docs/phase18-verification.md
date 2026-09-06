@@ -4,7 +4,10 @@ Status: **complete and accepted** on 2026-09-06 (UTC). Implementation and all
 agreed local/hosted gates passed, followed by final user acceptance.
 Version: **1.3.0** (Phases 16–18). The user separately authorized merge,
 completion documentation, publication, release verification, and branch cleanup.
-Publication verification is pending; implementation acceptance is complete.
+Publication and release verification are complete:
+[PyPI 1.3.0](https://pypi.org/project/portunusmcp-sentinel/1.3.0/) and the
+[GitHub release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.3.0)
+are public. Implementation acceptance and public availability are both recorded.
 
 The accepted `phase18-rules-only` branch was merged through PR #18.
 No paid model calls are part of this gate. Historical evaluation captures remain
@@ -50,7 +53,7 @@ The merged PR is [#18](https://github.com/BashaarJavaid/MCP-Sentinel/pull/18).
 | Installed-wheel Docker replay | Complete; four tested probes; inherited rules-only overridden; four cached records plus one replay, zero current tokens | `artifacts/phase18/installed-wheel-replay-summary.json` and `installed-wheel-replay/` |
 | Historical compatibility | Artifact checker passed; all 182 retained capture/evaluation/evidence files unchanged | `artifacts/phase18/historical-artifacts.log` and `historical-byte-check.json` |
 | Representative reports | All four Python/TypeScript controls produced validated JSON/SARIF; clean exit 0, vulnerable exit 1 | `artifacts/phase18/*_server.json` and `*_server.sarif` |
-| Distribution identities | Prepared 1.3.0 wheel and sdist, unpublished | `artifacts/phase18/local-distributions.json` |
+| Preparation distribution identities | Pre-release 1.3.0 wheel and sdist from the implementation checkpoint | `artifacts/phase18/local-distributions.json` |
 
 The first broad local run retained 555 passing tests and one obsolete help-width
 assertion failure, with 32 opt-in Docker skips and 85.00% branch-aware coverage.
@@ -116,5 +119,52 @@ Version 1.3.0 contains the Phase 16–18 changes. Default `init` users
 must opt into runtime scaffolding with `init --dynamic`, then
 `scan --no-rules-only`. Rules-only users can scan directly without init. Native
 1.5.0 nullable review compatibility and baseline-v2 migration are described above
-and in the changelog. The newly pinned Action becomes publicly usable after
-the authorized 1.3.0 publication and release verification.
+and in the changelog. The 1.3.0 Action package pin is now publicly usable.
+
+## Public 1.3.0 release verification
+
+Release commit: `c45e10cf878cfa0f926687f88a5679729ce9a19f`. The completion
+documentation was committed and pushed to main after merging PR #18.
+[All 27 main CI jobs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34015968345)
+passed, and the [strict documentation build, deployment, and live smoke](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34015968295)
+passed. The superseded merge-commit CI run was cancelled so these final-commit
+checks could use the runners; it is not release evidence.
+
+The [signed-tag release workflow](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34016000165)
+passed **all 44 jobs**: signed tag/main validation, the full quality and installed
+distribution matrices, mandatory network isolation, Docker replay, TestPyPI
+publication and verification, protected PyPI promotion, public hashes and
+attestations, and Linux/macOS/Windows Python 3.10–3.13 public pipx/uv installs.
+No paid model calls were used.
+
+The [exact v1.3.0 Action proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/34017882433)
+and [signed v1 alias proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/34018002117)
+passed with empty model credentials, explicit rules-only, complete reports,
+zero findings, null review data, expected skipped stages, and validated SARIF
+upload. Both signed tags resolve to the release commit. The
+[Marketplace page](https://github.com/marketplace/actions/mcp-sentinel) advertises
+`v1.3.0` as its latest release; its historical listed-version entry remains
+`v1.0.0`. No Marketplace checkbox change was needed for the latest-release display.
+
+The [initial external Action proof](https://github.com/BashaarJavaid/mcp-sentinel-action-demo/actions/runs/34017705027)
+failed its zero-finding assertion: the older demo control discarded the result
+of Pydantic validation and then read the original input. It produced one
+`SENT-003/Low` candidate. The initial local scan had the same finding; its exit 0
+meant below the failure threshold, and the earlier zero-finding progress update
+was incorrect. The demo now returns the validated model field. The retained
+before/after local reports and successful hosted rerun record the correction;
+the published scanner was unchanged. This is release-control evidence, not an
+independent maintainer catch or a broad detection-accuracy measurement.
+
+Canonical release SHA-256 identities:
+
+```text
+e5c529967c58735303b3ab5d6a836607d85f5f078949587a1335c5d6544d6cbf  portunusmcp_sentinel-1.3.0-py3-none-any.whl
+859022c18bfd62f19983f98a40ad7ddb6ee14b655462f7217d6defd4acfd9523  portunusmcp_sentinel-1.3.0.tar.gz
+```
+
+These replace the preparation-build identities for public installation: release
+documentation was finalized before tagging. TestPyPI, PyPI, and the attached
+GitHub release assets use the same canonical files. Retained release records
+are `artifacts/phase18/release-*.json`, `release-action-exact.sarif`, and
+`action-control-before.json` / `action-control-after.json`.

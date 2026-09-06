@@ -956,8 +956,9 @@ acceptance passed. Accepted on 2026-09-06 (UTC), following completed Phase 17.
 
 The agreed interface is `--rules-only/--no-rules-only`, `[scanner].rules_only`,
 and `SENTINEL_RULES_ONLY` (default false). All 27 final-commit CI jobs and the
-documentation build passed. Release 1.3.0 publication is separately authorized;
-see [Phase 18 verification](docs/phase18-verification.md) for release status.
+documentation build passed. Release 1.3.0 is published and verified on PyPI and
+GitHub, with both Action tags verified; see
+[Phase 18 verification](docs/phase18-verification.md) for retained release evidence.
 
 ### Objective
 

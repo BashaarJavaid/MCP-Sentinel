@@ -1,0 +1,227 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T06:28:45.727321Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "ffaa10a3437dd6b5279a9c2f40bb5abca27df79b3d2c14445506cee9e0ab534a",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 50,
+          "end_line": 43,
+          "start_column": 22,
+          "start_line": 43
+        },
+        "snippet": "def validated_lookup(arguments: dict[str, object]) -> object:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "dcc2040f-be8c-4ea5-8088-c4c9e5e285c8",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "server.py",
+        "range": {
+          "end_column": 50,
+          "end_line": 43,
+          "start_column": 22,
+          "start_line": 43
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 50,
+              "end_line": 43,
+              "start_column": 22,
+              "start_line": 43
+            },
+            "snippet": "def validated_lookup(arguments: dict[str, object]) -> object:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-06T06:28:45.727321Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "dd9870d9-0335-4782-a754-c11efc9ec803",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T06:28:45.727321Z",
+      "title": "Missing tool input validation"
+    }
+  ],
+  "gpt_review": null,
+  "scan_id": "dd9870d9-0335-4782-a754-c11efc9ec803",
+  "schema_version": "1.5.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T06:28:45.727079Z",
+  "static_analysis": {
+    "duration_ms": 2647,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {
+          "justified_filesystem.read": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "sanitizer_or_no_taint": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "configured_public_route": 1,
+          "verified_auth": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "verified_manifest": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 7,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 1
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 1,
+      "Medium": 0
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 0
+    },
+    "total": 1
+  },
+  "target": {
+    "display_name": "clean_server",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:39: unresolved call to ast.literal_eval; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at server.py:44: unresolved call to ValidatedArguments.model_validate; this flow is not established as safe."
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'justified_reader' is declared at multiple source locations: server.py:31, server.py:110"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'safe_calculator' is declared at multiple source locations: server.py:36, server.py:112"
+    },
+    {
+      "code": "tool_catalog_duplicate",
+      "message": "Tool 'validated_lookup' is declared at multiple source locations: server.py:43, server.py:114"
+    }
+  ]
+}
