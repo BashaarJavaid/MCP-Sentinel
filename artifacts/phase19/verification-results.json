@@ -1,0 +1,102 @@
+{
+  "source_commit": "1fb17bb9d0f5e33d6f6fd7968c1bfd114853febc",
+  "base_commit": "6178e63a9ce47380ef2cc2052331cbc0f5c475c8",
+  "hosted_checkout_commit": "f3897d4d4662a44014adc19b67ce2359cad3fb17",
+  "acceptance": "pending user review; Phase 19 not marked complete",
+  "local_checks": [
+    {
+      "name": "make check",
+      "command": "PATH=\"$PWD/.venv/bin:$PATH\" make check",
+      "log": "make-check-final-source.log",
+      "exit_code": 0,
+      "passed": 606,
+      "skipped_docker": 33,
+      "branch_coverage_percent": 86.65
+    },
+    {
+      "name": "final corrections",
+      "command": ".venv/bin/pytest tests/test_phase19.py tests/test_cli.py --no-cov -q",
+      "log": "final-corrections-tests.log",
+      "exit_code": 0,
+      "passed": 65
+    },
+    {
+      "name": "Docker controls",
+      "command": "SENTINEL_RUN_DOCKER_TESTS=1 .venv/bin/pytest tests/test_dynamic_docker.py tests/test_docker_gate.py -q -s --no-cov",
+      "log": "docker-controls-final-source.log",
+      "exit_code": 0,
+      "passed": 35
+    },
+    {
+      "name": "generated schemas",
+      "command": ".venv/bin/python -m sentinel.schema check",
+      "log": "schema-check.log",
+      "exit_code": 0
+    },
+    {
+      "name": "historical artifacts",
+      "command": ".venv/bin/python -m scripts.generate_phase5_artifacts --check",
+      "log": "historical-artifacts-check.log",
+      "exit_code": 0
+    },
+    {
+      "name": "build",
+      "command": ".venv/bin/uv build --out-dir /tmp/phase19-final-dist",
+      "log": "build-final.log",
+      "exit_code": 0
+    },
+    {
+      "name": "distribution smokes",
+      "command": "PATH=\"$PWD/.venv/bin:$PATH\" .venv/bin/uv run --no-project --with pipx==1.16.0 --python .venv/bin/python python scripts/smoke_wheel.py artifacts /tmp/phase19-final-dist --install-sdist",
+      "log": "distribution-final-source.log",
+      "exit_code": 0
+    },
+    {
+      "name": "installed wheel replay",
+      "command": "/tmp/phase19-wheel-venv/bin/sentinel demo --replay-review --output-dir artifacts/phase19/installed-wheel-final",
+      "log": "installed-wheel-final.log",
+      "exit_code": 0,
+      "findings": 11,
+      "discovery_snapshots": 8,
+      "attacks_sent": 4,
+      "model_activity": "cached static + recorded dynamic; no fresh model calls"
+    },
+    {
+      "name": "final verification documentation",
+      "command": ".venv/bin/mkdocs build --strict",
+      "log": "final-documentation-check.log",
+      "exit_code": 0,
+      "scope": "evidence-only documentation update after frozen implementation"
+    }
+  ],
+  "hosted": {
+    "ci": {
+      "run_id": 34048020653,
+      "conclusion": "success",
+      "successful_jobs": 27
+    },
+    "documentation": {
+      "run_id": 34048020623,
+      "conclusion": "success",
+      "deployment": "not requested; PR build only"
+    }
+  },
+  "limitations": [
+    "Implementation regressions and synthetic/replay controls are not broad detection accuracy measurements.",
+    "No paid model calls, new detectors, expanded campaigns, package-version changes, merge, release, or publication."
+  ],
+  "prior_source_logs": {
+    "820ddeb5de86826ed614252ef7475a79a84c5e50": [
+      "make-check-initial.log",
+      "build-initial.log",
+      "distribution-smoke-complete.log"
+    ],
+    "1ac8a85b6a7189415801abefc0ea97470b66a0c6": [
+      "make-check.log",
+      "docker-controls.log",
+      "build.log",
+      "distribution-final.log",
+      "installed-wheel-validation.json"
+    ]
+  }
+}

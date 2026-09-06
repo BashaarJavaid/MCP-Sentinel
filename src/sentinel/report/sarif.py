@@ -37,6 +37,7 @@ from sentinel.finding import (
     StaticEvidence,
 )
 from sentinel.report.model import ScanReport
+from sentinel.report.presentation import concise_finding
 from sentinel.static.catalog import RULE_BY_ID as STATIC_RULE_BY_ID
 
 SARIF_SCHEMA_URI = (
@@ -82,7 +83,9 @@ def render_sarif(report: ScanReport) -> str:
         execution_successful=report.execution_successful,
         exit_code=0 if report.analysis_complete else 3,
         exit_code_description=(
-            "Analysis completed" if report.analysis_complete else "Analysis incomplete"
+            "Selected analysis completed; coverage limits remain"
+            if report.analysis_complete
+            else "Analysis incomplete"
         ),
         start_time_utc=_format_datetime(report.started_at),
         end_time_utc=_format_datetime(report.completed_at),
@@ -94,6 +97,7 @@ def render_sarif(report: ScanReport) -> str:
             "findingCount": report.summary.total,
             "staticAnalysis": _model_data(report.static_analysis),
             "dynamicAnalysis": _model_data(report.dynamic_analysis),
+            "reviewActivity": _model_data(report.review_activity),
             "gptReview": _model_data(report.gpt_review),
             "baseline": _model_data(report.baseline),
         },
@@ -200,7 +204,9 @@ def _result(finding: Finding, selected: tuple[str, ...]) -> Result:
         rule_id=finding.rule_id,
         rule_index=selected.index(finding.rule_id),
         level=_sarif_level(finding.severity),
-        message=Message(text=f"{finding.title}: {finding.description}"),
+        message=Message(
+            text=finding.title + "\n" + "\n".join(concise_finding(finding))
+        ),
         locations=[location],
         baseline_state=(
             "unchanged"

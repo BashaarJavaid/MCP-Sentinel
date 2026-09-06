@@ -1,0 +1,1058 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "invocations": [
+        {
+          "endTimeUtc": "2026-09-06T17:23:06.981469Z",
+          "executionSuccessful": true,
+          "exitCode": 0,
+          "exitCodeDescription": "Selected analysis completed; coverage limits remain",
+          "properties": {
+            "analysisComplete": true,
+            "baseline": null,
+            "dynamicAnalysis": null,
+            "findingCount": 7,
+            "gptReview": null,
+            "reviewActivity": {
+              "dynamic": {
+                "candidate_count": null,
+                "excluded_count": null,
+                "modes": [],
+                "reason": "selected scan tier excludes this review stage",
+                "reviewed_count": 0,
+                "selected_count": 0,
+                "state": "not_requested",
+                "unreviewed_count": null
+              },
+              "static": {
+                "candidate_count": 7,
+                "excluded_count": 0,
+                "modes": [],
+                "reason": "selected scan tier excludes this review stage",
+                "reviewed_count": 0,
+                "selected_count": 0,
+                "state": "not_requested",
+                "unreviewed_count": 7
+              }
+            },
+            "schemaVersion": "1.6.0",
+            "stages": [
+              {
+                "name": "static",
+                "reason": null,
+                "status": "succeeded"
+              },
+              {
+                "name": "gpt_static",
+                "reason": "rules-only scan requested",
+                "status": "skipped"
+              },
+              {
+                "name": "dynamic",
+                "reason": "rules-only scan requested",
+                "status": "skipped"
+              },
+              {
+                "name": "gpt_dynamic",
+                "reason": "rules-only scan requested",
+                "status": "skipped"
+              },
+              {
+                "name": "merge",
+                "reason": null,
+                "status": "succeeded"
+              },
+              {
+                "name": "reporting",
+                "reason": null,
+                "status": "succeeded"
+              }
+            ],
+            "staticAnalysis": {
+              "coverage": {
+                "excluded_rule_ids": [],
+                "file_wide_rule_ids": [
+                  "SENT-005",
+                  "SENT-007"
+                ],
+                "surfaces": [
+                  {
+                    "examined_rule_ids": [
+                      "SENT-001",
+                      "SENT-002",
+                      "SENT-003",
+                      "SENT-004"
+                    ],
+                    "handler": {
+                      "kind": "file",
+                      "path": "server.ts",
+                      "range": {
+                        "end_column": 3,
+                        "end_line": 15,
+                        "start_column": 20,
+                        "start_line": 12
+                      }
+                    },
+                    "kind": "tool",
+                    "location": {
+                      "kind": "file",
+                      "path": "server.ts",
+                      "range": {
+                        "end_column": 2,
+                        "end_line": 16,
+                        "start_column": 1,
+                        "start_line": 9
+                      }
+                    },
+                    "name": "unsafe",
+                    "reasons": [],
+                    "status": "recognized"
+                  },
+                  {
+                    "examined_rule_ids": [
+                      "SENT-006"
+                    ],
+                    "handler": {
+                      "kind": "file",
+                      "path": "server.ts",
+                      "range": {
+                        "end_column": 64,
+                        "end_line": 25,
+                        "start_column": 42,
+                        "start_line": 25
+                      }
+                    },
+                    "kind": "http_route",
+                    "location": {
+                      "kind": "file",
+                      "path": "server.ts",
+                      "range": {
+                        "end_column": 65,
+                        "end_line": 25,
+                        "start_column": 1,
+                        "start_line": 25
+                      }
+                    },
+                    "name": "/admin",
+                    "reasons": [],
+                    "status": "recognized"
+                  }
+                ],
+                "total_possible_surfaces": null,
+                "unresolved_flows": [
+                  {
+                    "code": "static_flow_unresolved",
+                    "location": {
+                      "kind": "file",
+                      "path": "server.ts",
+                      "range": {
+                        "end_column": 2,
+                        "end_line": 13,
+                        "start_column": 1,
+                        "start_line": 13
+                      }
+                    },
+                    "message": "SENT-002 at server.ts:13: unresolved call to readFile; this flow is not established as safe."
+                  }
+                ]
+              },
+              "duration_ms": 4744,
+              "ignored_file_count": 0,
+              "rule_outcomes": [
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-001",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-002",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-003",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-004",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-005",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-006",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                },
+                {
+                  "exemptions_by_reason": {},
+                  "match_count": 1,
+                  "rule_id": "SENT-007",
+                  "skip_reason": null,
+                  "status": "evaluated"
+                }
+              ],
+              "scanned_file_count": 4,
+              "selected_rule_ids": [
+                "SENT-001",
+                "SENT-002",
+                "SENT-003",
+                "SENT-004",
+                "SENT-005",
+                "SENT-006",
+                "SENT-007"
+              ],
+              "total_matches": 7
+            }
+          },
+          "startTimeUtc": "2026-09-06T17:23:06.981243Z",
+          "toolExecutionNotifications": [
+            {
+              "level": "warning",
+              "message": {
+                "text": "SENT-002 at server.ts:13: unresolved call to readFile; this flow is not established as safe."
+              },
+              "properties": {
+                "code": "static_flow_unresolved"
+              },
+              "timeUtc": "2026-09-06T17:23:06.981469Z"
+            }
+          ]
+        }
+      ],
+      "language": "en-US",
+      "newlineSequences": [
+        "\r\n",
+        "\n"
+      ],
+      "originalUriBaseIds": {
+        "SRCROOT": {
+          "index": -1,
+          "uri": "./"
+        }
+      },
+      "properties": {
+        "analysisComplete": true,
+        "executionSuccessful": true
+      },
+      "results": [
+        {
+          "fingerprints": {
+            "sentinel/v1": "ada67f6a23ea8ef3dcaae7c0385935a950ec787d726332bcd36070578c680d18"
+          },
+          "kind": "fail",
+          "level": "warning",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 24,
+                  "endLine": 10,
+                  "snippet": {
+                    "text": "readFile(path, \"utf8\");"
+                  },
+                  "startColumn": 1,
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Overly broad tool permission scope\nserver.ts:10:1 · static suspicion\nThe tool declares filesystem or network access broader than its handler uses.\nSource evidence:\nreadFile(path, \"utf8\");\nRemediation: Narrow each declared scope to the resources the handler actually requires."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "ada67f6a23ea8ef3dcaae7c0385935a950ec787d726332bcd36070578c680d18",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 24,
+                "end_line": 10,
+                "start_column": 1,
+                "start_line": 10
+              },
+              "snippet": "readFile(path, \"utf8\");"
+            },
+            "exploitability": "theoretical",
+            "findingId": "8337cc97-6c9a-4157-8b35-25107ebde82c",
+            "impact": "High",
+            "owaspId": "ASI03:2026",
+            "owaspName": "Identity & Privilege Abuse",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 24,
+                    "end_line": 10,
+                    "start_column": 1,
+                    "start_line": 10
+                  },
+                  "snippet": "readFile(path, \"utf8\");"
+                },
+                "review": null,
+                "rule_id": "SENT-001",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "Medium",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-001",
+          "ruleIndex": 0
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "b8acd8058adcc1165079f1cb3ea8d25ab5f3f95848390943c06f23f676d8f72c"
+          },
+          "kind": "fail",
+          "level": "error",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 14,
+                  "endLine": 11,
+                  "snippet": {
+                    "text": "eval(source);"
+                  },
+                  "startColumn": 1,
+                  "startLine": 11
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unsafe execution from tool input\nserver.ts:11:1 · static suspicion\nTool-controlled input reaches an unsafe execution or deserialization sink.\nSource evidence:\neval(source);\nRemediation: Replace dynamic execution with explicit parsers and fixed command allowlists."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "b8acd8058adcc1165079f1cb3ea8d25ab5f3f95848390943c06f23f676d8f72c",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 14,
+                "end_line": 11,
+                "start_column": 1,
+                "start_line": 11
+              },
+              "snippet": "eval(source);"
+            },
+            "exploitability": "theoretical",
+            "findingId": "f1c05ba3-ea86-439a-bcea-5009773a0657",
+            "impact": "Critical",
+            "owaspId": "ASI05:2026",
+            "owaspName": "Unexpected Code Execution",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 14,
+                    "end_line": 11,
+                    "start_column": 1,
+                    "start_line": 11
+                  },
+                  "snippet": "eval(source);"
+                },
+                "review": null,
+                "rule_id": "SENT-002",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "High",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-002",
+          "ruleIndex": 1
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "aabd2ace34e5ef75ed3b9c5083d38dee79b3d4437b13ce5c7bd21cb39607ce3e"
+          },
+          "kind": "fail",
+          "level": "note",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 15,
+                  "endLine": 10,
+                  "snippet": {
+                    "text": "path, \"utf8\");"
+                  },
+                  "startColumn": 1,
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Missing tool input validation\nserver.ts:10:1 · static suspicion\nA tool handler consumes parameters before framework or explicit validation.\nSource evidence:\npath, \"utf8\");\nRemediation: Use an official input schema or explicit validation before first use."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "aabd2ace34e5ef75ed3b9c5083d38dee79b3d4437b13ce5c7bd21cb39607ce3e",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 15,
+                "end_line": 10,
+                "start_column": 1,
+                "start_line": 10
+              },
+              "snippet": "path, \"utf8\");"
+            },
+            "exploitability": "theoretical",
+            "findingId": "9ba552c7-cb1c-4384-8cc1-799d4c3362d9",
+            "impact": "Medium",
+            "owaspId": "ASI02:2026",
+            "owaspName": "Tool Misuse & Exploitation",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 15,
+                    "end_line": 10,
+                    "start_column": 1,
+                    "start_line": 10
+                  },
+                  "snippet": "path, \"utf8\");"
+                },
+                "review": null,
+                "rule_id": "SENT-003",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Use an official input schema or explicit validation before first use.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "Low",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-003",
+          "ruleIndex": 2
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "aca2798dbe715b6af36400b94c210c06076d76b7ceab9127456d079acd3bc29a"
+          },
+          "kind": "fail",
+          "level": "warning",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 34,
+                  "endLine": 21,
+                  "snippet": {
+                    "text": "responses.create({ input: text })"
+                  },
+                  "startColumn": 1,
+                  "startLine": 21
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unsanitized tool content in prompt\nserver.ts:21:1 · static suspicion\nTool output or description flows into a later model prompt without a trusted sanitizer.\nSource evidence:\nresponses.create({ input: text })\nRemediation: Pass tool-controlled text through a configured sanitizer before prompt construction."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "aca2798dbe715b6af36400b94c210c06076d76b7ceab9127456d079acd3bc29a",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 34,
+                "end_line": 21,
+                "start_column": 1,
+                "start_line": 21
+              },
+              "snippet": "responses.create({ input: text })"
+            },
+            "exploitability": "theoretical",
+            "findingId": "fda58f90-c08b-4317-8a46-1a5c228619a2",
+            "impact": "High",
+            "owaspId": "ASI01:2026",
+            "owaspName": "Agent Goal Hijack",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 34,
+                    "end_line": 21,
+                    "start_column": 1,
+                    "start_line": 21
+                  },
+                  "snippet": "responses.create({ input: text })"
+                },
+                "review": null,
+                "rule_id": "SENT-004",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Pass tool-controlled text through a configured sanitizer before prompt construction.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "Medium",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-004",
+          "ruleIndex": 3
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "30a1b6d875afbbc898913e6bc858764ca5f4051c09278e42d58e38a9d84a94a9"
+          },
+          "kind": "fail",
+          "level": "error",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 53,
+                  "endLine": 7,
+                  "snippet": {
+                    "text": "const apiKey = \"<redacted>\";"
+                  },
+                  "startColumn": 17,
+                  "startLine": 7
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Hardcoded secret\nserver.ts:7:17 · static suspicion\nSource or configuration contains a credential signature or contextual high-entropy secret.\nSource evidence:\nconst <SENTINEL_SECRET:REDACTED>;\nRemediation: Load credentials from an external secret store or environment at runtime."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "30a1b6d875afbbc898913e6bc858764ca5f4051c09278e42d58e38a9d84a94a9",
+            "evidence": {
+              "fingerprint": "ae8754608195aafb81001fbdb911f6019eb8b13fa6e5ef7229ea71b0b9a7f976",
+              "kind": "static",
+              "range": {
+                "end_column": 53,
+                "end_line": 7,
+                "start_column": 17,
+                "start_line": 7
+              },
+              "snippet": "const apiKey = \"<redacted>\";"
+            },
+            "exploitability": "theoretical",
+            "findingId": "f4ac9755-97d2-45f3-bde7-892ac0cdddbe",
+            "impact": "Critical",
+            "owaspId": "ASI03:2026",
+            "owaspName": "Identity & Privilege Abuse",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": "ae8754608195aafb81001fbdb911f6019eb8b13fa6e5ef7229ea71b0b9a7f976",
+                  "kind": "static",
+                  "range": {
+                    "end_column": 53,
+                    "end_line": 7,
+                    "start_column": 17,
+                    "start_line": 7
+                  },
+                  "snippet": "const apiKey = \"<redacted>\";"
+                },
+                "review": null,
+                "rule_id": "SENT-005",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Load credentials from an external secret store or environment at runtime.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "High",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-005",
+          "ruleIndex": 4
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "07b3da6ee368f1c336d37a359a1a1d2f49246577bd08ee00317fecc584af69f6"
+          },
+          "kind": "fail",
+          "level": "warning",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 9,
+                  "endLine": 25,
+                  "snippet": {
+                    "text": "app.get("
+                  },
+                  "startColumn": 1,
+                  "startLine": 25
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Missing or ineffective route authentication\nserver.ts:25:1 · static suspicion\nAn HTTP route lacks inherited authentication or uses a no-op verifier.\nSource evidence:\napp.get(\nRemediation: Require credential verification and an explicit rejection path before route execution."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "07b3da6ee368f1c336d37a359a1a1d2f49246577bd08ee00317fecc584af69f6",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 9,
+                "end_line": 25,
+                "start_column": 1,
+                "start_line": 25
+              },
+              "snippet": "app.get("
+            },
+            "exploitability": "theoretical",
+            "findingId": "a040d851-56dc-4acf-910a-0dd07d57ea6a",
+            "impact": "High",
+            "owaspId": "ASI03:2026",
+            "owaspName": "Identity & Privilege Abuse",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 9,
+                    "end_line": 25,
+                    "start_column": 1,
+                    "start_line": 25
+                  },
+                  "snippet": "app.get("
+                },
+                "review": null,
+                "rule_id": "SENT-006",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Require credential verification and an explicit rejection path before route execution.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "Medium",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-006",
+          "ruleIndex": 5
+        },
+        {
+          "fingerprints": {
+            "sentinel/v1": "bea5f1762a5dec59f6cec05567a412135452ad8c7b49be619b95cd0f9f4a7397"
+          },
+          "kind": "fail",
+          "level": "note",
+          "locations": [
+            {
+              "id": -1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": -1,
+                  "uri": "server.ts",
+                  "uriBaseId": "SRCROOT"
+                },
+                "region": {
+                  "byteOffset": -1,
+                  "charOffset": -1,
+                  "endColumn": 18,
+                  "endLine": 29,
+                  "snippet": {
+                    "text": "JSON.parse(bytes)"
+                  },
+                  "startColumn": 1,
+                  "startLine": 29
+                }
+              }
+            }
+          ],
+          "message": {
+            "text": "Unverified tool manifest\nserver.ts:29:1 · static suspicion\nManifest bytes reach registration without a trusted hash or signature verification.\nSource evidence:\nJSON.parse(bytes)\nRemediation: Verify a pinned SHA-256 digest or trusted detached signature before parsing and use."
+          },
+          "properties": {
+            "baselineMatched": null,
+            "confidence": "high",
+            "dedupKey": "bea5f1762a5dec59f6cec05567a412135452ad8c7b49be619b95cd0f9f4a7397",
+            "evidence": {
+              "fingerprint": null,
+              "kind": "static",
+              "range": {
+                "end_column": 18,
+                "end_line": 29,
+                "start_column": 1,
+                "start_line": 29
+              },
+              "snippet": "JSON.parse(bytes)"
+            },
+            "exploitability": "theoretical",
+            "findingId": "ca7d7aa8-d070-4599-9454-1ba5c2420443",
+            "impact": "Medium",
+            "owaspId": "ASI04:2026",
+            "owaspName": "Agentic Supply Chain Vulnerabilities",
+            "provenance": [
+              {
+                "evidence": {
+                  "fingerprint": null,
+                  "kind": "static",
+                  "range": {
+                    "end_column": 18,
+                    "end_line": 29,
+                    "start_column": 1,
+                    "start_line": 29
+                  },
+                  "snippet": "JSON.parse(bytes)"
+                },
+                "review": null,
+                "rule_id": "SENT-007",
+                "source": "static",
+                "timestamp": "2026-09-06T17:23:06.981469Z"
+              }
+            ],
+            "remediation": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.",
+            "review": null,
+            "reviewDisagrees": false,
+            "severity": "Low",
+            "source": "static",
+            "status": "needs_review",
+            "suppression": null
+          },
+          "rank": -1.0,
+          "ruleId": "SENT-007",
+          "ruleIndex": 6
+        }
+      ],
+      "tool": {
+        "driver": {
+          "contents": [
+            "localizedData",
+            "nonLocalizedData"
+          ],
+          "fullName": "PortunusMCP Sentinel build-time MCP security scanner",
+          "informationUri": "https://github.com/BashaarJavaid/MCP-Sentinel",
+          "language": "en-US",
+          "name": "MCP Sentinel",
+          "properties": {
+            "gptReview": null,
+            "reportSchemaVersion": "1.6.0"
+          },
+          "rules": [
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "The tool declares filesystem or network access broader than its handler uses."
+              },
+              "help": {
+                "text": "Narrow each declared scope to the resources the handler actually requires. FP risk: Medium: legitimately broad tools require an explicit capability justification."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-001",
+              "id": "SENT-001",
+              "name": "Overly broad tool permission scope",
+              "properties": {
+                "engine": "hybrid",
+                "falsePositiveRisk": "Medium: legitimately broad tools require an explicit capability justification.",
+                "impact": "High",
+                "owaspCategory": {
+                  "id": "ASI03:2026",
+                  "name": "Identity & Privilege Abuse"
+                }
+              },
+              "shortDescription": {
+                "text": "Overly broad tool permission scope"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "Tool-controlled input reaches an unsafe execution or deserialization sink."
+              },
+              "help": {
+                "text": "Replace dynamic execution with explicit parsers and fixed command allowlists. FP risk: Low: fixed literal subprocess argument vectors are excluded."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-002",
+              "id": "SENT-002",
+              "name": "Unsafe execution from tool input",
+              "properties": {
+                "engine": "semgrep",
+                "falsePositiveRisk": "Low: fixed literal subprocess argument vectors are excluded.",
+                "impact": "Critical",
+                "owaspCategory": {
+                  "id": "ASI05:2026",
+                  "name": "Unexpected Code Execution"
+                }
+              },
+              "shortDescription": {
+                "text": "Unsafe execution from tool input"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "A tool handler consumes parameters before framework or explicit validation."
+              },
+              "help": {
+                "text": "Use an official input schema or explicit validation before first use. FP risk: Medium: custom validators outside the supported boundary may not be recognized."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-003",
+              "id": "SENT-003",
+              "name": "Missing tool input validation",
+              "properties": {
+                "engine": "hybrid",
+                "falsePositiveRisk": "Medium: custom validators outside the supported boundary may not be recognized.",
+                "impact": "Medium",
+                "owaspCategory": {
+                  "id": "ASI02:2026",
+                  "name": "Tool Misuse & Exploitation"
+                }
+              },
+              "shortDescription": {
+                "text": "Missing tool input validation"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "Tool output or description flows into a later model prompt without a trusted sanitizer."
+              },
+              "help": {
+                "text": "Pass tool-controlled text through a configured sanitizer before prompt construction. FP risk: Medium-High: intraprocedural prompt-flow analysis is intentionally heuristic."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-004",
+              "id": "SENT-004",
+              "name": "Unsanitized tool content in prompt",
+              "properties": {
+                "engine": "hybrid",
+                "falsePositiveRisk": "Medium-High: intraprocedural prompt-flow analysis is intentionally heuristic.",
+                "impact": "High",
+                "owaspCategory": {
+                  "id": "ASI01:2026",
+                  "name": "Agent Goal Hijack"
+                }
+              },
+              "shortDescription": {
+                "text": "Unsanitized tool content in prompt"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "Source or configuration contains a credential signature or contextual high-entropy secret."
+              },
+              "help": {
+                "text": "Load credentials from an external secret store or environment at runtime. FP risk: Low-Medium: high-entropy test values require paired path/fingerprint allowlisting."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-005",
+              "id": "SENT-005",
+              "name": "Hardcoded secret",
+              "properties": {
+                "engine": "semgrep",
+                "falsePositiveRisk": "Low-Medium: high-entropy test values require paired path/fingerprint allowlisting.",
+                "impact": "Critical",
+                "owaspCategory": {
+                  "id": "ASI03:2026",
+                  "name": "Identity & Privilege Abuse"
+                }
+              },
+              "shortDescription": {
+                "text": "Hardcoded secret"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "error",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "An HTTP route lacks inherited authentication or uses a no-op verifier."
+              },
+              "help": {
+                "text": "Require credential verification and an explicit rejection path before route execution. FP risk: Low: intentional public routes must be explicitly configured."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-006",
+              "id": "SENT-006",
+              "name": "Missing or ineffective route authentication",
+              "properties": {
+                "engine": "hybrid",
+                "falsePositiveRisk": "Low: intentional public routes must be explicitly configured.",
+                "impact": "High",
+                "owaspCategory": {
+                  "id": "ASI03:2026",
+                  "name": "Identity & Privilege Abuse"
+                }
+              },
+              "shortDescription": {
+                "text": "Missing or ineffective route authentication"
+              }
+            },
+            {
+              "defaultConfiguration": {
+                "enabled": true,
+                "level": "warning",
+                "rank": -1.0
+              },
+              "fullDescription": {
+                "text": "Manifest bytes reach registration without a trusted hash or signature verification."
+              },
+              "help": {
+                "text": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use. FP risk: Low: custom verification beyond the supported crypto APIs may require later coverage."
+              },
+              "helpUri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-007",
+              "id": "SENT-007",
+              "name": "Unverified tool manifest",
+              "properties": {
+                "engine": "hybrid",
+                "falsePositiveRisk": "Low: custom verification beyond the supported crypto APIs may require later coverage.",
+                "impact": "Medium",
+                "owaspCategory": {
+                  "id": "ASI04:2026",
+                  "name": "Agentic Supply Chain Vulnerabilities"
+                }
+              },
+              "shortDescription": {
+                "text": "Unverified tool manifest"
+              }
+            }
+          ],
+          "semanticVersion": "1.3.0",
+          "version": "1.3.0"
+        }
+      }
+    }
+  ],
+  "version": "2.1.0"
+}

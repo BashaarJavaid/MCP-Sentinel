@@ -208,6 +208,18 @@ def _sent001(
     for tool in tools:
         if tool.name is None:
             continue
+        state.visit(
+            tool.path,
+            offset_range(
+                next(
+                    file.source
+                    for file in context.files.typescript_files
+                    if file.relative_path == tool.path
+                ),
+                tool.start,
+                tool.end,
+            ),
+        )
         declared = manifest.tools.get(tool.name)
         if declared is None:
             state.matches.append(
@@ -842,4 +854,13 @@ def _warn(state: RuleRunState, *warnings: ReportWarning) -> None:
     existing = {(item.code, item.message) for item in state.warnings}
     state.warnings.extend(
         item for item in warnings if (item.code, item.message) not in existing
+    )
+
+
+def offset_range(source: str, start: int, end: int) -> SourceRange:
+    return SourceRange(
+        start_line=_line(source, start),
+        start_column=start - source.rfind("\n", 0, start),
+        end_line=_line(source, end),
+        end_column=end - source.rfind("\n", 0, end),
     )

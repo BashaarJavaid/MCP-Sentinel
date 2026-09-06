@@ -338,7 +338,10 @@ def test_jsonrpc_invalid_params_is_a_completed_rejection() -> None:
                 "Error": "",
             },
         )
-        return await prober._call(cast(ProbeSession, probe), "process", {})
+        observation = _Observation("SENT-011", "process", None, {}, {}, (), False)
+        return await prober._call(
+            cast(ProbeSession, probe), "process", {}, observation, "attack"
+        )
 
     response = asyncio.run(call())
     assert response["is_error"] is True

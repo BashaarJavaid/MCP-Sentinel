@@ -23,6 +23,11 @@ from sentinel.llm.semantic_reviewer import (
     unavailable_review_outcome,
 )
 from sentinel.llm.tools import extract_tool_catalog
+from sentinel.report.coverage import (
+    DynamicCoverage,
+    ReviewActivity,
+    StageReviewActivity,
+)
 from sentinel.report.model import (
     PROBE_IDS,
     DynamicAnalysisSummary,
@@ -281,6 +286,10 @@ def run_scan(
         ),
         findings=findings,
         static_analysis=static_result.summary,
+        review_activity=StageReviewActivity(
+            static=_review_activity(static_result.findings, review),
+            dynamic=_review_activity(dynamic.findings, dynamic_review),
+        ),
         gpt_review=combined_gpt,
         dynamic_analysis=dynamic.summary,
     )
@@ -354,6 +363,12 @@ def _static_only_outcome(
         warnings=_unique_warnings(tuple(warnings)),
         findings=findings,
         static_analysis=static_result.summary,
+        review_activity=StageReviewActivity(
+            static=_review_activity(
+                static_result.findings, review, requested=review is not None
+            ),
+            dynamic=_review_activity(None, None, requested=False),
+        ),
         gpt_review=review.summary if review else None,
     )
     return _finalize_outcome(report, configuration, baseline)
@@ -407,8 +422,13 @@ def _failed_dynamic_outcome(
         ),
         findings=review.findings,
         static_analysis=static_result.summary,
+        review_activity=StageReviewActivity(
+            static=_review_activity(static_result.findings, review),
+            dynamic=_review_activity(None, None),
+        ),
         gpt_review=review.summary,
         dynamic_analysis=DynamicAnalysisSummary(
+            coverage=DynamicCoverage(discovery=()),
             probe_outcomes=tuple(
                 DynamicProbeOutcome(
                     probe_id=probe_id,
@@ -418,14 +438,71 @@ def _failed_dynamic_outcome(
                     field=None,
                     reason=reason,
                     execution_successful=False,
+                    baseline_attempted=False,
+                    attack_attempted=False,
                 )
                 for probe_id in PROBE_IDS
-            )
+            ),
         )
         if dynamic_started
         else None,
     )
     return _finalize_outcome(report, configuration, baseline)
+
+
+def _review_activity(
+    findings: tuple[Finding, ...] | None,
+    review: ReviewOutcome | None,
+    *,
+    requested: bool = True,
+) -> ReviewActivity:
+    candidates = len(findings) if findings is not None else None
+    excluded = (
+        sum(f.suppression is not None for f in findings)
+        if findings is not None
+        else None
+    )
+    eligible = candidates - (excluded or 0) if candidates is not None else None
+    selected = review.summary.selected_count if review else 0
+    reviewed = review.summary.reviewed_count if review else 0
+    modes = (
+        tuple(dict.fromkeys(batch.mode for batch in review.summary.batches))
+        if review
+        else ()
+    )
+    if review and review.summary.mode == "degraded" and not modes:
+        modes = ("degraded",)
+    if not requested:
+        state, reason = "not_requested", "selected scan tier excludes this review stage"
+    elif review is None:
+        state, reason = "not_reached", "earlier pipeline failure prevented review"
+    elif not candidates:
+        state, reason = (
+            "no_candidates",
+            "analysis produced no candidates; no model review ran",
+        )
+    elif not eligible:
+        state, reason = "all_suppressed", "inline suppression excluded every candidate"
+    elif reviewed == eligible:
+        state, reason = (
+            "completed",
+            "all eligible candidates reviewed; abstentions remain needs_review",
+        )
+    else:
+        state, reason = (
+            "incomplete",
+            "eligible candidates remain unreviewed: cap or review failure",
+        )
+    return ReviewActivity(
+        state=state,  # type: ignore[arg-type]
+        candidate_count=candidates,
+        excluded_count=excluded,
+        selected_count=selected,
+        reviewed_count=reviewed,
+        unreviewed_count=eligible - reviewed if eligible is not None else None,
+        modes=modes,
+        reason=reason,
+    )
 
 
 def _cap_overflow_review(
@@ -511,7 +588,8 @@ def _finalize_outcome(
 def _combine_gpt_summaries(
     first: GptReviewSummary, second: GptReviewSummary
 ) -> GptReviewSummary:
-    mode = first.mode if first.mode == second.mode else "mixed"
+    modes = {item.mode for item in (first, second) if item.mode != "not_run"}
+    mode = next(iter(modes)) if len(modes) == 1 else "mixed" if modes else "not_run"
     return GptReviewSummary(
         requested_model=first.requested_model,
         reasoning_effort=first.reasoning_effort,

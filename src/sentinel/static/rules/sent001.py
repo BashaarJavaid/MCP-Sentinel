@@ -11,6 +11,7 @@ from sentinel.static.ast_utils import (
     literal_string,
     match_from_node,
     qualified_name,
+    range_for_node,
 )
 from sentinel.static.model import RuleRunState, StaticContext
 
@@ -25,6 +26,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
 
     for file in context.files.python_files:
         for region in discover_tool_regions(file):
+            state.visit(file.relative_path, range_for_node(region.node))
             declared = manifest.tools.get(region.name)
             if declared is None:
                 state.matches.append(

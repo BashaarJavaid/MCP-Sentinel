@@ -36,7 +36,8 @@
           "enum": [
             "1.3.0",
             "1.4.0",
-            "1.5.0"
+            "1.5.0",
+            "1.6.0"
           ],
           "title": "Source Schema Version",
           "type": "string"
@@ -393,9 +394,88 @@
       "title": "DegradedReview",
       "type": "object"
     },
+    "DiscoverySnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "more_pages": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "More Pages"
+        },
+        "probe_id": {
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "role": {
+          "enum": [
+            "baseline",
+            "attack"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "tool_total": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool Total"
+        },
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/ObservedTool"
+          },
+          "title": "Tools",
+          "type": "array"
+        }
+      },
+      "required": [
+        "probe_id",
+        "role",
+        "tools",
+        "more_pages",
+        "tool_total"
+      ],
+      "title": "DiscoverySnapshot",
+      "type": "object"
+    },
     "DynamicAnalysisSummary": {
       "additionalProperties": false,
       "properties": {
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DynamicCoverage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "probe_outcomes": {
           "items": {
             "$ref": "#/$defs/DynamicProbeOutcome"
@@ -408,6 +488,31 @@
         "probe_outcomes"
       ],
       "title": "DynamicAnalysisSummary",
+      "type": "object"
+    },
+    "DynamicCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "discovery": {
+          "items": {
+            "$ref": "#/$defs/DiscoverySnapshot"
+          },
+          "title": "Discovery",
+          "type": "array"
+        },
+        "planned_bindings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PlannedProbeBinding"
+          },
+          "title": "Planned Bindings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "discovery"
+      ],
+      "title": "DynamicCoverage",
       "type": "object"
     },
     "DynamicEvidence": {
@@ -484,12 +589,36 @@
           "title": "Attack",
           "type": "object"
         },
+        "attack_attempted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attack Attempted"
+        },
         "baseline": {
           "additionalProperties": {
             "$ref": "#/$defs/JsonValue"
           },
           "title": "Baseline",
           "type": "object"
+        },
+        "baseline_attempted": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Attempted"
         },
         "effects": {
           "additionalProperties": {
@@ -1003,7 +1132,8 @@
             "replay",
             "cached",
             "degraded",
-            "mixed"
+            "mixed",
+            "not_run"
           ],
           "title": "Mode",
           "type": "string"
@@ -1500,6 +1630,52 @@
       "title": "NotReviewedReview",
       "type": "object"
     },
+    "ObservedTool": {
+      "additionalProperties": false,
+      "properties": {
+        "field_paths": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Field Paths",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Schema Sha256"
+        },
+        "unresolved": {
+          "items": {
+            "$ref": "#/$defs/UnresolvedFieldSpace"
+          },
+          "title": "Unresolved",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "schema_sha256",
+        "field_paths",
+        "unresolved"
+      ],
+      "title": "ObservedTool",
+      "type": "object"
+    },
     "OwaspCategory": {
       "additionalProperties": false,
       "properties": {
@@ -1519,6 +1695,44 @@
         "name"
       ],
       "title": "OwaspCategory",
+      "type": "object"
+    },
+    "PlannedProbeBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Field"
+        },
+        "probe_id": {
+          "title": "Probe Id",
+          "type": "string"
+        },
+        "tool": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tool"
+        }
+      },
+      "required": [
+        "probe_id",
+        "tool",
+        "field"
+      ],
+      "title": "PlannedProbeBinding",
       "type": "object"
     },
     "ProbePlan": {
@@ -1644,6 +1858,31 @@
       ],
       "title": "ReasoningEffort",
       "type": "string"
+    },
+    "RecognitionReason": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/FileLocation"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "location"
+      ],
+      "title": "RecognitionReason",
+      "type": "object"
     },
     "ReplayReview": {
       "additionalProperties": false,
@@ -1811,6 +2050,99 @@
         "message"
       ],
       "title": "ReportWarning",
+      "type": "object"
+    },
+    "ReviewActivity": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Candidate Count"
+        },
+        "excluded_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Excluded Count"
+        },
+        "modes": {
+          "default": [],
+          "items": {
+            "enum": [
+              "live",
+              "cached",
+              "replay",
+              "degraded"
+            ],
+            "type": "string"
+          },
+          "title": "Modes",
+          "type": "array"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "reviewed_count": {
+          "minimum": 0,
+          "title": "Reviewed Count",
+          "type": "integer"
+        },
+        "selected_count": {
+          "minimum": 0,
+          "title": "Selected Count",
+          "type": "integer"
+        },
+        "state": {
+          "enum": [
+            "not_requested",
+            "not_reached",
+            "no_candidates",
+            "all_suppressed",
+            "completed",
+            "incomplete"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "unreviewed_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Unreviewed Count"
+        }
+      },
+      "required": [
+        "state",
+        "candidate_count",
+        "excluded_count",
+        "selected_count",
+        "reviewed_count",
+        "unreviewed_count",
+        "reason"
+      ],
+      "title": "ReviewActivity",
       "type": "object"
     },
     "ReviewStatus": {
@@ -2041,6 +2373,35 @@
       "title": "StageRecord",
       "type": "object"
     },
+    "StageReviewActivity": {
+      "additionalProperties": false,
+      "properties": {
+        "dynamic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewActivity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "static": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReviewActivity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "StageReviewActivity",
+      "type": "object"
+    },
     "StageStatus": {
       "enum": [
         "pending",
@@ -2054,6 +2415,17 @@
     "StaticAnalysisSummary": {
       "additionalProperties": false,
       "properties": {
+        "coverage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StaticCoverage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "duration_ms": {
           "minimum": 0,
           "title": "Duration Ms",
@@ -2099,6 +2471,52 @@
         "rule_outcomes"
       ],
       "title": "StaticAnalysisSummary",
+      "type": "object"
+    },
+    "StaticCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "excluded_rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Rule Ids",
+          "type": "array"
+        },
+        "file_wide_rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "File Wide Rule Ids",
+          "type": "array"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/StaticSurface"
+          },
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "total_possible_surfaces": {
+          "default": null,
+          "title": "Total Possible Surfaces",
+          "type": "null"
+        },
+        "unresolved_flows": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RecognitionReason"
+          },
+          "title": "Unresolved Flows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "surfaces",
+        "excluded_rule_ids",
+        "file_wide_rule_ids"
+      ],
+      "title": "StaticCoverage",
       "type": "object"
     },
     "StaticEvidence": {
@@ -2191,6 +2609,78 @@
       "title": "StaticRuleStatus",
       "type": "string"
     },
+    "StaticSurface": {
+      "additionalProperties": false,
+      "properties": {
+        "examined_rule_ids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Examined Rule Ids",
+          "type": "array"
+        },
+        "handler": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FileLocation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "enum": [
+            "tool",
+            "prompt",
+            "http_route"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "location": {
+          "$ref": "#/$defs/FileLocation"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Name"
+        },
+        "reasons": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RecognitionReason"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "recognized",
+            "unresolved",
+            "unsupported"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "location",
+        "handler",
+        "status"
+      ],
+      "title": "StaticSurface",
+      "type": "object"
+    },
     "TokenUsage": {
       "additionalProperties": false,
       "properties": {
@@ -2275,6 +2765,29 @@
       },
       "title": "TokenUsage",
       "type": "object"
+    },
+    "UnresolvedFieldSpace": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Path",
+          "type": "array"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "reason"
+      ],
+      "title": "UnresolvedFieldSpace",
+      "type": "object"
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2331,14 +2844,17 @@
         }
       ]
     },
+    "review_activity": {
+      "$ref": "#/$defs/StageReviewActivity"
+    },
     "scan_id": {
       "format": "uuid",
       "title": "Scan Id",
       "type": "string"
     },
     "schema_version": {
-      "const": "1.5.0",
-      "default": "1.5.0",
+      "const": "1.6.0",
+      "default": "1.6.0",
       "title": "Schema Version",
       "type": "string"
     },

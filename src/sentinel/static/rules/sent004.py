@@ -10,6 +10,7 @@ from sentinel.static.ast_utils import (
     match_from_node,
     module_name,
     qualified_name,
+    range_for_node,
     resolve_name,
 )
 from sentinel.static.model import RuleRunState, StaticContext
@@ -27,6 +28,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
             for node in file.tree.body
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         ):
+            state.visit(file.relative_path, range_for_node(function))
             found = False
             for path in paths(function.body, context.deadline):
                 tainted: dict[str, bool] = {}

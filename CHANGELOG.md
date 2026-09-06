@@ -10,6 +10,23 @@ new rule IDs.
 
 ## [Unreleased]
 
+### Added
+
+- Native report schema 1.6.0: observed static handler inventory and actual rule
+  visits, per-session runtime discovery and sent-call flags, and separate static
+  and dynamic review activity. Unknown historical coverage remains null.
+- Default console and SARIF messages show bounded decisive evidence, remediation,
+  recognition gaps, unprobed tools/fields, and explicit coverage limits.
+
+### Changed
+
+- Empty enabled review uses `not_run`; it does not imply live/replay activity.
+  Baseline resolved counts are qualified as findings not observed in this scan.
+- Accept native 1.3–1.6 baselines through in-memory migration, preserving matching,
+  canonical findings, suppressions, model contracts, and exit-code semantics.
+  Phase 19 acceptance is pending; package version and historical captures remain
+  unchanged.
+
 ## [1.3.0] - 2026-09-06
 
 ### Added

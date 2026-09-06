@@ -13,6 +13,7 @@ from sentinel.static.ast_utils import (
     import_aliases,
     match_from_node,
     qualified_name,
+    range_for_node,
     resolve_name,
 )
 from sentinel.static.execution import (
@@ -111,6 +112,7 @@ def run(
         additions = RuleRunState()
         safe_ranges: set[SourceRange] = set()
         for region in discover_tool_regions(file):
+            state.visit(file.relative_path, range_for_node(region.node))
             root = _Analyzer(file, functions, summaries, context.deadline).analyze(
                 region.function, region.node
             )

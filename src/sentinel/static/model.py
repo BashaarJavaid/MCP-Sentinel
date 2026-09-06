@@ -74,6 +74,11 @@ class RuleRunState:
     skip_reason: str | None = None
     warnings: list[ReportWarning] = field(default_factory=list)
 
+    visits: list[tuple[str, SourceRange]] = field(default_factory=list)
+
+    def visit(self, path: str, location: SourceRange) -> None:
+        self.visits.append((path, location))
+
     def exempt(self, reason: str) -> None:
         self.exemptions[reason] = self.exemptions.get(reason, 0) + 1
 

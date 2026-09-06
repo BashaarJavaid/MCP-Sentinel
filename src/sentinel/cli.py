@@ -107,7 +107,9 @@ def scan(
     llm_reasoning_effort: str | None = typer.Option(None, "--llm-reasoning-effort"),
     llm_base_url: str | None = typer.Option(None, "--llm-base-url"),
     trust_llm_endpoint: bool = typer.Option(False, "--trust-llm-endpoint"),
-    verbose: bool = typer.Option(False, "--verbose", help="Show bounded evidence."),
+    verbose: bool = typer.Option(
+        False, "--verbose", help="Show extended provenance and model reasoning."
+    ),
     color: bool | None = typer.Option(
         None, "--color/--no-color", help="Override terminal color detection."
     ),
@@ -258,7 +260,9 @@ def demo(
         "--replay-review",
         help="Replay checked-in GPT responses; never represents a live call.",
     ),
-    verbose: bool = typer.Option(False, "--verbose", help="Show bounded evidence."),
+    verbose: bool = typer.Option(
+        False, "--verbose", help="Show extended provenance and model reasoning."
+    ),
     color: bool | None = typer.Option(
         None, "--color/--no-color", help="Override terminal color detection."
     ),

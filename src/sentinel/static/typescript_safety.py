@@ -22,6 +22,7 @@ from sentinel.static.typescript import (
     _string_literal,
     _tool_match,
     _zod_object_schema,
+    offset_range,
 )
 from sentinel.static.typescript_execution import _mask, statement_end
 
@@ -245,6 +246,7 @@ def validation(
                 or not tool.parameters
             ):
                 continue
+            state.visit(tool.path, offset_range(file.source, tool.start, tool.end))
             failed = False
             used = min(
                 (
@@ -425,6 +427,8 @@ def prompt(context: StaticContext, state: RuleRunState) -> None:
             for tool in tools_in_file(file)
         )
         for start, end in sorted(regions):
+            if end > start:
+                state.visit(file.relative_path, offset_range(file.source, start, end))
             found = False
             for path in paths(file, start, end, context.deadline):
                 tainted: dict[str, bool] = {}
@@ -665,6 +669,9 @@ def authentication(context: StaticContext, state: RuleRunState) -> None:
             path = _string_literal(args[0]) if args else None
             if path is None:
                 continue
+            state.visit(
+                file.relative_path, offset_range(source, route.start(), close + 1)
+            )
             if _is_public(
                 route[2].upper(),
                 path,

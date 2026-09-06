@@ -10,6 +10,7 @@ from sentinel.static.ast_utils import (
     import_aliases,
     match_from_node,
     qualified_name,
+    range_for_node,
     resolve_name,
 )
 from sentinel.static.model import RuleRunState, StaticContext
@@ -57,6 +58,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
                 route = _literal(call.args[0]) if call and call.args else None
                 if route is None:
                     continue
+                state.visit(file.relative_path, range_for_node(decorator))
                 methods = [method.upper()]
                 if method == "api_route" and call:
                     methods = _api_route_methods(call)
@@ -132,6 +134,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
                 handler = functions.get(qualified_name(route_node.args[1]) or "")
                 if route_path is None or handler is None:
                     continue
+                state.visit(file.relative_path, range_for_node(route_node))
                 permission = any(
                     isinstance(dec, ast.Call)
                     and resolve_name(qualified_name(dec.func) or "", imports)
