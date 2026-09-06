@@ -1,11 +1,12 @@
 # Phase 18 verification
 
-Status: implementation and all agreed local/hosted gates passed. Final user
-acceptance is pending. Phase 18 is not marked complete until that acceptance.
-Prepared version: **1.3.0** (Phases 16–18). Public release availability is separate:
-no merge, release tag, PyPI/Marketplace publication, or announcement is authorized.
+Status: **complete and accepted** on 2026-09-06 (UTC). Implementation and all
+agreed local/hosted gates passed, followed by final user acceptance.
+Version: **1.3.0** (Phases 16–18). The user separately authorized merge,
+completion documentation, publication, release verification, and branch cleanup.
+Publication verification is pending; implementation acceptance is complete.
 
-The branch is `phase18-rules-only`; hosted gates will run through a draft PR.
+The accepted `phase18-rules-only` branch was merged through PR #18.
 No paid model calls are part of this gate. Historical evaluation captures remain
 recorded replay, not new accuracy measurements.
 
@@ -37,7 +38,7 @@ do not measure broad detection accuracy, security assurance, or maintainer value
 ## Retained local results
 
 Implementation commit: `b0d1bb3b20252dc8ef1718ccf8fa3cee599d1ccd`.
-The draft PR is [#18](https://github.com/BashaarJavaid/MCP-Sentinel/pull/18).
+The merged PR is [#18](https://github.com/BashaarJavaid/MCP-Sentinel/pull/18).
 
 | Gate | Observed result | Evidence |
 |---|---|---|
@@ -84,7 +85,7 @@ unchanged by harness commit `5f3d155`. The [corrected hosted run](https://github
 passed the mandatory namespace gate: all eight installed-wheel scans completed
 with no external interfaces or routes. The exact log is retained in
 `artifacts/phase18/hosted-isolation.log`. Its canonical wheel/sdist are byte-identical
-to the locally tested distributions (`hosted-distributions.json`). The same commit's
+to the locally tested distributions (`hosted-distributions.json`). The original implementation's
 [documentation build](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34010548740)
 passed. The earlier implementation CI was cancelled after the corrective commit
 superseded it; it is not acceptance evidence.
@@ -104,13 +105,16 @@ code tested by that hosted run.
 
 ## Acceptance and release availability
 
-Implementation is ready for the one final user acceptance requested in the plan.
-Phase 18 remains open until that acceptance is recorded. The PR remains a draft;
-no merge, main push, release tag, publication, or announcement occurred.
+The user accepted Phase 18 and authorized merging PR #18, recording completion
+on main, publishing 1.3.0, verifying the release, and deleting the stale branch.
+The final accepted commit is `8917ef0b8b8713249a51cf34ffe96abcb91ab10e`:
+[all 27 CI jobs passed](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34014222493),
+including the cache/adapter assertions and mandatory network isolation, and the
+[documentation build passed](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34014222466).
 
-Prepared 1.3.0 contains the unreleased Phase 16–18 changes. Default `init` users
+Version 1.3.0 contains the Phase 16–18 changes. Default `init` users
 must opt into runtime scaffolding with `init --dynamic`, then
 `scan --no-rules-only`. Rules-only users can scan directly without init. Native
 1.5.0 nullable review compatibility and baseline-v2 migration are described above
-and in the changelog. The newly pinned Action becomes publicly usable only after
-separately authorized 1.3.0 publication and release verification.
+and in the changelog. The newly pinned Action becomes publicly usable after
+the authorized 1.3.0 publication and release verification.

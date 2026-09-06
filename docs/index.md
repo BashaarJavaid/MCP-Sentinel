@@ -7,8 +7,8 @@ before deployment. It combines deterministic Python and TypeScript checks,
 GPT-5.6 semantic review, Docker-isolated runtime probes for Python targets, OWASP
 Agentic Top 10 mappings, and SARIF output for GitHub code scanning.
 
-The source prepares **1.3.0**; publication is pending. Until publication, use
-the [source installation](install.md#source-checkout) for these commands.
+The rules-only commands below require **1.3.0 or newer**; see
+[installation and upgrades](install.md).
 
 ## Start without credentials or Docker
 

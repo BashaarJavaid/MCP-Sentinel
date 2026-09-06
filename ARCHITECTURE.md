@@ -815,8 +815,8 @@ Retain original artifacts, source inputs, and captures with their original
 semantics. Refresh only affected captures, following separate budget approval;
 never relabel an old response as a review of changed evidence. Generated schemas,
 compatibility guidance, user docs, and release notes change together in the
-owning implementation checkpoint. Package version remains unchanged pending
-separate release authorization.
+owning implementation checkpoint. Version 1.3.0 includes the accepted Phase
+16–18 changes; publication follows separately authorized release verification.
 
 ## 11. Configuration and CLI
 

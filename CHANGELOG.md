@@ -10,7 +10,9 @@ new rule IDs.
 
 ## [Unreleased]
 
-### Prepared 1.3.0 — publication pending
+## [1.3.0] - 2026-09-06
+
+### Added
 
 - Add explicit rules-only CLI/config/environment selection and Action input;
   bypass model clients, review cache, network, Docker, and target execution.
@@ -35,7 +37,7 @@ new rule IDs.
 - Introduce baseline-v2 stable proof identity and migrate 1.3/1.4 reports without
   inventing proof. Preserve historical captures and provide a separately
   refreshed runtime-review bundle for current-pipeline replay. These Phase 16–18
-  changes are prepared together as 1.3.0; publication requires separate authorization.
+  changes are included together in 1.3.0.
 
 - Trace supported Python and TypeScript tool inputs through same-file named
   helpers, explicit bindings, assignments, and returns for `SENT-002`; retain
@@ -148,7 +150,8 @@ new rule IDs.
   replay, four Docker-isolated dynamic probes, console/JSON/SARIF reports, and a
   composite GitHub Action.
 
-[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.0.0...v1.2.0
 [1.0.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v0.2.0...v1.0.0

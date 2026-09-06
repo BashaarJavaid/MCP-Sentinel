@@ -18,9 +18,8 @@ The uv equivalent is:
 uv tool install portunusmcp-sentinel
 ```
 
-This branch prepares **1.3.0**, pending separate publication authorization.
-The rules-only interface requires 1.3.0; use the source checkout below until
-publication. Published 1.2.1 does not provide this interface.
+The rules-only interface requires **1.3.0 or newer**. Upgrade an existing install
+with `pipx upgrade portunusmcp-sentinel` or `uv tool upgrade portunusmcp-sentinel`.
 
 Confirm the command is available:
 

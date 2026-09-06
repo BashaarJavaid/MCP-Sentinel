@@ -175,7 +175,7 @@ directives warn.
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.3.0  # Available after separately authorized publication
+    rev: v1.3.0
     hooks:
       - id: mcp-sentinel
 ```
@@ -189,7 +189,7 @@ Native schema 1.5.0 retains the canonical Finding shape, with nullable finding
 review for explicitly unreviewed rules-only results. Provenance reviews and the
 GPT summary are null. Existing `not_reviewed`, degraded, and completed review
 records remain readable. Consumers must handle null review; older validators
-that required a review object need the prepared 1.3.0 schema. Baseline-v2 and
+that required a review object need the 1.3.0 schema. Baseline-v2 and
 supported historical baseline migration remain compatible. Rules-only and
 reviewed static scans share static-mode baseline compatibility.
 

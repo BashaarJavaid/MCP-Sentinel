@@ -11,8 +11,9 @@ workflows. The September 2026 product review identified detection-quality and
 adoption gaps that those original gates did not measure. Phases 16–26 address
 that review; none is implemented merely by being scheduled here.
 
-Phases 16–17 are complete; all four Phase 17 checkpoints are accepted.
-**Active phase: 18 — Explicit rules-only scanning and first-use workflow.**
+Phases 16–18 are complete; all four Phase 17 checkpoints and final Phase 18
+acceptance are recorded. **Next planned phase: 19 — Coverage reporting and
+actionable findings.**
 Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
 after its predecessor's verification gate passes. Phase 15 retains existing
@@ -950,11 +951,13 @@ vulnerability evidence from accepted input or an inconclusive attempt.
 
 ## 21. Phase 18 — Explicit offline mode and first-use workflow
 
-**Status: implementation and local/hosted verification passed; final user acceptance pending.** Depends on completed Phase 17.
+**Status: complete.** Implementation, local/hosted verification, and final user
+acceptance passed. Accepted on 2026-09-06 (UTC), following completed Phase 17.
 
 The agreed interface is `--rules-only/--no-rules-only`, `[scanner].rules_only`,
-and `SENTINEL_RULES_ONLY` (default false). Release 1.3.0 is prepared separately
-from public availability. See [Phase 18 verification](docs/phase18-verification.md).
+and `SENTINEL_RULES_ONLY` (default false). All 27 final-commit CI jobs and the
+documentation build passed. Release 1.3.0 publication is separately authorized;
+see [Phase 18 verification](docs/phase18-verification.md) for release status.
 
 ### Objective
 

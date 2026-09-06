@@ -50,8 +50,8 @@ Don't load the full dynamic-analysis sandbox code when working on a static rule,
   isolation contract, never directly on the host or against production endpoints.
 - Prefer embedding an existing engine (e.g. `semgrep`) for static pattern rules over hand-rolling a full AST walker — this is a deliberate hackathon-scope decision, not a shortcut to "fix later."
 - Deterministic rules and probes must not require third-party live services.
-  Keep model review separate from the offline tier; Phase 18 will add an explicit
-  review-disable mode. Dependency installation and explicitly selected live
+  Keep model review separate from the explicit `--rules-only` offline tier.
+  Dependency installation and explicitly selected live
   model evaluation have separate network requirements.
 - SARIF output must validate against SARIF 2.1.0 schema — treat a non-validating report as a build-breaking bug, not a cosmetic issue.
 
@@ -60,6 +60,7 @@ Don't load the full dynamic-analysis sandbox code when working on a static rule,
 - `pip install -e ".[dev]"` — local dev install
 - `uv sync --extra dev` — reproducible local dev install from `uv.lock`
 - `sentinel scan <path>` — run static + dynamic checks against a local MCP server repo
+- `sentinel scan <path> --rules-only` — deterministic static checks without model, cache, network, Docker, or target execution
 - `sentinel scan <path> --format sarif` — emit SARIF 2.1.0
 - `pytest` — run the current test suite with branch coverage
 - `sentinel demo` — run the full static, GPT review, and Docker dynamic pipeline
@@ -71,15 +72,15 @@ Don't load the full dynamic-analysis sandbox code when working on a static rule,
 when complete. `--allow-degraded` explicitly permits unreviewed candidates while
 keeping them visible and fail-on eligible; it does **not** disable model calls
 when a key is present. Normal scans and `sentinel demo` run Phase 3 dynamic
-probing and return `3` when analysis is incomplete. These are current commands;
-do not document Phase 18's new offline interface as available before it ships.
+probing and return `3` when analysis is incomplete. `--rules-only` selects completed
+deterministic static analysis. Default `sentinel init` writes permissions only;
+Python runtime scaffolding requires `sentinel init --dynamic`.
 
 ## Current phase
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
-**Phases 16–17 are complete. All four Phase 17 checkpoints passed and are accepted;
-Phase 18 implementation and local/hosted verification have passed; final user
-acceptance remains pending.**
+**Phases 16–18 are complete. All four Phase 17 checkpoints and the final Phase 18
+implementation gate passed and are accepted. Phase 19 remains planned.**
 Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
 23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or
@@ -104,7 +105,7 @@ gate actually passes; a roadmap entry is not implemented behavior.
 - [ ] Phase 15 — product launch (retain existing artifacts; completion depends on Phase 24)
 - [x] Phase 16 — static detection correctness (helper flows and safety exemptions; local gates passed)
 - [x] Phase 17 — dynamic probe correctness and evidence (valid baselines, schema violations, observed effects)
-- [ ] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
+- [x] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
 - [ ] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence)
 - [ ] Phase 20 — independent detection benchmark (vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (five external workflows and ranked blockers)

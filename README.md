@@ -26,10 +26,8 @@ Or use uv:
 uv tool install portunusmcp-sentinel
 ```
 
-This branch prepares **1.3.0**. Rules-only commands below require that version;
-publication is pending separate authorization. Until then, use the source install
-(`pip install -e ".[dev]"`) from `phase18-rules-only`. The published 1.2.1 package
-does not provide `--rules-only`.
+Rules-only commands below require **1.3.0 or newer**. Upgrade an existing install
+with `pipx upgrade portunusmcp-sentinel` or `uv tool upgrade portunusmcp-sentinel`.
 
 ## Quickstart
 
@@ -77,12 +75,11 @@ files, workspaces, cross-file dataflow, imported handlers or schemas, and Node
 execution are outside the supported boundary. Dynamic targets are local Python
 3.10–3.12 MCP servers.
 
-The prepared 1.3.0 source includes Phase 16 static-correctness changes: same-file
+Version 1.3.0 includes Phase 16 static-correctness changes: same-file
 named-helper execution flows and value-specific validation, authentication,
 integrity, and configured-sanitizer checks. Unsupported flows remain unresolved;
 see the [rule boundaries](docs/rules.md) and
-[verification record](docs/phase16-verification.md). These changes are
-not publicly available until 1.3.0 is separately published.
+[verification record](docs/phase16-verification.md).
 
 Phase 17 source changes add validated dynamic baselines, explicit probe outcomes,
 and proof-preserving review in native JSON 1.5.0. The current replay bundle uses
@@ -208,7 +205,7 @@ Use Sentinel from pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.3.0  # Available after separately authorized publication
+    rev: v1.3.0
     hooks:
       - id: mcp-sentinel
 ```
