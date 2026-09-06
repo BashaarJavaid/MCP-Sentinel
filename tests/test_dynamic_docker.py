@@ -209,6 +209,7 @@ def test_reference_campaigns(
             json.dumps(
                 {"case": fixture, "outcomes": [asdict(item) for item in results]},
                 sort_keys=True,
+                default=lambda value: value.model_dump(mode="json"),
             )
         )
         assert len(results) == 4
@@ -318,6 +319,7 @@ def test_infrastructure_failure_retains_proof_and_stops_independent_work(
             json.dumps(
                 {"case": failure, "outcomes": [asdict(item) for item in results]},
                 sort_keys=True,
+                default=lambda value: value.model_dump(mode="json"),
             )
         )
         assert results[0].vulnerable
