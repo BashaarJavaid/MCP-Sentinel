@@ -334,7 +334,13 @@ def test_approved_subset_preserves_packet_order_and_rejects_drift(
     )
     path = tmp_path / "approval.json"
     monkeypatch.setenv("OPENAI_API_KEY", "fake-offline-key")
-    with patch("scripts.phase20_review.capture_batches", return_value=0) as send:
+    with (
+        patch("scripts.phase20_review.capture_batches", return_value=0) as send,
+        patch(
+            "scripts.phase20_review.scanner_identity",
+            return_value={"source_sha256": packet["scanner_source_sha256"]},
+        ) as identity,
+    ):
         approval["request_fingerprints"] = [last, first]
         path.write_text(json.dumps(approval))
         assert capture("static", path) == 0
@@ -346,4 +352,10 @@ def test_approved_subset_preserves_packet_order_and_rejects_drift(
             path.write_text(json.dumps(approval))
             with pytest.raises(ValueError, match="approved request selection"):
                 capture("static", path)
+        send.assert_not_called()
+        approval["request_fingerprints"] = [first]
+        path.write_text(json.dumps(approval))
+        identity.return_value = {"source_sha256": "different-scanner-revision"}
+        with pytest.raises(ValueError, match="scanner identity mismatch"):
+            capture("static", path)
         send.assert_not_called()

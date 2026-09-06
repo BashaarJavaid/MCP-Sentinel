@@ -10,6 +10,12 @@ new rule IDs.
 
 ## [Unreleased]
 
+### Fixed
+
+- Recognize nullable and union field types consistently when validating GPT
+  injection/oversized probe bindings and determining probe-plan eligibility.
+  Preserve the original Phase 20 measurements separately from this correction.
+
 ### Added
 
 - Native report schema 1.6.0: observed static handler inventory and actual rule

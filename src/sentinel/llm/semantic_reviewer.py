@@ -822,11 +822,8 @@ def _validate_probe_plan(
                 )
         elif value != expected:
             raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
-        field_schema = properties[field]
-        field_type = (
-            field_schema.get("type") if isinstance(field_schema, dict) else None
-        )
-        if probe_id == "SENT-009" and field_type not in {
+        field_types = _probe_field_types(properties[field])
+        if probe_id == "SENT-009" and not field_types & {
             "string",
             "array",
             "object",
@@ -835,17 +832,33 @@ def _validate_probe_plan(
                 "oversized probe requires a string or container field",
                 retryable=True,
             )
-        if probe_id == "SENT-010" and field_type != "string":
+        if probe_id == "SENT-010" and "string" not in field_types:
             raise _ReviewFailure(
                 "injection probe requires a string field", retryable=True
             )
 
 
+def _probe_field_types(schema: object) -> set[str]:
+    """Read declared primitive types, including the extractor's anyOf unions."""
+    if not isinstance(schema, dict):
+        return set()
+    declared = schema.get("type")
+    if isinstance(declared, str):
+        return {declared}
+    if isinstance(declared, list):
+        return {kind for kind in declared if isinstance(kind, str)}
+    alternatives = schema.get("anyOf")
+    kinds: set[str] = set()
+    if isinstance(alternatives, list):
+        for alternative in alternatives:
+            kinds.update(_probe_field_types(alternative))
+    return kinds
+
+
 def _probe_schema_eligible(tool: ToolMetadata) -> bool:
     properties = tool.input_schema.get("properties")
     return isinstance(properties, dict) and any(
-        isinstance(schema, dict) and schema.get("type") == "string"
-        for schema in properties.values()
+        "string" in _probe_field_types(schema) for schema in properties.values()
     )
 
 

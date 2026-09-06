@@ -1,0 +1,961 @@
+.FFFFF...F                                                               [100%]
+=================================== FAILURES ===================================
+__________ test_probe_plan_union_field_types[field_schema1-True-True] __________
+
+field_schema = {'anyOf': [{'type': 'string'}, {'type': 'null'}]}, string = True
+container = True
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+>               _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...yOf': [{'type': 'string'}, {'type': 'null'}]}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+            if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+                raise _ReviewFailure(
+                    "oversized probe requires a string or container field",
+                    retryable=True,
+                )
+            if probe_id == "SENT-010" and field_type != "string":
+>               raise _ReviewFailure(
+                    "injection probe requires a string field", retryable=True
+                )
+E               sentinel.llm.semantic_reviewer._ReviewFailure: injection probe requires a string field
+
+src/sentinel/llm/semantic_reviewer.py:839: _ReviewFailure
+__________ test_probe_plan_union_field_types[field_schema2-True-True] __________
+
+field_schema = {'type': ['string', 'null']}, string = True, container = True
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+>               _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...ring'}, 'value': {'type': ['string', 'null']}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+            if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+                raise _ReviewFailure(
+                    "oversized probe requires a string or container field",
+                    retryable=True,
+                )
+            if probe_id == "SENT-010" and field_type != "string":
+>               raise _ReviewFailure(
+                    "injection probe requires a string field", retryable=True
+                )
+E               sentinel.llm.semantic_reviewer._ReviewFailure: injection probe requires a string field
+
+src/sentinel/llm/semantic_reviewer.py:839: _ReviewFailure
+__________ test_probe_plan_union_field_types[field_schema3-True-True] __________
+
+field_schema = {'anyOf': [{'type': 'null'}, {'anyOf': [{'type': 'string'}]}]}
+string = True, container = True
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+>               _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...': 'null'}, {'anyOf': [{'type': 'string'}]}]}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+            if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+                raise _ReviewFailure(
+                    "oversized probe requires a string or container field",
+                    retryable=True,
+                )
+            if probe_id == "SENT-010" and field_type != "string":
+>               raise _ReviewFailure(
+                    "injection probe requires a string field", retryable=True
+                )
+E               sentinel.llm.semantic_reviewer._ReviewFailure: injection probe requires a string field
+
+src/sentinel/llm/semantic_reviewer.py:839: _ReviewFailure
+_________ test_probe_plan_union_field_types[field_schema4-False-True] __________
+
+field_schema = {'anyOf': [{'type': 'array'}, {'type': 'null'}]}, string = False
+container = True
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+>               _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...nyOf': [{'type': 'array'}, {'type': 'null'}]}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+            if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+>               raise _ReviewFailure(
+                    "oversized probe requires a string or container field",
+                    retryable=True,
+                )
+E               sentinel.llm.semantic_reviewer._ReviewFailure: oversized probe requires a string or container field
+
+src/sentinel/llm/semantic_reviewer.py:834: _ReviewFailure
+_________ test_probe_plan_union_field_types[field_schema5-False-True] __________
+
+field_schema = {'anyOf': [{'type': 'object'}, {'type': 'null'}]}, string = False
+container = True
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+>               _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...yOf': [{'type': 'object'}, {'type': 'null'}]}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+            if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+>               raise _ReviewFailure(
+                    "oversized probe requires a string or container field",
+                    retryable=True,
+                )
+E               sentinel.llm.semantic_reviewer._ReviewFailure: oversized probe requires a string or container field
+
+src/sentinel/llm/semantic_reviewer.py:834: _ReviewFailure
+_________ test_probe_plan_union_field_types[field_schema9-False-False] _________
+
+field_schema = {'type': [None, {}]}, string = False, container = False
+
+    @pytest.mark.parametrize(
+        ("field_schema", "string", "container"),
+        [
+            ({"type": "string"}, True, True),
+            ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+            ({"type": ["string", "null"]}, True, True),
+            (
+                {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+                True,
+                True,
+            ),
+            ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+            ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+            ({}, False, False),
+            ({"anyOf": "string"}, False, False),
+            ({"type": [None, {}]}, False, False),
+        ],
+    )
+    def test_probe_plan_union_field_types(
+        field_schema: dict[str, Any], string: bool, container: bool
+    ) -> None:
+        batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+        original = next(c for b in batches for c in b.candidates if c.tool is not None)
+        assert original.tool is not None
+        tool = original.tool.model_copy(
+            update={
+                "input_schema": {
+                    "type": "object",
+                    "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                    "required": ["anchor"],
+                }
+            }
+        )
+        candidate = replace(original, tool=tool)
+        for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+            decision = FindingReviewDecision.model_validate_json(
+                json.dumps(
+                    {
+                        "finding_id": str(original.finding.finding_id),
+                        "status": "confirmed",
+                        "confidence": 0.9,
+                        "reasoning": "Offline probe binding regression.",
+                        "evidence_refs": [
+                            {
+                                "path": "server.py",
+                                "start_line": 1,
+                                "end_line": 1,
+                                "claim": "Test context.",
+                            }
+                        ],
+                        "suggested_severity_override": None,
+                        "probe_plan": {
+                            "target_tool": tool.name,
+                            "ordered_probe_ids": [
+                                "SENT-008",
+                                "SENT-009",
+                                "SENT-010",
+                                "SENT-011",
+                            ],
+                            "argument_bindings": [
+                                {
+                                    "probe_id": key,
+                                    "field": "value" if key == probe else "anchor",
+                                    "value": value,
+                                }
+                                for key, value in (
+                                    ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                    ("SENT-010", "__SENTINEL_INJECTION__"),
+                                    ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                                )
+                            ],
+                        },
+                    }
+                )
+            )
+            if allowed:
+                _validate_probe_plan(decision, candidate)
+            else:
+                with pytest.raises(_ReviewFailure, match="probe requires"):
+>                   _validate_probe_plan(decision, candidate)
+
+tests/test_gpt_review.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+decision = FindingReviewDecision(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), status='confirmed', confidence=0.9, rea...umentBinding(probe_id='SENT-011', field='anchor', value='__SENTINEL_WRONG_TYPE__'))), suggested_severity_override=None)
+candidate = _Candidate(finding=Finding(finding_id=UUID('ac575dd9-049f-47af-b607-3b39735dc657'), dedup_key='81c9d2f2621f1e8a7900662...pe': 'string'}, 'value': {'type': [None, {}]}}, 'required': ['anchor']}, path='server.py', start_line=26, end_line=28))
+
+    def _validate_probe_plan(
+        decision: FindingReviewDecision, candidate: _Candidate
+    ) -> None:
+        tool = candidate.tool
+        properties = tool.input_schema.get("properties") if tool else None
+        eligible = tool is not None and _probe_schema_eligible(tool)
+        if not eligible:
+            if decision.probe_plan is not None:
+                raise _ReviewFailure(
+                    "schema-ineligible finding has a probe plan", retryable=True
+                )
+            return
+        if tool is None or not isinstance(properties, dict):  # type narrowing
+            raise _ReviewFailure("invalid eligible tool schema", retryable=True)
+        plan = decision.probe_plan
+        if plan is None:
+            if decision.status == "suppressed":
+                return
+            raise _ReviewFailure(
+                "schema-eligible tool finding lacks a probe plan", retryable=True
+            )
+        if tuple(sorted(plan.ordered_probe_ids)) != tuple(sorted(DEFAULT_PROBE_ORDER)):
+            raise _ReviewFailure(
+                "probe plan must contain all four probes once", retryable=True
+            )
+        if plan.target_tool != tool.name:
+            raise _ReviewFailure("probe plan targets an unknown tool", retryable=True)
+        bindings = {binding.probe_id: binding for binding in plan.argument_bindings}
+        if set(bindings) != {"SENT-009", "SENT-010", "SENT-011"}:
+            raise _ReviewFailure("probe plan has incomplete bindings", retryable=True)
+        raw_required = tool.input_schema.get("required", [])
+        required = raw_required if isinstance(raw_required, list) else []
+        for probe_id, binding in bindings.items():
+            field, value = binding.field, binding.value
+            if field not in properties:
+                raise _ReviewFailure(
+                    "probe binding targets an undeclared field", retryable=True
+                )
+            expected = {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+            }.get(probe_id)
+            if probe_id == "SENT-011":
+                if value not in {"__SENTINEL_WRONG_TYPE__", "__SENTINEL_OMIT__"}:
+                    raise _ReviewFailure("invalid SENT-011 binding", retryable=True)
+                if value == "__SENTINEL_OMIT__" and field not in required:
+                    raise _ReviewFailure(
+                        "SENT-011 omission field is not required", retryable=True
+                    )
+            elif value != expected:
+                raise _ReviewFailure(f"invalid {probe_id} binding", retryable=True)
+            field_schema = properties[field]
+            field_type = (
+                field_schema.get("type") if isinstance(field_schema, dict) else None
+            )
+>           if probe_id == "SENT-009" and field_type not in {
+                "string",
+                "array",
+                "object",
+            }:
+E           TypeError: unhashable type: 'list'
+
+src/sentinel/llm/semantic_reviewer.py:829: TypeError
+=========================== short test summary info ============================
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema1-True-True]
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema2-True-True]
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema3-True-True]
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema4-False-True]
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema5-False-True]
+FAILED tests/test_gpt_review.py::test_probe_plan_union_field_types[field_schema9-False-False]
+6 failed, 4 passed, 23 deselected in 1.36s

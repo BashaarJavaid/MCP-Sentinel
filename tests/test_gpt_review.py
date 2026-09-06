@@ -6,6 +6,7 @@ import json
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import datetime, timezone
 from functools import cache
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -40,12 +41,107 @@ from sentinel.llm.context import (
     build_finding_context,
     sanitize_text,
 )
-from sentinel.llm.semantic_reviewer import OpenAITransport, SemanticReviewer, _classify
+from sentinel.llm.schema import FindingReviewDecision
+from sentinel.llm.semantic_reviewer import (
+    OpenAITransport,
+    SemanticReviewer,
+    _classify,
+    _probe_schema_eligible,
+    _ReviewFailure,
+    _validate_probe_plan,
+)
 from sentinel.llm.tools import extract_tool_catalog
 from sentinel.orchestrator import _review_activity
 
 ROOT = Path(__file__).parent / "fixtures" / "gpt_review_eval"
 NOW = datetime(2026, 7, 18, tzinfo=timezone.utc)
+
+
+@pytest.mark.parametrize(
+    ("field_schema", "string", "container"),
+    [
+        ({"type": "string"}, True, True),
+        ({"anyOf": [{"type": "string"}, {"type": "null"}]}, True, True),
+        ({"type": ["string", "null"]}, True, True),
+        (
+            {"anyOf": [{"type": "null"}, {"anyOf": [{"type": "string"}]}]},
+            True,
+            True,
+        ),
+        ({"anyOf": [{"type": "array"}, {"type": "null"}]}, False, True),
+        ({"anyOf": [{"type": "object"}, {"type": "null"}]}, False, True),
+        ({"anyOf": [{"type": "integer"}, {"type": "null"}]}, False, False),
+        ({}, False, False),
+        ({"anyOf": "string"}, False, False),
+        ({"type": [None, {}]}, False, False),
+    ],
+)
+def test_probe_plan_union_field_types(
+    field_schema: dict[str, Any], string: bool, container: bool
+) -> None:
+    batches, _ = _planned_batches("eval-medium", ReasoningEffort.MEDIUM)
+    original = next(c for b in batches for c in b.candidates if c.tool is not None)
+    assert original.tool is not None
+    tool = original.tool.model_copy(
+        update={
+            "input_schema": {
+                "type": "object",
+                "properties": {"anchor": {"type": "string"}, "value": field_schema},
+                "required": ["anchor"],
+            }
+        }
+    )
+    candidate = replace(original, tool=tool)
+    for probe, allowed in (("SENT-010", string), ("SENT-009", container)):
+        decision = FindingReviewDecision.model_validate_json(
+            json.dumps(
+                {
+                    "finding_id": str(original.finding.finding_id),
+                    "status": "confirmed",
+                    "confidence": 0.9,
+                    "reasoning": "Offline probe binding regression.",
+                    "evidence_refs": [
+                        {
+                            "path": "server.py",
+                            "start_line": 1,
+                            "end_line": 1,
+                            "claim": "Test context.",
+                        }
+                    ],
+                    "suggested_severity_override": None,
+                    "probe_plan": {
+                        "target_tool": tool.name,
+                        "ordered_probe_ids": [
+                            "SENT-008",
+                            "SENT-009",
+                            "SENT-010",
+                            "SENT-011",
+                        ],
+                        "argument_bindings": [
+                            {
+                                "probe_id": key,
+                                "field": "value" if key == probe else "anchor",
+                                "value": value,
+                            }
+                            for key, value in (
+                                ("SENT-009", "__SENTINEL_OVERSIZED__"),
+                                ("SENT-010", "__SENTINEL_INJECTION__"),
+                                ("SENT-011", "__SENTINEL_WRONG_TYPE__"),
+                            )
+                        ],
+                    },
+                }
+            )
+        )
+        if allowed:
+            _validate_probe_plan(decision, candidate)
+        else:
+            with pytest.raises(_ReviewFailure, match="probe requires"):
+                _validate_probe_plan(decision, candidate)
+    nullable_only = tool.model_copy(
+        update={"input_schema": {"properties": {"value": field_schema}}}
+    )
+    assert _probe_schema_eligible(nullable_only) is string
 
 
 class FakeTransport:

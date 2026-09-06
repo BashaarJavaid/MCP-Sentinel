@@ -558,6 +558,15 @@ Probe planning makes GPT operationally consequential without granting it arbitra
 
 An invalid plan does not remove or skip probes. Sentinel falls back to the fixed default order, records the plan validation failure, and preserves the original candidate for review.
 
+Eligibility and field bindings share declared-type classification for primitive
+`type`, type arrays, and the source extractor's nested `anyOf` unions. A nullable
+string can receive an injection or oversized probe; nullable arrays and objects
+can receive oversized probes. Numeric-only and untyped fields do not qualify.
+This classification does not resolve references or establish runtime schema
+support; the Docker prober retains its independent schema and baseline checks.
+The [nullable-field correction](docs/nullable-probe-validation.md) is separate
+from the frozen Phase 20 baseline.
+
 ### Operational limits
 
 - 30-second request timeout.
