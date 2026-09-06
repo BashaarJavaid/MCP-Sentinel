@@ -99,8 +99,8 @@ class TargetLanguage(str, Enum):
 
 class ScannerConfig(ContractModel):
     rules_only: bool = False
-    format: OutputFormat = OutputFormat.CONSOLE
-    fail_on: FailThreshold = FailThreshold.HIGH
+    format: OutputFormat = Field(default=OutputFormat.CONSOLE, strict=False)
+    fail_on: FailThreshold = Field(default=FailThreshold.HIGH, strict=False)
     rules: tuple[str, ...] = ()
     ignore_paths: tuple[str, ...] = ()
     target_config: str = "sentinel.target.yaml"
@@ -685,13 +685,18 @@ def _apply_environment(
             value = lowered in {"true", "1"}
         else:
             value = raw
-        result.setdefault(section, {})[key] = value
+        section_data = result.setdefault(section, {})
+        if not isinstance(section_data, dict):
+            raise ConfigurationError(f"{section} configuration must be a table")
+        section_data[key] = value
     return result
 
 
 def _apply_cli(data: dict[str, Any], overrides: Mapping[str, Any]) -> dict[str, Any]:
     result = _deep_merge({}, data)
     scanner = result.setdefault("scanner", {})
+    if not isinstance(scanner, dict):
+        raise ConfigurationError("scanner configuration must be a table")
     for key, value in overrides.items():
         if value is not None:
             scanner[key] = value
@@ -703,6 +708,8 @@ def _apply_llm_cli(
 ) -> dict[str, Any]:
     result = _deep_merge({}, data)
     llm = result.setdefault("llm", {})
+    if not isinstance(llm, dict):
+        raise ConfigurationError("llm configuration must be a table")
     for key, value in overrides.items():
         if value is not None:
             llm[key] = value

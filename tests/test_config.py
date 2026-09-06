@@ -486,3 +486,37 @@ def test_rules_only_ignores_inactive_llm_configuration(target_root: Path) -> Non
     assert loaded.target is None
     with pytest.raises(UsageError):
         load_configuration(target_root, environ={}, static_only=True)
+
+
+@pytest.mark.parametrize(
+    "scanner",
+    (
+        "scanner = 42\n",
+        '[scanner]\nrules_only = "invalid"\n',
+        '[scanner]\nrules_only = true\nformat = "invalid"\n',
+    ),
+)
+def test_rules_only_rejects_malformed_scanner_configuration(
+    target_root: Path, scanner: str
+) -> None:
+    (target_root / "sentinel.toml").write_text(scanner, encoding="utf-8")
+    with pytest.raises(UsageError):
+        load_configuration(target_root, environ={})
+
+
+def test_rules_only_preserves_scanner_environment_precedence(target_root: Path) -> None:
+    (target_root / "sentinel.toml").write_text(
+        '[scanner]\nformat = "invalid"\n', encoding="utf-8"
+    )
+    configuration = load_configuration(
+        target_root, environ={"SENTINEL_RULES_ONLY": "true", "SENTINEL_FORMAT": "json"}
+    )
+    assert configuration.scanner.scanner.format is OutputFormat.JSON
+    with pytest.raises(UsageError, match="must be true, false, 1, or 0"):
+        load_configuration(target_root, environ={"SENTINEL_RULES_ONLY": "invalid"})
+
+
+def test_rules_only_cli_rejects_non_table_scanner(target_root: Path) -> None:
+    (target_root / "sentinel.toml").write_text("scanner = 42\n", encoding="utf-8")
+    with pytest.raises(UsageError):
+        load_configuration(target_root, environ={}, cli_overrides={"rules_only": True})

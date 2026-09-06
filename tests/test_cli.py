@@ -401,6 +401,8 @@ def test_demo_validates_and_cleans_temporary_reports(
         **kwargs: object,
     ) -> ScanOutcome:
         del kwargs
+        assert configuration.scanner.scanner.rules_only is False
+        assert configuration.static_only is False
         incomplete = run_phase1_scan(
             configuration,
             context,
@@ -408,6 +410,7 @@ def test_demo_validates_and_cleans_temporary_reports(
         )
         return ScanOutcome(report=incomplete.report, exit_code=1)
 
+    monkeypatch.setenv("SENTINEL_RULES_ONLY", "true")
     monkeypatch.setattr("sentinel.cli.run_scan", fake_run_scan)
     output_dir = tmp_path / "demo-output"
     output_dir.mkdir()

@@ -440,3 +440,12 @@ def test_rules_only_action_inheritance_override_and_summary(
         assert "RULES-ONLY" in summary
         assert "degraded" not in summary.lower()
         assert result.metrics.review is None
+
+
+def test_legacy_sarif_without_stages_remains_readable() -> None:
+    payload = _sarif_payload()
+    runs = cast(list[dict[str, Any]], payload["runs"])
+    runs[0]["invocations"][0]["properties"].pop("stages")
+    metrics = analyze_sarif(payload)
+    assert metrics.analysis_complete
+    assert metrics.rules_only is False
