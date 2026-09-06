@@ -79,8 +79,8 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 ## Current phase
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
-**Phases 16–18 are complete. All four Phase 17 checkpoints and the final Phase 18
-implementation gate passed and are accepted. Phase 19 remains planned.**
+**Phases 16–19 are complete. All four Phase 17 checkpoints and the final Phase 18
+and Phase 19 implementation gates passed and are accepted. Phase 20 is next.**
 Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
 23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or
@@ -106,7 +106,7 @@ gate actually passes; a roadmap entry is not implemented behavior.
 - [x] Phase 16 — static detection correctness (helper flows and safety exemptions; local gates passed)
 - [x] Phase 17 — dynamic probe correctness and evidence (valid baselines, schema violations, observed effects)
 - [x] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
-- [ ] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence)
+- [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [ ] Phase 20 — independent detection benchmark (vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (five external workflows and ranked blockers)
 - [ ] Phase 22 — MCP coverage and compatibility expansion (new threat classes, per-tool campaigns, pilot blockers)
