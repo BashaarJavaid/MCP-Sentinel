@@ -329,6 +329,15 @@ def test_actual_calls_and_partial_discovery(case: str) -> None:
 @pytest.mark.parametrize(
     "schema,reason",
     [
+        (
+            {
+                "$schema": "https://example.invalid/custom-dialect",
+                "type": "object",
+                "properties": {"field": {"type": "string"}},
+                "additionalProperties": False,
+            },
+            "dialect",
+        ),
         ({"$ref": "https://example.invalid/schema"}, "reference"),
         ({"$ref": "#"}, "recursive"),
         ({"oneOf": [{"type": "string"}, {"type": "object"}]}, "alternatives"),
@@ -523,3 +532,34 @@ def test_schema_enumeration_depth_deadline_and_duplicate_names() -> None:
     )
     assert not expired.tools[0].field_paths
     assert "deadline" in expired.tools[0].unresolved[0].reason
+
+
+def test_missing_historical_baseline_control_stays_unknown() -> None:
+    from sentinel.report.console import render_console
+    from sentinel.report.model import (
+        PROBE_IDS,
+        DynamicAnalysisSummary,
+        DynamicProbeOutcome,
+    )
+    from tests.test_baseline import _report
+
+    report = _report(()).model_copy(
+        update={
+            "analysis_complete": False,
+            "dynamic_analysis": DynamicAnalysisSummary(
+                probe_outcomes=tuple(
+                    DynamicProbeOutcome(
+                        probe_id=probe,
+                        status="untested",
+                        verdict=None,
+                        tool=None,
+                        field=None,
+                        reason="historical outcome",
+                    )
+                    for probe in PROBE_IDS
+                )
+            ),
+        }
+    )
+    text = render_console(report)
+    assert text.count("baseline control succeeded=unknown") == 4

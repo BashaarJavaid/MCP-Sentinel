@@ -9,7 +9,11 @@ from typing import Any, Literal
 
 from mcp.types import Tool
 
-from sentinel.dynamic.arguments import UnsupportedSchema, resolve_schema
+from sentinel.dynamic.arguments import (
+    UnsupportedSchema,
+    resolve_schema,
+    schema_validator,
+)
 from sentinel.llm.context import sanitize_text
 from sentinel.report.coverage import (
     DiscoverySnapshot,
@@ -119,6 +123,11 @@ def _observed_tool(tool: Tool, deadline: float) -> ObservedTool:
         if len(encoded) > 1_048_576:
             gap((), "runtime schema exceeds 1 MiB")
         else:
+            if time.monotonic() < deadline:
+                try:
+                    schema_validator(tool.inputSchema)
+                except UnsupportedSchema as error:
+                    gap((), str(error))
             walk(tool.inputSchema, (), frozenset())
     except (ValueError, RecursionError, TypeError):
         gap((), "invalid or excessively recursive runtime schema")

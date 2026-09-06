@@ -89,6 +89,8 @@ def render_console(
                     and response.get("is_error") is False
                     and isinstance(process, dict)
                     and process.get("Running") is True
+                    if isinstance(response, dict) and isinstance(process, dict)
+                    else "unknown"
                 )
             )
     if report.baseline is not None:
