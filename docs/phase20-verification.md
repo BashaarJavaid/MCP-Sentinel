@@ -28,9 +28,9 @@ The comparator returned 271 raw alerts. Kubernetes command-injection warnings co
 
 All 13 eligible Docker runs failed because the native image lacks the Git executable. No legitimate baseline or attack completed. The remaining probes are untested; no defense or exploit confirmation is inferred. The retained runtime review packet has zero requests.
 
-Paid attempts recorded: 19 ({'accepted': 17, 'failed': 2}). Accepted usage cost: $0.374996; cost including uncertain failed/interrupted reservations: $0.578226. Review cost is counted once per capture in the ledger, not once per replayed input. Zero-candidate stages make no model request and do not establish model accuracy.
+Paid attempts recorded: 20 ({'accepted': 17, 'failed': 3}). Accepted usage cost: $0.374996; cost including uncertain failed/interrupted reservations: $0.679951. Review cost is counted once per capture in the ledger, not once per replayed input. Zero-candidate stages make no model request and do not establish model accuracy.
 
-Failed attempts: attempt 6: injection probe requires a string field; attempt 19: injection probe requires a string field. Each failure stops capture until a new user decision. Rejected responses have no accepted usage telemetry; their full reservations remain charged conservatively. Missing captures leave reviewed inputs incomplete. The original request packet is unchanged; the ledger binds each approved cumulative request/cost ceiling and the retained capture history records each separately authorized resumption.
+Failed attempts: attempt 6: injection probe requires a string field; attempt 19: injection probe requires a string field; attempt 20: injection probe requires a string field. Each failure stops capture until a new user decision. Rejected responses have no accepted usage telemetry; their full reservations remain charged conservatively. Missing captures leave reviewed inputs incomplete. The original request packet is unchanged; the ledger binds each approved cumulative request/cost ceiling and the retained capture history records each separately authorized resumption.
 
 Accepted capture token usage: {'input_tokens': 30406, 'cached_tokens': 1579, 'cache_write_tokens': 28776, 'output_tokens': 11514, 'reasoning_tokens': 7149, 'total_tokens': 41920}. Original accepted live latency summed across unique requests: 191.290 seconds. Reasoning, cached and cache-write counts are subsets of the input/output totals; they must not be added again.
 
@@ -69,6 +69,9 @@ Phase 20 remains open until all evidence gates pass. Detectors, prompts and prob
 - [checkpoint2-resume-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-approval.json)
 - [checkpoint2-resume-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-outcome.md)
 - [checkpoint2-resume-proposal-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal-2.json)
+- [checkpoint2-resume-approval-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-approval-2.json)
+- [checkpoint2-resume-outcome-2.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-outcome-2.md)
+- [checkpoint2-resume-proposal-3.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal-3.json)
 - [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/captures/ledger.json)
 - [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/measurement-environment.json)
 - [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/adjudications.json)
