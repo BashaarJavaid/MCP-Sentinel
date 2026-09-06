@@ -1,0 +1,512 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_________ test_phase20_git_legitimate_baseline[git-staging-vulnerable] _________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 320, in probe_session
+  |     stdio_client(parameters, errlog=errlog) as (read, write),
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 321, in probe_session
+    |     ClientSession(read, write) as client,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 325, in probe_session
+      |     await asyncio.wait_for(
+      |   File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+      |     return await fut
+      |            ^^^^^^^^^
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/session.py", line 183, in initialize
+      |     result = await self.send_request(
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 306, in send_request
+      |     raise McpError(response_or_error.error)
+      | mcp.shared.exceptions.McpError: Connection closed
+      +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/tests/test_dynamic_docker.py", line 97, in test_phase20_git_legitimate_baseline
+    asyncio.run(baseline())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/tests/test_dynamic_docker.py", line 90, in baseline
+    async with sandbox.probe_session(image.reference, "SENT-008") as session:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 357, in probe_session
+    raise InfrastructureError(
+sentinel.errors.InfrastructureError: probe container sentinel-probe-84778ec2a559-008 failed: Initialized empty Git repository in /tmp/phase20-repo/.git/
+[main (root-commit) 7750a47] initial benchmark control
+ 1 file changed, 1 insertion(+)
+ create mode 100644 control.txt
+Initialized empty Git repository in /tmp/phase20-outside/.git/
+[main (root-commit) 7750a47] initial benchmark control
+ 1 file changed, 1 insertion(+)
+ create mode 100644 control.txt
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/src/mcp_server_git/__main__.py", line 5, in <module>
+    main()
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1631, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1552, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1415, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 910, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/src/mcp_server_git/__init__.py", line 21, in main
+    asyncio.run(serve(repository))
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspace/src/mcp_server_git/server.py", line 284, in serve
+    @server.list_tools()
+     ^^^^^^^^^^^^^^^^^
+AttributeError: 'Server' object has no attribute 'list_tools'
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-221/test_phase20_git_legitimate_ba0')
+input_id = 'git-staging-vulnerable'
+
+    @pytest.mark.parametrize("input_id", ["git-staging-vulnerable", "git-staging-fixed"])
+    def test_phase20_git_legitimate_baseline(tmp_path: Path, input_id: str) -> None:
+        from scripts.phase20_corpus import materialize, validate
+    
+        manifest = validate()
+        item = next(i for i in manifest.inputs if i.id == input_id)
+        snapshot = next(s for s in manifest.snapshots if s.revision == item.snapshot)
+        root = materialize(item, snapshot, tmp_path.resolve() / "source", manifest.packet)
+        sandbox = DockerSandbox(load_configuration(root, environ={}), uuid4())
+        image = sandbox.prepare_dependency_image()
+    
+        async def baseline() -> None:
+            async with sandbox.probe_session(image.reference, "SENT-008") as session:
+                response = await session.client.call_tool(
+                    "git_status", {"repo_path": "/tmp/phase20-repo"}
+                )
+                assert not response.isError
+                assert "On branch main" in str(response.content)
+    
+>       asyncio.run(baseline())
+
+tests/test_dynamic_docker.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+tests/test_dynamic_docker.py:90: in baseline
+    async with sandbox.probe_session(image.reference, "SENT-008") as session:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sentinel.dynamic.sandbox.DockerSandbox object at 0x119b3cd40>
+image = 'mcp-sentinel-deps:5bfbba12d6ccb36995aafc9e390a9f3be312f5d7da108fddecc94a830da93650'
+probe_id = 'SENT-008'
+
+    @asynccontextmanager
+    async def probe_session(
+        self, image: str, probe_id: str, *, timeout: float = PROBE_TIMEOUT_SECONDS
+    ) -> AsyncIterator[ProbeSession]:
+        suffix = probe_id.removeprefix("SENT-").lower()
+        token = str(self.scan_id).replace("-", "")[:12]
+        name = f"sentinel-probe-{token}-{suffix}"
+        deadline = asyncio.get_running_loop().time() + timeout
+        with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
+            errlog = cast(TextIO, stderr)
+            parameters = StdioServerParameters(
+                command="docker",
+                args=list(self._probe_run_args(image, name, probe_id)),
+                env=None,
+            )
+            initialized = False
+            try:
+                async with (
+                    stdio_client(parameters, errlog=errlog) as (read, write),
+                    ClientSession(read, write) as client,
+                ):
+                    probe = ProbeSession(client, name, errlog, self, deadline)
+                    try:
+                        await asyncio.wait_for(
+                            client.initialize(),
+                            timeout=max(
+                                0, deadline - asyncio.get_running_loop().time()
+                            ),
+                        )
+                        initialized = True
+                        yield probe
+                    finally:
+                        # Proof was sampled inside yield. Stop the target now,
+                        # rather than letting SDK shutdown extend its session.
+                        if probe.process_state()["Running"]:
+                            killed = self.docker(("kill", name), check=False)
+                            if (
+                                killed.returncode != 0
+                                and probe.process_state()["Running"]
+                            ):
+                                raise InfrastructureError(
+                                    "cannot terminate probe container"
+                                )
+            except BaseException as error:
+                if isinstance(error, asyncio.CancelledError):
+                    raise
+                if initialized:
+                    # MCP's nested task groups wrap exceptions raised by the
+                    # caller inside yield; preserve a single original cause.
+                    while len(getattr(error, "exceptions", ())) == 1:
+                        error = error.exceptions[0]  # type: ignore[attr-defined]
+                    raise error
+                stderr.flush()
+                stderr.seek(0)
+                detail = "\n".join(stderr.read().splitlines()[-50:]).strip()
+>               raise InfrastructureError(
+                    f"probe container {name} failed: {detail or error}"
+                ) from error
+E               sentinel.errors.InfrastructureError: probe container sentinel-probe-84778ec2a559-008 failed: Initialized empty Git repository in /tmp/phase20-repo/.git/
+E               [main (root-commit) 7750a47] initial benchmark control
+E                1 file changed, 1 insertion(+)
+E                create mode 100644 control.txt
+E               Initialized empty Git repository in /tmp/phase20-outside/.git/
+E               [main (root-commit) 7750a47] initial benchmark control
+E                1 file changed, 1 insertion(+)
+E                create mode 100644 control.txt
+E               Traceback (most recent call last):
+E                 File "<frozen runpy>", line 198, in _run_module_as_main
+E                 File "<frozen runpy>", line 88, in _run_code
+E                 File "/workspace/src/mcp_server_git/__main__.py", line 5, in <module>
+E                   main()
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1631, in __call__
+E                   return self.main(*args, **kwargs)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1552, in main
+E                   rv = self.invoke(ctx)
+E                        ^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1415, in invoke
+E                   return ctx.invoke(self.callback, **ctx.params)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 910, in invoke
+E                   return callback(*args, **kwargs)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/workspace/src/mcp_server_git/__init__.py", line 21, in main
+E                   asyncio.run(serve(repository))
+E                 File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+E                   return runner.run(main)
+E                          ^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+E                   return self._loop.run_until_complete(task)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+E                   return future.result()
+E                          ^^^^^^^^^^^^^^^
+E                 File "/workspace/src/mcp_server_git/server.py", line 284, in serve
+E                   @server.list_tools()
+E                    ^^^^^^^^^^^^^^^^^
+E               AttributeError: 'Server' object has no attribute 'list_tools'
+
+src/sentinel/dynamic/sandbox.py:357: InfrastructureError
+___________ test_phase20_git_legitimate_baseline[git-staging-fixed] ____________
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 320, in probe_session
+  |     stdio_client(parameters, errlog=errlog) as (read, write),
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 231, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 321, in probe_session
+    |     ClientSession(read, write) as client,
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
+    |     raise BaseExceptionGroup(
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 325, in probe_session
+      |     await asyncio.wait_for(
+      |   File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+      |     return await fut
+      |            ^^^^^^^^^
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/client/session.py", line 183, in initialize
+      |     result = await self.send_request(
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^
+      |   File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/mcp/shared/session.py", line 306, in send_request
+      |     raise McpError(response_or_error.error)
+      | mcp.shared.exceptions.McpError: Connection closed
+      +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/tests/test_dynamic_docker.py", line 97, in test_phase20_git_legitimate_baseline
+    asyncio.run(baseline())
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/tests/test_dynamic_docker.py", line 90, in baseline
+    async with sandbox.probe_session(image.reference, "SENT-008") as session:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/src/sentinel/dynamic/sandbox.py", line 357, in probe_session
+    raise InfrastructureError(
+sentinel.errors.InfrastructureError: probe container sentinel-probe-a18a00546649-008 failed: Initialized empty Git repository in /tmp/phase20-repo/.git/
+[main (root-commit) c1b882b] initial benchmark control
+ 1 file changed, 1 insertion(+)
+ create mode 100644 control.txt
+Initialized empty Git repository in /tmp/phase20-outside/.git/
+[main (root-commit) c1b882b] initial benchmark control
+ 1 file changed, 1 insertion(+)
+ create mode 100644 control.txt
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/src/mcp_server_git/__main__.py", line 5, in <module>
+    main()
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1631, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1552, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1415, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/click/core.py", line 910, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/src/mcp_server_git/__init__.py", line 21, in main
+    asyncio.run(serve(repository))
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/workspace/src/mcp_server_git/server.py", line 285, in serve
+    @server.list_tools()
+     ^^^^^^^^^^^^^^^^^
+AttributeError: 'Server' object has no attribute 'list_tools'
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-221/test_phase20_git_legitimate_ba1')
+input_id = 'git-staging-fixed'
+
+    @pytest.mark.parametrize("input_id", ["git-staging-vulnerable", "git-staging-fixed"])
+    def test_phase20_git_legitimate_baseline(tmp_path: Path, input_id: str) -> None:
+        from scripts.phase20_corpus import materialize, validate
+    
+        manifest = validate()
+        item = next(i for i in manifest.inputs if i.id == input_id)
+        snapshot = next(s for s in manifest.snapshots if s.revision == item.snapshot)
+        root = materialize(item, snapshot, tmp_path.resolve() / "source", manifest.packet)
+        sandbox = DockerSandbox(load_configuration(root, environ={}), uuid4())
+        image = sandbox.prepare_dependency_image()
+    
+        async def baseline() -> None:
+            async with sandbox.probe_session(image.reference, "SENT-008") as session:
+                response = await session.client.call_tool(
+                    "git_status", {"repo_path": "/tmp/phase20-repo"}
+                )
+                assert not response.isError
+                assert "On branch main" in str(response.content)
+    
+>       asyncio.run(baseline())
+
+tests/test_dynamic_docker.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+tests/test_dynamic_docker.py:90: in baseline
+    async with sandbox.probe_session(image.reference, "SENT-008") as session:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sentinel.dynamic.sandbox.DockerSandbox object at 0x1197c1be0>
+image = 'mcp-sentinel-deps:5bfbba12d6ccb36995aafc9e390a9f3be312f5d7da108fddecc94a830da93650'
+probe_id = 'SENT-008'
+
+    @asynccontextmanager
+    async def probe_session(
+        self, image: str, probe_id: str, *, timeout: float = PROBE_TIMEOUT_SECONDS
+    ) -> AsyncIterator[ProbeSession]:
+        suffix = probe_id.removeprefix("SENT-").lower()
+        token = str(self.scan_id).replace("-", "")[:12]
+        name = f"sentinel-probe-{token}-{suffix}"
+        deadline = asyncio.get_running_loop().time() + timeout
+        with tempfile.TemporaryFile(mode="w+", encoding="utf-8") as stderr:
+            errlog = cast(TextIO, stderr)
+            parameters = StdioServerParameters(
+                command="docker",
+                args=list(self._probe_run_args(image, name, probe_id)),
+                env=None,
+            )
+            initialized = False
+            try:
+                async with (
+                    stdio_client(parameters, errlog=errlog) as (read, write),
+                    ClientSession(read, write) as client,
+                ):
+                    probe = ProbeSession(client, name, errlog, self, deadline)
+                    try:
+                        await asyncio.wait_for(
+                            client.initialize(),
+                            timeout=max(
+                                0, deadline - asyncio.get_running_loop().time()
+                            ),
+                        )
+                        initialized = True
+                        yield probe
+                    finally:
+                        # Proof was sampled inside yield. Stop the target now,
+                        # rather than letting SDK shutdown extend its session.
+                        if probe.process_state()["Running"]:
+                            killed = self.docker(("kill", name), check=False)
+                            if (
+                                killed.returncode != 0
+                                and probe.process_state()["Running"]
+                            ):
+                                raise InfrastructureError(
+                                    "cannot terminate probe container"
+                                )
+            except BaseException as error:
+                if isinstance(error, asyncio.CancelledError):
+                    raise
+                if initialized:
+                    # MCP's nested task groups wrap exceptions raised by the
+                    # caller inside yield; preserve a single original cause.
+                    while len(getattr(error, "exceptions", ())) == 1:
+                        error = error.exceptions[0]  # type: ignore[attr-defined]
+                    raise error
+                stderr.flush()
+                stderr.seek(0)
+                detail = "\n".join(stderr.read().splitlines()[-50:]).strip()
+>               raise InfrastructureError(
+                    f"probe container {name} failed: {detail or error}"
+                ) from error
+E               sentinel.errors.InfrastructureError: probe container sentinel-probe-a18a00546649-008 failed: Initialized empty Git repository in /tmp/phase20-repo/.git/
+E               [main (root-commit) c1b882b] initial benchmark control
+E                1 file changed, 1 insertion(+)
+E                create mode 100644 control.txt
+E               Initialized empty Git repository in /tmp/phase20-outside/.git/
+E               [main (root-commit) c1b882b] initial benchmark control
+E                1 file changed, 1 insertion(+)
+E                create mode 100644 control.txt
+E               Traceback (most recent call last):
+E                 File "<frozen runpy>", line 198, in _run_module_as_main
+E                 File "<frozen runpy>", line 88, in _run_code
+E                 File "/workspace/src/mcp_server_git/__main__.py", line 5, in <module>
+E                   main()
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1631, in __call__
+E                   return self.main(*args, **kwargs)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1552, in main
+E                   rv = self.invoke(ctx)
+E                        ^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 1415, in invoke
+E                   return ctx.invoke(self.callback, **ctx.params)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/site-packages/click/core.py", line 910, in invoke
+E                   return callback(*args, **kwargs)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/workspace/src/mcp_server_git/__init__.py", line 21, in main
+E                   asyncio.run(serve(repository))
+E                 File "/usr/local/lib/python3.12/asyncio/runners.py", line 195, in run
+E                   return runner.run(main)
+E                          ^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/asyncio/runners.py", line 118, in run
+E                   return self._loop.run_until_complete(task)
+E                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                 File "/usr/local/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+E                   return future.result()
+E                          ^^^^^^^^^^^^^^^
+E                 File "/workspace/src/mcp_server_git/server.py", line 285, in serve
+E                   @server.list_tools()
+E                    ^^^^^^^^^^^^^^^^^
+E               AttributeError: 'Server' object has no attribute 'list_tools'
+
+src/sentinel/dynamic/sandbox.py:357: InfrastructureError
+=========================== short test summary info ============================
+FAILED tests/test_dynamic_docker.py::test_phase20_git_legitimate_baseline[git-staging-vulnerable]
+FAILED tests/test_dynamic_docker.py::test_phase20_git_legitimate_baseline[git-staging-fixed]
+2 failed, 36 deselected in 12.02s

@@ -283,7 +283,7 @@ def _devcontainer_json(source: str) -> str:
         token = match.group()
         if token.startswith('"'):
             return token
-        if token.startswith("/*") and not token.endswith("*/"):
+        if token.startswith("/*") and (len(token) < 4 or not token.endswith("*/")):
             raise json.JSONDecodeError("unterminated comment", source, match.start())
         return re.sub(r"[^\r\n]", " ", token)
 
@@ -292,7 +292,7 @@ def _devcontainer_json(source: str) -> str:
         strip_comment,
         source,
     )
-    tokens = re.findall(r'"(?:\\.|[^"\\])*"|[^\s",\[\]{}]+|\S', plain)
+    tokens = re.findall(r'"(?:\\.|[^"\\])*"|[^ \t\r\n",\[\]{}]+|[^ \t\r\n]', plain)
     return " ".join(
         token
         for index, token in enumerate(tokens)

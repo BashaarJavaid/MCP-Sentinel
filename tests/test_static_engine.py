@@ -206,7 +206,15 @@ def test_devcontainer_jsonc_keeps_source_for_secret_scanning(
 
 @pytest.mark.parametrize(
     "source",
-    ["{/* unterminated", '{"value": 1/* gap */2}', "{,}", "[1,,]", '{"value": }'],
+    [
+        "{/* unterminated",
+        "{}/*/",
+        "[\u00a01]",
+        '{"value": 1/* gap */2}',
+        "{,}",
+        "[1,,]",
+        '{"value": }',
+    ],
 )
 def test_devcontainer_jsonc_rejects_malformed_content(
     tmp_path: Path, source: str

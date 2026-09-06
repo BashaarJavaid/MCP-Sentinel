@@ -75,29 +75,6 @@ def test_pinned_runtime_has_git(python_version: str) -> None:
     _assert_clean(sandbox)
 
 
-@pytest.mark.parametrize("input_id", ["git-staging-vulnerable", "git-staging-fixed"])
-def test_phase20_git_legitimate_baseline(tmp_path: Path, input_id: str) -> None:
-    from scripts.phase20_corpus import materialize, validate
-
-    manifest = validate()
-    item = next(i for i in manifest.inputs if i.id == input_id)
-    snapshot = next(s for s in manifest.snapshots if s.revision == item.snapshot)
-    root = materialize(item, snapshot, tmp_path.resolve() / "source", manifest.packet)
-    sandbox = DockerSandbox(load_configuration(root, environ={}), uuid4())
-    image = sandbox.prepare_dependency_image()
-
-    async def baseline() -> None:
-        async with sandbox.probe_session(image.reference, "SENT-008") as session:
-            response = await session.client.call_tool(
-                "git_status", {"repo_path": "/tmp/phase20-repo"}
-            )
-            assert not response.isError
-            assert "On branch main" in str(response.content)
-
-    asyncio.run(baseline())
-    _assert_clean(sandbox)
-
-
 def _sandbox(tmp_path: Path, case: str) -> DockerSandbox:
     root = tmp_path / "control"
     root.mkdir()

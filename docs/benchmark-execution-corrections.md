@@ -38,6 +38,13 @@ markers inside strings, unchanged secret evidence, and cache invalidation when
 the base digest changes. Real Docker checks run `git --version` in all three
 pinned bases using native sandbox arguments and verify cleanup.
 
+`make check` passed with 673 tests passed and 36 Docker tests skipped, including
+lint, formatting, mypy, schema checks, dependency audit, notices, and the strict
+documentation build. The final malformed-JSONC guards passed a separate 34-test
+focused run plus final lint, formatting, and mypy checks. Docker was selected
+separately: all 36 regression controls passed. These passing controls are
+distinct from the two failed historical Git diagnostics below.
+
 ```sh
 pytest tests/test_static_engine.py tests/test_dynamic_sandbox.py --no-cov
 SENTINEL_RUN_DOCKER_TESTS=1 pytest tests/test_dynamic_docker.py --no-cov
@@ -51,6 +58,39 @@ Corrected-scanner observations are retained under
 the native finding/report contracts. Missing captures remain incomplete;
 newly observable warnings require adjudication and are not assumed to detect
 the labeled vulnerabilities. No new model requests are sent.
+
+Both 45-input diagnostic treatments used scanner bytes matching commit
+`613169b5344b12556f6e92be48b88226a3f1bd7e`. Their metadata records the parent
+revision because measurement began in the working tree before that source
+checkpoint was committed; `diagnostic-summary.json` verifies the exact source
+hash. Subsequent malformed-JSONC guards have separate focused test evidence.
+
+| Observation | Result |
+| --- | --- |
+| Deterministic diagnostic | 32 completed, 13 incomplete; 780.759 seconds |
+| Checked static replay diagnostic | 22 completed, 23 incomplete; 780.880 seconds |
+| Atlassian after JSONC correction | Four inputs hit the native 120-second static timeout; nine fail on Helm template YAML |
+| Retained native reports | All 32 per treatment have unchanged stable findings and coverage compared with the original baseline |
+| Docker regression suite | 36 passed, including Git availability in all three pinned bases |
+| Historical Git startup trials | Both vulnerable/fixed trials fail after Git initialization: MCP SDK 2.1.1 lacks the expected `Server.list_tools` API |
+
+The upstream Git dependency `mcp>=1.0.0` resolves to SDK 2.1.1 in the new image.
+Installed versions are retained in `git-installed-packages.json`; the failing
+trials are in `git-baselines.log`. The diagnostic test can be reproduced from
+commit `613169b` with
+`SENTINEL_RUN_DOCKER_TESTS=1 pytest tests/test_dynamic_docker.py -k phase20_git_legitimate_baseline --no-cov`.
+It is not a passing regression control and is excluded from the current
+regression suite. No legitimate upstream call or runtime exploit was confirmed.
+The snapshot's `src/git/uv.lock` records MCP 1.1.0, which is a candidate for a
+separately prepared runtime configuration; that configuration has not been
+approved or measured. Neither target dependencies nor corpus configuration
+were changed to make these trials succeed.
+
+These are compatibility diagnostics, not new accuracy claims. The next blockers
+are Helm template handling, the bounded static pass on the larger Atlassian
+snapshots, and a reproducible compatible SDK setup for historical Git servers.
+New runtime configuration and any subsequent paid review require their own
+evidence/approval checkpoints.
 
 To reproduce the original baseline, use the frozen benchmark source at
 `daeefe701a6d51120585ee2054128c33c7efafbc` and the
