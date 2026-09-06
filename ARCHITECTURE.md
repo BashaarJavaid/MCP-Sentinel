@@ -1126,3 +1126,35 @@ The required v1 architecture deliberately leaves extension points only where fut
 - [OpenAI Responses API create reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
 - [OpenAI Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)
+
+## 18. Phase 20 benchmark preparation (approval pending)
+
+The independent benchmark is repository tooling, not a scanner mode. Its
+preparation manifest and compressed inputs live under `tests/evals/phase20`;
+provenance, independent review and comparator metadata live under
+`artifacts/phase20`. `python -m scripts.run_phase20_benchmark validate` validates
+the Pydantic manifest, source/configuration identities, bounded archives,
+evidence locations and repository split/lineage without evaluating targets.
+`report` generates a preparation record with explicit pending outcomes for all
+45 labeled inputs. Neither command imports target modules or calls a model.
+
+Checkpoint 1 requires independent source review and user approval of the exact
+manifest hash before corpus freeze or evaluation. Compressed originals retain
+revision-specific licenses; separate paired mutation overlays preserve original
+archive bytes. Fixed/safe labels refer only to named conditions. Reused source
+trees and bundled fixing commits remain correlated observations. Public historical
+cases cannot establish absence of model exposure. Semgrep community rules stay
+outside the repository; only the preselected identities, hashes and commands are
+retained. The [preparation packet](artifacts/phase20/checkpoint1-packet.md) defines
+exact conditions, transformations, proposed matching and runtime prerequisites.
+
+The remaining measurement harness is pending this checkpoint. It must reuse
+configuration loading, orchestration, canonical Findings, cassette validation,
+Docker isolation and native report writers. Deterministic and reviewed static
+treatments must receive identical source/configuration bytes. Native report
+1.6.0 and SARIF 2.1.0 contracts, production candidate limits, rules, prompts and
+probes remain unchanged. Candidate recall, retained-alert recall, confirmed-only
+reviewed recall and runtime proof are distinct; unmatched findings remain
+unadjudicated. Unsupported/incomplete observations stay in denominators.
+Separate named-request budget approvals precede static and runtime live captures.
+No preparation record constitutes a measured baseline or Phase 20 acceptance.
