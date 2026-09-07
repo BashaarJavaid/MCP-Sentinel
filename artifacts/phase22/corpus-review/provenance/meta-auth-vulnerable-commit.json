@@ -1,0 +1,125 @@
+{
+  "sha": "9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+  "node_id": "C_kwDOOYH1JdoAKDljYmQ4YWE0YzUyMzVhNWFlMmYwMWM2MGVhZjQ2NGMwYjYwY2NmNmE",
+  "commit": {
+    "author": {
+      "name": "Yves Junqueira",
+      "email": "yves.junqueira@gmail.com",
+      "date": "2026-05-20T19:19:56Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-05-20T19:19:56Z"
+    },
+    "message": "feat(transport): drop streamable_http_path override + bump to 1.0.108 (#124)\n\nThe override pinned the mount to /mcp/ to match the (incorrect) assumption\nthat prod forwarded /mcp/. Verified via internal-nginx upstream access log\nthat prod META_MCP_BACKEND_URLS is /mcp (no trailing slash), so the SDK\ndefault streamable_http_path = /mcp matches prod and the override is\nunnecessary. Removing it avoids the 307 redirect under prod traffic that\ndetached the undici ArrayBuffer on the Next.js proxy retry path (1.0.106\nregression).\n\nKeeps transport_security.enable_dns_rebinding_protection = False (required\nwhen internal nginx strips the port from the Host header, so the SDKs\nloopback allowlist 127.0.0.1:* never matches). Keeps mcp[cli]==1.23.0 pin.",
+    "tree": {
+      "sha": "6925d83780357cf7f4d52925b65164fb78e303ed",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/trees/6925d83780357cf7f4d52925b65164fb78e303ed"
+    },
+    "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/commits/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqDglcCRC1aQ7uu5UhlAAA5ykQACx/XGwiWlkNWetTj2jFpzLy\nWbFu31fkYT0v2594d5VEw6us+xhCHIaO2UrLrDYFewN8LT3Yrez6sl5rbZph2+ui\n5hjTmCffcPRphXZVZcdlI+047t345UimGnRcgrl+7wY9BjBDIQ6hEDe+Wtw5bEcU\nj2miRovJp+5slmNXUth3WUN93O92xUqMxEOzDoiRAxUS/WuFYAwx5pdWG51BXcyT\nTOuc7CF7eJbgl0ycOzB2qDi4HGzLAr5HyiaukLWQ779rGBFC8SDkMYDesJO023A4\ncq3DmSf8Vk48/Kzjj9lE2NYAAy/iMAUxsL+9HPlulZIZU8wTaXY4n7LoLo/qx00Z\n+p3739rofZPblTQBmhPjdybQwl9cGOA3XSUH3vSO++TLA/GefadUVbkUfjgjKkkQ\njZSXnzmYvo/5MtDUp536nHtH4cgfe60lbm0U4yWCi9IXo5vQrZT4dXOlAnh8/IdO\n+7bDGsBD151JbtJZKaMSb5kmaIWwAUvLSDZnwUneKkJVJQm5OqbSkhwUpMgrsvFL\nLrM1AZl0JjpY2H4B0gXQjGSQeOfHsUp3P/kCp2nF17AZJJOQxXQXufiGYKT1BGiZ\nUrBleZO9ahiZWt8rhLOC+2dBV/GyPwVQIlwpHc2EA3V/19fLclpha6GI7+peVJtz\nRjFuU+fgtgVnbgZPrFLh\n=frUe\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 6925d83780357cf7f4d52925b65164fb78e303ed\nparent ef45fe14dd21c926aadc64f3309655a8725e569c\nauthor Yves Junqueira <yves.junqueira@gmail.com> 1779304796 -0300\ncommitter GitHub <noreply@github.com> 1779304796 -0300\n\nfeat(transport): drop streamable_http_path override + bump to 1.0.108 (#124)\n\nThe override pinned the mount to /mcp/ to match the (incorrect) assumption\nthat prod forwarded /mcp/. Verified via internal-nginx upstream access log\nthat prod META_MCP_BACKEND_URLS is /mcp (no trailing slash), so the SDK\ndefault streamable_http_path = /mcp matches prod and the override is\nunnecessary. Removing it avoids the 307 redirect under prod traffic that\ndetached the undici ArrayBuffer on the Next.js proxy retry path (1.0.106\nregression).\n\nKeeps transport_security.enable_dns_rebinding_protection = False (required\nwhen internal nginx strips the port from the Host header, so the SDKs\nloopback allowlist 127.0.0.1:* never matches). Keeps mcp[cli]==1.23.0 pin.",
+      "verified_at": "2026-05-20T19:19:57Z"
+    }
+  },
+  "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+  "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+  "comments_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/comments",
+  "author": {
+    "login": "nictuku",
+    "id": 202998,
+    "node_id": "MDQ6VXNlcjIwMjk5OA==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/202998?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nictuku",
+    "html_url": "https://github.com/nictuku",
+    "followers_url": "https://api.github.com/users/nictuku/followers",
+    "following_url": "https://api.github.com/users/nictuku/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nictuku/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nictuku/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nictuku/subscriptions",
+    "organizations_url": "https://api.github.com/users/nictuku/orgs",
+    "repos_url": "https://api.github.com/users/nictuku/repos",
+    "events_url": "https://api.github.com/users/nictuku/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nictuku/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "web-flow",
+    "id": 19864447,
+    "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/web-flow",
+    "html_url": "https://github.com/web-flow",
+    "followers_url": "https://api.github.com/users/web-flow/followers",
+    "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+    "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+    "organizations_url": "https://api.github.com/users/web-flow/orgs",
+    "repos_url": "https://api.github.com/users/web-flow/repos",
+    "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/web-flow/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "ef45fe14dd21c926aadc64f3309655a8725e569c",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/ef45fe14dd21c926aadc64f3309655a8725e569c",
+      "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/ef45fe14dd21c926aadc64f3309655a8725e569c"
+    }
+  ],
+  "stats": {
+    "total": 10,
+    "additions": 3,
+    "deletions": 7
+  },
+  "files": [
+    {
+      "sha": "5a4e629d39a8e1aa889e64a5d46911d3bd449330",
+      "filename": "meta_ads_mcp/core/server.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 5,
+      "changes": 6,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/meta_ads_mcp%2Fcore%2Fserver.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/meta_ads_mcp%2Fcore%2Fserver.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2Fcore%2Fserver.py?ref=9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+      "patch": "@@ -337,10 +337,6 @@ def main():\n         mcp_server.settings.port = args.port\n         mcp_server.settings.stateless_http = True\n         mcp_server.settings.json_response = not args.sse_response\n-        # Mount streamable HTTP at /mcp/ (with trailing slash) so requests\n-        # forwarded by an upstream proxy at .../mcp/ are served directly\n-        # instead of receiving a 307 redirect to /mcp (the SDK default).\n-        mcp_server.settings.streamable_http_path = \"/mcp/\"\n         # Disable DNS rebinding protection. The SDK auto-enables it when the\n         # server binds to a loopback host (127.0.0.1 / localhost / ::1) and\n         # ships a port-wildcard allowlist (127.0.0.1:*). An upstream nginx\n@@ -385,7 +381,7 @@ def main():\n         try:\n             logger.info(\"Starting FastMCP server with Streamable HTTP transport\")\n             print(f\"✅ Server configured successfully\")\n-            print(f\"   URL: http://{args.host}:{args.port}{mcp_server.settings.streamable_http_path}/\")\n+            print(f\"   URL: http://{args.host}:{args.port}{mcp_server.settings.streamable_http_path}\")\n             print(f\"   Mode: {'Stateless' if mcp_server.settings.stateless_http else 'Stateful'}\")\n             print(f\"   Format: {'JSON' if mcp_server.settings.json_response else 'SSE'}\")\n             mcp_server.run(transport=\"streamable-http\")"
+    },
+    {
+      "sha": "6ea84dceed21e1fc25e8f4cc2f26fb79dbef199f",
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/pyproject.toml",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/pyproject.toml",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/pyproject.toml?ref=9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+      "patch": "@@ -4,7 +4,7 @@ build-backend = \"hatchling.build\"\n \n [project]\n name = \"meta-ads-mcp\"\n-version = \"1.0.107\"\n+version = \"1.0.108\"\n description = \"Model Context Protocol (MCP) server for Meta Ads - Use Remote MCP at pipeboard.co for easiest setup\"\n readme = \"README.md\"\n requires-python = \">=3.10\""
+    },
+    {
+      "sha": "275d882824f4b9ad0245a80302b9847c7d5c21e4",
+      "filename": "server.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/server.json",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a/server.json",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/server.json?ref=9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+      "patch": "@@ -2,7 +2,7 @@\n   \"$schema\": \"https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json\",\n   \"name\": \"co.pipeboard/meta-ads-mcp\",\n   \"description\": \"Facebook / Meta Ads automation with AI: analyze performance, test creatives, optimize spend.\",\n-  \"version\": \"1.0.107\",\n+  \"version\": \"1.0.108\",\n   \"remotes\": [\n     {\n       \"type\": \"streamable-http\","
+    }
+  ]
+}

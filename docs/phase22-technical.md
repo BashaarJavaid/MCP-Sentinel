@@ -4,6 +4,10 @@ Status: implementation in progress; technical acceptance and external pilot
 acceptance are pending. This is the user-approved target contract, not a claim
 that every capability below is implemented. Phase 21 recruitment remains deferred.
 
+The [execution correction record](phase22-execution.md) describes the implemented
+first increment. The complete [independent corpus proposal](phase22-corpus-review.md)
+is ready for the required freeze decision; new detector tuning has not begun.
+
 ## Evidence and acceptance
 
 Preserve all Phase 20 source, configurations, labels, captures, costs and results.

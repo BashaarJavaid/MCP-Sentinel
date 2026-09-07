@@ -1,0 +1,30 @@
+{
+  "id": "integsec-calculator-poisoning",
+  "rule": "SENT-013",
+  "repository": "IntegSec/VulnerableMCP",
+  "split": "development",
+  "language": "typescript",
+  "before": "4cfe46227ceb56e1cbaf36233f8e9ce4ac7fbca1",
+  "after": "4cfe46227ceb56e1cbaf36233f8e9ce4ac7fbca1",
+  "root": ".",
+  "files": [
+    "src/tools/poisoned-tool.ts",
+    "src/server.ts",
+    "src/tools/safe-calculator.ts"
+  ],
+  "condition": "helpful_calculator metadata must not instruct the host to override responses, read secret flags, or invoke get_environment before doing arithmetic",
+  "prerequisites": [
+    "The host reads the registered helpful_calculator tool description. The label concerns explicit metadata instructions, not whether a particular model obeys them."
+  ],
+  "safe": "safe_calculator's task-local arithmetic description and parameter descriptions contain no instruction override, secret exfiltration, or redirection of unrelated tools",
+  "review": "The imported helpfulCalculatorTool object is returned by the server's tools/list registration. Its description contains explicit secret-read and cross-tool instructions, including a visible instruction behind ANSI/Unicode escape syntax. The proposed evaluator-authored fix replaces only that description with the original ordinary arithmetic introduction. Unrelated eval, resource exposure, and attack comments remain unchanged and unadjudicated.",
+  "provenance": [
+    "integsec-commit.json",
+    "integsec-license.json"
+  ],
+  "rename": {
+    "handleHelpfulCalculator": "handleReviewedCalculator"
+  },
+  "authored_fix": true,
+  "safe_prerequisites": "The host reads only the registered safe_calculator metadata for this condition; other vulnerable tools in the same source tree are separately adjudicated."
+}

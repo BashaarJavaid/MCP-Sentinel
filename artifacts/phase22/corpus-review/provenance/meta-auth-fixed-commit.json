@@ -1,0 +1,173 @@
+{
+  "sha": "14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+  "node_id": "C_kwDOOYH1JdoAKDE0ZDczNzFkNGVkNzdiMWU5YmIwNGZmMWQwMGU5NGUwMGViYTMyYTc",
+  "commit": {
+    "author": {
+      "name": "Yves Junqueira",
+      "email": "yves.junqueira@gmail.com",
+      "date": "2026-05-20T20:13:57Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-05-20T20:13:57Z"
+    },
+    "message": "fix(security): reject unauthenticated HTTP requests + redact tokens in error URLs (GHSA-9gw6-46qc-99vr) (#125)\n\nTwo issues affected operators running --transport streamable-http with a\nMETA_ACCESS_TOKEN env var on a network-reachable port:\n\n- AuthInjectionMiddleware forwarded requests with no auth headers, so any\n  caller could invoke MCP tools using the operator env-var token.\n- make_api_request() serialized request URLs verbatim into error payloads;\n  Meta sends access_token as a query param, so a Graph 4xx echoed the\n  long-lived operator credential back to the caller.\n\nFixes:\n1. Middleware now returns 401 + WWW-Authenticate: Bearer when neither\n   Authorization Bearer nor X-PIPEBOARD-API-TOKEN header is present.\n2. _redact_url() strips access_token and appsecret_proof from the url and\n   request_url fields of error responses.\n\nAdds SECURITY.md with reporting policy and the advisory entry, including\noperator action items (upgrade + rotate any token that may have been\nexposed via earlier error responses).\n\nBumps to 1.0.109.",
+    "tree": {
+      "sha": "980f3d20cae7d3a1c63ed25fb51ec27d4f533f46",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/trees/980f3d20cae7d3a1c63ed25fb51ec27d4f533f46"
+    },
+    "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/commits/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqDhYFCRC1aQ7uu5UhlAAAkh0QAHgcAHswXRqGtWqQg9Zzf5qg\nAvgSJTiBr8M+zGU2KrQHWQKOLHBJncI4SOozILJ84G9FLBFRDVPjpuzMrKK077u/\nEcmmcCgKyvUgrPqL3oDqi8oR6ELNkU47i7vBTbI22sUvu6f9aJ+ovO0FRp4aaLu+\nuTThA0K4Fs/2x3KyHlHg/iroQ5++SSpqZs1VTOEWbjOqUlcmjKVWK20puh4Z6ZG1\npLlKyuTb01DP+kLqTEwZIlVur9xjI8zqGGH806G73eLxoEQHIFjhqoAkyZj21grI\naAywNecokMGLxGjvfciJtnZnSIuoL7YihpM2Rfh4OSgAus62EITbxLDSNsbVXKQ6\ncJ+yuhBkwcXEkVt5E3aQlnFbMwpeTqdZvUJrShghqVbOUtZhQJmqotLw6kujxPhS\nZolBbe8m69vxlTMQWVE6YUVck7PBVTMAsWsPMghCNv7sUubqeWc6ERNkzP+KhDFG\nNs3fH5QK5mOwrZ+V6tQ9SFm+Bp4AdMnSb8Ss9nk2FSu1lV+QF8s9hpm0EQeh5U8D\nSs6VMnAWivCg2QfWHBH92C/ALkJgMB1UbTKJIvD8x6ffkW0rPZAqhQGhtmDsC737\nEOHNZI8gGX2FWzpSd346OrV6FlUMC6L7mXGR8EzAMrusSV5/Gi5ZAS+R5HPqGBwt\nqh9By5YiAyYw+1tE2PzC\n=RjKF\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 980f3d20cae7d3a1c63ed25fb51ec27d4f533f46\nparent 9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a\nauthor Yves Junqueira <yves.junqueira@gmail.com> 1779308037 -0300\ncommitter GitHub <noreply@github.com> 1779308037 -0300\n\nfix(security): reject unauthenticated HTTP requests + redact tokens in error URLs (GHSA-9gw6-46qc-99vr) (#125)\n\nTwo issues affected operators running --transport streamable-http with a\nMETA_ACCESS_TOKEN env var on a network-reachable port:\n\n- AuthInjectionMiddleware forwarded requests with no auth headers, so any\n  caller could invoke MCP tools using the operator env-var token.\n- make_api_request() serialized request URLs verbatim into error payloads;\n  Meta sends access_token as a query param, so a Graph 4xx echoed the\n  long-lived operator credential back to the caller.\n\nFixes:\n1. Middleware now returns 401 + WWW-Authenticate: Bearer when neither\n   Authorization Bearer nor X-PIPEBOARD-API-TOKEN header is present.\n2. _redact_url() strips access_token and appsecret_proof from the url and\n   request_url fields of error responses.\n\nAdds SECURITY.md with reporting policy and the advisory entry, including\noperator action items (upgrade + rotate any token that may have been\nexposed via earlier error responses).\n\nBumps to 1.0.109.",
+      "verified_at": "2026-05-20T20:13:58Z"
+    }
+  },
+  "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+  "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+  "comments_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/comments",
+  "author": {
+    "login": "nictuku",
+    "id": 202998,
+    "node_id": "MDQ6VXNlcjIwMjk5OA==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/202998?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nictuku",
+    "html_url": "https://github.com/nictuku",
+    "followers_url": "https://api.github.com/users/nictuku/followers",
+    "following_url": "https://api.github.com/users/nictuku/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nictuku/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nictuku/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nictuku/subscriptions",
+    "organizations_url": "https://api.github.com/users/nictuku/orgs",
+    "repos_url": "https://api.github.com/users/nictuku/repos",
+    "events_url": "https://api.github.com/users/nictuku/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nictuku/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "web-flow",
+    "id": 19864447,
+    "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/web-flow",
+    "html_url": "https://github.com/web-flow",
+    "followers_url": "https://api.github.com/users/web-flow/followers",
+    "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+    "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+    "organizations_url": "https://api.github.com/users/web-flow/orgs",
+    "repos_url": "https://api.github.com/users/web-flow/repos",
+    "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/web-flow/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+      "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a"
+    }
+  ],
+  "stats": {
+    "total": 269,
+    "additions": 256,
+    "deletions": 13
+  },
+  "files": [
+    {
+      "sha": "8bf59bbacf9e772c5826fce85eb8f63b162836a2",
+      "filename": "SECURITY.md",
+      "status": "added",
+      "additions": 46,
+      "deletions": 0,
+      "changes": 46,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/SECURITY.md",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/SECURITY.md",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/SECURITY.md?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -0,0 +1,46 @@\n+# Security\n+\n+## Reporting a vulnerability\n+\n+Please report security issues privately via GitHub: open a draft advisory\n+from the [Security tab](https://github.com/pipeboard-co/meta-ads-mcp/security/advisories/new)\n+(\"Report a vulnerability\"). Do not file public issues for unpatched\n+vulnerabilities.\n+\n+## Advisories\n+\n+### GHSA-9gw6-46qc-99vr — Unauthenticated HTTP MCP tool execution leaks operator Meta access token\n+\n+- **Severity:** Critical (CVSS 3.1 9.1 — `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N`)\n+- **Affected versions:** `<= 1.0.108` when run with `--transport streamable-http`\n+  and a `META_ACCESS_TOKEN` environment variable.\n+- **Fixed in:** `1.0.109`\n+- **Affected configurations:** Self-hosted deployments that expose the\n+  streamable-HTTP port on a reachable network interface. The hosted MCP at\n+  `*.mcp.pipeboard.co` was not affected — it sits behind an authenticating\n+  proxy and the Python process is bound to localhost.\n+\n+**What went wrong.** `AuthInjectionMiddleware.dispatch()` logged a warning when\n+a request arrived with no `Authorization: Bearer` / `X-PIPEBOARD-API-TOKEN`\n+header and then forwarded the request to the tool handler anyway. Tool handlers\n+fall back to `META_ACCESS_TOKEN` when no per-request token is set, so any\n+network-reachable caller could invoke any MCP tool as the operator. When the\n+downstream Graph API call returned a 4xx, `make_api_request()` serialized\n+`e.request.url` — including `access_token` as a query parameter — verbatim into\n+the JSON-RPC error payload, exposing the long-lived operator credential.\n+\n+**Fix.**\n+1. `AuthInjectionMiddleware` now returns `401 Unauthorized` with\n+   `WWW-Authenticate: Bearer` when neither token header is present.\n+2. `make_api_request()` redacts `access_token` and `appsecret_proof` from any\n+   URLs returned in error payloads (`_redact_url` helper).\n+\n+**Action for operators.**\n+- Upgrade to `1.0.109` or later.\n+- HTTP clients must send `Authorization: Bearer <meta-access-token>` (or the\n+  legacy `X-PIPEBOARD-API-TOKEN` header) on every request. The\n+  `META_ACCESS_TOKEN` env var is no longer used as an implicit fallback for\n+  HTTP transport.\n+- If you exposed an earlier version to an untrusted network, rotate the Meta\n+  access token (`https://developers.facebook.com/tools/debug/accesstoken/`)\n+  and review Graph API access logs for unexpected calls."
+    },
+    {
+      "sha": "3b075b7b35960789b11dd01e6a6d672f4015cc0f",
+      "filename": "meta_ads_mcp/__init__.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2F__init__.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2F__init__.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2F__init__.py?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -6,7 +6,7 @@\n \n from meta_ads_mcp.core.server import main\n \n-__version__ = \"1.0.107\"\n+__version__ = \"1.0.109\"\n \n __all__ = [\n     'get_ad_accounts',"
+    },
+    {
+      "sha": "240dd0a98536771cb2de75c8876ca2039b4f7b45",
+      "filename": "meta_ads_mcp/core/api.py",
+      "status": "modified",
+      "additions": 34,
+      "deletions": 3,
+      "changes": 37,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2Fcore%2Fapi.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2Fcore%2Fapi.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2Fcore%2Fapi.py?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -8,10 +8,40 @@\n import asyncio\n import functools\n import os\n+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode\n from . import auth\n from .auth import needs_authentication, auth_manager, start_callback_server, shutdown_callback_server\n from .utils import logger\n \n+\n+# Query-string params that must never leak to the caller in error payloads.\n+# access_token is the operator credential; appsecret_proof is derived from\n+# the app secret + access token via HMAC and is similarly sensitive.\n+# See GHSA-9gw6-46qc-99vr.\n+_SENSITIVE_QUERY_PARAMS = frozenset({\"access_token\", \"appsecret_proof\"})\n+\n+\n+def _redact_url(url: str) -> str:\n+    \"\"\"Strip sensitive query params (access_token, appsecret_proof) from a URL.\n+\n+    Used to scrub Graph API URLs before they are returned to MCP callers in\n+    error responses.\n+    \"\"\"\n+    if not url:\n+        return url\n+    try:\n+        parts = urlsplit(url)\n+        if not parts.query:\n+            return url\n+        scrubbed = [\n+            (k, \"REDACTED\" if k in _SENSITIVE_QUERY_PARAMS else v)\n+            for k, v in parse_qsl(parts.query, keep_blank_values=True)\n+        ]\n+        return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(scrubbed), parts.fragment))\n+    except Exception:\n+        # Be conservative: if parsing fails, drop the query string entirely.\n+        return url.split(\"?\", 1)[0]\n+\n class McpToolError(Exception):\n     \"\"\"Base class for MCP tool errors that must set isError: true.\n \n@@ -259,14 +289,15 @@ async def make_api_request(\n                 logger.warning(f\"Detected authentication error ({e.response.status_code})\")\n                 auth_manager.invalidate_token()\n             \n-            # Include full details for technical users\n+            # Include full details for technical users. URLs are scrubbed of\n+            # access_token/appsecret_proof — see GHSA-9gw6-46qc-99vr.\n             full_response = {\n                 \"headers\": dict(e.response.headers),\n                 \"status_code\": e.response.status_code,\n-                \"url\": str(e.response.url),\n+                \"url\": _redact_url(str(e.response.url)),\n                 \"reason\": getattr(e.response, \"reason_phrase\", \"Unknown reason\"),\n                 \"request_method\": e.request.method,\n-                \"request_url\": str(e.request.url)\n+                \"request_url\": _redact_url(str(e.request.url))\n             }\n             \n             # Return a properly structured error object"
+    },
+    {
+      "sha": "cfc9cc8ad5fd40e5ea8bb9a04a3a8510c676a7e1",
+      "filename": "meta_ads_mcp/core/http_auth_integration.py",
+      "status": "modified",
+      "additions": 29,
+      "deletions": 7,
+      "changes": 36,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2Fcore%2Fhttp_auth_integration.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/meta_ads_mcp%2Fcore%2Fhttp_auth_integration.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2Fcore%2Fhttp_auth_integration.py?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -244,30 +244,52 @@ def new_patched_app_provider_method(*args, **kwargs):\n # --- AuthInjectionMiddleware definition ---\n from starlette.middleware.base import BaseHTTPMiddleware\n from starlette.requests import Request\n+from starlette.responses import Response\n import json # Ensure json is imported if not already at the top\n \n class AuthInjectionMiddleware(BaseHTTPMiddleware):\n     async def dispatch(self, request: Request, call_next):\n         logger.debug(f\"HTTP Auth Middleware: Processing request to {request.url.path}\")\n         logger.debug(f\"HTTP Auth Middleware: Request headers: {list(request.headers.keys())}\")\n-        \n+\n         # Extract both types of tokens for dual-header authentication\n         auth_token = FastMCPAuthIntegration.extract_token_from_headers(dict(request.headers))\n         pipeboard_token = FastMCPAuthIntegration.extract_pipeboard_token_from_headers(dict(request.headers))\n-        \n+\n+        if not auth_token and not pipeboard_token:\n+            # Reject unauthenticated requests. Without this, the request would fall\n+            # through to tool handlers which transparently use the META_ACCESS_TOKEN\n+            # env var, allowing any network-reachable caller to invoke tools and\n+            # exfiltrate the operator's credential via Graph API error responses.\n+            # See GHSA-9gw6-46qc-99vr.\n+            logger.warning(\n+                \"HTTP Auth Middleware: rejecting request to %s — no Authorization \"\n+                \"Bearer or X-PIPEBOARD-API-TOKEN header present\", request.url.path,\n+            )\n+            return Response(\n+                content=json.dumps({\n+                    \"error\": \"Unauthorized\",\n+                    \"message\": (\n+                        \"Authentication required. Provide an Authorization: Bearer \"\n+                        \"<token> header (Meta access token) or an X-PIPEBOARD-API-TOKEN \"\n+                        \"header. See STREAMABLE_HTTP_SETUP.md.\"\n+                    ),\n+                }),\n+                status_code=401,\n+                media_type=\"application/json\",\n+                headers={\"WWW-Authenticate\": \"Bearer\"},\n+            )\n+\n         if auth_token:\n             logger.debug(f\"HTTP Auth Middleware: Extracted auth token: {auth_token[:10]}...\")\n             logger.debug(\"Injecting auth token into request context\")\n             FastMCPAuthIntegration.set_auth_token(auth_token)\n-        \n+\n         if pipeboard_token:\n             logger.debug(f\"HTTP Auth Middleware: Extracted Pipeboard token: {pipeboard_token[:10]}...\")\n             logger.debug(\"Injecting Pipeboard token into request context\")\n             FastMCPAuthIntegration.set_pipeboard_token(pipeboard_token)\n-        \n-        if not auth_token and not pipeboard_token:\n-            logger.warning(\"HTTP Auth Middleware: No authentication tokens found in headers\")\n-        \n+\n         try:\n             response = await call_next(request)\n             return response"
+    },
+    {
+      "sha": "661771afe4846bc92e6ce330f54475e3976bb553",
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/pyproject.toml",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/pyproject.toml",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/pyproject.toml?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -4,7 +4,7 @@ build-backend = \"hatchling.build\"\n \n [project]\n name = \"meta-ads-mcp\"\n-version = \"1.0.108\"\n+version = \"1.0.109\"\n description = \"Model Context Protocol (MCP) server for Meta Ads - Use Remote MCP at pipeboard.co for easiest setup\"\n readme = \"README.md\"\n requires-python = \">=3.10\""
+    },
+    {
+      "sha": "8fcaa3f5b4beca1d4e73cbec55c4ece9e2d9f930",
+      "filename": "server.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/server.json",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/server.json",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/server.json?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -2,7 +2,7 @@\n   \"$schema\": \"https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json\",\n   \"name\": \"co.pipeboard/meta-ads-mcp\",\n   \"description\": \"Facebook / Meta Ads automation with AI: analyze performance, test creatives, optimize spend.\",\n-  \"version\": \"1.0.108\",\n+  \"version\": \"1.0.109\",\n   \"remotes\": [\n     {\n       \"type\": \"streamable-http\","
+    },
+    {
+      "sha": "5791f61f97256e16db4d8ccf05121bce47798607",
+      "filename": "tests/test_http_auth_security.py",
+      "status": "added",
+      "additions": 144,
+      "deletions": 0,
+      "changes": 144,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/tests%2Ftest_http_auth_security.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7/tests%2Ftest_http_auth_security.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/tests%2Ftest_http_auth_security.py?ref=14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+      "patch": "@@ -0,0 +1,144 @@\n+\"\"\"Regression tests for GHSA-9gw6-46qc-99vr.\n+\n+Covers two fixes:\n+1. AuthInjectionMiddleware rejects unauthenticated HTTP requests with 401\n+   instead of falling through to tool handlers that would use the\n+   META_ACCESS_TOKEN env var.\n+2. make_api_request() scrubs access_token/appsecret_proof from URLs returned\n+   in error payloads.\n+\"\"\"\n+\n+import asyncio\n+import json\n+from unittest.mock import patch, AsyncMock, MagicMock\n+\n+import httpx\n+import pytest\n+from starlette.applications import Starlette\n+from starlette.routing import Route\n+from starlette.responses import JSONResponse\n+from starlette.testclient import TestClient\n+\n+from meta_ads_mcp.core.api import _redact_url, make_api_request\n+from meta_ads_mcp.core.http_auth_integration import AuthInjectionMiddleware\n+\n+\n+def _build_app():\n+    async def downstream(request):\n+        # If middleware ever lets the request through unauthenticated, this\n+        # endpoint would be reached and return a token-shaped body.\n+        return JSONResponse({\"reached_handler\": True})\n+\n+    app = Starlette(routes=[Route(\"/mcp\", downstream, methods=[\"POST\", \"GET\"])])\n+    app.add_middleware(AuthInjectionMiddleware)\n+    return app\n+\n+\n+def test_middleware_rejects_unauthenticated_request():\n+    client = TestClient(_build_app())\n+    resp = client.post(\n+        \"/mcp\",\n+        json={\"jsonrpc\": \"2.0\", \"method\": \"tools/call\", \"id\": 1,\n+              \"params\": {\"name\": \"get_ad_accounts\", \"arguments\": {}}},\n+        headers={\"Accept\": \"application/json, text/event-stream\"},\n+    )\n+    assert resp.status_code == 401\n+    assert resp.headers.get(\"WWW-Authenticate\") == \"Bearer\"\n+    body = resp.json()\n+    assert body[\"error\"] == \"Unauthorized\"\n+    assert \"reached_handler\" not in resp.text\n+\n+\n+def test_middleware_accepts_bearer_token():\n+    client = TestClient(_build_app())\n+    resp = client.post(\n+        \"/mcp\",\n+        json={\"jsonrpc\": \"2.0\", \"method\": \"tools/list\", \"id\": 1},\n+        headers={\"Authorization\": \"Bearer some-meta-token-value-xyz\"},\n+    )\n+    assert resp.status_code == 200\n+    assert resp.json() == {\"reached_handler\": True}\n+\n+\n+def test_middleware_accepts_pipeboard_token():\n+    client = TestClient(_build_app())\n+    resp = client.post(\n+        \"/mcp\",\n+        json={\"jsonrpc\": \"2.0\", \"method\": \"tools/list\", \"id\": 1},\n+        headers={\"X-PIPEBOARD-API-TOKEN\": \"pb-token-abc\"},\n+    )\n+    assert resp.status_code == 200\n+\n+\n+def test_redact_url_strips_access_token():\n+    url = (\n+        \"https://graph.facebook.com/v24.0/me/adaccounts\"\n+        \"?fields=id&limit=1&access_token=SECRET_TOKEN_VALUE_123456789\"\n+    )\n+    redacted = _redact_url(url)\n+    assert \"SECRET_TOKEN_VALUE_123456789\" not in redacted\n+    assert \"access_token=REDACTED\" in redacted\n+    assert \"fields=id\" in redacted\n+    assert \"limit=1\" in redacted\n+\n+\n+def test_redact_url_strips_appsecret_proof():\n+    url = \"https://graph.facebook.com/v24.0/me?access_token=T&appsecret_proof=PROOF\"\n+    redacted = _redact_url(url)\n+    assert \"PROOF\" not in redacted\n+    assert \"appsecret_proof=REDACTED\" in redacted\n+    assert \"access_token=REDACTED\" in redacted\n+\n+\n+def test_redact_url_no_query_string():\n+    url = \"https://graph.facebook.com/v24.0/me/adaccounts\"\n+    assert _redact_url(url) == url\n+\n+\n+def test_redact_url_empty():\n+    assert _redact_url(\"\") == \"\"\n+\n+\n+@pytest.mark.asyncio\n+async def test_make_api_request_error_response_does_not_leak_token():\n+    \"\"\"End-to-end check: 4xx from Graph API must not echo the access token.\"\"\"\n+    secret = \"FAKE_ACCESS_TOKEN_VALUE_FOR_TEST_123\"\n+\n+    # Mock httpx response: 400 with a Graph-style error body.\n+    error_body = {\"error\": {\"message\": \"Invalid OAuth access token data.\",\n+                            \"type\": \"OAuthException\", \"code\": 190}}\n+\n+    fake_request = httpx.Request(\n+        \"GET\",\n+        f\"https://graph.facebook.com/v24.0/me/adaccounts?fields=id&access_token={secret}\",\n+    )\n+    fake_response = httpx.Response(\n+        status_code=400,\n+        request=fake_request,\n+        headers={\"content-type\": \"application/json\"},\n+        content=json.dumps(error_body).encode(),\n+    )\n+\n+    async def fake_get(self, url, params=None, headers=None, timeout=None):\n+        # httpx.AsyncClient.get is called with params separately; build the\n+        # final URL the same way httpx would for an accurate test.\n+        req = httpx.Request(\"GET\", url, params=params, headers=headers)\n+        resp = httpx.Response(\n+            status_code=400,\n+            request=req,\n+            headers={\"content-type\": \"application/json\"},\n+            content=json.dumps(error_body).encode(),\n+        )\n+        return resp\n+\n+    with patch(\"httpx.AsyncClient.get\", new=fake_get):\n+        result = await make_api_request(\"me/adaccounts\", secret, {\"fields\": \"id\"})\n+\n+    assert \"error\" in result\n+    full = result[\"error\"][\"full_response\"]\n+    serialized = json.dumps(result)\n+    assert secret not in serialized, (\n+        f\"access_token leaked in error payload: {serialized}\"\n+    )\n+    assert \"access_token=REDACTED\" in full[\"request_url\"]\n+    assert \"access_token=REDACTED\" in full[\"url\"]"
+    }
+  ]
+}

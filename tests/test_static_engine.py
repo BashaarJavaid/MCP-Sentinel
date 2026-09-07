@@ -249,7 +249,9 @@ def test_helm_template_retains_secret_checks_and_discloses_yaml_omission(
     result = run_static_scan(configuration, uuid4(), timestamp=NOW)
     assert any(
         f.rule_id == "SENT-005"
+        and isinstance(f.location, FileLocation)
         and f.location.path == "charts/server/templates/deployment.yaml"
+        and f.location.range.start_line == 4
         for f in result.findings
     )
     assert any(

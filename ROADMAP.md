@@ -1136,12 +1136,16 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Status: next technical work; full verification gate pending.** Uses Phase 20's
+**Status: technical work in progress; full verification gate pending.** Uses Phase 20's
 benchmark. The sequencing exception in §1 permits bounded technical work before
 Phase 21 completes; pilot-dependent work and full completion still depend on
 Phase 21. The expanded technical scope is user-authorized. Begin with
 path-containment detection and complete all ten benchmark families, verified
 against independent vulnerable/fixed cases and safe controls.
+
+The [execution correction increment](docs/phase22-execution.md) restores 45/45
+rules-only completion and prepares a 13/13 Git startup/discovery environment for
+approval. New detectors and the remaining technical expansion are not complete.
 
 ### Objective
 

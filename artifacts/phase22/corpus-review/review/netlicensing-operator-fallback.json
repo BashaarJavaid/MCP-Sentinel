@@ -1,0 +1,29 @@
+{
+  "id": "netlicensing-operator-fallback",
+  "rule": "SENT-016",
+  "repository": "Labs64/NetLicensing-MCP",
+  "split": "held_out",
+  "language": "python",
+  "before": "e826d695df5a08d250dc88e9d8843ff0042ce35a",
+  "after": "fbbb1d5ff88eb5400ec933a84e75601ebee48927",
+  "root": ".",
+  "files": [
+    "src/netlicensing_mcp/server.py",
+    "src/netlicensing_mcp/client.py",
+    "src/netlicensing_mcp/tools/products.py"
+  ],
+  "condition": "An HTTP MCP caller without a client API key must not invoke NetLicensing operations using NETLICENSING_API_KEY from the operator environment",
+  "prerequisites": [
+    "HTTP transport with NETLICENSING_API_KEY configured and an untrusted caller reaching an MCP tool route without a caller key; the health endpoint is excluded."
+  ],
+  "safe": "A nonempty valid caller key set for the request is used by the upstream client and reset after the request; authorized caller-bound credentials are not fallback",
+  "review": "The client ContextVar defaults from the operator environment and supplies HTTP Basic credentials. Previously the middleware forwarded missing-key requests without overriding that context. The fix rejects missing credentials outside the health endpoint before forwarding while retaining set/reset around caller-authenticated requests.",
+  "provenance": [
+    "netlicensing-advisory.json",
+    "netlicensing-fix.json"
+  ],
+  "rename": {
+    "api_key_ctx": "phase22CredentialContext"
+  },
+  "safe_prerequisites": "HTTP MCP route receives a valid caller-owned API key; the request context is set before forwarding and reset afterward; health checks are excluded."
+}

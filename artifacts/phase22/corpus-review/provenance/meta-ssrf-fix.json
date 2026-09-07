@@ -1,0 +1,173 @@
+{
+  "sha": "7d9926336bbdac6285a988d043c4ccfe126c94c5",
+  "node_id": "C_kwDOOYH1JdoAKDdkOTkyNjMzNmJiZGFjNjI4NWE5ODhkMDQzYzRjY2ZlMTI2Yzk0YzU",
+  "commit": {
+    "author": {
+      "name": "Yves Junqueira",
+      "email": "202998+nictuku@users.noreply.github.com",
+      "date": "2026-06-05T18:55:21Z"
+    },
+    "committer": {
+      "name": "GitHub",
+      "email": "noreply@github.com",
+      "date": "2026-06-05T18:55:21Z"
+    },
+    "message": "fix(security): block SSRF in upload_ad_image image_url fetch (GHSA-45gf-fjxp-cjpq) (1.0.115) (#138)\n\nupload_ad_image and the image-viewing tools fetched a caller-supplied URL server-side with follow_redirects enabled and no host/IP validation, allowing the server to reach loopback, private-network, and cloud-metadata addresses.\n\n- Add validate_public_url(): allow only http/https and reject hosts resolving to private/loopback/link-local/reserved/multicast/unspecified addresses (unwraps IPv4-mapped IPv6).\n- Re-validate every redirect hop via an httpx request event hook on all outbound image fetches.\n- download_image returns None for blocked URLs; try_multiple_download_methods raises so upload_ad_image surfaces a clear error.\n- Add tests (tests/test_ssrf_url_validation.py); document advisory in SECURITY.md; bump to 1.0.115.\n\nFixes GHSA-45gf-fjxp-cjpq.",
+    "tree": {
+      "sha": "09aa1045d303ed12abcd6afcabf52ecbbbd2defe",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/trees/09aa1045d303ed12abcd6afcabf52ecbbbd2defe"
+    },
+    "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/git/commits/7d9926336bbdac6285a988d043c4ccfe126c94c5",
+    "comment_count": 0,
+    "verification": {
+      "verified": true,
+      "reason": "valid",
+      "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJqIxuZCRC1aQ7uu5UhlAAA4FEQAJPfm1/13MbZWMNIENY3QSOc\nqn8ooGMragKQPWo+Vx16j3xMT6kOI88B1E8EnGtQNlWwhf2g45nWwFMabe9OfNH+\nVKK9Hj837sz3TEonQIQzjmof2XL0dnTYb+HM6XXBmVqPiYJqaeKWFuZI23LmvPGM\n1BN3LmZz+fHNCQQhS5Y6W8VnySuYOpoEa4S6Xh+mZWSIy9loRbTmH99zUC1GDkkE\nM07lXuFlrn05umdkouFwz/PcRAduIU1ZJRUugZDdrS2FwfV66fUHBjDfg/zo32Nn\nBrz6SOSDlFgaFgKxW3ZzUc0q8GaJrJWxpBVt+nONRYlUHlHQzaNcs/kjoEFG2jgA\nRrYmBlYqXj2IIckHHruJpcgIPEgx46l7/fXJdgxznDdnOMIfp7rgLab4gY4B7Aor\nyEONjzKTi+yfzRwXy3KW+Dq7iXuuGPCA+FmdSE8aRdirq+eQDzaL2YiT9hmxD+mq\n5ETsbilYPjErf7j8IYGSHv8EGuiDXaMkgXX1lkrPL2teMx9p1RZz5yruT+mtwcn1\n5hJEvOSDWeZO5e2TtyvgOybD23ymuuV3rvnHz0nypVm7yxLmgZoaa55uqc+y4k8k\nwd4T6cWpSChHZleMHYYeGId1vO0k8JgM+02bIBydvSEhTnzAwTk/1HEBwjk3WVVW\nxBAw27hQJg5at/iy2zm1\n=XBpZ\n-----END PGP SIGNATURE-----\n",
+      "payload": "tree 09aa1045d303ed12abcd6afcabf52ecbbbd2defe\nparent 95e852793b7ff8604a8132e85d5facd08c91a36e\nauthor Yves Junqueira <202998+nictuku@users.noreply.github.com> 1780685721 -0300\ncommitter GitHub <noreply@github.com> 1780685721 -0300\n\nfix(security): block SSRF in upload_ad_image image_url fetch (GHSA-45gf-fjxp-cjpq) (1.0.115) (#138)\n\nupload_ad_image and the image-viewing tools fetched a caller-supplied URL server-side with follow_redirects enabled and no host/IP validation, allowing the server to reach loopback, private-network, and cloud-metadata addresses.\n\n- Add validate_public_url(): allow only http/https and reject hosts resolving to private/loopback/link-local/reserved/multicast/unspecified addresses (unwraps IPv4-mapped IPv6).\n- Re-validate every redirect hop via an httpx request event hook on all outbound image fetches.\n- download_image returns None for blocked URLs; try_multiple_download_methods raises so upload_ad_image surfaces a clear error.\n- Add tests (tests/test_ssrf_url_validation.py); document advisory in SECURITY.md; bump to 1.0.115.\n\nFixes GHSA-45gf-fjxp-cjpq.",
+      "verified_at": "2026-06-05T18:55:21Z"
+    }
+  },
+  "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/7d9926336bbdac6285a988d043c4ccfe126c94c5",
+  "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/7d9926336bbdac6285a988d043c4ccfe126c94c5",
+  "comments_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/7d9926336bbdac6285a988d043c4ccfe126c94c5/comments",
+  "author": {
+    "login": "nictuku",
+    "id": 202998,
+    "node_id": "MDQ6VXNlcjIwMjk5OA==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/202998?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/nictuku",
+    "html_url": "https://github.com/nictuku",
+    "followers_url": "https://api.github.com/users/nictuku/followers",
+    "following_url": "https://api.github.com/users/nictuku/following{/other_user}",
+    "gists_url": "https://api.github.com/users/nictuku/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/nictuku/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/nictuku/subscriptions",
+    "organizations_url": "https://api.github.com/users/nictuku/orgs",
+    "repos_url": "https://api.github.com/users/nictuku/repos",
+    "events_url": "https://api.github.com/users/nictuku/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/nictuku/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "committer": {
+    "login": "web-flow",
+    "id": 19864447,
+    "node_id": "MDQ6VXNlcjE5ODY0NDQ3",
+    "avatar_url": "https://avatars.githubusercontent.com/u/19864447?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/web-flow",
+    "html_url": "https://github.com/web-flow",
+    "followers_url": "https://api.github.com/users/web-flow/followers",
+    "following_url": "https://api.github.com/users/web-flow/following{/other_user}",
+    "gists_url": "https://api.github.com/users/web-flow/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/web-flow/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/web-flow/subscriptions",
+    "organizations_url": "https://api.github.com/users/web-flow/orgs",
+    "repos_url": "https://api.github.com/users/web-flow/repos",
+    "events_url": "https://api.github.com/users/web-flow/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/web-flow/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "parents": [
+    {
+      "sha": "95e852793b7ff8604a8132e85d5facd08c91a36e",
+      "url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/commits/95e852793b7ff8604a8132e85d5facd08c91a36e",
+      "html_url": "https://github.com/pipeboard-co/meta-ads-mcp/commit/95e852793b7ff8604a8132e85d5facd08c91a36e"
+    }
+  ],
+  "stats": {
+    "total": 371,
+    "additions": 354,
+    "deletions": 17
+  },
+  "files": [
+    {
+      "sha": "eb88958151800331388310e564c5d053c741e9f9",
+      "filename": ".email-allowlist",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 0,
+      "changes": 1,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/.email-allowlist",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/.email-allowlist",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/.email-allowlist?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -13,4 +13,5 @@ info@pipeboard.co\n # pytest decorator false-positive: @pytest.mark.asyncio matches the email regex\n # because the diff +@pytest.mark.asyncio has + in the character class\n pytest.mark.asyncio\n+pytest.mark.parametrize\n pytest.fixture"
+    },
+    {
+      "sha": "668fed86dfc1ff978a4c25c39dc0669ab676830d",
+      "filename": "SECURITY.md",
+      "status": "modified",
+      "additions": 36,
+      "deletions": 0,
+      "changes": 36,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/SECURITY.md",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/SECURITY.md",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/SECURITY.md?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -9,6 +9,42 @@ vulnerabilities.\n \n ## Advisories\n \n+### GHSA-45gf-fjxp-cjpq — Server-Side Request Forgery (SSRF) in `upload_ad_image` via unrestricted `image_url` fetch\n+\n+- **Severity:** High (CVSS 3.1 8.3 — `AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:L`)\n+- **Affected versions:** `<= 1.0.114` when run with `--transport streamable-http`.\n+- **Fixed in:** `1.0.115`\n+- **Affected configurations:** Self-hosted deployments that expose the\n+  streamable-HTTP port on a reachable network interface, especially when\n+  co-located with internal services or a cloud metadata endpoint. The hosted\n+  MCP at `*.mcp.pipeboard.co` binds the Python process to localhost behind an\n+  authenticating proxy, so it was not reachable by unauthenticated callers; the\n+  fix is still applied there as defense-in-depth.\n+\n+**What went wrong.** `upload_ad_image` (and the image-viewing tools) passed a\n+caller-supplied URL straight to an HTTP client (`download_image` /\n+`try_multiple_download_methods`) with `follow_redirects=True` and no scheme,\n+host, or IP validation. A caller could supply `http://127.0.0.1/...`, an RFC\n+1918 address, or `http://169.254.169.254/` (cloud instance metadata) and make\n+the server issue outbound requests to those targets. On the streamable-HTTP\n+transport the image fetch ran before Meta credential validation, so any\n+non-empty bearer token reached the sink.\n+\n+**Fix.**\n+1. A new `validate_public_url()` guard restricts fetches to `http`/`https`\n+   URLs whose host resolves only to public addresses. Private, loopback,\n+   link-local (incl. `169.254.169.254`), reserved, multicast, and unspecified\n+   addresses are rejected; IPv4-mapped IPv6 addresses are unwrapped first.\n+2. An httpx request event hook re-validates every redirect hop, so a public URL\n+   cannot redirect into a private/internal address.\n+\n+**Action for operators.**\n+- Upgrade to `1.0.115` or later.\n+- If you exposed an earlier version on a reachable interface, review outbound\n+  request and access logs for unexpected internal fetches, and ensure the cloud\n+  metadata service is hardened (e.g. IMDSv2 / metadata not reachable from the\n+  app process).\n+\n ### GHSA-9gw6-46qc-99vr — Unauthenticated HTTP MCP tool execution leaks operator Meta access token\n \n - **Severity:** Critical (CVSS 3.1 9.1 — `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N`)"
+    },
+    {
+      "sha": "1190e7fa8cced9d9d7b2f89f68018e514f6bc46a",
+      "filename": "meta_ads_mcp/__init__.py",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/meta_ads_mcp%2F__init__.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/meta_ads_mcp%2F__init__.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2F__init__.py?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -6,7 +6,7 @@\n \n from meta_ads_mcp.core.server import main\n \n-__version__ = \"1.0.114\"\n+__version__ = \"1.0.115\"\n \n __all__ = [\n     'get_ad_accounts',"
+    },
+    {
+      "sha": "84d8d6aa9496bbc2d713d0f37b6b5f9a056c8ae3",
+      "filename": "meta_ads_mcp/core/utils.py",
+      "status": "modified",
+      "additions": 148,
+      "deletions": 14,
+      "changes": 162,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/meta_ads_mcp%2Fcore%2Futils.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/meta_ads_mcp%2Fcore%2Futils.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/meta_ads_mcp%2Fcore%2Futils.py?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -12,6 +12,9 @@\n import logging\n import pathlib\n import platform\n+import ipaddress\n+import socket\n+from urllib.parse import urlparse\n \n # Check for Meta app credentials in environment\n META_APP_ID = os.environ.get(\"META_APP_ID\", \"\")\n@@ -144,37 +147,153 @@ def extract_creative_image_urls(creative: Dict[str, Any]) -> List[str]:\n     return unique_urls\n \n \n+# --- Server-side request forgery (SSRF) guard for outbound image fetches ---\n+#\n+# upload_ad_image and the image-viewing tools fetch a caller-supplied URL\n+# server-side. Without validation an attacker could point the URL at internal\n+# services (http://127.0.0.1/...), private networks (10.x/192.168.x/172.16.x),\n+# or the cloud metadata endpoint (http://169.254.169.254/) and use the server\n+# as a proxy. See GHSA-45gf-fjxp-cjpq.\n+#\n+# Known residual: a hostname that resolves to a public IP at validation time\n+# but to a private IP at connection time (DNS rebinding) is not fully closed,\n+# since httpx resolves independently when it connects. The practical vectors\n+# (a directly-internal URL, and a public URL that redirects inward) are blocked.\n+\n+class BlockedURLError(Exception):\n+    \"\"\"Raised when a URL targets a disallowed (non-public) address.\"\"\"\n+\n+\n+_ALLOWED_URL_SCHEMES = (\"http\", \"https\")\n+\n+\n+def _ip_is_disallowed(ip) -> bool:\n+    \"\"\"Return True if `ip` is not a public, routable address.\n+\n+    Blocks private, loopback, link-local (incl. 169.254.169.254 cloud\n+    metadata), reserved, multicast, and unspecified addresses. IPv4-mapped\n+    IPv6 addresses (e.g. ::ffff:127.0.0.1) are unwrapped first so they can't\n+    be used to smuggle a private IPv4 target past the check.\n+    \"\"\"\n+    mapped = getattr(ip, \"ipv4_mapped\", None)\n+    if mapped is not None:\n+        ip = mapped\n+    return (\n+        ip.is_private\n+        or ip.is_loopback\n+        or ip.is_link_local\n+        or ip.is_reserved\n+        or ip.is_multicast\n+        or ip.is_unspecified\n+    )\n+\n+\n+def validate_public_url(url: str) -> None:\n+    \"\"\"Validate that `url` is safe to fetch from the server (SSRF guard).\n+\n+    Raises BlockedURLError if the URL is not http(s), has no host, or resolves\n+    to any non-public address. A literal-IP host is checked directly; a\n+    hostname is resolved and every returned address must be public.\n+    \"\"\"\n+    if not url or not isinstance(url, str):\n+        raise BlockedURLError(\"No URL provided\")\n+\n+    parsed = urlparse(url.strip())\n+    scheme = (parsed.scheme or \"\").lower()\n+    if scheme not in _ALLOWED_URL_SCHEMES:\n+        raise BlockedURLError(\n+            f\"URL scheme '{parsed.scheme}' is not allowed; \"\n+            \"only http and https URLs can be fetched\"\n+        )\n+\n+    host = parsed.hostname\n+    if not host:\n+        raise BlockedURLError(\"URL has no host\")\n+\n+    try:\n+        candidate_ips = [ipaddress.ip_address(host)]\n+    except ValueError:\n+        # Not a literal IP — resolve the hostname and check every address.\n+        try:\n+            infos = socket.getaddrinfo(host, None)\n+        except socket.gaierror as e:\n+            raise BlockedURLError(f\"Could not resolve host '{host}': {e}\")\n+        candidate_ips = []\n+        for info in infos:\n+            ip_text = info[4][0].split(\"%\")[0]  # strip any IPv6 scope id\n+            try:\n+                candidate_ips.append(ipaddress.ip_address(ip_text))\n+            except ValueError:\n+                continue\n+        if not candidate_ips:\n+            raise BlockedURLError(f\"Could not resolve host '{host}' to any IP address\")\n+\n+    for ip in candidate_ips:\n+        if _ip_is_disallowed(ip):\n+            raise BlockedURLError(\n+                f\"Refusing to fetch '{host}': it resolves to a non-public address \"\n+                f\"({ip}). Private, loopback, link-local, and cloud-metadata \"\n+                \"addresses are blocked to prevent server-side request forgery.\"\n+            )\n+\n+\n+async def _ssrf_guard_request_hook(request: \"httpx.Request\") -> None:\n+    \"\"\"httpx request event hook that re-validates every outbound request.\n+\n+    Fires for the initial request and for each redirect hop, so a public URL\n+    cannot redirect into a private/internal address.\n+    \"\"\"\n+    validate_public_url(str(request.url))\n+\n+\n async def download_image(url: str) -> Optional[bytes]:\n     \"\"\"\n     Download an image from a URL.\n-    \n+\n     Args:\n         url: Image URL\n-        \n+\n     Returns:\n         Image data as bytes if successful, None otherwise\n     \"\"\"\n+    # SSRF guard: refuse non-public targets before opening any connection.\n+    try:\n+        validate_public_url(url)\n+    except BlockedURLError as e:\n+        logger.warning(\"Refusing to download image from disallowed URL: %s\", e)\n+        print(f\"Refusing to download image from disallowed URL: {e}\")\n+        return None\n+\n     try:\n         print(f\"Attempting to download image from URL: {url}\")\n-        \n+\n         # Use minimal headers like curl does\n         headers = {\n             \"User-Agent\": \"curl/8.4.0\",\n             \"Accept\": \"*/*\"\n         }\n-        \n-        async with httpx.AsyncClient(follow_redirects=True, timeout=30.0) as client:\n+\n+        async with httpx.AsyncClient(\n+            follow_redirects=True,\n+            timeout=30.0,\n+            event_hooks={\"request\": [_ssrf_guard_request_hook]},\n+        ) as client:\n             # Simple GET request just like curl\n             response = await client.get(url, headers=headers)\n-            \n+\n             # Check response\n             if response.status_code == 200:\n                 print(f\"Successfully downloaded image: {len(response.content)} bytes\")\n                 return response.content\n             else:\n                 print(f\"Failed to download image: HTTP {response.status_code}\")\n                 return None\n-                \n+\n+    except BlockedURLError as e:\n+        # A redirect pointed at a disallowed (non-public) address.\n+        logger.warning(\"Blocked SSRF redirect during image download: %s\", e)\n+        print(f\"Blocked image download (redirect to disallowed address): {e}\")\n+        return None\n     except httpx.HTTPStatusError as e:\n         print(f\"HTTP Error when downloading image: {e}\")\n         return None\n@@ -195,33 +314,48 @@ async def try_multiple_download_methods(url: str) -> Optional[bytes]:\n         \n     Returns:\n         Image data as bytes if successful, None otherwise\n+\n+    Raises:\n+        BlockedURLError: if `url` targets a non-public address (SSRF guard),\n+            raised up-front so callers can surface a clear rejection message.\n     \"\"\"\n+    # SSRF guard: validate once up-front and propagate a clear error. Each\n+    # client below also re-validates every request (including redirect hops)\n+    # via _ssrf_guard_request_hook, so a public URL cannot redirect inward.\n+    validate_public_url(url)\n+\n     # Method 1: Direct download with custom headers\n     image_data = await download_image(url)\n     if image_data:\n         return image_data\n-    \n+\n     print(\"Direct download failed, trying alternative methods...\")\n-    \n+\n     # Method 2: Try adding Facebook cookie simulation\n     try:\n         headers = {\n             \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36\",\n             \"Accept\": \"image/webp,image/apng,image/*,*/*;q=0.8\",\n             \"Cookie\": \"presence=EDvF3EtimeF1697900316EuserFA21B00112233445566AA0EstateFDutF0CEchF_7bCC\"  # Fake cookie\n         }\n-        \n-        async with httpx.AsyncClient(follow_redirects=True) as client:\n+\n+        async with httpx.AsyncClient(\n+            follow_redirects=True,\n+            event_hooks={\"request\": [_ssrf_guard_request_hook]},\n+        ) as client:\n             response = await client.get(url, headers=headers, timeout=30.0)\n             response.raise_for_status()\n             print(f\"Method 2 succeeded with cookie simulation: {len(response.content)} bytes\")\n             return response.content\n     except Exception as e:\n         print(f\"Method 2 failed: {str(e)}\")\n-    \n+\n     # Method 3: Try with session that keeps redirects and cookies\n     try:\n-        async with httpx.AsyncClient(follow_redirects=True) as client:\n+        async with httpx.AsyncClient(\n+            follow_redirects=True,\n+            event_hooks={\"request\": [_ssrf_guard_request_hook]},\n+        ) as client:\n             # First visit Facebook to get cookies\n             await client.get(\"https://www.facebook.com/\", timeout=30.0)\n             # Then try the image URL\n@@ -231,7 +365,7 @@ async def try_multiple_download_methods(url: str) -> Optional[bytes]:\n             return response.content\n     except Exception as e:\n         print(f\"Method 3 failed: {str(e)}\")\n-    \n+\n     return None\n \n "
+    },
+    {
+      "sha": "7cbea944d368fad8c6a8155fb5405d2bd67b5bcf",
+      "filename": "pyproject.toml",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/pyproject.toml",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/pyproject.toml",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/pyproject.toml?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -4,7 +4,7 @@ build-backend = \"hatchling.build\"\n \n [project]\n name = \"meta-ads-mcp\"\n-version = \"1.0.114\"\n+version = \"1.0.115\"\n description = \"Model Context Protocol (MCP) server for Meta Ads - Use Remote MCP at pipeboard.co for easiest setup\"\n readme = \"README.md\"\n requires-python = \">=3.10\""
+    },
+    {
+      "sha": "9897d20f2aae535b5568b91f82cca8e4f4d911b7",
+      "filename": "server.json",
+      "status": "modified",
+      "additions": 1,
+      "deletions": 1,
+      "changes": 2,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/server.json",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/server.json",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/server.json?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -2,7 +2,7 @@\n   \"$schema\": \"https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json\",\n   \"name\": \"co.pipeboard/meta-ads-mcp\",\n   \"description\": \"Facebook / Meta Ads automation with AI: analyze performance, test creatives, optimize spend.\",\n-  \"version\": \"1.0.114\",\n+  \"version\": \"1.0.115\",\n   \"remotes\": [\n     {\n       \"type\": \"streamable-http\","
+    },
+    {
+      "sha": "1284c2eaf72dfcc29d6be88aca09fd1f45b84da5",
+      "filename": "tests/test_ssrf_url_validation.py",
+      "status": "added",
+      "additions": 166,
+      "deletions": 0,
+      "changes": 166,
+      "blob_url": "https://github.com/pipeboard-co/meta-ads-mcp/blob/7d9926336bbdac6285a988d043c4ccfe126c94c5/tests%2Ftest_ssrf_url_validation.py",
+      "raw_url": "https://github.com/pipeboard-co/meta-ads-mcp/raw/7d9926336bbdac6285a988d043c4ccfe126c94c5/tests%2Ftest_ssrf_url_validation.py",
+      "contents_url": "https://api.github.com/repos/pipeboard-co/meta-ads-mcp/contents/tests%2Ftest_ssrf_url_validation.py?ref=7d9926336bbdac6285a988d043c4ccfe126c94c5",
+      "patch": "@@ -0,0 +1,166 @@\n+\"\"\"\n+Tests for the SSRF guard on server-side image fetches.\n+\n+Covers GHSA-45gf-fjxp-cjpq: upload_ad_image / the image-viewing tools fetch a\n+caller-supplied URL server-side, so the URL must be restricted to public\n+http(s) targets before any connection is opened.\n+\n+These tests use literal IPs for the block/allow matrix so they do not depend on\n+network DNS; only the \"localhost\" case exercises real name resolution (which is\n+universally available).\n+\"\"\"\n+\n+import json\n+from unittest.mock import AsyncMock, patch\n+\n+import httpx\n+import pytest\n+\n+from meta_ads_mcp.core.utils import (\n+    BlockedURLError,\n+    validate_public_url,\n+    download_image,\n+    try_multiple_download_methods,\n+    _ssrf_guard_request_hook,\n+)\n+\n+\n+# --- validate_public_url: blocked targets -----------------------------------\n+\n+BLOCKED_URLS = [\n+    \"http://127.0.0.1/poc.jpg\",            # loopback\n+    \"http://127.0.0.1:9009/x\",             # loopback w/ port\n+    \"http://169.254.169.254/latest/meta-data/\",  # cloud metadata (link-local)\n+    \"http://10.0.0.1/internal\",            # RFC 1918\n+    \"http://10.255.255.255/\",              # RFC 1918\n+    \"http://192.168.1.1/admin\",            # RFC 1918\n+    \"http://172.16.0.1/\",                  # RFC 1918\n+    \"http://0.0.0.0/\",                     # unspecified\n+    \"http://[::1]/\",                       # IPv6 loopback\n+    \"http://[::ffff:127.0.0.1]/\",          # IPv4-mapped IPv6 loopback bypass\n+    \"http://[fe80::1]/\",                   # IPv6 link-local\n+    \"http://[fc00::1]/\",                   # IPv6 unique-local (private)\n+    \"https://169.254.169.254/\",            # https also blocked\n+]\n+\n+\n+@pytest.mark.parametrize(\"url\", BLOCKED_URLS)\n+def test_validate_public_url_blocks_internal_targets(url):\n+    with pytest.raises(BlockedURLError):\n+        validate_public_url(url)\n+\n+\n+@pytest.mark.parametrize(\n+    \"url\",\n+    [\n+        \"file:///etc/passwd\",\n+        \"ftp://example.com/x\",\n+        \"gopher://127.0.0.1:6379/_INFO\",\n+        \"data:image/png;base64,AAAA\",\n+        \"//example.com/x\",       # no scheme\n+        \"example.com/x\",         # no scheme\n+    ],\n+)\n+def test_validate_public_url_blocks_non_http_schemes(url):\n+    with pytest.raises(BlockedURLError):\n+        validate_public_url(url)\n+\n+\n+@pytest.mark.parametrize(\"url\", [\"\", None, \"http://\", \"https:///path\"])\n+def test_validate_public_url_blocks_empty_or_hostless(url):\n+    with pytest.raises(BlockedURLError):\n+        validate_public_url(url)\n+\n+\n+def test_validate_public_url_blocks_localhost_name():\n+    # Resolves (127.0.0.1 / ::1) and must be rejected.\n+    with pytest.raises(BlockedURLError):\n+        validate_public_url(\"http://localhost:8080/admin\")\n+\n+\n+# --- validate_public_url: allowed targets -----------------------------------\n+\n+@pytest.mark.parametrize(\n+    \"url\",\n+    [\n+        \"https://1.1.1.1/image.jpg\",       # public IPv4 literal\n+        \"http://8.8.8.8/x.png\",            # public IPv4 literal\n+        \"https://[2606:4700:4700::1111]/x.jpg\",  # public IPv6 literal\n+    ],\n+)\n+def test_validate_public_url_allows_public_ip_literals(url):\n+    # Should not raise.\n+    validate_public_url(url)\n+\n+\n+# --- request event hook (covers redirect hops) ------------------------------\n+\n+async def test_ssrf_guard_request_hook_blocks_internal():\n+    req = httpx.Request(\"GET\", \"http://169.254.169.254/latest/meta-data/\")\n+    with pytest.raises(BlockedURLError):\n+        await _ssrf_guard_request_hook(req)\n+\n+\n+async def test_ssrf_guard_request_hook_allows_public():\n+    req = httpx.Request(\"GET\", \"https://8.8.8.8/x.png\")\n+    await _ssrf_guard_request_hook(req)  # should not raise\n+\n+\n+async def test_redirect_to_internal_is_blocked_via_hook():\n+    \"\"\"A public URL that 302-redirects to an internal address must be blocked\n+    at the redirect hop by the event hook, not followed.\"\"\"\n+\n+    def handler(request: httpx.Request) -> httpx.Response:\n+        if request.url.host == \"8.8.8.8\":\n+            # The public entry point redirects inward.\n+            return httpx.Response(302, headers={\"Location\": \"http://169.254.169.254/secret\"})\n+        # Reaching the internal target means the guard failed; return 200 so the\n+        # get() would succeed and the pytest.raises below would fail the test.\n+        return httpx.Response(200, content=b\"SHOULD-NOT-BE-FETCHED\")\n+\n+    transport = httpx.MockTransport(handler)\n+    async with httpx.AsyncClient(\n+        transport=transport,\n+        follow_redirects=True,\n+        event_hooks={\"request\": [_ssrf_guard_request_hook]},\n+    ) as client:\n+        with pytest.raises(BlockedURLError):\n+            await client.get(\"https://8.8.8.8/start\")\n+\n+\n+# --- download_image: returns None (does not raise) for blocked URLs ---------\n+\n+async def test_download_image_returns_none_for_blocked_url():\n+    # No network: validation fails before any connection attempt.\n+    result = await download_image(\"http://127.0.0.1/secret\")\n+    assert result is None\n+\n+\n+# --- try_multiple_download_methods: raises for blocked URLs -----------------\n+\n+async def test_try_multiple_download_methods_raises_for_blocked_url():\n+    with pytest.raises(BlockedURLError):\n+        await try_multiple_download_methods(\"http://169.254.169.254/latest/meta-data/\")\n+\n+\n+# --- upload_ad_image surfaces a clear error for an internal image_url --------\n+\n+async def test_upload_ad_image_rejects_internal_image_url():\n+    from meta_ads_mcp.core.ads import upload_ad_image\n+\n+    # make_api_request must never be called — the fetch is rejected first.\n+    with patch(\n+        \"meta_ads_mcp.core.ads.make_api_request\", new_callable=AsyncMock\n+    ) as mock_api:\n+        result_json = await upload_ad_image(\n+            access_token=\"test\",\n+            account_id=\"act_123\",\n+            image_url=\"http://169.254.169.254/latest/meta-data/\",\n+        )\n+\n+    mock_api.assert_not_called()\n+\n+    # The MCP tool wrapper may nest the payload under a data field; just assert\n+    # the rejection signal is present in the serialized response.\n+    assert \"error\" in result_json\n+    assert \"non-public address\" in result_json"
+    }
+  ]
+}
