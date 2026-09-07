@@ -16,7 +16,7 @@ import pytest
 
 from scripts.capture_gpt_reviews import historical_eval_findings
 from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
-from sentinel.finding import FileLocation, FindingStatus
+from sentinel.finding import FileLocation, FindingStatus, StaticEvidence
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.semantic_reviewer import SemanticReviewer
 from sentinel.llm.tools import extract_tool_catalog
@@ -26,6 +26,26 @@ from tests.conftest import NOW, make_target
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = ("python", "typescript")
+
+
+def test_prompt_analysis_completes_branch_heavy_non_sink_functions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("sentinel.static.engine.STATIC_TIMEOUT_SECONDS", 1)
+    branches = "".join(f"    if flags[{i}]:\n        value = {i}\n" for i in range(30))
+    result = _scan(
+        tmp_path,
+        "python",
+        "SENT-004",
+        "def bookkeeping(flags):\n" + branches + "    return value\n\n"
+        "def actual_sink(tool, client):\n"
+        "    content = tool.description\n"
+        "    return client.responses.create(input=content)\n",
+    )
+    assert len(result.findings) == 1
+    assert isinstance(result.findings[0].evidence, StaticEvidence)
+    assert "responses.create" in result.findings[0].evidence.snippet
+
 
 # Locally generated public test vectors signing b"{}"; no private keys retained.
 SIGNATURE_VECTORS = {

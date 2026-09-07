@@ -1,0 +1,117 @@
+# Phase 22 technical expansion
+
+Status: implementation in progress; technical acceptance and external pilot
+acceptance are pending. This is the user-approved target contract, not a claim
+that every capability below is implemented. Phase 21 recruitment remains deferred.
+
+## Evidence and acceptance
+
+Preserve all Phase 20 source, configurations, labels, captures, costs and results.
+Its 45 inputs are exposed regression evidence, including the historical held-out
+split; improvement on them is not fresh held-out performance. Record Phase 22
+measurements separately under `artifacts/phase22/` using the existing archive,
+provenance, condition scorer, capture ledger and report infrastructure.
+
+Before freezing new evidence, independently review ten vulnerable/fixed pairs
+(one development and one separate held-out repository per new rule), ten safe
+controls and paired structural mutations. Approval binds exact revisions,
+licenses, conditions and repository split. Keep holdout source out of tuning;
+exposing a case requires relabeling it and replacement holdout evidence.
+
+Both static tiers must complete all 45 historical inputs, detect all 20 vulnerable
+conditions, and produce no condition-matched alerts on fixed/safe inputs. GPT
+must retain correct candidates; count `needs_review`. Report fresh holdout results
+separately without an invented accuracy threshold. Keep unrelated warnings
+explicitly unadjudicated unless reviewed. Repeat deterministic measurements.
+
+## Rule contracts
+
+| Rule | Meaning | OWASP | Impact |
+| --- | --- | --- | --- |
+| SENT-012 | Path containment failure | ASI02:2026 | High |
+| SENT-013 | Tool-description poisoning | ASI01:2026 | High |
+| SENT-014 | Command-option injection | ASI05:2026 | Critical |
+| SENT-015 | Server-side request forgery | ASI02:2026 | High |
+| SENT-016 | Operator-credential fallback across a caller boundary | ASI03:2026 | High |
+
+Enable these rules by default when implemented. Preserve selection, suppression,
+baseline identity, severity calculation and candidate-bound Finding provenance.
+SENT-002 retains its execution meaning, including Kubernetes shell construction.
+Each new rule needs independent pairs, applicable Python/TypeScript controls,
+remediation, OWASP justification and the existing rule acceptance checklist.
+
+Containment requires a relevant input/boundary/sink relationship, including
+traversal, absolute paths, prefix collisions and source-supported symlink failures.
+Poisoning requires explicit instruction override, secret exfiltration or cross-tool
+redirection in statically recoverable tool/parameter descriptions; ordinary
+imperatives, suspicious vocabulary and quoted security warnings are controls.
+Option injection follows caller values into supported command-specific positions,
+starting with Git references; recognize enforced rejection and safe argument
+handling. SSRF follows service URLs into requests and covers prohibited schemes
+and literal private/loopback destinations, without claiming DNS-rebinding coverage.
+Credential fallback must establish an unauthorized caller/operator boundary;
+nearby middleware or unrelated checks are insufficient.
+
+## Compatibility and execution contract
+
+Reuse the current parsers and Semgrep. Support imported handlers/schemas, local
+aliases/re-exports, statically bound helpers/methods, cross-file guards/sinks,
+low-level registration/dispatch, and declared uv/npm/pnpm workspaces. Resolve local
+package exports and TypeScript aliases inside the repository boundary. An aggregate
+static scan includes both languages with per-member coverage and root configuration;
+disclose nested configurations not applied. Individual package scans use their own
+configuration. Dynamic scanning still selects one Python stdio package in Docker.
+
+Unresolved dynamic imports, reflection, ambiguous dispatch, unsupported schemas,
+and inaccessible members stay visible. Never follow symlinks, import target code,
+render charts or execute target tooling during static analysis.
+
+Recognized Helm chart templates keep their original bytes for text/secret checks;
+disclose omission of structured YAML analysis. Ordinary YAML and Sentinel
+configuration remain strict. Profile the failing snapshots at the unchanged
+120-second deadline before removing repeated work; do not exclude relevant source
+or disable detectors. A separate Git benchmark environment needs an exact tested
+SDK pin and dependency packet approved before adoption. Preserve original upstream
+source and Phase 20 environment; prove startup/discovery inside Docker.
+
+## Review, campaigns and schema specification
+
+Review stays candidate-bound. Supply repository-relative resolved flow blocks
+inside the existing 160-line total, validate references against supplied blocks,
+retain redaction and disclose omissions. Invalidate changed request/cache identities;
+reuse captures only after request compatibility verification.
+
+Expand only SENT-008 through SENT-011. Enumerate supported probe/tool/argument/
+mutation combinations and schedule deterministic round-robin coverage with GPT
+priorities inside that schedule. Defaults: 24 attempts or 120 seconds, whichever
+comes first. Every attempt has separate fresh baseline and attack containers.
+`--max-probe-attempts` and `--campaign-timeout-seconds`, matching `SENTINEL_*`
+variables and `[sandbox]` settings accept positive integers with CLI > environment
+> file precedence. Rules-only bypasses runtime settings. Action uses repository
+configuration. Preserve baseline validity, schema checks, observable effects,
+isolation, interruption cleanup and runtime-proof protection.
+
+Native schema 1.7.0 will add workspace coverage and one `probe_outcomes` record per
+planned attempt, stable attempt IDs and campaign budget/coverage totals. Record all
+untested remainders; exhausting a budget with eligible work remaining returns 3.
+Migrate 1.3–1.6 reports/baselines without changing Finding identities, suppression,
+nullable reviews or runtime proof; old outcomes become legacy attempts without
+invented historical coverage. SARIF stays 2.1.0. Until migration ships, native
+reports remain 1.6.0.
+
+## Delivery and outstanding decisions
+
+Deliver tested draft increments in contract/evidence, execution, containment/shared
+discovery, remaining detectors/compatibility, review/campaign, report/acceptance
+order. Run Ruff, format, strict mypy, schemas, branch-coverage tests, dependency and
+notices checks, strict docs, and applicable Docker/CI checks. Report completion,
+support, recall, retained findings, abstentions, incorrect suppressions, false
+alarms, timing and cost. Rerun comparable pinned Semgrep measurements; Snyk/Cisco
+performance stays unmeasured.
+
+The corpus freeze, Git SDK environment and paid evaluation require concrete
+approval packets. Paid packets name requests, purpose, model, request/dollar caps
+and stopping conditions; offline checks precede them. Merge and publication await
+user decision. No new parser, language, remote runtime, independent AI discovery,
+stateful exploitation, telemetry or outreach is authorized. Technical acceptance
+does not satisfy pilot, adoption or whole-repository safety gates.

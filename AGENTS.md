@@ -92,7 +92,11 @@ entry is not implemented behavior.
 The user has deferred recruitment due to limited time and no available
 maintainer participants. Continue bounded Phase 22 technical work using Phase
 20's measured detection gaps, starting with path-containment detection and
-independent vulnerable/fixed cases and safe controls. Defer pilot-driven
+independent vulnerable/fixed cases and safe controls. The subsequent approved
+Phase 22 plan authorizes all ten benchmark families and all five compatibility
+areas; see `docs/phase22-technical.md`. Corpus freeze, the tested Git SDK
+environment and paid evaluation retain their explicit approval checkpoints.
+Defer pilot-driven
 compatibility prioritization until participant feedback is available. Phase 21
 remains incomplete; Phase 22 cannot pass its full gate without pilot evidence.
 Author-run scans and benchmark improvements do not replace external validation.

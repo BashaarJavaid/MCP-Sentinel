@@ -27,7 +27,14 @@ testing in Phase 26 does not require AI discovery in Phase 25.
 author currently lacks time and available maintainer participants. Phase 22 may
 begin bounded technical work selected from Phase 20's measured detection gaps,
 starting with path-containment detection and independent vulnerable/fixed cases.
-Pilot-driven compatibility prioritization waits for participant feedback.
+The user subsequently authorized all ten Phase 20 vulnerability families and
+all five compatibility areas: imported handlers/schemas; local imports,
+aliases/re-exports and bound helpers/methods; cross-file flows; low-level SDK
+registration/dispatch; and declared Python/TypeScript workspaces. The approved
+technical contract and implementation status are in
+[`docs/phase22-technical.md`](docs/phase22-technical.md). Corpus freeze, the exact
+tested Git SDK environment, and paid requests require separate concrete packets
+and user approval. Pilot-driven prioritization waits for participant feedback.
 Phase 21 remains incomplete, and Phase 22 cannot pass its full verification gate
 until the required pilot evidence is available. Author-run scans and benchmark
 improvements do not substitute for external validation. Resume Phase 21 when
@@ -1132,8 +1139,9 @@ helps solve and identify the obstacles to voluntary CI adoption.
 **Status: next technical work; full verification gate pending.** Uses Phase 20's
 benchmark. The sequencing exception in §1 permits bounded technical work before
 Phase 21 completes; pilot-dependent work and full completion still depend on
-Phase 21. Begin with path-containment detection, verified against independent
-vulnerable/fixed cases and safe controls, before selecting the next measured gap.
+Phase 21. The expanded technical scope is user-authorized. Begin with
+path-containment detection and complete all ten benchmark families, verified
+against independent vulnerable/fixed cases and safe controls.
 
 ### Objective
 
@@ -1148,10 +1156,15 @@ while keeping the supported boundary explicit.
 - Evaluate command argument injection beyond `shell=True`; use the independent
   corpus to select supported sinks and safe controls. Assign new stable rule IDs
   for new meanings rather than stretching existing execution/permission rules.
-- Once pilot feedback is available, fix the top pilot compatibility blocker
-  before other compatibility expansion. Prioritize imported handlers,
-  imported schemas, cross-file flows, and workspace layouts within Python and
-  TypeScript according to observed demand; publish remaining exclusions.
+- Implement the five authorized compatibility areas in §1, including imported
+  handlers/schemas, aliases and statically bound helpers/methods, cross-file
+  flows, low-level registration/dispatch and declared uv/npm/pnpm workspaces.
+  Pilot-driven prioritization and the pilot compatibility acceptance gate remain
+  pending external feedback; technical completion cannot satisfy that gate.
+- Add the approved SENT-012–SENT-016 catalog and correct SENT-002 Kubernetes
+  execution detection. Correct Helm parsing, measured static repeated work and
+  Git startup under the separately approved environment. Follow the detailed
+  [technical contract](docs/phase22-technical.md) and decision checkpoints.
 - Expand fixed dynamic campaigns across eligible tools and relevant parameters
   with explicit budgets, deterministic scheduling, and per-attempt evidence.
   Reconcile the old four-attempt/probe-plan contract before implementing this.

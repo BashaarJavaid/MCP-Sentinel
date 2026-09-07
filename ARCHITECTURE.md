@@ -10,6 +10,12 @@ The [PortunusMCP Gateway](https://github.com/BashaarJavaid/PortunusMCP) and Port
 
 ## 2. v1 scope
 
+Phase 22's user-approved expansion contract is specified in
+[`docs/phase22-technical.md`](docs/phase22-technical.md), including new rule
+meanings, workspace compatibility, bounded campaigns and schema 1.7.0 migration.
+Those changes remain pending until implemented and verified; the current scope
+and native 1.6.0 contracts below continue to describe shipped behavior.
+
 ### Supported
 
 - Local repository paths only.
@@ -342,6 +348,18 @@ catalog for GPT review.
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
 ### Phase 16 flow and safety recognition
+
+Phase 22's execution correction indexes SENT-004 prompt sinks before branch
+analysis and reuses each event's sink list across paths. Functions without a
+supported sink cannot produce this rule's finding; source and coverage inventory
+are retained. The 120-second scan deadline and detector selection are unchanged.
+
+Static traversal recognizes YAML with template delimiters below a chart's
+`templates/` directory when a non-symlink `Chart.yaml` exists inside the scan
+root. Original bytes still reach text/secret checks. Each such file emits
+`static_helm_template_unparsed`, disclosing omitted structured YAML analysis.
+Ordinary YAML, chart values and `sentinel.*` configuration remain strictly parsed.
+Sentinel never renders charts or runs target tooling.
 
 `SENT-002` combines the installed engine with bounded Python AST and TypeScript
 source analysis. It traces tool inputs through top-level same-file named
