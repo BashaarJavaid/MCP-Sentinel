@@ -1147,7 +1147,13 @@ The [execution correction increment](docs/phase22-execution.md) restores 45/45
 rules-only completion and records a 13/13 Git startup/discovery environment.
 The user subsequently authorized its adoption and the new corpus freeze;
 `artifacts/phase22/authorization.json` binds both exact packets. New detectors
-and the remaining technical expansion are not complete. The
+and the remaining technical expansion are not complete. The consolidated integration
+branch now includes the original TypeScript argument-identity correction, nested
+Python command/registration flows, shared review evidence and SENT-015 request
+analysis. A milestone suite passed 891 tests; later changes have focused checks.
+These are intermediate implementation records, not the final repeated benchmark,
+campaign, reviewed-evaluation or hosted acceptance gates. See the
+[implementation status](docs/phase22-implementation-status.md). The
 [workspace increment](docs/phase22-workspaces.md) records the corrected
 TypeScript parent, aggregate workspace source scanning and separately retained
 verification. Native 1.7.0, campaigns, the remaining detector families and

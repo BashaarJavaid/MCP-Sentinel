@@ -12,15 +12,34 @@ September 7, 2026. Continue in `phase22/integration`, currently checked out at
 `/private/tmp/mcp-phase22-options`. Existing draft PRs remain checkpoints;
 do not maintain the old branch stack for each subsequent change.
 
-The integration branch preserves unfinished SENT-014 in checkpoint `2c057c5`
-and incorporates the report/review draft from `47974d0`, including delivered
-parents through PR #36 (`8b6b0dd`). These are work in progress, not verified
-technical acceptance. The last pre-consolidation focused command,
-`pytest tests/test_command_options.py tests/test_typescript_discovery.py --no-cov -q`,
-reported 22 passes and two failures involving unrelated/replaced TypeScript
-argument guards. Resolve those and complete the report contract before claiming
-the integration passes. No new full-suite or hosted run was triggered merely
-to consolidate branches.
+The integration branch incorporates the unfinished SENT-014 checkpoint and the
+preserved report/review draft, including delivered parents through PR #36.
+The original two TypeScript argument-identity failures are fixed in `37f2190`.
+Nested Python registration/mutable command flow, shared caller evidence, and
+conditional-value corrections are committed through `355f0f7`. A full milestone
+suite at `192296d` passed **891 tests, 36 skipped, 86.84% branch coverage**; this
+is not final-candidate evidence for later source changes.
+
+Subsequent work adds line-preserving multiline credential redaction (`da52eb3`),
+SENT-015 caller URL/destination flow (`d3fcf79`), fixed JSON argument positions
+(`dbb2464`) and fixed public URL prefixes (`536bb69`). The review/context/proof
+suite passed 71 tests with loopback permission; the first SSRF affected suite
+passed 201 tests. The dbt five-input measurement at `355f0f7` completed with two
+vulnerable selector hits and zero fixed/control selector alerts. Its 13 unrelated
+candidates are separately classified in `artifacts/phase22/integration/dbt-adjudication.json`.
+Five codegen candidates were false positives; their correction is in `dbb2464`.
+Eight other candidates remain uncertain after implementation-agent source review.
+These correlated development inputs do not establish held-out accuracy.
+
+The first Meta SSRF pair was incomplete because of multiline redaction. After
+correction both scans complete: three image-request candidates in the vulnerable
+snapshot and none at those sinks in the fixed snapshot. Unrelated candidates
+remain separate. The subsequent ten-input development run at `536bb69` completes both five-input
+families: each has two vulnerable condition hits and zero fixed/control condition
+alerts. Five dbt codegen false positives are removed; the Meta reports retain 240
+unrelated candidate instances needing adjudication. All historical conditions, campaigns,
+the complete report migration and final hosted verification remain open. Source,
+commands, failures and logs are retained in `artifacts/phase22/integration/`.
 
 Use focused checks while coding, full checks at substantial integration
 milestones, and the complete final benchmark/OS matrix before acceptance. Retain
@@ -56,11 +75,11 @@ and [shared containment](phase22-shared-containment.md), plus
 | Cross-file caller/guard/sink relationships | `path_flow.py`, `typescript_path_flow.py`, SENT-012 tests | Complete approved Atlassian service factories/uploads, filesystem collection/symlink branches, Mastra security-failure flags and fallback, and all condition-level adjudications. |
 | SDK-injected context and bounded factories | PR #34 regressions cover imported Context, rebinding, simple local factory objects, inherited/replaced methods and annotation-only controls | Arbitrary factories, reflection, custom construction and dynamic instance state are not established by these tests. |
 | All ten exposed benchmark families | Existing SENT-012 increments plus retained Phase 20 inputs | Condition-correct detection of all 20 vulnerable inputs and clean fixed/control behavior is not established. Remaining Git option, filesystem, Atlassian, Excel, mobile and Kubernetes conditions need implementation/adjudication. |
-| SENT-013/014/015/016 and Kubernetes SENT-002 | SENT-013 default detector, controls, development measurement and rule checklist implemented; see description increment | Complete SENT-014/015/016 and Kubernetes, remaining detector support and final rule acceptance. SENT-013 holdout and reviewed retention remain pending. |
+| SENT-013/014/015/016 and Kubernetes SENT-002 | SENT-013 delivered; SENT-014 nested command flows and SENT-015 request flows now have local controls and development measurements | Complete SENT-014/015/016 and Kubernetes, remaining detector support and final rule acceptance. SENT-013 holdout and reviewed retention remain pending. |
 | uv/npm/pnpm membership, local exports, aliases and inherited compiler settings | Workspace/module tests; aggregate root and individual-package configuration checks | Complete structured member coverage, unsupported/inaccessible counts, all negative compatibility cases and detector integration. Dynamic scans still select one Python package. |
-| Candidate-bound 160-line review context | Preserved `report-campaign` draft carries flow locations and context blocks | Complete deduplication, omission/redaction/boundary/reference checks, request/cache compatibility and runtime-proof preservation. Prepare replacements only for changed requests. |
+| Candidate-bound 160-line review context | Integrated draft carries merged flow locations and context blocks; multiline redaction/context/proof regressions pass | Complete deduplication, omission/redaction/boundary/reference checks, request/cache compatibility and runtime-proof preservation. Prepare replacements only for changed requests. |
 | Bounded ordered campaigns | Existing runtime pipeline remains rule-keyed | Implement ordered attempts, stable IDs, round-robin fairness, 24-attempt/120-second budgets, settings precedence, fresh baseline/attack containers, schema drift, interruption/cleanup and explicit unstarted remainder. |
-| Native 1.7.0 and consumers | Experimental report/migration changes preserved separately; delivered branches remain native 1.6.0 | Complete attempt/discovery/outcome references and invariants, legacy 1.3–1.6 migrations, workspace consistency, Finding/report schemas, console/JSON/SARIF and owning documentation. |
+| Native 1.7.0 and consumers | Report/migration draft incorporated into integration; native 1.7 is not yet verified | Complete attempt/discovery/outcome references and invariants, legacy 1.3–1.6 migrations, workspace consistency, Finding/report schemas, console/JSON/SARIF and owning documentation. |
 | Independent evidence and held-out evaluation | Existing corpus authorization and Git environment preserved unchanged | Finish development-condition measurements before evaluating fresh holdout source. Held-out performance has not been measured here. |
 | Unrelated findings and competitor measurement | `shared-containment/finding-delta.json` compares 45 inputs; unchanged historical backlog remains unadjudicated | Adjudicate any later new/changed unrelated findings. Rerun the pinned comparable Semgrep measurements; Snyk/Cisco performance remains unmeasured. |
 | Git runtime and paid reviewed comparison | Authorized `mcp==1.29.0` environment and earlier startup/discovery proof retained | Integrate campaign evidence; after offline gates pass, prepare exact paid requests/model/capture reuse/token/dollar ceilings and obtain approval. Reviewed completion/retention for all 45 inputs remains pending. |
