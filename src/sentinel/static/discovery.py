@@ -84,6 +84,13 @@ class PythonProgram:
         self.modules: dict[str, list[ParsedPythonFile]] = defaultdict(list)
         self.bindings: dict[str, dict[str, list[ast.AST]]] = {}
         self.warnings: list[ReportWarning] = []
+        self.parents = {
+            child: parent
+            for file in files
+            for parent in ast.walk(file.tree)
+            for child in ast.iter_child_nodes(parent)
+        }
+        self.local_bindings: dict[ast.AST, dict[str, list[ast.AST]]] = {}
         for file in files:
             parts = list(PurePosixPath(file.relative_path).with_suffix("").parts)
             if parts[-1] == "__init__":
@@ -106,6 +113,60 @@ class PythonProgram:
                             bindings[target.id].append(node)
             self.bindings[file.relative_path] = dict(bindings)
 
+    def resolve_in(
+        self,
+        symbol: Symbol,
+        name: str,
+        seen: frozenset[tuple[int, str]] = frozenset(),
+        *,
+        global_seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> Symbol | None:
+        """Resolve lexical helpers without treating a shadowed name as a global."""
+        key = (id(symbol.node), name)
+        if key in seen or len(seen) >= 64:
+            return None
+        first, _, rest = name.partition(".")
+        owner: ast.AST | None = symbol.node
+        while owner is not None:
+            if isinstance(owner, Function):
+                if owner not in self.local_bindings:
+                    bindings: dict[str, list[ast.AST]] = defaultdict(list)
+                    for node in scope_nodes(owner):
+                        if isinstance(node, (Function, ast.ClassDef)):
+                            bindings[node.name].append(node)
+                        elif isinstance(node, ast.Name) and isinstance(
+                            node.ctx, ast.Store
+                        ):
+                            bindings[node.id].append(self.parents[node])
+                        elif isinstance(node, ast.arg):
+                            bindings[node.arg].append(node)
+                    self.local_bindings[owner] = dict(bindings)
+                nodes = self.local_bindings[owner].get(first, [])
+                if nodes:
+                    if len(nodes) != 1:
+                        return None
+                    node = nodes[0]
+                    names = [first]
+                    ancestor: ast.AST | None = owner
+                    while ancestor is not None:
+                        if isinstance(ancestor, (Function, ast.ClassDef)):
+                            names.insert(0, ancestor.name)
+                        ancestor = self.parents.get(ancestor)
+                    if isinstance(node, Function) and not rest:
+                        return Symbol(symbol.file, ".".join(names), node)
+                    if isinstance(node, (ast.Assign, ast.AnnAssign)) and node.value:
+                        alias = qualified_name(node.value)
+                        if alias:
+                            return self.resolve_in(
+                                Symbol(symbol.file, symbol.name, owner),
+                                alias + ("." + rest if rest else ""),
+                                seen | {key},
+                                global_seen=global_seen,
+                            )
+                    return None
+            owner = self.parents.get(owner)
+        return self.resolve(symbol.file, name, global_seen)
+
     def resolve(
         self,
         file: ParsedPythonFile,
@@ -126,6 +187,41 @@ class PythonProgram:
             target = qualified_name(value) if value else None
             if isinstance(node.value, ast.Call):
                 constructor = self.resolve(file, target, seen) if target else None
+                if constructor and isinstance(constructor.node, Function):
+                    factory = constructor.node
+                    if (
+                        factory.decorator_list
+                        or not factory.body
+                        or not isinstance(factory.body[-1], ast.Return)
+                    ):
+                        return None
+                    returned = []
+                    for statement in scope_nodes(factory):
+                        if isinstance(statement, ast.Return):
+                            returned_name = (
+                                qualified_name(statement.value)
+                                if statement.value is not None
+                                else None
+                            )
+                            binding = (
+                                self.resolve_in(
+                                    constructor, returned_name, global_seen=seen
+                                )
+                                if returned_name
+                                else None
+                            )
+                            if binding is None:
+                                return None
+                            returned.append(binding)
+                    if (
+                        not rest
+                        and returned
+                        and all(binding == returned[0] for binding in returned)
+                        and isinstance(returned[0].node, Function)
+                        and not returned[0].node.decorator_list
+                    ):
+                        return returned[0]
+                    return None
                 if constructor is None or not self.plain_instance(constructor):
                     return None
             return (
@@ -246,11 +342,7 @@ class PythonProgram:
                         region.node,
                     )
                 )
-            parents = {
-                child: node
-                for node in ast.walk(file.tree)
-                for child in ast.iter_child_nodes(node)
-            }
+            parents = self.parents
             for node in ast.walk(file.tree):
                 if not isinstance(node, ast.Call):
                     continue
@@ -283,7 +375,11 @@ class PythonProgram:
                             arg.arg == (name or "").split(".")[0] for arg in parameters
                         )
                     owner = parents.get(owner)
-                handler = self.resolve(file, name) if name and not shadowed else None
+                handler = (
+                    self.resolve_in(Symbol(file, name, node), name)
+                    if name and not shadowed
+                    else None
+                )
                 if handler is None or not isinstance(handler.node, Function):
                     self.warnings.append(
                         ReportWarning(

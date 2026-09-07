@@ -7,23 +7,110 @@ import json
 from dataclasses import replace
 from typing import Any
 
-from sentinel.static.ast_utils import match_from_node, qualified_name
+from sentinel.static.ast_utils import match_from_node, qualified_name, resolve_name
 from sentinel.static.discovery import Symbol
-from sentinel.static.model import RuleRunState, StaticContext, StaticMatch, TypeScriptSourceFile
-from sentinel.static.path_flow import PathFlow, Value
+from sentinel.static.model import (
+    RuleRunState,
+    StaticContext,
+    StaticMatch,
+    TypeScriptSourceFile,
+)
+from sentinel.static.path_flow import PathFlow, Value, _key, combine
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
-from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze as analyze_typescript
+from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 
 
 class OptionFlow(PathFlow):
     rule_id = "SENT-014"
 
+    def __init__(self, *args: Any) -> None:
+        super().__init__(*args)
+        self.argv: dict[str, tuple[Value, ...]] = {}
+        self.literals: dict[str, str] = {}
+        self.git_commands: set[str] = set()
+
+    def sequence(self, values: tuple[Value, ...], identity: str) -> Value:
+        result = combine(list(values), _key("argv", identity, *(v.key for v in values)))
+        self.argv[result.key] = values
+        return result
+
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        super().merge(env, branches)
+        for name, value in env.items():
+            variants = [branch.get(name, Value()) for branch in branches]
+            sequences = [self.argv.get(v.key) for v in variants]
+            if sequences and all(v is not None for v in sequences):
+                # A terminator is trusted only when every path retains its order.
+                if all(v == sequences[0] for v in sequences):
+                    self.argv[value.key] = sequences[0] or ()
+                else:
+                    self.argv[value.key] = (
+                        Value(),
+                        *(
+                            item
+                            for sequence in sequences
+                            if sequence is not None
+                            for item in sequence
+                            if item.sources
+                        ),
+                    )
+
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
     ) -> Value:
+        identity = (
+            f"{symbol.file.relative_path}:{getattr(node, 'lineno', 0)}:"
+            f"{getattr(node, 'col_offset', 0)}"
+        )
+        if isinstance(node, (ast.List, ast.Tuple)):
+            values: list[Value] = []
+            for item in node.elts:
+                value = self.expression(symbol, item, env)
+                values.extend(
+                    self.argv.get(value.key, (value,))
+                    if isinstance(item, ast.Starred)
+                    else (value,)
+                )
+            return self.sequence(tuple(values), identity)
+        if isinstance(node, ast.Starred):
+            return self.expression(symbol, node.value, env)
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+            left = self.expression(symbol, node.left, env)
+            right = self.expression(symbol, node.right, env)
+            if left.key in self.argv and right.key in self.argv:
+                return self.sequence(
+                    self.argv[left.key] + self.argv[right.key], identity
+                )
         value = super().expression(symbol, node, env)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            self.literals[value.key] = node.value
+        if (
+            isinstance(node, ast.Attribute)
+            and node.attr == "git"
+            and value.repository_object
+        ):
+            self.git_commands.add(value.key)
+        if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Slice):
+            parent = self.expression(symbol, node.value, env)
+            if parent.key in self.argv:
+                try:
+                    lower = (
+                        ast.literal_eval(node.slice.lower) if node.slice.lower else None
+                    )
+                    upper = (
+                        ast.literal_eval(node.slice.upper) if node.slice.upper else None
+                    )
+                    step = (
+                        ast.literal_eval(node.slice.step) if node.slice.step else None
+                    )
+                    return self.sequence(
+                        self.argv[parent.key][slice(lower, upper, step)], identity
+                    )
+                except (ValueError, TypeError):
+                    pass
         if isinstance(node, (ast.BinOp, ast.JoinedStr, ast.Subscript, ast.Attribute)):
             value = replace(value, option_safe=False)
         # A literal prefix fixes this argv slot's option name. This does not
@@ -35,15 +122,23 @@ class OptionFlow(PathFlow):
             if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
             else None
         )
-        if isinstance(first, ast.Constant) and isinstance(first.value, str):
-            if first.value and (not first.value.startswith("-") or "=" in first.value):
-                value = replace(value, option_safe=True)
+        if (
+            isinstance(first, ast.Constant)
+            and isinstance(first.value, str)
+            and first.value
+            and (not first.value.startswith("-") or "=" in first.value)
+        ):
+            value = replace(value, option_safe=True)
         return value
 
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
         super().guard(symbol, node, env, truth)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            self.guard(symbol, node.operand, env, not truth)
+            return
+        checked = None
         if (
             not truth
             and isinstance(node, ast.Call)
@@ -55,40 +150,155 @@ class OptionFlow(PathFlow):
             and not node.keywords
         ):
             checked = self.expression(symbol, node.func.value, env)
+        if (
+            not truth
+            and isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "any"
+            and "any" not in env
+            and "any" not in self.program.bindings[symbol.file.relative_path]
+            and len(node.args) == 1
+            and not node.keywords
+            and isinstance(node.args[0], ast.GeneratorExp)
+        ):
+            generator = node.args[0]
+            if len(generator.generators) == 1:
+                iteration = generator.generators[0]
+                test = generator.elt
+                if (
+                    not iteration.ifs
+                    and not iteration.is_async
+                    and isinstance(iteration.target, ast.Name)
+                    and isinstance(test, ast.Call)
+                    and isinstance(test.func, ast.Attribute)
+                    and isinstance(test.func.value, ast.Name)
+                    and test.func.value.id == iteration.target.id
+                    and test.func.attr == "startswith"
+                    and len(test.args) == 1
+                    and isinstance(test.args[0], ast.Constant)
+                    and test.args[0].value == "-"
+                    and not test.keywords
+                ):
+                    checked = self.expression(symbol, iteration.iter, env)
+        if checked is not None:
             for name, value in env.items():
                 if value.key == checked.key:
                     env[name] = replace(value, option_safe=True)
 
+    def report(
+        self,
+        symbol: Symbol,
+        node: ast.Call,
+        command: str | None,
+        arguments: tuple[Value, ...],
+    ) -> None:
+        terminated = False
+        unsafe = []
+        for value in arguments:
+            literal = self.literals.get(value.key)
+            if command in {
+                "diff",
+                "show",
+                "log",
+                "checkout",
+                "rev-parse",
+            } and literal in {"--", "--end-of-options"}:
+                terminated = True
+            if value.sources and not value.option_safe and not terminated:
+                unsafe.append(value)
+        if unsafe:
+            locations = frozenset().union(*(v.locations for v in unsafe))
+            self.state.matches.append(
+                replace(
+                    match_from_node(self.rule_id, symbol.file, node, "option-flow"),
+                    captures={
+                        "sink_name": qualified_name(node.func) or "command",
+                        "flow_locations": json.dumps(
+                            sorted(
+                                locations | {(symbol.file.relative_path, node.lineno)}
+                            )
+                        ),
+                    },
+                )
+            )
+
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         name = qualified_name(node.func) or ""
-        if isinstance(node.func, ast.Attribute) and ".git." in name:
-            receiver = self.expression(symbol, node.func.value, env)
-            if receiver.repository_object:
-                # Git revision/path commands accept these explicit terminators;
-                # a terminator after caller input cannot protect that input.
-                terminated = False
-                unsafe = []
-                for argument in node.args:
-                    value = self.expression(symbol, argument, env)
-                    if (
-                        node.func.attr in {"diff", "show", "log", "checkout", "rev_parse"}
-                        and isinstance(argument, ast.Constant)
-                        and argument.value in {"--", "--end-of-options"}
-                    ):
-                        terminated = True
-                    if value.sources and not value.option_safe and not terminated:
-                        unsafe.append(value)
-                if unsafe:
-                    locations = frozenset().union(*(v.locations for v in unsafe))
-                    self.state.matches.append(
-                        replace(
-                            match_from_node(self.rule_id, symbol.file, node, "option-flow"),
-                            captures={
-                                "sink_name": name,
-                                "flow_locations": json.dumps(sorted(locations | {(symbol.file.relative_path, node.lineno)})),
-                            },
-                        )
-                    )
+        resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
+        root = name.split(".")[0]
+        declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
+        if root in env or (
+            declarations
+            and not (
+                len(declarations) == 1
+                and isinstance(declarations[0], (ast.Import, ast.ImportFrom))
+            )
+        ):
+            resolved = ""
+        receiver = (
+            self.expression(symbol, node.func.value, env)
+            if isinstance(node.func, ast.Attribute)
+            else Value()
+        )
+        method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
+        if receiver.key in self.git_commands:
+            arguments: list[Value] = []
+            for argument in node.args:
+                value = self.expression(symbol, argument, env)
+                arguments.extend(
+                    self.argv.get(value.key, (value,))
+                    if isinstance(argument, ast.Starred)
+                    else (value,)
+                )
+            self.report(symbol, node, method.replace("_", "-"), tuple(arguments))
+            return Value()
+        if receiver.key in self.argv:
+            values = self.argv[receiver.key]
+            if method == "copy" and not node.args and not node.keywords:
+                return self.sequence(
+                    values,
+                    f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}",
+                )
+            if method in {"append", "extend", "insert"} and node.args:
+                addition = self.expression(symbol, node.args[-1], env)
+                if method == "append" and len(node.args) == 1:
+                    values += (addition,)
+                elif method == "extend" and len(node.args) == 1:
+                    values += self.argv.get(addition.key, (addition,))
+                elif method == "insert" and len(node.args) == 2:
+                    try:
+                        index = ast.literal_eval(node.args[0])
+                        updated = list(values)
+                        updated.insert(index, addition)
+                        values = tuple(updated)
+                    except (ValueError, TypeError):
+                        values = (addition, *values)
+                changed = self.sequence(values, receiver.key)
+                for binding, value in env.items():
+                    if value.key == receiver.key:
+                        env[binding] = changed
+                return Value()
+        if resolved in {
+            "subprocess.run",
+            "subprocess.Popen",
+            "subprocess.call",
+            "subprocess.check_call",
+            "subprocess.check_output",
+        }:
+            expression = (
+                node.args[0]
+                if node.args
+                else next((kw.value for kw in node.keywords if kw.arg == "args"), None)
+            )
+            value = self.expression(symbol, expression, env)
+            argv = self.argv.get(value.key)
+            if argv is not None:
+                executable = self.literals.get(argv[0].key) if argv else None
+                is_git = executable in {"git", "/usr/bin/git"}
+                command = (
+                    self.literals.get(argv[1].key) if is_git and len(argv) > 1 else None
+                )
+                self.report(symbol, node, command, argv[2:] if is_git else argv[1:])
                 return Value()
         return super().call(symbol, node, env)
 
@@ -129,18 +339,33 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
         binding = self.callables.get(self.expression(file, callee, env).key)
         external = (binding.external or "").removeprefix("node:") if binding else ""
         name = name_of(callee) or ""
-        receiver = self.expression(file, callee["DotAccess"][0], env) if "DotAccess" in callee else Value()
+        receiver = (
+            self.expression(file, callee["DotAccess"][0], env)
+            if "DotAccess" in callee
+            else Value()
+        )
         if external in {"simple-git", "simple-git.simpleGit", "simple-git.default"}:
             return Value(key=str(source_range(node, file)), repository_object=True)
         argv = None
         command = None
-        if external in {f"child_process.{method}" for method in ("execFile", "execFileSync", "spawn", "spawnSync")} and len(argument_nodes) >= 2:
+        if (
+            external
+            in {
+                f"child_process.{method}"
+                for method in ("execFile", "execFileSync", "spawn", "spawnSync")
+            }
+            and len(argument_nodes) >= 2
+        ):
             executable = self.program.literal(TypeScriptSymbol(file, argument_nodes[0]))
             if executable in {"git", "/usr/bin/git"}:
                 container = argument_nodes[1].get("Container")
                 if container:
                     argv = container[1][1]
-                    command = self.program.literal(TypeScriptSymbol(file, argv[0])) if argv else None
+                    command = (
+                        self.program.literal(TypeScriptSymbol(file, argv[0]))
+                        if argv
+                        else None
+                    )
                     argv = argv[1:]
         elif receiver.repository_object:
             command = name.rsplit(".", 1)[-1]
@@ -155,7 +380,13 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
             terminated = False
             for argument in argv:
                 literal = self.program.literal(TypeScriptSymbol(file, argument))
-                if command in {"diff", "show", "log", "checkout", "rev-parse"} and literal in {"--", "--end-of-options"}:
+                if command in {
+                    "diff",
+                    "show",
+                    "log",
+                    "checkout",
+                    "rev-parse",
+                } and literal in {"--", "--end-of-options"}:
                     terminated = True
                 value = self.expression(file, argument, env)
                 if value.sources and not value.option_safe and not terminated:
@@ -163,15 +394,35 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
             if unsafe:
                 location = source_range(node, file)
                 locations = frozenset().union(*(v.locations for v in unsafe))
-                self.state.matches.append(StaticMatch(
-                    rule_id=self.rule_id, path=file.relative_path, range=location,
-                    snippet=self.program.text(file, node), match_kinds=("option-flow",),
-                    captures={"sink_name": name, "flow_locations": json.dumps(sorted(locations | {(file.relative_path, location.start_line)}))},
-                ))
+                self.state.matches.append(
+                    StaticMatch(
+                        rule_id=self.rule_id,
+                        path=file.relative_path,
+                        range=location,
+                        snippet=self.program.text(file, node),
+                        match_kinds=("option-flow",),
+                        captures={
+                            "sink_name": name,
+                            "flow_locations": json.dumps(
+                                sorted(
+                                    locations
+                                    | {(file.relative_path, location.start_line)}
+                                )
+                            ),
+                        },
+                    )
+                )
             return Value()
         result = super().call(file, node, env)
-        if name.endswith(".startsWith") and len(argument_nodes) == 1 and self.program.literal(TypeScriptSymbol(file, argument_nodes[0])) == "-":
-            self.conditions[result.key] = (frozenset({f"#guard:option:{receiver.key}"}), frozenset())
+        if (
+            name.endswith(".startsWith")
+            and len(argument_nodes) == 1
+            and self.program.literal(TypeScriptSymbol(file, argument_nodes[0])) == "-"
+        ):
+            self.conditions[result.key] = (
+                frozenset({f"#guard:option:{receiver.key}"}),
+                frozenset(),
+            )
         if not (binding and binding.function):
             result = replace(result, option_safe=False)
         return result

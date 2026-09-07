@@ -296,8 +296,7 @@ class PathFlow:
                     if current.key == receiver.key:
                         env[name] = replace(current, instance=None)
 
-    @staticmethod
-    def merge(env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         for name in set().union(*(b.keys() for b in branches)):
             env[name] = combine([branch.get(name, Value()) for branch in branches])
 
@@ -555,7 +554,7 @@ class PathFlow:
         helper_name = name
         if name.startswith(("self.", "cls.")) and "." in symbol.name:
             helper_name = symbol.name.rsplit(".", 1)[0] + "." + name.split(".", 1)[1]
-        helper = self.program.resolve(symbol.file, helper_name)
+        helper = self.program.resolve_in(symbol, helper_name)
         if receiver.instance:
             owner_path, owner_name = receiver.instance
             owner_file = next(

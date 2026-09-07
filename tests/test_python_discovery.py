@@ -159,3 +159,78 @@ def test_custom_construction_does_not_establish_registered_method(
     )
     assert not index.tools()
     assert index.warnings
+
+
+def test_nested_registered_handler_resolves_lexical_helper() -> None:
+    index = program(
+        {
+            "server.py": "def factory():\n"
+            "    def helper(value): return open(value)\n"
+            "    @server.tool()\n"
+            "    def read(path): return helper(path)\n"
+            "    return read\n"
+        }
+    )
+    tool = index.tools()[0]
+    helper = index.resolve_in(tool.handler, "helper")
+    assert helper is not None and helper.name == "factory.helper"
+    assert isinstance(helper.node, ast.FunctionDef)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "helper = replacement",
+        "def helper(value): return value",
+    ],
+)
+def test_ambiguous_nested_helper_is_unresolved(replacement: str) -> None:
+    index = program(
+        {
+            "server.py": "def helper(value): return value\n"
+            "def factory():\n"
+            "    def helper(value): return open(value)\n"
+            "    " + replacement + "\n"
+            "    @server.tool()\n"
+            "    def read(path): return helper(path)\n"
+        }
+    )
+    assert index.resolve_in(index.tools()[0].handler, "helper") is None
+
+
+def test_nested_registration_and_returned_handler_alias() -> None:
+    index = program(
+        {
+            "server.py": "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    alias = read\n"
+            '    server.add_tool(alias, name="nested")\n'
+            "    return alias\n"
+            "handler = factory()\n"
+            'server.add_tool(handler, name="returned")\n'
+        }
+    )
+    tools = index.tools()
+    assert {t.name for t in tools} == {"nested", "returned"}
+    assert all(t.handler.name == "factory.read" for t in tools)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "return handler",
+        "if choice: return replacement\n    return read",
+        "return callback",
+    ],
+)
+def test_factory_ambiguous_or_recursive_returns_stay_unresolved(body: str) -> None:
+    index = program(
+        {
+            "server.py": "def factory(callback=None, choice=False):\n"
+            "    def read(path): return open(path)\n"
+            "    " + body + "\n"
+            "handler = factory()\nserver.add_tool(handler)\n"
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
