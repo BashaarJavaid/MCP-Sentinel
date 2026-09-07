@@ -234,3 +234,88 @@ def test_factory_ambiguous_or_recursive_returns_stay_unresolved(body: str) -> No
     )
     assert not index.tools()
     assert index.warnings
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "@dataclass\nclass Definition:\n    fn: object\n",
+        "@dataclass\nclass Base:\n    fn: object\n"
+        "@dataclass\nclass Definition(Base):\n    pass\n",
+    ],
+)
+def test_factory_definitions_follow_field_to_actual_registration(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "definitions.py": "from dataclasses import dataclass\n" + constructor,
+            "server.py": "from definitions import Definition\n"
+            "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    return [Definition(fn=read)]\n"
+            "register(factory())\n",
+        }
+    )
+    tools = index.tools()
+    assert len(tools) == 1
+    assert tools[0].handler.name == "factory.read"
+    assert isinstance(tools[0].registration.node, ast.Call)
+    assert tools[0].registration.node.lineno == 4
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "class Definition:\n    fn: object\n",
+        "@dataclass(init=False)\nclass Definition:\n    fn: object\n",
+        "@dataclass\nclass Definition:\n    fn: object\n"
+        "    def __post_init__(self): self.fn = replacement\n",
+    ],
+)
+def test_definition_annotation_or_custom_construction_is_not_binding(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            + constructor
+            + "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def read(path): return open(path)\n"
+            "register([Definition(fn=read)])\n"
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
+
+
+def test_registration_resolution_obeys_shared_static_deadline() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program({"server.py": "def read(p): return p\nserver.add_tool(read)\n"})
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.tools()
+
+
+def test_partially_resolved_factory_keeps_unknown_registration_visible() -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "@dataclass\nclass Definition:\n    fn: object\n"
+            "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    return [Definition(fn=read), dynamic_definition()]\n"
+            "register(factory())\n"
+        }
+    )
+    assert len(index.tools()) == 1
+    assert any(w.code == "static_handler_unresolved" for w in index.warnings)

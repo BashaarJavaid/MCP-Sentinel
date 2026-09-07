@@ -16,6 +16,7 @@ from sentinel.static.ast_utils import (
     resolve_name,
     scope_nodes,
 )
+from sentinel.static.execution import check_deadline
 from sentinel.static.model import ParsedPythonFile
 
 Function = ast.FunctionDef | ast.AsyncFunctionDef
@@ -79,8 +80,11 @@ class ToolBinding:
 class PythonProgram:
     """A bounded index of unambiguous local imports, exports and static aliases."""
 
-    def __init__(self, files: tuple[ParsedPythonFile, ...]) -> None:
+    def __init__(
+        self, files: tuple[ParsedPythonFile, ...], *, deadline: float = float("inf")
+    ) -> None:
         self.files = files
+        self.deadline = deadline
         self.modules: dict[str, list[ParsedPythonFile]] = defaultdict(list)
         self.bindings: dict[str, dict[str, list[ast.AST]]] = {}
         self.warnings: list[ReportWarning] = []
@@ -122,6 +126,7 @@ class PythonProgram:
         global_seen: frozenset[tuple[str, str]] = frozenset(),
     ) -> Symbol | None:
         """Resolve lexical helpers without treating a shadowed name as a global."""
+        check_deadline(self.deadline)
         key = (id(symbol.node), name)
         if key in seen or len(seen) >= 64:
             return None
@@ -173,6 +178,7 @@ class PythonProgram:
         name: str,
         seen: frozenset[tuple[str, str]] = frozenset(),
     ) -> Symbol | None:
+        check_deadline(self.deadline)
         key = (file.relative_path, name)
         if key in seen or len(seen) >= 64:
             return None
@@ -329,6 +335,10 @@ class PythonProgram:
         return True
 
     def tools(self) -> tuple[ToolBinding, ...]:
+        from sentinel.static.registration_flow import RegistrationFlow
+
+        check_deadline(self.deadline)
+        registrations = RegistrationFlow(self)
         found: list[ToolBinding] = []
         self.warnings.clear()
         for file in self.files:
@@ -381,6 +391,26 @@ class PythonProgram:
                     else None
                 )
                 if handler is None or not isinstance(handler.node, Function):
+                    registrations.incomplete = False
+                    recovered = registrations.values(
+                        Symbol(file, name or "registration", node), expression
+                    )
+                    for candidate in recovered:
+                        if isinstance(candidate.node, Function):
+                            found.append(
+                                ToolBinding(
+                                    candidate.node.name,
+                                    Symbol(file, candidate.node.name, node),
+                                    candidate,
+                                    candidate.node,
+                                )
+                            )
+                    if (
+                        recovered
+                        and not registrations.incomplete
+                        and all(isinstance(item.node, Function) for item in recovered)
+                    ):
+                        continue
                     self.warnings.append(
                         ReportWarning(
                             code="static_handler_unresolved",

@@ -107,7 +107,7 @@ class StaticContext:
     def python_program(self) -> PythonProgram:
         from sentinel.static.discovery import PythonProgram
 
-        return PythonProgram(self.files.python_files)
+        return PythonProgram(self.files.python_files, deadline=self.deadline)
 
     @cached_property
     def typescript_program(self) -> TypeScriptProgram:
