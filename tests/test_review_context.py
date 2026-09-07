@@ -3,6 +3,8 @@
 from pathlib import Path
 from uuid import uuid4
 
+import pytest
+
 from sentinel.finding import FileLocation, SourceRange, StaticEvidence
 from sentinel.llm.context import build_finding_context
 from sentinel.static.engine import _deduplicate, _finding_from_match
@@ -86,3 +88,17 @@ def test_context_total_budget_omissions_and_symlinks(tmp_path: Path) -> None:
     assert all(
         context.contains(b.path, b.start_line, b.end_line) for b in context.blocks
     )
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n", "\r"])
+def test_multiline_secret_redaction_preserves_lines(newline: str) -> None:
+    from sentinel.llm.context import SECRET_PLACEHOLDER, sanitize_text
+
+    source = (
+        "api_token =" + newline + '    "sensitive-token-value"' + newline + "send()"
+    )
+    redacted = sanitize_text(source)
+    assert "sensitive-token-value" not in redacted
+    assert SECRET_PLACEHOLDER in redacted
+    assert redacted.count(newline) == source.count(newline)
+    assert redacted.splitlines()[-1] == "send()"

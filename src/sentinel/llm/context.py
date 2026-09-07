@@ -249,10 +249,14 @@ def sanitize_text(value: str) -> str:
 
     sanitized = value
     for pattern in _SECRET_PATTERNS:
-        sanitized = pattern.sub(SECRET_PLACEHOLDER, sanitized)
+        sanitized = pattern.sub(
+            lambda match: SECRET_PLACEHOLDER
+            + "".join(re.findall(r"\r\n|\r|\n", match.group())),
+            sanitized,
+        )
     sanitized = _POSIX_ABSOLUTE.sub(PATH_PLACEHOLDER, sanitized)
     sanitized = _WINDOWS_ABSOLUTE.sub(PATH_PLACEHOLDER, sanitized)
-    if sanitized.count("\n") != value.count("\n"):
+    if any(sanitized.count(char) != value.count(char) for char in ("\r", "\n")):
         raise InfrastructureError("unsafe GPT redaction changed line structure")
     verification = sanitized.replace(SECRET_PLACEHOLDER, "")
     if any(pattern.search(verification) for pattern in _SECRET_PATTERNS):
