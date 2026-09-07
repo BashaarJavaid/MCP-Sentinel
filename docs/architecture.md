@@ -31,6 +31,12 @@ The target repository is untrusted. Static analysis reads source but never
 imports or executes it, never follows symlinks, and never reads above the scan
 root. TypeScript analysis never invokes Node or package scripts.
 
+Helm YAML templates under a chart's `templates/` directory remain available to
+text/secret checks. Each template reports `static_helm_template_unparsed` because
+structured YAML analysis is omitted; Sentinel does not render charts. Ordinary
+YAML and Sentinel configuration remain strict. Static analysis retains its
+120-second deadline.
+
 GPT is an external data boundary. Sentinel sends only bounded, redacted source
 context with `store: false`. Model output is untrusted: strict Structured
 Outputs parsing and host-side evidence/probe validation run before it can affect
@@ -52,6 +58,10 @@ reviewed, and eligible runtime behavior on frozen independent cases. Findings
 count only when they identify the labeled security condition; unrelated warnings
 remain unadjudicated. Candidate recall, retained alerts, confirmed-only alerts,
 coverage, incomplete execution, and review cost are reported separately.
+
+The [Phase 22 technical contract](phase22-technical.md) records the authorized
+expansion and its pending evidence/approval gates. Phase 20 inputs are now exposed
+regression evidence; Phase 21 and Phase 22's pilot acceptance remain incomplete.
 
 The complete field, state-transition, sandbox, configuration, and failure
 contracts live in the root [architecture

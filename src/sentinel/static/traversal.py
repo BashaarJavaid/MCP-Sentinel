@@ -42,6 +42,7 @@ def collect_static_files(
     config_files: list[Path] = []
     ignored = len(forced_ignored_paths)
     symlinks: list[str] = []
+    warnings: list[ReportWarning] = []
     ignore_specs: dict[Path, GitIgnoreSpec] = {}
     configured = GitIgnoreSpec.from_lines(ignore_paths)
 
@@ -107,11 +108,21 @@ def collect_static_files(
                     )
                 )
             else:
-                _validate_config(path, relative, source, language)
+                if _is_helm_template(path, root, source):
+                    warnings.append(
+                        ReportWarning(
+                            code="static_helm_template_unparsed",
+                            message=(
+                                f"{relative}: Helm template retained for text/secret "
+                                "checks; structured YAML analysis omitted."
+                            ),
+                        )
+                    )
+                else:
+                    _validate_config(path, relative, source, language)
                 config_files.append(path)
 
     visit(root)
-    warnings: list[ReportWarning] = []
     if symlinks:
         shown = ", ".join(symlinks[:20])
         suffix = "" if len(symlinks) <= 20 else ", ..."
@@ -131,6 +142,21 @@ def collect_static_files(
         ignored_file_count=ignored,
         warnings=tuple(warnings),
     )
+
+
+def _is_helm_template(path: Path, root: Path, source: str) -> bool:
+    if (
+        path.suffix not in {".yaml", ".yml"}
+        or path.name.startswith("sentinel.")
+        or "{{" not in source
+    ):
+        return False
+    for directory in path.relative_to(root).parents:
+        if directory.name == "templates":
+            chart = root / directory.parent / "Chart.yaml"
+            if chart.is_file() and not chart.is_symlink():
+                return True
+    return False
 
 
 def _is_supported(path: Path, language: TargetLanguage) -> bool:

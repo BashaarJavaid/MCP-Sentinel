@@ -1,0 +1,30 @@
+{
+  "id": "shell-git-alias-options",
+  "rule": "SENT-014",
+  "repository": "tumf/mcp-shell-server",
+  "split": "held_out",
+  "language": "python",
+  "before": "b070bc32ed7b7884c3f0f8221e6d0d28b7554d41",
+  "after": "a8e71630865332250f616631d8eb0ea4c5df1916",
+  "root": ".",
+  "files": [
+    "src/mcp_shell_server/server.py",
+    "src/mcp_shell_server/command_validator.py",
+    "src/mcp_shell_server/shell_executor.py",
+    "src/mcp_shell_server/process_manager.py"
+  ],
+  "condition": "A caller allowed to use git must not execute an external command through command-scoped -c alias.x=!VALUE configuration",
+  "prerequisites": [
+    "ALLOW_COMMANDS contains git, Git is available, and the caller can supply command arguments. Only the external-alias option form is labeled, not every execution-capable Git configuration key."
+  ],
+  "safe": "An allowed fixed git status command without an external alias or other supplied option may execute; executable-name allowlisting is not itself an injection finding",
+  "review": "The command tool forwards parsed caller command values through the shared validator to process execution. The vulnerable version allows the executable without bounding Git external aliases. The fixed default argument policy recognizes and rejects external-alias configuration before execution. Subsequent Git-policy advisories mean this fix must not be generalized to all Git configuration keys.",
+  "provenance": [
+    "shell-advisory.json",
+    "shell-pair-compare.json"
+  ],
+  "rename": {
+    "cleaned_cmd": "phase22CommandName"
+  },
+  "safe_prerequisites": "ALLOW_COMMANDS contains git; an ordinary valid repository; the command arguments are fixed git status with no alias or supplied configuration options."
+}

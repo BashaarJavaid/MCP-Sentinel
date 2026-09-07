@@ -25,3 +25,19 @@ without reassigning rule IDs. Its [verification record](phase16-verification.md)
 retains failing-before cases, paired controls, and historical-review compatibility
 evidence. Those development cases and code coverage do not measure independent
 detection accuracy.
+
+## Phase 22 pending acceptance
+
+The [approved technical contract](phase22-technical.md) reserves SENT-012 through
+SENT-016. None is accepted or enabled by this table. Each requires the new
+independent development/held-out pairs, safe controls, structural mutations,
+applicable Python/TypeScript regressions, actionable remediation and measured
+false alarms before technical sign-off.
+
+| Rule | OWASP justification | Required false-positive controls | Review |
+| --- | --- | --- | --- |
+| SENT-012 | `ASI02:2026`: caller paths escape a tool's intended resource boundary | Enforced canonical containment, relevant guards, safe symlink handling | Pending |
+| SENT-013 | `ASI01:2026`: tool metadata explicitly redirects model goals | Benign imperatives and quoted security warnings | Pending |
+| SENT-014 | `ASI05:2026`: caller values become executable command options | Enforced option rejection and command-specific safe positions | Pending |
+| SENT-015 | `ASI02:2026`: caller URLs redirect server requests beyond intended services | Relevant scheme/destination rejection and authorized requests | Pending |
+| SENT-016 | `ASI03:2026`: caller requests inherit unauthorized operator credentials | Explicit authorized operator use and enforced caller rejection | Pending |

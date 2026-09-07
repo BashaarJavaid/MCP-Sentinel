@@ -1,0 +1,1065 @@
+{
+  "status": "proposed_not_approved",
+  "sdk_pin": "mcp==1.29.0",
+  "purpose": "Git startup and tool discovery only; no attack or model calls",
+  "scanner": {
+    "revision": "9820b72e3ee8992e98a24ff411e3c7961ba64128",
+    "source_sha256": "8fa5a0e980d9540c95d686c7c0bb7301d5608466349f0d489e9ce36ce979f134",
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e"
+  },
+  "inputs": [
+    {
+      "input_id": "git-staging-vulnerable",
+      "snapshot": "dcb47d2d94a3a33340053d2df550ae68d2795a3f",
+      "tree_sha256": "ed0cadd89cb6126c5e3c7635feb79c5909c2fbd1b8865ab465fd356ea8111b05",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.217
+    },
+    {
+      "input_id": "git-staging-vulnerable-mutation",
+      "snapshot": "dcb47d2d94a3a33340053d2df550ae68d2795a3f",
+      "tree_sha256": "30bfefb564066c25702f9d25d0c4766aaf030fe84960fab0f9067b44dd32c51f",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.165
+    },
+    {
+      "input_id": "git-staging-fixed",
+      "snapshot": "862e717ff714987bd5577318df09858e14883863",
+      "tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.162
+    },
+    {
+      "input_id": "git-staging-fixed-mutation",
+      "snapshot": "862e717ff714987bd5577318df09858e14883863",
+      "tree_sha256": "2c4c8661813ef375664676a4422675153a5538d17fc5db407b964c1f05b624a1",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.161
+    },
+    {
+      "input_id": "git-arguments-vulnerable",
+      "snapshot": "d9c45477cd6ff4d3456c138498dca984c8697f43",
+      "tree_sha256": "70afc45bbce2b3a12fe00a115f790d1754ca8749c17fdf15082c493974ef7f9e",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.155
+    },
+    {
+      "input_id": "git-arguments-vulnerable-mutation",
+      "snapshot": "d9c45477cd6ff4d3456c138498dca984c8697f43",
+      "tree_sha256": "401ec3007fccb4830807964206f399785b30a460854dd1bd54de05f79cc7372a",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.155
+    },
+    {
+      "input_id": "git-arguments-fixed",
+      "snapshot": "9e5d5b8e4b5dd6fa4fc84cad5eb291568024aad4",
+      "tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.153
+    },
+    {
+      "input_id": "git-arguments-fixed-mutation",
+      "snapshot": "9e5d5b8e4b5dd6fa4fc84cad5eb291568024aad4",
+      "tree_sha256": "3b582ab5c012eb20f179992dcfd2fbb2cd19b1ed1449d7ddeba42278d3685434",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.154
+    },
+    {
+      "input_id": "git-repository-vulnerable",
+      "snapshot": "9e5d5b8e4b5dd6fa4fc84cad5eb291568024aad4",
+      "tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.152
+    },
+    {
+      "input_id": "git-repository-vulnerable-mutation",
+      "snapshot": "9e5d5b8e4b5dd6fa4fc84cad5eb291568024aad4",
+      "tree_sha256": "59da00247c71c5577f13be292ecaf55c379411aa06c0ce63d32e239300d328d0",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.153
+    },
+    {
+      "input_id": "git-repository-fixed",
+      "snapshot": "a37158bc1555ce0b1121ea98a3e740119d7fc8c7",
+      "tree_sha256": "8bf9d2dcac0d6018497abb1993444c192ce7f19e56b93e9395142634d707dfa9",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.151
+    },
+    {
+      "input_id": "git-repository-fixed-mutation",
+      "snapshot": "a37158bc1555ce0b1121ea98a3e740119d7fc8c7",
+      "tree_sha256": "f036930b1c636dfb237ea24b93b4c2a9e5edd0bc3a9e4946cb7690b92561743e",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.154
+    },
+    {
+      "input_id": "git-status-safe",
+      "snapshot": "862e717ff714987bd5577318df09858e14883863",
+      "tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "requirements": "click>=8.1.7\ngitpython>=3.1.45\nmcp>=1.0.0\npydantic>=2.0.0\nmcp==1.29.0\n",
+      "requirements_sha256": "10467cccc328d578914fa266e4bb3b20e6cb715c4ad293c090eb1c0db7944906",
+      "target": {
+        "language": "python",
+        "launch_cmd": [
+          "python",
+          ".phase20/bootstrap.py"
+        ],
+        "install_cmd": [
+          "pip",
+          "install",
+          "-r",
+          ".phase22/requirements.txt"
+        ],
+        "transport": "stdio",
+        "working_dir": ".",
+        "env": {
+          "PYTHONPATH": "/workspace/src"
+        },
+        "env_from": [],
+        "python_version": "3.12",
+        "probe_baselines": {
+          "git_status": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_diff_unstaged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff_staged": {
+            "repo_path": "/tmp/phase20-repo",
+            "context_lines": 3
+          },
+          "git_diff": {
+            "repo_path": "/tmp/phase20-repo",
+            "target": "HEAD",
+            "context_lines": 3
+          },
+          "git_commit": {
+            "repo_path": "/tmp/phase20-repo",
+            "message": "benchmark control"
+          },
+          "git_add": {
+            "repo_path": "/tmp/phase20-repo",
+            "files": [
+              "control.txt"
+            ]
+          },
+          "git_reset": {
+            "repo_path": "/tmp/phase20-repo"
+          },
+          "git_log": {
+            "repo_path": "/tmp/phase20-repo",
+            "max_count": 1
+          },
+          "git_create_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "benchmark-branch"
+          },
+          "git_checkout": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_name": "main"
+          },
+          "git_show": {
+            "repo_path": "/tmp/phase20-repo",
+            "revision": "HEAD"
+          },
+          "git_branch": {
+            "repo_path": "/tmp/phase20-repo",
+            "branch_type": "local"
+          }
+        }
+      },
+      "state": "incomplete",
+      "error": "Docker command failed: permission denied while trying to connect to the docker API at unix:///Users/bashaarjavaid/.docker/run/docker.sock",
+      "seconds": 0.161
+    }
+  ]
+}

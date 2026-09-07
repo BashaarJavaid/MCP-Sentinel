@@ -230,6 +230,61 @@ def test_other_json_stays_strict(tmp_path: Path) -> None:
         collect_static_files(tmp_path, ())
 
 
+def test_helm_template_retains_secret_checks_and_discloses_yaml_omission(
+    tmp_path: Path,
+) -> None:
+    root = make_target(tmp_path / "target")
+    chart = root / "charts" / "server"
+    template = chart / "templates" / "deployment.yaml"
+    template.parent.mkdir(parents=True)
+    (chart / "Chart.yaml").write_text("apiVersion: v2\nname: server\nversion: 1.0.0\n")
+    source = (
+        "{{- if .Values.enabled }}\nkind: Secret\ndata:\n"
+        "  token: ghp_abcdefghijklmnopqrstuvwxyz1234567890\n{{- end }}\n"
+    )
+    template.write_text(source)
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert any(
+        f.rule_id == "SENT-005"
+        and isinstance(f.location, FileLocation)
+        and f.location.path == "charts/server/templates/deployment.yaml"
+        and f.location.range.start_line == 4
+        for f in result.findings
+    )
+    assert any(
+        w.code == "static_helm_template_unparsed"
+        and "charts/server/templates/deployment.yaml" in w.message
+        for w in result.warnings
+    )
+    assert template.read_text() == source
+
+
+@pytest.mark.parametrize(
+    "name", ["values.yaml", "sentinel.target.yaml", "sentinel.permissions.yaml"]
+)
+def test_helm_does_not_relax_ordinary_or_sentinel_yaml(
+    tmp_path: Path, name: str
+) -> None:
+    (tmp_path / "Chart.yaml").write_text("apiVersion: v2\nname: server\n")
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    directory = tmp_path if name == "values.yaml" else templates
+    (directory / name).write_text("value: {{ .Values.secret }}\n")
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
+def test_template_directory_without_chart_is_strict(tmp_path: Path) -> None:
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    (templates / "deployment.yaml").write_text("{{- if .Values.enabled }}\n")
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
 def test_traversal_rejects_oversized_supported_file(tmp_path: Path) -> None:
     (tmp_path / "large.py").write_text(
         "x" * (MAX_STATIC_FILE_BYTES + 1), encoding="utf-8"

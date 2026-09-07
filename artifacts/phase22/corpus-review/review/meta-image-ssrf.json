@@ -1,0 +1,32 @@
+{
+  "id": "meta-image-ssrf",
+  "rule": "SENT-015",
+  "repository": "pipeboard-co/meta-ads-mcp",
+  "split": "development",
+  "language": "python",
+  "before": "95e852793b7ff8604a8132e85d5facd08c91a36e",
+  "after": "7d9926336bbdac6285a988d043c4ccfe126c94c5",
+  "root": ".",
+  "files": [
+    "meta_ads_mcp/core/ads.py",
+    "meta_ads_mcp/core/utils.py"
+  ],
+  "condition": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+  "prerequisites": [
+    "HTTP tool caller can supply image_url and reach the image fetch before downstream Meta API success; a literal private/loopback destination is available to the server.",
+    "The label excludes DNS rebinding, hostname races, and whole-network egress-policy completeness."
+  ],
+  "safe": "A public HTTP(S) literal such as https://8.8.8.8/image.jpg passes the relevant URL guard; accepting a public literal is not the labeled SSRF condition",
+  "review": "upload_ad_image forwards image_url into download helpers. The patch validates scheme/address before downloads and applies an HTTP request hook to redirects. Literal-address rejection is enforced at the relevant fetch flow. No live service or DNS-rebinding experiment was performed.",
+  "provenance": [
+    "meta-ssrf-advisory.json",
+    "meta-ssrf-fix.json"
+  ],
+  "rename": {
+    "response": "phase22Response"
+  },
+  "mutation_files": [
+    "meta_ads_mcp/core/utils.py"
+  ],
+  "safe_prerequisites": "The fetch URL is an ordinary public IPv4 HTTP(S) literal; the control concerns URL-policy acceptance, not successful external service response or downstream Meta authentication."
+}

@@ -1,0 +1,29 @@
+{
+  "id": "dbt-option-selection",
+  "rule": "SENT-014",
+  "repository": "dbt-labs/dbt-mcp",
+  "split": "development",
+  "language": "python",
+  "before": "733bf6cc4bb0df9ef3d030e6f6610b0ef442d8b8",
+  "after": "291ddd1baedeacd86d36c5fab470b2ad2958a67d",
+  "root": ".",
+  "files": [
+    "src/dbt_mcp/dbt_cli/tools.py",
+    "src/dbt_mcp/mcp/server.py"
+  ],
+  "condition": "Caller-controlled node_selection tokens must not become extra dbt CLI options through the --select argument list",
+  "prerequisites": [
+    "CLI tools enabled with a configured dbt executable/project; the caller can supply node_selection containing a token beginning with a hyphen.",
+    "The label is argument injection with shell-free argv, not shell metacharacter execution; other argument fields are outside this condition."
+  ],
+  "safe": "An ordinary selector token such as model_a without a leading hyphen may be passed through --select; accepting it is not option injection",
+  "review": "create_dbt_cli_tool_definitions exposes nested tool handlers forwarding node_selection to _run_dbt_command. The subprocess argument list expands split selector tokens. The compared fix rejects any selector token beginning with a hyphen before constructing subprocess arguments. The unchanged ordinary selector path is the safe control.",
+  "provenance": [
+    "dbt-advisory.json",
+    "dbt-pair-compare.json"
+  ],
+  "rename": {
+    "selector_params": "phase22SelectorTokens"
+  },
+  "safe_prerequisites": "Configured dbt executable/project; CLI tools enabled; node_selection is model_a and does not contain an option-like token."
+}
