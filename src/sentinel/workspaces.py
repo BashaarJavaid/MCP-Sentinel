@@ -42,6 +42,8 @@ def _metadata(path: Path) -> dict[str, Any] | None:
         if path.suffix == ".yaml":
             return _read_yaml(path)
         value = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as error:
+        raise TargetError(f"{path.name} must contain strict JSON: {error}") from error
     except (OSError, ValueError) as error:
         raise TargetError(f"cannot read workspace metadata: {path.name}") from error
     if not isinstance(value, dict):
