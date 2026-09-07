@@ -9,6 +9,7 @@ import time
 from collections.abc import Iterator
 from importlib.metadata import distribution
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import certifi
@@ -27,27 +28,32 @@ def parse_typescript(file: TypeScriptSourceFile, *, deadline: float) -> dict[str
     if os.name == "nt":
         core = core.with_suffix(".exe")
     try:
-        result = subprocess.run(
-            [
-                str(core),
-                "-lang",
-                "typescript",
-                "-json",
-                "-full_token_info",
-                "-dump_ast",
-                str(file.path),
-            ],
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            timeout=min(120.0, max(0.001, deadline - time.monotonic())),
-            env={
-                **os.environ,
-                "SSL_CERT_FILE": certifi.where(),
-                "SEMGREP_SEND_METRICS": "off",
-                "SEMGREP_ENABLE_VERSION_CHECK": "0",
-            },
-        )
+        # Parse the exact retained text: disk newlines may differ on Windows.
+        # Token validation and all consumers use this same UTF-8 source snapshot.
+        with TemporaryDirectory(prefix="sentinel-typescript-") as directory:
+            snapshot = Path(directory) / "source.ts"
+            snapshot.write_bytes(file.source.encode("utf-8"))
+            result = subprocess.run(
+                [
+                    str(core),
+                    "-lang",
+                    "typescript",
+                    "-json",
+                    "-full_token_info",
+                    "-dump_ast",
+                    str(snapshot),
+                ],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=min(120.0, max(0.001, deadline - time.monotonic())),
+                env={
+                    **os.environ,
+                    "SSL_CERT_FILE": certifi.where(),
+                    "SEMGREP_SEND_METRICS": "off",
+                    "SEMGREP_ENABLE_VERSION_CHECK": "0",
+                },
+            )
     except subprocess.TimeoutExpired as error:
         raise InfrastructureError(
             "static analysis exceeded its 120-second timeout"
