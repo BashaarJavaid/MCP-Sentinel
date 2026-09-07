@@ -36,13 +36,13 @@ MATCHER_VERSION = "sentinel-baseline-v2"
 class LoadedBaseline:
     path: Path
     report: ScanReport
-    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"]
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0"]
     source_sha256: str
     identities: frozenset[str]
 
 
 def load_baseline(path: Path) -> LoadedBaseline:
-    """Load one strict native 1.3/1.4/1.5 report without mutating it."""
+    """Load one strict native 1.3-1.7 report without mutating it."""
 
     candidate = path if path.is_absolute() else Path.cwd() / path
     try:
@@ -66,11 +66,11 @@ def load_baseline(path: Path) -> LoadedBaseline:
     if not isinstance(data, dict):
         raise UsageError("baseline report must be a JSON object")
     raw_version = data.get("schema_version")
-    if raw_version not in {"1.3.0", "1.4.0", "1.5.0", "1.6.0"}:
+    if raw_version not in {"1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0"}:
         raise UsageError(
-            "baseline schema_version must be 1.3.0, 1.4.0, 1.5.0, or 1.6.0"
+            "baseline schema_version must be 1.3.0, 1.4.0, 1.5.0, 1.6.0, or 1.7.0"
         )
-    version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"] = raw_version
+    version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0"] = raw_version
     normalized = migrate_report_data(data)
     try:
         validate_report_data(normalized)
@@ -207,6 +207,68 @@ def _migrate_13(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def migrate_report_data(data: dict[str, Any]) -> dict[str, Any]:
+    """Migrate old records without inventing historical campaign coverage."""
+    if data.get("schema_version") == "1.7.0":
+        return data
+    migrated = dict(_migrate_to_16(data))
+    migrated["schema_version"] = "1.7.0"
+    static = migrated.get("static_analysis")
+    if isinstance(static, dict) and isinstance(static.get("coverage"), dict):
+        migrated["static_analysis"] = {
+            **static,
+            "coverage": {**static["coverage"], "workspace": None},
+        }
+    dynamic = migrated.get("dynamic_analysis")
+    if isinstance(dynamic, dict):
+        outcomes = dynamic.get("probe_outcomes", [])
+        if not isinstance(outcomes, list) or any(
+            not isinstance(item, dict) for item in outcomes
+        ):
+            raise UsageError("historical probe outcomes must be objects")
+        ids = [item.get("probe_id") for item in outcomes]
+        if sorted(str(item) for item in ids) != [
+            "SENT-008",
+            "SENT-009",
+            "SENT-010",
+            "SENT-011",
+        ]:
+            raise UsageError(
+                "historical dynamic reports require each fixed probe exactly once"
+            )
+        identifiers = {
+            probe_id: f"legacy:{probe_id}:{index}" for index, probe_id in enumerate(ids)
+        }
+        coverage = dynamic.get("coverage")
+        if isinstance(coverage, dict):
+            coverage = {**coverage, "campaign": None}
+            for field in ("discovery", "planned_bindings"):
+                items = coverage.get(field, [])
+                if not isinstance(items, list) or any(
+                    not isinstance(item, dict) for item in items
+                ):
+                    continue
+                coverage[field] = [
+                    {**item, "attempt_id": identifiers.get(item.get("probe_id"))}
+                    for item in items
+                ]
+        migrated["dynamic_analysis"] = {
+            **dynamic,
+            "coverage": coverage,
+            "probe_outcomes": [
+                {
+                    **item,
+                    "attempt_id": identifiers[item["probe_id"]],
+                    "legacy_attempt": True,
+                    "mutation": None,
+                    "eligible": None,
+                }
+                for item in outcomes
+            ],
+        }
+    return migrated
+
+
+def _migrate_to_16(data: dict[str, Any]) -> dict[str, Any]:
     """Keep historical activity unknown and preserve all original bytes."""
     if data.get("schema_version") == "1.6.0":
         return data

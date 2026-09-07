@@ -373,6 +373,32 @@ missing targets remain unresolved; package managers and target compilers are
 never invoked. Conditional exports require one unambiguous included source;
 declaration-only `types` entries are not handler evidence.
 
+### Native 1.7.0 attempt and workspace contract
+
+Each dynamic outcome carries a stable `attempt_id`, nullable mutation and
+eligibility, and an explicit `legacy_attempt` flag. Attempt identity binds the
+probe, tool, argument path and mutation; multiple attempts may use one probe ID.
+Campaign coverage records configured limits, enumeration completeness, planned,
+eligible, started, tested and remaining counts, elapsed time and budget exhaustion.
+Unknown history stays null. Discovery snapshots and planned bindings reference
+attempt IDs; discovery-only sessions have no attempt ID. Legacy 1.3–1.6 outcomes
+become uniquely identified legacy records without invented campaign coverage.
+Finding identities, suppression, nullable review and runtime proof are preserved.
+
+Static workspace coverage records declared members, included source counts,
+observed recognized/unresolved/unsupported surfaces, inaccessible members and
+nested configurations. Historical reports have null workspace coverage.
+JSON and SARIF consumers use the same report model; SARIF remains 2.1.0.
+
+Static evidence carries resolved repository-relative flow locations in canonical
+Finding provenance. Candidate-bound review retains compatible existing context
+when those locations are already supplied. Otherwise it supplies source, guard
+and sink blocks within 160 total source lines, with redaction and explicit omitted
+flow locations. References must ground in supplied blocks. Changed blocks or
+omissions change context/request cache identity; unaffected captures are reusable
+only after request compatibility checks. Runtime proof retains its existing
+separate trusted-evidence treatment.
+
 ### Phase 16 flow and safety recognition
 
 Phase 22's execution correction indexes SENT-004 prompt sinks before branch

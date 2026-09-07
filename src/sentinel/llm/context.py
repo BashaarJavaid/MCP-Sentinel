@@ -8,13 +8,15 @@ import json
 import re
 from pathlib import Path
 
-from sentinel.errors import InfrastructureError
+from sentinel.config import resolve_within_root
+from sentinel.errors import ConfigurationError, InfrastructureError, TargetError
 from sentinel.finding import (
     ContractModel,
     DynamicEvidence,
     FileLocation,
     Finding,
     NonEmptyString,
+    StaticEvidence,
     proof_identity,
     runtime_evidence,
 )
@@ -47,6 +49,7 @@ class FindingContext(ContractModel):
     finding_id: str
     blocks: tuple[ContextBlock, ...]
     context_hash: NonEmptyString
+    omitted_flow_locations: tuple[FileLocation, ...] = ()
 
     def contains(self, path: str, start_line: int, end_line: int) -> bool:
         return any(
@@ -57,6 +60,96 @@ class FindingContext(ContractModel):
 
 
 def build_finding_context(root: Path, finding: Finding) -> FindingContext:
+    context = _base_finding_context(root, finding)
+    if not isinstance(finding.evidence, StaticEvidence) or not isinstance(
+        finding.location, FileLocation
+    ):
+        return context
+    locations = finding.evidence.flow_locations
+    if all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in locations
+    ):
+        return context
+    anchors = tuple(
+        dict.fromkeys(
+            (item.path, item.range.start_line)
+            for item in (finding.location, *locations)
+        )
+    )
+    sources: dict[str, list[str]] = {}
+    selected: dict[str, set[int]] = {}
+    for path, line in anchors[:160]:
+        if path not in sources:
+            try:
+                sources[path] = _read_source(root, path).splitlines()
+            except InfrastructureError:
+                continue
+        if 1 <= line <= len(sources[path]):
+            selected.setdefault(path, set()).add(line)
+    remaining = 160 - sum(map(len, selected.values()))
+    for distance in range(1, 41):
+        for path, line in anchors[:160]:
+            if path not in selected:
+                continue
+            for nearby in (line - distance, line + distance):
+                if (
+                    remaining
+                    and 1 <= nearby <= len(sources[path])
+                    and nearby not in selected[path]
+                ):
+                    selected[path].add(nearby)
+                    remaining -= 1
+        if remaining == 0:
+            break
+    blocks = []
+    for path, numbers in selected.items():
+        ordered = sorted(numbers)
+        start = end = ordered[0]
+        for line in (*ordered[1:], -1):
+            if line == end + 1:
+                end = line
+                continue
+            role = (
+                "primary"
+                if path == finding.location.path
+                and start <= finding.location.range.start_line <= end
+                else "resolved_flow"
+            )
+            blocks.append(_block(path, sources[path], start, end, role))
+            start = end = line
+    omitted = tuple(
+        item
+        for item in locations
+        if not any(
+            block.path == item.path
+            and block.start_line
+            <= item.range.start_line
+            <= item.range.end_line
+            <= block.end_line
+            for block in blocks
+        )
+    )
+    return _finish_context(finding, tuple(blocks), omitted=omitted)
+
+
+def _read_source(root: Path, relative: str) -> str:
+    from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
+
+    try:
+        path = resolve_within_root(root, relative)
+        if not path.is_file() or path.stat().st_size > MAX_STATIC_FILE_BYTES:
+            raise InfrastructureError(
+                f"GPT source is not a bounded regular file: {relative}"
+            )
+        return path.read_text(encoding="utf-8")
+    except (ConfigurationError, TargetError, OSError, UnicodeDecodeError) as error:
+        raise InfrastructureError(
+            f"cannot construct GPT context for {relative}: {error}"
+        ) from error
+
+
+def _base_finding_context(root: Path, finding: Finding) -> FindingContext:
     if not isinstance(finding.location, FileLocation):
         evidence_text = sanitize_text(
             json.dumps(
@@ -83,12 +176,7 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
             ),
         )
     path = root / finding.location.path
-    try:
-        source = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as error:
-        raise InfrastructureError(
-            f"cannot construct GPT context for {finding.location.path}: {error}"
-        ) from error
+    source = _read_source(root, finding.location.path)
     lines = source.splitlines()
     target_line = finding.location.range.start_line
     if path.suffix in {".ts", ".mts", ".cts"}:
@@ -187,7 +275,10 @@ def _block(
 
 
 def _finish_context(
-    finding: Finding, blocks: tuple[ContextBlock, ...]
+    finding: Finding,
+    blocks: tuple[ContextBlock, ...],
+    *,
+    omitted: tuple[FileLocation, ...] = (),
 ) -> FindingContext:
     if isinstance(finding.location, FileLocation) and runtime_evidence(finding):
         text = sanitize_text(
@@ -209,11 +300,22 @@ def _finish_context(
             ),
         )
     payload = [block.model_dump(mode="json") for block in blocks]
+    if omitted:
+        payload.append(
+            {
+                "omitted_flow_locations": [
+                    item.model_dump(mode="json") for item in omitted
+                ]
+            }
+        )
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     return FindingContext(
-        finding_id=str(finding.finding_id), blocks=blocks, context_hash=digest
+        finding_id=str(finding.finding_id),
+        blocks=blocks,
+        context_hash=digest,
+        omitted_flow_locations=omitted,
     )
 
 

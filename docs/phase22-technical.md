@@ -12,6 +12,9 @@ the original proposals remain unchanged. Detector development now uses exposed
 Phase 20 cases and approved development cases. Fresh holdout source remains
 separate from tuning.
 
+The [description-poisoning increment](phase22-description-poisoning.md) records
+SENT-013 implementation and its bounded development measurement.
+
 ## Evidence and acceptance
 
 Preserve all Phase 20 source, configurations, labels, captures, costs and results.
@@ -108,6 +111,12 @@ invented historical coverage. SARIF stays 2.1.0. Until migration ships, native
 reports remain 1.6.0.
 
 ## Delivery and outstanding decisions
+
+The [implementation status map](phase22-implementation-status.md) separates
+verified draft increments from the still-unfinished full technical plan.
+
+The [filesystem condition follow-up](phase22-containment-conditions.md) records
+enforced collection/parent guards and four exposed-input adjudications.
 
 The [shared containment follow-up](phase22-shared-containment.md) records
 bounded caller/context and helper identity fixes; full discovery remains pending.

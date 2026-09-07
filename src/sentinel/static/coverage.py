@@ -6,7 +6,13 @@ import ast
 import re
 
 from sentinel.finding import FileLocation, SourceRange
-from sentinel.report.coverage import RecognitionReason, StaticCoverage, StaticSurface
+from sentinel.report.coverage import (
+    RecognitionReason,
+    StaticCoverage,
+    StaticSurface,
+    WorkspaceCoverage,
+    WorkspaceMemberCoverage,
+)
 from sentinel.static import typescript as ts
 from sentinel.static.ast_utils import (
     decorator_call,
@@ -539,6 +545,7 @@ def inventory(
                 )
     check_deadline(context.deadline)
     return StaticCoverage(
+        workspace=_workspace_coverage(context, surfaces),
         surfaces=tuple(
             sorted(
                 surfaces,
@@ -558,3 +565,81 @@ def inventory(
         ),
         unresolved_flows=tuple(flows),
     )
+
+
+def _workspace_coverage(
+    context: StaticContext, surfaces: list[StaticSurface]
+) -> WorkspaceCoverage | None:
+    layout = context.configuration.workspace
+    if layout is None:
+        return None
+
+    def owner(path: str) -> str:
+        return max(
+            (
+                member
+                for member in layout.members
+                if member == "." or path.startswith(member + "/")
+            ),
+            key=len,
+        )
+
+    members = []
+    for member in layout.members:
+        observed = [
+            surface for surface in surfaces if owner(surface.location.path) == member
+        ]
+        python_count = sum(
+            owner(file.relative_path) == member for file in context.files.python_files
+        )
+        typescript_count = sum(
+            owner(file.relative_path) == member
+            for file in context.files.typescript_files
+        )
+        included = bool(python_count or typescript_count) or member == "."
+        members.append(
+            WorkspaceMemberCoverage(
+                path=member,
+                status="included" if included else "unsupported",
+                python_file_count=python_count,
+                typescript_file_count=typescript_count,
+                recognized_surface_count=sum(
+                    item.status == "recognized" for item in observed
+                ),
+                unresolved_surface_count=sum(
+                    item.status == "unresolved" for item in observed
+                ),
+                unsupported_surface_count=sum(
+                    item.status == "unsupported" for item in observed
+                ),
+                reasons=()
+                if included
+                else ("No supported source files were included for this member.",),
+                nested_configurations=tuple(
+                    path.relative_to(context.configuration.scan_root).as_posix()
+                    for path in context.files.config_files
+                    if path.parent != context.configuration.scan_root
+                    and path.name.startswith("sentinel.")
+                    and owner(
+                        path.relative_to(context.configuration.scan_root).as_posix()
+                    )
+                    == member
+                ),
+            )
+        )
+    for path in sorted({issue.path for issue in layout.issues}):
+        members.append(
+            WorkspaceMemberCoverage(
+                path=path,
+                status="incomplete",
+                python_file_count=None,
+                typescript_file_count=None,
+                recognized_surface_count=None,
+                unresolved_surface_count=None,
+                unsupported_surface_count=None,
+                reasons=tuple(
+                    issue.reason for issue in layout.issues if issue.path == path
+                ),
+            )
+        )
+    return WorkspaceCoverage(declarations=layout.declarations, members=tuple(members))

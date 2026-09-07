@@ -108,10 +108,16 @@ class DynamicScanResult:
     @property
     def summary(self) -> DynamicAnalysisSummary:
         by_id = {item.probe_id: item for item in self.observations}
+
+        def attempt_id(item: _Observation) -> str:
+            return f"{item.probe_id}:" + _identity(
+                [item.target_tool, item.argument_path, item.field]
+            )
+
         return DynamicAnalysisSummary(
             coverage=DynamicCoverage(
                 discovery=tuple(
-                    snapshot
+                    snapshot.model_copy(update={"attempt_id": attempt_id(item)})
                     for item in self.observations
                     for snapshot in item.discovery
                 ),
@@ -124,6 +130,7 @@ class DynamicScanResult:
             ),
             probe_outcomes=tuple(
                 DynamicProbeOutcome(
+                    attempt_id=attempt_id(item),
                     probe_id=probe_id,
                     status=item.status,
                     baseline_attempted=item.baseline_attempted,

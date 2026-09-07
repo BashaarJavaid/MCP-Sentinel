@@ -107,7 +107,11 @@ PROBE_IDS: tuple[ProbeId, ...] = ("SENT-008", "SENT-009", "SENT-010", "SENT-011"
 
 
 class DynamicProbeOutcome(ContractModel):
+    attempt_id: NonEmptyString
+    legacy_attempt: bool = False
     probe_id: ProbeId
+    mutation: str | None = None
+    eligible: bool | None = None
     status: Literal["tested", "unsupported", "untested", "inconclusive"]
     verdict: Literal["violation_observed", "no_violation_observed"] | None
     tool: str | None
@@ -125,6 +129,10 @@ class DynamicProbeOutcome(ContractModel):
 
     @model_validator(mode="after")
     def validate_verdict(self) -> DynamicProbeOutcome:
+        if self.legacy_attempt and (
+            self.mutation is not None or self.eligible is not None
+        ):
+            raise ValueError("legacy attempts cannot invent mutation or eligibility")
         if (self.status == "tested") != (self.verdict is not None):
             raise ValueError("only tested probes require a verdict")
         return self
@@ -132,17 +140,27 @@ class DynamicProbeOutcome(ContractModel):
 
 class DynamicAnalysisSummary(ContractModel):
     coverage: DynamicCoverage | None = None
-    probe_outcomes: tuple[DynamicProbeOutcome, ...]
+    probe_outcomes: tuple[DynamicProbeOutcome, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
     def validate_probes(self) -> DynamicAnalysisSummary:
-        if sorted(item.probe_id for item in self.probe_outcomes) != [
-            "SENT-008",
-            "SENT-009",
-            "SENT-010",
-            "SENT-011",
-        ]:
-            raise ValueError("dynamic analysis requires each fixed probe exactly once")
+        ids = [item.attempt_id for item in self.probe_outcomes]
+        if len(ids) != len(set(ids)):
+            raise ValueError("dynamic analysis requires unique attempt IDs")
+        if self.coverage is not None and self.coverage.campaign is not None:
+            campaign = self.coverage.campaign
+            if any(item.legacy_attempt for item in self.probe_outcomes):
+                raise ValueError("legacy attempts cannot establish campaign coverage")
+            if campaign.planned_attempts != len(self.probe_outcomes):
+                raise ValueError("every planned attempt requires an outcome")
+            if campaign.eligible_attempts != sum(
+                item.eligible is True for item in self.probe_outcomes
+            ):
+                raise ValueError("campaign eligibility must match outcomes")
+            if campaign.tested_attempts != sum(
+                item.status == "tested" for item in self.probe_outcomes
+            ):
+                raise ValueError("campaign tested count must match outcomes")
         return self
 
 
@@ -203,7 +221,7 @@ class BaselineSummary(ContractModel):
     matcher_version: Literal["sentinel-baseline-v1", "sentinel-baseline-v2"] = (
         "sentinel-baseline-v2"
     )
-    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0"]
+    source_schema_version: Literal["1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0"]
     source_sha256: Sha256Hex
     baseline_finding_count: int = Field(ge=0)
     matched_finding_count: int = Field(ge=0)
@@ -289,7 +307,7 @@ class GptReviewSummary(ContractModel):
 
 
 class ScanReport(ContractModel):
-    schema_version: Literal["1.6.0"] = "1.6.0"
+    schema_version: Literal["1.7.0"] = "1.7.0"
     review_activity: StageReviewActivity = Field(default_factory=StageReviewActivity)
     scan_id: UUID
     sentinel_version: NonEmptyString
@@ -327,6 +345,19 @@ class ScanReport(ContractModel):
     def validate_report(self) -> ScanReport:
         if self.dynamic_analysis is not None:
             outcomes = self.dynamic_analysis.probe_outcomes
+            coverage = self.dynamic_analysis.coverage
+            if (
+                self.analysis_complete
+                and coverage is not None
+                and coverage.campaign is not None
+                and (
+                    not coverage.campaign.enumeration_complete
+                    or coverage.campaign.remaining_eligible_attempts
+                )
+            ):
+                raise ValueError(
+                    "incomplete campaign coverage cannot establish complete analysis"
+                )
             if self.analysis_complete and any(
                 item.status != "tested" for item in outcomes
             ):
