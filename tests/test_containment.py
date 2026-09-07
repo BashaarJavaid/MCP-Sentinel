@@ -420,3 +420,32 @@ def test_rebound_sdk_context_annotation_stays_caller_controlled() -> None:
         state,
     )
     assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "def __new__(cls):\n        return replacement()",
+        "def __init__(self):\n        self.read = replacement",
+    ],
+)
+def test_custom_factory_construction_stays_explicitly_unresolved(
+    constructor: str,
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "class Reader:\n    " + constructor + "\n"
+                    "    def read(self, path):\n        return open('/fixed')\n"
+                    "def factory():\n    return Reader()\n"
+                    "@mcp.tool()\ndef read(path):\n    reader = factory()\n"
+                    "    return reader.read(path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert not state.matches
+    assert any("custom construction" in warning.message for warning in state.warnings)

@@ -126,9 +126,7 @@ class PythonProgram:
             target = qualified_name(value) if value else None
             if isinstance(node.value, ast.Call):
                 constructor = self.resolve(file, target, seen) if target else None
-                if constructor is None or not isinstance(
-                    constructor.node, ast.ClassDef
-                ):
+                if constructor is None or not self.plain_instance(constructor):
                     return None
             return (
                 self.resolve(file, target + ("." + rest if rest else ""), seen)
@@ -202,6 +200,35 @@ class PythonProgram:
         if not rest and isinstance(node, (Function, ast.ClassDef)):
             return Symbol(file, name, node)
         return None
+
+    def plain_instance(
+        self, symbol: Symbol, seen: frozenset[tuple[str, str]] = frozenset()
+    ) -> bool:
+        """Only infer instances whose construction cannot replace methods or state."""
+        node = symbol.node
+        key = (symbol.file.relative_path, symbol.name)
+        if (
+            key in seen
+            or not isinstance(node, ast.ClassDef)
+            or node.keywords
+            or node.decorator_list
+        ):
+            return False
+        for child in scope_nodes(node):
+            if isinstance(child, Function) and child.name in {"__new__", "__init__"}:
+                return False
+            if (
+                isinstance(child, ast.Name)
+                and isinstance(child.ctx, ast.Store)
+                and child.id in {"__new__", "__init__"}
+            ):
+                return False
+        for base in node.bases:
+            name = qualified_name(base)
+            parent = self.resolve(symbol.file, name) if name else None
+            if parent is None or not self.plain_instance(parent, seen | {key}):
+                return False
+        return True
 
     def tools(self) -> tuple[ToolBinding, ...]:
         found: list[ToolBinding] = []
