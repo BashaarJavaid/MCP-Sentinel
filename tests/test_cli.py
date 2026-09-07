@@ -507,7 +507,12 @@ def test_rules_only_prohibited_paths_and_reports(
                 "-full_token_info",
                 "-dump_ast",
             ]
-            assert Path(command[-1]).is_relative_to(root)
+            snapshot = Path(command[-1])
+            assert snapshot.read_bytes() in {
+                path.read_text(encoding="utf-8").encode("utf-8")
+                for path in root.rglob("*.ts")
+                if not path.is_symlink()
+            }
             assert kwargs["env"]["SEMGREP_SEND_METRICS"] == "off"
             assert kwargs["env"]["SEMGREP_ENABLE_VERSION_CHECK"] == "0"
             return run_process(command, **kwargs)

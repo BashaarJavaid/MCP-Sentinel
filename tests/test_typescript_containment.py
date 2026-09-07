@@ -140,7 +140,10 @@ def test_low_level_dispatch_follows_destructured_request(tmp_path: Path) -> None
     assert len(state.matches) == 1
 
 
-def test_scan_preserves_imported_handler_and_sink_locations(tmp_path: Path) -> None:
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_scan_preserves_imported_handler_and_sink_locations(
+    tmp_path: Path, newline: str
+) -> None:
     (tmp_path / "package.json").write_text(
         '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}'
     )
@@ -156,6 +159,10 @@ def test_scan_preserves_imported_handler_and_sink_locations(tmp_path: Path) -> N
         "export async function read({path}: {path:string}): Promise<string> {\n"
         'return fs.readFile(path, "utf8");\n}\n'
     )
+    for path in tmp_path.glob("*.ts"):
+        source = path.read_text(encoding="utf-8")
+        source = "// π and 😀 preserve source coordinates\n" + source
+        path.write_bytes(source.replace("\n", newline).encode("utf-8"))
     configuration = load_configuration(
         tmp_path, environ={}, static_only=True, cli_overrides={"rules": ("SENT-012",)}
     )
@@ -163,13 +170,15 @@ def test_scan_preserves_imported_handler_and_sink_locations(tmp_path: Path) -> N
     assert len(result.findings) == 1
     assert isinstance(result.findings[0].location, FileLocation)
     assert result.findings[0].location.path == "handler.ts"
-    assert result.findings[0].location.range.start_line == 4
+    assert result.findings[0].location.range.start_line == 5
     assert result.summary.coverage is not None
     surface = next(
         item for item in result.summary.coverage.surfaces if item.name == "read"
     )
     assert surface.location.path == "server.ts"
     assert surface.handler is not None and surface.handler.path == "handler.ts"
+    assert surface.location.range.start_line == 5
+    assert surface.handler.range.start_line == 4
     assert surface.status == "recognized" and surface.examined_rule_ids == ("SENT-012",)
 
 
