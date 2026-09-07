@@ -1,10 +1,12 @@
 # Phase 20 — Corrected-scanner completion measurement
 
-**All prepared static requests captured; execution limitations remain. Final Phase 20 acceptance is pending.**
+**Phase 20 accepted on 2026-09-07 (UTC). All prepared static requests are captured; execution limitations remain.**
+
+See the [acceptance record](phase20-acceptance.md). The report version bound by the original verification hash is [retained at the measured evidence commit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/docs/phase20-completion-v2.md). Later changes here update publication status and links only.
 
 This supplements the unchanged [original partial baseline](phase20-verification.md) and [execution-correction diagnostics](benchmark-execution-corrections.md). Measurement source is `8824014e961722980757bb589009dc59b78d9a37`, scanner SHA-256 `22bdb90c1a5dc23ddf6ec19c5b87adc98accd7abd5e5bd28cff16f9913b6d8dd`, harness SHA-256 `725c4ec8af374f7d9be08c19a171a8157630ba3f1f9e168e25c202a9a3e54db0`. New accepted review cost is $0.429571. Static reviewed completion rises from 22 to 32 inputs; condition-level detection does not improve. The original Semgrep measurement is reused unchanged with its own source/environment identity, rather than counted as another comparator run.
 
-The full [scored JSON](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/results.json) retains every outcome, coverage field, source revision, decision, and denominator. The numeric tables below use the existing condition scorer. The explanatory prose records the corrected execution failures instead of the original baseline's JSONC and missing-Git failures.
+The full [scored JSON](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/results.json) retains every outcome, coverage field, source revision, decision, and denominator. The numeric tables below use the existing condition scorer. The explanatory prose records the corrected execution failures instead of the original baseline's JSONC and missing-Git failures.
 
 Frozen manifest: `f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682`.
 
@@ -75,7 +77,7 @@ Rules and reviewed static have identical completion and condition-detection coun
 
 Offline runs overlap; these wall durations are retained observations, not isolated throughput estimates. Original live request latency is reported above and is not replaced by replay duration. Both 45-input static repeats pass native stable-finding/coverage/outcome comparison, excluding volatile identifiers and timing. Failure reasons also match. All per-input native reports were validated against JSON 1.6.0 and SARIF 2.1.0 during measurement.
 
-The current platform regression matrix remains required. CI checks corpus/comparator metadata from the PR, then verifies the versioned evidence against the exact measured scanner in parallel deterministic and replay jobs. Independent Docker and private community-rule measurements remain explicit. The previous source-revision CI passed all 28 jobs; final evidence-commit CI is tracked on the draft PR.
+The current platform regression matrix remains required. CI checks corpus/comparator metadata from the PR, then verifies the versioned evidence against the exact measured scanner in parallel deterministic and replay jobs. Independent Docker and private community-rule measurements remain explicit. All 29 [CI jobs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34067265137) passed for the final evidence commit, along with the documentation build. PRs #20 and #21 are merged.
 
 ## Reproduction
 
@@ -94,19 +96,19 @@ To repeat Docker explicitly, use `python -m scripts.run_phase20_benchmark dynami
 
 ## Evidence
 
-- [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/checkpoint2-packet.md)
-- [checkpoint2-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/checkpoint2-approval.json)
-- [checkpoint2-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/checkpoint2-outcome.md)
-- [checkpoint2-outcome.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/checkpoint2-outcome.json)
-- [new-capture-condition-review.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/new-capture-condition-review.json)
-- [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/adjudications.json)
-- [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/captures/ledger.json)
-- [checkpoint3-outcome.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/checkpoint3-outcome.json)
-- [dynamic/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/dynamic/budget-packet.json)
-- [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/measurement-environment.json)
-- [preparation-verification.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/preparation-verification.json)
-- [rules-repeat/reproducibility.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/rules-repeat/reproducibility.json)
-- [replay-repeat/reproducibility.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/fix-nullable-probe-validation/artifacts/phase20/completion-v2/replay-repeat/reproducibility.json)
+- [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/checkpoint2-packet.md)
+- [checkpoint2-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/checkpoint2-approval.json)
+- [checkpoint2-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/checkpoint2-outcome.md)
+- [checkpoint2-outcome.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/checkpoint2-outcome.json)
+- [new-capture-condition-review.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/new-capture-condition-review.json)
+- [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/adjudications.json)
+- [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/captures/ledger.json)
+- [checkpoint3-outcome.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/checkpoint3-outcome.json)
+- [dynamic/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/dynamic/budget-packet.json)
+- [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/measurement-environment.json)
+- [preparation-verification.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/preparation-verification.json)
+- [rules-repeat/reproducibility.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/rules-repeat/reproducibility.json)
+- [replay-repeat/reproducibility.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/f37402e48eb49a4495facabc7033e97ed66edd1b/artifacts/phase20/completion-v2/replay-repeat/reproducibility.json)
 
 ## Documented comparator capabilities
 
@@ -137,4 +139,4 @@ These are vendor-documented capabilities, not measured comparative results. No
 performance or superiority ranking is supported.
 
 
-Phase 20 measures a weak baseline honestly; it does not establish product usefulness or whole-repository safety. Phase 21 validates maintainer workflows and Phase 22 owns bounded coverage improvements using these gaps. Final acceptance, merge, and public report deployment remain subject to the user’s explicit decision.
+Phase 20 measures a weak baseline honestly; it does not establish product usefulness or whole-repository safety. Phase 21 validates maintainer workflows and Phase 22 owns bounded coverage improvements using these gaps. The user accepted Phase 20 and authorized merge and documentation publication; see the acceptance record.

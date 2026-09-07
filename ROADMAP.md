@@ -11,9 +11,9 @@ workflows. The September 2026 product review identified detection-quality and
 adoption gaps that those original gates did not measure. Phases 16–26 address
 that review; none is implemented merely by being scheduled here.
 
-Phases 16–19 are complete; all four Phase 17 checkpoints and final Phase 18
-and Phase 19 acceptance are recorded. **Next planned phase: 20 — Independent
-detection benchmark.**
+Phases 16–20 are complete and accepted, including the independent benchmark
+with its recorded detection and execution limitations. **Next planned phase:
+21 — Maintainer pilot and problem validation.**
 Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
 after its predecessor's verification gate passes. Phase 15 retains existing
@@ -1030,15 +1030,17 @@ change a finding calls for.
 
 ## 23. Phase 20 — Independent detection benchmark
 
-**Status: in progress; evidence gates open.** Depends on Phase 19.
+**Status: complete and accepted on 2026-09-07 (UTC).** Depends on Phase 19.
 Checkpoint 1 was approved on 2026-09-06. The frozen corpus, independent review,
 deterministic/comparator measurements and runtime prerequisite failures are
 retained in [Phase 20 verification](docs/phase20-verification.md). The separately
 versioned [completion measurement](docs/phase20-completion-v2.md) retains all 35
 accepted static captures after the approved validator correction and resumption;
 the four earlier failed attempts remain in its cumulative accounting. Execution
-limitations remain measured outcomes. Final phase acceptance, merge, and public
-deployment await separate user decisions.
+limitations remain measured outcomes. The user authorized acceptance, merge,
+documentation publication, and removal of the merged task branches. PRs #20
+and #21 are merged into `main`; the [acceptance record](docs/phase20-acceptance.md)
+binds the evidence and passing checks. No detection-accuracy threshold was added.
 
 ### Objective
 

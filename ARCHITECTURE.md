@@ -1140,7 +1140,7 @@ The required v1 architecture deliberately leaves extension points only where fut
 - [OpenAI Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)
 
-## 18. Phase 20 independent benchmark (evidence gates open)
+## 18. Phase 20 independent benchmark (accepted)
 
 Execution corrections and their offline regression observations are recorded
 separately in [the correction report](docs/benchmark-execution-corrections.md).
@@ -1219,5 +1219,6 @@ remain explicit external prerequisites. CI verifies the versioned completion
 evidence against its exact measured scanner/harness revision, with deterministic
 and replay treatments in parallel. The original local baseline is in
 [Phase 20 verification](docs/phase20-verification.md), followed by the
-[completion measurement](docs/phase20-completion-v2.md); Phase 20 remains open
-until all evidence gates pass and the user accepts the final phase.
+[completion measurement](docs/phase20-completion-v2.md). The user accepted Phase
+20 on 2026-09-07 (UTC), including its measured limitations; the
+[acceptance record](docs/phase20-acceptance.md) binds the evidence and checks.

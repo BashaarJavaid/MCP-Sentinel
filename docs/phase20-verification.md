@@ -1,6 +1,6 @@
 # Phase 20 — Independent detection benchmark
 
-**Partial baseline retained; final Phase 20 acceptance is pending.**
+**Historical partial baseline. Phase 20 subsequently completed and was accepted; see the [acceptance record](phase20-acceptance.md) and [completion measurement](phase20-completion-v2.md).**
 
 Frozen manifest: `f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682`.
 
@@ -55,32 +55,32 @@ Install the locked development environment first (`uv sync --frozen --extra dev`
 
 `prepare-live` runs the production request builder offline, serially, with GPT-5.6 Sol medium, retries disabled, cache disabled, and the 500-finding default. It never reads an API key. `capture-live --stage static --approval <file>` requires a separately approved packet hash and cumulative request/dollar ceilings. Runtime capture uses `--stage runtime` and a separate Checkpoint 3 decision. `dynamic` requires completed eligible static replay and uses native Docker isolation. It preserves runtime proof and prepares new runtime review requests offline.
 
-Phase 20 remains open until all evidence gates pass. Detectors, prompts and probes have not been tuned. Historical ablation/walkthrough artifacts and native scanner contracts are unchanged. Draft PR merge, public deployment and final acceptance still require explicit approval.
+This historical partial baseline is superseded by the accepted completion measurement. Detectors, prompts and probes have not been tuned. Historical ablation/walkthrough artifacts and native scanner contracts are unchanged. The user subsequently authorized merge, documentation publication, and final acceptance; this historical measurement is retained for comparison.
 
 ## Evidence
 
-- [freeze.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/freeze.json)
-- [checkpoint1-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-packet.md)
-- [checkpoint1-independent-review.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint1-independent-review.md)
-- [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-packet.md)
-- [checkpoint2-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-approval.json)
-- [checkpoint2-capture-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-capture-outcome.md)
-- [checkpoint2-resume-proposal.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal.json)
-- [checkpoint2-resume-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-approval.json)
-- [checkpoint2-resume-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-outcome.md)
-- [checkpoint2-resume-proposal-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal-2.json)
-- [checkpoint2-resume-approval-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-approval-2.json)
-- [checkpoint2-resume-outcome-2.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-outcome-2.md)
-- [checkpoint2-resume-proposal-3.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal-3.json)
-- [checkpoint2-resume-approval-3.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-approval-3.json)
-- [checkpoint2-resume-outcome-3.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-outcome-3.md)
-- [checkpoint2-resume-proposal-4.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/checkpoint2-resume-proposal-4.json)
-- [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/captures/ledger.json)
-- [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/measurement-environment.json)
-- [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/adjudications.json)
-- [results.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/results.json)
-- [prepare-live/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/prepare-live/budget-packet.json)
-- [dynamic/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark/artifacts/phase20/dynamic/budget-packet.json)
+- [freeze.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/freeze.json)
+- [checkpoint1-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint1-packet.md)
+- [checkpoint1-independent-review.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint1-independent-review.md)
+- [checkpoint2-packet.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-packet.md)
+- [checkpoint2-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-approval.json)
+- [checkpoint2-capture-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-capture-outcome.md)
+- [checkpoint2-resume-proposal.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-proposal.json)
+- [checkpoint2-resume-approval.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-approval.json)
+- [checkpoint2-resume-outcome.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-outcome.md)
+- [checkpoint2-resume-proposal-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-proposal-2.json)
+- [checkpoint2-resume-approval-2.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-approval-2.json)
+- [checkpoint2-resume-outcome-2.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-outcome-2.md)
+- [checkpoint2-resume-proposal-3.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-proposal-3.json)
+- [checkpoint2-resume-approval-3.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-approval-3.json)
+- [checkpoint2-resume-outcome-3.md](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-outcome-3.md)
+- [checkpoint2-resume-proposal-4.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/checkpoint2-resume-proposal-4.json)
+- [captures/ledger.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/captures/ledger.json)
+- [measurement-environment.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/measurement-environment.json)
+- [adjudications.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/adjudications.json)
+- [results.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/results.json)
+- [prepare-live/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/prepare-live/budget-packet.json)
+- [dynamic/budget-packet.json](https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc/artifacts/phase20/dynamic/budget-packet.json)
 
 ## Documented comparator capabilities (2026-09-06)
 

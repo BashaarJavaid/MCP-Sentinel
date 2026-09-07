@@ -41,4 +41,6 @@ accounting remain unchanged. The benchmark's paid-capture source-identity guard
 rejects the corrected scanner against the original approval; its test explicitly
 checks this boundary. Any measurement of the corrected scanner needs separately
 identified preparation and the selected budget approval before new paid calls.
-No paid call is part of this correction's verification.
+No paid call is part of this correction's verification. The subsequently approved
+[completion measurement](phase20-completion-v2.md) captured the remaining requests;
+Phase 20 is now [accepted](phase20-acceptance.md).

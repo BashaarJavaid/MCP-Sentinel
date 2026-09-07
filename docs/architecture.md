@@ -45,6 +45,14 @@ Reports are security artifacts. Incomplete static, GPT, dynamic, or validation
 stages cannot silently become an empty successful report. Console, JSON, and
 SARIF all consume the same deduplicated Finding objects.
 
+## Independent benchmark
+
+The [accepted Phase 20 baseline](phase20-acceptance.md) measures deterministic,
+reviewed, and eligible runtime behavior on frozen independent cases. Findings
+count only when they identify the labeled security condition; unrelated warnings
+remain unadjudicated. Candidate recall, retained alerts, confirmed-only alerts,
+coverage, incomplete execution, and review cost are reported separately.
+
 The complete field, state-transition, sandbox, configuration, and failure
 contracts live in the root [architecture
 contract](https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/ARCHITECTURE.md).

@@ -10,9 +10,7 @@ from scripts.phase20_corpus import CORPUS, ROOT, digest, validate
 
 ARTIFACTS = ROOT / "artifacts/phase20"
 REPORT = ROOT / "docs/phase20-verification.md"
-BLOB = (
-    "https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase20-independent-benchmark"
-)
+BLOB = "https://github.com/BashaarJavaid/MCP-Sentinel/blob/daeefe701a6d51120585ee2054128c33c7efafbc"
 
 COMPARATOR_CAPABILITIES = """
 

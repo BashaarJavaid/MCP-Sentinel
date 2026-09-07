@@ -2,8 +2,9 @@
 
 These changes address execution blockers observed during Phase 20. The frozen
 corpus, approvals, captures, adjudications, and original measurements under
-`artifacts/phase20` are unchanged. Phase 20 remains open; these corrections do
-not establish detection effectiveness or authorize paid review.
+`artifacts/phase20` are retained unchanged. Phase 20 is now
+[accepted with its measured limitations](phase20-acceptance.md); these correction
+controls alone do not establish detection effectiveness or authorize paid review.
 
 ## Changes
 

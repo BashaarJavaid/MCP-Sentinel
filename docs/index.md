@@ -36,6 +36,14 @@ finding reached the configured failure threshold.
 Start with [installation](install.md), then review [configuration](configuration.md)
 and the [rule catalog](rules.md). For CI, use the [GitHub Action](github-action.md).
 
+## Measured effectiveness
+
+The [accepted independent benchmark](phase20-acceptance.md) records 45 labeled
+inputs across five repositories. Both static tiers completed 32 inputs and
+detected none of the 14 vulnerable inputs whose scans completed. Review captures
+are complete; execution failures and unsupported runtime scope remain explicit.
+This baseline guides further work and does not establish broad detection accuracy.
+
 ## PortunusMCP family
 
 Sentinel is the build-time security plane of PortunusMCP. The
