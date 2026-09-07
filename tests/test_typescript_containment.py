@@ -212,3 +212,68 @@ def test_imported_boolean_guard_tracks_argument_identity(
     state = RuleRunState()
     analyze(program, state)
     assert bool(state.matches) == (guarded == "unrelated")
+
+
+def test_sdk_second_argument_is_injected_context(tmp_path: Path) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("read", {inputSchema:{path:z.string()}}, '
+        "async ({path}, ctx) => { fs.readFile(ctx.sessionId); "
+        "return fs.readFile(path); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert state.matches[0].snippet == "fs.readFile(path)"
+
+
+@pytest.mark.parametrize(
+    "check,expected",
+    [
+        ("p.startsWith(root + path.sep)", 0),
+        ("p === root || p.startsWith(root + path.sep)", 0),
+        ("p.startsWith(root)", 1),
+        ('p.startsWith(root + "suffix")', 1),
+        ("other.startsWith(root + path.sep)", 1),
+    ],
+)
+def test_normalizing_helper_and_component_safe_prefix(
+    tmp_path: Path, check: str, expected: int
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function normalize(p: string) { return path.normalize(p); }\n"
+        "function inside(p: string, root: string, other: string) { return "
+        + check
+        + "; }\n"
+        'server.registerTool("read", {inputSchema:{input:z.string()}}, '
+        "async ({input}) => {\n"
+        "const p = await fs.realpath(input); "
+        'const root = await fs.realpath("/allowed");\n'
+        'const other = await fs.realpath("/allowed/fixed");\n'
+        "if (!inside(normalize(p), normalize(root), other)) throw new Error();\n"
+        "return fs.readFile(p); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
