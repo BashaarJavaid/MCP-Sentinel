@@ -499,6 +499,18 @@ def test_rules_only_prohibited_paths_and_reports(
     def checked_process(
         command: list[str], **kwargs: Any
     ) -> subprocess.CompletedProcess[str]:
+        if Path(command[0]).stem.lower() == "semgrep-core":
+            assert command[1:6] == [
+                "-lang",
+                "typescript",
+                "-json",
+                "-full_token_info",
+                "-dump_ast",
+            ]
+            assert Path(command[-1]).is_relative_to(root)
+            assert kwargs["env"]["SEMGREP_SEND_METRICS"] == "off"
+            assert kwargs["env"]["SEMGREP_ENABLE_VERSION_CHECK"] == "0"
+            return run_process(command, **kwargs)
         assert Path(command[0]).stem.lower() == "semgrep"
         assert command[1] == "scan"
         assert command[command.index("--metrics") + 1] == "off"
