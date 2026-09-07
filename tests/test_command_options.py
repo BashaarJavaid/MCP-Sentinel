@@ -268,7 +268,10 @@ def test_guarded_tokens_stay_protected_through_list_concatenation(
     assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
 
 
-def test_optional_safe_selector_keeps_command_prefix_and_copy(tmp_path: Path) -> None:
+@pytest.mark.parametrize("tail", ["full[1:]", "full[1:] if len(full) > 1 else []"])
+def test_optional_safe_selector_keeps_command_prefix_and_copy(
+    tmp_path: Path, tail: str
+) -> None:
     root = make_target(tmp_path / "target", target_yaml="")
     (root / "server.py").write_text(
         "import subprocess\nfrom mcp.server.fastmcp import FastMCP\n"
@@ -280,7 +283,8 @@ def test_optional_safe_selector_keeps_command_prefix_and_copy(tmp_path: Path) ->
         '        command.extend(["--select"] + tokens)\n'
         "    full = command.copy()\n"
         "    if len(full) > 0:\n"
-        '        full = [full[0], "--quiet", *full[1:]]\n'
+        f"        rest = {tail}\n"
+        '        full = [full[0], "--quiet", *rest]\n'
         '    return subprocess.run(["dbt", *full])\n',
         encoding="utf-8",
     )

@@ -370,6 +370,18 @@ class PathFlow:
             value = self.expression(symbol, node.value, env)
             self.assign(node.target, value, env)
             return value
+        if isinstance(node, ast.IfExp):
+            self.expression(symbol, node.test, env)
+            branches = []
+            for expression, truth in ((node.body, True), (node.orelse, False)):
+                local = env.copy()
+                self.guard(symbol, node.test, local, truth)
+                local["#conditional-result"] = self.expression(
+                    symbol, expression, local
+                )
+                branches.append(local)
+            self.merge(env, branches)
+            return env.pop("#conditional-result")
         if isinstance(
             node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
         ):
