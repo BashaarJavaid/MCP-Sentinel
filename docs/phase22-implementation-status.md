@@ -5,6 +5,27 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
+## Active delivery workflow
+
+The user approved one integration branch with batched PR/CI delivery on
+September 7, 2026. Continue in `phase22/integration`, currently checked out at
+`/private/tmp/mcp-phase22-options`. Existing draft PRs remain checkpoints;
+do not maintain the old branch stack for each subsequent change.
+
+The integration branch preserves unfinished SENT-014 in checkpoint `2c057c5`
+and incorporates the report/review draft from `47974d0`, including delivered
+parents through PR #36 (`8b6b0dd`). These are work in progress, not verified
+technical acceptance. The last pre-consolidation focused command,
+`pytest tests/test_command_options.py tests/test_typescript_discovery.py --no-cov -q`,
+reported 22 passes and two failures involving unrelated/replaced TypeScript
+argument guards. Resolve those and complete the report contract before claiming
+the integration passes. No new full-suite or hosted run was triggered merely
+to consolidate branches.
+
+Use focused checks while coding, full checks at substantial integration
+milestones, and the complete final benchmark/OS matrix before acceptance. Retain
+raw evidence now and package it in batches. Existing workflow YAML is unchanged.
+
 ## Delivered draft stack
 
 | Increment | Source / delivery | Verification and limits |
@@ -17,7 +38,7 @@ recruitment remains deferred, and the external pilot gate remains unmet. The
 | Preserved report/review draft | `229d50e` checkpoint, `phase22/report-campaign` | Original 18 modified/untracked files were archived and committed before updating parents. The branch includes parent corrections but remains an unaccepted draft. |
 | Description poisoning | `fe40322` source, successor to PR #35 | 823 tests, 86.74% coverage. Five approved development inputs complete: 2/2 vulnerable condition hits and 0/3 fixed/safe condition alerts. All 26 unrelated candidate instances separately reviewed. |
 
-PRs remain drafts. No merge, release, site publication, outreach or paid model
+PRs remain drafts. No PR merge, release, site publication, outreach or paid model
 calls occurred. Exact commands, exits, source and harness digests, logs and failed
 runs are retained in the linked increment records:
 [TypeScript](phase22-typescript-containment.md), [workspaces](phase22-workspaces.md),

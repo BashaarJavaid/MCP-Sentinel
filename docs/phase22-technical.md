@@ -129,9 +129,21 @@ implementation, repeated exposed-input measurements and remaining technical gate
 The [TypeScript containment increment](phase22-typescript-containment.md) records
 parser-backed bindings, repeated completion checks and unresolved fixed guards.
 
-Deliver tested draft increments in contract/evidence, execution, containment/shared
-discovery, remaining detectors/compatibility, review/campaign, report/acceptance
-order. Run Ruff, format, strict mypy, schemas, branch-coverage tests, dependency and
+The user approved consolidated delivery on September 7, 2026 to reduce repeated
+CI and PR overhead. Preserve existing draft PRs as checkpoints and complete the
+remaining work on `phase22/integration`, with separate reviewable commits in
+contract/evidence, execution, containment/shared discovery, remaining
+detectors/compatibility, review/campaign, report/acceptance order. Do not create
+or update a PR for each increment. Batch delivery when the integrated candidate
+is ready; branch consolidation does not imply implementation acceptance.
+
+During implementation, run focused regressions and applicable lint/type checks.
+Run full local checks at substantial integration milestones and the complete
+benchmark and hosted OS matrix on the final candidate. Rerun affected checks
+after fixes or newly identified risks. Retain raw commands, exit codes, logs and
+commit identities as work proceeds; batch evidence packaging and delivery docs.
+Existing CI workflows and final acceptance requirements remain unchanged: Ruff,
+format, strict mypy, schemas, the full branch-coverage suite, dependency and
 notices checks, strict docs, and applicable Docker/CI checks. Report completion,
 support, recall, retained findings, abstentions, incorrect suppressions, false
 alarms, timing and cost. Rerun comparable pinned Semgrep measurements; Snyk/Cisco
