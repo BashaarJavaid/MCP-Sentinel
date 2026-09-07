@@ -6,7 +6,11 @@ that every capability below is implemented. Phase 21 recruitment remains deferre
 
 The [execution correction record](phase22-execution.md) describes the implemented
 first increment. The complete [independent corpus proposal](phase22-corpus-review.md)
-is ready for the required freeze decision; new detector tuning has not begun.
+was approved by the user's subsequent “continue” instruction. The exact manifest
+and tested Git environment are bound in `artifacts/phase22/authorization.json`;
+the original proposals remain unchanged. Detector development now uses exposed
+Phase 20 cases and approved development cases. Fresh holdout source remains
+separate from tuning.
 
 ## Evidence and acceptance
 
@@ -104,6 +108,9 @@ invented historical coverage. SARIF stays 2.1.0. Until migration ships, native
 reports remain 1.6.0.
 
 ## Delivery and outstanding decisions
+
+The [Python containment increment](phase22-python-containment.md) records its
+implementation, repeated exposed-input measurements and remaining technical gates.
 
 Deliver tested draft increments in contract/evidence, execution, containment/shared
 discovery, remaining detectors/compatibility, review/campaign, report/acceptance

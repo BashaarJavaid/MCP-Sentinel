@@ -1,0 +1,323 @@
+{
+  "scope": "Eight exposed Phase 20 inputs for Git staging and repository selection only. Not fresh held-out performance or Phase 22 acceptance. Other findings remain unadjudicated.",
+  "source": "rules-final/results.json",
+  "records": [
+    {
+      "input_id": "git-staging-vulnerable",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "assessment": {
+        "candidate_identity": "aabb22afb7b7f5e0eef16b52e53e627c19dc85fd764c47f5a471a7925255bdae",
+        "matches": [
+          "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+        ],
+        "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 11,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [
+          "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+        ],
+        "unadjudicated_keys": [
+          "003ce383a392abf89f0ce94ceae4b25c48dc1d9fefd740e84fb594eb5768906e",
+          "09f78e3b585374ae4e5712b7db8b9b33f5175bee781776ef6dcf5499577e2caa",
+          "469a8b05418b2bf0be6254f169cfd517b3a462a8f194a80c9e415e63f9393edb",
+          "504a54579971d5dd8ab17dd6db926f21fcb26720b326bf43b45b5d71daaf129d",
+          "612f396604843890648e41bced77d33834fe9d31a62ba85fc262d8ac6b918ecb",
+          "6213d80bfd05384e5491ce4d02ea794b1349f27e2e122b54be9e12276b6f1c87",
+          "9516a25694d0738ae650d4afe720c05ca8669ba7a8839c589bce13bbaf6ac3ee",
+          "bfc38ac2efb798d8e82190b32a40a236fd7cc9405f14358bb158ec7c32ac6edd",
+          "cf1e7c593d3d5ac1634dde50562d6d784aa1b2ac32faccaee3efa27861ba8da7",
+          "ffff2b3d27138324c4bd74eed6c9452c353e7fd62b3c29e9e5430469f01d038e"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": true,
+        "retained_detected": true,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": null,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-staging-vulnerable-mutation",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "assessment": {
+        "candidate_identity": "10da48c9db4576d824a1e82d033b1d3b1ba493882632816199881b4884d5d6e8",
+        "matches": [
+          "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+        ],
+        "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 11,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [
+          "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+        ],
+        "unadjudicated_keys": [
+          "003ce383a392abf89f0ce94ceae4b25c48dc1d9fefd740e84fb594eb5768906e",
+          "09f78e3b585374ae4e5712b7db8b9b33f5175bee781776ef6dcf5499577e2caa",
+          "469a8b05418b2bf0be6254f169cfd517b3a462a8f194a80c9e415e63f9393edb",
+          "504a54579971d5dd8ab17dd6db926f21fcb26720b326bf43b45b5d71daaf129d",
+          "612f396604843890648e41bced77d33834fe9d31a62ba85fc262d8ac6b918ecb",
+          "9516a25694d0738ae650d4afe720c05ca8669ba7a8839c589bce13bbaf6ac3ee",
+          "b61be9d864fb72a8cadd27cee616f353bc8f1ba4c431766d4d4302e8877b4f36",
+          "bfc38ac2efb798d8e82190b32a40a236fd7cc9405f14358bb158ec7c32ac6edd",
+          "cf1e7c593d3d5ac1634dde50562d6d784aa1b2ac32faccaee3efa27861ba8da7",
+          "ffff2b3d27138324c4bd74eed6c9452c353e7fd62b3c29e9e5430469f01d038e"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": true,
+        "retained_detected": true,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": null,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-staging-fixed",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "assessment": {
+        "candidate_identity": "9d0e26ec5e99ece74f481c110165897ec50c60aaf02f4136af7f0b83e3a6c93f",
+        "matches": [],
+        "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 10,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [],
+        "unadjudicated_keys": [
+          "16b64ed8d35e4db956e082f3a6c68c792c09a910137591ceda38ef246c4c1011",
+          "41541fd082fab9e17e6607d3bd676d4a2f5c5e9ad24b5b088dc73a4acdf2c5a7",
+          "4314efb39318d9474d96864be2210873c804d49397c582d0c15979691f625cb5",
+          "6c192e9349ae4e9ea826f40b3868a232c0d1cf63d7b2fb1a575627a0ae3756cf",
+          "70ee2b98c20a42065de6b9f62d72237b6a0313a22f09cd3cf6af4fbbc307a931",
+          "8c2637ffd962b8a73dcb4d3bfd4386277ab859f0b2f81334d71dad6104d39724",
+          "b9140f360f576cd56f7ce354030f96498d65d72b4a4bfa16d36b19afecaf8d91",
+          "c1ce444de51fffa4c3f67d36530dded4eaacaab9075187be7d9aaae03c5a1d6a",
+          "f93b5f85b2e171850abbfdaf81a8fbfe463ad85ab3dd2dd2ee39da3fe0d52b5a",
+          "f986cb3ce19c5337212d5dbd7a9f022511a3c9f60e5be7127bf906f718af8891"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": false,
+        "retained_detected": false,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": false,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-staging-fixed-mutation",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "assessment": {
+        "candidate_identity": "c0b88f2dea8bb8f922cfe77191dd88ed01abf105bbd7379e72dc1ad663079561",
+        "matches": [],
+        "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 10,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [],
+        "unadjudicated_keys": [
+          "16b64ed8d35e4db956e082f3a6c68c792c09a910137591ceda38ef246c4c1011",
+          "41541fd082fab9e17e6607d3bd676d4a2f5c5e9ad24b5b088dc73a4acdf2c5a7",
+          "4314efb39318d9474d96864be2210873c804d49397c582d0c15979691f625cb5",
+          "6c192e9349ae4e9ea826f40b3868a232c0d1cf63d7b2fb1a575627a0ae3756cf",
+          "70ee2b98c20a42065de6b9f62d72237b6a0313a22f09cd3cf6af4fbbc307a931",
+          "8f27d70b49381cb1d121bea81b868126c629cf2b890e5585668bce0c0b8d6408",
+          "b9140f360f576cd56f7ce354030f96498d65d72b4a4bfa16d36b19afecaf8d91",
+          "c1ce444de51fffa4c3f67d36530dded4eaacaab9075187be7d9aaae03c5a1d6a",
+          "f93b5f85b2e171850abbfdaf81a8fbfe463ad85ab3dd2dd2ee39da3fe0d52b5a",
+          "f986cb3ce19c5337212d5dbd7a9f022511a3c9f60e5be7127bf906f718af8891"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": false,
+        "retained_detected": false,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": false,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-repository-vulnerable",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "assessment": {
+        "candidate_identity": "66d1be7838de10367bba3e017538cf6285e188ed98b06bc97db61799b1a17ec2",
+        "matches": [
+          "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+        ],
+        "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 12,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [
+          "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+        ],
+        "unadjudicated_keys": [
+          "099caabe8ed02b2162905dabd2c50c004e0b568faed14f028f08bbd6299663b2",
+          "0f25bffc9dbd93f9aa523ad928dc366b31a4e13534e5caae46e9cac88090cdfe",
+          "2ef14e8dfceb621cab3c43d742614baba5de3aa805c5c10c374444f3f5d1ac32",
+          "384f9a5baffa8605c6eac608c99facc4fd50bf66f05dc2bb13f18d64a5b29ef5",
+          "6cb4aaf24a8820ed0b52daa464d00286e26f0863720db8da943552009877b2d6",
+          "71e2015a39db95de68a3d9d5eb3d3c2a07f66b0bc6958a11b54c9359a26f682e",
+          "7fc3083132168a7d1afea60c19b7c820584bd4e69b02efd474d71a88c882f64b",
+          "84b47a65b69a6ed670116899f8ea765562ce54b42d4d4abef7c64a6350a11b4f",
+          "9318ddfb726bc753d6af9c0a8f56208cff341b943fcdb24a05ca19af66230db7",
+          "a6afa9d21ee8b4c41867247f0d21bd80f36ed2a75c9488c8c52b6ca8b3418e81",
+          "afd6e6abee87a8dde4d7c5f73a1492f036398417322ed6a83dbe38623b57a352"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": true,
+        "retained_detected": true,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": null,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-repository-vulnerable-mutation",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "assessment": {
+        "candidate_identity": "66d1be7838de10367bba3e017538cf6285e188ed98b06bc97db61799b1a17ec2",
+        "matches": [
+          "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+        ],
+        "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 12,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [
+          "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+        ],
+        "unadjudicated_keys": [
+          "099caabe8ed02b2162905dabd2c50c004e0b568faed14f028f08bbd6299663b2",
+          "0f25bffc9dbd93f9aa523ad928dc366b31a4e13534e5caae46e9cac88090cdfe",
+          "2ef14e8dfceb621cab3c43d742614baba5de3aa805c5c10c374444f3f5d1ac32",
+          "384f9a5baffa8605c6eac608c99facc4fd50bf66f05dc2bb13f18d64a5b29ef5",
+          "6cb4aaf24a8820ed0b52daa464d00286e26f0863720db8da943552009877b2d6",
+          "71e2015a39db95de68a3d9d5eb3d3c2a07f66b0bc6958a11b54c9359a26f682e",
+          "7fc3083132168a7d1afea60c19b7c820584bd4e69b02efd474d71a88c882f64b",
+          "84b47a65b69a6ed670116899f8ea765562ce54b42d4d4abef7c64a6350a11b4f",
+          "9318ddfb726bc753d6af9c0a8f56208cff341b943fcdb24a05ca19af66230db7",
+          "a6afa9d21ee8b4c41867247f0d21bd80f36ed2a75c9488c8c52b6ca8b3418e81",
+          "afd6e6abee87a8dde4d7c5f73a1492f036398417322ed6a83dbe38623b57a352"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": true,
+        "retained_detected": true,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": null,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-repository-fixed",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "assessment": {
+        "candidate_identity": "f1965cf0f09bc86e772beb00a40d2e086674be58abac2638b8ff515aabc2518c",
+        "matches": [],
+        "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 11,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [],
+        "unadjudicated_keys": [
+          "05ff1e0c1bea998e4e130f36b2155ac594a77eaedae8046f40b576502c5220bd",
+          "0fefdc307cdb06948ac2a4ff4c73e50512f9416db9ec07018a60fcfb9e37162e",
+          "3c06371c5b00587d38f263b057f4733d81efb42b8d8008eb3ada1cb68e43ba6a",
+          "4d57084f3ddbb69cd2e111f2eb7f9681d30ee2f5329bc61467e71b85473e6051",
+          "4f88d748d4b8bc8b28b880481bf982149e161d5efaf541b8bb118e95d135d3dd",
+          "730f03c9e822ca10368e9f70218fab150a1ce98f338707b4e9d251ae64e084cd",
+          "8bc6ea458069dee23450512116e51433540b85f31f9be27c3a239ad88ed7a29e",
+          "a08c7e5b153904c84d5ac7cffd639470dafc82734fbbee31754e6fbfb498e9d3",
+          "ac8da4b46b627b2d3575ad72a8b69c94e22a4e4ed2fb879a661600847a318ca9",
+          "afd6e6abee87a8dde4d7c5f73a1492f036398417322ed6a83dbe38623b57a352",
+          "e1f3b60a3c3b5f21909fbe61f1bdaeb860a6110caaf0b2efea7950b18e46040c"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": false,
+        "retained_detected": false,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": false,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    },
+    {
+      "input_id": "git-repository-fixed-mutation",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "assessment": {
+        "candidate_identity": "f1965cf0f09bc86e772beb00a40d2e086674be58abac2638b8ff515aabc2518c",
+        "matches": [],
+        "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here."
+      },
+      "score": {
+        "state": "completed",
+        "candidate_count": 11,
+        "duplicate_count": 0,
+        "condition_adjudicated": true,
+        "matched_keys": [],
+        "unadjudicated_keys": [
+          "05ff1e0c1bea998e4e130f36b2155ac594a77eaedae8046f40b576502c5220bd",
+          "0fefdc307cdb06948ac2a4ff4c73e50512f9416db9ec07018a60fcfb9e37162e",
+          "3c06371c5b00587d38f263b057f4733d81efb42b8d8008eb3ada1cb68e43ba6a",
+          "4d57084f3ddbb69cd2e111f2eb7f9681d30ee2f5329bc61467e71b85473e6051",
+          "4f88d748d4b8bc8b28b880481bf982149e161d5efaf541b8bb118e95d135d3dd",
+          "730f03c9e822ca10368e9f70218fab150a1ce98f338707b4e9d251ae64e084cd",
+          "8bc6ea458069dee23450512116e51433540b85f31f9be27c3a239ad88ed7a29e",
+          "a08c7e5b153904c84d5ac7cffd639470dafc82734fbbee31754e6fbfb498e9d3",
+          "ac8da4b46b627b2d3575ad72a8b69c94e22a4e4ed2fb879a661600847a318ca9",
+          "afd6e6abee87a8dde4d7c5f73a1492f036398417322ed6a83dbe38623b57a352",
+          "e1f3b60a3c3b5f21909fbe61f1bdaeb860a6110caaf0b2efea7950b18e46040c"
+        ],
+        "review_decisions_all_candidates": {},
+        "candidate_detected": false,
+        "retained_detected": false,
+        "confirmed_detected": false,
+        "completed_miss": false,
+        "false_alarm": false,
+        "abstentions": 0,
+        "incorrect_suppressions": 0,
+        "runtime_confirmations": 0
+      }
+    }
+  ],
+  "model_calls": 0
+}

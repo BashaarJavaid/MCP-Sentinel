@@ -34,8 +34,25 @@ def decorator_call(node: ast.AST) -> tuple[str | None, ast.Call | None]:
 
 def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
     regions: list[ToolRegion] = []
-    for node in file.tree.body:
+    parents = {
+        child: parent
+        for parent in ast.walk(file.tree)
+        for child in ast.iter_child_nodes(parent)
+    }
+    constants = {
+        f"{parent.name}.{target.id}": value
+        for parent in file.tree.body
+        if isinstance(parent, ast.ClassDef)
+        for statement in parent.body
+        if isinstance(statement, ast.Assign)
+        and (value := literal_string(statement.value)) is not None
+        for target in statement.targets
+        if isinstance(target, ast.Name)
+    }
+    for node in ast.walk(file.tree):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        if isinstance(parents.get(node), ast.ClassDef):
             continue
         for decorator in node.decorator_list:
             name, call = decorator_call(decorator)
@@ -51,11 +68,40 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
                             tool_name = keyword.value.value
                 regions.append(ToolRegion(tool_name, node, node))
             if name and name.endswith(".call_tool"):
-                for branch in ast.walk(node):
-                    literal = _dispatcher_literal(branch)
+                parameters = node.args.posonlyargs + node.args.args
+                selector = parameters[0].arg if parameters else "name"
+                for branch in scope_nodes(node):
+                    literal = _dispatcher_literal(branch, selector)
                     if literal is not None:
                         regions.append(ToolRegion(literal, node, branch))
+                    elif (
+                        isinstance(branch, ast.Match)
+                        and isinstance(branch.subject, ast.Name)
+                        and branch.subject.id == selector
+                    ):
+                        for case in branch.cases:
+                            if isinstance(case.pattern, ast.MatchValue):
+                                literal = literal_string(case.pattern.value)
+                                literal = literal or constants.get(
+                                    qualified_name(case.pattern.value) or ""
+                                )
+                                if literal is not None:
+                                    regions.append(ToolRegion(literal, node, case))
     return tuple(regions)
+
+
+def scope_nodes(node: ast.AST) -> tuple[ast.AST, ...]:
+    """Walk one lexical body, excluding nested function/class implementation."""
+    pending = list(reversed(list(ast.iter_child_nodes(node))))
+    result: list[ast.AST] = []
+    while pending:
+        current = pending.pop()
+        result.append(current)
+        if not isinstance(
+            current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
+        ):
+            pending.extend(reversed(list(ast.iter_child_nodes(current))))
+    return tuple(result)
 
 
 def discover_prompt_functions(
@@ -99,6 +145,8 @@ def match_from_node(
 
 
 def range_for_node(node: ast.AST) -> SourceRange:
+    if isinstance(node, ast.match_case):
+        node = node.pattern
     line = getattr(node, "lineno", 1)
     column = getattr(node, "col_offset", 0) + 1
     end_line = getattr(node, "end_lineno", line)
@@ -151,14 +199,16 @@ def resolve_name(name: str, aliases: dict[str, str]) -> str:
     return f"{base}.{rest}" if separator else base
 
 
-def _dispatcher_literal(node: ast.AST) -> str | None:
+def _dispatcher_literal(node: ast.AST, selector: str = "name") -> str | None:
     if not isinstance(node, ast.If) or not isinstance(node.test, ast.Compare):
         return None
     compare = node.test
     if len(compare.ops) != 1 or not isinstance(compare.ops[0], ast.Eq):
         return None
     candidates = (compare.left, *compare.comparators)
-    if not any(isinstance(item, ast.Name) and item.id == "name" for item in candidates):
+    if not any(
+        isinstance(item, ast.Name) and item.id == selector for item in candidates
+    ):
         return None
     for item in candidates:
         value = literal_string(item)

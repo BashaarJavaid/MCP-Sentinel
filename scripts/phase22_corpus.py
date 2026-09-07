@@ -14,6 +14,7 @@ from scripts.phase20_corpus import (
     Input,
     Record,
     Snapshot,
+    digest,
     input_files,
     relative_path,
 )
@@ -144,6 +145,20 @@ def validate(path: Path = CORPUS / "manifest.json", root: Path = ROOT) -> Manife
         if any(license_path not in files for license_path in snapshot.licenses):
             raise ValueError("missing revision-specific license")
     return manifest
+
+
+def frozen(root: Path = ROOT) -> Manifest:
+    """Bind the immutable proposal to the separately recorded user decision."""
+    decision = json.loads((root / "artifacts/phase22/authorization.json").read_text())
+    approval = decision["corpus"]
+    path = root / "artifacts/phase22/corpus-review/manifest.json"
+    if (
+        approval.get("freeze_approved") is not True
+        or approval.get("manifest") != path.relative_to(root).as_posix()
+        or approval.get("sha256") != digest(path.read_bytes())
+    ):
+        raise ValueError("Phase 22 corpus lacks matching freeze approval")
+    return validate(path, root)
 
 
 if __name__ == "__main__":

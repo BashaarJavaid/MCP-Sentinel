@@ -19,6 +19,7 @@ from sentinel.static.ast_utils import (
     resolve_name,
 )
 from sentinel.static.catalog import RULE_IDS
+from sentinel.static.discovery import PythonProgram
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.typescript_execution import _mask
@@ -28,6 +29,7 @@ def inventory(
     context: StaticContext, states: dict[str, RuleRunState]
 ) -> StaticCoverage:
     surfaces: list[StaticSurface] = []
+    bindings = PythonProgram(context.files.python_files).tools()
 
     def add(
         kind: str,
@@ -39,6 +41,7 @@ def inventory(
         message: str = "",
         *,
         unsupported: bool = False,
+        handler_path: str | None = None,
     ) -> None:
         check_deadline(context.deadline)
         where = FileLocation(path=path, range=location)
@@ -65,7 +68,9 @@ def inventory(
                 kind=kind,  # type: ignore[arg-type]
                 name=name,
                 location=where,
-                handler=FileLocation(path=path, range=handler) if handler else None,
+                handler=FileLocation(path=handler_path or path, range=handler)
+                if handler
+                else None,
                 status="unsupported"
                 if unsupported
                 else "unresolved"
@@ -83,6 +88,19 @@ def inventory(
         path = file.relative_path
         covered: set[ast.AST] = set()
         imports = import_aliases(file)
+        for binding in bindings:
+            if binding.registration.file is file and isinstance(
+                binding.registration.node, ast.Call
+            ):
+                covered.add(binding.registration.node)
+                add(
+                    "tool",
+                    binding.name,
+                    path,
+                    range_for_node(binding.registration.node),
+                    range_for_node(binding.handler.node),
+                    handler_path=binding.handler.file.relative_path,
+                )
         for region in discover_tool_regions(file):
             # A dispatcher branch is its own registration location.
             if region.node is not region.function:

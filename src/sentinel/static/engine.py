@@ -45,6 +45,7 @@ from sentinel.static.rules import (
     sent005,
     sent006,
     sent007,
+    sent012,
 )
 from sentinel.static.semgrep_adapter import run_semgrep
 from sentinel.static.suppression import apply_inline_suppressions
@@ -59,6 +60,7 @@ _AST_DETECTORS: dict[str, AstDetector] = {
     "SENT-004": sent004.detect,
     "SENT-006": sent006.detect,
     "SENT-007": sent007.detect,
+    "SENT-012": sent012.detect,
 }
 
 
@@ -95,7 +97,9 @@ def run_static_scan(
     for rule_id in selected:
         _enforce_timeout(scan_deadline)
         state = states[rule_id]
-        if configuration.language is TargetLanguage.TYPESCRIPT:
+        if rule_id == "SENT-012":
+            sent012.detect(context, state)
+        elif configuration.language is TargetLanguage.TYPESCRIPT:
             if rule_id == "SENT-005":
                 sent005.run(context, semgrep_matches.get(rule_id, []), state)
             else:
@@ -121,6 +125,27 @@ def run_static_scan(
             for match in matches:
                 finding = _finding_from_match(match, scan_id, timestamp)
                 findings.append(finding)
+                if "flow_locations" in match.captures:
+                    from sentinel.llm.context import build_finding_context
+
+                    review_context = build_finding_context(
+                        configuration.scan_root, finding
+                    )
+                    if any(
+                        not review_context.contains(path, line, line)
+                        for path, line in json.loads(match.captures["flow_locations"])
+                    ):
+                        state.warnings.append(
+                            ReportWarning(
+                                code="static_review_context_incomplete",
+                                message=(
+                                    f"{rule_id} at {match.path}:"
+                                    f"{match.range.start_line}: resolved source/guard/"
+                                    "sink evidence extends beyond the supplied "
+                                    "review context."
+                                ),
+                            )
+                        )
                 if "flow_lines" in match.captures:
                     from sentinel.llm.context import build_finding_context
 

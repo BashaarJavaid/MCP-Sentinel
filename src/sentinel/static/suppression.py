@@ -13,13 +13,14 @@ from pydantic import ValidationError
 from sentinel.errors import ConfigurationError
 from sentinel.finding import FileLocation, Finding, FindingStatus, InlineSuppression
 from sentinel.report.model import ReportWarning
+from sentinel.static.catalog import RULE_IDS
 from sentinel.static.model import StaticFileSet
 
 _DIRECTIVE = re.compile(
     r"sentinel\s*:\s*ignore\s*\[\s*(SENT-\d{3})\s*\]\s+reason\s*=\s*(.*)"
 )
 _PREFIX = re.compile(r"sentinel\s*:", re.IGNORECASE)
-_STATIC_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 8))
+_STATIC_RULES = frozenset(RULE_IDS)
 
 
 @dataclass(frozen=True)

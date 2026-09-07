@@ -30,7 +30,7 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover - exercised on the Python 3.10 CI job
     import tomli as tomllib
 
-SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 12))
+SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 13))
 DEFAULT_IGNORES = (
     ".venv/",
     "venv/",
