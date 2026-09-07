@@ -215,6 +215,10 @@ dispatchers, helper return values and rejecting validators. Discarded Boolean
 checks, checks of unrelated values, swallowed exceptions and later replacement
 do not establish protection. An optional operator root is analyzed under the
 condition that it is configured; a caller-controlled root is not trusted.
+`relative_to` with true or dynamic `walk_up` is not a rejecting containment
+check: Python permits parent components in that mode. Checking an expanded
+home-directory path does not validate the original unexpanded value. See the
+[Python API contract](https://docs.python.org/3.12/library/pathlib.html#pathlib.PurePath.relative_to).
 
 Recursive or deeper-than-64 helper/binding chains and unresolved calls are
 disclosed. This is source analysis, with no race-free filesystem or runtime

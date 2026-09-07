@@ -305,6 +305,14 @@ class PathFlow:
 
     def protect(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> None:
         assert isinstance(node.func, ast.Attribute)
+        if len(node.args) != 1 or any(
+            keyword.arg != "walk_up"
+            or node.func.attr != "relative_to"
+            or not isinstance(keyword.value, ast.Constant)
+            or keyword.value.value is not False
+            for keyword in node.keywords
+        ):
+            return
         value = self.expression(symbol, node.func.value, env)
         base = self.expression(symbol, node.args[0], env) if node.args else Value()
         if value.path_object and value.resolved and base.resolved and not base.sources:
@@ -435,7 +443,13 @@ class PathFlow:
         if resolved in {"str", "os.fspath"} and name.split(".")[0] not in env:
             return replace(result, path_object=False)
         if method in {"expanduser", "absolute"} and receiver.path_object:
-            return replace(receiver, contained=False)
+            return replace(
+                receiver,
+                key=_key("expanduser", receiver.key)
+                if method == "expanduser"
+                else receiver.key,
+                contained=False,
+            )
         if method == "relative_to" and isinstance(node.func, ast.Attribute):
             self.protect(symbol, node, env)
             return result
