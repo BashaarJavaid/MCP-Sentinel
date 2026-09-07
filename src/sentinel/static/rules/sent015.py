@@ -41,9 +41,7 @@ IP_CHECKS = frozenset(
 
 def restricted(checks: frozenset[str]) -> bool:
     return "scheme" in checks and (
-        "host" in checks
-        or checks >= IP_CHECKS
-        or {"is_global", "not:is_multicast"} <= checks
+        "host" in checks or checks >= IP_CHECKS or "is_global" in checks
     )
 
 
@@ -87,6 +85,53 @@ class URLFlow(PathFlow):
         self.clients: dict[str, str] = {}
         self.predicates: dict[str, tuple[Facts, Facts]] = {}
         self.ip_lists: dict[str, Value] = {}
+        self.return_facts: list[list[tuple[Facts | None, Facts | None]]] = []
+        self.fact_keys: dict[str, tuple[str, str]] = {}
+
+    def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        self.return_facts.append([])
+        try:
+            result = super().function(symbol, bindings)
+            returns = self.return_facts[-1]
+            if returns:
+                result = replace(
+                    result,
+                    key=_key(
+                        "url-predicate",
+                        symbol.file.relative_path,
+                        symbol.name,
+                        result.key,
+                        *sorted(
+                            _key(name, value.key) for name, value in bindings.items()
+                        ),
+                    ),
+                )
+                facts = []
+                for truth in (0, 1):
+                    possible = [
+                        pair[truth] for pair in returns if pair[truth] is not None
+                    ]
+                    facts.append(
+                        frozenset.intersection(
+                            *(item for item in possible if item is not None)
+                        )
+                        if possible
+                        else frozenset()
+                    )
+                self.predicates[result.key] = (facts[0], facts[1])
+            return result
+        finally:
+            self.return_facts.pop()
+
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        super().merge(env, branches)
+        for key in env.keys() & self.fact_keys.keys():
+            env[key] = replace(
+                env[key],
+                contained=all(
+                    branch.get(key, Value()).contained for branch in branches
+                ),
+            )
 
     def statements(
         self,
@@ -96,15 +141,58 @@ class URLFlow(PathFlow):
         returned: list[Value],
     ) -> bool:
         for node in body:
+            if isinstance(node, ast.Return):
+                super().statements(symbol, [node], env, returned)
+                value = returned[-1]
+                enforced = frozenset(
+                    self.fact_keys[key]
+                    for key, item in env.items()
+                    if key in self.fact_keys and item.contained
+                )
+                false, true = self.predicates.get(value.key, (frozenset(), frozenset()))
+                known = None
+                if isinstance(node.value, ast.Constant):
+                    known = bool(node.value.value)
+                elif node.value is None:
+                    known = False
+                elif isinstance(node.value, ast.JoinedStr) and any(
+                    isinstance(part, ast.Constant) and bool(part.value)
+                    for part in node.value.values
+                ):
+                    known = True
+                self.return_facts[-1].append(
+                    (
+                        None if known is True else false | enforced,
+                        None if known is False else true | enforced,
+                    )
+                )
+                returned[-1] = replace(
+                    value,
+                    locations=value.locations
+                    | frozenset().union(
+                        *(
+                            item.locations
+                            for key, item in env.items()
+                            if key in self.fact_keys and item.contained
+                        )
+                    ),
+                )
+                return False
             if isinstance(node, ast.Try) and len(node.body) == 1:
                 assignment = node.body[0]
-                value = (
+                expression = (
                     assignment.value
                     if isinstance(assignment, (ast.Assign, ast.AnnAssign))
                     else None
                 )
-                if isinstance(value, ast.List) and len(value.elts) == 1:
-                    call = value.elts[0]
+                if isinstance(expression, ast.Call) or (
+                    isinstance(expression, ast.List) and len(expression.elts) == 1
+                ):
+                    call = (
+                        expression
+                        if isinstance(expression, ast.Call)
+                        else expression.elts[0]
+                    )
                     if (
                         isinstance(call, ast.Call)
                         and len(call.args) == 1
@@ -279,6 +367,15 @@ class URLFlow(PathFlow):
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
         facts = self.facts(symbol, node, env, truth)
+        for origin, check in facts:
+            key = "#url:" + _key(origin, check)
+            self.fact_keys[key] = (origin, check)
+            env[key] = Value(
+                contained=True,
+                locations=frozenset(
+                    {(symbol.file.relative_path, getattr(node, "lineno", 1))}
+                ),
+            )
         for name, value in env.items():
             checks = frozenset(check for origin, check in facts if value.key == origin)
             if checks:

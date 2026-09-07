@@ -297,3 +297,38 @@ def test_typescript_request_boundary(tmp_path: Path, body: str, expected: int) -
     state = RuleRunState()
     analyze(program, state, flow=TypeScriptURLFlow(program, state))
     assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("validation", "expected"),
+    [
+        ("error = validate(url)\n    if error: raise ValueError(error)", 0),
+        ("validate(url)", 1),
+        ("error = validate(other)\n    if error: raise ValueError(error)", 1),
+        (
+            "error = validate(url)\n    if error: raise ValueError(error)\n"
+            "    url = other",
+            1,
+        ),
+    ],
+)
+def test_returned_validation_error_requires_enforcement(
+    tmp_path: Path, validation: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n"
+        "def check_ip(host):\n"
+        "    try:\n        ip = ipaddress.ip_address(host)\n"
+        "    except ValueError:\n        return None\n"
+        "    if not ip.is_global: return 'Blocked address'\n"
+        "    return None\n"
+        "def validate(url):\n    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): return 'Blocked scheme'\n"
+        "    error = check_ip(parsed.hostname)\n"
+        "    if error: return error\n    return None\n"
+        "@mcp.tool()\ndef fetch(url:str, other:str):\n    "
+        + validation
+        + "\n    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
