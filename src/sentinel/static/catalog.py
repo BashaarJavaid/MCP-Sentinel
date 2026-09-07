@@ -141,6 +141,18 @@ RULES = (
         "argv lists alone do not prevent option injection.",
         RuleEngine.AST,
     ),
+    _rule(
+        "SENT-015",
+        "Server-side request forgery",
+        "A caller URL reaches an outbound request without enforced scheme and "
+        "destination restrictions.",
+        Impact.HIGH,
+        "Permit only required HTTP(S) destinations, reject private and loopback "
+        "addresses, and enforce checks on every requested URL and redirect.",
+        "Medium: custom clients and unsupported validators require review; "
+        "DNS rebinding is outside this rule's claim.",
+        RuleEngine.AST,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}

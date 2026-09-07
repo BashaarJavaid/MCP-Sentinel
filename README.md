@@ -119,6 +119,7 @@ Every finding uses a stable rule ID and maps to the OWASP Agentic Top 10.
 | [SENT-012](docs/rules.md#sent-012) | Path containment failure | ASI02:2026 | High |
 | [SENT-013](docs/rules.md#sent-013) | Tool-description poisoning | ASI01:2026 | High |
 | [SENT-014](docs/rules.md#sent-014) | Command option injection | ASI05:2026 | Critical |
+| [SENT-015](docs/rules.md#sent-015) | Server-side request forgery | ASI02:2026 | High |
 
 Published IDs are compatibility contracts: an ID is never renumbered or reused
 for a different detection. The [rule catalog](docs/rules.md) documents each
@@ -212,7 +213,7 @@ Suppress a reviewed static source finding with a reason-bearing directive:
 api_key = "ghp_example"
 ```
 
-Only static `SENT-001`–`SENT-007` and `SENT-012`–`SENT-014` findings can be suppressed. Applied
+Only static `SENT-001`–`SENT-007` and `SENT-012`–`SENT-015` findings can be suppressed. Applied
 suppressions remain visible in every report; malformed, duplicate, unknown-rule,
 or reasonless directives fail configuration validation.
 

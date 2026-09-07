@@ -294,8 +294,20 @@ def test_optional_safe_selector_keeps_command_prefix_and_copy(
     assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
 
 
-def test_option_rule_cli_selection_suppression_baseline_and_severity(
+@pytest.mark.parametrize(
+    ("rule_id", "sink", "impact", "severity", "category"),
+    [
+        ("SENT-014", "    return repo.git.show(ref)", "Critical", "High", "ASI05:2026"),
+        ("SENT-015", "    return requests.get(ref)", "High", "Medium", "ASI02:2026"),
+    ],
+)
+def test_flow_rule_cli_selection_suppression_baseline_and_severity(
     tmp_path: Path,
+    rule_id: str,
+    sink: str,
+    impact: str,
+    severity: str,
+    category: str,
 ) -> None:
     import json
 
@@ -305,9 +317,8 @@ def test_option_rule_cli_selection_suppression_baseline_and_severity(
 
     root = make_target(tmp_path / "target", target_yaml="")
     source = root / "server.py"
-    sink = "    return repo.git.show(ref)"
     source.write_text(
-        "from mcp.server.fastmcp import FastMCP\nimport git\n"
+        "from mcp.server.fastmcp import FastMCP\nimport git\nimport requests\n"
         'mcp=FastMCP("test")\n@mcp.tool()\ndef run(ref:str):\n'
         '    repo=git.Repo("/workspace")\n' + sink + "\n",
         encoding="utf-8",
@@ -319,26 +330,24 @@ def test_option_rule_cli_selection_suppression_baseline_and_severity(
         "--rules-only",
         "--json",
         "--rules",
-        "SENT-014",
+        rule_id,
         "--fail-on",
-        "high",
+        severity.lower(),
     ]
     baseline = tmp_path / "baseline.json"
     result = runner.invoke(app, [*args, "--output", str(baseline)])
     assert result.exit_code == 1, result.output
     finding = json.loads(baseline.read_text())["findings"][0]
-    assert finding["impact"] == "Critical" and finding["severity"] == "High"
-    assert finding["owasp_category"]["id"] == "ASI05:2026"
+    assert finding["impact"] == impact and finding["severity"] == severity
+    assert finding["owasp_category"]["id"] == category
     assert finding["evidence"]["flow_locations"]
     assert runner.invoke(app, [*args, "--baseline", str(baseline)]).exit_code == 0
     assert runner.invoke(app, [*args, "--fail-on", "critical"]).exit_code == 0
     default = runner.invoke(app, ["scan", str(root), "--rules-only", "--json"])
-    assert any(
-        f["rule_id"] == "SENT-014" for f in json.loads(default.stdout)["findings"]
-    )
+    assert any(f["rule_id"] == rule_id for f in json.loads(default.stdout)["findings"])
     source.write_text(
         source.read_text().replace(
-            sink, sink + "  # sentinel: ignore[SENT-014] reason=audited fixture"
+            sink, sink + f"  # sentinel: ignore[{rule_id}] reason=audited fixture"
         ),
         encoding="utf-8",
     )

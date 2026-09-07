@@ -36,6 +36,7 @@ RULE_OWASP_IDS = {
     "SENT-012": "ASI02:2026",
     "SENT-013": "ASI01:2026",
     "SENT-014": "ASI05:2026",
+    "SENT-015": "ASI02:2026",
 }
 
 

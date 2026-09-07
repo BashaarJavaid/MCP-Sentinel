@@ -14,7 +14,7 @@ an exact reason-bearing directive:
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-014` are supported. The finding stays in rule,
+its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-015` are supported. The finding stays in rule,
 report, JSON, and SARIF counts with status `suppressed`, its reason and directive
 location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
@@ -307,3 +307,48 @@ Default enablement, explicit `--rules SENT-014`, reason-bearing inline suppressi
 baseline matching and severity thresholds use the existing canonical Finding
 pipeline. Independent development measurements, fresh holdout, reviewed retention
 and human acceptance remain separate gates in the Phase 22 status record.
+
+## SENT-015 { #sent-015 }
+
+- **Title:** Server-side request forgery
+- **OWASP:** ASI02:2026 — Tool Misuse & Exploitation. A caller can use the server's
+  outbound request capability to address destinations outside the intended boundary.
+- **Impact:** High; theoretical likelihood produces initial Medium severity.
+- **Engine:** Source-only Python and TypeScript flow through shared discovered
+  handlers and bounded local helpers.
+- **Remediation:** Restrict schemes to HTTP(S), require intended destinations,
+  reject private/loopback addresses, and validate each requested value and redirect.
+- **False-positive risk:** Medium. Intentionally unrestricted network tools and
+  custom request clients/validators require source review.
+
+Python requests/httpx functions and recognized requests/httpx/aiohttp client
+instances are request sinks, as is urllib's URL opener. TypeScript supports global
+fetch, recognized node-fetch/undici/axios imports, and Node HTTP(S) requests.
+Guard facts follow the actual URL binding; a discarded predicate, unrelated guard,
+caught failure that continues to the request, or replacement input is insufficient.
+Exact scheme/hostname allowlists are supported in both languages. Python also
+supports enforced standard-library IP-address predicates and a statically nonempty
+literal-address validation loop. The exception path for nonliteral hostname
+resolution does not establish DNS safety.
+
+This rule's destination condition covers prohibited schemes and literal
+private/loopback destinations. Hostname resolution, DNS rebinding, and complete
+redirect-policy verification are not established by these checks. Ambiguous
+bindings and unsupported wrappers remain disclosed rather than treated as proof
+of protection. A finding is a static candidate, not an observed network request.
+
+```python
+# Caller input reaches the server's network capability.
+return requests.get(url)
+
+# An enforced exact destination boundary for the initial requested URL.
+parsed = urlparse(url)
+if parsed.scheme != "https" or parsed.hostname != "images.example.com":
+    raise ValueError("destination not allowed")
+return requests.get(url, allow_redirects=False)
+```
+
+The rule is enabled by default and uses canonical Finding evidence, explicit
+`--rules SENT-015` selection, inline suppression, baseline matching and severity
+thresholds. Development measurements, held-out evaluation, reviewed retention and
+human acceptance remain separate Phase 22 gates.

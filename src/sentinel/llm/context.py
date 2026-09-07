@@ -250,8 +250,9 @@ def sanitize_text(value: str) -> str:
     sanitized = value
     for pattern in _SECRET_PATTERNS:
         sanitized = pattern.sub(
-            lambda match: SECRET_PLACEHOLDER
-            + "".join(re.findall(r"\r\n|\r|\n", match.group())),
+            lambda match: (
+                SECRET_PLACEHOLDER + "".join(re.findall(r"\r\n|\r|\n", match.group()))
+            ),
             sanitized,
         )
     sanitized = _POSIX_ABSOLUTE.sub(PATH_PLACEHOLDER, sanitized)

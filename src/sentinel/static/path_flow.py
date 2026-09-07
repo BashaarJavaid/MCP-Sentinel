@@ -31,6 +31,7 @@ class Value:
     repository_object: bool = False
     instance: tuple[str, str] | None = None
     option_safe: bool = False
+    url_checks: frozenset[str] = frozenset()
 
 
 def combine(values: list[Value], key: str = "") -> Value:
@@ -48,6 +49,9 @@ def combine(values: list[Value], key: str = "") -> Value:
         if values and all(v.instance == values[0].instance for v in values)
         else None,
         bool(tainted) and all(v.option_safe for v in tainted),
+        frozenset.intersection(*(v.url_checks for v in values))
+        if values
+        else frozenset(),
     )
 
 
@@ -645,6 +649,15 @@ class PathFlow:
                 for key, value in env.items():
                     if value.key in option_checked:
                         env[key] = replace(value, option_safe=True)
+                for value in bindings.values():
+                    if value.url_checks:
+                        for key, current in env.items():
+                            if current.key == value.key:
+                                env[key] = replace(
+                                    current,
+                                    url_checks=current.url_checks | value.url_checks,
+                                    locations=current.locations | value.locations,
+                                )
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
