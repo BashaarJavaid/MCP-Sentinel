@@ -31,6 +31,7 @@ class OptionFlow(PathFlow):
         self.argv: dict[str, tuple[Value, ...]] = {}
         self.literals: dict[str, str] = {}
         self.git_commands: set[str] = set()
+        self.json_containers: set[str] = set()
 
     def sequence(self, values: tuple[Value, ...], identity: str) -> Value:
         result = combine(list(values), _key("argv", identity, *(v.key for v in values)))
@@ -85,7 +86,9 @@ class OptionFlow(PathFlow):
                 values.extend(
                     self.entries(value) if isinstance(item, ast.Starred) else (value,)
                 )
-            return self.sequence(tuple(values), identity)
+            result = self.sequence(tuple(values), identity)
+            self.json_containers.add(result.key)
+            return result
         if isinstance(node, ast.Starred):
             return self.expression(symbol, node.value, env)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
@@ -94,6 +97,9 @@ class OptionFlow(PathFlow):
             if left.key in self.argv and right.key in self.argv:
                 return self.sequence(self.entries(left) + self.entries(right), identity)
         value = super().expression(symbol, node, env)
+        if isinstance(node, ast.Dict):
+            value = replace(value, key=_key("json-dict", identity, value.key))
+            self.json_containers.add(value.key)
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             self.literals[value.key] = node.value
         if (
@@ -325,6 +331,16 @@ class OptionFlow(PathFlow):
                 )
                 return Value()
         result = super().call(symbol, node, env)
+        if (
+            resolved == "json.dumps"
+            and len(node.args) == 1
+            and all(
+                keyword.arg not in {None, "cls", "default"} for keyword in node.keywords
+            )
+            and self.expression(symbol, node.args[0], env).key in self.json_containers
+        ):
+            # Standard JSON containers retain an opening { or [ in this argv slot.
+            return replace(result, option_safe=True)
         if method == "split" and receiver.sources:
             return self.sequence((result,), result.key)
         return result

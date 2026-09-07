@@ -356,3 +356,34 @@ def test_flow_rule_cli_selection_suppression_baseline_and_severity(
     finding = json.loads(suppressed.stdout)["findings"][0]
     assert finding["status"] == "suppressed"
     assert finding["suppression"]["reason"] == "audited fixture"
+
+
+@pytest.mark.parametrize(
+    ("prepare", "serialize", "expected"),
+    [
+        ('payload = {"name": value}', "json.dumps(payload)", 0),
+        ("payload = [value]", "json.dumps(payload)", 0),
+        ("payload = value", "json.dumps(payload)", 1),
+        ('payload = {"name": value}\n    payload = value', "json.dumps(payload)", 1),
+        ('payload = {"name": value}', "json.dumps(payload, cls=CustomEncoder)", 1),
+    ],
+)
+def test_json_container_is_one_fixed_prefix_option_value(
+    tmp_path: Path, prepare: str, serialize: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\nimport subprocess\nimport json\n"
+        'mcp=FastMCP("test")\n@mcp.tool()\ndef run(value):\n    '
+        + prepare
+        + "\n    encoded = "
+        + serialize
+        + "\n"
+        '    return subprocess.run(["dbt", "run-operation", "fixed_macro", '
+        '"--args", encoded])\n',
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
