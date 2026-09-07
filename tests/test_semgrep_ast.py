@@ -10,8 +10,10 @@ from sentinel.static.model import TypeScriptSourceFile
 from sentinel.static.semgrep_ast import parse_typescript, source_range
 
 
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
 def test_semgrep_ast_preserves_typed_callback_and_unicode_source(
     tmp_path: Path,
+    newline: str,
 ) -> None:
     source = (
         "// π is a comment, not syntax\n"
@@ -22,7 +24,7 @@ def test_semgrep_ast_preserves_typed_callback_and_unicode_source(
         'throw new Error("must never execute");\n'
     )
     path = tmp_path / "server.ts"
-    path.write_text(source)
+    path.write_bytes(source.replace("\n", newline).encode("utf-8"))
     file = TypeScriptSourceFile(path, "server.ts", source)
     tree = parse_typescript(file, deadline=time.monotonic() + 15)
     assert "Pr" in tree
@@ -30,7 +32,7 @@ def test_semgrep_ast_preserves_typed_callback_and_unicode_source(
     location = source_range(function, file)
     assert (location.start_line, location.end_line) == (3, 5)
     assert source.splitlines()[location.start_line - 1].startswith("export async")
-    assert path.read_text() == source
+    assert path.read_text(encoding="utf-8") == source
 
 
 def test_semgrep_ast_rejects_parse_failure(tmp_path: Path) -> None:
