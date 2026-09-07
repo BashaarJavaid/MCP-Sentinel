@@ -8,6 +8,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from sentinel.errors import ConfigurationError
+from sentinel.report.model import ReportWarning
 from sentinel.static.traversal import _devcontainer_json
 
 
@@ -44,6 +45,7 @@ class TypeScriptModules:
         self, root: Path, configs: tuple[Path, ...], members: tuple[str, ...]
     ) -> None:
         self.packages: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+        self.warnings: list[ReportWarning] = []
         self.config_paths = {
             path.relative_to(root).as_posix(): path for path in configs
         }
@@ -89,16 +91,28 @@ class TypeScriptModules:
         if not isinstance(parents, list):
             return None
         for parent in parents:
-            if not isinstance(parent, str) or not parent.startswith("."):
+            if not isinstance(parent, str):
                 return None
-            target = local_path(directory, parent)
-            if target is None:
-                return None
+            target = local_path(directory, parent) if parent.startswith(".") else None
             if (
                 target not in self.config_paths
+                and target is not None
                 and target + ".json" in self.config_paths
             ):
                 target += ".json"
+            if target not in self.config_paths:
+                warning = ReportWarning(
+                    code="static_typescript_configuration_unresolved",
+                    message=(
+                        f"{name}: inherited configuration {parent!r} was not applied "
+                        "because it is outside included source; imports use only "
+                        "available local settings and declared package names"
+                    ),
+                )
+                if warning not in self.warnings:
+                    self.warnings.append(warning)
+                continue
+            assert target is not None
             options = self._options(target, seen | {name})
             if options is None:
                 return None

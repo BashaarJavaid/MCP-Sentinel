@@ -120,3 +120,25 @@ def test_conditional_missing_source_does_not_certify_another_target(
         item for item in result.summary.coverage.surfaces if item.name == "read"
     )
     assert surface.status == "unresolved" and surface.handler is None
+
+
+def test_unavailable_parent_is_disclosed_without_discarding_direct_imports(
+    tmp_path: Path,
+) -> None:
+    config = tmp_path / "tsconfig.json"
+    config.write_text(
+        json.dumps(
+            {
+                "extends": "../../outside.json",
+                "compilerOptions": {
+                    "paths": {"@local/*": ["./src/*"]},
+                },
+            }
+        )
+    )
+    modules = TypeScriptModules(tmp_path, (config,), (".",))
+    assert modules.resolve("server.ts", "@local/io") == (True, ("src/io",))
+    assert modules.resolve("server.ts", "node:fs") == (False, ())
+    assert len(modules.warnings) == 1
+    assert "not applied" in modules.warnings[0].message
+    assert "../../outside.json" in modules.warnings[0].message

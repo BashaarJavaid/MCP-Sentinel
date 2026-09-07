@@ -80,7 +80,7 @@ class TypeScriptProgram:
         self.trees: dict[str, dict[str, Any]] = {}
         self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}
         self.exports: dict[str, set[str]] = {}
-        self.warnings: list[ReportWarning] = []
+        self.warnings: list[ReportWarning] = modules.warnings if modules else []
         for file in files:
             tree = parse_typescript(file, deadline=deadline)
             self.trees[file.relative_path] = tree

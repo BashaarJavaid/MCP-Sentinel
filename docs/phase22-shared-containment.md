@@ -32,7 +32,9 @@ source full suite passes **776 tests**, with **36 opt-in Docker skips** and
 and the strict documentation build pass. Exposed-input measurements
 are retained separately under `artifacts/phase22/shared-containment/`; only
 completed records establish their respective checks. The constructor correction
-passes Ruff, formatting and mypy; its full suite and hosted checks are pending.
+passes Ruff, formatting and mypy and the full suite: **780 passed, 36 skipped,
+86.86% branch coverage**. All 30 applicable hosted checks pass on `6ec5201`, including Windows,
+installed-wheel Docker replay and network isolation.
 
 Both initial-source runs completed **45/45 inputs**, with identical stable findings
 and outcomes and no model calls. No findings changed relative to the workspace
