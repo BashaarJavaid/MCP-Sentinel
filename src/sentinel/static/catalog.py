@@ -132,10 +132,13 @@ RULES = (
     _rule(
         "SENT-014",
         "Command option injection",
-        "Caller-controlled references reach command option positions without enforced rejection.",
+        "Caller-controlled references reach command option positions without "
+        "enforced rejection.",
         Impact.CRITICAL,
-        "Reject option-like references before invocation or use command-specific option terminators and safe object APIs.",
-        "Medium: custom validation and unsupported command wrappers need review; argv lists alone do not prevent option injection.",
+        "Reject option-like references before invocation or use command-specific "
+        "option terminators and safe object APIs.",
+        "Medium: custom validation and unsupported command wrappers need review; "
+        "argv lists alone do not prevent option injection.",
         RuleEngine.AST,
     ),
 )

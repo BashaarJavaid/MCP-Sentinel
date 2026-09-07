@@ -83,6 +83,24 @@ def test_python_git_reference_option_position(
             'other; return cp.execFileSync("git", ["show", ref]);',
             1,
         ),
+        (
+            "const args = {ref, other}; "
+            'if (args.ref.startsWith("-")) throw new Error(); '
+            'return cp.execFileSync("git", ["show", args.ref]);',
+            0,
+        ),
+        (
+            "const args = {ref, other}; "
+            'if (args.other.startsWith("-")) throw new Error(); '
+            'return cp.execFileSync("git", ["show", args.ref]);',
+            1,
+        ),
+        (
+            "const args = {ref, other}; "
+            'if (args.ref.startsWith("-")) throw new Error(); '
+            'args.ref = other; return cp.execFileSync("git", ["show", args.ref]);',
+            1,
+        ),
         ("const repo = simpleGit(); return repo.diff([ref]);", 1),
         ('const repo = simpleGit(); return repo.diff(["--", ref]);', 0),
     ],
@@ -222,3 +240,106 @@ def test_conditional_command_list_keeps_first_untrusted_argument(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
     )
     assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == 1
+
+
+@pytest.mark.parametrize(
+    "guard",
+    [
+        'if any(t.startswith("-") for t in tokens): raise ValueError()',
+        'if any(t.startswith("-") for t in tokens): return "invalid"',
+    ],
+)
+def test_guarded_tokens_stay_protected_through_list_concatenation(
+    tmp_path: Path, guard: str
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "import subprocess\nfrom mcp.server.fastmcp import FastMCP\n"
+        'mcp=FastMCP("test")\n@mcp.tool()\ndef run(ref:str):\n'
+        "    tokens = ref.split()\n    " + guard + "\n"
+        '    args = ["dbt", "run"]\n'
+        '    args.extend(["--select"] + tokens)\n'
+        "    return subprocess.run(args)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
+def test_optional_safe_selector_keeps_command_prefix_and_copy(tmp_path: Path) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "import subprocess\nfrom mcp.server.fastmcp import FastMCP\n"
+        'mcp=FastMCP("test")\n@mcp.tool()\ndef run(ref:str):\n'
+        '    command = ["run"]\n'
+        "    if ref:\n"
+        "        tokens = ref.split()\n"
+        '        if any(t.startswith("-") for t in tokens): raise ValueError()\n'
+        '        command.extend(["--select"] + tokens)\n'
+        "    full = command.copy()\n"
+        "    if len(full) > 0:\n"
+        '        full = [full[0], "--quiet", *full[1:]]\n'
+        '    return subprocess.run(["dbt", *full])\n',
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
+def test_option_rule_cli_selection_suppression_baseline_and_severity(
+    tmp_path: Path,
+) -> None:
+    import json
+
+    from typer.testing import CliRunner
+
+    from sentinel.cli import app
+
+    root = make_target(tmp_path / "target", target_yaml="")
+    source = root / "server.py"
+    sink = "    return repo.git.show(ref)"
+    source.write_text(
+        "from mcp.server.fastmcp import FastMCP\nimport git\n"
+        'mcp=FastMCP("test")\n@mcp.tool()\ndef run(ref:str):\n'
+        '    repo=git.Repo("/workspace")\n' + sink + "\n",
+        encoding="utf-8",
+    )
+    runner = CliRunner()
+    args = [
+        "scan",
+        str(root),
+        "--rules-only",
+        "--json",
+        "--rules",
+        "SENT-014",
+        "--fail-on",
+        "high",
+    ]
+    baseline = tmp_path / "baseline.json"
+    result = runner.invoke(app, [*args, "--output", str(baseline)])
+    assert result.exit_code == 1, result.output
+    finding = json.loads(baseline.read_text())["findings"][0]
+    assert finding["impact"] == "Critical" and finding["severity"] == "High"
+    assert finding["owasp_category"]["id"] == "ASI05:2026"
+    assert finding["evidence"]["flow_locations"]
+    assert runner.invoke(app, [*args, "--baseline", str(baseline)]).exit_code == 0
+    assert runner.invoke(app, [*args, "--fail-on", "critical"]).exit_code == 0
+    default = runner.invoke(app, ["scan", str(root), "--rules-only", "--json"])
+    assert any(
+        f["rule_id"] == "SENT-014" for f in json.loads(default.stdout)["findings"]
+    )
+    source.write_text(
+        source.read_text().replace(
+            sink, sink + "  # sentinel: ignore[SENT-014] reason=audited fixture"
+        ),
+        encoding="utf-8",
+    )
+    suppressed = runner.invoke(app, args)
+    assert suppressed.exit_code == 0, suppressed.output
+    finding = json.loads(suppressed.stdout)["findings"][0]
+    assert finding["status"] == "suppressed"
+    assert finding["suppression"]["reason"] == "audited fixture"

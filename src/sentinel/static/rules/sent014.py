@@ -37,6 +37,12 @@ class OptionFlow(PathFlow):
         self.argv[result.key] = values
         return result
 
+    def entries(self, value: Value) -> tuple[Value, ...]:
+        return tuple(
+            replace(item, option_safe=item.option_safe or value.option_safe)
+            for item in self.argv.get(value.key, (value,))
+        )
+
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         super().merge(env, branches)
         for name, value in env.items():
@@ -47,13 +53,20 @@ class OptionFlow(PathFlow):
                 if all(v == sequences[0] for v in sequences):
                     self.argv[value.key] = sequences[0] or ()
                 else:
+                    prefix: list[Value] = []
+                    for items in zip(
+                        *(sequence or () for sequence in sequences), strict=False
+                    ):
+                        if not all(item == items[0] for item in items):
+                            break
+                        prefix.append(items[0])
                     self.argv[value.key] = (
-                        Value(),
+                        *(prefix or [Value()]),
                         *(
                             item
                             for sequence in sequences
                             if sequence is not None
-                            for item in sequence
+                            for item in sequence[len(prefix) :]
                             if item.sources
                         ),
                     )
@@ -70,9 +83,7 @@ class OptionFlow(PathFlow):
             for item in node.elts:
                 value = self.expression(symbol, item, env)
                 values.extend(
-                    self.argv.get(value.key, (value,))
-                    if isinstance(item, ast.Starred)
-                    else (value,)
+                    self.entries(value) if isinstance(item, ast.Starred) else (value,)
                 )
             return self.sequence(tuple(values), identity)
         if isinstance(node, ast.Starred):
@@ -81,9 +92,7 @@ class OptionFlow(PathFlow):
             left = self.expression(symbol, node.left, env)
             right = self.expression(symbol, node.right, env)
             if left.key in self.argv and right.key in self.argv:
-                return self.sequence(
-                    self.argv[left.key] + self.argv[right.key], identity
-                )
+                return self.sequence(self.entries(left) + self.entries(right), identity)
         value = super().expression(symbol, node, env)
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             self.literals[value.key] = node.value
@@ -93,6 +102,16 @@ class OptionFlow(PathFlow):
             and value.repository_object
         ):
             self.git_commands.add(value.key)
+        if (
+            isinstance(node, ast.Subscript)
+            and isinstance(node.slice, ast.Constant)
+            and node.slice.value == 0
+        ):
+            parent = self.expression(symbol, node.value, env)
+            entries = self.argv.get(parent.key, ())
+            # ponytail: retain proven command prefixes; other indexes stay conservative.
+            if entries and entries[0].key in self.literals and not entries[0].sources:
+                return entries[0]
         if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Slice):
             parent = self.expression(symbol, node.value, env)
             if parent.key in self.argv:
@@ -246,7 +265,7 @@ class OptionFlow(PathFlow):
             for argument in node.args:
                 value = self.expression(symbol, argument, env)
                 arguments.extend(
-                    self.argv.get(value.key, (value,))
+                    self.entries(value)
                     if isinstance(argument, ast.Starred)
                     else (value,)
                 )
@@ -264,7 +283,7 @@ class OptionFlow(PathFlow):
                 if method == "append" and len(node.args) == 1:
                     values += (addition,)
                 elif method == "extend" and len(node.args) == 1:
-                    values += self.argv.get(addition.key, (addition,))
+                    values += self.entries(addition)
                 elif method == "insert" and len(node.args) == 2:
                     try:
                         index = ast.literal_eval(node.args[0])
@@ -298,9 +317,17 @@ class OptionFlow(PathFlow):
                 command = (
                     self.literals.get(argv[1].key) if is_git and len(argv) > 1 else None
                 )
-                self.report(symbol, node, command, argv[2:] if is_git else argv[1:])
+                self.report(
+                    symbol,
+                    node,
+                    command,
+                    argv[2:] if is_git and command is not None else argv[1:],
+                )
                 return Value()
-        return super().call(symbol, node, env)
+        result = super().call(symbol, node, env)
+        if method == "split" and receiver.sources:
+            return self.sequence((result,), result.key)
+        return result
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:
@@ -320,6 +347,14 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
 
 class TypeScriptOptionFlow(TypeScriptPathFlow):
     rule_id = "SENT-014"
+
+    def expression(
+        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+    ) -> Value:
+        value = super().expression(file, node, env)
+        if env.get(f"#guard:option:{value.key}", Value()).contained:
+            value = replace(value, option_safe=True)
+        return value
 
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
         super().guard(value, env, truth)
@@ -345,7 +380,10 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
             else Value()
         )
         if external in {"simple-git", "simple-git.simpleGit", "simple-git.default"}:
-            return Value(key=str(source_range(node, file)), repository_object=True)
+            return Value(
+                key=_key(file.relative_path, str(source_range(node, file))),
+                repository_object=True,
+            )
         argv = None
         command = None
         if (
@@ -357,7 +395,7 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
             and len(argument_nodes) >= 2
         ):
             executable = self.program.literal(TypeScriptSymbol(file, argument_nodes[0]))
-            if executable in {"git", "/usr/bin/git"}:
+            if isinstance(executable, str) and executable in {"git", "/usr/bin/git"}:
                 container = argument_nodes[1].get("Container")
                 if container:
                     argv = container[1][1]

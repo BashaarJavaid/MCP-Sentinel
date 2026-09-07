@@ -14,7 +14,7 @@ an exact reason-bearing directive:
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-013` are supported. The finding stays in rule,
+its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-014` are supported. The finding stays in rule,
 report, JSON, and SARIF counts with status `suppressed`, its reason and directive
 location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
@@ -261,3 +261,49 @@ The rule is enabled by default and uses existing rule selection, reason-bearing
 inline suppression, baseline identities and severity thresholds. Descriptions
 remain untrusted source evidence, never instructions to Sentinel. Native reports
 continue to use the canonical static Finding shape.
+
+## SENT-014 { #sent-014 }
+
+### Command option injection
+
+- Engine: shared Python flow analysis and the installed Semgrep TypeScript parser
+- Impact: Critical; theoretical exploitability initially produces High severity
+- OWASP: `ASI05:2026 — Unexpected Code Execution`; an attacker-controlled argument
+  can select executable command behavior even when the invocation is shell-free
+- Boundary: GitPython raw command methods, supported TypeScript child-process and
+  simple-git argument positions, and Python subprocess argument lists
+- Controls: enforced leading-hyphen rejection of the actual value; rejection of
+  every split selector token; supported Git terminators before caller arguments
+- Remediation: reject option-like inputs before use, retain the checked value,
+  and use command-specific safe positions or object APIs
+- False-positive risk: Medium; unrestricted administrative tools, other command
+  parsers and unresolved wrappers require source review
+
+A list of arguments prevents shell interpretation but does not prevent an argument
+from being parsed as an option. A terminator after caller input cannot protect it.
+Git object methods such as `repo.commit(ref)` are distinguished from raw Git
+command methods. The supported terminator checks are limited to Git revision/path
+commands; they do not exempt arbitrary programs. Git documents path separation in
+[checkout](https://git-scm.com/docs/git-checkout) and untrusted revision handling in
+[rev-parse](https://git-scm.com/docs/git-rev-parse).
+
+Python flows include local helpers, nested handlers, source-established registration
+wrappers, list append/extend/insert, copying, and selector-list construction.
+Unsupported indexing and dynamic binding remain conservative. The rule does not
+establish that a fixed option's value is safe for every command-specific feature.
+
+```python
+# Vulnerable: caller text can become additional dbt options.
+args.extend(["--select"] + node_selection.split())
+
+# Enforced token rejection protects this selector condition.
+tokens = node_selection.split()
+if any(token.startswith("-") for token in tokens):
+    raise ValueError("option-like selector")
+args.extend(["--select"] + tokens)
+```
+
+Default enablement, explicit `--rules SENT-014`, reason-bearing inline suppression,
+baseline matching and severity thresholds use the existing canonical Finding
+pipeline. Independent development measurements, fresh holdout, reviewed retention
+and human acceptance remain separate gates in the Phase 22 status record.

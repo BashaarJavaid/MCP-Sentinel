@@ -1119,7 +1119,7 @@ proves that same type/required violation. Ambiguous bindings, unconstrained path
 size-only violations, and resource-only failures stay separate.
 
 Included `.py`, `.ts`, `.mts`, and `.cts` files may carry exact lowercase
-reason-bearing inline directives for `SENT-001`–`SENT-007` and `SENT-012`–`SENT-013`. Python comments are
+reason-bearing inline directives for `SENT-001`–`SENT-007` and `SENT-012`–`SENT-014`. Python comments are
 read through the tokenizer; TypeScript line comments use a lexer that excludes
 strings, templates, escapes, and block comments. Applied directives preserve the
 finding with `suppressed` status and typed source location, exclude it from GPT
