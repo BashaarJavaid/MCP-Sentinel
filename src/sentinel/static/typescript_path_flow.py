@@ -9,7 +9,7 @@ from typing import Any
 from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
-from sentinel.static.path_flow import PathFlow, Value, _key, combine
+from sentinel.static.path_flow import Value, _key, combine
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import (
     TypeScriptProgram,
@@ -45,12 +45,30 @@ class TypeScriptPathFlow:
         self.invalidated_objects: set[str] = set()
         self.prefixes: dict[str, Value] = {}
         self.boundaries: dict[str, tuple[Value, Value]] = {}
+        self.normalized: set[str] = set()
+        self.parents: dict[str, Value] = {}
+        self.closures: dict[str, dict[str, Value]] = {}
+        self.root_directories: dict[str, Value] = {}
+
+    def canonical(self, value: Value) -> bool:
+        return value.resolved or value.key in self.normalized
+
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        for name in set().union(*(branch.keys() for branch in branches)):
+            values = [branch.get(name, Value()) for branch in branches]
+            env[name] = (
+                Value(contained=all(value.contained for value in values))
+                if name.startswith("#guard:")
+                else self.combined(values)
+            )
 
     def condition(self, value: Value) -> tuple[Facts, Facts]:
         return self.conditions.get(value.key, (frozenset(), frozenset()))
 
     def combined(self, values: list[Value]) -> Value:
         result = combine(values)
+        if values and all(self.canonical(value) for value in values):
+            self.normalized.add(result.key)
         if any(value.key in self.conditions for value in values):
             self.conditions[result.key] = (
                 common_facts([self.condition(value)[0] for value in values]),
@@ -160,6 +178,9 @@ class TypeScriptPathFlow:
                     file, (variable.get("vinit") or {}).get("some"), env
                 )
                 self.pattern(entity["name"], value, env)
+            elif "FuncDef" in definition:
+                value = self.expression(file, definition, env)
+                self.pattern(entity["name"], value, env)
         elif "ExprStmt" in node:
             self.expression(file, node["ExprStmt"][0], env)
         elif "Return" in node:
@@ -200,7 +221,7 @@ class TypeScriptPathFlow:
                     branches.append(local)
             if not branches:
                 return False
-            PathFlow.merge(env, branches)
+            self.merge(env, branches)
         elif "Try" in node:
             _, body, handlers, otherwise, final = node["Try"]
             branches, final_states = [], []
@@ -219,7 +240,7 @@ class TypeScriptPathFlow:
                 if self.statement(file, body, failure, returned):
                     branches.append(failure)
                 final_states.append(failure)
-            PathFlow.merge(env, branches or final_states)
+            self.merge(env, branches or final_states)
             if final and not self.statement(file, final["some"][1], env, returned):
                 return False
             return bool(branches)
@@ -229,7 +250,7 @@ class TypeScriptPathFlow:
             local = env.copy()
             self.pattern(pattern, self.expression(file, iterable, env), local)
             self.statement(file, body, local, returned)
-            PathFlow.merge(env, [env.copy(), local])
+            self.merge(env, [env.copy(), local])
         elif "Switch" in node:
             _, condition, cases = node["Switch"]
             self.expression(file, condition, env)
@@ -249,7 +270,7 @@ class TypeScriptPathFlow:
                 branches.append(env.copy())
             if not branches:
                 return False
-            PathFlow.merge(env, branches)
+            self.merge(env, branches)
         else:
             self.warning(file, node, "unsupported control flow")
             self.expression(file, node, env)
@@ -296,11 +317,25 @@ class TypeScriptPathFlow:
             return self.globals[key]
         if "Await" in node:
             return self.expression(file, node["Await"][1], env)
+        if "Container" in node:
+            return self.combined(
+                [self.expression(file, item, env) for item in node["Container"][1][1]]
+            )
+        if "Conditional" in node:
+            test, left, right = node["Conditional"]
+            condition = self.expression(file, test, env)
+            values = []
+            for branch, truth in ((left, True), (right, False)):
+                local = env.copy()
+                self.guard(condition, local, truth)
+                values.append(self.expression(file, branch, local))
+            return self.combined(values)
         if "Call" in node:
             return self.call(file, node, env)
         if "Lambda" in node or "FuncDef" in node:
             value = Value(key=_key(file.relative_path, str(source_range(node, file))))
             self.callables[value.key] = TypeScriptSymbol(file, node)
+            self.closures[value.key] = env
             return value
         if "Assign" in node:
             target, _, expression = node["Assign"]
@@ -398,6 +433,8 @@ class TypeScriptPathFlow:
             "fs/promises.realpath",
             "fs.promises.realpath",
         }:
+            if args and args[0].key in self.parents:
+                self.parents[result.key] = self.parents[args[0].key]
             return replace(result, resolved=True)
         if (
             external
@@ -406,9 +443,20 @@ class TypeScriptPathFlow:
                 "path.resolve",
             }
             and len(args) == 1
-            and args[0].resolved
+            and self.canonical(args[0])
         ):
             return replace(args[0], locations=result.locations)
+        if external == "path.resolve":
+            self.normalized.add(result.key)
+        if external == "path.dirname" and len(args) == 1 and self.canonical(args[0]):
+            self.parents[result.key] = args[0]
+        if (
+            name == "Promise.all"
+            and "Promise" not in env
+            and "Promise" not in self.program.bindings[file.relative_path]
+            and len(args) == 1
+        ):
+            return args[0]
         if (
             external in {"path.relative", "path/posix.relative", "path/win32.relative"}
             and len(args) == 2
@@ -440,29 +488,63 @@ class TypeScriptPathFlow:
                 self.prefixes[result.key] = args[0]
         if (
             isinstance(operator, dict)
-            and operator.get("Op") == "PhysEq"
+            and operator.get("Op") in {"PhysEq", "NotPhysEq"}
             and len(args) == 2
         ):
             target, base = args if args[0].sources else list(reversed(args))
+            for directory, separator_value in (args, list(reversed(args))):
+                binding = self.callables.get(separator_value.key)
+                if (
+                    binding
+                    and binding.external in {"path.sep", "node:path.sep"}
+                    and self.canonical(directory)
+                    and not directory.sources
+                ):
+                    fact = f"#guard:root:{directory.key}"
+                    self.root_directories[fact] = directory
+                    self.conditions[result.key] = (
+                        (frozenset(), frozenset({fact}))
+                        if operator["Op"] == "PhysEq"
+                        else (frozenset({fact}), frozenset())
+                    )
             if (
                 target.sources
-                and target.resolved
-                and base.resolved
+                and self.canonical(target)
+                and self.canonical(base)
                 and not base.sources
             ):
-                fact = f"#guard:boundary:{target.key}"
+                fact = f"#guard:boundary:{base.key}:{target.key}"
                 self.boundaries[fact] = (base, target)
-                self.conditions[result.key] = (frozenset(), frozenset({fact}))
+                facts = frozenset({fact})
+                self.conditions[result.key] = (
+                    (frozenset(), facts)
+                    if operator["Op"] == "PhysEq"
+                    else (facts, frozenset())
+                )
         if (
             name.endswith(".startsWith")
             and len(args) == 1
             and args[0].key in self.prefixes
         ):
             base = self.prefixes[args[0].key]
-            if receiver.resolved and base.resolved and not base.sources:
-                fact = f"#guard:boundary:{receiver.key}"
+            if self.canonical(receiver) and self.canonical(base) and not base.sources:
+                fact = f"#guard:boundary:{base.key}:{receiver.key}"
                 self.boundaries[fact] = (base, receiver)
                 self.conditions[result.key] = (frozenset(), frozenset({fact}))
+        if name.endswith(".startsWith") and len(args) == 1:
+            separator = self.callables.get(args[0].key)
+            if (
+                separator
+                and separator.external in {"path.sep", "node:path.sep"}
+                and self.canonical(receiver)
+            ):
+                root_facts: set[str] = set()
+                for root_fact, base in self.root_directories.items():
+                    if env.get(root_fact, Value()).contained:
+                        fact = f"#guard:boundary:{base.key}:{receiver.key}"
+                        self.boundaries[fact] = (base, receiver)
+                        root_facts.add(fact)
+                self.conditions[result.key] = (frozenset(), frozenset(root_facts))
         if (
             name.endswith(".startsWith")
             and len(args) == 1
@@ -533,7 +615,8 @@ class TypeScriptPathFlow:
                 )
             return result
         if symbol and symbol.function:
-            return self.function(symbol, args)
+            callable_value = self.expression(file, callee, env)
+            return self.function(symbol, args, self.closures.get(callable_value.key))
         if (
             "DotAccess" in callee
             and name.rsplit(".", 1)[-1]
@@ -556,7 +639,27 @@ class TypeScriptPathFlow:
                 else None
             )
             if callback and callback.function:
-                return self.function(callback, [receiver, Value(), receiver], env)
+                value = self.function(callback, [receiver, Value(), receiver], env)
+                method = name.rsplit(".", 1)[-1]
+                if method == "some":
+                    self.conditions[result.key] = (
+                        frozenset(),
+                        self.condition(value)[1],
+                    )
+                elif method == "every":
+                    # Empty arrays satisfy every without running its callback.
+                    self.conditions[result.key] = (
+                        self.condition(value)[0],
+                        frozenset(),
+                    )
+                elif method in {"filter", "find"}:
+                    return receiver
+                elif method in {"map", "flatMap"}:
+                    # Array truthiness does not establish callback boolean guards.
+                    if self.canonical(value):
+                        self.normalized.add(result.key)
+                    return replace(value, key=result.key)
+                return result
         if result.sources and not (
             external.startswith(("path.", "path/posix.", "path/win32."))
             or "Special" in callee
@@ -569,11 +672,22 @@ class TypeScriptPathFlow:
         facts = self.condition(value)[int(truth)]
         for fact in facts or ():
             env[fact] = Value(contained=True)
-        for fact, (_, target) in self.boundaries.items():
+        for fact, (base, target) in self.boundaries.items():
             if env.get(fact, Value()).contained:
                 for name, current in env.items():
-                    if current.key == target.key:
+                    if current.key == target.key and target.resolved:
                         env[name] = replace(current, contained=True)
+                original = self.parents.get(target.key)
+                if (
+                    target.resolved
+                    and original
+                    and env.get(
+                        f"#guard:boundary:{base.key}:{original.key}", Value()
+                    ).contained
+                ):
+                    for name, current in env.items():
+                        if current.key == original.key:
+                            env[name] = replace(current, contained=True)
         for key, (base, target, _) in self.relative.items():
             if not (base.resolved and target.resolved and not base.sources):
                 continue
