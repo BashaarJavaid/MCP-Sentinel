@@ -32,6 +32,9 @@ class Value:
     instance: tuple[str, str] | None = None
     option_safe: bool = False
     url_checks: frozenset[str] = frozenset()
+    operator_credential: bool = False
+    credential_fallback: bool = False
+    credential_present: bool = False
 
 
 def combine(values: list[Value], key: str = "") -> Value:
@@ -52,6 +55,9 @@ def combine(values: list[Value], key: str = "") -> Value:
         frozenset.intersection(*(v.url_checks for v in values))
         if values
         else frozenset(),
+        any(v.operator_credential for v in values),
+        any(v.credential_fallback for v in values),
+        bool(values) and all(v.credential_present for v in values),
     )
 
 

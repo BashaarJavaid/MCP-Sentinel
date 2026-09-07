@@ -153,6 +153,18 @@ RULES = (
         "DNS rebinding is outside this rule's claim.",
         RuleEngine.AST,
     ),
+    _rule(
+        "SENT-016",
+        "Unauthorized operator credential fallback",
+        "An HTTP caller without its own credential can select an operator "
+        "credential for an authenticated request.",
+        Impact.HIGH,
+        "Reject missing caller credentials before forwarding the request; "
+        "keep operator credentials outside caller-selectable fallback paths.",
+        "Medium: intended delegation needs an enforced authorization policy. "
+        "Middleware presence or a nearby check alone does not establish one.",
+        RuleEngine.AST,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}
