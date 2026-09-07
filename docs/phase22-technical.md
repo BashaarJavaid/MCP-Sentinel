@@ -12,6 +12,9 @@ the original proposals remain unchanged. Detector development now uses exposed
 Phase 20 cases and approved development cases. Fresh holdout source remains
 separate from tuning.
 
+The [description-poisoning increment](phase22-description-poisoning.md) records
+SENT-013 implementation and its bounded development measurement.
+
 ## Evidence and acceptance
 
 Preserve all Phase 20 source, configurations, labels, captures, costs and results.

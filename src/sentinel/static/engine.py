@@ -46,6 +46,7 @@ from sentinel.static.rules import (
     sent006,
     sent007,
     sent012,
+    sent013,
 )
 from sentinel.static.semgrep_adapter import run_semgrep
 from sentinel.static.suppression import apply_inline_suppressions
@@ -61,6 +62,7 @@ _AST_DETECTORS: dict[str, AstDetector] = {
     "SENT-006": sent006.detect,
     "SENT-007": sent007.detect,
     "SENT-012": sent012.detect,
+    "SENT-013": sent013.detect,
 }
 
 
@@ -97,8 +99,8 @@ def run_static_scan(
     for rule_id in selected:
         _enforce_timeout(scan_deadline)
         state = states[rule_id]
-        if rule_id == "SENT-012":
-            sent012.detect(context, state)
+        if rule_id in {"SENT-012", "SENT-013"}:
+            _AST_DETECTORS[rule_id](context, state)
         elif configuration.language is TargetLanguage.TYPESCRIPT:
             if rule_id == "SENT-005":
                 sent005.run(context, semgrep_matches.get(rule_id, []), state)
@@ -118,6 +120,7 @@ def run_static_scan(
         if configuration.language is TargetLanguage.WORKSPACE and rule_id not in {
             "SENT-005",
             "SENT-012",
+            "SENT-013",
         }:
             typescript.detect(rule_id, context, state, semgrep_matches.get(rule_id))
 
