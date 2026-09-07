@@ -1,0 +1,64 @@
+{
+  "status": "local_quality_verified_benchmark_and_hosted_pending",
+  "scanner": {
+    "revision": "cee02835185e22a27805fd78a4e980c077062a80",
+    "source_sha256": "05e6df961ce52c697e9f34b6c5139b3ea03994cee8f61a9fd2ed325530184e26",
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e"
+  },
+  "scope": "Bounded SENT-012 caller/context, local instance, inheritance, path join and normalizing/prefix helper corrections; full Phase 22 remains incomplete.",
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/shared-containment/junit.xml --cov-report=json:artifacts/phase22/shared-containment/coverage.json",
+      "exit_code": 0,
+      "passed": 776,
+      "skipped": 36,
+      "coverage_percent": 86.86,
+      "log": "pytest.log"
+    },
+    {
+      "command": "python -m pytest tests/test_containment.py tests/test_typescript_containment.py tests/test_python_discovery.py -q --no-cov --tb=short",
+      "exit_code": 0,
+      "passed": 71
+    },
+    {
+      "command": "ruff check .",
+      "exit_code": 0,
+      "log": "ruff.log"
+    },
+    {
+      "command": "ruff format --check .",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "command": "mypy",
+      "exit_code": 0,
+      "log": "mypy.log"
+    },
+    {
+      "command": "python -m sentinel.schema check",
+      "exit_code": 0,
+      "log": "schema.log"
+    },
+    {
+      "command": "mkdocs build --strict --site-dir /private/tmp/phase22-shared-site",
+      "exit_code": 0,
+      "log": "docs.log"
+    }
+  ],
+  "reproductions": [
+    "SDK context: 3 failed, 1 passed before correction.",
+    "Canonical native normalization/prefix: 2 failed, 3 passed before correction.",
+    "Factory-bound sink: vulnerable case failed; fixed and annotation-only controls passed.",
+    "Anchored pathlib join: fixed control produced an alert before correction.",
+    "Inherited handler: failed to resolve before correction.",
+    "Replaced inherited and instance methods: incorrectly followed original implementations before correction.",
+    "Rebound SDK annotation: incorrectly removed caller taint before correction."
+  ],
+  "limitations": [
+    "The complete approved development-condition and ten-family acceptance gates remain pending.",
+    "Source support currently feeds SENT-012; inventory alone is not support in other detectors.",
+    "Native 1.7.0 and review/campaign work stay in a separate preserved draft.",
+    "No paid model calls, holdout tuning, merge, publication or external pilot acceptance."
+  ]
+}

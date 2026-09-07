@@ -10,8 +10,10 @@ from pathlib import PurePosixPath
 from sentinel.report.model import ReportWarning
 from sentinel.static.ast_utils import (
     discover_tool_regions,
+    import_aliases,
     literal_string,
     qualified_name,
+    resolve_name,
     scope_nodes,
 )
 from sentinel.static.model import ParsedPythonFile
@@ -32,6 +34,46 @@ class ToolBinding:
     registration: Symbol
     handler: Symbol
     region: ast.AST
+
+    @property
+    def caller_parameters(self) -> tuple[ast.arg, ...]:
+        assert isinstance(self.handler.node, Function)
+        aliases = import_aliases(self.handler.file)
+        for node in scope_nodes(self.handler.file.tree):
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+                aliases.pop(node.id, None)
+            elif isinstance(node, (Function, ast.ClassDef)):
+                aliases.pop(node.name, None)
+        parameters = self.handler.node.args
+        caller = []
+        for parameter in (
+            *parameters.posonlyargs,
+            *parameters.args,
+            *parameters.kwonlyargs,
+        ):
+            annotation = parameter.annotation
+            if isinstance(annotation, ast.Subscript) and resolve_name(
+                qualified_name(annotation.value) or "", aliases
+            ) in {"typing.Annotated", "typing_extensions.Annotated"}:
+                annotation = (
+                    annotation.slice.elts[0]
+                    if isinstance(annotation.slice, ast.Tuple) and annotation.slice.elts
+                    else None
+                )
+            annotation_name = (
+                (qualified_name(annotation) or "") if annotation is not None else ""
+            )
+            injected = annotation_name.split(".")[0] in aliases and resolve_name(
+                annotation_name, aliases
+            ) in {
+                "mcp.server.fastmcp.Context",
+                "mcp.server.fastmcp.server.Context",
+                "fastmcp.Context",
+                "fastmcp.server.context.Context",
+            }
+            if parameter.arg not in {"self", "cls"} and not injected:
+                caller.append(parameter)
+        return tuple(caller)
 
 
 class PythonProgram:
@@ -127,11 +169,36 @@ class PythonProgram:
         if isinstance(node, ast.ClassDef) and rest:
             members = [
                 child
-                for child in node.body
-                if isinstance(child, (Function, ast.AnnAssign))
-                and getattr(child, "name", None) == rest
+                for child in scope_nodes(node)
+                if isinstance(child, Function) and child.name == rest
             ]
-            return Symbol(file, name, members[0]) if len(members) == 1 else None
+            for child in scope_nodes(node):
+                targets = (
+                    child.targets
+                    if isinstance(child, ast.Assign)
+                    else ([child.target] if isinstance(child, ast.AnnAssign) else [])
+                )
+                if any(
+                    isinstance(target, ast.Name) and target.id == rest
+                    for target in targets
+                ):
+                    return None
+            if members:
+                return Symbol(file, name, members[0]) if len(members) == 1 else None
+            # Only follow a single recoverable implementation across local bases.
+            inherited: dict[tuple[str, int], Symbol] = {}
+            for base in node.bases:
+                base_name = qualified_name(base)
+                member = (
+                    self.resolve(file, base_name + "." + rest, seen)
+                    if base_name
+                    else None
+                )
+                if member is not None:
+                    inherited[
+                        (member.file.relative_path, getattr(member.node, "lineno", 0))
+                    ] = member
+            return next(iter(inherited.values())) if len(inherited) == 1 else None
         if not rest and isinstance(node, (Function, ast.ClassDef)):
             return Symbol(file, name, node)
         return None
