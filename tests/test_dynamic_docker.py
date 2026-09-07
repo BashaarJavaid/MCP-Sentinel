@@ -26,7 +26,12 @@ from sentinel.dynamic.prober import (
     _run_campaign,
     _run_one,
 )
-from sentinel.dynamic.sandbox import SCAN_LABEL, DependencyImage, DockerSandbox
+from sentinel.dynamic.sandbox import (
+    PYTHON_IMAGES,
+    SCAN_LABEL,
+    DependencyImage,
+    DockerSandbox,
+)
 from sentinel.errors import InfrastructureError
 from sentinel.permissions import PermissionsManifest, load_permissions_manifest
 
@@ -47,6 +52,27 @@ def dependency_image() -> DependencyImage:
     )
     sandbox.preflight()  # Selected Docker gates fail, never skip, on unavailability.
     return sandbox.prepare_dependency_image()
+
+
+@pytest.mark.parametrize("python_version", list(PYTHON_IMAGES))
+def test_pinned_runtime_has_git(python_version: str) -> None:
+    configuration = load_configuration(FIXTURES / "vulnerable_server", environ={})
+    assert configuration.target is not None
+    target = configuration.target.model_copy(
+        update={"python_version": python_version, "launch_cmd": ("git", "--version")}
+    )
+    sandbox = DockerSandbox(
+        configuration.model_copy(update={"target": target}), uuid4()
+    )
+    name = f"sentinel-git-check-{sandbox.scan_id}"
+    try:
+        result = sandbox.docker(
+            sandbox._probe_run_args(PYTHON_IMAGES[python_version], name, "SENT-010")
+        )
+        assert result.stdout.startswith("git version ")
+    finally:
+        sandbox.docker(("rm", "--force", name))
+    _assert_clean(sandbox)
 
 
 def _sandbox(tmp_path: Path, case: str) -> DockerSandbox:

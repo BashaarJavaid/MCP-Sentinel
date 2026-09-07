@@ -1,0 +1,24 @@
+"""Benchmark prerequisite setup; this file is launched ONLY by DockerSandbox."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+if not Path("/.dockerenv").is_file() or Path.cwd() != Path("/workspace"):
+    raise RuntimeError("Phase 20 bootstrap requires Sentinel's Docker workspace")
+
+for name in ("phase20-repo", "phase20-outside"):
+    root = Path("/tmp") / name
+    root.mkdir()
+    def git(*args):
+        subprocess.run(["git", "-C", str(root), *args], check=True, stdout=sys.stderr)
+    git("init", "-b", "main")
+    git("config", "user.email", "benchmark@example.invalid")
+    git("config", "user.name", "Phase 20")
+    (root / "control.txt").write_text("benchmark control\n")
+    git("add", "control.txt")
+    git("commit", "-m", "initial benchmark control")
+    (root / "control.txt").write_text("benchmark staged control\n")
+    git("add", "control.txt")
+(Path("/tmp") / "outside.txt").write_text("inert boundary marker\n")
+os.execv(sys.executable, [sys.executable, "-m", "mcp_server_git", "--repository", "/tmp/phase20-repo"])

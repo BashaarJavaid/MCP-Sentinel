@@ -12,6 +12,7 @@ import pytest
 from sentinel.config import LoadedConfiguration, load_configuration
 from sentinel.dynamic.sandbox import (
     CREATED_LABEL,
+    PYTHON_IMAGES,
     DockerSandbox,
     _dependency_inputs,
     _offline_dockerfile,
@@ -160,6 +161,19 @@ env_from: []
     assert first != second
     assert files == (root / "requirements.txt",)
     assert requirements == ("mcp==1.23.3",)
+
+
+def test_dependency_image_cache_changes_with_base_image(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    configuration = load_configuration(make_target(tmp_path / "target"), environ={})
+    assert configuration.target is not None
+    original, _, _ = _dependency_inputs(configuration)
+    monkeypatch.setitem(
+        PYTHON_IMAGES, configuration.target.python_version, "python@sha256:changed"
+    )
+    changed, _, _ = _dependency_inputs(configuration)
+    assert original != changed
 
 
 def test_runtime_arguments_enforce_isolation_and_explicit_environment(

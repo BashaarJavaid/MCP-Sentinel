@@ -1,0 +1,745 @@
+{
+  "analysisComplete": false,
+  "baseline": null,
+  "completed_at": "2026-09-06T22:03:13.571330Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": false,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "617ae15371d773c40b3b48bdc1ed5e31e326323dc767fb716ab93c7c539eacd5",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "evidence": {
+        "fingerprint": "d5e3fda02d7e56d5506058a784e1989db32e563b92d64e7b388bbf45d1748398",
+        "kind": "static",
+        "range": {
+          "end_column": 68,
+          "end_line": 109,
+          "start_column": 21,
+          "start_line": 109
+        },
+        "snippet": "\t\t\tconst api_key = \"<redacted>\";"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "1f535566-d102-49cc-b219-f5e415f41ceb",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 68,
+          "end_line": 109,
+          "start_column": 21,
+          "start_line": 109
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": "d5e3fda02d7e56d5506058a784e1989db32e563b92d64e7b388bbf45d1748398",
+            "kind": "static",
+            "range": {
+              "end_column": 68,
+              "end_line": 109,
+              "start_column": 21,
+              "start_line": 109
+            },
+            "snippet": "\t\t\tconst api_key = \"<redacted>\";"
+          },
+          "review": null,
+          "rule_id": "SENT-005",
+          "source": "static",
+          "timestamp": "2026-09-06T22:03:13.571330Z"
+        }
+      ],
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "review": {
+        "applied_at": null,
+        "batch_id": null,
+        "confidence": null,
+        "evidence_refs": null,
+        "latency_ms": null,
+        "mode": "not_reviewed",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": null,
+        "requested_model": null,
+        "returned_model": null,
+        "reviewed": false,
+        "reviewed_at": null,
+        "status": null,
+        "suggested_severity_override": null,
+        "usage": null
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-005",
+      "scan_id": "ea1bbc57-c368-4606-8a75-a043d26a84de",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T22:03:13.571330Z",
+      "title": "Hardcoded secret"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 10,
+          "end_line": 15,
+          "start_column": 1,
+          "start_line": 15
+        },
+        "snippet": "app.post("
+      },
+      "exploitability": "theoretical",
+      "finding_id": "7634c232-36f6-40f7-8971-86abf47e495f",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/index.ts",
+        "range": {
+          "end_column": 10,
+          "end_line": 15,
+          "start_column": 1,
+          "start_line": 15
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 10,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            },
+            "snippet": "app.post("
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-06T22:03:13.571330Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": {
+        "applied_at": null,
+        "batch_id": null,
+        "confidence": null,
+        "evidence_refs": null,
+        "latency_ms": null,
+        "mode": "not_reviewed",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": null,
+        "requested_model": null,
+        "returned_model": null,
+        "reviewed": false,
+        "reviewed_at": null,
+        "status": null,
+        "suggested_severity_override": null,
+        "usage": null
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "ea1bbc57-c368-4606-8a75-a043d26a84de",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T22:03:13.571330Z",
+      "title": "Missing or ineffective route authentication"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "484c7de8de7ecf85add00128cbbe2fe34eb2deb4af925171d48bff0cdd614b1e",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 9,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        },
+        "snippet": "app.get("
+      },
+      "exploitability": "theoretical",
+      "finding_id": "472cc95c-a15f-400a-9a1c-77fddc1073ae",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/index.ts",
+        "range": {
+          "end_column": 9,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 9,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            },
+            "snippet": "app.get("
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-06T22:03:13.571330Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": {
+        "applied_at": null,
+        "batch_id": null,
+        "confidence": null,
+        "evidence_refs": null,
+        "latency_ms": null,
+        "mode": "not_reviewed",
+        "probe_plan": null,
+        "reason": null,
+        "reasoning": null,
+        "requested_model": null,
+        "returned_model": null,
+        "reviewed": false,
+        "reviewed_at": null,
+        "status": null,
+        "suggested_severity_override": null,
+        "usage": null
+      },
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "ea1bbc57-c368-4606-8a75-a043d26a84de",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-06T22:03:13.571330Z",
+      "title": "Missing or ineffective route authentication"
+    }
+  ],
+  "gpt_review": {
+    "batches": [
+      {
+        "batch_id": "batch_e1f9c84a5da20d15bf31a258",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "finding_count": 2,
+        "incomplete_count": 0,
+        "mode": "degraded",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 0,
+        "origin_latency_ms": 0,
+        "origin_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "e1f9c84a5da20d15bf31a2588a06a4876deb31ff20eb45f14aed936dcdf296e0",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": null,
+        "schema_valid": false,
+        "status": "failed",
+        "suppressed_count": 0
+      },
+      {
+        "batch_id": "batch_a55be8f1e2e787507ff2b969",
+        "confirmed_count": 0,
+        "current_cost_micro_usd": 0,
+        "current_latency_ms": 0,
+        "current_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "endpoint_mode": "openai",
+        "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+        "failure": "GPT transport failure: [Errno 2] No such file or directory: '<SENTINEL_ABSOLUTE_PATH:REDACTED>'",
+        "finding_count": 1,
+        "incomplete_count": 0,
+        "mode": "degraded",
+        "needs_review_count": 0,
+        "origin_cost_micro_usd": 0,
+        "origin_latency_ms": 0,
+        "origin_usage": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "reasoning_tokens": 0,
+          "total_tokens": 0
+        },
+        "reasoning_effort": "medium",
+        "refusal_count": 0,
+        "request_fingerprint": "a55be8f1e2e787507ff2b969496c6a821a628ebe99cfd1e9085104a6c4ada28c",
+        "requested_model": "gpt-5.6-sol",
+        "retry_count": 0,
+        "returned_model": null,
+        "schema_valid": false,
+        "status": "failed",
+        "suppressed_count": 0
+      }
+    ],
+    "cache_errors": 0,
+    "cache_hits": 0,
+    "cache_misses": 0,
+    "cache_writes": 0,
+    "candidate_count": 3,
+    "confirmed_count": 0,
+    "current_cost_micro_usd": 0,
+    "current_latency_ms": 0,
+    "current_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "disagreement_count": 0,
+    "endpoint_mode": "openai",
+    "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+    "failure_count": 2,
+    "mode": "degraded",
+    "needs_review_count": 0,
+    "origin_cost_micro_usd": 0,
+    "origin_latency_ms": 0,
+    "origin_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "overflow_count": 0,
+    "pricing": {
+      "as_of": "2026-09-04",
+      "cache_write_multiplier_millionths": 1250000,
+      "cached_input_micro_usd_per_million": 400000,
+      "input_micro_usd_per_million": 4000000,
+      "model": "gpt-5.6-sol",
+      "output_micro_usd_per_million": 20000000,
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.6-sol",
+    "reviewed_count": 0,
+    "selected_count": 3,
+    "suppressed_count": 0
+  },
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 3,
+      "excluded_count": 0,
+      "modes": [
+        "degraded"
+      ],
+      "reason": "eligible candidates remain unreviewed: cap or review failure",
+      "reviewed_count": 0,
+      "selected_count": 3,
+      "state": "incomplete",
+      "unreviewed_count": 3
+    }
+  },
+  "scan_id": "ea1bbc57-c368-4606-8a75-a043d26a84de",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "GPT semantic review failed",
+      "status": "failed"
+    },
+    {
+      "name": "dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T22:03:13.571186Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-006"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 19,
+              "start_column": 34,
+              "start_line": 15
+            }
+          },
+          "kind": "http_route",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 4,
+              "end_line": 19,
+              "start_column": 2,
+              "start_line": 15
+            }
+          },
+          "name": "/mcp",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-006"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 28,
+              "start_column": 33,
+              "start_line": 21
+            }
+          },
+          "kind": "http_route",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 4,
+              "end_line": 28,
+              "start_column": 2,
+              "start_line": 21
+            }
+          },
+          "name": "/mcp",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [],
+          "handler": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 103,
+              "start_column": 42,
+              "start_line": 77
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 13,
+              "end_line": 103,
+              "start_column": 3,
+              "start_line": 72
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "computed_name",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 13,
+                  "end_line": 103,
+                  "start_column": 3,
+                  "start_line": 72
+                }
+              },
+              "message": "tool name is computed"
+            },
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 13,
+                  "end_line": 103,
+                  "start_column": 3,
+                  "start_line": 72
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 664,
+              "start_column": 26,
+              "start_line": 615
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 665,
+              "start_column": 2,
+              "start_line": 603
+            }
+          },
+          "name": "mobile_take_screenshot",
+          "reasons": [],
+          "status": "recognized"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 616,
+              "start_column": 1,
+              "start_line": 616
+            }
+          },
+          "message": "SENT-002 at src/server.ts:616: unsupported TypeScript flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 617,
+              "start_column": 1,
+              "start_line": 617
+            }
+          },
+          "message": "SENT-002 at src/server.ts:617: unresolved call to getRobotFromDevice; this flow is not established as safe."
+        }
+      ]
+    },
+    "duration_ms": 7825,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "validated_before_use": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 2,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 24,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 3
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 1,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 2
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 3,
+      "suppressed": 0
+    },
+    "total": 3
+  },
+  "target": {
+    "display_name": "mobile-locale-safe",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "typescript_tool_name_dynamic",
+      "message": "Skipped a computed TypeScript tool name at src/server.ts:72"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/server.ts:616: unsupported TypeScript flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/server.ts:617: unresolved call to getRobotFromDevice; this flow is not established as safe."
+    },
+    {
+      "code": "typescript_tool_name_dynamic",
+      "message": "Skipped a computed TypeScript tool name at src/server.ts:72"
+    },
+    {
+      "code": "typescript_tool_name_dynamic",
+      "message": "Skipped a computed TypeScript tool name at src/server.ts:72"
+    },
+    {
+      "code": "gpt_review_failed",
+      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/e1f9c84a5da20d15bf31a2588a06a4876deb31ff20eb45f14aed936dcdf296e0.json'"
+    },
+    {
+      "code": "gpt_review_failed",
+      "message": "GPT transport failure: [Errno 2] No such file or directory: '/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase20/captures/a55be8f1e2e787507ff2b969496c6a821a628ebe99cfd1e9085104a6c4ada28c.json'"
+    }
+  ]
+}

@@ -1030,7 +1030,15 @@ change a finding calls for.
 
 ## 23. Phase 20 — Independent detection benchmark
 
-**Status: planned.** Depends on Phase 19.
+**Status: in progress; evidence gates open.** Depends on Phase 19.
+Checkpoint 1 was approved on 2026-09-06. The frozen corpus, independent review,
+deterministic/comparator measurements and runtime prerequisite failures are
+retained in [Phase 20 verification](docs/phase20-verification.md). The separately
+versioned [completion measurement](docs/phase20-completion-v2.md) retains all 35
+accepted static captures after the approved validator correction and resumption;
+the four earlier failed attempts remain in its cumulative accounting. Execution
+limitations remain measured outcomes. Final phase acceptance, merge, and public
+deployment await separate user decisions.
 
 ### Objective
 

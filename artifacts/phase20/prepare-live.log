@@ -1,0 +1,70 @@
+prepare-live: git-staging-vulnerable: completed
+prepare-live: git-staging-vulnerable-mutation: completed
+prepare-live: git-staging-fixed: completed
+prepare-live: git-staging-fixed-mutation: completed
+prepare-live: git-arguments-vulnerable: completed
+prepare-live: git-arguments-vulnerable-mutation: completed
+prepare-live: git-arguments-fixed: completed
+prepare-live: git-arguments-fixed-mutation: completed
+prepare-live: git-repository-vulnerable: completed
+prepare-live: git-repository-vulnerable-mutation: completed
+prepare-live: git-repository-fixed: completed
+prepare-live: git-repository-fixed-mutation: completed
+prepare-live: filesystem-prefix-vulnerable: completed
+prepare-live: filesystem-prefix-vulnerable-mutation: completed
+prepare-live: filesystem-prefix-fixed: completed
+prepare-live: filesystem-prefix-fixed-mutation: completed
+prepare-live: atlassian-ssrf-vulnerable: incomplete
+prepare-live: atlassian-ssrf-vulnerable-mutation: incomplete
+prepare-live: atlassian-ssrf-fixed: incomplete
+prepare-live: atlassian-ssrf-fixed-mutation: incomplete
+prepare-live: atlassian-auth-vulnerable: incomplete
+prepare-live: atlassian-auth-vulnerable-mutation: incomplete
+prepare-live: atlassian-auth-fixed: incomplete
+prepare-live: atlassian-auth-fixed-mutation: incomplete
+prepare-live: atlassian-upload-vulnerable: incomplete
+prepare-live: atlassian-upload-vulnerable-mutation: incomplete
+prepare-live: atlassian-upload-fixed: incomplete
+prepare-live: atlassian-upload-fixed-mutation: incomplete
+prepare-live: excel-boundary-vulnerable: review_pending
+prepare-live: excel-boundary-vulnerable-mutation: review_pending
+prepare-live: excel-boundary-fixed: review_pending
+prepare-live: excel-boundary-fixed-mutation: review_pending
+prepare-live: mobile-output-vulnerable: review_pending
+prepare-live: mobile-output-vulnerable-mutation: review_pending
+prepare-live: mobile-output-fixed: review_pending
+prepare-live: mobile-output-fixed-mutation: review_pending
+prepare-live: kubernetes-shell-vulnerable: review_pending
+prepare-live: kubernetes-shell-vulnerable-mutation: review_pending
+prepare-live: kubernetes-shell-fixed: review_pending
+prepare-live: kubernetes-shell-fixed-mutation: review_pending
+prepare-live: git-status-safe: completed
+prepare-live: atlassian-download-path-safe: incomplete
+prepare-live: excel-child-path-safe: review_pending
+prepare-live: mobile-locale-safe: review_pending
+prepare-live: kubernetes-formatting-safe: review_pending
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/scripts/run_phase20_benchmark.py", line 273, in <module>
+    "checkpoint1-packet.md",
+     ^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/scripts/run_phase20_benchmark.py", line 253, in main
+    return 0
+        ^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/scripts/phase20_review.py", line 74, in prepare_packet
+    "cost_micro_usd_reservation": tokens * (10 if long else 5)
+    ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/scripts/phase20_review.py", line 39, in restore_batch
+    candidates = tuple(
+                 ^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/scripts/phase20_review.py", line 41, in <genexpr>
+    Finding.model_validate_json(
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/lib/python3.12/site-packages/pydantic/main.py", line 782, in model_validate_json
+    return cls.__pydantic_validator__.validate_json(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Finding
+review_disagrees
+  Extra inputs are not permitted [type=extra_forbidden, input_value=False, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.13/v/extra_forbidden

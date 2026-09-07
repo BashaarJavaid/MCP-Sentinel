@@ -1,0 +1,21 @@
+language: python
+launch_cmd: [python, .phase20/bootstrap.py]
+transport: stdio
+working_dir: .
+env:
+  PYTHONPATH: /workspace/src
+env_from: []
+python_version: "3.12"
+probe_baselines:
+  git_status: {repo_path: /tmp/phase20-repo}
+  git_diff_unstaged: {repo_path: /tmp/phase20-repo, context_lines: 3}
+  git_diff_staged: {repo_path: /tmp/phase20-repo, context_lines: 3}
+  git_diff: {repo_path: /tmp/phase20-repo, target: HEAD, context_lines: 3}
+  git_commit: {repo_path: /tmp/phase20-repo, message: benchmark control}
+  git_add: {repo_path: /tmp/phase20-repo, files: [control.txt]}
+  git_reset: {repo_path: /tmp/phase20-repo}
+  git_log: {repo_path: /tmp/phase20-repo, max_count: 1}
+  git_create_branch: {repo_path: /tmp/phase20-repo, branch_name: benchmark-branch}
+  git_checkout: {repo_path: /tmp/phase20-repo, branch_name: main}
+  git_show: {repo_path: /tmp/phase20-repo, revision: HEAD}
+  git_branch: {repo_path: /tmp/phase20-repo, branch_type: local}

@@ -1,0 +1,256 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T20:41:47.882536Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [],
+  "gpt_review": {
+    "batches": [],
+    "cache_errors": 0,
+    "cache_hits": 0,
+    "cache_misses": 0,
+    "cache_writes": 0,
+    "candidate_count": 0,
+    "confirmed_count": 0,
+    "current_cost_micro_usd": 0,
+    "current_latency_ms": 0,
+    "current_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "disagreement_count": 0,
+    "endpoint_mode": "openai",
+    "endpoint_url_hash": "e2b64e5a4d5de3dafccd283071feaceabfa0b81e065e750438c16611063af89c",
+    "failure_count": 0,
+    "mode": "not_run",
+    "needs_review_count": 0,
+    "origin_cost_micro_usd": 0,
+    "origin_latency_ms": 0,
+    "origin_usage": {
+      "cache_write_tokens": 0,
+      "cached_tokens": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_tokens": 0,
+      "total_tokens": 0
+    },
+    "overflow_count": 0,
+    "pricing": {
+      "as_of": "2026-09-04",
+      "cache_write_multiplier_millionths": 1250000,
+      "cached_input_micro_usd_per_million": 400000,
+      "input_micro_usd_per_million": 4000000,
+      "model": "gpt-5.6-sol",
+      "output_micro_usd_per_million": 20000000,
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol"
+    },
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.6-sol",
+    "reviewed_count": 0,
+    "selected_count": 0,
+    "suppressed_count": 0
+  },
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 0,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "analysis produced no candidates; no model review ran",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "no_candidates",
+      "unreviewed_count": 0
+    }
+  },
+  "scan_id": "94f3f070-e0e3-4700-abbf-b5649b5fef88",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "static-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T20:41:47.882473Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 58,
+              "end_line": 456,
+              "start_column": 5,
+              "start_line": 349
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 24,
+              "end_line": 348,
+              "start_column": 6,
+              "start_line": 348
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "unsupported_registration",
+              "location": {
+                "kind": "file",
+                "path": "src/mcp_server_git/server.py",
+                "range": {
+                  "end_column": 24,
+                  "end_line": 348,
+                  "start_column": 6,
+                  "start_line": 348
+                }
+              },
+              "message": "registration uses an unsupported handler form"
+            }
+          ],
+          "status": "unsupported"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": []
+    },
+    "duration_ms": 1953,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 7,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 0
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 0
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 0,
+      "suppressed": 0
+    },
+    "total": 0
+  },
+  "target": {
+    "display_name": "git-arguments-vulnerable",
+    "root": "."
+  },
+  "warnings": []
+}

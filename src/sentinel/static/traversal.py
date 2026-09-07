@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -258,7 +259,11 @@ def _validate_config(
         ):
             return
         if path.suffix == ".json":
-            json.loads(source)
+            json.loads(
+                _devcontainer_json(source)
+                if path.name in {"devcontainer.json", ".devcontainer.json"}
+                else source
+            )
         elif path.suffix in {".yaml", ".yml"}:
             yaml.safe_load(source)
         elif path.suffix == ".toml":
@@ -269,6 +274,36 @@ def _validate_config(
         raise ConfigurationError(
             f"cannot parse configuration {relative}: {error}"
         ) from error
+
+
+def _devcontainer_json(source: str) -> str:
+    """Normalize JSONC only for validation; findings still use original bytes."""
+
+    def strip_comment(match: re.Match[str]) -> str:
+        token = match.group()
+        if token.startswith('"'):
+            return token
+        if token.startswith("/*") and (len(token) < 4 or not token.endswith("*/")):
+            raise json.JSONDecodeError("unterminated comment", source, match.start())
+        return re.sub(r"[^\r\n]", " ", token)
+
+    plain = re.sub(
+        r'"(?:\\.|[^"\\])*"|//[^\r\n]*|/\*[\s\S]*?(?:\*/|\Z)',
+        strip_comment,
+        source,
+    )
+    tokens = re.findall(r'"(?:\\.|[^"\\])*"|[^ \t\r\n",\[\]{}]+|[^ \t\r\n]', plain)
+    return " ".join(
+        token
+        for index, token in enumerate(tokens)
+        if not (
+            token == ","
+            and index > 0
+            and tokens[index - 1] not in {"[", "{", ",", ":"}
+            and index + 1 < len(tokens)
+            and tokens[index + 1] in {"}", "]"}
+        )
+    )
 
 
 def _validate_dotenv(source: str) -> None:

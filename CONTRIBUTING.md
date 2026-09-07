@@ -14,6 +14,13 @@ make check
 and include its result plus any relevant hosted CI run in the pull request.
 `make artifacts-check` verifies historical generated evidence separately.
 
+Batch related local commits into one push after the local checks pass. New PR
+pushes cancel superseded CI and documentation runs for that PR; the latest
+revision still runs the full OS/Python matrix. Main and release verification
+are not canceled by PR updates. Avoid `[skip ci]` on changes requiring checks.
+Distribution building runs alongside source checks so wheel and Docker checks
+can start earlier; all checks still have to pass.
+
 ## Contributor contracts
 
 - Maintainers allocate new `SENT-xxx` IDs. Published IDs are never renamed,

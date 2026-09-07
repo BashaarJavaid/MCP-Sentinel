@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "source_sha256": "22bdb90c1a5dc23ddf6ec19c5b87adc98accd7abd5e5bd28cff16f9913b6d8dd",
+  "model_calls": 0,
+  "focused": {
+    "passed": 34,
+    "log": "focused.log"
+  },
+  "docker_regressions": {
+    "passed": 36,
+    "log": "docker-tests.log"
+  },
+  "upstream_git_diagnostic": {
+    "input_ids": [
+      "git-staging-vulnerable",
+      "git-staging-fixed"
+    ],
+    "completed_legitimate_calls": 0,
+    "startup_failures": 2,
+    "image": "mcp-sentinel-deps:5bfbba12d6ccb36995aafc9e390a9f3be312f5d7da108fddecc94a830da93650",
+    "installed_mcp": "2.1.1",
+    "error": "AttributeError: 'Server' object has no attribute 'list_tools'",
+    "log": "git-baselines.log",
+    "diagnostic_test_revision": "613169b5344b12556f6e92be48b88226a3f1bd7e",
+    "target_dependencies_changed": false,
+    "candidate_next_configuration": {
+      "upstream_lock_path": "src/git/uv.lock",
+      "mcp_version": "1.1.0",
+      "approved": false,
+      "measured": false
+    }
+  },
+  "corpus_and_original_artifacts_unchanged": true,
+  "ci_policy": {
+    "superseded_prs_cancel": true,
+    "full_quality_matrix": 12,
+    "build_waits_for_quality": false,
+    "baseline_scanner_revision": "daeefe701a6d51120585ee2054128c33c7efafbc"
+  },
+  "quality_gate": {
+    "command": "make check",
+    "exit_code": 0,
+    "passed": 673,
+    "skipped": 36,
+    "log": "make-check.log",
+    "note": "Full suite collected before the two final malformed-JSONC guard cases were added; final guards passed the separate 34-test focused run, final lint, formatting and mypy checks."
+  }
+}

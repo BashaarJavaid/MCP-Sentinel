@@ -1,0 +1,492 @@
+{
+  "assessments": [
+    {
+      "cassette_sha256": "1e35f64f0c8b0e629328fe54bdfce7a0ed31c02dc41607ac4e73d8b18e39a18b",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool has a closed input schema declaring types for every field and required status for filepath, sheet_name, and data_range.",
+              "end_line": 450,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 428
+            },
+            {
+              "claim": "The implementation\u2019s parameters correspond to the schema-declared fields.",
+              "end_line": 446,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 428
+            }
+          ],
+          "reasoning": "The supplied tool schema provides declared-type validation for every input, marks required fields, and rejects additional properties. This directly contradicts SENT-003\u2019s claimed absence of schema or explicit type validation.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "7cf99e2bdd9215fa1cf8274fc5a75b256e70aae05a2a03ecfd14fa0a232cee58",
+      "input_ids": [
+        "excel-boundary-fixed-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "35f35ae277818a8e99bf4fd39faf16d7ee8cc37bba1fb17cf7c85b7ff6feccee",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "A credential literal is declared in source and redacted by the evidence layer.",
+              "end_line": 110,
+              "path": "src/server.ts",
+              "start_line": 109
+            },
+            {
+              "claim": "The hardcoded value is used as the api_key in an outbound PostHog request.",
+              "end_line": 134,
+              "path": "src/server.ts",
+              "start_line": 128
+            }
+          ],
+          "reasoning": "The source directly shows a redacted hardcoded secret assigned near the PostHog endpoint and later submitted as api_key, corroborating SENT-005.",
+          "status": "confirmed"
+        }
+      ],
+      "fingerprint": "873b397b5c50ff64954b1e88f967dbd60f0019ed29667e75d049c905ff0d5b91",
+      "input_ids": [
+        "mobile-output-fixed-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "fc8c0ff09a59960e1974aeaf2250b4241c08415f38903a9292005302e4bd69be",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "Inputs are declared with types in the function signature.",
+              "end_line": 227,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 221
+            },
+            {
+              "claim": "Inputs are passed to path and Excel-reading helpers without explicit runtime type checks in the shown function.",
+              "end_line": 250,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 243
+            }
+          ],
+          "reasoning": "The tool metadata supplies an input schema, but the provided evidence does not establish that a framework enforces it before invocation. The implementation itself contains no explicit runtime type validation. Dynamic probes are needed to determine whether schema enforcement occurs at the tool boundary.",
+          "status": "needs_review"
+        }
+      ],
+      "fingerprint": "8c0b2b3a36e28c222b855271c17086262d843f2d889e4ae1f9e30253c5e8fe5f",
+      "input_ids": [
+        "excel-boundary-vulnerable-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "4372e791d56bd34c475fce29e19aa15f68a3c5ad01c7a673a21036236197a255",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The declared data type is List[List], but the function passes data directly to write_data without explicit nested-list type validation.",
+              "end_line": 302,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 283
+            }
+          ],
+          "reasoning": "Confirmed. The supplied schema validates data only as an array with unconstrained items, while the declaration requires List[List]. No explicit validation of each row as a list occurs before use.",
+          "status": "confirmed"
+        }
+      ],
+      "fingerprint": "97e1ecbf8b85af54d290d08a9437fe5f1b84f59b66ba973622d93105e4a807f7",
+      "input_ids": [
+        "excel-boundary-fixed",
+        "excel-child-path-safe"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "8a3e235d09eb188143ffb2161a38f90c0707de3ea2a432be523c9cdbad15a062",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "A credential is declared directly in source beside the fixed PostHog endpoint.",
+              "end_line": 105,
+              "path": "src/server.ts",
+              "start_line": 104
+            },
+            {
+              "claim": "The declared api_key is sent in the telemetry request body.",
+              "end_line": 126,
+              "path": "src/server.ts",
+              "start_line": 120
+            }
+          ],
+          "reasoning": "The redacted source explicitly marks a hardcoded secret, and the surrounding code uses it as an API key. This directly corroborates SENT-005.",
+          "status": "confirmed"
+        }
+      ],
+      "fingerprint": "9e3be7e69204b1742e6fd1d6674f610bc63a8841b713b8ba10a2de05ae0c107a",
+      "input_ids": [
+        "mobile-output-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "9656273b600a78d88ec9bc37e96a365910b2bf60be693b98c22e732bdc5787b6",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The suspected credential declaration is redacted, so the supplied evidence cannot establish whether its value is hardcoded.",
+              "end_line": 109,
+              "path": "src/server.ts",
+              "start_line": 109
+            }
+          ],
+          "reasoning": "SENT-005 requires evidence of a hardcoded credential. The relevant source is redacted, leaving insufficient context to confirm or suppress the finding.",
+          "status": "needs_review"
+        }
+      ],
+      "fingerprint": "a55be8f1e2e787507ff2b969496c6a821a628ebe99cfd1e9085104a6c4ada28c",
+      "input_ids": [
+        "mobile-output-fixed",
+        "mobile-locale-safe"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "75976a09f19b529598f2f52c2f86abe6fcfd5a8bdfab8b5f050481f14bb3f644",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool declaration explicitly types every input field, including the nullable optional table_name field.",
+              "end_line": 411,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 405
+            },
+            {
+              "claim": "The typed parameters are passed to the implementation without undeclared inputs.",
+              "end_line": 422,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 413
+            }
+          ],
+          "reasoning": "Suppressed because the supplied tool schema declares and constrains every field's type, marks required fields, and rejects additional properties. This is direct safety evidence against SENT-003; unrelated length or content restrictions are not required by this rule.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "a8791af49d12489e3da9de30e63335c958c27cc02672ce47ed323756794633cb",
+      "input_ids": [
+        "excel-boundary-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "52510283fa7256cb99578d26f4db1e2340baa90c94a2b0899ee44f3e14bc3a3c",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool has a framework input schema declaring types for every input and required fields before invocation.",
+              "end_line": 416,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 390
+            }
+          ],
+          "reasoning": "The supplied tool schema validates all declared field types, required fields, and rejects additional properties. This is direct safety evidence against SENT-003.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "b639cf34f5eb480147f38c4410613a609d90b75272a6fcb65e727823bc7ec644",
+      "input_ids": [
+        "excel-boundary-fixed",
+        "excel-child-path-safe"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "af1cd07e35436b6d77841fed8d8ab58bfef2c5144f18fa7a8ab00edbf1e68bc8",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The function uses filepath, start_cell, end_cell, and sheet_name without explicit declared-type checks in the supplied implementation.",
+              "end_line": 671,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 661
+            },
+            {
+              "claim": "The filepath helper performs path/content checks but does not explicitly validate that filename is a string.",
+              "end_line": 117,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 91
+            }
+          ],
+          "reasoning": "The tool schema declares field types, but the supplied code does not show whether a framework enforces that schema before invocation. The implementation itself lacks explicit type validation, so runtime probing is needed to determine whether effective schema validation exists.",
+          "status": "needs_review"
+        }
+      ],
+      "fingerprint": "b86fbe47a75d2e6deb90b187cdc3843fc12de5e5a368be6fe34c4e291f8736ac",
+      "input_ids": [
+        "excel-boundary-fixed-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "86fc12e0d4128d774b3363d10bc40ae2d1b8532c3dfd8c5900c2ed28ceecdabe",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The supplied copy_range tool schema declares types for every input, required fields, and rejects additional properties.",
+              "end_line": 603,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 578
+            }
+          ],
+          "reasoning": "The framework-provided input schema validates every declared field's type before invocation, directly contradicting SENT-003's claimed absence of schema or explicit type validation.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "c44f927855b8c22c68ce714d8a58103fd0399d871bece97ebf6d015d37a65ad9",
+      "input_ids": [
+        "excel-boundary-vulnerable-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "cce8d50e4d013502e4e4c390934c68027270bb521b5709201ceedd2818cd8f1a",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool declares types for every input field, including the optional nullable table_name field.",
+              "end_line": 415,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 409
+            }
+          ],
+          "reasoning": "Suppressed: the supplied tool schema validates all declared field types, identifies required fields, and rejects additional properties. SENT-003 does not require unrelated length or content restrictions.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "c9bcbb5699ec3b892e0b04bfba2c70eb9ca59761aca1ba3bd69f65fb78885a70",
+      "input_ids": [
+        "excel-boundary-vulnerable-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "2055fc96479f4a8813e72b3849188a077a0e8c94622dd5fb9a724c999d0147cd",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool has an explicit input schema declaring every parameter's type, required fields, and disallowing additional properties.",
+              "end_line": 599,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 574
+            }
+          ],
+          "reasoning": "The supplied tool schema provides framework/schema validation for all declared inputs before invocation. This directly contradicts SENT-003's claimed absence of validation.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "dda323baceec10d48eecf72b2b51d6e0b7e3dd1ac5d9e8b1aa795d1706559881",
+      "input_ids": [
+        "excel-boundary-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "480d482ef5d21a2e129c6939b200dfe4d5f2203c51388e0f606ccda4095c6cdb",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The supplied tool schema declares types for every input, rejects additional properties, and marks required fields; the function signature also carries matching type annotations.",
+              "end_line": 603,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 597
+            }
+          ],
+          "reasoning": "Direct safety evidence is present: copy_range has a framework input schema covering every declared field with explicit types, required-field enforcement, and additionalProperties disabled. SENT-003 therefore does not apply.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "de43f1fb82efea789e4d6a1f64b9b39539e27015237091040c0a3cc63dc7a297",
+      "input_ids": [
+        "excel-boundary-fixed-mutation"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "86270b4700f25b2733bcdc1d4e16c7917f6fa145be2390b10f05d1feea33d708",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "POST /mcp is registered and forwards messages without authentication or authorization checks.",
+              "end_line": 19,
+              "path": "src/index.ts",
+              "start_line": 15
+            }
+          ],
+          "reasoning": "The route handler contains no effective authentication control before processing MCP messages.",
+          "status": "confirmed"
+        },
+        {
+          "evidence_refs": [
+            {
+              "claim": "GET /mcp establishes the SSE transport and connects it to the MCP server without authentication or authorization checks.",
+              "end_line": 29,
+              "path": "src/index.ts",
+              "start_line": 21
+            }
+          ],
+          "reasoning": "The route directly creates and connects an MCP transport without an effective authentication control.",
+          "status": "confirmed"
+        }
+      ],
+      "fingerprint": "e1f9c84a5da20d15bf31a2588a06a4876deb31ff20eb45f14aed936dcdf296e0",
+      "input_ids": [
+        "mobile-output-vulnerable",
+        "mobile-output-vulnerable-mutation",
+        "mobile-output-fixed",
+        "mobile-output-fixed-mutation",
+        "mobile-locale-safe"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "c67878ec77f7f14d3107927781473882bcf195f8e6426340d775fb94d98a6284",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool signature declares types for every accepted field, matching the supplied input schema.",
+              "end_line": 179,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 158
+            }
+          ],
+          "reasoning": "Suppressed because the supplied tool schema defines field types, required fields, and rejects additional properties. This directly contradicts SENT-003's claimed absence of schema or declared-type validation.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "e602ec1fee33bfb2a65c422224b186c033512a83677f4dcb67c55c92338798ac",
+      "input_ids": [
+        "excel-boundary-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "1db24948ea9f0c6e295bd314e4ca10adc3efe0e8c81ba9a4141241dc8b6264e1",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool exposes typed parameters for every declared input, corroborated by the supplied framework input schema, which rejects additional properties and declares required fields.",
+              "end_line": 222,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 217
+            }
+          ],
+          "reasoning": "SENT-003 alleges absence of schema or explicit declared-type validation. The supplied tool definition has a framework input schema covering every parameter, including required fields and additionalProperties:false, so the candidate is directly disproved.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "e95dfe4a9a48a78abeb6f2212fc15211ffa971bca39fdaaba0954adf8d2edd5b",
+      "input_ids": [
+        "excel-boundary-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "39fb403345bf0470a3821aa70d3e50b68ed16b16e82119adce2e95ad3e1fbff2",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The declared data type is List[List].",
+              "end_line": 269,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 264
+            },
+            {
+              "claim": "Data is passed directly to write_data without validating that each item is a list.",
+              "end_line": 283,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 281
+            }
+          ],
+          "reasoning": "Confirmed. Although an input schema exists, data.items is unconstrained, so it does not enforce the declared nested-list type. The function performs no explicit inner-item type validation before passing data to write_data.",
+          "status": "confirmed"
+        }
+      ],
+      "fingerprint": "f6fe67dab1db6d62424bff69b2c907697835ea6d5e2c470510fcaac373c61fbb",
+      "input_ids": [
+        "excel-boundary-vulnerable"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    },
+    {
+      "cassette_sha256": "f1ca3aa92f62481aa735a8f905a160fed3d97b83bd865fe8ff956ed378818077",
+      "condition_match": false,
+      "decisions": [
+        {
+          "evidence_refs": [
+            {
+              "claim": "The tool signature declares types for every input field, including optional and defaulted fields.",
+              "end_line": 242,
+              "path": "src/excel_mcp/server.py",
+              "start_line": 236
+            }
+          ],
+          "reasoning": "Suppressed because the supplied tool schema enforces the declared types, required fields, and rejects additional properties. This is direct safety evidence under SENT-003; unrelated length or content restrictions are not required.",
+          "status": "suppressed"
+        }
+      ],
+      "fingerprint": "f715d0fc37500735cf0e3e1c43f337df7dbd19b8e59fea1cdd50dace1350b30c",
+      "input_ids": [
+        "excel-boundary-fixed",
+        "excel-child-path-safe"
+      ],
+      "rationale": "Reviewed against the previously approved condition and source assessment. Declared-type or nested-list validation, PostHog credential, and unauthenticated MCP-route claims do not identify the labeled remote workbook boundary or mobile output-path traversal condition. The Excel helper type-check observation does not allege a failure to contain remote filenames."
+    }
+  ],
+  "capture_ledger_sha256": "e2c73ceaa3cc005d61f11ddd3338b7cdaceb0b6bbaf58ab9187714be97444f8e",
+  "limitation": "Unrelated candidate correctness remains unadjudicated. Model confirmation is not runtime proof; model suppression of a generic validation warning is not a safe label for the path boundary.",
+  "manifest_sha256": "f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682",
+  "new_decision_counts": {
+    "confirmed": 6,
+    "needs_review": 3,
+    "suppressed": 10
+  },
+  "new_requests_reviewed": 18,
+  "prior_adjudications_sha256": "ec9a1b95946a17b96323607291673c306c774edc4db2687d530df28565ed4043",
+  "reviewer": "Codex source-condition review of all 18 newly accepted responses",
+  "version": 1
+}

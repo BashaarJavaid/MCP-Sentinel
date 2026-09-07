@@ -18,6 +18,14 @@ checks, the full branch-coverage suite, dependency audit, generated notices, and
 the strict documentation build. `make artifacts-check` separately verifies the
 checked historical artifacts.
 
+Run focused tests while editing, then `make check`, and push the verified batch
+of commits once. CI and documentation cancel superseded runs for the same PR;
+the newest revision still receives the full OS/Python matrix. Main and release
+verification are not canceled by PR updates. Avoid `[skip ci]` on changes
+requiring checks.
+Distribution building runs alongside source checks, allowing wheel and Docker
+verification to start earlier. All checks still have to pass.
+
 ## Contracts every change must preserve
 
 - Published `SENT-xxx` IDs are permanent. Maintainers allocate new IDs; never

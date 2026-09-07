@@ -1,0 +1,207 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-06T19:25:34.781938Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 0,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 0
+    }
+  },
+  "scan_id": "f39bd748-5b8e-4c11-adde-43966ee817d9",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-06T19:25:34.781879Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 58,
+              "end_line": 490,
+              "start_column": 5,
+              "start_line": 380
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 24,
+              "end_line": 379,
+              "start_column": 6,
+              "start_line": 379
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "unsupported_registration",
+              "location": {
+                "kind": "file",
+                "path": "src/mcp_server_git/server.py",
+                "range": {
+                  "end_column": 24,
+                  "end_line": 379,
+                  "start_column": 6,
+                  "start_line": 379
+                }
+              },
+              "message": "registration uses an unsupported handler form"
+            }
+          ],
+          "status": "unsupported"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": []
+    },
+    "duration_ms": 1856,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 7,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007"
+    ],
+    "total_matches": 0
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 0
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 0,
+      "suppressed": 0
+    },
+    "total": 0
+  },
+  "target": {
+    "display_name": "git-repository-fixed",
+    "root": "."
+  },
+  "warnings": []
+}

@@ -558,6 +558,15 @@ Probe planning makes GPT operationally consequential without granting it arbitra
 
 An invalid plan does not remove or skip probes. Sentinel falls back to the fixed default order, records the plan validation failure, and preserves the original candidate for review.
 
+Eligibility and field bindings share declared-type classification for primitive
+`type`, type arrays, and the source extractor's nested `anyOf` unions. A nullable
+string can receive an injection or oversized probe; nullable arrays and objects
+can receive oversized probes. Numeric-only and untyped fields do not qualify.
+This classification does not resolve references or establish runtime schema
+support; the Docker prober retains its independent schema and baseline checks.
+The [nullable-field correction](docs/nullable-probe-validation.md) is separate
+from the frozen Phase 20 baseline.
+
 ### Operational limits
 
 - 30-second request timeout.
@@ -683,7 +692,11 @@ Only `transport: stdio` is accepted in v1. `http`, `port`, SSE, and other transp
 - Build-time network is restricted to registries listed in `[sandbox].allowed_registries`.
 - The default registry allowlist is `pypi.org` and `files.pythonhosted.org`.
 - Credentials are never passed to the build.
-- The cache key hashes Python version, install command, Sentinel version, and dependency-lockfile hash.
+- Base images are pinned official Python bookworm images containing Git for
+  Git-backed MCP servers. These larger images retain the same build-network
+  and runtime isolation boundaries.
+- The cache key hashes Python version, base-image digest, install command,
+  Sentinel version, and dependency-lockfile hash.
 
 ### Probe runtime
 
@@ -1126,3 +1139,85 @@ The required v1 architecture deliberately leaves extension points only where fut
 - [OpenAI Responses API create reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
 - [OpenAI Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [OpenAI Build Week official rules](https://openai.devpost.com/rules)
+
+## 18. Phase 20 independent benchmark (evidence gates open)
+
+Execution corrections and their offline regression observations are recorded
+separately in [the correction report](docs/benchmark-execution-corrections.md).
+Devcontainer JSONC validation accepts comments and trailing commas without
+rewriting source files or executing development-container commands. Other JSON
+files remain strict, apart from the existing TypeScript tsconfig exemption.
+These compatibility changes do not alter detectors, prompts, or probes.
+
+The benchmark is repository tooling under `scripts`, not a public scanner mode.
+The versioned Pydantic manifest, compressed upstream snapshots, revision-specific
+licenses, and paired mutation overlays live in `tests/evals/phase20`. The approved
+manifest hash and independent source review are bound by
+[the freeze record](artifacts/phase20/freeze.json). Source/configuration changes
+invalidate that approval. Fixed and safe labels describe specific conditions;
+shared snapshots and mutations are correlated observations. Historical public
+cases cannot establish absence of model exposure.
+
+`python -m scripts.run_phase20_benchmark` provides `validate`, `rules`, `replay`,
+`prepare-live`, `capture-live`, `dynamic`, `semgrep`, and `report`. Checked archives
+are materialized in temporary directories without importing target modules.
+Both static tiers receive identical source and approved configuration additions.
+The harness invokes production configuration loading, scan orchestration,
+canonical Findings, review batching/validation, and JSON/SARIF writers. It does
+not tune rules, prompts, or probes; native report 1.6.0 and SARIF 2.1.0 are unchanged.
+
+Request preparation intercepts production batches before transport, preserving
+exact contexts, candidate identities, schemas, model settings, and fingerprints.
+The 500-finding cap remains in force. Zero candidates and overflow remain visible.
+GPT-5.6 Sol medium requests are serial, with retries and local cache disabled.
+A separate packet binds every request and its conservative token/cost reservation.
+Paid capture requires the user-approved packet hash and stage-specific cumulative
+request/dollar ceilings. The ledger reserves before sending and stops on the first
+failure or unaffordable request; failed/interrupted reservations remain charged
+until resolved. A new decision is required for another attempt. A filesystem lock
+prevents simultaneous capture processes. Replay verifies exact requests and the
+accepted-capture ledger, preserves original live telemetry, and reports offline
+wall duration separately.
+
+A new approval may explicitly name a subset of the frozen request fingerprints.
+The harness validates membership and uniqueness and preserves the original packet
+order. Excluding a failed request from further paid capture leaves its findings
+and input incomplete in the benchmark; it does not remove them from scoring.
+
+The corrected-scanner completion evidence lives under
+`artifacts/phase20/completion-v2`, preserving the original partial baseline.
+Its approved resumption completed all 35 static request captures, reusing 17
+unchanged responses and retaining all four earlier failed-attempt reservations.
+Source, request, ledger, and approval hashes distinguish the two measurements.
+
+Eligible normal-pipeline runs reuse accepted static captures and execute only in
+native Docker isolation. New runtime evidence receives its own budget checkpoint.
+Raw runtime Findings and native coverage summaries are retained before review;
+`replay --stage runtime` can review that retained proof without rerunning Docker.
+Unsupported transport, prerequisite failures, inconclusive probes, and incomplete
+review remain explicit. No target is executed on the host.
+
+Condition adjudication binds stable candidate identities to the independently
+approved source conditions and records rationale. An unrelated warning is not a
+hit and stays unadjudicated for whole-repository correctness. Scoring separates
+candidate recall, retained alerts including `needs_review`, confirmed-only alerts,
+abstentions, incorrect suppressions, false alarms on labeled safe conditions, and
+runtime proof. Total, applicable, and completed denominators and repository,
+language, split, and mutation/control breakdowns are retained in generated JSON.
+All-candidate review decisions are reported separately from condition-matched
+decisions. Usage, original live latency, and cost are summed across unique
+accepted captures; failed requests retain their uncertain reservations. Reusing
+one capture across multiple labeled inputs does not multiply paid cost.
+
+Semgrep uses the installed 1.176.0 engine and the prepared local community-rule
+directory, checked against the preselected rule identities/configuration hashes.
+Rule bytes are not redistributed. Raw comparator results, errors, commands, and
+actual coverage remain evidence even when the process exits successfully with
+rule timeouts. Linux Python 3.12 CI compares repeated deterministic/replay findings,
+coverage and outcomes without paid calls. Docker and community-rule measurements
+remain explicit external prerequisites. CI verifies the versioned completion
+evidence against its exact measured scanner/harness revision, with deterministic
+and replay treatments in parallel. The original local baseline is in
+[Phase 20 verification](docs/phase20-verification.md), followed by the
+[completion measurement](docs/phase20-completion-v2.md); Phase 20 remains open
+until all evidence gates pass and the user accepts the final phase.
