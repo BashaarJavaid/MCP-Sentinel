@@ -1,8 +1,8 @@
 # Phase 22 — Shared containment follow-up
 
 This is a bounded follow-up to the workspace increment. It does not complete
-shared discovery or the Phase 22 technical gate. Production source is commit
-`cee0283`; native reports remain 1.6.0 and the schema 1.7.0 draft stays separate.
+shared discovery or the Phase 22 technical gate. Initial measured source is commit
+`cee0283`; constructor-boundary correction `e67365a` follows it; native reports remain 1.6.0 and the schema 1.7.0 draft stays separate.
 
 ## Implemented behavior
 
@@ -12,7 +12,9 @@ shared discovery or the Phase 22 technical gate. Production source is commit
   the first handler argument as caller input and the second as injected context.
 - Python containment follows a simple factory returning a statically constructed
   local instance into its method. Return annotations alone do not establish the
-  implementation. Replaced instance methods remain unresolved.
+  implementation. Replaced instance methods remain unresolved. Custom constructors,
+  decorated classes and unresolved bases do not establish instance identity in
+  either registration discovery or containment flow (`e67365a`).
 - Discovery follows a single recoverable implementation in local base classes.
   Conflicting base implementations and replaced inherited members are unresolved.
 - `pathlib` division retains the path type through an anchored join. Canonical
@@ -24,11 +26,23 @@ shared discovery or the Phase 22 technical gate. Production source is commit
 
 The regression tests first reproduced the misses and false alarms. They retain
 source/sink locations and paired safe/unsafe controls. The focused containment
-and discovery suite passes 71 tests. The full suite passes **776 tests**, with **36 opt-in Docker skips** and
+and discovery suite passes 75 tests after the constructor correction. The initial
+source full suite passes **776 tests**, with **36 opt-in Docker skips** and
 **86.86% branch coverage**. Ruff, formatting, strict mypy, native schema checks
 and the strict documentation build pass. Exposed-input measurements
 are retained separately under `artifacts/phase22/shared-containment/`; only
-completed records establish their respective checks.
+completed records establish their respective checks. The constructor correction
+passes Ruff, formatting and mypy and the full suite: **780 passed, 36 skipped,
+86.86% branch coverage**. Hosted checks on the updated draft remain pending.
+
+Both initial-source runs completed **45/45 inputs**, with identical stable findings
+and outcomes and no model calls. No findings changed relative to the workspace
+measurement; these regressions do not demonstrate improved exposed-case recall.
+The 273 raw evidence files are retained in `measurements.tar.gz` with per-file
+SHA-256 hashes in `measurement-files.json`, verified against the archive. Extract
+with `tar -xzf artifacts/phase22/shared-containment/measurements.tar.gz -C artifacts/phase22/shared-containment`.
+The initial-source measurements are not measurements of the later constructor
+correction or the eventual full implementation.
 
 ## Limits and remaining work
 
