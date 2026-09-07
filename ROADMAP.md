@@ -1147,7 +1147,11 @@ The [execution correction increment](docs/phase22-execution.md) restores 45/45
 rules-only completion and records a 13/13 Git startup/discovery environment.
 The user subsequently authorized its adoption and the new corpus freeze;
 `artifacts/phase22/authorization.json` binds both exact packets. New detectors
-and the remaining technical expansion are not complete.
+and the remaining technical expansion are not complete. The
+[workspace increment](docs/phase22-workspaces.md) records the corrected
+TypeScript parent, aggregate workspace source scanning and separately retained
+verification. Native 1.7.0, campaigns, the remaining detector families and
+condition-level technical acceptance are still pending.
 
 ### Objective
 

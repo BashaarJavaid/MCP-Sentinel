@@ -112,6 +112,9 @@ reports remain 1.6.0.
 The [shared containment follow-up](phase22-shared-containment.md) records
 bounded caller/context and helper identity fixes; full discovery remains pending.
 
+The [workspace increment](phase22-workspaces.md) records aggregate scanning,
+parent corrections, verification evidence and the remaining technical gates.
+
 The [Python containment increment](phase22-python-containment.md) records its
 implementation, repeated exposed-input measurements and remaining technical gates.
 The [TypeScript containment increment](phase22-typescript-containment.md) records
