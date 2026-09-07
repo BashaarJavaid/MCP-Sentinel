@@ -14,7 +14,7 @@ an exact reason-bearing directive:
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its own line. Only `SENT-001`–`SENT-007` are supported. The finding stays in rule,
+its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012` are supported. The finding stays in rule,
 report, JSON, and SARIF counts with status `suppressed`, its reason and directive
 location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
@@ -191,3 +191,34 @@ SENT-011 preserves valid sibling arguments and verifies the complete mutation
 against the actual schema before calling. Only an actually missing required
 field or invalid type supports proof. Every dynamic finding carries baseline
 and attack evidence; completed negative attempts do not establish general safety.
+
+## SENT-012 { #sent-012 }
+
+### Path containment failure
+
+- Engine: bounded Python source flow; TypeScript implementation remains pending
+- Impact: High
+- OWASP: `ASI02:2026 — Tool Misuse & Exploitation`; a caller can exceed the
+  filesystem or repository resource boundary of a tool
+- Boundary: recognized Python tool inputs reaching supported `open`, pathlib,
+  OS/shutil filesystem APIs, Git repository selection or `Repo.index.add`;
+  literal component containment after canonical resolution is recognized
+- False-positive risk: Medium; intentionally unrestricted tools, unsupported
+  validators and unresolved bindings require review
+- Remediation: resolve the path and allowed root, enforce component containment
+  before access, and use the validated value. String prefix checks alone allow
+  sibling-prefix collisions; lexical normalization alone does not resolve symlinks
+
+The development implementation follows included local imports, re-exports,
+unambiguous aliases and explicitly bound methods. It recognizes nested literal
+dispatchers, helper return values and rejecting validators. Discarded Boolean
+checks, checks of unrelated values, swallowed exceptions and later replacement
+do not establish protection. An optional operator root is analyzed under the
+condition that it is configured; a caller-controlled root is not trusted.
+
+Recursive or deeper-than-64 helper/binding chains and unresolved calls are
+disclosed. This is source analysis, with no race-free filesystem or runtime
+symlink guarantee. `static_review_context_incomplete` discloses traced evidence
+outside the current review blocks. Technical rule acceptance, TypeScript coverage,
+the new independent corpus evaluation and reviewed-tier measurements remain
+pending; this draft implementation does not complete Phase 22.

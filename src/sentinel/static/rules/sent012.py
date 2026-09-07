@@ -1,0 +1,54 @@
+"""SENT-012: caller-controlled filesystem paths without enforced containment."""
+
+from sentinel.static.ast_utils import range_for_node
+from sentinel.static.discovery import Function, PythonProgram
+from sentinel.static.model import RuleRunState, StaticContext
+from sentinel.static.path_flow import PathFlow, Value
+
+
+def analyze(
+    program: PythonProgram, state: RuleRunState, deadline: float = float("inf")
+) -> None:
+    flow = PathFlow(program, state, deadline)
+    visited: set[tuple[str, int]] = set()
+    for tool in program.tools():
+        state.visit(
+            tool.registration.file.relative_path, range_for_node(tool.registration.node)
+        )
+        state.visit(tool.handler.file.relative_path, range_for_node(tool.handler.node))
+        node = tool.handler.node
+        assert isinstance(node, Function)
+        key = (tool.handler.file.relative_path, node.lineno)
+        if key in visited:
+            continue
+        visited.add(key)
+        bindings = {
+            parameter.arg: Value(
+                sources=frozenset({parameter.arg}),
+                key=f"{tool.handler.file.relative_path}:{node.lineno}:{parameter.arg}",
+                locations=frozenset(
+                    {
+                        (tool.handler.file.relative_path, parameter.lineno),
+                        (
+                            tool.registration.file.relative_path,
+                            range_for_node(tool.registration.node).start_line,
+                        ),
+                    }
+                ),
+            )
+            for parameter in (
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+            )
+            if parameter.arg not in {"self", "cls"}
+        }
+        flow.function(tool.handler, bindings)
+    state.warnings.extend(program.warnings)
+
+
+def detect(context: StaticContext, state: RuleRunState) -> None:
+    if context.files.typescript_files and not context.files.python_files:
+        state.skip_reason = "TypeScript containment flow implementation pending"
+        return
+    analyze(PythonProgram(context.files.python_files), state, context.deadline)

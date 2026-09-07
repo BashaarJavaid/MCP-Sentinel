@@ -41,3 +41,9 @@ false alarms before technical sign-off.
 | SENT-014 | `ASI05:2026`: caller values become executable command options | Enforced option rejection and command-specific safe positions | Pending |
 | SENT-015 | `ASI02:2026`: caller URLs redirect server requests beyond intended services | Relevant scheme/destination rejection and authorized requests | Pending |
 | SENT-016 | `ASI03:2026`: caller requests inherit unauthorized operator credentials | Explicit authorized operator use and enforced caller rejection | Pending |
+
+The current draft implements the Python portion of SENT-012 and includes it in
+default static rule selection. TypeScript reports an explicit skipped outcome.
+The new source-only regressions exercise relevant guards, value replacement,
+imports and bound methods. The table above remains pending: this engineering
+increment does not constitute independent-corpus or reviewed-tier acceptance.

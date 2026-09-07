@@ -13,6 +13,7 @@ from sentinel.orchestrator import run_phase1_scan
 from sentinel.report.model import ScanContext, ScanTarget, summarize
 from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_sarif import validate_sarif_data
+from sentinel.static.catalog import RULE_IDS
 from tests.conftest import NOW, SCAN_ID
 
 
@@ -33,9 +34,7 @@ def test_sarif_shell_validates_and_preserves_failure_state(
     assert run["tool"]["driver"]["fullName"] == (
         "PortunusMCP Sentinel build-time MCP security scanner"
     )
-    assert [item["id"] for item in run["tool"]["driver"]["rules"]] == [
-        f"SENT-{number:03d}" for number in range(1, 8)
-    ]
+    assert [item["id"] for item in run["tool"]["driver"]["rules"]] == list(RULE_IDS)
     assert run["results"] == []
     for rule in run["tool"]["driver"]["rules"]:
         assert rule["helpUri"].endswith(f"docs/rules.md#{rule['id'].lower()}")

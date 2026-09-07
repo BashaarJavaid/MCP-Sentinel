@@ -2,8 +2,10 @@
 
 This increment restores benchmark execution. Phase 22 technical acceptance is
 not complete: the new detector catalog, shared discovery/compatibility, review
-context, campaign scheduling and report migration remain pending the corpus
-freeze and subsequent implementation. External pilot acceptance also remains
+context, campaign scheduling and report migration remain under implementation.
+The user authorized the frozen corpus and tested Git environment on September 7,
+2026 UTC; the separate decision record is
+`artifacts/phase22/authorization.json`. External pilot acceptance also remains
 pending. [Draft PR #22](https://github.com/BashaarJavaid/MCP-Sentinel/pull/22)
 contains the execution fixes and approved expansion contract.
 
@@ -57,8 +59,9 @@ The exact proposal, installed dependency lock, image identity, configurations,
 tool schemas, process state, container inspections, logs, cleanup and timings
 are retained under `artifacts/phase22/git-environment-v1-tested/`. Its
 `approval-packet.md` requests adoption separately from the original Phase 20
-environment. Approval remains pending; this is preparation, not an adopted
-benchmark configuration. Initial host sandbox-denied diagnostics are retained
+environment. The user subsequently approved adoption for Phase 22; the original
+proposal is preserved and the decision recorded separately. Initial host
+sandbox-denied diagnostics are retained
 separately under `artifacts/phase22/git-environment-v1/`.
 
 ## Verification and reproduction

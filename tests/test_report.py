@@ -28,6 +28,7 @@ from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_json import validate_report_data
 from sentinel.report.validate_sarif import validate_sarif_data
 from sentinel.schema import check, generate
+from sentinel.static.catalog import RULE_IDS
 from sentinel.static.model import StaticScanResult
 from tests.conftest import NOW, SCAN_ID
 from tests.test_gpt_review import FakeTransport, _sent002_findings
@@ -50,7 +51,10 @@ def test_phase1_report_has_static_results_and_is_explicitly_incomplete(
     assert outcome.report.stages[0].status is StageStatus.SUCCEEDED
     assert outcome.report.stages[-1].status is StageStatus.SUCCEEDED
     assert outcome.report.static_analysis is not None
-    assert len(outcome.report.static_analysis.rule_outcomes) == 7
+    assert (
+        tuple(item.rule_id for item in outcome.report.static_analysis.rule_outcomes)
+        == RULE_IDS
+    )
 
     json_text = render_json(outcome.report)
     assert json_text.endswith("\n")

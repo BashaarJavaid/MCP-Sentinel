@@ -1,0 +1,598 @@
+"""Bounded Python path flow over the shared source index; no target execution."""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+from dataclasses import dataclass, replace
+
+from sentinel.report.model import ReportWarning
+from sentinel.static.ast_utils import (
+    import_aliases,
+    match_from_node,
+    qualified_name,
+    resolve_name,
+    scope_nodes,
+)
+from sentinel.static.discovery import Function, PythonProgram, Symbol
+from sentinel.static.execution import Sources, check_deadline, union
+from sentinel.static.model import RuleRunState
+
+
+@dataclass(frozen=True)
+class Value:
+    sources: Sources = frozenset()
+    key: str = ""
+    resolved: bool = False
+    contained: bool = False
+    locations: frozenset[tuple[str, int]] = frozenset()
+    path_object: bool = False
+    repository_object: bool = False
+
+
+def combine(values: list[Value], key: str = "") -> Value:
+    tainted = [v for v in values if v.sources]
+    keys = sorted({v.key for v in values})
+    return Value(
+        union(v.sources for v in values),
+        key or (keys[0] if len(keys) == 1 else _key("merge", *keys)),
+        bool(values) and all(v.resolved for v in values),
+        bool(tainted) and all(v.contained for v in tainted),
+        frozenset().union(*(v.locations for v in values)),
+        bool(values) and all(v.path_object for v in values),
+        bool(values) and all(v.repository_object for v in values),
+    )
+
+
+def _key(*parts: str) -> str:
+    return hashlib.sha256(json.dumps(parts).encode()).hexdigest()
+
+
+class PathFlow:
+    def __init__(
+        self, program: PythonProgram, state: RuleRunState, deadline: float
+    ) -> None:
+        self.program = program
+        self.state = state
+        self.deadline = deadline
+        self.active: set[tuple[str, str]] = set()
+        self.exits: list[list[dict[str, Value]]] = []
+        self.aliases = {
+            file.relative_path: import_aliases(file) for file in program.files
+        }
+        self.globals: dict[tuple[str, str], Value] = {}
+
+    def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        check_deadline(self.deadline)
+        key = (symbol.file.relative_path, symbol.name)
+        # ponytail: bound recursive interpretation; use summaries for deeper flows.
+        if (
+            key in self.active
+            or len(self.active) >= 64
+            or not isinstance(symbol.node, Function)
+        ):
+            self.unresolved(
+                symbol,
+                symbol.node,
+                "recursive, deeper than 64 calls, or unsupported helper",
+            )
+            return combine(list(bindings.values()))
+        self.active.add(key)
+        self.exits.append([])
+        try:
+            for parameter in (
+                *symbol.node.args.posonlyargs,
+                *symbol.node.args.args,
+                *symbol.node.args.kwonlyargs,
+            ):
+                value = bindings.get(parameter.arg)
+                if (
+                    value is not None
+                    and not value.sources
+                    and parameter.annotation is not None
+                    and any(
+                        resolve_name(
+                            qualified_name(part) or "",
+                            self.aliases[symbol.file.relative_path],
+                        )
+                        == "pathlib.Path"
+                        for part in ast.walk(parameter.annotation)
+                    )
+                ):
+                    bindings[parameter.arg] = replace(value, path_object=True)
+            returned: list[Value] = []
+            if self.statements(symbol, symbol.node.body, bindings, returned):
+                self.exits[-1].append(bindings.copy())
+            if self.exits[-1]:
+                self.merge(bindings, self.exits[-1])
+            return combine(returned)
+        finally:
+            self.exits.pop()
+            self.active.remove(key)
+
+    def unresolved(self, symbol: Symbol, node: ast.AST, reason: str) -> None:
+        self.state.warnings.append(
+            ReportWarning(
+                code="static_flow_unresolved",
+                message=(
+                    f"SENT-012 at {symbol.file.relative_path}:"
+                    f"{getattr(node, 'lineno', 1)}: {reason}; "
+                    "protection is not established"
+                ),
+            )
+        )
+
+    def statements(
+        self,
+        symbol: Symbol,
+        body: list[ast.stmt],
+        env: dict[str, Value],
+        returned: list[Value],
+    ) -> bool:
+        for node in body:
+            check_deadline(self.deadline)
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                value = self.expression(symbol, node.value, env)
+                targets = (
+                    node.targets if isinstance(node, ast.Assign) else [node.target]
+                )
+                for target in targets:
+                    self.assign(target, value, env)
+            elif isinstance(node, ast.Return):
+                returned.append(self.expression(symbol, node.value, env))
+                self.exits[-1].append(env.copy())
+                return False
+            elif isinstance(node, ast.Raise):
+                return False
+            elif isinstance(node, ast.Expr):
+                self.expression(symbol, node.value, env)
+            elif isinstance(node, ast.If):
+                if self.disabled_boundary(symbol, node, env):
+                    # Analyze the configured-boundary condition. An operator's
+                    # absent optional root does not promise a containment policy.
+                    continue
+                self.expression(symbol, node.test, env)
+                left, right = env.copy(), env.copy()
+                self.guard(symbol, node.test, left, True)
+                self.guard(symbol, node.test, right, False)
+                branches = []
+                if self.statements(symbol, node.body, left, returned):
+                    branches.append(left)
+                if self.statements(symbol, node.orelse, right, returned):
+                    branches.append(right)
+                if not branches:
+                    return False
+                self.merge(env, branches)
+            elif isinstance(node, ast.Try):
+                branches = []
+                final_states = []
+                success = env.copy()
+                if self.statements(
+                    symbol, node.body, success, returned
+                ) and self.statements(symbol, node.orelse, success, returned):
+                    branches.append(success)
+                final_states.append(success)
+                for handler in node.handlers:
+                    failure = env.copy()
+                    if self.statements(symbol, handler.body, failure, returned):
+                        branches.append(failure)
+                    final_states.append(failure)
+                self.merge(env, branches or final_states)
+                if not self.statements(symbol, node.finalbody, env, returned):
+                    return False
+                if not branches:
+                    return False
+            elif isinstance(node, (ast.With, ast.AsyncWith)):
+                for item in node.items:
+                    value = self.expression(symbol, item.context_expr, env)
+                    if item.optional_vars:
+                        self.assign(item.optional_vars, value, env)
+                if not self.statements(symbol, node.body, env, returned):
+                    return False
+            elif isinstance(node, (ast.For, ast.AsyncFor, ast.While)):
+                branch = env.copy()
+                if isinstance(node, (ast.For, ast.AsyncFor)):
+                    self.assign(
+                        node.target, self.expression(symbol, node.iter, env), branch
+                    )
+                else:
+                    self.expression(symbol, node.test, env)
+                self.statements(symbol, node.body, branch, returned)
+                self.merge(env, [env.copy(), branch])
+                self.statements(symbol, node.orelse, env, returned)
+            elif isinstance(node, ast.Match):
+                self.expression(symbol, node.subject, env)
+                branches = []
+                for case in node.cases:
+                    branch = env.copy()
+                    if self.statements(symbol, case.body, branch, returned):
+                        branches.append(branch)
+                if not branches:
+                    return False
+                self.merge(env, branches)
+            elif isinstance(node, ast.AugAssign):
+                self.assign(
+                    node.target,
+                    combine(
+                        [
+                            self.expression(symbol, node.target, env),
+                            self.expression(symbol, node.value, env),
+                        ]
+                    ),
+                    env,
+                )
+            elif isinstance(node, ast.Assert):
+                self.expression(symbol, node.test, env)
+        return True
+
+    @staticmethod
+    def disabled_boundary(symbol: Symbol, node: ast.If, env: dict[str, Value]) -> bool:
+        test = node.test
+        if not (
+            isinstance(test, ast.Compare)
+            and isinstance(test.left, ast.Name)
+            and len(test.ops) == 1
+            and isinstance(test.ops[0], ast.Is)
+            and isinstance(test.comparators[0], ast.Constant)
+            and test.comparators[0].value is None
+            and len(node.body) == 1
+            and isinstance(node.body[0], ast.Return)
+            and node.body[0].value is None
+            and not node.orelse
+        ):
+            return False
+        value = env.get(test.left.id)
+        if value is None or value.sources or value.key == "None":
+            return False
+        definitions = {
+            target.id: statement.value
+            for statement in scope_nodes(symbol.node)
+            if isinstance(statement, ast.Assign)
+            for target in statement.targets
+            if isinstance(target, ast.Name)
+        }
+        for call in scope_nodes(symbol.node):
+            if not (
+                isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Attribute)
+                and call.func.attr in {"relative_to", "is_relative_to"}
+                and call.args
+            ):
+                continue
+            pending: list[ast.AST] = [call.args[0]]
+            seen: set[str] = set()
+            while pending:
+                expression = pending.pop()
+                if isinstance(expression, ast.Name):
+                    if expression.id == test.left.id:
+                        return True
+                    if expression.id in definitions and expression.id not in seen:
+                        seen.add(expression.id)
+                        pending.append(definitions[expression.id])
+                else:
+                    pending.extend(ast.iter_child_nodes(expression))
+        return False
+
+    @staticmethod
+    def assign(target: ast.AST, value: Value, env: dict[str, Value]) -> None:
+        if isinstance(target, ast.Name):
+            env[target.id] = value
+        elif isinstance(target, (ast.Tuple, ast.List)):
+            for child in target.elts:
+                PathFlow.assign(child, value, env)
+
+    @staticmethod
+    def merge(env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        for name in set().union(*(b.keys() for b in branches)):
+            env[name] = combine([branch.get(name, Value()) for branch in branches])
+
+    def guard(
+        self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
+    ) -> None:
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            self.guard(symbol, node.operand, env, not truth)
+        elif truth and isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And):
+            for value in node.values:
+                self.guard(symbol, value, env, True)
+        elif (
+            truth
+            and isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "is_relative_to"
+        ):
+            self.protect(symbol, node, env)
+
+    def protect(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> None:
+        assert isinstance(node.func, ast.Attribute)
+        value = self.expression(symbol, node.func.value, env)
+        base = self.expression(symbol, node.args[0], env) if node.args else Value()
+        if value.path_object and value.resolved and base.resolved and not base.sources:
+            for name, current in env.items():
+                if current.key == value.key:
+                    env[name] = replace(
+                        current,
+                        contained=True,
+                        locations=current.locations
+                        | {(symbol.file.relative_path, node.lineno)},
+                    )
+
+    def expression(
+        self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
+    ) -> Value:
+        check_deadline(self.deadline)
+        if node is None:
+            return Value()
+        if isinstance(node, ast.Constant):
+            return Value(key=repr(node.value))
+        if isinstance(node, ast.Name):
+            if node.id in env:
+                return env[node.id]
+            key = (symbol.file.relative_path, node.id)
+            if key not in self.globals:
+                self.globals[key] = Value(key=":".join(key))
+                declarations = self.program.bindings[symbol.file.relative_path].get(
+                    node.id, []
+                )
+                if len(declarations) == 1 and isinstance(
+                    declarations[0], (ast.Assign, ast.AnnAssign)
+                ):
+                    self.globals[key] = self.expression(
+                        symbol, declarations[0].value, {}
+                    )
+            return self.globals[key]
+        if isinstance(node, ast.Call):
+            return self.call(symbol, node, env)
+        if isinstance(node, ast.Await):
+            return self.expression(symbol, node.value, env)
+        if isinstance(node, ast.NamedExpr):
+            value = self.expression(symbol, node.value, env)
+            self.assign(node.target, value, env)
+            return value
+        if isinstance(
+            node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
+        ):
+            local = env.copy()
+            for generator in node.generators:
+                self.assign(
+                    generator.target,
+                    self.expression(symbol, generator.iter, local),
+                    local,
+                )
+                for condition in generator.ifs:
+                    self.expression(symbol, condition, local)
+                    self.guard(symbol, condition, local, True)
+            if isinstance(node, ast.DictComp):
+                return combine(
+                    [
+                        self.expression(symbol, node.key, local),
+                        self.expression(symbol, node.value, local),
+                    ]
+                )
+            return self.expression(symbol, node.elt, local)
+        if isinstance(node, ast.Subscript):
+            value = self.expression(symbol, node.value, env)
+            return replace(
+                value, key=value.key + "[" + ast.dump(node.slice) + "]", contained=False
+            )
+        if isinstance(node, ast.Attribute):
+            value = self.expression(symbol, node.value, env)
+            return replace(value, key=value.key + "." + node.attr, contained=False)
+        if isinstance(node, (ast.Lambda, ast.FunctionDef, ast.AsyncFunctionDef)):
+            return Value()
+        values = [
+            self.expression(symbol, child, env) for child in ast.iter_child_nodes(node)
+        ]
+        result = combine(values)
+        return (
+            replace(
+                result,
+                key=_key(type(node).__name__, ast.dump(node), result.key),
+                contained=False,
+                resolved=False,
+            )
+            if isinstance(node, (ast.BinOp, ast.JoinedStr))
+            else result
+        )
+
+    def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
+        name = qualified_name(node.func) or "dynamic call"
+        resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
+        root = name.split(".")[0]
+        declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
+        if root in env or (
+            declarations
+            and not (
+                len(declarations) == 1
+                and isinstance(declarations[0], (ast.Import, ast.ImportFrom))
+            )
+        ):
+            resolved = ""
+        args = [self.expression(symbol, arg, env) for arg in node.args]
+        keywords = {
+            kw.arg: self.expression(symbol, kw.value, env) for kw in node.keywords
+        }
+        receiver = (
+            self.expression(symbol, node.func.value, env)
+            if isinstance(node.func, ast.Attribute)
+            else Value()
+        )
+        values = [*args, *keywords.values()]
+        method = name.rsplit(".", 1)[-1]
+        result = combine(values + ([receiver] if receiver.sources else []))
+        result = replace(
+            result,
+            locations=result.locations | {(symbol.file.relative_path, node.lineno)},
+        )
+        if (
+            method == "resolve" and receiver.path_object
+        ) or resolved == "os.path.realpath":
+            return replace(
+                result if args else receiver, resolved=True, locations=result.locations
+            )
+        if resolved == "pathlib.Path" and name.split(".")[0] not in env:
+            return replace(result, path_object=True)
+        if resolved in {"str", "os.fspath"} and name.split(".")[0] not in env:
+            return replace(result, path_object=False)
+        if method in {"expanduser", "absolute"} and receiver.path_object:
+            return replace(receiver, contained=False)
+        if method == "relative_to" and isinstance(node.func, ast.Attribute):
+            self.protect(symbol, node, env)
+            return result
+        if method in {
+            "is_relative_to",
+            "is_absolute",
+            "startswith",
+            "exists",
+            "is_file",
+            "is_dir",
+        }:
+            return Value()
+        sink: Value | None = None
+        if resolved in {
+            "open",
+            "builtins.open",
+            "io.open",
+            "os.open",
+            "git.Repo",
+            "os.remove",
+            "os.unlink",
+            "os.rmdir",
+            "os.mkdir",
+            "os.makedirs",
+            "shutil.rmtree",
+        }:
+            sink = args[0] if args else keywords.get("file", keywords.get("path"))
+        elif (
+            method
+            in {
+                "read_text",
+                "read_bytes",
+                "write_text",
+                "write_bytes",
+                "open",
+                "unlink",
+                "rmdir",
+                "mkdir",
+                "iterdir",
+            }
+            and receiver.sources
+            and receiver.path_object
+        ):
+            sink = receiver
+        elif name.endswith(".index.add") and receiver.repository_object:
+            sink = args[0] if args else keywords.get("items")
+        if sink is not None:
+            if sink.sources and not sink.contained:
+                match = match_from_node("SENT-012", symbol.file, node, "path-flow")
+                self.state.matches.append(
+                    replace(
+                        match,
+                        captures={
+                            "sink_name": name,
+                            "flow_locations": json.dumps(
+                                sorted(
+                                    sink.locations
+                                    | {(symbol.file.relative_path, node.lineno)}
+                                )
+                            ),
+                        },
+                    )
+                )
+            return (
+                replace(result, repository_object=True)
+                if resolved == "git.Repo"
+                else result
+            )
+        if method == "get" and receiver.sources:
+            return replace(
+                receiver,
+                key=receiver.key
+                + "["
+                + (ast.dump(node.args[0]) if node.args else "?")
+                + "]",
+                contained=False,
+            )
+        helper_name = name
+        if name.startswith(("self.", "cls.")) and "." in symbol.name:
+            helper_name = symbol.name.rsplit(".", 1)[0] + "." + name.split(".", 1)[1]
+        helper = self.program.resolve(symbol.file, helper_name)
+        if (
+            helper
+            and isinstance(helper.node, Function)
+            and name.split(".")[0] not in env
+        ):
+            parameters = helper.node.args
+            positional = [p.arg for p in (*parameters.posonlyargs, *parameters.args)]
+            if "." in helper.name and positional and positional[0] in {"self", "cls"}:
+                positional = positional[1:]
+            bindings = dict(zip(positional, args, strict=False))
+            valid = len(args) <= len(positional) and not (
+                set(bindings) & keywords.keys()
+            )
+            bindings.update(
+                (key, value) for key, value in keywords.items() if key is not None
+            )
+            defaults = (
+                dict(
+                    zip(
+                        positional[-len(parameters.defaults) :],
+                        parameters.defaults,
+                        strict=False,
+                    )
+                )
+                if parameters.defaults
+                else {}
+            )
+            defaults.update(
+                (parameter.arg, default)
+                for parameter, default in zip(
+                    parameters.kwonlyargs, parameters.kw_defaults, strict=True
+                )
+                if default is not None
+            )
+            all_parameters = [
+                *positional,
+                *(parameter.arg for parameter in parameters.kwonlyargs),
+            ]
+            for parameter in all_parameters:
+                if parameter not in bindings and parameter in defaults:
+                    bindings[parameter] = self.expression(
+                        helper, defaults[parameter], {}
+                    )
+            if (
+                valid
+                and set(bindings) == set(all_parameters)
+                and not (
+                    {parameter.arg for parameter in parameters.posonlyargs}
+                    & keywords.keys()
+                )
+                and not parameters.vararg
+                and not parameters.kwarg
+                and None not in keywords
+            ):
+                returned = self.function(helper, bindings)
+                protected = {
+                    value.key for value in bindings.values() if value.contained
+                }
+                for key, value in env.items():
+                    if value.key in protected:
+                        env[key] = replace(value, contained=True)
+                return replace(
+                    returned, locations=returned.locations | result.locations
+                )
+        if result.sources:
+            self.unresolved(symbol, node, f"unresolved call to {name}")
+        return replace(
+            result,
+            key=_key(
+                symbol.file.relative_path,
+                str(node.lineno),
+                str(node.col_offset),
+                name,
+                result.key,
+            ),
+            contained=False,
+            path_object=False,
+            repository_object=False,
+        )

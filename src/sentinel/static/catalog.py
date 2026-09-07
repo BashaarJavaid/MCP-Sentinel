@@ -105,6 +105,18 @@ RULES = (
         "later coverage.",
         RuleEngine.HYBRID,
     ),
+    _rule(
+        "SENT-012",
+        "Path containment failure",
+        "Caller-controlled paths reach filesystem access without enforced "
+        "containment within the intended directory or repository.",
+        Impact.HIGH,
+        "Resolve the requested path and allowed root, reject paths outside the "
+        "root using component-aware containment, and use the validated value.",
+        "Medium: intentionally unrestricted file tools and unsupported custom "
+        "validators require review; string prefixes alone do not prove containment.",
+        RuleEngine.HYBRID,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}

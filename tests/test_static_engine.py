@@ -25,6 +25,7 @@ from sentinel.orchestrator import run_phase1_scan
 from sentinel.report.model import ScanContext, ScanTarget, StaticRuleStatus
 from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_sarif import validate_sarif_data
+from sentinel.static.catalog import RULE_IDS
 from sentinel.static.engine import run_static_scan, select_rule_ids
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES, collect_static_files
 from tests.conftest import make_target
@@ -46,9 +47,7 @@ def test_reference_fixture_acceptance(fixture: str, expected: list[str]) -> None
 
     assert [finding.rule_id for finding in result.findings] == expected
     assert result.summary.total_matches == len(expected)
-    assert result.summary.selected_rule_ids == tuple(
-        f"SENT-{number:03d}" for number in range(1, 8)
-    )
+    assert result.summary.selected_rule_ids == RULE_IDS
     for finding in result.findings:
         assert finding.status is FindingStatus.NEEDS_REVIEW
         assert isinstance(finding.location, FileLocation)
@@ -81,7 +80,7 @@ def test_phase1_sarif_contains_findings_and_full_rule_catalog() -> None:
     validate_sarif_data(payload)
 
     run = payload["runs"][0]
-    assert len(run["tool"]["driver"]["rules"]) == 7
+    assert [rule["id"] for rule in run["tool"]["driver"]["rules"]] == list(RULE_IDS)
     assert len(run["results"]) == 7
     first = run["results"][0]
     assert first["ruleId"] == "SENT-001"
@@ -92,9 +91,11 @@ def test_phase1_sarif_contains_findings_and_full_rule_catalog() -> None:
 
 
 def test_rule_selection_uses_include_then_exclude_semantics() -> None:
-    assert select_rule_ids(()) == tuple(f"SENT-{number:03d}" for number in range(1, 8))
+    assert select_rule_ids(()) == RULE_IDS
     assert select_rule_ids(("SENT-003", "+SENT-005", "-SENT-003")) == ("SENT-005",)
-    assert select_rule_ids(("-SENT-007",))[-1] == "SENT-006"
+    assert select_rule_ids(("-SENT-007",)) == tuple(
+        rule for rule in RULE_IDS if rule != "SENT-007"
+    )
 
 
 def test_missing_permissions_sidecar_marks_sent001_skipped(tmp_path: Path) -> None:
