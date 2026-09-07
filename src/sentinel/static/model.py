@@ -5,11 +5,16 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import cached_property
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from sentinel.config import LoadedConfiguration
 from sentinel.finding import Finding, Impact, OwaspCategory, SourceRange
 from sentinel.report.model import ReportWarning, StaticAnalysisSummary
+
+if TYPE_CHECKING:
+    from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
 class RuleEngine(str, Enum):
@@ -95,3 +100,9 @@ class StaticContext:
     configuration: LoadedConfiguration
     files: StaticFileSet
     deadline: float = float("inf")
+
+    @cached_property
+    def typescript_program(self) -> TypeScriptProgram:
+        from sentinel.static.typescript_discovery import TypeScriptProgram
+
+        return TypeScriptProgram(self.files.typescript_files, deadline=self.deadline)

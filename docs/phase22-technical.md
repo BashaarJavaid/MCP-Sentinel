@@ -111,6 +111,8 @@ reports remain 1.6.0.
 
 The [Python containment increment](phase22-python-containment.md) records its
 implementation, repeated exposed-input measurements and remaining technical gates.
+The [TypeScript containment increment](phase22-typescript-containment.md) records
+parser-backed bindings, repeated completion checks and unresolved fixed guards.
 
 Deliver tested draft increments in contract/evidence, execution, containment/shared
 discovery, remaining detectors/compatibility, review/campaign, report/acceptance

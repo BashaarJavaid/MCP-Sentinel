@@ -1,0 +1,2278 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-07T07:59:40.650303Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 76,
+          "end_line": 268,
+          "start_column": 46,
+          "start_line": 268
+        },
+        "snippet": "fs.readFile(filePath, 'utf-8')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "6a89ed9a-784d-462a-8636-d05aab97604c",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 76,
+          "end_line": 268,
+          "start_column": 46,
+          "start_line": 268
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 76,
+              "end_line": 268,
+              "start_column": 46,
+              "start_line": 268
+            },
+            "snippet": "fs.readFile(filePath, 'utf-8')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 59,
+          "end_line": 334,
+          "start_column": 11,
+          "start_line": 334
+        },
+        "snippet": "fs.writeFile(filePath, modifiedContent, 'utf-8')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "d0ea703d-5713-464d-bb29-0323368e2a06",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 59,
+          "end_line": 334,
+          "start_column": 11,
+          "start_line": 334
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 59,
+              "end_line": 334,
+              "start_column": 11,
+              "start_line": 334
+            },
+            "snippet": "fs.writeFile(filePath, modifiedContent, 'utf-8')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 50,
+          "end_line": 360,
+          "start_column": 28,
+          "start_line": 360
+        },
+        "snippet": "fs.open(filePath, 'r')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "76058413-9985-4ed6-8c4b-112c4118ed25",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 50,
+          "end_line": 360,
+          "start_column": 28,
+          "start_line": 360
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 50,
+              "end_line": 360,
+              "start_column": 28,
+              "start_line": 360
+            },
+            "snippet": "fs.open(filePath, 'r')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 50,
+          "end_line": 405,
+          "start_column": 28,
+          "start_line": 405
+        },
+        "snippet": "fs.open(filePath, 'r')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "31dddb00-aff8-4984-8b67-661a0bf5b574",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 50,
+          "end_line": 405,
+          "start_column": 28,
+          "start_line": 405
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 50,
+              "end_line": 405,
+              "start_column": 28,
+              "start_line": 405
+            },
+            "snippet": "fs.open(filePath, 'r')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 62,
+          "end_line": 594,
+          "start_column": 31,
+          "start_line": 594
+        },
+        "snippet": "fs.readFile(validPath, \"utf-8\")"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "81972a9e-c464-42a1-9229-2500d4069da4",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 62,
+          "end_line": 594,
+          "start_column": 31,
+          "start_line": 594
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 62,
+              "end_line": 594,
+              "start_column": 31,
+              "start_line": 594
+            },
+            "snippet": "fs.readFile(validPath, \"utf-8\")"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 68,
+          "end_line": 609,
+          "start_column": 37,
+          "start_line": 609
+        },
+        "snippet": "fs.readFile(validPath, \"utf-8\")"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "42d65d7a-56de-43ab-bee7-39f42f53c389",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 68,
+          "end_line": 609,
+          "start_column": 37,
+          "start_line": 609
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 68,
+              "end_line": 609,
+              "start_column": 37,
+              "start_line": 609
+            },
+            "snippet": "fs.readFile(validPath, \"utf-8\")"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 68,
+          "end_line": 628,
+          "start_column": 15,
+          "start_line": 628
+        },
+        "snippet": "fs.writeFile(validPath, parsed.data.content, \"utf-8\")"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "0eafc081-c84f-47ff-9992-2274e54d2b84",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 68,
+          "end_line": 628,
+          "start_column": 15,
+          "start_line": 628
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 68,
+              "end_line": 628,
+              "start_column": 15,
+              "start_line": 628
+            },
+            "snippet": "fs.writeFile(validPath, parsed.data.content, \"utf-8\")"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 55,
+          "end_line": 652,
+          "start_column": 15,
+          "start_line": 652
+        },
+        "snippet": "fs.mkdir(validPath, { recursive: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "84007517-f0cb-47a6-9168-0facd0dc63b8",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 55,
+          "end_line": 652,
+          "start_column": 15,
+          "start_line": 652
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 55,
+              "end_line": 652,
+              "start_column": 15,
+              "start_line": 652
+            },
+            "snippet": "fs.mkdir(validPath, { recursive: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 77,
+          "end_line": 664,
+          "start_column": 31,
+          "start_line": 664
+        },
+        "snippet": "fs.readdir(validPath, { withFileTypes: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "74e9b113-7f71-449f-ab5c-736ac8e4c358",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 77,
+          "end_line": 664,
+          "start_column": 31,
+          "start_line": 664
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 77,
+              "end_line": 664,
+              "start_column": 31,
+              "start_line": 664
+            },
+            "snippet": "fs.readdir(validPath, { withFileTypes: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 77,
+          "end_line": 679,
+          "start_column": 31,
+          "start_line": 679
+        },
+        "snippet": "fs.readdir(validPath, { withFileTypes: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "0ce0a5b2-cba4-49d0-9384-357c3573bb83",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 77,
+          "end_line": 679,
+          "start_column": 31,
+          "start_line": 679
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 77,
+              "end_line": 679,
+              "start_column": 31,
+              "start_line": 679
+            },
+            "snippet": "fs.readdir(validPath, { withFileTypes: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T07:59:40.650303Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T07:59:40.650303Z",
+      "title": "Path containment failure"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 10,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 10
+    }
+  },
+  "scan_id": "18982386-70e8-43d2-8663-3f2ead188427",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-07T07:59:40.650157Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 840,
+              "start_column": 55,
+              "start_line": 562
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 840,
+              "start_column": 1,
+              "start_line": 562
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "ambiguous_dispatch",
+              "location": {
+                "kind": "file",
+                "path": "index.ts",
+                "range": {
+                  "end_column": 3,
+                  "end_line": 840,
+                  "start_column": 1,
+                  "start_line": 562
+                }
+              },
+              "message": "tool dispatch, handler or schema cannot be fully resolved"
+            }
+          ],
+          "status": "unresolved"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 568,
+              "start_column": 1,
+              "start_line": 568
+            }
+          },
+          "message": "SENT-012 at index.ts:568: unresolved call to ReadFileArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-012 at index.ts:32: unresolved call to filepath.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 354,
+              "start_column": 1,
+              "start_line": 354
+            }
+          },
+          "message": "SENT-012 at index.ts:354: unresolved call to fs.stat; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 369,
+              "start_column": 1,
+              "start_line": 369
+            }
+          },
+          "message": "SENT-012 at index.ts:369: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 370,
+              "start_column": 1,
+              "start_line": 370
+            }
+          },
+          "message": "SENT-012 at index.ts:370: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 373,
+              "start_column": 1,
+              "start_line": 373
+            }
+          },
+          "message": "SENT-012 at index.ts:373: unresolved call to fileHandle.read; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 377,
+              "start_column": 1,
+              "start_line": 377
+            }
+          },
+          "message": "SENT-012 at index.ts:377: unresolved call to chunk.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 377,
+              "start_column": 1,
+              "start_line": 377
+            }
+          },
+          "message": "SENT-012 at index.ts:377: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 399,
+              "start_column": 1,
+              "start_line": 399
+            }
+          },
+          "message": "SENT-012 at index.ts:399: unresolved call to fileHandle.close; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-012 at index.ts:413: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 414,
+              "start_column": 1,
+              "start_line": 414
+            }
+          },
+          "message": "SENT-012 at index.ts:414: unresolved call to fileHandle.read; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 437,
+              "start_column": 1,
+              "start_line": 437
+            }
+          },
+          "message": "SENT-012 at index.ts:437: unresolved call to fileHandle.close; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 601,
+              "start_column": 1,
+              "start_line": 601
+            }
+          },
+          "message": "SENT-012 at index.ts:601: unresolved call to ReadMultipleFilesArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 605,
+              "start_column": 1,
+              "start_line": 605
+            }
+          },
+          "message": "SENT-012 at index.ts:605: unresolved call to Promise.all; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 618,
+              "start_column": 1,
+              "start_line": 618
+            }
+          },
+          "message": "SENT-012 at index.ts:618: unresolved call to results.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 623,
+              "start_column": 1,
+              "start_line": 623
+            }
+          },
+          "message": "SENT-012 at index.ts:623: unresolved call to WriteFileArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 635,
+              "start_column": 1,
+              "start_line": 635
+            }
+          },
+          "message": "SENT-012 at index.ts:635: unresolved call to EditFileArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-012 at index.ts:244: unresolved call to text.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 277,
+              "start_column": 1,
+              "start_line": 277
+            }
+          },
+          "message": "SENT-012 at index.ts:277: unresolved call to modifiedContent.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 278,
+              "start_column": 1,
+              "start_line": 278
+            }
+          },
+          "message": "SENT-012 at index.ts:278: unresolved call to modifiedContent.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 279,
+              "start_column": 1,
+              "start_line": 279
+            }
+          },
+          "message": "SENT-012 at index.ts:279: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 283,
+              "start_column": 1,
+              "start_line": 283
+            }
+          },
+          "message": "SENT-012 at index.ts:283: unresolved call to normalizedOld.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 284,
+              "start_column": 1,
+              "start_line": 284
+            }
+          },
+          "message": "SENT-012 at index.ts:284: unresolved call to modifiedContent.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 287,
+              "start_column": 1,
+              "start_line": 287
+            }
+          },
+          "message": "SENT-012 at index.ts:287: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 288,
+              "start_column": 1,
+              "start_line": 288
+            }
+          },
+          "message": "SENT-012 at index.ts:288: unresolved call to contentLines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 293,
+              "start_column": 1,
+              "start_line": 293
+            }
+          },
+          "message": "SENT-012 at index.ts:293: unresolved call to oldLine.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 298,
+              "start_column": 1,
+              "start_line": 298
+            }
+          },
+          "message": "SENT-012 at index.ts:298: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 299,
+              "start_column": 1,
+              "start_line": 299
+            }
+          },
+          "message": "SENT-012 at index.ts:299: unresolved call to normalizedNew.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 299,
+              "start_column": 1,
+              "start_line": 299
+            }
+          },
+          "message": "SENT-012 at index.ts:299: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 311,
+              "start_column": 1,
+              "start_line": 311
+            }
+          },
+          "message": "SENT-012 at index.ts:311: unresolved call to contentLines.splice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 312,
+              "start_column": 1,
+              "start_line": 312
+            }
+          },
+          "message": "SENT-012 at index.ts:312: unresolved call to contentLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 252,
+              "start_column": 1,
+              "start_line": 252
+            }
+          },
+          "message": "SENT-012 at index.ts:252: unresolved call to createTwoFilesPatch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 328,
+              "start_column": 1,
+              "start_line": 328
+            }
+          },
+          "message": "SENT-012 at index.ts:328: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 328,
+              "start_column": 1,
+              "start_line": 328
+            }
+          },
+          "message": "SENT-012 at index.ts:328: unresolved call to diff.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 647,
+              "start_column": 1,
+              "start_line": 647
+            }
+          },
+          "message": "SENT-012 at index.ts:647: unresolved call to CreateDirectoryArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 659,
+              "start_column": 1,
+              "start_line": 659
+            }
+          },
+          "message": "SENT-012 at index.ts:659: unresolved call to ListDirectoryArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 666,
+              "start_column": 1,
+              "start_line": 666
+            }
+          },
+          "message": "SENT-012 at index.ts:666: unresolved call to entry.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 665,
+              "start_column": 1,
+              "start_line": 665
+            }
+          },
+          "message": "SENT-012 at index.ts:665: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 674,
+              "start_column": 1,
+              "start_line": 674
+            }
+          },
+          "message": "SENT-012 at index.ts:674: unresolved call to ListDirectoryWithSizesArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 686,
+              "start_column": 1,
+              "start_line": 686
+            }
+          },
+          "message": "SENT-012 at index.ts:686: unresolved call to fs.stat; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 689,
+              "start_column": 1,
+              "start_line": 689
+            }
+          },
+          "message": "SENT-012 at index.ts:689: unresolved call to entry.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 696,
+              "start_column": 1,
+              "start_line": 696
+            }
+          },
+          "message": "SENT-012 at index.ts:696: unresolved call to entry.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 682,
+              "start_column": 1,
+              "start_line": 682
+            }
+          },
+          "message": "SENT-012 at index.ts:682: unresolved call to Promise.all; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 705,
+              "start_column": 1,
+              "start_line": 705
+            }
+          },
+          "message": "SENT-012 at index.ts:705: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 715,
+              "start_column": 1,
+              "start_line": 715
+            }
+          },
+          "message": "SENT-012 at index.ts:715: unresolved call to entry.name.padEnd; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-012 at index.ts:345: unresolved call to Math.log; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-012 at index.ts:345: unresolved call to Math.floor; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 348,
+              "start_column": 1,
+              "start_line": 348
+            }
+          },
+          "message": "SENT-012 at index.ts:348: unresolved call to Math.pow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 348,
+              "start_column": 1,
+              "start_line": 348
+            }
+          },
+          "message": "SENT-012 at index.ts:348: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 716,
+              "start_column": 1,
+              "start_line": 716
+            }
+          },
+          "message": "SENT-012 at index.ts:716: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 723,
+              "start_column": 1,
+              "start_line": 723
+            }
+          },
+          "message": "SENT-012 at index.ts:723: unresolved call to detailedEntries.reduce; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 734,
+              "start_column": 1,
+              "start_line": 734
+            }
+          },
+          "message": "SENT-012 at index.ts:734: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 740,
+              "start_column": 1,
+              "start_line": 740
+            }
+          },
+          "message": "SENT-012 at index.ts:740: unresolved call to DirectoryTreeArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 773,
+              "start_column": 1,
+              "start_line": 773
+            }
+          },
+          "message": "SENT-012 at index.ts:773: unresolved call to buildTree; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 777,
+              "start_column": 1,
+              "start_line": 777
+            }
+          },
+          "message": "SENT-012 at index.ts:777: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 783,
+              "start_column": 1,
+              "start_line": 783
+            }
+          },
+          "message": "SENT-012 at index.ts:783: unresolved call to MoveFileArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 789,
+              "start_column": 1,
+              "start_line": 789
+            }
+          },
+          "message": "SENT-012 at index.ts:789: unresolved call to fs.rename; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 796,
+              "start_column": 1,
+              "start_line": 796
+            }
+          },
+          "message": "SENT-012 at index.ts:796: unresolved call to SearchFilesArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 238,
+              "start_column": 1,
+              "start_line": 238
+            }
+          },
+          "message": "SENT-012 at index.ts:238: unresolved call to search; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 808,
+              "start_column": 1,
+              "start_line": 808
+            }
+          },
+          "message": "SENT-012 at index.ts:808: unresolved call to GetFileInfoArgsSchema.safeParse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-012 at index.ts:184: unresolved call to fs.stat; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 190,
+              "start_column": 1,
+              "start_line": 190
+            }
+          },
+          "message": "SENT-012 at index.ts:190: unresolved call to stats.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 191,
+              "start_column": 1,
+              "start_line": 191
+            }
+          },
+          "message": "SENT-012 at index.ts:191: unresolved call to stats.isFile; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 192,
+              "start_column": 1,
+              "start_line": 192
+            }
+          },
+          "message": "SENT-012 at index.ts:192: unresolved call to stats.mode.toString; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 192,
+              "start_column": 1,
+              "start_line": 192
+            }
+          },
+          "message": "SENT-012 at index.ts:192: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 815,
+              "start_column": 1,
+              "start_line": 815
+            }
+          },
+          "message": "SENT-012 at index.ts:815: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 815,
+              "start_column": 1,
+              "start_line": 815
+            }
+          },
+          "message": "SENT-012 at index.ts:815: unresolved call to dynamic call; protection is not established"
+        }
+      ]
+    },
+    "duration_ms": 2995,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 10,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 5,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012"
+    ],
+    "total_matches": 10
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 10
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 10,
+      "suppressed": 0
+    },
+    "total": 10
+  },
+  "target": {
+    "display_name": "filesystem-prefix-vulnerable-mutation",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:568: unresolved call to ReadFileArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:32: unresolved call to filepath.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:354: unresolved call to fs.stat; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:369: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:370: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:373: unresolved call to fileHandle.read; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:377: unresolved call to chunk.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:377: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:399: unresolved call to fileHandle.close; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:413: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:414: unresolved call to fileHandle.read; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:437: unresolved call to fileHandle.close; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:601: unresolved call to ReadMultipleFilesArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:605: unresolved call to Promise.all; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:618: unresolved call to results.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:623: unresolved call to WriteFileArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:635: unresolved call to EditFileArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:244: unresolved call to text.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:277: unresolved call to modifiedContent.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:278: unresolved call to modifiedContent.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:279: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:283: unresolved call to normalizedOld.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:284: unresolved call to modifiedContent.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:287: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:288: unresolved call to contentLines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:293: unresolved call to oldLine.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:298: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:299: unresolved call to normalizedNew.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:299: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:311: unresolved call to contentLines.splice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:312: unresolved call to contentLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:252: unresolved call to createTwoFilesPatch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:328: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:328: unresolved call to diff.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:647: unresolved call to CreateDirectoryArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:659: unresolved call to ListDirectoryArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:666: unresolved call to entry.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:665: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:674: unresolved call to ListDirectoryWithSizesArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:686: unresolved call to fs.stat; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:689: unresolved call to entry.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:696: unresolved call to entry.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:682: unresolved call to Promise.all; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:705: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:715: unresolved call to entry.name.padEnd; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:345: unresolved call to Math.log; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:345: unresolved call to Math.floor; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:348: unresolved call to Math.pow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:348: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:716: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:723: unresolved call to detailedEntries.reduce; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:734: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:740: unresolved call to DirectoryTreeArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:773: unresolved call to buildTree; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:777: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:783: unresolved call to MoveFileArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:789: unresolved call to fs.rename; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:796: unresolved call to SearchFilesArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:238: unresolved call to search; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:808: unresolved call to GetFileInfoArgsSchema.safeParse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:184: unresolved call to fs.stat; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:190: unresolved call to stats.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:191: unresolved call to stats.isFile; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:192: unresolved call to stats.mode.toString; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:192: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:815: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at index.ts:815: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'safeParse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'process.cwd'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'process.argv'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'process.argv.slice'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'some'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Buffer'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Buffer.alloc'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Math'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Math.min'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'size'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'readData'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'chunkText'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'chunkLines'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'chunkLines.shift'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'chunkLines.length'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'i'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'result'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'result.bytesRead'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'newLineIndex'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'completeLines'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'line'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Promise.all'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'potentialMatch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'isMatch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'newLines'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Math.log'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Math.floor'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Math.pow'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'buildTree'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'search'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "index.ts: cannot resolve TypeScript binding 'Object.entries'"
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:268: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:334: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:360: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:405: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:594: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:609: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:628: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:652: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:664: resolved source/guard/sink evidence extends beyond the supplied review context."
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at index.ts:679: resolved source/guard/sink evidence extends beyond the supplied review context."
+    }
+  ]
+}

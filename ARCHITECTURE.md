@@ -347,6 +347,13 @@ catalog for GPT review.
 
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
+Phase 22 extends TypeScript discovery using the installed, pinned Semgrep core's
+generic syntax tree and original token locations. The adapter performs source
+parsing only; it never loads a target module, invokes Node, renders templates or
+executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
+shares the existing 120-second static deadline, and malformed source remains a
+target error. This extension introduces no parser dependency or language target.
+
 ### Phase 16 flow and safety recognition
 
 Phase 22's execution correction indexes SENT-004 prompt sinks before branch

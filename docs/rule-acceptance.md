@@ -42,8 +42,9 @@ false alarms before technical sign-off.
 | SENT-015 | `ASI02:2026`: caller URLs redirect server requests beyond intended services | Relevant scheme/destination rejection and authorized requests | Pending |
 | SENT-016 | `ASI03:2026`: caller requests inherit unauthorized operator credentials | Explicit authorized operator use and enforced caller rejection | Pending |
 
-The current draft implements the Python portion of SENT-012 and includes it in
-default static rule selection. TypeScript reports an explicit skipped outcome.
+The current draft implements bounded Python and TypeScript portions of SENT-012
+and includes it in default static rule selection. TypeScript shares the installed
+Semgrep parser and reports unresolved bindings, control flow and schemas.
 The new source-only regressions exercise relevant guards, value replacement,
 imports and bound methods. The table above remains pending: this engineering
 increment does not constitute independent-corpus or reviewed-tier acceptance.
