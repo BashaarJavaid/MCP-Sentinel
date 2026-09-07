@@ -44,6 +44,11 @@ CHECK = """parsed = urlparse(url)
         ("return requests.get(url)", 1),
         ("return httpx.get(url=url)", 1),
         ('return requests.get("https://images.example.com/fixed")', 0),
+        ('return requests.get("https://images.example.com/" + url)', 0),
+        ('return requests.get("https://images.example.com" + url)', 1),
+        ('return requests.get("http://127.0.0.1/" + url)', 1),
+        ('return requests.get(f"https://images.example.com/{url}")', 0),
+        ('return requests.get(f"https://{url}/image")', 1),
         (CHECK + "    return requests.get(url)", 0),
         (
             CHECK.replace("urlparse(url)", "urlparse(other)")
@@ -214,6 +219,9 @@ def test_literal_ip_validation_loop(tmp_path: Path, mutation: str) -> None:
         ("return axios.get(url);", 1),
         ("return http.get(url);", 1),
         ('return fetch("https://images.example.com/fixed");', 0),
+        ('return fetch("https://images.example.com/" + url);', 0),
+        ('return fetch("https://images.example.com" + url);', 1),
+        ('return fetch("http://127.0.0.1/" + url);', 1),
         (
             'const u = new URL(url); if (u.protocol !== "https:" || u'
             '.hostname !== "images.example.com") throw new Error(); r'

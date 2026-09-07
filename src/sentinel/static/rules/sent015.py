@@ -8,6 +8,7 @@ import ipaddress
 import json
 from dataclasses import replace
 from typing import Any
+from urllib.parse import urlsplit
 
 from sentinel.static.ast_utils import match_from_node, qualified_name, resolve_name
 from sentinel.static.discovery import Symbol
@@ -62,6 +63,19 @@ def public_host(host: str) -> bool:
         )
     address = getattr(address, "ipv4_mapped", None) or address
     return address.is_global and not address.is_multicast
+
+
+def fixed_destination(prefix: str) -> bool:
+    try:
+        parsed = urlsplit(prefix)
+    except ValueError:
+        return False
+    return (
+        parsed.scheme in {"http", "https"}
+        and parsed.hostname is not None
+        and public_host(parsed.hostname)
+        and "/" in prefix.split("://", 1)[-1]
+    )
 
 
 class URLFlow(PathFlow):
@@ -165,6 +179,25 @@ class URLFlow(PathFlow):
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
         if isinstance(node, (ast.BinOp, ast.JoinedStr, ast.Subscript, ast.Attribute)):
             result = replace(result, url_checks=frozenset())
+        prefix_nodes = (
+            node.values
+            if isinstance(node, ast.JoinedStr)
+            else [node.left]
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
+            else []
+        )
+        prefix = ""
+        for part in prefix_nodes:
+            value = self.expression(symbol, part, env)
+            try:
+                literal = ast.literal_eval(value.key)
+            except (ValueError, SyntaxError):
+                break
+            if value.sources or not isinstance(literal, str):
+                break
+            prefix += literal
+        if fixed_destination(prefix):
+            result = replace(result, url_checks=frozenset({"scheme", "host"}))
         if isinstance(node, (ast.Compare, ast.BoolOp, ast.UnaryOp, ast.Attribute)):
             self.predicates[result.key] = (
                 self.facts(symbol, node, env, False),
@@ -521,6 +554,19 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             return Value()
         result = super().call(file, node, env)
         operator = callee.get("Special", [{}])[0]
+        if (
+            isinstance(operator, dict)
+            and (operator.get("Op") == "Plus" or "ConcatString" in operator)
+            and argument_nodes
+        ):
+            prefix = ""
+            for part in argument_nodes:
+                literal = self.program.literal(self.program.resolve_node(file, part))
+                if literal is None:
+                    break
+                prefix += literal
+            if fixed_destination(prefix):
+                result = replace(result, url_checks=frozenset({"scheme", "host"}))
         if (
             isinstance(operator, dict)
             and operator.get("Op") in {"PhysEq", "NotPhysEq", "Eq", "NotEq"}
