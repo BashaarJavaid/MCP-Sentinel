@@ -85,7 +85,7 @@ def test_enforced_relevant_containment(
     assert len(state.matches) == expected
     for match in state.matches:
         assert match.rule_id == "SENT-012" and match.path == "server.ts"
-        assert "read" in match.snippet
+        assert "read" in match.snippet or "writeFile" in match.snippet
 
 
 @pytest.mark.parametrize(
@@ -277,3 +277,124 @@ def test_normalizing_helper_and_component_safe_prefix(
         state,
     )
     assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("method", "expected"),
+    [("some", 0), ("every", 1), ("map", 1), ("filter", 1), ("find", 1)],
+)
+def test_collection_guard_requires_successful_member(
+    tmp_path: Path, method: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); "
+        "const roots = [await fs.realpath(ROOT)]; "
+        f"const allowed = roots.{method}(root => "
+        "p === root || p.startsWith(root + path.sep)); "
+        "if (!allowed) throw new Error(); return fs.readFile(p);",
+        expected,
+    )
+
+
+@pytest.mark.parametrize("boundary", ["component", "bare", "unrelated", "discarded"])
+def test_normalized_collection_helper_protects_exact_real_path(
+    tmp_path: Path,
+    boundary: str,
+) -> None:
+    predicate = "p === root || p.startsWith(root + path.sep)"
+    if boundary == "bare":
+        predicate = "p.startsWith(root)"
+    checked = 'await fs.realpath("/other")' if boundary == "unrelated" else "p"
+    check = f"within({checked}, roots)"
+    enforcement = (
+        check + ";" if boundary == "discarded" else f"if (!{check}) throw new Error();"
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "function within(value, dirs) { "
+        "const p = path.resolve(path.normalize(value)); "
+        "return dirs.some(dir => { const root = path.resolve(path.normalize(dir)); "
+        f"return {predicate};" + " }); } "
+        "const roots = [path.resolve(ROOT)]; "
+        "const p = await fs.realpath(input); "
+        + enforcement
+        + " return fs.readFile(p);",
+        0 if boundary == "component" else 1,
+    )
+
+
+@pytest.mark.parametrize("parent", ["checked", "unchecked", "unrelated", "replaced"])
+def test_new_file_requires_lexical_and_real_parent_containment(
+    tmp_path: Path,
+    parent: str,
+) -> None:
+    checked = (
+        'await fs.realpath("/other")'
+        if parent == "unrelated"
+        else "await fs.realpath(path.dirname(p))"
+    )
+    guard = (
+        (
+            "if (!parent.startsWith(root + path.sep) && parent !== root) "
+            "throw new Error();"
+        )
+        if parent != "unchecked"
+        else ""
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); "
+        "let p = path.resolve(ROOT, input); "
+        "if (!p.startsWith(root + path.sep) && p !== root) throw new Error(); "
+        f"const parent = {checked}; "
+        + guard
+        + ("p = input;" if parent == "replaced" else "")
+        + 'return fs.writeFile(p, "safe test content");',
+        0 if parent == "checked" else 1,
+    )
+
+
+@pytest.mark.parametrize("root_branch", ["guarded", "unguarded"])
+def test_root_directory_special_case_requires_the_matching_allowed_root(
+    tmp_path: Path,
+    root_branch: str,
+) -> None:
+    branch = (
+        "if (root === path.sep) return p.startsWith(path.sep);"
+        if root_branch == "guarded"
+        else "return p.startsWith(path.sep);"
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+        "const within = () => { "
+        + branch
+        + "return p === root || p.startsWith(root + path.sep); }; "
+        "if (!within()) throw new Error(); return fs.readFile(p);",
+        0 if root_branch == "guarded" else 1,
+    )
+
+
+def test_replaced_captured_root_cannot_exempt_path(tmp_path: Path) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); let root = await fs.realpath(ROOT); "
+        "function within() { return p === root || p.startsWith(root + path.sep); } "
+        "root = p; if (!within()) throw new Error(); return fs.readFile(p);",
+        1,
+    )
+
+
+def test_parent_guard_for_different_root_cannot_exempt_path(tmp_path: Path) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        'const root = await fs.realpath(ROOT); '
+        'const other = await fs.realpath("/else"); '
+        "const p = path.resolve(ROOT, input); "
+        "if (!p.startsWith(root + path.sep)) throw new Error(); "
+        "const parent = await fs.realpath(path.dirname(p)); "
+        "if (!parent.startsWith(other + path.sep)) throw new Error(); "
+        'return fs.writeFile(p, "test");',
+        1,
+    )
