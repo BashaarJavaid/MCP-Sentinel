@@ -422,11 +422,18 @@ def test_scan_invokes_only_semgrep_and_never_package_lifecycle(
     run_static_scan(configuration, uuid4(), timestamp=NOW)
 
     assert commands and all(
-        Path(command[0]).stem.lower() == "semgrep" for command in commands
+        Path(command[0]).stem.lower() in {"semgrep", "semgrep-core"}
+        for command in commands
+    )
+    assert all(
+        "-dump_ast" in command
+        for command in commands
+        if Path(command[0]).stem.lower() == "semgrep-core"
     )
     assert all(
         command[command.index("--timeout") + 1] == str(SEMGREP_TIMEOUT_SECONDS)
         for command in commands
+        if Path(command[0]).stem.lower() == "semgrep"
     )
     assert process_timeouts and all(
         timeout > SEMGREP_TIMEOUT_SECONDS for timeout in process_timeouts

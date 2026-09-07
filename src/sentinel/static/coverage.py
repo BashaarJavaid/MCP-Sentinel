@@ -22,6 +22,8 @@ from sentinel.static.catalog import RULE_IDS
 from sentinel.static.discovery import PythonProgram
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import RuleRunState, StaticContext
+from sentinel.static.semgrep_ast import source_range as ts_source_range
+from sentinel.static.typescript_discovery import TypeScriptBinding
 from sentinel.static.typescript_execution import _mask
 
 
@@ -30,6 +32,19 @@ def inventory(
 ) -> StaticCoverage:
     surfaces: list[StaticSurface] = []
     bindings = PythonProgram(context.files.python_files).tools()
+
+    def schema_supported(binding: TypeScriptBinding | None) -> bool:
+        return bool(
+            binding
+            and binding.schema
+            and ts._zod_object_schema(
+                context.typescript_program.text(
+                    binding.schema.file, binding.schema.node
+                ),
+                ts._constant_expressions(binding.schema.file.source),
+            )
+            is not None
+        )
 
     def add(
         kind: str,
@@ -321,37 +336,84 @@ def inventory(
                     unsupported=not imported,
                 )
 
+    resolved_ts = (
+        context.typescript_program.tools() if context.files.typescript_files else ()
+    )
     for ts_file in context.files.typescript_files:
         check_deadline(context.deadline)
         source = ts_file.source
         masked = _mask(source)
+        local_bindings = [
+            ts_binding
+            for ts_binding in resolved_ts
+            if ts_binding.registration.file == ts_file
+        ]
+        handled: set[tuple[int, int]] = set()
         for tool in ts.tools_in_file(ts_file):
             if not masked[tool.start : tool.start + 1].strip():
                 continue
             reasons = []
+            registration = ts.offset_range(source, tool.start, tool.end)
+            key = (registration.start_line, registration.start_column)
+            handled.add(key)
+            ts_binding = next(
+                (
+                    item
+                    for item in local_bindings
+                    if (
+                        ts_source_range(item.registration.node, ts_file).start_line,
+                        ts_source_range(item.registration.node, ts_file).start_column,
+                    )
+                    == key
+                ),
+                None,
+            )
+            handler_symbol = (
+                ts_binding.handler
+                if ts_binding and ts_binding.handler and ts_binding.handler.function
+                else None
+            )
+            handler_location = (
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None
+            )
+            schema_resolved = schema_supported(ts_binding)
             if tool.name is None:
                 reasons.append(("computed_name", "tool name is computed"))
-            if not tool.handler_start:
+            if not tool.handler_start and handler_symbol is None:
                 reasons.append(
                     (
                         "unresolved_handler",
                         "imported or unsupported handler implementation",
                     )
                 )
-            if tool.schema_present and tool.input_schema is None:
+            if (
+                tool.schema_present
+                and tool.input_schema is None
+                and not schema_resolved
+            ):
                 reasons.append(("unresolved_schema", "imported or unsupported schema"))
             add(
                 "tool",
                 tool.name,
                 ts_file.relative_path,
-                ts.offset_range(source, tool.start, tool.end),
-                ts.offset_range(
-                    source, tool.handler_start, tool.handler_start + len(tool.handler)
-                )
-                if tool.handler
-                else None,
+                registration,
+                handler_location
+                or (
+                    ts.offset_range(
+                        source,
+                        tool.handler_start,
+                        tool.handler_start + len(tool.handler),
+                    )
+                    if tool.handler
+                    else None
+                ),
                 reasons[0][0] if reasons else None,
                 reasons[0][1] if reasons else "",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
             )
             if len(reasons) > 1:
                 surfaces[-1] = surfaces[-1].model_copy(
@@ -366,6 +428,41 @@ def inventory(
                         )
                     }
                 )
+        for ts_binding in local_bindings:
+            registration = ts_source_range(ts_binding.registration.node, ts_file)
+            key = (registration.start_line, registration.start_column)
+            if key in handled:
+                continue
+            handler_symbol = (
+                ts_binding.handler
+                if ts_binding.handler and ts_binding.handler.function
+                else None
+            )
+            reason = (
+                "ambiguous_dispatch"
+                if ts_binding.name is None
+                else "unresolved_handler"
+                if handler_symbol is None
+                else "unresolved_schema"
+                if not schema_supported(ts_binding)
+                else None
+            )
+            add(
+                "tool",
+                ts_binding.name,
+                ts_file.relative_path,
+                registration,
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None,
+                reason,
+                "tool dispatch, handler or schema cannot be fully resolved"
+                if reason
+                else "",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
+            )
         receivers = ts._http_receivers(source)
         mcp = ts._mcp_server_receivers(source)
         pattern = re.compile(rf"\b({ts._IDENTIFIER})\s*\.\s*({ts._IDENTIFIER})\s*\(")
@@ -378,6 +475,16 @@ def inventory(
                 "setRequestHandler",
             }
             if not route and not unsupported:
+                continue
+            match_location = ts.offset_range(source, match.start(), match.end())
+            if method == "setRequestHandler" and any(
+                (
+                    ts_source_range(item.registration.node, ts_file).start_line,
+                    ts_source_range(item.registration.node, ts_file).start_column,
+                )
+                == (match_location.start_line, match_location.start_column)
+                for item in local_bindings
+            ):
                 continue
             close = ts._matching(source, match.end() - 1, "(", ")")
             if close is None:

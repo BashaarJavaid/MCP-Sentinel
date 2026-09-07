@@ -48,7 +48,8 @@ def analyze(
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:
-    if context.files.typescript_files and not context.files.python_files:
-        state.skip_reason = "TypeScript containment flow implementation pending"
-        return
     analyze(PythonProgram(context.files.python_files), state, context.deadline)
+    if context.files.typescript_files:
+        from sentinel.static.typescript_path_flow import analyze as analyze_typescript
+
+        analyze_typescript(context.typescript_program, state)

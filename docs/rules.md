@@ -196,13 +196,16 @@ and attack evidence; completed negative attempts do not establish general safety
 
 ### Path containment failure
 
-- Engine: bounded Python source flow; TypeScript implementation remains pending
+- Engine: bounded Python and TypeScript source flow using the installed parsers
 - Impact: High
 - OWASP: `ASI02:2026 — Tool Misuse & Exploitation`; a caller can exceed the
   filesystem or repository resource boundary of a tool
 - Boundary: recognized Python tool inputs reaching supported `open`, pathlib,
   OS/shutil filesystem APIs, Git repository selection or `Repo.index.add`;
   literal component containment after canonical resolution is recognized
+- TypeScript boundary: included imports/re-exports, official SDK registrations
+  and statically recoverable Mastra tool objects; supported Node filesystem calls,
+  helper returns, destructured parameters, callbacks and literal dispatch branches
 - False-positive risk: Medium; intentionally unrestricted tools, unsupported
   validators and unresolved bindings require review
 - Remediation: resolve the path and allowed root, enforce component containment
@@ -223,6 +226,9 @@ home-directory path does not validate the original unexpanded value. See the
 Recursive or deeper-than-64 helper/binding chains and unresolved calls are
 disclosed. This is source analysis, with no race-free filesystem or runtime
 symlink guarantee. `static_review_context_incomplete` discloses traced evidence
-outside the current review blocks. Technical rule acceptance, TypeScript coverage,
+outside the current review blocks. TypeScript recognizes enforced rejection of
+parent components and absolute destinations from a relative path after canonical
+resolution, including Boolean aliases and imported guards. Unsupported dispatch,
+computed members, schemas and calls remain explicit gaps. Technical rule acceptance,
 the new independent corpus evaluation and reviewed-tier measurements remain
 pending; this draft implementation does not complete Phase 22.
