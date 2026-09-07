@@ -389,7 +389,7 @@ def test_replaced_captured_root_cannot_exempt_path(tmp_path: Path) -> None:
 def test_parent_guard_for_different_root_cannot_exempt_path(tmp_path: Path) -> None:
     test_enforced_relevant_containment(
         tmp_path,
-        'const root = await fs.realpath(ROOT); '
+        "const root = await fs.realpath(ROOT); "
         'const other = await fs.realpath("/else"); '
         "const p = path.resolve(ROOT, input); "
         "if (!p.startsWith(root + path.sep)) throw new Error(); "
