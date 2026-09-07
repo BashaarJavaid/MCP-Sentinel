@@ -1,0 +1,76 @@
+{
+  "status": "local_verified_hosted_pending",
+  "scanner": {
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+    "revision": "276722a274acffd5de95d5f019b886a759ec2d42",
+    "source_sha256": "2e8bc633d3a9c382c09506e18841d859f0d7fcbd5d08769a121fb2ff1298821c"
+  },
+  "full_suite": {
+    "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/containment-conditions/junit.xml --cov-report=json:artifacts/phase22/containment-conditions/coverage.json",
+    "exit_code": 0,
+    "passed": 798,
+    "skipped": 36,
+    "coverage_percent": 86.88,
+    "log": "pytest.log"
+  },
+  "focused_tests": 102,
+  "checks": [
+    {
+      "command": "ruff check .",
+      "exit_code": 0,
+      "log": "ruff.log"
+    },
+    {
+      "command": "ruff format --check .",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "command": "mypy",
+      "exit_code": 0,
+      "log": "mypy.log"
+    },
+    {
+      "command": "python -m sentinel.schema check",
+      "exit_code": 0,
+      "log": "schema.log"
+    },
+    {
+      "command": "python scripts/generate_third_party_notices.py --check",
+      "exit_code": 0,
+      "log": "notices.log"
+    },
+    {
+      "command": "mkdocs build --strict --site-dir /private/tmp/phase22-conditions-site",
+      "exit_code": 0,
+      "log": "docs.log"
+    }
+  ],
+  "measurement": {
+    "input_ids": [
+      "filesystem-prefix-vulnerable",
+      "filesystem-prefix-vulnerable-mutation",
+      "filesystem-prefix-fixed",
+      "filesystem-prefix-fixed-mutation"
+    ],
+    "completed_count": 4,
+    "model_calls": 0,
+    "per_input_deadline_seconds": 120,
+    "exit_code": 0,
+    "selection": "validate Phase 20 manifest; model_copy inputs filtered to family filesystem-prefix; measure(subset, rules, output)",
+    "log": "filesystem-rules.log"
+  },
+  "adjudication": "filesystem-adjudications.json",
+  "archive": {
+    "path": "measurements.tar.gz",
+    "sha256": "a46500441d99cd3b67de0affb3eca5990fabf756609fede576fb7284e7f76975",
+    "files": "measurement-files.json",
+    "file_count": 14
+  },
+  "limitations": [
+    "Four exposed filesystem inputs only; not the final 45-input repeat.",
+    "Eight unrelated fixed candidates separately reviewed; not runtime proof.",
+    "Incomplete inherited compiler settings remain disclosed.",
+    "All remaining Phase 22 technical and external acceptance gates remain pending."
+  ]
+}

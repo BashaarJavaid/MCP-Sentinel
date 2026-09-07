@@ -1,5 +1,5 @@
 {
-  "status": "local_quality_verified_benchmark_and_hosted_pending",
+  "status": "local_and_hosted_verified_initial_source_repeat_retained",
   "scanner": {
     "revision": "cee02835185e22a27805fd78a4e980c077062a80",
     "source_sha256": "05e6df961ce52c697e9f34b6c5139b3ea03994cee8f61a9fd2ed325530184e26",
@@ -44,6 +44,16 @@
       "command": "mkdocs build --strict --site-dir /private/tmp/phase22-shared-site",
       "exit_code": 0,
       "log": "docs.log"
+    },
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m scripts.run_phase20_benchmark rules --output artifacts/phase22/shared-containment/rules",
+      "exit_code": 0,
+      "log": "rules.log"
+    },
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m scripts.run_phase20_benchmark rules --output artifacts/phase22/shared-containment/rules-repeat --compare-to artifacts/phase22/shared-containment/rules",
+      "exit_code": 0,
+      "log": "rules-repeat.log"
     }
   ],
   "reproductions": [
@@ -60,5 +70,73 @@
     "Source support currently feeds SENT-012; inventory alone is not support in other detectors.",
     "Native 1.7.0 and review/campaign work stay in a separate preserved draft.",
     "No paid model calls, holdout tuning, merge, publication or external pilot acceptance."
-  ]
+  ],
+  "repeat": {
+    "input_count": 45,
+    "reference_sha256": "b539fb0bf9df57eaa4f3de0600fe3d4e42cffa47751caf98aa98990696ef2a34",
+    "repeat_sha256": "df86be5e9faa99d669e59f2f3a2f225c57fa8c005f49418058c992c645449c9a",
+    "request_count": 0,
+    "stable_findings_and_outcomes_equal": true,
+    "timing_policy": "Repeat wall duration is verification latency, not live model latency or a new accuracy observation."
+  },
+  "archive": {
+    "path": "measurements.tar.gz",
+    "sha256": "482dfd95ecd57b9984e209ae6479379ac108d54ca7e1e2c11d95d091401bfc79",
+    "file_count": 273,
+    "files": "measurement-files.json"
+  },
+  "measurements": {
+    "rules": {
+      "input_count": 45,
+      "completed_count": 45,
+      "model_calls": 0,
+      "results_sha256": "b539fb0bf9df57eaa4f3de0600fe3d4e42cffa47751caf98aa98990696ef2a34",
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "cee02835185e22a27805fd78a4e980c077062a80",
+        "source_sha256": "05e6df961ce52c697e9f34b6c5139b3ea03994cee8f61a9fd2ed325530184e26"
+      },
+      "summed_wall_ms": 925658
+    },
+    "rules-repeat": {
+      "input_count": 45,
+      "completed_count": 45,
+      "model_calls": 0,
+      "results_sha256": "df86be5e9faa99d669e59f2f3a2f225c57fa8c005f49418058c992c645449c9a",
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "f1ee593b34594793c7b75ec5ee73144ff21b4227",
+        "source_sha256": "05e6df961ce52c697e9f34b6c5139b3ea03994cee8f61a9fd2ed325530184e26"
+      },
+      "summed_wall_ms": 713161
+    }
+  },
+  "constructor_correction": {
+    "revision": "e67365a",
+    "full_suite": {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/shared-containment/constructor-junit.xml --cov-report=json:artifacts/phase22/shared-containment/constructor-coverage.json",
+      "exit_code": 0,
+      "passed": 780,
+      "skipped": 36,
+      "coverage_percent": 86.86,
+      "log": "constructor-pytest.log"
+    },
+    "focused_tests": 75,
+    "ruff": 0,
+    "format": 0,
+    "mypy": 0,
+    "hosted_checks": {
+      "commit": "6ec5201",
+      "passed": 30,
+      "skipped": 1,
+      "path": "ci-final.json"
+    },
+    "measurement_note": "The retained cee0283 two-run benchmark predates this conservative correction."
+  },
+  "workspace_hosted_checks": {
+    "passed": 30,
+    "skipped": 1,
+    "path": "workspace-ci-final.json",
+    "commit": "9098975"
+  }
 }
