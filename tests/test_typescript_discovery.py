@@ -80,3 +80,25 @@ def test_object_handler_method_uses_original_function_node(tmp_path: Path) -> No
     assert len(tools) == 1 and tools[0].name == "read"
     assert tools[0].handler is not None and tools[0].handler.function is not None
     assert tools[0].schema is not None
+
+
+def test_typed_destructuring_keeps_runtime_member_identity(tmp_path: Path) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import Value
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+
+    source = "function run({ref, other: alias}: {ref: string, alias: string}) {}"
+    path = tmp_path / "typed.ts"
+    path.write_text(source, encoding="utf-8")
+    file = TypeScriptSourceFile(path, path.name, source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    handler = program.resolve(file, "run")
+    assert handler is not None and handler.function is not None
+    flow = TypeScriptPathFlow(program, RuleRunState())
+    argument = Value(sources=frozenset({"caller"}), key="argument")
+    env: dict[str, Value] = {}
+    flow.pattern(handler.function["fparams"][1][0]["ParamPattern"], argument, env)
+    assert set(env) == {"ref", "alias"}
+    assert env["ref"] == flow.member(argument, "ref")
+    assert env["alias"] == flow.member(argument, "other")
+    assert env["ref"].key != env["alias"].key

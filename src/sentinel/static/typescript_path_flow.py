@@ -143,6 +143,9 @@ class TypeScriptPathFlow:
         name = name_of(node)
         if name:
             env[name] = value
+        elif "PatTyped" in node:
+            # Type names describe the binding; they are not runtime assignments.
+            self.pattern(node["PatTyped"][0], value, env)
         elif "PatId" in node:
             env[node["PatId"][0][0]] = value
         elif "Record" in node:
