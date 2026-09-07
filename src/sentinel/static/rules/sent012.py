@@ -48,7 +48,7 @@ def analyze(
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:
-    analyze(PythonProgram(context.files.python_files), state, context.deadline)
+    analyze(context.python_program, state, context.deadline)
     if context.files.typescript_files:
         from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 

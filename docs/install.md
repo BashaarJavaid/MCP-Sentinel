@@ -45,9 +45,15 @@ supports local Python 3.10–3.12 targets and always runs them in Docker.
 
 TypeScript support is static-only. It recognizes `.ts`, `.mts`, and `.cts`
 source using official MCP SDK v1 and server v2 shapes. It does not execute Node,
-package scripts, or dependency installation. JavaScript, TSX, declarations,
-workspaces, imported handlers or schemas, and cross-file dataflow are outside
-the supported boundary.
+package scripts, or dependency installation. JavaScript, TSX and declaration
+files remain outside the supported boundary. Phase 22 adds bounded imported
+handlers/schemas and containment flows. Declared uv, npm and pnpm workspaces can
+be scanned with `sentinel scan . --rules-only` or `--static-only`; the root
+Sentinel configuration governs the aggregate. Nested settings apply when scanning
+an individual member. Missing members produce an incomplete result. Local exports
+and TypeScript aliases resolve only to included repository source; unresolved
+imports and unsupported flow forms remain explicit. Dynamic scans select one
+Python member.
 
 ## First scan
 

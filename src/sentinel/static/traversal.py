@@ -86,7 +86,7 @@ def collect_static_files(
                 ignored += 1
                 continue
             source = _read_supported(path)
-            if language is TargetLanguage.PYTHON and path.suffix == ".py":
+            if language is not TargetLanguage.TYPESCRIPT and path.suffix == ".py":
                 try:
                     tree = ast.parse(source, filename=relative)
                 except SyntaxError as error:
@@ -101,7 +101,7 @@ def collect_static_files(
                         tree=tree,
                     )
                 )
-            elif language is TargetLanguage.TYPESCRIPT and _is_typescript_source(path):
+            elif language is not TargetLanguage.PYTHON and _is_typescript_source(path):
                 typescript_files.append(
                     TypeScriptSourceFile(
                         path=path, relative_path=relative, source=source
@@ -161,8 +161,8 @@ def _is_helm_template(path: Path, root: Path, source: str) -> bool:
 
 def _is_supported(path: Path, language: TargetLanguage) -> bool:
     return (
-        (language is TargetLanguage.PYTHON and path.suffix == ".py")
-        or (language is TargetLanguage.TYPESCRIPT and _is_typescript_source(path))
+        (language is not TargetLanguage.TYPESCRIPT and path.suffix == ".py")
+        or (language is not TargetLanguage.PYTHON and _is_typescript_source(path))
         or path.suffix in _CONFIG_SUFFIXES
         or (path.name == ".env" or path.name.startswith(".env."))
     )
@@ -279,7 +279,7 @@ def _validate_config(
 ) -> None:
     try:
         if (
-            language is TargetLanguage.TYPESCRIPT
+            language is not TargetLanguage.PYTHON
             and path.name.startswith("tsconfig")
             and path.name.endswith(".json")
         ):

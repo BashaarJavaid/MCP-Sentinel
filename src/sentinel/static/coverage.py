@@ -19,7 +19,6 @@ from sentinel.static.ast_utils import (
     resolve_name,
 )
 from sentinel.static.catalog import RULE_IDS
-from sentinel.static.discovery import PythonProgram
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.semgrep_ast import source_range as ts_source_range
@@ -31,7 +30,7 @@ def inventory(
     context: StaticContext, states: dict[str, RuleRunState]
 ) -> StaticCoverage:
     surfaces: list[StaticSurface] = []
-    bindings = PythonProgram(context.files.python_files).tools()
+    bindings = context.python_program.tools()
 
     def schema_supported(binding: TypeScriptBinding | None) -> bool:
         return bool(

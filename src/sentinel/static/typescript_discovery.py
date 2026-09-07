@@ -12,6 +12,7 @@ from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import TypeScriptSourceFile
 from sentinel.static.semgrep_ast import parse_typescript, source_range
+from sentinel.static.typescript_modules import TypeScriptModules
 
 
 def walk(tree: Any) -> Iterator[dict[str, Any]]:
@@ -67,10 +68,15 @@ class TypeScriptBinding:
 
 class TypeScriptProgram:
     def __init__(
-        self, files: tuple[TypeScriptSourceFile, ...], *, deadline: float
+        self,
+        files: tuple[TypeScriptSourceFile, ...],
+        *,
+        deadline: float,
+        modules: TypeScriptModules | None = None,
     ) -> None:
         self.files = {file.relative_path: file for file in files}
         self.deadline = deadline
+        self.modules = modules
         self.trees: dict[str, dict[str, Any]] = {}
         self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}
         self.exports: dict[str, set[str]] = {}
@@ -313,7 +319,21 @@ class TypeScriptProgram:
         if "import" in node:
             module, imported = node["import"]
             target = ".".join(part for part in (imported, rest) if part)
-            if not module.startswith("."):
+            local, bases = (
+                self.modules.resolve(file.relative_path, module)
+                if self.modules is not None
+                else (
+                    module.startswith("."),
+                    (
+                        posixpath.normpath(
+                            posixpath.join(
+                                posixpath.dirname(file.relative_path), module
+                            )
+                        ),
+                    ),
+                )
+            )
+            if not local:
                 # Node's default fs/path exports are the built-in module object.
                 if imported == "default" and module.removeprefix("node:") in {
                     "fs",
@@ -326,24 +346,30 @@ class TypeScriptProgram:
                 return TypeScriptSymbol(
                     file, node, module + ("." + target if target else "")
                 )
-            base = posixpath.normpath(
-                posixpath.join(posixpath.dirname(file.relative_path), module)
-            )
-            if base == ".." or base.startswith("../") or base.startswith("/"):
-                self.unresolved(file, module)
-                return None
-            stem, extension = posixpath.splitext(base)
-            candidates = {base}
-            if extension in {".js", ".mjs", ".cjs"}:
-                candidates.update(stem + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
-            elif not extension:
-                candidates.update(base + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
-                candidates.update(
-                    base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
-                )
-            included = [
-                self.files[path] for path in sorted(candidates) if path in self.files
-            ]
+            included_paths = set()
+            for base in bases:
+                if base == ".." or base.startswith("../") or base.startswith("/"):
+                    self.unresolved(file, module)
+                    return None
+                stem, extension = posixpath.splitext(base)
+                candidates = {base}
+                if extension in {".js", ".mjs", ".cjs"}:
+                    candidates.update(
+                        stem + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+                    )
+                elif not extension:
+                    candidates.update(
+                        base + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+                    )
+                    candidates.update(
+                        base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+                    )
+                matches = candidates.intersection(self.files)
+                if len(matches) != 1:
+                    self.unresolved(file, module + ":" + target)
+                    return None
+                included_paths.update(matches)
+            included = [self.files[path] for path in sorted(included_paths)]
             if (
                 len(included) != 1
                 or target.split(".")[0] not in self.exports[included[0].relative_path]

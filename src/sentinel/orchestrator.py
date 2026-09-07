@@ -73,7 +73,7 @@ def run_scan(
 
     deadline = time.monotonic() + STATIC_TIMEOUT_SECONDS
     catalog = None
-    if configuration.language is TargetLanguage.TYPESCRIPT:
+    if configuration.language in {TargetLanguage.TYPESCRIPT, TargetLanguage.WORKSPACE}:
         files = collect_static_files(
             configuration.scan_root,
             configuration.scanner.scanner.ignore_paths,
@@ -91,7 +91,7 @@ def run_scan(
             configuration.language,
             typescript_candidates=tuple(candidates),
         )
-    if configuration.language is TargetLanguage.TYPESCRIPT:
+    if configuration.language in {TargetLanguage.TYPESCRIPT, TargetLanguage.WORKSPACE}:
         if forced_ignored_paths:
             static_result = run_static_scan(
                 configuration,
@@ -130,6 +130,7 @@ def run_scan(
         findings=static_result.findings,
         warnings=_unique_warnings((*static_result.warnings, *catalog.warnings)),
         summary=static_result.summary,
+        incomplete=static_result.incomplete,
     )
     if configuration.scanner.scanner.rules_only:
         return _static_only_outcome(
@@ -304,7 +305,9 @@ def _static_only_outcome(
     review: ReviewOutcome | None,
     baseline: LoadedBaseline | None,
 ) -> ScanOutcome:
-    static_only_complete = review is None or not review.fatal
+    static_only_complete = (
+        review is None or not review.fatal
+    ) and not static_result.incomplete
     later_reason = (
         "rules-only scan requested" if review is None else "static-only scan requested"
     )
@@ -316,7 +319,15 @@ def _static_only_outcome(
         else StageStatus.SUCCEEDED
     )
     stages = (
-        StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
+        StageRecord(
+            name=StageName.STATIC,
+            status=StageStatus.FAILED
+            if static_result.incomplete
+            else StageStatus.SUCCEEDED,
+            reason="workspace members could not be fully discovered"
+            if static_result.incomplete
+            else None,
+        ),
         StageRecord(
             name=StageName.GPT_STATIC,
             status=gpt_status,
