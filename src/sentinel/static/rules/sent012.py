@@ -7,9 +7,13 @@ from sentinel.static.path_flow import PathFlow, Value
 
 
 def analyze(
-    program: PythonProgram, state: RuleRunState, deadline: float = float("inf")
+    program: PythonProgram,
+    state: RuleRunState,
+    deadline: float = float("inf"),
+    *,
+    flow: PathFlow | None = None,
 ) -> None:
-    flow = PathFlow(program, state, deadline)
+    flow = flow or PathFlow(program, state, deadline)
     visited: set[tuple[str, int]] = set()
     for tool in program.tools():
         state.visit(

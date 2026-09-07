@@ -129,6 +129,15 @@ RULES = (
         "explicit quoted warnings are excluded, and remaining candidates need review.",
         RuleEngine.AST,
     ),
+    _rule(
+        "SENT-014",
+        "Command option injection",
+        "Caller-controlled references reach command option positions without enforced rejection.",
+        Impact.CRITICAL,
+        "Reject option-like references before invocation or use command-specific option terminators and safe object APIs.",
+        "Medium: custom validation and unsupported command wrappers need review; argv lists alone do not prevent option injection.",
+        RuleEngine.AST,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}

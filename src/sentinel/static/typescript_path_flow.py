@@ -34,6 +34,8 @@ def common_facts(values: list[Facts]) -> Facts:
 
 
 class TypeScriptPathFlow:
+    rule_id = "SENT-012"
+
     def __init__(self, program: TypeScriptProgram, state: RuleRunState) -> None:
         self.program, self.state = program, state
         self.active: set[tuple[str, int, int]] = set()
@@ -81,7 +83,7 @@ class TypeScriptPathFlow:
         warning = ReportWarning(
             code="static_flow_unresolved",
             message=(
-                f"SENT-012 at {file.relative_path}:{location.start_line}: "
+                f"{self.rule_id} at {file.relative_path}:{location.start_line}: "
                 f"{reason}; protection is not established"
             ),
         )
@@ -594,7 +596,7 @@ class TypeScriptPathFlow:
             and args
         ):
             value = args[0]
-            if value.sources and not value.contained:
+            if self.rule_id == "SENT-012" and value.sources and not value.contained:
                 self.state.matches.append(
                     StaticMatch(
                         rule_id="SENT-012",
@@ -700,8 +702,13 @@ class TypeScriptPathFlow:
                         env[name] = replace(current, contained=True)
 
 
-def analyze(program: TypeScriptProgram, state: RuleRunState) -> None:
-    flow = TypeScriptPathFlow(program, state)
+def analyze(
+    program: TypeScriptProgram,
+    state: RuleRunState,
+    *,
+    flow: TypeScriptPathFlow | None = None,
+) -> None:
+    flow = flow or TypeScriptPathFlow(program, state)
     for tool in program.tools():
         location = source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)

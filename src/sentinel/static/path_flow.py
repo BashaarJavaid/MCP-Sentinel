@@ -30,6 +30,7 @@ class Value:
     path_object: bool = False
     repository_object: bool = False
     instance: tuple[str, str] | None = None
+    option_safe: bool = False
 
 
 def combine(values: list[Value], key: str = "") -> Value:
@@ -46,6 +47,7 @@ def combine(values: list[Value], key: str = "") -> Value:
         values[0].instance
         if values and all(v.instance == values[0].instance for v in values)
         else None,
+        bool(tainted) and all(v.option_safe for v in tainted),
     )
 
 
@@ -54,6 +56,8 @@ def _key(*parts: str) -> str:
 
 
 class PathFlow:
+    rule_id = "SENT-012"
+
     def __init__(
         self, program: PythonProgram, state: RuleRunState, deadline: float
     ) -> None:
@@ -120,7 +124,7 @@ class PathFlow:
             ReportWarning(
                 code="static_flow_unresolved",
                 message=(
-                    f"SENT-012 at {symbol.file.relative_path}:"
+                    f"{self.rule_id} at {symbol.file.relative_path}:"
                     f"{getattr(node, 'lineno', 1)}: {reason}; "
                     "protection is not established"
                 ),
@@ -518,7 +522,7 @@ class PathFlow:
         elif name.endswith(".index.add") and receiver.repository_object:
             sink = args[0] if args else keywords.get("items")
         if sink is not None:
-            if sink.sources and not sink.contained:
+            if self.rule_id == "SENT-012" and sink.sources and not sink.contained:
                 match = match_from_node("SENT-012", symbol.file, node, "path-flow")
                 self.state.matches.append(
                     replace(
@@ -624,6 +628,12 @@ class PathFlow:
                 for key, value in env.items():
                     if value.key in protected:
                         env[key] = replace(value, contained=True)
+                option_checked = {
+                    value.key for value in bindings.values() if value.option_safe
+                }
+                for key, value in env.items():
+                    if value.key in option_checked:
+                        env[key] = replace(value, option_safe=True)
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
@@ -642,4 +652,5 @@ class PathFlow:
             path_object=False,
             repository_object=False,
             instance=None,
+            option_safe=False,
         )

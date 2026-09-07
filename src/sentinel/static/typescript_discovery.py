@@ -389,13 +389,14 @@ class TypeScriptProgram:
                 )
             )
             if not local:
-                # Node's default fs/path exports are the built-in module object.
+                # These Node default exports are the built-in module object.
                 if imported == "default" and module.removeprefix("node:") in {
                     "fs",
                     "fs/promises",
                     "path",
                     "path/posix",
                     "path/win32",
+                    "child_process",
                 }:
                     target = rest
                 return TypeScriptSymbol(
