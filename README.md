@@ -34,8 +34,8 @@ per-session runtime catalogs and sent attacks, and separate static/dynamic revie
 activity. Default findings include bounded evidence and repair guidance. Static
 surface totals remain unknown; zero findings are not proof of safety. See the
 [coverage and schema compatibility guide](docs/sarif.md#coverage-and-review-activity-native-160).
-TypeScript recognition stays bounded to supported high-level APIs: imported
-handlers/schemas, computed registrations, and unsupported forms remain gaps.
+Phase 22 adds bounded imported handlers/schemas and containment flows;
+computed registrations and unresolved source forms remain coverage gaps.
 Permission sidecars express intended grants; they do not enforce runtime
 boundaries. Dynamic probing still makes four fixed attempts, not a campaign
 against every discovered tool and field.
@@ -82,9 +82,11 @@ describes the selected analysis tier and does not prove a server is secure.
 
 TypeScript support is static-only and covers `.ts`, `.mts`, and `.cts` sources
 using the official MCP SDK v1 and server v2 shapes. JavaScript, TSX, declaration
-files, workspaces, cross-file dataflow, imported handlers or schemas, and Node
-execution are outside the supported boundary. Dynamic targets are local Python
-3.10–3.12 MCP servers.
+files and Node execution are outside the supported boundary. Declared uv, npm
+and pnpm workspaces support aggregate static scans with root Sentinel settings.
+Bounded local imports, package exports and TypeScript source aliases feed
+containment and handler inventory. Other rules retain their documented flow
+limits. Dynamic targets are individual local Python 3.10–3.12 MCP packages.
 
 Version 1.3.0 includes Phase 16 static-correctness changes: same-file
 named-helper execution flows and value-specific validation, authentication,

@@ -109,6 +109,9 @@ reports remain 1.6.0.
 
 ## Delivery and outstanding decisions
 
+The [workspace increment](phase22-workspaces.md) records aggregate scanning,
+parent corrections, verification evidence and the remaining technical gates.
+
 The [Python containment increment](phase22-python-containment.md) records its
 implementation, repeated exposed-input measurements and remaining technical gates.
 The [TypeScript containment increment](phase22-typescript-containment.md) records

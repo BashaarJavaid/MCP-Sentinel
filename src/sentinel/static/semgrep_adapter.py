@@ -79,9 +79,12 @@ def run_semgrep(
         configs.append(config_root / "typescript_parse_gate.yaml")
     for rule_id in rule_ids:
         name = rule_id.lower().replace("-", "")
+        if rule_id == "SENT-005" or (
+            rule_id == "SENT-002" and (files.python_files or not is_typescript)
+        ):
+            configs.append(config_root / f"{name}.yaml")
         if is_typescript and rule_id != "SENT-005":
-            name += "_typescript"
-        configs.append(config_root / f"{name}.yaml")
+            configs.append(config_root / f"{name}_typescript.yaml")
     if catalog:
         configs.append(config_root / "typescript_tool_catalog.yaml")
     environment = os.environ.copy()

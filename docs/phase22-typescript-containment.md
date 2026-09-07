@@ -65,3 +65,26 @@ preceding increment, not this TypeScript implementation.
 The [full technical contract](phase22-technical.md) remains the requested scope.
 Paid evaluation requires its concrete request and budget packet. Merge,
 publication, technical acceptance and external pilot acceptance remain pending.
+
+## Windows source-coordinate correction
+
+Commit `3fc7ce3827bc6d9cd1591f739edbd32480de61df` makes the installed parser
+consume the exact retained UTF-8 source text. Previously, universal-newline
+reading produced LF text while parser tokens retained CRLF disk byte offsets.
+The parser still performs source-only analysis and validates original token
+spellings against the supplied source. Temporary snapshots are removed after
+parsing; the offline boundary tests verify their bytes against included source.
+
+LF/CRLF regressions cover Unicode, imported handlers, findings, and registration
+and sink locations. The Unicode fixture now uses explicit UTF-8 encoding.
+Both new CRLF cases failed before the correction. The corrected full suite passes
+**743 tests**, with **36 opt-in Docker skips** and **86.73% branch coverage**.
+[CI run 34153866936](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34153866936)
+passes all 30 applicable checks, including all four Windows quality jobs,
+Linux/macOS quality, installed wheels, Docker replay and network isolation.
+The Pages deployment is skipped for the draft PR.
+
+`artifacts/phase22/typescript-correction/verification.json` binds the tested
+source, commands, reproduction, local logs and hosted checks. This corrects the
+Windows failure in the earlier increment; it does not close the remaining
+containment, detector, campaign, report or benchmark-accuracy gates.

@@ -1,0 +1,61 @@
+{
+  "status": "local_and_hosted_verified",
+  "scanner": {
+    "revision": "3fc7ce3827bc6d9cd1591f739edbd32480de61df",
+    "source_sha256": "f562d9e2f00e5b33c874797388f91b1fa4c836cad1323e9fa7b694e3df5931cf",
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e"
+  },
+  "pytest": {
+    "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/typescript-correction/junit.xml --cov-report=json:artifacts/phase22/typescript-correction/coverage.json",
+    "exit_code": 0,
+    "passed": 743,
+    "skipped": 36,
+    "coverage_percent": 86.73,
+    "log": "pytest.log"
+  },
+  "focused_checks": [
+    {
+      "command": "python -m pytest tests/test_semgrep_ast.py tests/test_typescript_containment.py tests/test_typescript_discovery.py tests/test_typescript_static.py tests/test_phase19.py -q --no-cov --tb=short",
+      "exit_code": 0,
+      "passed": 78
+    },
+    {
+      "command": "python -m pytest tests/test_cli.py -k rules_only -q --no-cov --tb=short",
+      "exit_code": 0,
+      "passed": 10
+    },
+    {
+      "command": "ruff check . && ruff format --check .",
+      "exit_code": 0
+    },
+    {
+      "command": "mypy",
+      "exit_code": 0,
+      "source_files": 116
+    }
+  ],
+  "reproduction": {
+    "command": "python -m pytest tests/test_semgrep_ast.py tests/test_typescript_containment.py -q --no-cov --tb=short",
+    "exit_code": 1,
+    "failed": 2,
+    "passed": 20,
+    "reason": "CRLF parser byte offsets disagreed with newline-normalized source"
+  },
+  "preserved_report_draft": {
+    "commit": "229d50e",
+    "archive": "/private/tmp/phase22-report-preserved-20260907.tar.gz",
+    "sha256": "856f10227a0fcb49c53a97d78be1040562bee1c25282d5f54ef2311b22f8950b"
+  },
+  "limitations": [
+    "Full Phase 22 technical acceptance remains pending.",
+    "This correction does not establish condition-level benchmark recall.",
+    "No model calls, merge or publication."
+  ],
+  "ci": {
+    "run_id": 34153866936,
+    "head_sha": "3fc7ce3827bc6d9cd1591f739edbd32480de61df",
+    "passed_checks": 30,
+    "skipped_checks": 1,
+    "record": "ci-final.json"
+  }
+}

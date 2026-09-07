@@ -24,6 +24,7 @@ from pydantic import AliasChoices, Field, JsonValue, field_validator, model_vali
 from sentinel.errors import ConfigurationError, TargetError
 from sentinel.finding import ContractModel, FindingStatus, Severity
 from sentinel.permissions import load_permissions_manifest
+from sentinel.workspaces import WorkspaceLayout, discover_workspace
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -95,6 +96,7 @@ class EndpointMode(str, Enum):
 class TargetLanguage(str, Enum):
     PYTHON = "python"
     TYPESCRIPT = "typescript"
+    WORKSPACE = "workspace"
 
 
 class ScannerConfig(ContractModel):
@@ -399,6 +401,7 @@ class LoadedConfiguration(ContractModel):
     target: TargetConfig | None
     static_only: bool
     language: TargetLanguage = TargetLanguage.PYTHON
+    workspace: WorkspaceLayout | None = None
 
 
 ENV_OVERRIDES: dict[str, tuple[str, str]] = {
@@ -509,7 +512,15 @@ def load_configuration(
     if trust_enabled and not repository_compatible_url:
         raise ConfigurationError("LLM endpoint trust acknowledgment is unused")
 
-    language = _detect_target_language(scan_root, scanner.scanner.ignore_paths)
+    workspace = discover_workspace(scan_root)
+    language = _detect_target_language(
+        scan_root, scanner.scanner.ignore_paths, workspace
+    )
+    if workspace is not None and not static_only:
+        raise TargetError(
+            "workspace scans are static only; "
+            "select one Python package for dynamic analysis"
+        )
     if language is TargetLanguage.TYPESCRIPT and not static_only:
         raise TargetError(
             "TypeScript targets support static analysis only; "
@@ -557,6 +568,7 @@ def load_configuration(
         target=target,
         static_only=static_only,
         language=language,
+        workspace=workspace,
     )
 
 
@@ -941,9 +953,20 @@ def _validate_relative_text_path(value: str, label: str) -> str:
 
 
 def _detect_target_language(
-    root: Path, ignore_paths: tuple[str, ...]
+    root: Path, ignore_paths: tuple[str, ...], workspace: WorkspaceLayout | None = None
 ) -> TargetLanguage:
     from sentinel.static.traversal import has_included_source
+
+    if workspace is not None:
+        if any(
+            _python_package_roots(root / member)
+            or _typescript_dependency(root / member)
+            for member in workspace.members
+        ):
+            return TargetLanguage.WORKSPACE
+        raise TargetError(
+            "workspace has no accessible member declaring a supported MCP dependency"
+        )
 
     # Python classification historically depended on the declared dependency alone.
     python = bool(_python_package_roots(root))

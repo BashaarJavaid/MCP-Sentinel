@@ -1,0 +1,168 @@
+{
+  "status": "local_verified_hosted_pending",
+  "recorded_at": "2026-09-07T19:41:38.129247+00:00",
+  "scanner": {
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+    "revision": "756b57eb6b7e8942c6dea86058d3477362568cae",
+    "source_sha256": "aa78d053205658ac333731d76a30e5910665ef3d120779d4a923e2e8f73ef2ca"
+  },
+  "parent": {
+    "branch": "phase22/typescript-containment",
+    "pr": 24,
+    "commit": "3fc7ce3827bc6d9cd1591f739edbd32480de61df"
+  },
+  "measurements": {
+    "rules": {
+      "input_count": 45,
+      "completed_count": 45,
+      "complete": true,
+      "model_calls": 0,
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "afb9645cf7c4aeffa251d69b93a00a255fb249a2",
+        "source_sha256": "c936a3a1a0311dc3a3dd5a11c48441b61a2a2dab3258c889daaad993d70cd28f"
+      },
+      "results_sha256": "ac687fd7fe283e5908aeacaace5cfbd1bd706a5ac3f67cc20ba4b3006432470b",
+      "summed_wall_ms": 804324
+    },
+    "rules-repeat": {
+      "input_count": 41,
+      "completed_count": 41,
+      "complete": false,
+      "model_calls": 0,
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "afb9645cf7c4aeffa251d69b93a00a255fb249a2",
+        "source_sha256": "c936a3a1a0311dc3a3dd5a11c48441b61a2a2dab3258c889daaad993d70cd28f"
+      },
+      "results_sha256": "0fc040f4c0e68e5fc335b29cfa093f01965b791b3a20b635373ead459f488f54",
+      "summed_wall_ms": 656627
+    },
+    "corrected-rules": {
+      "input_count": 45,
+      "completed_count": 45,
+      "complete": true,
+      "model_calls": 0,
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "756b57eb6b7e8942c6dea86058d3477362568cae",
+        "source_sha256": "aa78d053205658ac333731d76a30e5910665ef3d120779d4a923e2e8f73ef2ca"
+      },
+      "results_sha256": "124c5635beb480117bfbda8cc7de687a2d038bf03b3cd24ca1f778940b3861a9",
+      "summed_wall_ms": 1312204
+    },
+    "corrected-repeat": {
+      "input_count": 45,
+      "completed_count": 45,
+      "complete": true,
+      "model_calls": 0,
+      "scanner": {
+        "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+        "revision": "756b57eb6b7e8942c6dea86058d3477362568cae",
+        "source_sha256": "aa78d053205658ac333731d76a30e5910665ef3d120779d4a923e2e8f73ef2ca"
+      },
+      "results_sha256": "28b4e6d477fa107f3c37ccbf6426750ec68ca5778275f19c1ef8385e1866da58",
+      "summed_wall_ms": 1072583
+    }
+  },
+  "repeat": {
+    "input_count": 45,
+    "reference_sha256": "124c5635beb480117bfbda8cc7de687a2d038bf03b3cd24ca1f778940b3861a9",
+    "repeat_sha256": "28b4e6d477fa107f3c37ccbf6426750ec68ca5778275f19c1ef8385e1866da58",
+    "request_count": 0,
+    "stable_findings_and_outcomes_equal": true,
+    "timing_policy": "Repeat wall duration is verification latency, not live model latency or a new accuracy observation."
+  },
+  "commands": [
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m scripts.run_phase20_benchmark rules --output artifacts/phase22/workspaces/corrected-rules",
+      "exit_code": 0,
+      "log": "corrected-rules.log"
+    },
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m scripts.run_phase20_benchmark rules --output artifacts/phase22/workspaces/corrected-repeat --compare-to artifacts/phase22/workspaces/corrected-rules",
+      "exit_code": 0,
+      "log": "corrected-repeat.log"
+    },
+    {
+      "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/workspaces/corrected-junit.xml --cov-report=json:artifacts/phase22/workspaces/corrected-coverage.json",
+      "exit_code": 0,
+      "log": "corrected-pytest.log",
+      "passed": 758,
+      "skipped": 36,
+      "coverage_percent": 86.69
+    },
+    {
+      "command": "ruff check .",
+      "exit_code": 0,
+      "log": "corrected-ruff.log"
+    },
+    {
+      "command": "ruff format --check .",
+      "exit_code": 0,
+      "log": "corrected-format.log"
+    },
+    {
+      "command": "mypy",
+      "exit_code": 0,
+      "log": "corrected-mypy.log"
+    },
+    {
+      "command": "python -m sentinel.schema check",
+      "exit_code": 0,
+      "log": "corrected-schema.log"
+    },
+    {
+      "command": "python scripts/generate_third_party_notices.py --check",
+      "exit_code": 0,
+      "log": "corrected-notices.log"
+    },
+    {
+      "command": "mkdocs build --strict --site-dir /private/tmp/phase22-workspaces-site",
+      "exit_code": 0,
+      "log": "corrected-docs-final.log"
+    },
+    {
+      "command": "pip-audit --no-deps --disable-pip -r /private/tmp/phase22-workspaces-requirements.txt",
+      "exit_code": 0,
+      "log": "corrected-audit-network.log"
+    },
+    {
+      "command": "python -m pytest tests/test_gpt_review.py -k 'real_transport_uses_responses_compatible_loopback_endpoint or compatible_http_failures_are_fatal_or_explicitly_degraded' -q --no-cov --tb=short",
+      "exit_code": 0,
+      "passed": 4,
+      "execution": "Local socket permission enabled; no paid or external model requests."
+    }
+  ],
+  "earlier_failures": [
+    {
+      "log": "pytest.log",
+      "failed": 5,
+      "reason": "Four loopback socket permission failures and one strict-JSON diagnostic mismatch."
+    },
+    {
+      "log": "corrected-audit.log",
+      "exit_code": 1,
+      "reason": "Sandbox DNS access to PyPI blocked; passed with network permission."
+    },
+    {
+      "measurement": "rules-repeat",
+      "input_count": 41,
+      "complete": false,
+      "reason": "Interrupted earlier measurement; preserved, not accepted as repeatability."
+    }
+  ],
+  "archive": {
+    "path": "measurements.tar.gz",
+    "sha256": "d1093de461b6a07473405b9b896bb46a5884bfbf89ba426d1e6bb33a598f5c2d",
+    "file_count": 534,
+    "files": "measurement-files.json",
+    "extraction": "tar -xzf artifacts/phase22/workspaces/measurements.tar.gz -C artifacts/phase22/workspaces"
+  },
+  "limitations": [
+    "Execution/repeatability evidence only; condition-level accuracy gate remains pending.",
+    "Measurements overlapped local verification; timings are not isolated performance comparisons.",
+    "Native reports remain 1.6.0; structured workspace coverage and 1.7.0 remain draft.",
+    "No paid model calls, fresh holdout measurement, merge, publication, or pilot acceptance."
+  ]
+}

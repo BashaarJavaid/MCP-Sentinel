@@ -115,6 +115,11 @@ def run_static_scan(
             sent005.run(context, semgrep_matches.get(rule_id, []), state)
         else:
             _AST_DETECTORS[rule_id](context, state)
+        if configuration.language is TargetLanguage.WORKSPACE and rule_id not in {
+            "SENT-005",
+            "SENT-012",
+        }:
+            typescript.detect(rule_id, context, state, semgrep_matches.get(rule_id))
 
     findings: list[Finding] = []
     outcomes: list[StaticRuleOutcome] = []
@@ -193,6 +198,57 @@ def run_static_scan(
         rule_outcomes=tuple(outcomes),
     )
     warnings = [*files.warnings, *suppression_warnings]
+    workspace = configuration.workspace
+    if workspace:
+        for issue in workspace.issues:
+            warnings.append(
+                ReportWarning(
+                    code="workspace_member_incomplete",
+                    message=f"{issue.path}: {issue.reason}",
+                )
+            )
+        for path in files.config_files:
+            if path.parent != configuration.scan_root and path.name.startswith(
+                "sentinel."
+            ):
+                warnings.append(
+                    ReportWarning(
+                        code="workspace_nested_configuration",
+                        message=(
+                            f"{path.relative_to(configuration.scan_root).as_posix()}: "
+                            "nested configuration is not applied; "
+                            "the aggregate uses root Sentinel configuration"
+                        ),
+                    )
+                )
+
+        def owner(path: str) -> str:
+            return max(
+                (
+                    member
+                    for member in workspace.members
+                    if member == "." or path.startswith(member + "/")
+                ),
+                key=len,
+            )
+
+        for member in workspace.members:
+            python_count = sum(
+                owner(file.relative_path) == member for file in files.python_files
+            )
+            typescript_count = sum(
+                owner(file.relative_path) == member for file in files.typescript_files
+            )
+            warnings.append(
+                ReportWarning(
+                    code="workspace_member_coverage",
+                    message=(
+                        f"{member}: included {python_count} Python and "
+                        f"{typescript_count} TypeScript source files; "
+                        "handler recognition is reported by source location"
+                    ),
+                )
+            )
     for rule_id in selected:
         warnings.extend(states[rule_id].warnings)
     keys = tuple(dict.fromkeys((warning.code, warning.message) for warning in warnings))
@@ -207,6 +263,7 @@ def run_static_scan(
             for key in keys
         ),
         summary=summary,
+        incomplete=bool(workspace and workspace.issues),
     )
 
 

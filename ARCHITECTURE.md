@@ -47,8 +47,9 @@ sandbox defaults to Python 3.11.
 - Legacy SSE transport.
 - Custom or hand-rolled MCP implementations beyond best-effort static parsing.
 - Static analysis for languages beyond Python and TypeScript.
-- JavaScript/TSX, workspaces, imported handlers or schemas, cross-file dataflow,
-  low-level SDK handlers, TypeScript type checking, and Node dynamic probing.
+- JavaScript/TSX, TypeScript type checking, and Node dynamic probing.
+- Compatibility beyond the bounded Phase 22 source bindings described below;
+  imported flow support currently feeds containment and coverage inventory.
 - Free-standing GPT-originated findings.
 - General exploit confirmation against arbitrary user targets.
 - Automated patch generation and automated pull requests.
@@ -353,6 +354,24 @@ parsing only; it never loads a target module, invokes Node, renders templates or
 executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
 shares the existing 120-second static deadline, and malformed source remains a
 target error. This extension introduces no parser dependency or language target.
+
+Workspace discovery reads root uv `members`/`exclude`, npm `workspaces`, and
+pnpm `packages` declarations without invoking their package managers. Expansion
+is confined to regular directories below the scan root, observes exclusions,
+and reports missing, inaccessible or unsupported declarations. Root Sentinel
+configuration governs aggregate scans; nested configurations are disclosed and
+apply only when a member is scanned individually. Python and TypeScript source
+share one aggregate static deadline. Dynamic scans still select one Python
+package. Report 1.7.0 will record each declared member's actual coverage.
+Until that schema migration, member file counts and inaccessible members appear
+as explicit warnings. Missing declared members make an aggregate incomplete.
+Local TypeScript package names resolve only from declared members (or the single
+package root), through included source exports. Source aliases use local JSONC
+compiler options and bounded local `extends` chains, retaining the declaring
+configuration's relative-path origin. Ambiguous, private, escaping, excluded or
+missing targets remain unresolved; package managers and target compilers are
+never invoked. Conditional exports require one unambiguous included source;
+declaration-only `types` entries are not handler evidence.
 
 ### Phase 16 flow and safety recognition
 
