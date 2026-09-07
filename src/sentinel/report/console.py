@@ -78,6 +78,10 @@ def render_console(
                 f"baseline sent={probe.baseline_attempted}, "
                 f"attack sent={probe.attack_attempted}"
             )
+            lines.append(
+                f"    attempt {probe.attempt_id}; mutation={probe.mutation!r}; "
+                f"legacy={probe.legacy_attempt}"
+            )
             response = probe.baseline.get("response")
             process = (
                 response.get("process_state") if isinstance(response, dict) else None
@@ -285,6 +289,22 @@ def _coverage_lines(report: ScanReport) -> list[str]:
     lines: list[str] = []
     static = report.static_analysis.coverage if report.static_analysis else None
     if static is not None:
+        if static.workspace is not None:
+            lines.append("Workspace coverage (root Sentinel configuration):")
+            for member in static.workspace.members:
+                lines.append(
+                    f"  {member.path}: {member.status}; "
+                    f"Python files={member.python_file_count}, "
+                    f"TypeScript files={member.typescript_file_count}; surfaces "
+                    f"recognized={member.recognized_surface_count}, "
+                    f"unresolved={member.unresolved_surface_count}, "
+                    f"unsupported={member.unsupported_surface_count}"
+                )
+                lines.extend(f"    {reason}" for reason in member.reasons)
+                lines.extend(
+                    f"    Nested configuration not applied: {path}"
+                    for path in member.nested_configurations
+                )
         lines.extend(
             (
                 "",
@@ -333,7 +353,7 @@ def _coverage_lines(report: ScanReport) -> list[str]:
             (
                 "",
                 "Runtime discovery: separate baseline/attack sessions; "
-                "four fixed attempts",
+                "bounded attempt coverage",
             )
         )
         for binding in dynamic.coverage.planned_bindings:
@@ -341,7 +361,21 @@ def _coverage_lines(report: ScanReport) -> list[str]:
                 f"  Planned {binding.probe_id}: tool={binding.tool!r}, "
                 f"field={binding.field!r} (null uses runtime fallback)"
             )
-        outcomes = {str(item.probe_id): item for item in dynamic.probe_outcomes}
+        campaign = dynamic.coverage.campaign
+        if campaign:
+            lines.append(
+                f"  Campaign: {campaign.started_attempts}/{campaign.eligible_attempts} "
+                "eligible attempts started; "
+                f"{campaign.tested_attempts} tested; "
+                f"{campaign.remaining_eligible_attempts} eligible untested; "
+                f"limits {campaign.max_probe_attempts} attempts/"
+                f"{campaign.timeout_seconds}s; "
+                f"budget exhausted={campaign.budget_exhausted}; "
+                f"enumeration complete={campaign.enumeration_complete}"
+            )
+        else:
+            lines.append("  Campaign coverage: unknown")
+        outcomes = {item.attempt_id: item for item in dynamic.probe_outcomes}
         for snapshot in dynamic.coverage.discovery:
             total = (
                 str(snapshot.tool_total)
@@ -355,17 +389,20 @@ def _coverage_lines(report: ScanReport) -> list[str]:
             )
             if snapshot.reason:
                 lines.append(f"    {snapshot.reason}")
-            outcome = outcomes[snapshot.probe_id]
+            outcome = outcomes.get(snapshot.attempt_id or "")
             for tool in snapshot.tools:
                 attacked = (
                     snapshot.role == "attack"
+                    and outcome is not None
                     and outcome.attack_attempted is True
                     and outcome.tool == tool.name
                 )
                 paths = tuple(
                     path
                     for path in tool.field_paths
-                    if attacked and path == outcome.argument_path
+                    if attacked
+                    and outcome is not None
+                    and path == outcome.argument_path
                 )
                 unprobed = tuple(path for path in tool.field_paths if path not in paths)
                 lines.append(
@@ -377,7 +414,11 @@ def _coverage_lines(report: ScanReport) -> list[str]:
                     f"      fields attacked: {json.dumps(paths)}; "
                     f"fields not attacked: {json.dumps(unprobed)}"
                 )
-                if attacked and outcome.argument_path not in paths:
+                if (
+                    attacked
+                    and outcome is not None
+                    and outcome.argument_path not in paths
+                ):
                     lines.append(
                         "      exact attempted path: "
                         f"{json.dumps(outcome.argument_path)} "

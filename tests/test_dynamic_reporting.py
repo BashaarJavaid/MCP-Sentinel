@@ -133,10 +133,11 @@ def test_missing_results_are_untested_and_invalid_contracts_rejected() -> None:
     dynamic = _result(())
     assert not dynamic.complete
     assert all(item.status == "untested" for item in dynamic.summary.probe_outcomes)
-    with pytest.raises(ValidationError, match="exactly once"):
+    with pytest.raises(ValidationError, match="at least 1"):
         DynamicAnalysisSummary(probe_outcomes=())
     with pytest.raises(ValidationError, match="only tested"):
         DynamicProbeOutcome(
+            attempt_id="test:SENT-008",
             probe_id="SENT-008",
             status="inconclusive",
             verdict="no_violation_observed",

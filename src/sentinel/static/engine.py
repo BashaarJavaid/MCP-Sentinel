@@ -20,6 +20,7 @@ from sentinel.finding import (
     NotReviewedReview,
     ProvenanceEntry,
     StaticEvidence,
+    SourceRange,
     make_dedup_key,
 )
 from sentinel.report.model import (
@@ -222,33 +223,6 @@ def run_static_scan(
                     )
                 )
 
-        def owner(path: str) -> str:
-            return max(
-                (
-                    member
-                    for member in workspace.members
-                    if member == "." or path.startswith(member + "/")
-                ),
-                key=len,
-            )
-
-        for member in workspace.members:
-            python_count = sum(
-                owner(file.relative_path) == member for file in files.python_files
-            )
-            typescript_count = sum(
-                owner(file.relative_path) == member for file in files.typescript_files
-            )
-            warnings.append(
-                ReportWarning(
-                    code="workspace_member_coverage",
-                    message=(
-                        f"{member}: included {python_count} Python and "
-                        f"{typescript_count} TypeScript source files; "
-                        "handler recognition is reported by source location"
-                    ),
-                )
-            )
     for rule_id in selected:
         warnings.extend(states[rule_id].warnings)
     keys = tuple(dict.fromkeys((warning.code, warning.message) for warning in warnings))
@@ -320,6 +294,30 @@ def _finding_from_match(
         snippet=match.snippet,
         range=match.range,
         fingerprint=match.fingerprint,
+        flow_locations=tuple(
+            FileLocation(
+                path=path,
+                range=SourceRange(
+                    start_line=line,
+                    start_column=1,
+                    end_line=line,
+                    end_column=2,
+                ),
+            )
+            for path, line in json.loads(match.captures.get("flow_locations", "[]"))
+        )
+        or tuple(
+            FileLocation(
+                path=match.path,
+                range=SourceRange(
+                    start_line=line,
+                    start_column=1,
+                    end_line=line,
+                    end_column=2,
+                ),
+            )
+            for line in json.loads(match.captures.get("flow_lines", "[]"))
+        ),
     )
     provenance = ProvenanceEntry(
         source=FindingSource.STATIC,

@@ -442,6 +442,7 @@ def _failed_dynamic_outcome(
             coverage=DynamicCoverage(discovery=()),
             probe_outcomes=tuple(
                 DynamicProbeOutcome(
+                    attempt_id=f"{probe_id}:unavailable",
                     probe_id=probe_id,
                     status="untested",
                     verdict=None,

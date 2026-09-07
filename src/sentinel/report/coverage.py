@@ -25,12 +25,30 @@ class StaticSurface(ContractModel):
     examined_rule_ids: tuple[str, ...] = ()
 
 
+class WorkspaceMemberCoverage(ContractModel):
+    path: NonEmptyString
+    status: Literal["included", "unsupported", "incomplete"]
+    python_file_count: int | None = Field(ge=0)
+    typescript_file_count: int | None = Field(ge=0)
+    recognized_surface_count: int | None = Field(ge=0)
+    unresolved_surface_count: int | None = Field(ge=0)
+    unsupported_surface_count: int | None = Field(ge=0)
+    reasons: tuple[NonEmptyString, ...] = ()
+    nested_configurations: tuple[str, ...] = ()
+
+
+class WorkspaceCoverage(ContractModel):
+    declarations: tuple[str, ...]
+    members: tuple[WorkspaceMemberCoverage, ...]
+
+
 class StaticCoverage(ContractModel):
     surfaces: tuple[StaticSurface, ...]
     total_possible_surfaces: None = None
     excluded_rule_ids: tuple[str, ...]
     file_wide_rule_ids: tuple[str, ...]
     unresolved_flows: tuple[RecognitionReason, ...] = ()
+    workspace: WorkspaceCoverage | None = None
 
 
 class UnresolvedFieldSpace(ContractModel):
@@ -47,7 +65,8 @@ class ObservedTool(ContractModel):
 
 class DiscoverySnapshot(ContractModel):
     probe_id: str
-    role: Literal["baseline", "attack"]
+    role: Literal["discovery", "baseline", "attack"]
+    attempt_id: NonEmptyString | None = None
     tools: tuple[ObservedTool, ...]
     more_pages: bool | None
     tool_total: int | None = Field(ge=0)
@@ -58,11 +77,48 @@ class PlannedProbeBinding(ContractModel):
     probe_id: str
     tool: str | None
     field: str | None
+    attempt_id: NonEmptyString | None = None
+    argument_path: tuple[str, ...] = ()
+    mutation: str | None = None
+
+
+class CampaignCoverage(ContractModel):
+    max_probe_attempts: int = Field(ge=1)
+    timeout_seconds: int = Field(ge=1)
+    planned_attempts: int = Field(ge=0)
+    eligible_attempts: int = Field(ge=0)
+    started_attempts: int = Field(ge=0)
+    tested_attempts: int = Field(ge=0)
+    remaining_eligible_attempts: int = Field(ge=0)
+    enumeration_complete: bool
+    budget_exhausted: bool
+    elapsed_ms: float = Field(ge=0)
+
+    @model_validator(mode="after")
+    def validate_counts(self) -> CampaignCoverage:
+        if not (
+            self.tested_attempts
+            <= self.started_attempts
+            <= self.eligible_attempts
+            <= self.planned_attempts
+        ):
+            raise ValueError("campaign counts exceed planned eligible attempts")
+        if self.started_attempts > self.max_probe_attempts:
+            raise ValueError("campaign exceeds its attempt budget")
+        if (
+            self.remaining_eligible_attempts
+            != self.eligible_attempts - self.started_attempts
+        ):
+            raise ValueError(
+                "campaign remainder must include all unstarted eligible attempts"
+            )
+        return self
 
 
 class DynamicCoverage(ContractModel):
     discovery: tuple[DiscoverySnapshot, ...]
     planned_bindings: tuple[PlannedProbeBinding, ...] = ()
+    campaign: CampaignCoverage | None = None
 
 
 class ReviewActivity(ContractModel):

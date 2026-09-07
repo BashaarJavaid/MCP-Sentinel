@@ -139,6 +139,7 @@ class StaticEvidence(ContractModel):
     snippet: str
     range: SourceRange
     fingerprint: Sha256Hex | None = None
+    flow_locations: tuple[FileLocation, ...] = ()
 
 
 class RuntimeProof(ContractModel):
