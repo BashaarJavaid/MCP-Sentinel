@@ -11,8 +11,8 @@ recruitment remains deferred, and the external pilot gate remains unmet. The
 | --- | --- | --- |
 | Execution and Python containment | PRs #22 and #23, unchanged | All 30 applicable checks pass on each. Preserve PR #23's narrower four vulnerable Git inputs and four fixed partners; no expanded accuracy claim. |
 | TypeScript coordinate correction | `3fc7ce3`, PR #24 | 743 tests, 86.73% branch coverage; all 30 applicable checks pass, including Windows 3.10–3.13. LF/CRLF and UTF-8 regressions cover imported handlers and finding/registration locations. |
-| Workspace correction and delivery | `756b57e` source, `9098975` evidence, PR #33 | 758 tests, 86.69% coverage. Two 45/45 rules-only runs have identical stable findings/coverage. Hosted checks are tracked separately. |
-| Bounded shared containment | `cee0283` source, PR #34 | 776 tests, 86.86% coverage; 71 focused regressions. Two 45/45 runs agree and have no changed findings relative to workspace source. Constructor correction `e67365a` passes 75 focused tests; its full/hosted checks remain pending. |
+| Workspace correction and delivery | `756b57e` source, `9098975` evidence, PR #33 | 758 tests, 86.69% coverage. Two 45/45 rules-only runs have identical stable findings/coverage. All 30 applicable hosted checks pass. |
+| Bounded shared containment | `cee0283` source, PR #34 | 776 tests, 86.86% coverage; 71 focused regressions. Two 45/45 runs agree and have no changed findings relative to workspace source. Constructor correction `e67365a` passes 780 full-suite tests and 75 focused tests; its hosted checks remain pending. |
 | Preserved report/review draft | `229d50e` checkpoint, `phase22/report-campaign` | Original 18 modified/untracked files were archived and committed before updating parents. The branch includes parent corrections but remains an unaccepted draft. |
 
 PRs remain drafts. No merge, release, site publication, outreach or paid model
