@@ -15,12 +15,14 @@ recruitment remains deferred, and the external pilot gate remains unmet. The
 | Bounded shared containment | `cee0283` source, PR #34 | 776 tests, 86.86% coverage; 71 focused regressions. Two 45/45 runs agree and have no changed findings relative to workspace source. Constructor correction `e67365a` passes 780 full-suite tests and 75 focused tests; all 30 applicable hosted checks pass on `6ec5201`. |
 | Filesystem condition follow-up | `276722a` source, successor to PR #34 | 798 tests, 86.88% coverage; 102 focused tests. Four-input subset: 2/2 vulnerable hits, 0/2 fixed condition alerts; eight unrelated candidates separately reviewed. Full Phase 22 gates remain pending. |
 | Preserved report/review draft | `229d50e` checkpoint, `phase22/report-campaign` | Original 18 modified/untracked files were archived and committed before updating parents. The branch includes parent corrections but remains an unaccepted draft. |
+| Description poisoning | `fe40322` source, successor to PR #35 | 823 tests, 86.74% coverage. Five approved development inputs complete: 2/2 vulnerable condition hits and 0/3 fixed/safe condition alerts. All 26 unrelated candidate instances separately reviewed. |
 
 PRs remain drafts. No merge, release, site publication, outreach or paid model
 calls occurred. Exact commands, exits, source and harness digests, logs and failed
 runs are retained in the linked increment records:
 [TypeScript](phase22-typescript-containment.md), [workspaces](phase22-workspaces.md),
-and [shared containment](phase22-shared-containment.md).
+and [shared containment](phase22-shared-containment.md), plus
+[description poisoning](phase22-description-poisoning.md).
 
 ## Requirement map
 
@@ -33,7 +35,7 @@ and [shared containment](phase22-shared-containment.md).
 | Cross-file caller/guard/sink relationships | `path_flow.py`, `typescript_path_flow.py`, SENT-012 tests | Complete approved Atlassian service factories/uploads, filesystem collection/symlink branches, Mastra security-failure flags and fallback, and all condition-level adjudications. |
 | SDK-injected context and bounded factories | PR #34 regressions cover imported Context, rebinding, simple local factory objects, inherited/replaced methods and annotation-only controls | Arbitrary factories, reflection, custom construction and dynamic instance state are not established by these tests. |
 | All ten exposed benchmark families | Existing SENT-012 increments plus retained Phase 20 inputs | Condition-correct detection of all 20 vulnerable inputs and clean fixed/control behavior is not established. Remaining Git option, filesystem, Atlassian, Excel, mobile and Kubernetes conditions need implementation/adjudication. |
-| SENT-013/014/015/016 and Kubernetes SENT-002 | Approved permanent meanings remain in the technical contract | Implement detector catalog, independent pairs/mutations, safe controls, defaults, selection/suppression/baseline/severity checks, remediation, OWASP rationale and acceptance records. |
+| SENT-013/014/015/016 and Kubernetes SENT-002 | SENT-013 default detector, controls, development measurement and rule checklist implemented; see description increment | Complete SENT-014/015/016 and Kubernetes, remaining detector support and final rule acceptance. SENT-013 holdout and reviewed retention remain pending. |
 | uv/npm/pnpm membership, local exports, aliases and inherited compiler settings | Workspace/module tests; aggregate root and individual-package configuration checks | Complete structured member coverage, unsupported/inaccessible counts, all negative compatibility cases and detector integration. Dynamic scans still select one Python package. |
 | Candidate-bound 160-line review context | Preserved `report-campaign` draft carries flow locations and context blocks | Complete deduplication, omission/redaction/boundary/reference checks, request/cache compatibility and runtime-proof preservation. Prepare replacements only for changed requests. |
 | Bounded ordered campaigns | Existing runtime pipeline remains rule-keyed | Implement ordered attempts, stable IDs, round-robin fairness, 24-attempt/120-second budgets, settings precedence, fresh baseline/attack containers, schema drift, interruption/cleanup and explicit unstarted remainder. |

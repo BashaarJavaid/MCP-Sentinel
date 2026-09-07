@@ -117,6 +117,18 @@ RULES = (
         "validators require review; string prefixes alone do not prove containment.",
         RuleEngine.HYBRID,
     ),
+    _rule(
+        "SENT-013",
+        "Tool-description poisoning",
+        "Recoverable tool metadata instructs an agent to override instructions, "
+        "disclose secrets, or redirect execution to another tool.",
+        Impact.HIGH,
+        "Remove instruction overrides, secret-disclosure requests and unrelated "
+        "tool redirection from tool and parameter descriptions.",
+        "Medium: legitimate security tooling may quote attack instructions; "
+        "explicit quoted warnings are excluded, and remaining candidates need review.",
+        RuleEngine.AST,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}
