@@ -59,12 +59,14 @@ from tests.test_python_discovery import program
         ),
         (
             "p = Path(path).resolve()\n"
-            "p.relative_to(Path('/srv/data').resolve(), walk_up=True)\nreturn p.read_text()",
+            "p.relative_to(Path('/srv/data').resolve(), walk_up=True)\n"
+            "return p.read_text()",
             True,
         ),
         (
             "p = Path(path).resolve()\n"
-            "p.relative_to(Path('/srv/data').resolve(), walk_up=replacement)\nreturn p.read_text()",
+            "p.relative_to(Path('/srv/data').resolve(), walk_up=replacement)\n"
+            "return p.read_text()",
             True,
         ),
         (

@@ -1,0 +1,558 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-07T06:22:13.422964Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "7f22f559cf83dc0cafe81a48778b6929bcf1ec50c5d0f582fcdbd1ea3bb70bc6",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "evidence": {
+        "fingerprint": "d5e3fda02d7e56d5506058a784e1989db32e563b92d64e7b388bbf45d1748398",
+        "kind": "static",
+        "range": {
+          "end_column": 68,
+          "end_line": 105,
+          "start_column": 21,
+          "start_line": 105
+        },
+        "snippet": "\t\t\tconst api_key = \"<redacted>\";"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "317f16d0-c436-4bde-92e6-d60432048c7e",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 68,
+          "end_line": 105,
+          "start_column": 21,
+          "start_line": 105
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": "d5e3fda02d7e56d5506058a784e1989db32e563b92d64e7b388bbf45d1748398",
+            "kind": "static",
+            "range": {
+              "end_column": 68,
+              "end_line": 105,
+              "start_column": 21,
+              "start_line": 105
+            },
+            "snippet": "\t\t\tconst api_key = \"<redacted>\";"
+          },
+          "review": null,
+          "rule_id": "SENT-005",
+          "source": "static",
+          "timestamp": "2026-09-07T06:22:13.422964Z"
+        }
+      ],
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-005",
+      "scan_id": "bb929e20-77af-42d1-868c-bce5d88ec0cd",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:22:13.422964Z",
+      "title": "Hardcoded secret"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "e5ba76708d361c1796a011227d146ff8bf5cde89159c40776c61467c85694f03",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 10,
+          "end_line": 15,
+          "start_column": 1,
+          "start_line": 15
+        },
+        "snippet": "app.post("
+      },
+      "exploitability": "theoretical",
+      "finding_id": "9f38eef1-b611-487a-9b40-1ab1b8b6e8d7",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/index.ts",
+        "range": {
+          "end_column": 10,
+          "end_line": 15,
+          "start_column": 1,
+          "start_line": 15
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 10,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            },
+            "snippet": "app.post("
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-07T06:22:13.422964Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "bb929e20-77af-42d1-868c-bce5d88ec0cd",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:22:13.422964Z",
+      "title": "Missing or ineffective route authentication"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "484c7de8de7ecf85add00128cbbe2fe34eb2deb4af925171d48bff0cdd614b1e",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 9,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        },
+        "snippet": "app.get("
+      },
+      "exploitability": "theoretical",
+      "finding_id": "c616f4eb-699a-4cd8-bebd-d0ed2de213ac",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/index.ts",
+        "range": {
+          "end_column": 9,
+          "end_line": 21,
+          "start_column": 1,
+          "start_line": 21
+        }
+      },
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 9,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            },
+            "snippet": "app.get("
+          },
+          "review": null,
+          "rule_id": "SENT-006",
+          "source": "static",
+          "timestamp": "2026-09-07T06:22:13.422964Z"
+        }
+      ],
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-006",
+      "scan_id": "bb929e20-77af-42d1-868c-bce5d88ec0cd",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:22:13.422964Z",
+      "title": "Missing or ineffective route authentication"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 3,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 3
+    }
+  },
+  "scan_id": "bb929e20-77af-42d1-868c-bce5d88ec0cd",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-07T06:22:13.422838Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-006"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 19,
+              "start_column": 34,
+              "start_line": 15
+            }
+          },
+          "kind": "http_route",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 4,
+              "end_line": 19,
+              "start_column": 2,
+              "start_line": 15
+            }
+          },
+          "name": "/mcp",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-006"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 28,
+              "start_column": 33,
+              "start_line": 21
+            }
+          },
+          "kind": "http_route",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 4,
+              "end_line": 28,
+              "start_column": 2,
+              "start_line": 21
+            }
+          },
+          "name": "/mcp",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [],
+          "handler": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 99,
+              "start_column": 42,
+              "start_line": 73
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 13,
+              "end_line": 99,
+              "start_column": 3,
+              "start_line": 68
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "computed_name",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 13,
+                  "end_line": 99,
+                  "start_column": 3,
+                  "start_line": 68
+                }
+              },
+              "message": "tool name is computed"
+            },
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 13,
+                  "end_line": 99,
+                  "start_column": 3,
+                  "start_line": 68
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-003"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 657,
+              "start_column": 26,
+              "start_line": 608
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 658,
+              "start_column": 2,
+              "start_line": 596
+            }
+          },
+          "name": "mobile_take_screenshot",
+          "reasons": [],
+          "status": "recognized"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 609,
+              "start_column": 1,
+              "start_line": 609
+            }
+          },
+          "message": "SENT-002 at src/server.ts:609: unsupported TypeScript flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 610,
+              "start_column": 1,
+              "start_line": 610
+            }
+          },
+          "message": "SENT-002 at src/server.ts:610: unresolved call to getRobotFromDevice; this flow is not established as safe."
+        }
+      ]
+    },
+    "duration_ms": 8401,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "validated_before_use": 1
+        },
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 2,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-012",
+        "skip_reason": "TypeScript containment flow implementation pending",
+        "status": "skipped"
+      }
+    ],
+    "scanned_file_count": 24,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012"
+    ],
+    "total_matches": 3
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 1,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 2
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 3,
+      "suppressed": 0
+    },
+    "total": 3
+  },
+  "target": {
+    "display_name": "mobile-output-vulnerable",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "typescript_tool_name_dynamic",
+      "message": "Skipped a computed TypeScript tool name at src/server.ts:68"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/server.ts:609: unsupported TypeScript flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/server.ts:610: unresolved call to getRobotFromDevice; this flow is not established as safe."
+    },
+    {
+      "code": "typescript_tool_name_dynamic",
+      "message": "Skipped a computed TypeScript tool name at src/server.ts:68"
+    }
+  ]
+}

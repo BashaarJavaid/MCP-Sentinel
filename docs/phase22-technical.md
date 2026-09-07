@@ -109,6 +109,9 @@ reports remain 1.6.0.
 
 ## Delivery and outstanding decisions
 
+The [Python containment increment](phase22-python-containment.md) records its
+implementation, repeated exposed-input measurements and remaining technical gates.
+
 Deliver tested draft increments in contract/evidence, execution, containment/shared
 discovery, remaining detectors/compatibility, review/campaign, report/acceptance
 order. Run Ruff, format, strict mypy, schemas, branch-coverage tests, dependency and
