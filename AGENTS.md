@@ -81,12 +81,23 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
 **Phases 16–20 are complete and accepted. Phase 20's independent benchmark
 was accepted with its recorded detection and execution limitations. Phase 21
-is next.**
+recruitment is deferred; Phase 22's benchmark-driven technical work is next.**
 Existing phase IDs are preserved for historical releases
 and evidence. Required execution order is **16 → 17 → 18 → 19 → 20 → 21 → 22 →
-23 → 24 → 15**, rather than numeric order. Phases 14, 25, and 26 are deferred or
-conditional and never block launch. Update this section only when the relevant
-gate actually passes; a roadmap entry is not implemented behavior.
+23 → 24 → 15**, rather than numeric order, with the user-authorized exception
+below. Phases 14, 25, and 26 are deferred or conditional and never block launch.
+Mark a phase complete only when its relevant gate actually passes; a roadmap
+entry is not implemented behavior.
+
+The user has deferred recruitment due to limited time and no available
+maintainer participants. Continue bounded Phase 22 technical work using Phase
+20's measured detection gaps, starting with path-containment detection and
+independent vulnerable/fixed cases and safe controls. Defer pilot-driven
+compatibility prioritization until participant feedback is available. Phase 21
+remains incomplete; Phase 22 cannot pass its full gate without pilot evidence.
+Author-run scans and benchmark improvements do not replace external validation.
+Resume Phase 21 when recruitment becomes feasible. Later dependencies and
+adoption/launch gates remain unchanged; see `ROADMAP.md` §1 for the exception.
 
 - [x] Phase 0 — repo scaffold, incomplete `sentinel scan`, valid report shells and schemas
 - [x] Phase 1 — hybrid static engine, `SENT-001`–`SENT-007`, paired fixtures
@@ -109,8 +120,8 @@ gate actually passes; a roadmap entry is not implemented behavior.
 - [x] Phase 18 — explicit offline mode and first-use workflow (CLI, Action, pre-commit, onboarding)
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
-- [ ] Phase 21 — maintainer pilot and problem validation (five external workflows and ranked blockers)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (new threat classes, per-tool campaigns, pilot blockers)
+- [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (benchmark-driven technical work next; pilot-dependent completion pending)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

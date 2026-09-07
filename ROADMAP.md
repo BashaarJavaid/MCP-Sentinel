@@ -12,15 +12,27 @@ adoption gaps that those original gates did not measure. Phases 16–26 address
 that review; none is implemented merely by being scheduled here.
 
 Phases 16–20 are complete and accepted, including the independent benchmark
-with its recorded detection and execution limitations. **Next planned phase:
-21 — Maintainer pilot and problem validation.**
+with its recorded detection and execution limitations. **Next work: Phase 22's
+benchmark-driven technical improvements; Phase 21 recruitment is deferred.**
 Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
-after its predecessor's verification gate passes. Phase 15 retains existing
+after its predecessor's verification gate passes, except for the explicitly
+authorized Phase 22 technical work below. Phase 15 retains existing
 publication artifacts but cannot close on distribution evidence alone. Phase
 14 remains deferred and optional. Phases 25 and 26 are separate conditional
 extensions after Phase 24; neither blocks launch, and deterministic sequence
 testing in Phase 26 does not require AI discovery in Phase 25.
+
+**User-authorized sequencing exception:** recruitment is deferred because the
+author currently lacks time and available maintainer participants. Phase 22 may
+begin bounded technical work selected from Phase 20's measured detection gaps,
+starting with path-containment detection and independent vulnerable/fixed cases.
+Pilot-driven compatibility prioritization waits for participant feedback.
+Phase 21 remains incomplete, and Phase 22 cannot pass its full verification gate
+until the required pilot evidence is available. Author-run scans and benchmark
+improvements do not substitute for external validation. Resume Phase 21 when
+recruitment becomes feasible; all later dependencies and adoption/launch gates
+remain unchanged.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.
@@ -1081,7 +1093,9 @@ fixture demonstrations, and successful installation.
 
 ## 24. Phase 21 — Maintainer pilot and problem validation
 
-**Status: planned.** Depends on Phase 20.
+**Status: deferred; verification gate unmet.** Depends on Phase 20. Recruitment
+will resume when the author has time and access to participants; the sequencing
+exception in §1 permits Phase 22's benchmark-driven technical work meanwhile.
 
 ### Objective
 
@@ -1115,7 +1129,11 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Status: planned.** Depends on Phase 21 and uses Phase 20's benchmark.
+**Status: next technical work; full verification gate pending.** Uses Phase 20's
+benchmark. The sequencing exception in §1 permits bounded technical work before
+Phase 21 completes; pilot-dependent work and full completion still depend on
+Phase 21. Begin with path-containment detection, verified against independent
+vulnerable/fixed cases and safe controls, before selecting the next measured gap.
 
 ### Objective
 
@@ -1130,7 +1148,8 @@ while keeping the supported boundary explicit.
 - Evaluate command argument injection beyond `shell=True`; use the independent
   corpus to select supported sinks and safe controls. Assign new stable rule IDs
   for new meanings rather than stretching existing execution/permission rules.
-- Fix the top pilot compatibility blocker first. Prioritize imported handlers,
+- Once pilot feedback is available, fix the top pilot compatibility blocker
+  before other compatibility expansion. Prioritize imported handlers,
   imported schemas, cross-file flows, and workspace layouts within Python and
   TypeScript according to observed demand; publish remaining exclusions.
 - Expand fixed dynamic campaigns across eligible tools and relevant parameters
