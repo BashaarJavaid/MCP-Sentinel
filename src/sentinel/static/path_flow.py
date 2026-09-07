@@ -559,6 +559,9 @@ class PathFlow:
             )
             helper = self.program.resolve(owner_file, owner_name + "." + method)
         if helper and isinstance(helper.node, ast.ClassDef) and root not in env:
+            if not self.program.plain_instance(helper):
+                self.unresolved(symbol, node, "custom construction or instance state")
+                return replace(result, instance=None)
             return replace(result, instance=(helper.file.relative_path, helper.name))
         if (
             helper

@@ -141,3 +141,21 @@ def test_replaced_inherited_method_remains_unresolved(replacement: str) -> None:
     )
     assert not index.tools()
     assert index.warnings
+
+
+@pytest.mark.parametrize("constructor", ["__new__", "__init__"])
+def test_custom_construction_does_not_establish_registered_method(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "server.py": (
+                f"class Reader:\n    def {constructor}(self):\n"
+                "        return replacement()\n"
+                "    def read(self, path):\n        return path\n"
+                "reader = Reader()\nserver.add_tool(reader.read)\n"
+            )
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
