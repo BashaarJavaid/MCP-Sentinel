@@ -266,3 +266,186 @@ def test_imported_handler_report_preserves_suppression_and_no_execution(
         warning.code == "static_review_context_incomplete"
         for warning in result.warnings
     )
+
+
+@pytest.mark.parametrize(
+    "annotation", ["SDKContext", "Annotated[SDKContext, 'injected']"]
+)
+def test_sdk_injected_context_is_not_a_caller_path(annotation: str) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from mcp.server.fastmcp import Context as SDKContext\n"
+                    "from typing import Annotated\n"
+                    f"@mcp.tool()\ndef read(path: str, ctx: {annotation}):\n"
+                    "    open(ctx.session_id)\n    return open(path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert [match.range.start_line for match in state.matches] == [6]
+
+
+def test_similarly_named_context_is_still_caller_controlled() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "@mcp.tool()\ndef read(ctx: Context):\n    return open(ctx.path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_factory_returned_method_tracks_cross_file_guard(guarded: bool) -> None:
+    validation = (
+        "p = Path(path).resolve()\np.relative_to(Path('/allowed').resolve())\n"
+        if guarded
+        else "p = Path(path)\n"
+    )
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from factory import make_reader\n@mcp.tool()\n"
+                    "def read(path):\n    reader = make_reader()\n"
+                    "    return reader.read(path)\n"
+                ),
+                "factory.py": (
+                    "from reader import Reader\n"
+                    "def make_reader():\n    return Reader()\n"
+                ),
+                "reader.py": (
+                    "from pathlib import Path\n"
+                    "class Reader:\n    def read(self, path):\n"
+                )
+                + "".join("        " + line + "\n" for line in validation.splitlines())
+                + "        return p.read_text()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == (0 if guarded else 1)
+    if state.matches:
+        assert state.matches[0].path == "reader.py"
+
+
+def test_factory_annotation_alone_does_not_establish_implementation() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from reader import make_reader\n@mcp.tool()\n"
+                    "def read(path):\n    reader = make_reader()\n"
+                    "    return reader.read(path)\n"
+                ),
+                "reader.py": (
+                    "class Reader:\n    def read(self, path):\n"
+                    "        return open(path)\n"
+                    "def make_reader() -> Reader:\n    return reflection()\n"
+                ),
+            }
+        ),
+        state,
+    )
+    assert not state.matches
+    assert any("unresolved call" in warning.message for warning in state.warnings)
+
+
+def test_relative_path_join_preserves_path_type_and_enforced_guard() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from pathlib import Path\nimport os\n"
+                    "def checked(path, base=None):\n"
+                    "    if base is None:\n        base = os.getcwd()\n"
+                    "    root = Path(base).resolve()\n    p = Path(path)\n"
+                    "    if not p.is_absolute():\n        p = root / p\n"
+                    "    p = p.resolve()\n"
+                    "    if not p.is_relative_to(root):\n        raise ValueError()\n"
+                    "    return p\n"
+                    "@mcp.tool()\ndef read(path):\n"
+                    "    return open(str(checked(path)))\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert not state.matches
+
+
+def test_replaced_factory_method_is_not_mistaken_for_original() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "class Reader:\n    def read(self, path):\n"
+                    "        return open(path)\n"
+                    "def make_reader():\n    return Reader()\n"
+                    "@mcp.tool()\ndef read(path):\n    reader = make_reader()\n"
+                    "    reader.read = replacement\n    return reader.read(path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert not state.matches
+    assert state.warnings
+
+
+def test_rebound_sdk_context_annotation_stays_caller_controlled() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from mcp.server.fastmcp import Context\nContext = str\n"
+                    "@mcp.tool()\ndef read(ctx: Context):\n    return open(ctx)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "def __new__(cls):\n        return replacement()",
+        "def __init__(self):\n        self.read = replacement",
+    ],
+)
+def test_custom_factory_construction_stays_explicitly_unresolved(
+    constructor: str,
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "class Reader:\n    " + constructor + "\n"
+                    "    def read(self, path):\n        return open('/fixed')\n"
+                    "def factory():\n    return Reader()\n"
+                    "@mcp.tool()\ndef read(path):\n    reader = factory()\n"
+                    "    return reader.read(path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert not state.matches
+    assert any("custom construction" in warning.message for warning in state.warnings)

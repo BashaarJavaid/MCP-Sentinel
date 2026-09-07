@@ -43,16 +43,19 @@ class TypeScriptPathFlow:
         self.conditions: dict[str, tuple[Facts, Facts]] = {}
         self.callables: dict[str, TypeScriptSymbol] = {}
         self.invalidated_objects: set[str] = set()
+        self.prefixes: dict[str, Value] = {}
+        self.boundaries: dict[str, tuple[Value, Value]] = {}
 
     def condition(self, value: Value) -> tuple[Facts, Facts]:
         return self.conditions.get(value.key, (frozenset(), frozenset()))
 
     def combined(self, values: list[Value]) -> Value:
         result = combine(values)
-        self.conditions[result.key] = (
-            common_facts([self.condition(value)[0] for value in values]),
-            common_facts([self.condition(value)[1] for value in values]),
-        )
+        if any(value.key in self.conditions for value in values):
+            self.conditions[result.key] = (
+                common_facts([self.condition(value)[0] for value in values]),
+                common_facts([self.condition(value)[1] for value in values]),
+            )
         return result
 
     def warning(self, file: TypeScriptSourceFile, node: Any, reason: str) -> None:
@@ -166,12 +169,18 @@ class TypeScriptPathFlow:
                 for name, item in env.items()
                 if name.startswith("#guard:") and item.contained
             )
-            result = replace(value, key=_key(value.key, "return", *sorted(facts)))
-            false, true = self.condition(value)
-            self.conditions[result.key] = (
-                false | facts if false is not None else None,
-                true | facts if true is not None else None,
+            result = replace(
+                value,
+                key=_key(value.key, "return", *sorted(facts))
+                if value.key in self.conditions or value.key in self.objects
+                else value.key,
             )
+            if value.key in self.conditions:
+                false, true = self.condition(value)
+                self.conditions[result.key] = (
+                    false | facts if false is not None else None,
+                    true | facts if true is not None else None,
+                )
             if value.key in self.objects:
                 self.objects[result.key] = self.objects[value.key]
             returned.append(result)
@@ -391,6 +400,16 @@ class TypeScriptPathFlow:
         }:
             return replace(result, resolved=True)
         if (
+            external
+            in {
+                "path.normalize",
+                "path.resolve",
+            }
+            and len(args) == 1
+            and args[0].resolved
+        ):
+            return replace(args[0], locations=result.locations)
+        if (
             external in {"path.relative", "path/posix.relative", "path/win32.relative"}
             and len(args) == 2
         ):
@@ -411,6 +430,39 @@ class TypeScriptPathFlow:
                     all_facts([v[0] for v in conditions]),
                     common_facts([v[1] for v in conditions]),
                 )
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") == "Plus"
+            and len(args) == 2
+        ):
+            separator = self.callables.get(args[1].key)
+            if separator and separator.external in {"path.sep", "node:path.sep"}:
+                self.prefixes[result.key] = args[0]
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") == "PhysEq"
+            and len(args) == 2
+        ):
+            target, base = args if args[0].sources else list(reversed(args))
+            if (
+                target.sources
+                and target.resolved
+                and base.resolved
+                and not base.sources
+            ):
+                fact = f"#guard:boundary:{target.key}"
+                self.boundaries[fact] = (base, target)
+                self.conditions[result.key] = (frozenset(), frozenset({fact}))
+        if (
+            name.endswith(".startsWith")
+            and len(args) == 1
+            and args[0].key in self.prefixes
+        ):
+            base = self.prefixes[args[0].key]
+            if receiver.resolved and base.resolved and not base.sources:
+                fact = f"#guard:boundary:{receiver.key}"
+                self.boundaries[fact] = (base, receiver)
+                self.conditions[result.key] = (frozenset(), frozenset({fact}))
         if (
             name.endswith(".startsWith")
             and len(args) == 1
@@ -517,6 +569,11 @@ class TypeScriptPathFlow:
         facts = self.condition(value)[int(truth)]
         for fact in facts or ():
             env[fact] = Value(contained=True)
+        for fact, (_, target) in self.boundaries.items():
+            if env.get(fact, Value()).contained:
+                for name, current in env.items():
+                    if current.key == target.key:
+                        env[name] = replace(current, contained=True)
         for key, (base, target, _) in self.relative.items():
             if not (base.resolved and target.resolved and not base.sources):
                 continue
@@ -547,7 +604,7 @@ def analyze(program: TypeScriptProgram, state: RuleRunState) -> None:
         )
         args = [
             Value(
-                sources=frozenset({str(index)}),
+                sources=frozenset({str(index)}) if index == 0 else frozenset(),
                 key=f"{handler.file.relative_path}:{location}:{index}",
                 locations=frozenset(
                     {(tool.registration.file.relative_path, location.start_line)}

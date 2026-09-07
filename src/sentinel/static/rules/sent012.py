@@ -36,12 +36,7 @@ def analyze(
                     }
                 ),
             )
-            for parameter in (
-                *node.args.posonlyargs,
-                *node.args.args,
-                *node.args.kwonlyargs,
-            )
-            if parameter.arg not in {"self", "cls"}
+            for parameter in tool.caller_parameters
         }
         flow.function(tool.handler, bindings)
     state.warnings.extend(program.warnings)

@@ -3,6 +3,8 @@
 import ast
 from pathlib import Path
 
+import pytest
+
 from sentinel.static.discovery import PythonProgram
 from sentinel.static.model import ParsedPythonFile
 
@@ -89,3 +91,71 @@ def test_registration_in_comments_or_shadowed_handler_is_not_resolved() -> None:
     )
     assert not index.tools()
     assert len(index.warnings) == 1
+
+
+def test_inherited_bound_method_and_conflicting_bases() -> None:
+    index = program(
+        {
+            "server.py": (
+                "from reader import Reader\nreader = Reader()\n"
+                "server.add_tool(reader.read)\n"
+            ),
+            "reader.py": (
+                "from base import ReaderBase\nclass Reader(ReaderBase):\n    pass\n"
+            ),
+            "base.py": (
+                "class ReaderBase:\n    def read(self, path):\n"
+                "        return open(path)\n"
+            ),
+        }
+    )
+    tools = index.tools()
+    assert len(tools) == 1
+    assert tools[0].handler.file.relative_path == "base.py"
+    ambiguous = program(
+        {
+            "server.py": (
+                "class First:\n    def read(self, path):\n        return open(path)\n"
+                "class Second:\n    def read(self, path):\n        return 'safe'\n"
+                "class Reader(First, Second):\n    pass\n"
+                "reader = Reader()\nserver.add_tool(reader.read)\n"
+            )
+        }
+    )
+    assert not ambiguous.tools()
+    assert ambiguous.warnings
+
+
+@pytest.mark.parametrize(
+    "replacement", ["read = replacement", "read: object = replacement"]
+)
+def test_replaced_inherited_method_remains_unresolved(replacement: str) -> None:
+    index = program(
+        {
+            "server.py": (
+                "class Base:\n    def read(self, path):\n        return open(path)\n"
+                "class Reader(Base):\n    " + replacement + "\n"
+                "reader = Reader()\nserver.add_tool(reader.read)\n"
+            )
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
+
+
+@pytest.mark.parametrize("constructor", ["__new__", "__init__"])
+def test_custom_construction_does_not_establish_registered_method(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "server.py": (
+                f"class Reader:\n    def {constructor}(self):\n"
+                "        return replacement()\n"
+                "    def read(self, path):\n        return path\n"
+                "reader = Reader()\nserver.add_tool(reader.read)\n"
+            )
+        }
+    )
+    assert not index.tools()
+    assert index.warnings

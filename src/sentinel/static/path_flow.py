@@ -29,6 +29,7 @@ class Value:
     locations: frozenset[tuple[str, int]] = frozenset()
     path_object: bool = False
     repository_object: bool = False
+    instance: tuple[str, str] | None = None
 
 
 def combine(values: list[Value], key: str = "") -> Value:
@@ -42,6 +43,9 @@ def combine(values: list[Value], key: str = "") -> Value:
         frozenset().union(*(v.locations for v in values)),
         bool(values) and all(v.path_object for v in values),
         bool(values) and all(v.repository_object for v in values),
+        values[0].instance
+        if values and all(v.instance == values[0].instance for v in values)
+        else None,
     )
 
 
@@ -281,6 +285,12 @@ class PathFlow:
         elif isinstance(target, (ast.Tuple, ast.List)):
             for child in target.elts:
                 PathFlow.assign(child, value, env)
+        elif isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+            receiver = env.get(target.value.id)
+            if receiver is not None and receiver.instance is not None:
+                for name, current in env.items():
+                    if current.key == receiver.key:
+                        env[name] = replace(current, instance=None)
 
     @staticmethod
     def merge(env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
@@ -385,7 +395,18 @@ class PathFlow:
             )
         if isinstance(node, ast.Attribute):
             value = self.expression(symbol, node.value, env)
-            return replace(value, key=value.key + "." + node.attr, contained=False)
+            return replace(
+                value, key=value.key + "." + node.attr, contained=False, instance=None
+            )
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+            left = self.expression(symbol, node.left, env)
+            right = self.expression(symbol, node.right, env)
+            return replace(
+                combine([left, right], _key("path-join", left.key, right.key)),
+                path_object=left.path_object,
+                resolved=False,
+                contained=False,
+            )
         if isinstance(node, (ast.Lambda, ast.FunctionDef, ast.AsyncFunctionDef)):
             return Value()
         values = [
@@ -531,10 +552,21 @@ class PathFlow:
         if name.startswith(("self.", "cls.")) and "." in symbol.name:
             helper_name = symbol.name.rsplit(".", 1)[0] + "." + name.split(".", 1)[1]
         helper = self.program.resolve(symbol.file, helper_name)
+        if receiver.instance:
+            owner_path, owner_name = receiver.instance
+            owner_file = next(
+                file for file in self.program.files if file.relative_path == owner_path
+            )
+            helper = self.program.resolve(owner_file, owner_name + "." + method)
+        if helper and isinstance(helper.node, ast.ClassDef) and root not in env:
+            if not self.program.plain_instance(helper):
+                self.unresolved(symbol, node, "custom construction or instance state")
+                return replace(result, instance=None)
+            return replace(result, instance=(helper.file.relative_path, helper.name))
         if (
             helper
             and isinstance(helper.node, Function)
-            and name.split(".")[0] not in env
+            and (name.split(".")[0] not in env or receiver.instance is not None)
         ):
             parameters = helper.node.args
             positional = [p.arg for p in (*parameters.posonlyargs, *parameters.args)]
@@ -609,4 +641,5 @@ class PathFlow:
             contained=False,
             path_object=False,
             repository_object=False,
+            instance=None,
         )

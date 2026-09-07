@@ -109,6 +109,12 @@ reports remain 1.6.0.
 
 ## Delivery and outstanding decisions
 
+The [implementation status map](phase22-implementation-status.md) separates
+verified draft increments from the still-unfinished full technical plan.
+
+The [shared containment follow-up](phase22-shared-containment.md) records
+bounded caller/context and helper identity fixes; full discovery remains pending.
+
 The [workspace increment](phase22-workspaces.md) records aggregate scanning,
 parent corrections, verification evidence and the remaining technical gates.
 
