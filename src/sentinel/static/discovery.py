@@ -131,6 +131,8 @@ class PythonProgram:
             return (
                 self.resolve(file, target + ("." + rest if rest else ""), seen)
                 if target
+                else Symbol(file, name, node.value)
+                if node.value is not None and not rest
                 else None
             )
         if isinstance(node, (ast.Import, ast.ImportFrom)):

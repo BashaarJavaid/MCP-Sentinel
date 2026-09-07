@@ -1093,7 +1093,7 @@ proves that same type/required violation. Ambiguous bindings, unconstrained path
 size-only violations, and resource-only failures stay separate.
 
 Included `.py`, `.ts`, `.mts`, and `.cts` files may carry exact lowercase
-reason-bearing inline directives for `SENT-001`–`SENT-007`. Python comments are
+reason-bearing inline directives for `SENT-001`–`SENT-007` and `SENT-012`–`SENT-013`. Python comments are
 read through the tokenizer; TypeScript line comments use a lexer that excludes
 strings, templates, escapes, and block comments. Applied directives preserve the
 finding with `suppressed` status and typed source location, exclude it from GPT
@@ -1266,3 +1266,17 @@ and replay treatments in parallel. The original local baseline is in
 [completion measurement](docs/phase20-completion-v2.md). The user accepted Phase
 20 on 2026-09-07 (UTC), including its measured limitations; the
 [acceptance record](docs/phase20-acceptance.md) binds the evidence and checks.
+
+
+### Phase 22 description candidates
+
+SENT-013 inspects statically recovered tool and parameter descriptions through
+the shared Python/TypeScript source indexes. Explicit instruction overrides,
+secret-disclosure requests and secret-directed tool redirection yield canonical
+static candidates (High impact, theoretical exploitability, ASI01). Quoted security
+warnings and benign prerequisites are controls. Low-level TypeScript tools/list
+metadata is recovered through the imported SDK request schema; this metadata
+recognition does not establish handler or runtime coverage. Dynamic descriptions
+are disclosed as unresolved. The existing selection, suppression, baseline and
+review pipeline applies. Native schema remains 1.6.0 until the coordinated campaign
+migration ships; the complete Phase 22 technical and external gates remain pending.

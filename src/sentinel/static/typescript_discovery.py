@@ -37,6 +37,8 @@ def name_of(node: dict[str, Any]) -> str | None:
     if "Id" in node:
         value = node["Id"][0][0]
         return value if isinstance(value, str) else None
+    if "IdSpecial" in node and node["IdSpecial"][0][0] == "This":
+        return "this"
     if "DotAccess" in node:
         receiver, _, field = node["DotAccess"]
         left, right = name_of(receiver), name_of(field)
@@ -153,12 +155,65 @@ class TypeScriptProgram:
         )
         return self.resolve_node(symbol.file, value, seen=seen)
 
-    @staticmethod
-    def literal(symbol: TypeScriptSymbol | None) -> str | None:
-        if symbol is None:
+    def literal(self, symbol: TypeScriptSymbol | None, depth: int = 0) -> str | None:
+        if symbol is None or depth >= 64:
             return None
         string = symbol.node.get("L", {}).get("String")
-        return str(string[1][0]) if string else None
+        if string:
+            return str(string[1][0])
+        call = symbol.node.get("Call")
+        if call:
+            operation = call[0].get("Special", [{}])[0]
+            if isinstance(operation, dict) and (
+                "ConcatString" in operation or operation.get("Op") == "Plus"
+            ):
+                values = [
+                    self.literal(self.resolve_node(symbol.file, arg["Arg"]), depth + 1)
+                    for arg in call[1][1]
+                    if "Arg" in arg
+                ]
+                if values and all(value is not None for value in values):
+                    return "".join(value for value in values if value is not None)
+        return None
+
+    def listed_tools(self) -> tuple[TypeScriptSymbol, ...]:
+        """Recover metadata returned to the SDK's low-level tools/list schema."""
+        found = []
+        for file in self.files.values():
+            for node in walk(self.trees[file.relative_path]):
+                call = node.get("Call")
+                if not call or not (name_of(call[0]) or "").endswith(
+                    ".setRequestHandler"
+                ):
+                    continue
+                args = [item["Arg"] for item in call[1][1] if "Arg" in item]
+                if len(args) != 2:
+                    continue
+                schema = self.resolve_node(file, args[0])
+                if not schema or schema.external != (
+                    "@modelcontextprotocol/sdk/types.js.ListToolsRequestSchema"
+                ):
+                    continue
+                handler = self.resolve_node(file, args[1])
+                if not handler or not handler.function:
+                    self.unresolved(file, "tools/list handler")
+                    continue
+                for returned in walk(handler.function["fbody"]):
+                    if "Return" not in returned:
+                        continue
+                    value = (returned["Return"][1] or {}).get("some")
+                    result = self.resolve_node(handler.file, value) if value else None
+                    listing = self.property(result, "tools") if result else None
+                    if listing is None or "Container" not in listing.node:
+                        self.unresolved(file, "tools/list metadata")
+                        continue
+                    for item in listing.node["Container"][1][1]:
+                        metadata = self.resolve_node(listing.file, item)
+                        if metadata and "Record" in metadata.node:
+                            found.append(metadata)
+                        else:
+                            self.unresolved(listing.file, "tools/list entry")
+        return tuple(found)
 
     def tools(self) -> tuple[TypeScriptBinding, ...]:
         found: list[TypeScriptBinding] = []

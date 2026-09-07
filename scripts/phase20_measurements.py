@@ -27,6 +27,8 @@ from scripts.phase20_corpus import (
     materialize,
     tree_digest,
 )
+from scripts.phase22_corpus import Manifest as Phase22Manifest
+from scripts.phase22_corpus import frozen as frozen_phase22
 from sentinel.config import LlmConfig, load_configuration
 from sentinel.dynamic.prober import run_dynamic_scan
 from sentinel.errors import InfrastructureError, TargetError
@@ -148,13 +150,31 @@ def stable_report(report: dict[str, Any]) -> dict[str, Any]:
 
 
 def measure(
-    manifest: Manifest,
+    manifest: Manifest | Phase22Manifest,
     treatment: str,
     destination: Path,
     *,
     rules_dir: Path | None = None,
 ) -> dict[str, Any]:
-    approval = frozen()
+    if isinstance(manifest, Phase22Manifest):
+        if treatment != "rules":
+            raise ValueError("Phase 22 measurement currently supports rules-only")
+        approved = frozen_phase22()
+        inputs = {item.id: item for item in approved.inputs}
+        if (
+            manifest.snapshots != approved.snapshots
+            or manifest.packet != approved.packet
+            or any(item != inputs.get(item.id) for item in manifest.inputs)
+            or len({item.id for item in manifest.inputs}) != len(manifest.inputs)
+        ):
+            raise ValueError("Phase 22 measurement differs from its authorized inputs")
+        approval = {
+            "manifest_sha256": digest(
+                (ROOT / "artifacts/phase22/corpus-review/manifest.json").read_bytes()
+            )
+        }
+    else:
+        approval = frozen()
     if destination.exists():
         raise ValueError(
             "measurement destination exists; use a new directory "

@@ -55,3 +55,22 @@ def test_freeze_decision_must_authorize_exact_manifest(
     (packet.parent / "authorization.json").write_text(json.dumps(decision))
     with pytest.raises(ValueError, match="matching freeze approval"):
         frozen(tmp_path)
+
+
+def test_phase22_measurement_rejects_unapproved_changes(tmp_path: Path) -> None:
+    from scripts.phase20_measurements import measure
+    from scripts.phase22_corpus import frozen
+
+    approved = frozen()
+    item = next(i for i in approved.inputs if i.split == "development")
+    changed = approved.model_copy(
+        update={
+            "inputs": [item.model_copy(update={"condition": "changed condition"})],
+        }
+    )
+    with pytest.raises(ValueError, match="authorized inputs"):
+        measure(changed, "rules", tmp_path / "changed")
+    assert not (tmp_path / "changed").exists()
+    with pytest.raises(ValueError, match="rules-only"):
+        measure(approved, "prepare-live", tmp_path / "paid")
+    assert not (tmp_path / "paid").exists()

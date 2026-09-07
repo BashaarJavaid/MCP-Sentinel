@@ -14,7 +14,7 @@ an exact reason-bearing directive:
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012` are supported. The finding stays in rule,
+its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-013` are supported. The finding stays in rule,
 report, JSON, and SARIF counts with status `suppressed`, its reason and directive
 location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
@@ -232,3 +232,32 @@ resolution, including Boolean aliases and imported guards. Unsupported dispatch,
 computed members, schemas and calls remain explicit gaps. Technical rule acceptance,
 the new independent corpus evaluation and reviewed-tier measurements remain
 pending; this draft implementation does not complete Phase 22.
+
+## SENT-013 { #sent-013 }
+
+### Tool-description poisoning
+
+- Engine: the existing Python AST and installed Semgrep TypeScript parser
+- Impact: High; the existing theoretical-exploitability rubric initially reports
+  Medium severity, with candidate-bound review kept separate
+- OWASP: `ASI01:2026 — Agent Goal Hijack`; metadata attempts to replace the agent's
+  instructions, disclose secrets, or redirect its use of tools
+- Boundary: Python tool docstrings, declared descriptions and parameter metadata;
+  TypeScript SDK/Mastra descriptions, schema descriptions and statically recovered
+  low-level `tools/list` metadata, including included imports and literal concatenation
+- False-positive risk: Medium; ordinary imperatives and explicit quoted security
+  warnings are controls. Security tools may still need review of remaining directives
+- Remediation: remove unrelated instruction overrides, secret-disclosure requests
+  and tool redirection from descriptions; describe the tool's intended operation
+
+The rule recognizes bounded explicit wording, including supported invisible
+Unicode and ANSI representations. Suspicious vocabulary alone is insufficient.
+Labeling an active directive “Warning” does not exempt it. Ordinary prerequisites
+such as fetching a project ID from another tool are distinct from secret-directed
+redirection. Dynamically generated descriptions remain unresolved and are disclosed;
+this is not independent semantic discovery or a guarantee against all prompt attacks.
+
+The rule is enabled by default and uses existing rule selection, reason-bearing
+inline suppression, baseline identities and severity thresholds. Descriptions
+remain untrusted source evidence, never instructions to Sentinel. Native reports
+continue to use the canonical static Finding shape.
