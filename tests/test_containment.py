@@ -262,9 +262,14 @@ def test_imported_handler_report_preserves_suppression_and_no_execution(
     assert tool.location.path == "server.py"
     assert tool.handler is not None and tool.handler.path == "helpers.py"
     assert tool.examined_rule_ids == ("SENT-012",)
-    assert any(
-        warning.code == "static_review_context_incomplete"
-        for warning in result.warnings
+    from sentinel.llm.context import build_finding_context
+
+    context = build_finding_context(root, finding)
+    assert context.contains("server.py", 4, 4)
+    assert context.contains("helpers.py", 3, 3)
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
     )
 
 

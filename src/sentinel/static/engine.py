@@ -19,8 +19,8 @@ from sentinel.finding import (
     FindingStatus,
     NotReviewedReview,
     ProvenanceEntry,
-    StaticEvidence,
     SourceRange,
+    StaticEvidence,
     make_dedup_key,
 )
 from sentinel.report.model import (
@@ -278,6 +278,22 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
         if existing is None:
             groups[key] = match
             continue
+        captures = {**match.captures, **existing.captures}
+        for field in ("flow_locations", "flow_lines"):
+            if field in captures:
+                records = [
+                    item
+                    for candidate in (existing, match)
+                    for item in json.loads(candidate.captures.get(field, "[]"))
+                ]
+                captures[field] = json.dumps(
+                    sorted(
+                        {
+                            tuple(item) if isinstance(item, list) else item
+                            for item in records
+                        }
+                    )
+                )
         groups[key] = StaticMatch(
             rule_id=match.rule_id,
             path=match.path,
@@ -285,7 +301,7 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             snippet=existing.snippet,
             fingerprint=existing.fingerprint or match.fingerprint,
             match_kinds=tuple(sorted(set((*existing.match_kinds, *match.match_kinds)))),
-            captures=existing.captures or match.captures,
+            captures=captures,
         )
     return tuple(sorted(groups.values(), key=_match_sort_key))
 

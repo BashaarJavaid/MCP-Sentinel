@@ -1158,7 +1158,7 @@ def test_helper_sink_alias_and_call_site_dedup(tmp_path: Path, language: str) ->
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
-def test_helper_context_limit_is_explicit(tmp_path: Path, language: str) -> None:
+def test_distant_helper_context_is_supplied(tmp_path: Path, language: str) -> None:
     helper = (
         "def execute(raw):\n    return eval(raw)\n"
         if language == "python"
@@ -1177,7 +1177,21 @@ def test_helper_context_limit_is_explicit(tmp_path: Path, language: str) -> None
         _tool(language, "return forward(value)", helper),
     )
     assert len(result.findings) == 1
-    assert any(w.code == "static_review_context_incomplete" for w in result.warnings)
+    from sentinel.llm.context import build_finding_context
+
+    finding = result.findings[0]
+    assert isinstance(finding.evidence, StaticEvidence)
+    assert finding.evidence.flow_locations
+    context = build_finding_context(tmp_path / "target", finding)
+    assert all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in finding.evidence.flow_locations
+    )
+    assert sum(b.end_line - b.start_line + 1 for b in context.blocks) <= 160
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
+    )
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
@@ -1273,9 +1287,7 @@ def test_typescript_distinguishes_helper_calls_on_one_line(tmp_path: Path) -> No
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
-def test_return_flow_outside_review_context_warns(
-    tmp_path: Path, language: str
-) -> None:
+def test_distant_return_flow_context_is_supplied(tmp_path: Path, language: str) -> None:
     helper = (
         "def identity(raw):\n    return raw\n"
         if language == "python"
@@ -1294,7 +1306,21 @@ def test_return_flow_outside_review_context_warns(
         _tool(language, "return eval(forward(value))", helper),
     )
     assert len(result.findings) == 1
-    assert any(w.code == "static_review_context_incomplete" for w in result.warnings)
+    from sentinel.llm.context import build_finding_context
+
+    finding = result.findings[0]
+    assert isinstance(finding.evidence, StaticEvidence)
+    assert finding.evidence.flow_locations
+    context = build_finding_context(tmp_path / "target", finding)
+    assert all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in finding.evidence.flow_locations
+    )
+    assert sum(b.end_line - b.start_line + 1 for b in context.blocks) <= 160
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
+    )
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
