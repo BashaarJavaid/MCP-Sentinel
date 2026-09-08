@@ -179,6 +179,8 @@ class PythonProgram:
         file: ParsedPythonFile,
         name: str,
         seen: frozenset[tuple[str, str]] = frozenset(),
+        *,
+        value_binding: bool = False,
     ) -> Symbol | None:
         check_deadline(self.deadline)
         key = (file.relative_path, name)
@@ -191,6 +193,8 @@ class PythonProgram:
             return None
         node = nodes[0]
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            if value_binding and not rest and isinstance(node.value, ast.Call):
+                return Symbol(file, name, node.value)
             value = node.value.func if isinstance(node.value, ast.Call) else node.value
             target = qualified_name(value) if value else None
             if isinstance(node.value, ast.Call):
@@ -233,7 +237,12 @@ class PythonProgram:
                 if constructor is None or not self.plain_instance(constructor):
                     return None
             return (
-                self.resolve(file, target + ("." + rest if rest else ""), seen)
+                self.resolve(
+                    file,
+                    target + ("." + rest if rest else ""),
+                    seen,
+                    value_binding=value_binding,
+                )
                 if target
                 else Symbol(file, name, node.value)
                 if node.value is not None and not rest
@@ -265,7 +274,12 @@ class PythonProgram:
                 candidates = self.modules.get(".".join(parts[:stop]), [])
                 if candidates:
                     return (
-                        self.resolve(candidates[0], ".".join(parts[stop:]), seen)
+                        self.resolve(
+                            candidates[0],
+                            ".".join(parts[stop:]),
+                            seen,
+                            value_binding=value_binding,
+                        )
                         if len(candidates) == 1
                         else None
                     )

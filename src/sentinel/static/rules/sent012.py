@@ -46,7 +46,10 @@ def analyze(
             )
             for parameter in tool.caller_parameters
         }
-        flow.function(tool.handler, bindings)
+        if isinstance(tool, ToolBinding):
+            flow.entry(tool, bindings)
+        else:
+            flow.function(tool.handler, bindings)
     state.warnings.extend(program.warnings)
 
 

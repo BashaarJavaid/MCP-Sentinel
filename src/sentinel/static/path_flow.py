@@ -15,7 +15,7 @@ from sentinel.static.ast_utils import (
     resolve_name,
     scope_nodes,
 )
-from sentinel.static.discovery import Function, PythonProgram, Symbol
+from sentinel.static.discovery import Function, PythonProgram, Symbol, ToolBinding
 from sentinel.static.execution import Sources, check_deadline, union
 from sentinel.static.model import RuleRunState
 from sentinel.static.registration_flow import RegistrationFlow
@@ -40,6 +40,9 @@ class Value:
 
 
 def combine(values: list[Value], key: str = "") -> Value:
+    present = [value for value in values if value.key != "None"]
+    if present and len(present) != len(values):
+        return replace(combine(present, key), maybe_missing=True)
     tainted = [v for v in values if v.sources]
     keys = sorted({v.key for v in values})
     return Value(
@@ -107,6 +110,59 @@ class PathFlow:
         self.members: dict[str, dict[object, str]] = {}
         self.member_defaults: dict[str, Value] = {}
         self.call_sites: list[str] = []
+        self.yielding: set[tuple[str, str]] = set()
+
+    def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
+        from sentinel.static.lifespan import external, tool_lifespan
+
+        node = tool.handler.node
+        assert isinstance(node, Function)
+        contexts = [
+            parameter.arg
+            for parameter in (
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+            )
+            if parameter.arg not in bindings
+            and parameter.annotation is not None
+            and external(self.program, tool.handler, parameter.annotation)
+            in {
+                "fastmcp.Context",
+                "fastmcp.server.context.Context",
+                "mcp.server.fastmcp.Context",
+                "mcp.server.fastmcp.server.Context",
+            }
+        ]
+        lifespan = tool_lifespan(self.program, tool) if contexts else None
+        if lifespan is not None:
+            local: dict[str, Value] = {}
+            identity = (lifespan.file.relative_path, lifespan.name)
+            self.yielding.add(identity)
+            try:
+                value = self.function(lifespan, local)
+            finally:
+                self.yielding.remove(identity)
+            bindings.update(
+                (key, value)
+                for key, value in local.items()
+                if key.startswith("#member:")
+            )
+            for name in contexts:
+                context = Value(
+                    key=_key(
+                        "sdk-context",
+                        tool.handler.file.relative_path,
+                        str(node.lineno),
+                        name,
+                    )
+                )
+                request = Value(key=_key(context.key, "request_context"))
+                self.record_keys.update((context.key, request.key))
+                bindings[name] = context
+                bindings[self.member_key(context, "request_context")] = request
+                bindings[self.member_key(request, "lifespan_context")] = value
+        self.function(tool.handler, bindings)
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
@@ -193,7 +249,13 @@ class PathFlow:
             elif isinstance(node, ast.Raise):
                 return False
             elif isinstance(node, ast.Expr):
-                self.expression(symbol, node.value, env)
+                if (
+                    isinstance(node.value, ast.Yield)
+                    and (symbol.file.relative_path, symbol.name) in self.yielding
+                ):
+                    returned.append(self.expression(symbol, node.value.value, env))
+                else:
+                    self.expression(symbol, node.value, env)
             elif isinstance(node, ast.If):
                 if self.disabled_boundary(symbol, node, env):
                     # Analyze the configured-boundary condition. An operator's
@@ -566,7 +628,9 @@ class PathFlow:
                     env[marker] = value
                     self.member_defaults.setdefault(marker, Value())
             self.mapping_keys.add(mapping_key)
-            return combine(values, mapping_key)
+            return replace(
+                combine(values, mapping_key), maybe_missing=False, instance=None
+            )
         if isinstance(node, ast.Call):
             return self.call(symbol, node, env)
         if isinstance(node, ast.Await):
@@ -747,18 +811,22 @@ class PathFlow:
             locations=result.locations | {(symbol.file.relative_path, node.lineno)},
         )
         if (
-            resolved in {"len", "builtins.len"}
-            and len(args) == 1
-            and args[0].key in self.mapping_keys
-            and not keywords
-        ) or (
-            resolved in {"isinstance", "builtins.isinstance"}
-            and len(args) == 2
-            and args[0].key in self.mapping_keys
-            and qualified_name(node.args[1]) == "dict"
-            and "dict" not in env
-            and "dict" not in self.program.bindings[symbol.file.relative_path]
-            and not keywords
+            (resolved in {"id", "builtins.id"} and len(args) == 1 and not keywords)
+            or (
+                resolved in {"len", "builtins.len"}
+                and len(args) == 1
+                and args[0].key in self.mapping_keys
+                and not keywords
+            )
+            or (
+                resolved in {"isinstance", "builtins.isinstance"}
+                and len(args) == 2
+                and args[0].key in self.mapping_keys
+                and qualified_name(node.args[1]) == "dict"
+                and "dict" not in env
+                and "dict" not in self.program.bindings[symbol.file.relative_path]
+                and not keywords
+            )
         ):
             return Value()
         if (
@@ -977,7 +1045,9 @@ class PathFlow:
                         for field, value in bindings.items():
                             env[self.member_key(record, field)] = value
                         return replace(
-                            record, instance=(helper.file.relative_path, helper.name)
+                            record,
+                            instance=(helper.file.relative_path, helper.name),
+                            maybe_missing=False,
                         )
             instance = replace(
                 result,
@@ -989,6 +1059,7 @@ class PathFlow:
                     *self.call_sites,
                 ),
                 instance=(helper.file.relative_path, helper.name),
+                maybe_missing=False,
             )
             if self.program.plain_instance(helper):
                 return instance
