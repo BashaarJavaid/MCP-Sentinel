@@ -28,6 +28,17 @@ The root checkout was not used for implementation. Existing draft PRs and Phase
   custom encoders and scalar/reassigned inputs stay conservative.
 - `536bb69`: distinguish a fixed public URL authority from caller path suffixes.
 
+- `86ac2dd`: URL validators returning errors/None establish protection only when
+  their actual return value is enforced by the caller.
+- `6d9bee9`: shared Python HTTP registration discovery and initial direct HTTP
+  caller-to-operator credential fallback detection; not middleware-to-tool completion.
+- `e2b0346`: Python dictionary members, aliasing, helper mutations, spread order,
+  copies, updates and optional guarded values; SENT-014/015/016 consume shared state.
+- `e1b23b8`: SENT-015 HTTP entries use the shared interpreter; FastAPI-injected
+  dependencies are excluded from ordinary caller parameters.
+- `d259126`: source-bound dataclass fields, callbacks, bound receivers and lambda
+  callbacks; custom constructors and replaced guard decorators remain unresolved.
+
 ## Retained failures and measurements
 
 `integration-suite-before.log`: 35 failed, 814 passed, 36 skipped; 83.33% branch
@@ -96,6 +107,42 @@ reports contain 240 unrelated candidate instances still requiring adjudication.
 The two independent development pairs, mutations and controls are correlated;
 no holdout, runtime or reviewed-tier result is implied.
 `ssrf-final-checks.log`: 110 option/SSRF/context tests pass at this source.
+
+## Second integration milestone in progress
+
+`python-state-bounded-regressions-corrected.log`: 214 pass; the preceding command
+named a nonexistent containment test file and ran no tests. `http-url-injection-after.log`:
+94 pass. `record-lambda-after.log`: 219 pass. Scoped mypy, Ruff and formatting pass
+at the recorded sources after the retained type/style failures and corrections.
+The full second-milestone suite at `d259126` passed **1010 tests, 36 skipped,
+87.38% branch coverage** in 819.19 seconds. Ruff, formatting, schemas, strict
+docs, generated artifacts, notices and the permitted lock check passed. The first
+lock command could not access the existing uv cache; that failure remains retained.
+Whole-project mypy found a missing generic argument in the new SSRF test helper;
+`aaa759a` corrects it and whole-project mypy then passes. This source also removes
+profiled repeated discovery; its 195 affected regressions, Ruff and formatting pass.
+The initial correction had an import-indentation collection error, also retained.
+
+A single exposed historical Atlassian-auth input was profiled with the
+unchanged 120-second static deadline and was incomplete at that deadline. This is concurrent diagnostic verification,
+not an isolated-throughput measurement or the final 45-input benchmark. An initial
+profiler command failed to import the project harness; that failure is retained.
+The profile records 28.8 seconds in repeated HTTP discovery, including 26.3 seconds
+in repeated shadow-scope checks, and five tool-discovery passes totaling 15.6 seconds.
+These instrumented concurrent timings motivate removing repeated traversal, not
+increasing the deadline. `evidence-v2.json` indexes 237 losslessly retained files.
+
+The repeated profile at `aaa759a` completed: 84.2 seconds in the static engine,
+93.2 seconds including reporting, and 91 unrelated candidates (90 SENT-003 and
+one SENT-012). There is no SENT-016 condition hit. It is a profiled single exposed
+input; no isolated-throughput comparison or final corpus result is claimed.
+`de1af5a` adds the genuine SDK HTTP request source to shared flow and distinguishes
+it from ordinary stdio caller parameters and local SDK impersonation. The affected
+set passes 201 regressions; the three new-rule CLI contracts pass, including
+SENT-016 selection, default enablement, suppression, baseline and severity.
+Whole-project mypy and corrected Ruff/format checks pass at the recorded source.
+`evidence-v3.json` indexes 111 losslessly retained files including the completed
+second milestone and repeated profile. Remaining condition-level work is unchanged.
 
 ## Outstanding work
 

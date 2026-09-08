@@ -1,4 +1,4 @@
-# Integration evidence, batch 1
+# Integration evidence, batches 1–3
 
 This packet preserves intermediate implementation, failures and measurements
 through source commit `536bb69`. **It is not final technical acceptance.**
@@ -67,3 +67,40 @@ Concurrent timings are verification latency, not isolated throughput.
 No paid approval packet or consolidated final PR is ready. Paid calls, merge,
 publication, human acceptance and external pilot evidence remain separate
 checkpoints; substantial authorized implementation also remains.
+
+
+The second packet, `evidence-v2.tar.gz`, adds source-flow regressions through
+`d259126`, including recorded failures and corrections, command/source patches,
+untracked regression-source snapshots, and the exposed Atlassian profiling run.
+Its 237 files were read back and checked against `evidence-v2.json`. Extract it
+after version 1 into the same directory. It excludes the still-running second
+full-milestone records; those remain expanded until their result is available.
+
+```sh
+tar -xzf artifacts/phase22/integration/evidence-v2.tar.gz \
+  -C /tmp/phase22-evidence
+```
+
+The Atlassian profile completed its harness command but the selected input was
+**incomplete**: the 120-second static deadline expired. Profiling and concurrent
+verification add overhead; this is not an isolated-throughput result. The raw
+profile identifies repeated HTTP-scope and tool-discovery traversals for correction.
+
+
+`evidence-v3.tar.gz` adds 111 files through `de1af5a`, including the completed
+second milestone, its original mypy/cache failures, the subsequent corrections,
+SDK HTTP caller/CLI regressions, and the repeated exposed Atlassian profile.
+Every member was read back and checked against `evidence-v3.json`.
+
+```sh
+tar -xzf artifacts/phase22/integration/evidence-v3.tar.gz -C /tmp/phase22-evidence
+```
+
+The second full milestone passed 1010 tests, 36 skipped, with 87.38% branch
+coverage at `d259126`. At `aaa759a`, the repeated instrumented Atlassian run
+completed (84.2 seconds in static analysis, 93.2 seconds including reporting).
+It reported 90 SENT-003 candidates and one SENT-012 candidate, and **no SENT-016
+condition hit**. Completion does not establish detection of the labeled fallback.
+The subsequent SDK HTTP source changes pass 201 affected regressions but have
+not been measured against that condition yet. No final repeated benchmark,
+fresh holdout, runtime campaign, paid review or acceptance gate is implied.

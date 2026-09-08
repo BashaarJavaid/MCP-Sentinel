@@ -14,7 +14,7 @@ an exact reason-bearing directive:
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-015` are supported. The finding stays in rule,
+its own line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-016` are supported. The finding stays in rule,
 report, JSON, and SARIF counts with status `suppressed`, its reason and directive
 location remain visible, and GPT review is skipped for that finding. Malformed,
 duplicate, unknown-rule, or reasonless directives fail with exit `2`; valid
@@ -324,6 +324,8 @@ and human acceptance remain separate gates in the Phase 22 status record.
 Python requests/httpx functions and recognized requests/httpx/aiohttp client
 instances are request sinks, as is urllib's URL opener. TypeScript supports global
 fetch, recognized node-fetch/undici/axios imports, and Node HTTP(S) requests.
+Python entry points include discovered MCP tools and source-established HTTP
+routes; FastAPI dependency-injected parameters are not ordinary caller input.
 Guard facts follow the actual URL binding; a discarded predicate, unrelated guard,
 caught failure that continues to the request, or replacement input is insufficient.
 Exact scheme/hostname allowlists are supported in both languages. Python also
@@ -352,3 +354,41 @@ The rule is enabled by default and uses canonical Finding evidence, explicit
 `--rules SENT-015` selection, inline suppression, baseline matching and severity
 thresholds. Development measurements, held-out evaluation, reviewed retention and
 human acceptance remain separate Phase 22 gates.
+
+
+## SENT-016 { #sent-016 }
+
+- **Title:** Unauthorized operator-credential fallback
+- **OWASP:** ASI03:2026 — Identity & Privilege Abuse. A request without caller
+  credentials can inherit the server operator's authority at an outbound service.
+- **Impact:** High; theoretical likelihood produces initial Medium severity.
+- **Engine:** Python source flow from registered HTTP handlers to supported
+  requests/httpx credential arguments, including caller headers obtained through
+  the source-established SDK HTTP request getter.
+- **Remediation:** Reject absent or invalid caller credentials before invoking the
+  protected operation. Keep operator credentials separate from caller sessions.
+- **False-positive risk:** An intentionally operator-authorized public service
+  requires review of that authorization policy; merely omitting authentication
+  does not establish permission to act with operator credentials.
+
+The current implementation follows environment-derived operator credentials into
+`auth` arguments or recognized credential fields in headers/parameters/payloads.
+It distinguishes caller-token rejection from checks of unrelated values and
+values replaced after validation. Dictionary member writes, copies and helper
+mutations retain the relevant credential selection. A local stdio tool's use of
+its owner's credentials alone does not establish an HTTP caller boundary.
+
+```python
+token = request.headers.get("Authorization")
+# Candidate: an unauthenticated caller selects the operator credential.
+token = token or os.environ["OPERATOR_TOKEN"]
+return requests.get("https://api.example.com/", headers={"Authorization": token})
+```
+
+The rule is enabled by default and produces canonical Finding evidence with
+source locations and remediation. CLI regressions cover explicit rule selection,
+inline suppression, baseline matching, and calculated severity thresholds. This integration remains incomplete for the
+approved cross-middleware, service-factory and TypeScript conditions. Direct HTTP
+regressions are not evidence that the historical or frozen development conditions
+pass. See [Phase 22 implementation status](phase22-implementation-status.md) for
+remaining measurement, reviewed-retention and acceptance gates.

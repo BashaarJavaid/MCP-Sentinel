@@ -64,6 +64,26 @@ runs are retained in the linked increment records:
 and [shared containment](phase22-shared-containment.md), plus
 [description poisoning](phase22-description-poisoning.md).
 
+The integration now also includes returned-error URL validation (`86ac2dd`),
+initial direct HTTP credential-fallback detection (`6d9bee9`), shared Python
+member state (`e2b0346`), HTTP URL entry points (`e1b23b8`), and source-bound record
+callbacks (`d259126`). Focused regression sets pass, including custom-constructor,
+replaced-guard and unrelated/replaced-value controls. These changes do not yet
+establish the approved Atlassian middleware/service-factory conditions, complete
+TypeScript support for new rules, or final condition-level acceptance. The second full
+milestone at `d259126` passed **1010 tests, 36 skipped, 87.38% branch coverage**.
+An exposed Atlassian profiling run hit the unchanged 120-second static deadline.
+Its repeated discovery traversals motivated `aaa759a`; 195 affected regressions
+and whole-project mypy/Ruff/format checks pass after that correction. This is not
+the final historical measurement or a claim that Atlassian conditions pass. The repeated
+profile at `aaa759a` completes within the static deadline but has no SENT-016
+condition hit. SDK HTTP caller tracking (`de1af5a`) subsequently passes 201 affected
+regressions, including stdio and local SDK-impersonation controls; SENT-016 CLI
+selection/suppression/baseline/severity checks also pass. These do not yet establish
+Atlassian or Meta operator-fallback acceptance. The integration evidence is retained
+losslessly in `artifacts/phase22/integration/evidence-v1.json`, `evidence-v2.json`
+and `evidence-v3.json` and their checksummed archives.
+
 ## Requirement map
 
 | Requested work | Current implementation / evidence | Remaining work |
