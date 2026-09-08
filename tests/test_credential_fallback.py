@@ -766,3 +766,105 @@ def test_base_http_context_token_requires_attached_enforced_authentication(
     )
     findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
     assert len(findings) == (1 if attach and not reject_missing else 0)
+
+
+@pytest.mark.parametrize("detached", [False, True])
+@pytest.mark.parametrize("reject_missing", [False, True])
+@pytest.mark.parametrize("transport", ["stdio", "streamable-http", "sse"])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "",
+        "mcp.__class__=unknown",
+        "mcp._token_verifier=unknown",
+        "mcp.settings.auth=unknown",
+        "unknown(mcp)",
+        "mcp.{provider}=lambda: unknown",
+        "FastMCP.{provider}=lambda self: unknown",
+        "def unused(): unknown(Guard)",
+        "def change(): unknown(Guard)\n    change()",
+    ],
+)
+def test_sdk_source_provider_wrapper_attaches_to_the_selected_launch(
+    tmp_path: Path, reject_missing: bool, transport: str, mutation: str, detached: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    provider = "sse_app" if transport == "sse" else "streamable_http_app"
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from starlette.middleware.base import BaseHTTPMiddleware\n"
+        "from contextvars import ContextVar\nimport requests, os\n"
+        "token=ContextVar('token', default=None)\n"
+        "class Guard(BaseHTTPMiddleware):\n"
+        "    async def dispatch(self, request, call_next):\n"
+        "        credential=request.headers.get('Authorization')\n"
+        + ("        if not credential: return None\n" if reject_missing else "")
+        + "        token.set(credential)\n"
+        "        return await call_next(request)\n"
+        "mcp=FastMCP('test')\n"
+        "def setup(server):\n"
+        f"    original=server.{provider}\n"
+        "    def wrapped(*args, **kwargs):\n"
+        "        app=original(*args, **kwargs)\n"
+        "        app.add_middleware(Guard)\n"
+        + (
+            "        return original(*args, **kwargs)\n"
+            if detached
+            else "        return app\n"
+        )
+        + f"    server.{provider}=wrapped\n"
+        "def main():\n    setup(mcp)\n"
+        + ("    " + mutation.format(provider=provider) + "\n" if mutation else "")
+        + f"    mcp.run(transport={transport!r})\n"
+        "@mcp.tool()\ndef accounts():\n"
+        "    credential=token.get() or os.getenv('OPERATOR_TOKEN')\n"
+        "    return requests.get('https://api.example.com', "
+        "params={'access_token': credential})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == (
+        transport != "stdio"
+        and (detached or not reject_missing)
+        and (
+            not mutation
+            or mutation.startswith("def unused")
+            or (detached and mutation.startswith("def change"))
+        )
+    )
+
+
+@pytest.mark.parametrize("transport", ["stdio", "streamable-http", "sse"])
+@pytest.mark.parametrize("configured_auth", [False, True])
+def test_sdk_unset_request_context_can_select_operator_credentials(
+    tmp_path: Path, transport: str, configured_auth: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "import os, requests\nfrom mcp.server.fastmcp import FastMCP\n"
+        "from contextvars import ContextVar\ntoken=ContextVar('token',default=None)\n"
+        + (
+            "mcp=FastMCP('test',auth=unknown)\n"
+            if configured_auth
+            else "mcp=FastMCP('test')\n"
+        )
+        + "def main():\n"
+        + f"    mcp.run(transport={transport!r})\n"
+        "@mcp.tool()\ndef accounts():\n"
+        "    selected=token.get() or os.getenv('OPERATOR_TOKEN')\n"
+        "    return requests.get('https://api.example.com',params={'access_token':selected})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == (transport != "stdio" and not configured_auth)
+    if configured_auth:
+        assert any(
+            "SDK authentication configuration" in warning.message
+            for warning in report.warnings
+        )

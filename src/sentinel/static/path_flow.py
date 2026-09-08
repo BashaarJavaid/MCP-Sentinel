@@ -201,9 +201,51 @@ class PathFlow:
             self.entry_handler(tool, bindings)
             return
         original = self.globals.copy()
+        original_members = self.global_members.copy()
         try:
             for launch in launches:
                 self.globals = original.copy()
+                self.global_members = original_members.copy()
+                prepared_any = False
+                for prepared in self.http_context.launch_variants(tool, launch):
+                    if prepared is None:
+                        continue
+                    prepared_any = True
+                    start = len(self.state.matches)
+                    for state in prepared:
+                        self.entry_handler(
+                            tool,
+                            {
+                                **bindings,
+                                **{
+                                    key: value
+                                    for key, value in state.items()
+                                    if key.startswith(self.helper_state_prefixes)
+                                },
+                                "#http:prepared": Value(key="True"),
+                            },
+                        )
+                    for initial in self.http_context.initialization_states:
+                        self.entry_handler(
+                            tool,
+                            {
+                                **bindings,
+                                **{
+                                    key: value
+                                    for key, value in initial.items()
+                                    if key.startswith(self.helper_state_prefixes)
+                                },
+                                "#http:prepared": Value(key="True"),
+                                "#http:no-request": Value(key="True"),
+                            },
+                        )
+                    self.launch_evidence(
+                        start, launch.function, launch.call, launch.transport
+                    )
+                if prepared_any:
+                    continue
+                self.globals = original.copy()
+                self.global_members = original_members.copy()
                 if not isinstance(launch.function.node, Function):
                     self.entry_handler(tool, bindings.copy())
                     continue
@@ -215,25 +257,29 @@ class PathFlow:
                     self.globals = globals_.copy()
                     start = len(self.state.matches)
                     self.entry_handler(tool, bindings.copy())
-                    for index in range(start, len(self.state.matches)):
-                        match = self.state.matches[index]
-                        locations = json.loads(
-                            match.captures.get("flow_locations", "[]")
-                        )
-                        locations.append(
-                            [launch.function.file.relative_path, launch.call.lineno]
-                        )
-                        self.state.matches[index] = replace(
-                            match,
-                            captures={
-                                **match.captures,
-                                "launch_transports": json.dumps([launch.transport]),
-                                "flow_locations": json.dumps(locations),
-                            },
-                        )
+                    self.launch_evidence(
+                        start, launch.function, launch.call, launch.transport
+                    )
         finally:
             self.globals = original
+            self.global_members = original_members
             self.launch_call = None
+
+    def launch_evidence(
+        self, start: int, source: Symbol, call: ast.Call, transport: str
+    ) -> None:
+        for index in range(start, len(self.state.matches)):
+            match = self.state.matches[index]
+            locations = json.loads(match.captures.get("flow_locations", "[]"))
+            locations.append([source.file.relative_path, call.lineno])
+            self.state.matches[index] = replace(
+                match,
+                captures={
+                    **match.captures,
+                    "launch_transports": json.dumps([transport]),
+                    "flow_locations": json.dumps(locations),
+                },
+            )
 
     def entry_handler(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.lifespan import tool_lifespan, tool_servers
@@ -405,6 +451,12 @@ class PathFlow:
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
+        if self.http_context.preparing and isinstance(symbol.node, Function):
+            self.http_context.executed_functions.add(
+                self.program.parents.get(symbol.node.body[0], symbol.node)
+                if symbol.node.body
+                else symbol.node
+            )
         if self.http_context.continued(symbol, bindings):
             return UNKNOWN_VALUE
         key = (
@@ -606,6 +658,8 @@ class PathFlow:
                     continue
                 condition = self.expression(symbol, node.test, env)
                 known = self.truth_value(condition, env)
+                if known is None:
+                    known = self.http_context.startup_branch(symbol, node, env)
                 left, right = env.copy(), env.copy()
                 if known is not False:
                     self.guard(symbol, node.test, left, True)
@@ -626,15 +680,18 @@ class PathFlow:
                     return False
                 self.merge(env, branches)
             elif isinstance(node, ast.Try):
+                startup = self.http_context.startup_branch(symbol, node, env)
                 branches = []
                 final_states = []
                 success = env.copy()
-                if self.statements(
-                    symbol, node.body, success, returned
-                ) and self.statements(symbol, node.orelse, success, returned):
+                if (
+                    startup is not False
+                    and self.statements(symbol, node.body, success, returned)
+                    and self.statements(symbol, node.orelse, success, returned)
+                ):
                     branches.append(success)
                 final_states.append(success)
-                for handler in node.handlers:
+                for handler in node.handlers if startup is not True else []:
                     failure = env.copy()
                     if self.statements(symbol, handler.body, failure, returned):
                         branches.append(failure)
@@ -1067,6 +1124,11 @@ class PathFlow:
             )
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
+        if (
+            value.key in self.http_context.sdk_apps
+            and "#member:unknown:" + value.key not in env
+        ):
+            return True
         elements = self.sequence_elements(value, env)
         if elements is not None:
             return bool(elements)
@@ -1681,6 +1743,8 @@ class PathFlow:
         return value
 
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
+        if node in self.http_context.sdk_skipped_calls:
+            return UNKNOWN_VALUE
         if node is self.launch_call:
             self.launch_states.append(
                 {

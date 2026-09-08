@@ -355,6 +355,21 @@ class CredentialFlow(PathFlow):
             return Value()
         result = super().call(symbol, node, env)
         if (
+            method == "get"
+            and receiver.key in self.context_variables
+            and result.key == "None"
+            and env.get("#credential:http", Value()).contained
+            and env.get("#http:no-request", Value()).key != "True"
+        ):
+            result = replace(
+                result,
+                key=_key("absent-http-context", receiver.key),
+                sources=frozenset({"http:request-context"}),
+                locations=result.locations | {(symbol.file.relative_path, node.lineno)},
+                maybe_none=True,
+            )
+            self.path_conditions[result.key] = (frozenset(), None)
+        if (
             isinstance(node.func, ast.Attribute)
             and node.func.attr == "lower"
             and not node.args

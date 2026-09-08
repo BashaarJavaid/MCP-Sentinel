@@ -426,8 +426,24 @@ Genuine Starlette `BaseHTTPMiddleware` subclasses can supply a source-defined
 The scanner interprets state before `call_next` and explicit refusal; it does not
 execute the framework or assume downstream task changes propagate back upstream.
 Custom construction/call/attribute hooks, replaced or escaped middleware classes,
-and unknown continuation forwarding cannot establish protection. Dynamic provider
-patching and general external middleware behavior remain unsupported.
+and unknown continuation forwarding cannot establish protection. General external
+middleware behavior remains unsupported.
+For a genuine directly imported `mcp.server.fastmcp.FastMCP`, the scanner also
+models the MCP 1.29 SDK's source-selected `run`, `sse_app` and
+`streamable_http_app` relationship. A zero-argument source startup function can
+replace providers through included helpers, saved callbacks and known-field
+assignments. Only middleware added to the returned, served application contributes
+request state. SSE provider calls preserve the SDK's mount-path argument.
+Source JSON-response choices and relevant initialization try/except branches are
+explored separately, up to 16 paths; exception alternatives are possibilities,
+not observed startup failures. Unresolved paths remain visible. Module-level
+server mutation, unknown SDK authentication configuration, replaced classes,
+reflection and escaped server/app state do not establish this SDK contract.
+Startup globals and the path without an HTTP request remain separate from
+middleware request state; failed launch resolution cannot establish configured
+globals. An unset request ContextVar can retain HTTP absence provenance when its
+fallback selects an operator credential; ordinary stdio defaults do not acquire
+that provenance. This interpretation never runs the SDK or target server.
 Included Python module imports retain module identity through known-field callback
 replacement and saved callbacks. Function-local imports read the current binding;
 an earlier saved callback retains its original source body. Unknown module escape,
