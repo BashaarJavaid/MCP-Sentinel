@@ -10,6 +10,67 @@ from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
 
+@pytest.mark.parametrize("client", ["Jira", "Confluence"])
+@pytest.mark.parametrize(
+    ("argument", "guard", "expected"),
+    [
+        ("token", "", 1),
+        ("password", "", 1),
+        ("url", "", 0),
+        ("username", "", 0),
+        ("token", 'if not token: raise ValueError("unauthenticated")', 0),
+        ("token", 'if not other: raise ValueError("unauthenticated")', 1),
+    ],
+)
+def test_service_client_credential_arguments(
+    tmp_path: Path, client: str, argument: str, guard: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\n"
+        f"from atlassian import {client} as Service\n"
+        "import os\napp = FastAPI()\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token = request.headers.get('Authorization')\n"
+        "    other = request.headers.get('X-Other')\n"
+        f"    {guard or 'pass'}\n"
+        "    selected = token or os.getenv('OPERATOR_TOKEN')\n"
+        f"    return Service({argument}=selected)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("replacement", ["local_module", "assignment", "parameter"])
+def test_service_client_binding_must_be_external(
+    tmp_path: Path, replacement: str
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    if replacement == "local_module":
+        (root / "atlassian.py").write_text(
+            "def Jira(**kwargs): return kwargs\n", encoding="utf-8"
+        )
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nfrom atlassian import Jira\n"
+        "import os\napp = FastAPI()\n"
+        + ("Jira = custom\n" if replacement == "assignment" else "")
+        + "@app.get('/data')\ndef fetch(request: Request"
+        + (", Jira=None" if replacement == "parameter" else "")
+        + "):\n"
+        "    token = request.headers.get('Authorization') or os.getenv('OPERATOR')\n"
+        "    return Jira(token=token)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
 @pytest.mark.parametrize(
     ("body", "expected"),
     [

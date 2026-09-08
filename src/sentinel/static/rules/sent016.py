@@ -115,13 +115,16 @@ class CredentialFlow(PathFlow):
 
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         external = self.external(symbol, node.func, env)
+        service_client = external in {"atlassian.Jira", "atlassian.Confluence"} and (
+            self.program.external(symbol, node.func) == external
+        )
         if external in {"os.getenv", "os.environ.get"}:
             return Value(
                 key=_key(symbol.file.relative_path, str(node.lineno), ast.dump(node)),
                 operator_credential=True,
                 locations=frozenset({(symbol.file.relative_path, node.lineno)}),
             )
-        if external in {
+        if service_client or external in {
             f"{library}.{method}"
             for library in ("requests", "httpx")
             for method in (
@@ -138,9 +141,16 @@ class CredentialFlow(PathFlow):
             credentials = []
             for keyword in node.keywords:
                 value = self.expression(symbol, keyword.value, env)
-                if keyword.arg == "auth":
+                if (service_client and keyword.arg in {"token", "password"}) or (
+                    not service_client and keyword.arg == "auth"
+                ):
                     credentials.append(value)
-                elif keyword.arg in {"headers", "params", "data", "json"}:
+                elif not service_client and keyword.arg in {
+                    "headers",
+                    "params",
+                    "data",
+                    "json",
+                }:
                     credentials.extend(
                         env[marker]
                         for field, marker in self.members.get(value.key, {}).items()
