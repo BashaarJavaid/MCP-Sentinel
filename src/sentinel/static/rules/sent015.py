@@ -624,7 +624,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         callee, arguments = node["Call"]
         name = name_of(callee) or ""
         symbol = (
-            self.callables.get(self.expression(file, callee, env).key)
+            self.callables.get(self.call_value(file, callee, env).key)
             if "Special" not in callee
             else None
         )
@@ -668,7 +668,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             }
         )
         if request and argument_nodes:
-            url = self.expression(file, argument_nodes[0], env)
+            url = self.call_value(file, argument_nodes[0], env)
             if url.sources and not restricted(url.url_checks):
                 location = source_range(node, file)
                 self.state.matches.append(
@@ -711,7 +711,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             and len(argument_nodes) == 2
         ):
             for index in (0, 1):
-                value = self.expression(file, argument_nodes[index], env)
+                value = self.call_value(file, argument_nodes[index], env)
                 literals = self.program.literal(
                     TypeScriptSymbol(file, argument_nodes[1 - index])
                 )
@@ -737,7 +737,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 else []
             )
             facts = self.restriction(
-                self.expression(file, argument_nodes[0], env), literal_array
+                self.call_value(file, argument_nodes[0], env), literal_array
             )
             self.conditions[result.key] = (frozenset(), facts)
         return result

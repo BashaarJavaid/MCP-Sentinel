@@ -18,6 +18,7 @@ from sentinel.static.typescript_discovery import (
     TypeScriptProgram,
     TypeScriptSymbol,
     name_of,
+    walk,
 )
 
 Facts = frozenset[str] | None
@@ -56,12 +57,19 @@ class TypeScriptPathFlow:
         self.root_directories: dict[str, Value] = {}
         self.sdk_instances: set[str] = set()
         self.call_sites: list[TypeScriptSymbol] = []
-        self.normal_exits: list[list[frozenset[str]]] = []
+        self.normal_exits: list[list[dict[str, Value]]] = []
         self.function_effects: Facts = frozenset()
         self.path_inputs: dict[str, frozenset[str]] = {}
         self.basenames: dict[str, Value] = {}
         self.origins: dict[str, frozenset[str]] = {}
         self.initial_prefixes: dict[str, tuple[frozenset[str], tuple[str, int]]] = {}
+        self.classes: dict[str, TypeScriptSymbol] = {}
+        self.instances: dict[str, str] = {}
+        self.instance_fields: dict[str, set[str]] = {}
+        self.global_members: dict[str, Value] = {}
+        self.lexical_this: set[str] = set()
+        self.receivers: dict[int, Value] = {}
+        self.call_values: dict[int, Value] | None = None
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -143,7 +151,7 @@ class TypeScriptPathFlow:
             self.warning(symbol.file, symbol.node, "recursive or unsupported handler")
             return combine(args)
         self.active.add(identity)
-        exits: list[frozenset[str]] = []
+        exits: list[dict[str, Value]] = []
         self.normal_exits.append(exits)
         try:
             env = dict(captured or {})
@@ -166,9 +174,25 @@ class TypeScriptPathFlow:
                     )
             returned: list[Value] = []
             if self.statement(symbol.file, function["fbody"]["FBStmt"], env, returned):
-                exits.append(self.enforced(env))
+                exits.append(env.copy())
                 returned.append(Value())
-            self.function_effects = common_facts(exits)
+            self.function_effects = common_facts(
+                [self.enforced(exit) for exit in exits]
+            )
+            if captured is not None and exits:
+                members: dict[str, Value] = {}
+                self.merge(
+                    members,
+                    [
+                        {
+                            key: value
+                            for key, value in exit.items()
+                            if key.startswith("#instance:")
+                        }
+                        for exit in exits
+                    ],
+                )
+                captured.update(members)
             return self.combined(returned)
         finally:
             self.normal_exits.pop()
@@ -239,7 +263,7 @@ class TypeScriptPathFlow:
         elif "Return" in node:
             value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
             facts = self.enforced(env)
-            self.normal_exits[-1].append(facts)
+            self.normal_exits[-1].append(env.copy())
             result = replace(
                 value,
                 key=_key(value.key, "return", *sorted(facts))
@@ -357,6 +381,82 @@ class TypeScriptPathFlow:
             self.expression(file, node, env)
         return True
 
+    def class_members(
+        self, symbol: TypeScriptSymbol
+    ) -> dict[tuple[str, bool], dict[str, Any]] | None:
+        definition = symbol.node["ClassDef"]
+        if (
+            definition.get("cextends")
+            or definition.get("cmixins")
+            or any(
+                attribute.get("KeywordAttr", [None])[0] not in {"Export", "Default"}
+                for attribute in self.program.class_attributes.get(id(symbol.node), [])
+            )
+        ):
+            return None
+        members = {}
+        for field in definition["cbody"][1]:
+            declaration = field.get("F", {}).get("DefStmt")
+            if not declaration:
+                return None
+            entity, body = declaration
+            name = name_of(entity["name"])
+            attributes = [
+                a.get("KeywordAttr", [None])[0] for a in entity.get("attrs", [])
+            ]
+            if (
+                name is None
+                or any(
+                    a not in {"Static", "Public", "Private", "Protected", "Readonly"}
+                    for a in attributes
+                )
+                or not (body.keys() & {"FuncDef", "VarDef"})
+            ):
+                return None
+            key = (name, "Static" in attributes)
+            if key in members:
+                return None
+            if (
+                name == "constructor"
+                and "FuncDef" in body
+                and (
+                    any(part.get("Return", [None, None])[1] for part in walk(body))
+                    or any(
+                        parameter.get("Param", {}).get("pattrs")
+                        for parameter in body["FuncDef"]["fparams"][1]
+                    )
+                )
+            ):
+                return None
+            members[key] = body
+        return members
+
+    def instance_marker(self, value: Value, name: str) -> str:
+        self.instance_fields.setdefault(value.key, set()).add(name)
+        return "#instance:" + _key(value.key, name)
+
+    def initialize_fields(
+        self,
+        value: Value,
+        symbol: TypeScriptSymbol,
+        members: dict[tuple[str, bool], dict[str, Any]],
+        env: dict[str, Value],
+        *,
+        static: bool,
+    ) -> None:
+        for (name, is_static), definition in members.items():
+            if is_static == static and "VarDef" in definition:
+                local = {**env, "this": value}
+                initialized = self.expression(
+                    symbol.file,
+                    (definition["VarDef"].get("vinit") or {}).get("some"),
+                    local,
+                )
+                env.update(
+                    (k, v) for k, v in local.items() if k.startswith("#instance:")
+                )
+                env[self.instance_marker(value, name)] = initialized
+
     def member(self, value: Value, name: str) -> Value:
         field = self.objects.get(value.key, {}).get(
             name, replace(value, key=_key(value.key, name), contained=False)
@@ -403,10 +503,42 @@ class TypeScriptPathFlow:
                     if symbol.external or symbol.function:
                         self.callables[self.globals[key].key] = symbol
                     else:
+                        local: dict[str, Value] = {}
                         self.globals[key] = self.expression(
-                            symbol.file, symbol.node, {}
+                            symbol.file, symbol.node, local
                         )
+                        self.global_members.update(
+                            (k, v)
+                            for k, v in local.items()
+                            if k.startswith("#instance:")
+                        )
+            pending = [self.globals[key]]
+            seen: set[str] = set()
+            while pending:
+                value = pending.pop()
+                if value.key in seen:
+                    continue
+                seen.add(value.key)
+                for field in tuple(self.instance_fields.get(value.key, ())):
+                    marker = self.instance_marker(value, field)
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
+                        pending.append(env[marker])
             return self.globals[key]
+        if "ClassDef" in node:
+            symbol = TypeScriptSymbol(file, node)
+            members = self.class_members(symbol)
+            value = Value(
+                key=_key("class", file.relative_path, str(source_range(node, file)))
+            )
+            if members is None:
+                self.warning(
+                    file, node, "unsupported class inheritance, decorators or members"
+                )
+                return value
+            self.classes[value.key] = symbol
+            self.initialize_fields(value, symbol, members, env, static=True)
+            return value
         if "Await" in node:
             return self.expression(file, node["Await"][1], env)
         if "Cast" in node:
@@ -427,10 +559,16 @@ class TypeScriptPathFlow:
                 values.append(self.expression(file, branch, local))
             return self.combined(values)
         if "Call" in node:
-            return self.call(file, node, env)
+            previous = self.call_values
+            self.call_values = {}
+            try:
+                return self.call(file, node, env)
+            finally:
+                self.call_values = previous
         if "New" in node:
             constructor = node["New"][1].get("t", {}).get("TyExpr", {})
-            binding = self.callables.get(self.expression(file, constructor, env).key)
+            class_value = self.expression(file, constructor, env)
+            binding = self.callables.get(class_value.key)
             if binding and binding.external == (
                 "@modelcontextprotocol/sdk/server/mcp.js.McpServer"
             ):
@@ -439,16 +577,74 @@ class TypeScriptPathFlow:
                 )
                 self.sdk_instances.add(result.key)
                 return result
+            if (
+                class_value.key in self.classes
+                and class_value.key not in self.invalidated_objects
+            ):
+                symbol = self.classes[class_value.key]
+                members = self.class_members(symbol)
+                assert members is not None
+                value = Value(
+                    key=_key(
+                        "instance",
+                        file.relative_path,
+                        str(source_range(node, file)),
+                        *(
+                            str(source_range(call.node, call.file))
+                            for call in self.call_sites
+                        ),
+                    )
+                )
+                self.instances[value.key] = class_value.key
+                args = [
+                    self.expression(file, arg.get("Arg", arg), env)
+                    for arg in node["New"][3][1]
+                ]
+                self.initialize_fields(value, symbol, members, env, static=False)
+                constructor_body = members.get(("constructor", False))
+                if constructor_body:
+                    captured = {**env, "this": value}
+                    self.call_sites.append(TypeScriptSymbol(file, node))
+                    try:
+                        self.function(
+                            TypeScriptSymbol(symbol.file, constructor_body),
+                            args,
+                            captured,
+                        )
+                    finally:
+                        self.call_sites.pop()
+                    env.update(
+                        (k, v)
+                        for k, v in captured.items()
+                        if k.startswith("#instance:")
+                    )
+                return value
         if "Lambda" in node or "FuncDef" in node:
             value = Value(key=_key(file.relative_path, str(source_range(node, file))))
             self.callables[value.key] = TypeScriptSymbol(file, node)
             self.closures[value.key] = env
+            if (node.get("Lambda") or {}).get("fkind", [None])[0] == "Arrow":
+                self.lexical_this.add(value.key)
             return value
         if "Assign" in node:
             target, _, expression = node["Assign"]
             value = self.expression(file, expression, env)
+            if "ArrayAccess" in target:
+                receiver = self.expression(file, target["ArrayAccess"][0], env)
+                self.invalidated_objects.add(receiver.key)
+                self.warning(file, target, "computed member assignment")
             if "DotAccess" in target:
                 receiver = self.expression(file, target["DotAccess"][0], env)
+                assigned_field = name_of(target["DotAccess"][2])
+                class_key = self.instances.get(receiver.key, receiver.key)
+                if class_key in self.classes and assigned_field:
+                    members = self.class_members(self.classes[class_key]) or {}
+                    definition = members.get(
+                        (assigned_field, receiver.key in self.classes), {}
+                    )
+                    if "FuncDef" not in definition:
+                        env[self.instance_marker(receiver, assigned_field)] = value
+                        return value
                 self.invalidated_objects.add(receiver.key)
             self.pattern(target, value, env)
             return value
@@ -458,7 +654,28 @@ class TypeScriptPathFlow:
                 return env[full_name]
             receiver, _, field = node["DotAccess"]
             parent = self.expression(file, receiver, env)
+            self.receivers[id(node)] = parent
             member = name_of(field) or "?"
+            class_key = self.instances.get(parent.key, parent.key)
+            if class_key in self.classes:
+                value = env.get(
+                    self.instance_marker(parent, member),
+                    Value(key=_key(parent.key, member)),
+                )
+                if {parent.key, class_key} & self.invalidated_objects:
+                    self.warning(file, node, "class receiver escapes or is replaced")
+                    return replace(
+                        value, key=_key("invalidated", value.key), contained=False
+                    )
+                symbol = self.classes[class_key]
+                member_definition = (self.class_members(symbol) or {}).get(
+                    (member, parent.key in self.classes)
+                )
+                if member_definition and "FuncDef" in member_definition:
+                    self.callables[value.key] = TypeScriptSymbol(
+                        symbol.file, member_definition
+                    )
+                return value
             value = self.member(parent, member)
             binding = self.callables.get(parent.key)
             if parent.key not in self.invalidated_objects:
@@ -506,37 +723,60 @@ class TypeScriptPathFlow:
             ]
         )
 
+    def call_value(
+        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+    ) -> Value:
+        """Reuse actual callee/argument evaluation within one call only."""
+        if self.call_values is not None and id(node) in self.call_values:
+            return self.call_values[id(node)]
+        value = self.expression(file, node, env)
+        if self.call_values is not None:
+            self.call_values[id(node)] = value
+        return value
+
     def call(
         self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
     ) -> Value:
         callee, arguments = node["Call"]
+        if (
+            callee.get("OtherExpr", [[None]])[0][0] == "Delete"
+            and len(arguments[1]) == 1
+        ):
+            target = arguments[1][0].get("Arg", {})
+            access = target.get("DotAccess", target.get("ArrayAccess"))
+            if access:
+                receiver = self.expression(file, access[0], env)
+                if "ArrayAccess" in target:
+                    self.expression(file, access[1][1], env)
+                self.invalidated_objects.add(receiver.key)
+                self.warning(file, node, "member deletion invalidates receiver")
+                return Value()
+        callable_value = (
+            self.call_value(file, callee, env) if "Special" not in callee else Value()
+        )
+        receiver = (
+            self.receivers.get(id(callee), Value())
+            if "DotAccess" in callee
+            else Value()
+        )
+        symbol = self.callables.get(callable_value.key)
         operator = callee.get("Special", [{}])[0]
         if isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
             local = env.copy()
             args = []
             truth = operator["Op"] == "And"
             for item in arguments[1]:
-                value = self.expression(file, item.get("Arg", item), local)
+                value = self.call_value(file, item.get("Arg", item), local)
                 args.append(value)
                 if self.condition(value)[int(truth)] is None:
                     break
                 self.guard(value, local, truth)
         else:
             args = [
-                self.expression(file, item.get("Arg", item), env)
+                self.call_value(file, item.get("Arg", item), env)
                 for item in arguments[1]
             ]
-        receiver = (
-            self.expression(file, callee["DotAccess"][0], env)
-            if "DotAccess" in callee
-            else Value()
-        )
         name = name_of(callee) or "dynamic call"
-        symbol = (
-            self.callables.get(self.expression(file, callee, env).key)
-            if "Special" not in callee
-            else None
-        )
         external = (symbol.external or "").removeprefix("node:") if symbol else ""
         if (
             receiver.key in self.sdk_instances
@@ -813,20 +1053,29 @@ class TypeScriptPathFlow:
                 )
             return result
         if symbol and symbol.function:
-            callable_value = self.expression(file, callee, env)
             self.call_sites.append(TypeScriptSymbol(file, node))
             try:
+                captured = {
+                    **self.closures.get(callable_value.key, {}),
+                    **{
+                        key: value
+                        for key, value in env.items()
+                        if key.startswith(("#guard:", "#instance:"))
+                    },
+                }
+                if callable_value.key not in self.lexical_this:
+                    captured.pop("this", None)
+                if "DotAccess" in callee and (
+                    receiver.key in self.instances or receiver.key in self.classes
+                ):
+                    captured["this"] = receiver
                 value = self.function(
                     symbol,
                     args,
-                    {
-                        **self.closures.get(callable_value.key, {}),
-                        **{
-                            key: value
-                            for key, value in env.items()
-                            if key.startswith("#guard:")
-                        },
-                    },
+                    captured,
+                )
+                env.update(
+                    (k, v) for k, v in captured.items() if k.startswith("#instance:")
                 )
                 self.apply_facts(self.function_effects, env)
                 return value
@@ -834,7 +1083,7 @@ class TypeScriptPathFlow:
                 self.call_sites.pop()
         if (
             "DotAccess" in callee
-            and name.rsplit(".", 1)[-1]
+            and name_of(callee["DotAccess"][2])
             in {
                 "map",
                 "flatMap",
@@ -854,8 +1103,14 @@ class TypeScriptPathFlow:
                 else None
             )
             if callback and callback.function:
-                value = self.function(callback, [receiver, Value(), receiver], env)
-                method = name.rsplit(".", 1)[-1]
+                captured = {**self.closures.get(args[0].key, env)}
+                if args[0].key not in self.lexical_this:
+                    captured.pop("this", None)
+                value = self.function(callback, [receiver, Value(), receiver], captured)
+                env.update(
+                    (k, v) for k, v in captured.items() if k.startswith("#instance:")
+                )
+                method = name_of(callee["DotAccess"][2])
                 if method == "some":
                     self.conditions[result.key] = (
                         frozenset(),
@@ -884,7 +1139,11 @@ class TypeScriptPathFlow:
                     continue
                 seen.add(value.key)
                 pending.extend(self.objects.get(value.key, {}).values())
-                if value.key in self.objects:
+                if (
+                    value.key in self.objects
+                    or value.key in self.instances
+                    or value.key in self.classes
+                ):
                     self.invalidated_objects.add(value.key)
                 if value.key in self.sdk_instances:
                     self.invalidated_objects.add(value.key)

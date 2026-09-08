@@ -5,16 +5,16 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
-The latest fixed-source milestone at `f12e891` passed 1138 tests, with 36 skips
-and 87.94% branch coverage. Later commits add direct TypeScript HTTP flows
-(`1d83b9c`) and shared TypeScript shell dispatch (`5065f16`), with their focused
-checks recorded separately. The five-input Kubernetes development measurement
-completed with two vulnerable condition hits and no named-condition alerts on
-the fixed/mutation/control inputs. Other independent conditions remain unmet:
-the 18-input exposed check on `f12e891` completed only 16 inputs, with both upload
-inputs timing out, and retained SSRF/Excel/mobile/execution misses at that source.
-Batch 6 seals 251 evidence files. This is not the final candidate, the final
-historical repeat, reviewed evaluation or a complete technical acceptance packet.
+The latest full fixed-source milestone, `4dfd24c`, passed 1,215 tests with 36 skips
+and 88.27% branch coverage. Later Python branch/record corrections passed 425
+affected regressions. At fixed source `34220b7`, all four exposed Atlassian
+authentication inputs completed: two vulnerable condition hits and no
+fixed-condition alerts. The eight fixed candidates explicitly qualify the
+nondefault operator opt-in path. Earlier deadlines and incidental alerts remain
+preserved. TypeScript class/receiver work has 366 affected regression passes and
+reaches the mobile recording spawn's caller-derived arguments; ordered command
+and output semantics remain open. These are source-specific increments, not the
+final historical repeat, fresh holdout, reviewed evaluation or technical acceptance.
 
 ## Active delivery workflow
 

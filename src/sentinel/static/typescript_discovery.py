@@ -84,6 +84,7 @@ class TypeScriptProgram:
         self.trees: dict[str, dict[str, Any]] = {}
         self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}
         self.exports: dict[str, set[str]] = {}
+        self.class_attributes: dict[int, list[dict[str, Any]]] = {}
         self.warnings: list[ReportWarning] = modules.warnings if modules else []
         for file in files:
             tree = parse_typescript(file, deadline=deadline)
@@ -93,6 +94,8 @@ class TypeScriptProgram:
             for node in tree["Pr"]:
                 if "DefStmt" in node:
                     entity, definition = node["DefStmt"]
+                    if "ClassDef" in definition:
+                        self.class_attributes[id(definition)] = entity.get("attrs", [])
                     name = name_of(entity["name"])
                     if name:
                         variable = definition.get("VarDef", {})

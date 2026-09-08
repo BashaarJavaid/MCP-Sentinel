@@ -425,11 +425,11 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
     ) -> Value:
         callee, arguments = node["Call"]
         argument_nodes = [item.get("Arg", item) for item in arguments[1]]
-        binding = self.callables.get(self.expression(file, callee, env).key)
+        binding = self.callables.get(self.call_value(file, callee, env).key)
         external = (binding.external or "").removeprefix("node:") if binding else ""
         name = name_of(callee) or ""
         receiver = (
-            self.expression(file, callee["DotAccess"][0], env)
+            self.receivers.get(id(callee), Value())
             if "DotAccess" in callee
             else Value()
         )
@@ -480,7 +480,7 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
                     "rev-parse",
                 } and literal in {"--", "--end-of-options"}:
                     terminated = True
-                value = self.expression(file, argument, env)
+                value = self.call_value(file, argument, env)
                 if value.sources and not value.option_safe and not terminated:
                     unsafe.append(value)
             if unsafe:

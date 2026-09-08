@@ -355,6 +355,16 @@ executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
 shares the existing 120-second static deadline, and malformed source remains a
 target error. This extension introduces no parser dependency or language target.
 
+Included plain TypeScript classes retain instance/static method receivers,
+constructor fields and branch-local field updates through helper calls. Arrow
+functions retain lexical `this`; ordinary extracted functions do not acquire an
+implicit receiver. Callees and arguments are evaluated once per call, including
+delegation between the shared flow and rule-specific interpreters. Inheritance,
+decorated or computed class definitions, constructor object replacement and
+unknown receiver mutation remain explicit limitations. Computed writes, deletion
+and escaped receivers invalidate inferred method behavior. This source support
+does not by itself establish an external executable's command or output semantics.
+
 Workspace discovery reads root uv `members`/`exclude`, npm `workspaces`, and
 pnpm `packages` declarations without invoking their package managers. Expansion
 is confined to regular directories below the scan root, observes exclusions,

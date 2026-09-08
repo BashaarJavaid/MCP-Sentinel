@@ -450,7 +450,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
         if isinstance(operator, dict) and operator.get("Op") in {"Or", "Nullish"}:
             values = []
             for argument in arguments[1]:
-                value = self.expression(file, argument.get("Arg", argument), env)
+                value = self.call_value(file, argument.get("Arg", argument), env)
                 values.append(value)
                 if value.credential_present:
                     break
@@ -462,7 +462,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
             return result
         name = name_of(callee) or ""
         binding = (
-            self.callables.get(self.expression(file, callee, env).key)
+            self.callables.get(self.call_value(file, callee, env).key)
             if "Special" not in callee
             else None
         )
@@ -474,7 +474,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
         ) or external in {"node-fetch", "node-fetch.default", "undici.fetch"}
         if is_fetch:
             args = [
-                self.expression(file, argument.get("Arg", argument), env)
+                self.call_value(file, argument.get("Arg", argument), env)
                 for argument in arguments[1]
             ]
             options = self.objects.get(args[1].key, {}) if len(args) > 1 else {}

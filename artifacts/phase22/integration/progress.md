@@ -710,3 +710,53 @@ Each report contains four SENT-016 client candidates. Fixed candidates still mer
 incidental per-user paths with the flag-gated global path and lose that distinction.
 The named auth condition has not passed adjudication. Broader callback/enum/class
 support, remaining families, all final checks and draft delivery remain open.
+
+### Auth condition and TypeScript receiver continuation
+
+`b5a565d` skips impossible Python conditional-expression branches (two failing
+controls before the fix; 336 affected passes). `5ac300e` retains enforced literal
+string choices through helpers, with ignored/unrelated/replaced checks and custom
+equality controls. `7734643` separates assigned key presence from uncertainty in
+the value (five before-failing controls; 350 affected passes). A four-input native
+run at that source completed three inputs, with the original fixed input exceeding
+120 seconds. Its successful fixed mutation still mixed spurious per-user and
+guarded global paths. All those results remain retained in
+`auth-assigned-fields-development/`; the preceding incorrect five-input selection
+failed before measurement and is retained separately.
+
+The root cause of the remaining mixed paths was reproducible across two tools:
+member defaults created while inspecting the first tool made declared dataclass
+fields optional during the second lifespan analysis. `34220b7` establishes those
+declared slots at construction/replacement. The regression fails only on the
+second tool before the fix and passes afterward. All registered auth-tool traces
+then retain `ALLOW_GLOBAL_CRED_FALLBACK`; 425 affected regressions and type/style
+checks pass.
+
+`auth-fixed342-development/` measures an immutable detached checkout at `34220b7`.
+All four inputs complete through the native rules-only pipeline, with native JSON
+and SARIF validation. Total wall durations are 112.408s, 120.065s, 121.641s and
+117.430s; reporting follows the unchanged 120-second static deadline. The separate
+condition adjudication records two vulnerable condition hits and zero
+fixed-condition alerts, with all eight fixed nondefault candidates qualified and
+the changed credential source context identified. There is no safe input in this
+historical family. This is implementation-agent source review, not human
+acceptance, runtime proof, fresh holdout or the final repeated benchmark.
+
+The TypeScript continuation interprets included plain classes, actual instance
+and static receivers, constructor fields, helper updates and branch-local member
+state. Replacement, computed writes, deletion and unresolved escapes invalidate
+inferred behavior. Arrow and ordinary function receivers remain distinct. A
+constructor side-effect regression exposed three evaluations of one receiver;
+the shared callee/argument cache now lasts only for one call and covers all four
+flow rules. Reconstructing the earlier class implementation from its retained
+patch reproduces six rule-delegation failures; all eight controls pass afterward.
+The complete affected suite passes 366 tests. Its first run overlapped formatting;
+`typescript-class-format-equivalence.json` verifies identical ASTs for all five
+changed scanner files and the test, preserving both exact byte versions.
+
+`continuation-mobile-class-selected-flow` reaches the actual
+`src/mobilecli.ts` spawn with caller-derived arguments. Earlier diagnostics omitted
+the selected flow argument and are retained as diagnostics, not evidence of no
+class support. Ordered argv and executable/output semantics are still required
+before claiming mobile recording detection. Other unmet families, final audits,
+measurements, evidence packaging and consolidated draft delivery remain open.

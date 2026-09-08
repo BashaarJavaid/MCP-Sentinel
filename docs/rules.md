@@ -413,8 +413,13 @@ fallback with the setting whose declared default would reject that path. The
 candidate remains visible: the effective environment and intended authorization
 policy still require review. Ignored checks, optional helper returns, replaced
 predicates and a shared sink with an unqualified path do not establish that
-qualification. These source-flow controls do not complete the real Atlassian
-condition or the unchanged per-input execution deadline.
+qualification. Enforced literal allowlists retain possible string choices across
+helpers. Known assigned fields remain present even when their values are unknown;
+repeated lifespan analysis does not make declared dataclass fields optional.
+The exposed Atlassian authentication pair and its helper-renaming mutations
+completed at `34220b7`, with two vulnerable condition hits and no fixed-condition
+alerts at the declared default. This is source adjudication, not runtime proof,
+fresh holdout evidence or the final repeated benchmark.
 
 TypeScript follows explicit module-level Express route registrations, including
 imported handlers and re-exports, into global `fetch`, `node-fetch`, and
