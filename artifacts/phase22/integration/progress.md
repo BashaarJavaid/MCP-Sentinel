@@ -792,3 +792,16 @@ target/toolchain was executed. The native five-input rerun is the next check.
 Commands and all failures remain expanded in the integration directory for the
 next numbered evidence seal. Current source is not final technical acceptance;
 other families, final audits, complete measurements and draft delivery remain open.
+
+
+At committed `b51aee1`, `mobile-recording-b51-development/` completes all five
+exposed Phase 20 mobile inputs under the unchanged deadline with native/SARIF
+validation. The source adjudication records two vulnerable condition hits, each
+with screenshot and recording paths, and zero fixed/control condition alerts.
+All five reports have five findings: one new recording candidate per input and
+unchanged content for every earlier candidate. The three fixed/control recording
+candidates explicitly concern physical containment, outside the frozen condition.
+Six physical-gap candidates and fifteen unchanged unrelated candidates remain
+separate. The campaign took 245.94s overall; no target or model was executed.
+Batch 11 seals 170 files with full hash readback. This completes a development
+recording check, not final repeated benchmarks or Phase 22 technical acceptance.

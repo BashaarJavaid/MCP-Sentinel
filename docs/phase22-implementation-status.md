@@ -212,3 +212,10 @@ vulnerable and fixed repositories. The fixed recording candidate distinguishes
 its lexical boundary from physical symlink uncertainty. Source-specific native
 measurement, final repeated evaluation and remaining families still require
 verification; traces and synthetic controls alone do not pass those gates.
+
+At `b51aee1`, the five exposed mobile inputs complete through the native pipeline:
+two vulnerable condition hits covering screenshot and recording, zero fixed/safe
+condition alerts, with physical symlink uncertainty retained separately. Every
+existing candidate retains its earlier content; each input adds one recording
+candidate. Batch 11 retains exact commands, native reports, scoring and failures.
+Remaining families and final integrated gates stay open.

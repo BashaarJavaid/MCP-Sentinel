@@ -229,3 +229,21 @@ recovery packet and all detached checkouts/coverage databases remain preserved.
 The first 366-test TypeScript run overlapped formatting; the packet verifies
 identical before/after ASTs for all changed scanner/test files. Mobile recording
 output/command semantics and the rest of the authorized scope remain unfinished.
+
+Batch 11 retains 170 added/changed files through `b51aee1`, including ordered
+TypeScript argv, optional output guards, mobile recording source traces, all
+regression failures and the five-input native mobile measurement/adjudication.
+All five inputs complete with both vulnerable screenshot/recording conditions
+recognized and zero fixed/control condition-matched alerts. Each input adds one
+recording candidate; existing candidate content is unchanged. Fixed physical-path
+uncertainty and unrelated existing candidates remain separate from the named gate.
+
+Every member was read back against its SHA-256. The archive contains 4,282,281 raw
+bytes in 378,003 compressed bytes; SHA-256:
+`9b20ec89321f4e6e763d30ccea59f6d21b13a6ae10f61cb9b99df07c39dac7dc`.
+After verifying batch 10, extract `evidence-v11.tar.gz` and verify against
+`evidence-v11.json` before later batches. The packaging script is retained in
+`diagnostics-v11.tar.gz`; all earlier seals and coverage remain untouched.
+The initial Meta source-identity diagnostic selected zero records from the wrong
+manifest and proves no identity; its corrected development-only check is retained
+separately after this seal. Fresh holdout source remains outside tuning.
