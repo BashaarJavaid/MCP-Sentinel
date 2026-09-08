@@ -247,3 +247,18 @@ After verifying batch 10, extract `evidence-v11.tar.gz` and verify against
 The initial Meta source-identity diagnostic selected zero records from the wrong
 manifest and proves no identity; its corrected development-only check is retained
 separately after this seal. Fresh holdout source remains outside tuning.
+
+Batch 12 retains 293 added/changed files through `bfc6a7c`: shared Python HTTP
+client identity and evaluation order, source-defined tool decorators, request-local
+ContextVar/reset state, bounded Atlassian SDK URL requests, corrected source
+inventory checks and all intermediate failures. The Atlassian fixed trace still
+alerts because middleware state is not attached to the tool request; this packet
+does not establish a passing condition or final technical gate.
+
+Every member was read back against its SHA-256. The archive contains 1,245,896 raw
+bytes in 129,337 compressed bytes; SHA-256:
+`5f48d05b48cf3e33926e83aac6360a0813c3d2cc19e62c414665af38029837db`.
+After verifying batch 11, extract `evidence-v12.tar.gz` and verify it against
+`evidence-v12.json` before applying later batches. The packaging script is retained
+in `diagnostics-v12.tar.gz`. Earlier seals, the original recovery packet and
+detached checkouts/coverage databases remain unchanged.

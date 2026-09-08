@@ -82,7 +82,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R16 | Repository escapes and symlinks; dynamic single Python package | Config/traversal/workspace tests | Final-source audit open |
 | R17 | Helm original bytes/text secrets and explicit YAML omission | Traversal/config tests | Final integrated strict-YAML/config/Helm measurement open |
 | R18 | Historical atlassian-auth condition | SENT-016 and shared lifecycle/middleware/client flows | Fixed `34220b7`: 4/4 exposed inputs completed, 2 vulnerable condition hits, 0 fixed-condition alerts; 8 fixed nondefault candidates qualified. `auth-fixed342-development/condition-adjudication.json`; final repeat/holdout/review and human acceptance open |
-| R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | `f12e891` original pair completes but misses vulnerable condition; final gate open |
+| R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | `bfc6a7c` adds bounded SDK request destinations; exposed vulnerable/fixed traces both alert because middleware state is not attached. Native pair/final gate open |
 | R20 | Historical atlassian-upload condition | SENT-012, service factories | Both original inputs exceed 120 seconds at `f12e891`; open |
 | R21 | Historical excel-boundary condition | SENT-012 | `4dfd24c`: five exposed inputs completed; two vulnerable condition hits, zero fixed/control matched alerts; stdio policy mismatch separate; final repeat open |
 | R22 | Historical filesystem-prefix condition | SENT-012, TS normalization/component/physical-parent flow | Earlier four-input gate retained; integrated remeasurement open |
@@ -98,7 +98,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R32 | Git option positions, rejection, command-specific terminators, object APIs | SENT-014 Python/TS controls | Full acceptance open; preserve unrelated/replaced TS fix `37f2190` |
 | R33 | Meta image caller URL request and scheme/private/loopback checks | SENT-015 | Earlier 5/5 result retained; final remeasurement/adjudication open |
 | R34 | Fixed public authority plus caller suffix; enforced actual return value | SENT-015/shared flow | `ee6c9f5` derives facts from actual evaluation (once-only, replacement and short-circuit controls); redirects/DNS rebinding outside claim |
-| R35 | Meta ContextVar/HTTP authentication/operator fallback | SENT-016/shared flow | Open |
+| R35 | Meta ContextVar/HTTP authentication/operator fallback | SENT-016/shared flow | `10cc14c` follows the source-defined tool wrapper; `49f36ce` adds request-local ContextVar state. Source-selected HTTP launch and middleware attachment/rejection remain open |
 | R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | SENT-016/shared flow | `34220b7` records the actual HTTP/lifespan/client condition on all four exposed inputs; 425 affected regressions. Session-based client auth and remaining authorization/compatibility gates remain open |
 | R37 | Applicable Python and TypeScript positives/negatives for every new rule | Rule-specific test files | SENT-016 TypeScript and real flows remain open |
 | R38 | Rule defaults, selection, inline suppression, baseline/severity identities | Catalog/config/CLI/rule tests | Earlier per-rule checks retained; final integrated acceptance open |
