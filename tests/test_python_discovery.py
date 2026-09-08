@@ -322,6 +322,29 @@ def test_warm_resolution_retains_cycle_budgets_and_deadline() -> None:
         index.resolve_in(symbol, "read")
 
 
+def test_repeated_class_metadata_keeps_mro_cycle_and_deadline_checks() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program(
+        {
+            "server.py": "class Base:\n    def read(self): pass\n"
+            "class Child(Base): pass\n"
+        }
+    )
+    base = index.resolve(index.files[0], "Base")
+    child = index.resolve(index.files[0], "Child")
+    assert base is not None and child is not None
+    assert index.plain_instance(child)
+    assert not index.plain_instance(child, frozenset({("server.py", "Child")}))
+    assert index.instance_method(child, "read") is not None
+    assert index.instance_method(child, "read", after=base) is None
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.plain_instance(child)
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.instance_method(child, "read")
+
+
 def test_partially_resolved_factory_keeps_unknown_registration_visible() -> None:
     index = program(
         {

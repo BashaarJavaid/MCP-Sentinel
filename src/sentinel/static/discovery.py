@@ -108,6 +108,10 @@ class PythonProgram:
         self.warnings: list[ReportWarning] = []
         self._tools: tuple[ToolBinding, ...] | None = None
         self._method_orders: dict[ast.AST, tuple[Symbol | str, ...]] = {}
+        self._instance_methods: dict[
+            tuple[ast.AST, str, ast.AST | None], Symbol | None
+        ] = {}
+        self._plain_instances: dict[tuple[ast.AST, bool], bool] = {}
         self._resolved: dict[tuple[str, str, bool], Symbol | None] = {}
         self._resolved_in: dict[tuple[ast.AST, str, str], Symbol | None] = {}
         self.parents = {
@@ -490,6 +494,17 @@ class PythonProgram:
     def instance_method(
         self, symbol: Symbol, name: str, *, after: Symbol | None = None
     ) -> Symbol | None:
+        check_deadline(self.deadline)
+        key = (symbol.node, name, after.node if after else None)
+        if key not in self._instance_methods:
+            self._instance_methods[key] = self._instance_method(
+                symbol, name, after=after
+            )
+        return self._instance_methods[key]
+
+    def _instance_method(
+        self, symbol: Symbol, name: str, *, after: Symbol | None = None
+    ) -> Symbol | None:
         order = self.method_order(symbol)
         if order is None:
             return None
@@ -533,6 +548,22 @@ class PythonProgram:
     ) -> bool:
         """With inspect_init, callers must interpret the initializer before binding."""
         check_deadline(self.deadline)
+        if seen:
+            return self._plain_instance(symbol, seen, inspect_init=inspect_init)
+        key = (symbol.node, inspect_init)
+        if key not in self._plain_instances:
+            self._plain_instances[key] = self._plain_instance(
+                symbol, inspect_init=inspect_init
+            )
+        return self._plain_instances[key]
+
+    def _plain_instance(
+        self,
+        symbol: Symbol,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+        *,
+        inspect_init: bool = False,
+    ) -> bool:
         node = symbol.node
         key = (symbol.file.relative_path, symbol.name)
         if (

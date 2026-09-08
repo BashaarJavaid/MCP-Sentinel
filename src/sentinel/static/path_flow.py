@@ -718,9 +718,10 @@ class PathFlow:
             return self.member_key(self.http_context.state_owners[value.key], member)
         if value.key in self.optional_mappings:
             return self.member_key(self.optional_mappings[value.key], member)
-        return self.members.setdefault(value.key, {}).setdefault(
-            member, "#member:" + _key(value.key, repr(member))
-        )
+        fields = self.members.setdefault(value.key, {})
+        if member not in fields:
+            fields[member] = "#member:" + _key(value.key, repr(member))
+        return fields[member]
 
     def combine_instances(self, values: list[Value]) -> Value:
         result = combine(values)
