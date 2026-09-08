@@ -961,3 +961,11 @@ The corresponding vulnerable profile retains both Jira requests (client.py:184
 and users.py:62), with 251 unresolved diagnostics. Both profiles exit zero;
 instrumentation and overlapping verification make them diagnostic evidence,
 not isolated throughput measurements.
+
+The following metadata correction caches only immutable mount relationships and
+source-established application-method eligibility. It reuses the existing launch
+instance resolver and keeps fresh request execution/state for each tool. A repeated
+fixed-handler profile resolves application eligibility once across two entries,
+retains zero matches and 264 distinct diagnostics. All 314 lifespan/URL/credential
+controls pass in 47.13 seconds; strict mypy checks 143 source/test/script files,
+and Ruff/formatting pass. This removes repeated AST scans, not the input deadline.

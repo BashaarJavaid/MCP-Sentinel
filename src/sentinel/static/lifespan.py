@@ -61,35 +61,7 @@ def server_class(
 def _server_graph(
     program: PythonProgram, tool: ToolBinding
 ) -> tuple[list[Symbol], dict[ast.AST, list[Symbol]]]:
-    def instance(context: Symbol, node: ast.AST) -> Symbol | None:
-        name = qualified_name(node)
-        owner = program.parents.get(node)
-        while owner is not None:
-            if isinstance(owner, Function) and name:
-                root = name.split(".")[0]
-                parameters = (
-                    *owner.args.posonlyargs,
-                    *owner.args.args,
-                    *owner.args.kwonlyargs,
-                )
-                if any(p.arg == root for p in parameters) or any(
-                    isinstance(part, ast.Name)
-                    and isinstance(part.ctx, ast.Store)
-                    and part.id == root
-                    for part in scope_nodes(owner)
-                ):
-                    return None
-            owner = program.parents.get(owner)
-        value = (
-            program.resolve(context.file, name, value_binding=True) if name else None
-        )
-        if (
-            value
-            and isinstance(value.node, ast.Call)
-            and server_class(program, value, value.node.func)
-        ):
-            return value
-        return None
+    from sentinel.static.launches import instance
 
     registrations = (
         tool.handler.node.decorator_list
@@ -106,11 +78,17 @@ def _server_graph(
             "add_tool",
             "register_tool",
         }:
-            server = instance(tool.registration, call.func.value)
+            server = instance(program, tool.registration, call.func.value)
             if server:
                 servers.append(server)
     if len(servers) != 1:
         return [], {}
+    return servers, program.server_parents
+
+
+def server_parents(program: PythonProgram) -> dict[ast.AST, list[Symbol]]:
+    from sentinel.static.launches import instance
+
     parents: dict[ast.AST, list[Symbol]] = {}
     for file in program.files:
         for part in scope_nodes(file.tree):
@@ -124,11 +102,11 @@ def _server_graph(
             ):
                 continue
             context = Symbol(file, "mount", mount_call)
-            parent = instance(context, mount_call.func.value)
-            child = instance(context, mount_call.args[0])
+            parent = instance(program, context, mount_call.func.value)
+            child = instance(program, context, mount_call.args[0])
             if parent and child:
                 parents.setdefault(child.node, []).append(parent)
-    return servers, parents
+    return parents
 
 
 def tool_servers(program: PythonProgram, tool: ToolBinding) -> tuple[Symbol, ...]:

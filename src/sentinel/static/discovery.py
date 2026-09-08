@@ -87,6 +87,12 @@ class PythonProgram:
     """A bounded index of unambiguous local imports, exports and static aliases."""
 
     @cached_property
+    def server_parents(self) -> dict[ast.AST, list[Symbol]]:
+        from sentinel.static.lifespan import server_parents
+
+        return server_parents(self)
+
+    @cached_property
     def launches(self) -> tuple[Launch, ...]:
         from sentinel.static.launches import launches
 

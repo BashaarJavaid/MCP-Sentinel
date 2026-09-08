@@ -19,6 +19,7 @@ class HTTPContext:
     def __init__(self, flow: PathFlow) -> None:
         self.flow = flow
         self.servers: set[str] = set()
+        self.methods: dict[ast.AST, tuple[Symbol, Symbol] | None] = {}
         self.layers: dict[str, tuple[Value, dict[str, Value], Symbol]] = {}
         self.sequences: dict[str, tuple[Value, ...]] = {}
         self.applications: dict[str, tuple[Value, ...]] = {}
@@ -168,12 +169,14 @@ class HTTPContext:
             if value.key in self.flow.bound_receivers:
                 pending.append(self.flow.bound_receivers[value.key])
 
-    def prepare(self, tool: ToolBinding) -> list[dict[str, Value]] | None:
+    def application_method(self, root: Symbol) -> tuple[Symbol, Symbol] | None:
+        check_deadline(self.flow.deadline)
+        if root.node not in self.methods:
+            self.methods[root.node] = self.resolve_application_method(root)
+        return self.methods[root.node]
+
+    def resolve_application_method(self, root: Symbol) -> tuple[Symbol, Symbol] | None:
         flow = self.flow
-        roots = tool_servers(flow.program, tool)
-        if len(roots) != 1:
-            return None
-        root = roots[0]
         assert isinstance(root.node, ast.Call)
         owner = flow.program.resolve(root.file, qualified_name(root.node.func) or "")
         method = flow.program.instance_method(owner, "http_app") if owner else None
@@ -228,6 +231,20 @@ class HTTPContext:
                             context, node, "replaced or escaped HTTP application"
                         )
                         return None
+        return owner, method
+
+    def prepare(self, tool: ToolBinding) -> list[dict[str, Value]] | None:
+        flow = self.flow
+        roots = tool_servers(flow.program, tool)
+        if len(roots) != 1:
+            return None
+        root = roots[0]
+        assert isinstance(root.node, ast.Call)
+        application = self.application_method(root)
+        if application is None:
+            return None
+        owner, method = application
+        assert isinstance(method.node, Function)
         parameters = method.node.args
         if not parameters.args or parameters.posonlyargs:
             return None
