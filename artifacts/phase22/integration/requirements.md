@@ -106,7 +106,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R40 | Traversal/absolute/prefix/symlink and unrelated/discarded/replaced controls | Shared containment tests | Existing controls retained; all required independent families open |
 | R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | Existing correctness tests | Preserve; final-source full suite open |
 | R42 | Candidate-bound 160 unique SOURCE lines across files | `llm/context.py`, review tests | Existing draft/focused tests; full offline context gate open |
-| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | Context/reviewer tests | Existing evidence retained; final regression gate open |
+| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | Context/reviewer tests | `ecdf579` corrects manifest parsing, nonexistent primary ranges and Unicode source-line drift; 92 affected tests pass. Exact request compatibility/final regression gate open |
 | R44 | Unchanged request/cache compatibility and capture reuse | Reviewer/cache/capture infrastructure | Actual per-request comparison and replacement selection open |
 | R45 | Nullable reviews/Finding identities and all runtime proof through review | Finding/context/merge/report | Repeated standalone proofs now covered by `test_probe_campaign.py`; final gate open |
 | R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | `dynamic/prober.py`, `test_probe_campaign.py` | Integration implementation under verification; no final Docker gate yet |
@@ -133,7 +133,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | Evidence/adjudication ledger | Meta v2 source review: 20 corrected fixed-authority false alarms; 220 uncertain framework/resource/operator-policy cases; five-input repeat passes named condition, final remeasurement/other changed findings open; historical 70 explicitly unadjudicated |
 | R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | Existing comparator runner | Open |
 | R69 | Per-input statuses/support/completion denominators, repeated differences | Measurement/scoring infrastructure | Final results open; harness exit alone never qualifies |
-| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | Authorized Git packet + existing sandbox | Exact packet/image verified; integrated campaigns open; Phase 20 preserved |
+| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | Authorized Git packet + existing sandbox | Fixed `80bd278`: all 13 eligible inputs measured, 24/80 attempts each, 56 untested each, exit 3 and clean cleanup; native/SARIF/console orchestrator check passes. Final-source compatibility/reverification open; Phase 20 preserved |
 | R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | Makefile/workflows + locked environment | Fixed `4dfd24c` milestone: 1215 passed, 36 skipped, 88.27% branch coverage; retained database/logs; later 338 focused passes separate; final candidate full suite open |
 | R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | Existing commands/workflows | Final gate open; no live convenience generation |
 | R73 | Docker/Action/rules-only network isolation and supported fixtures | Existing suites/workflows | Integrated gate open; permitted Docker run evidence retained |

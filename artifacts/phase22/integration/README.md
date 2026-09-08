@@ -180,3 +180,21 @@ coverage; the original combined database was copied, and the older detached
 checkout/database remain untouched. Later commits have separate focused evidence.
 These packets do not establish the final Phase 22 benchmark, reviewed, runtime,
 hosted or delivery gates; see the full requirement map and progress history.
+
+Batch 8 retains 235 added/changed files through `ecdf579`: Mastra's actual
+fallback-loop measurements, 13 fixed-source Git campaigns, the Git native/SARIF
+orchestrator check, exact review-source corrections and retained failures. Every
+member was read back against its hash. The archive contains 17,250,782 raw bytes
+in 711,609 compressed bytes; SHA-256:
+`15e833494a8fb0293e8517fad40645e6bc1b42721c5484905ed046a5ca0c3fd8`.
+After verifying batch 7, extract `evidence-v8.tar.gz` into the same directory and
+run the verification snippet with `evidence-v8.json`. Its packaging script is
+retained in `diagnostics-v8.tar.gz`.
+
+`git-campaigns-80bd278/verification.json` validates every raw result hash and
+canonical campaign summary. All 13 analyses are incomplete: 312 total tested
+attempts showed no violation and 728 remain untested. `git-native-80bd278/`
+preserves native JSON, SARIF, console and their checksums for a production
+orchestrator run on the same fixed source. Model calls were disabled. These are
+bounded execution/consumer measurements; they do not establish Git defenses or
+the final integrated source gate.
