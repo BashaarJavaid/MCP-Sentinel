@@ -120,6 +120,9 @@ class PythonProgram:
             for parent in ast.walk(file.tree)
             for child in ast.iter_child_nodes(parent)
         }
+        self.source_functions = frozenset(
+            node for node in self.parents if isinstance(node, Function)
+        )
         self.local_bindings: dict[ast.AST, dict[str, list[ast.AST]]] = {}
         self.scope_variables: dict[ast.AST, frozenset[str]] = {}
         for file in files:

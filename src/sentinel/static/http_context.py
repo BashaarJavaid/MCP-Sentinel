@@ -25,6 +25,9 @@ class HTTPContext:
         self.layers: dict[str, tuple[Value, dict[str, Value], Symbol]] = {}
         self.sequences: dict[str, tuple[Value, ...]] = {}
         self.applications: dict[str, tuple[Value, ...]] = {}
+        self.base_dispatches: dict[
+            tuple[ast.AST, frozenset[ast.AST], frozenset[ast.Call]], Symbol | None
+        ] = {}
         self.base_requests: set[ast.Call] = set()
         self.base_next_calls: set[ast.Call] = set()
         self.continuation: ast.FunctionDef | None = None
@@ -370,6 +373,63 @@ class HTTPContext:
         owner = flow.callables.get(factory.key)
         if owner is None or not isinstance(owner.node, ast.ClassDef):
             return None
+        check_deadline(flow.deadline)
+        key = (
+            owner.node,
+            frozenset(self.executed_functions & flow.program.source_functions),
+            frozenset(self.attached_registrations),
+        )
+        if key not in self.base_dispatches:
+            self.base_dispatches[key] = self.resolve_base_http_dispatch(owner)
+        dispatch = self.base_dispatches[key]
+        if dispatch is None:
+            return None
+        assert isinstance(dispatch.node, Function)
+        parameters = dispatch.node.args
+        instance = Value(
+            key=_key("base-http-instance", factory.key, next_value.key),
+            instance=(owner.file.relative_path, owner.name),
+        )
+        method = Value(key=_key(instance.key, "dispatch"))
+        flow.record_keys.add(instance.key)
+        flow.callables[method.key] = dispatch
+        flow.bound_receivers[method.key] = instance
+        # This adapter is scanner-owned syntax, never imported or executed target code.
+        wrapper = ast.parse(
+            "async def base_http(scope, receive, send):\n"
+            "    request = source_request(scope)\n"
+            "    async def call_next(request):\n"
+            "        return await next_layer(scope, receive, send)\n"
+            "    return await dispatch(request, call_next)\n"
+        ).body[0]
+        assert isinstance(wrapper, ast.AsyncFunctionDef)
+        flow.program.parents.update(
+            (child, parent)
+            for parent in ast.walk(wrapper)
+            for child in ast.iter_child_nodes(parent)
+        )
+        for part in ast.walk(wrapper):
+            if (
+                isinstance(part, ast.Call)
+                and isinstance(part.func, ast.Name)
+                and part.func.id == "source_request"
+            ):
+                self.base_requests.add(part)
+        self.base_next_calls.update(
+            part
+            for part in ast.walk(dispatch.node)
+            if isinstance(part, ast.Call)
+            and isinstance(part.func, ast.Name)
+            and part.func.id == parameters.args[2].arg
+        )
+        value = Value(key=_key(instance.key, "asgi-adapter"))
+        flow.callables[value.key] = Symbol(dispatch.file, "base_http", wrapper)
+        flow.closures[value.key] = {"dispatch": method, "next_layer": next_value}
+        self.next_keys.add(value.key)
+        return value
+
+    def resolve_base_http_dispatch(self, owner: Symbol) -> Symbol | None:
+        flow = self.flow
         order = flow.program.method_order(owner)
         if order is None or order[-1] != "starlette.middleware.base.BaseHTTPMiddleware":
             return None
@@ -449,47 +509,7 @@ class HTTPContext:
             or parameters.kwonlyargs
         ):
             return None
-        instance = Value(
-            key=_key("base-http-instance", factory.key, next_value.key),
-            instance=(owner.file.relative_path, owner.name),
-        )
-        method = Value(key=_key(instance.key, "dispatch"))
-        flow.record_keys.add(instance.key)
-        flow.callables[method.key] = dispatch
-        flow.bound_receivers[method.key] = instance
-        # This adapter is scanner-owned syntax, never imported or executed target code.
-        wrapper = ast.parse(
-            "async def base_http(scope, receive, send):\n"
-            "    request = source_request(scope)\n"
-            "    async def call_next(request):\n"
-            "        return await next_layer(scope, receive, send)\n"
-            "    return await dispatch(request, call_next)\n"
-        ).body[0]
-        assert isinstance(wrapper, ast.AsyncFunctionDef)
-        flow.program.parents.update(
-            (child, parent)
-            for parent in ast.walk(wrapper)
-            for child in ast.iter_child_nodes(parent)
-        )
-        for part in ast.walk(wrapper):
-            if (
-                isinstance(part, ast.Call)
-                and isinstance(part.func, ast.Name)
-                and part.func.id == "source_request"
-            ):
-                self.base_requests.add(part)
-        self.base_next_calls.update(
-            part
-            for part in ast.walk(dispatch.node)
-            if isinstance(part, ast.Call)
-            and isinstance(part.func, ast.Name)
-            and part.func.id == parameters.args[2].arg
-        )
-        value = Value(key=_key(instance.key, "asgi-adapter"))
-        flow.callables[value.key] = Symbol(dispatch.file, "base_http", wrapper)
-        flow.closures[value.key] = {"dispatch": method, "next_layer": next_value}
-        self.next_keys.add(value.key)
-        return value
+        return dispatch
 
     def application_method(self, root: Symbol) -> tuple[Symbol, Symbol] | None:
         check_deadline(self.flow.deadline)

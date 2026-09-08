@@ -10,6 +10,35 @@ from sentinel.static.rules.sent012 import analyze
 from tests.test_python_discovery import program
 
 
+def test_http_middleware_validation_tracks_reachable_mutation() -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static.path_flow import Value
+
+    index = program(
+        {
+            "server.py": "from starlette.middleware.base import BaseHTTPMiddleware\n"
+            "class Guard(BaseHTTPMiddleware):\n"
+            "    async def dispatch(self, request, call_next):\n"
+            "        return await call_next(request)\n"
+            "def mutate(): unknown(Guard)\n"
+        }
+    )
+    flow = PathFlow(index, RuleRunState(), time.monotonic() + 15)
+    owner = index.resolve(index.files[0], "Guard")
+    mutation = index.resolve(index.files[0], "mutate")
+    assert owner is not None and mutation is not None
+    flow.callables["guard"] = owner
+    context = flow.http_context
+    for _ in range(2):
+        assert context.base_http_layer(Value(key="guard"), Value(key="next"))
+    context.executed_functions.add(mutation.node)
+    for _ in range(2):
+        assert context.base_http_layer(Value(key="guard"), Value(key="next")) is None
+    flow.deadline = 0
+    with pytest.raises(InfrastructureError, match="timeout"):
+        context.base_http_layer(Value(key="guard"), Value(key="next"))
+
+
 @pytest.mark.parametrize("inspect_type", [False, True])
 @pytest.mark.parametrize(
     ("replacement", "read", "expected"),
