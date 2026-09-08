@@ -118,3 +118,26 @@ Local measurements overlapped test and documentation work, so their wall times
 are verification latency rather than isolated throughput comparisons. No code
 coverage percentage is presented as detection accuracy, and no approval packet
 for paid evaluation is claimed ready while offline condition gates remain unmet.
+
+## Local integration through registered lifespan flow
+
+Local commits `fec9215`, `3f75327`, `a9c097e` and `9d396a4` preserve the
+constructor handoff, implement ordered bounded runtime attempts and linked
+native 1.7 consumers, correct orchestration test proof, and connect registered
+Python lifespan state through SDK context. These commits have not received
+consolidated draft delivery or final technical acceptance.
+
+Reproducible commands, failures, patches and diagnostics are retained in
+`artifacts/phase22/integration/evidence-v4.tar.gz` with a per-file hash manifest.
+The full integration run failed (1073 passes, 36 skips, two corrected test-fixture
+failures); its coverage report overlapped source edits and is not clean evidence
+for a fixed revision. The two real reference Docker campaigns passed native JSON
+and SARIF validation; the required Git corpus campaigns remain unmeasured.
+
+The exposed Atlassian source establishes the registered lifespan-to-context
+relationship, but SENT-016 still misses its credential-fallback condition.
+Inherited service construction and enforcement, other required static conditions,
+final offline/reviewed measurements, all final quality gates and draft delivery
+remain open. Paid calls, human acceptance and external pilots remain separate
+checkpoints. The complete requirement/evidence map and source-specific limits
+are in the integration packet's `requirements.md` and `progress.md`.

@@ -167,3 +167,76 @@ hashes. Timings overlap verification work and are not isolated throughput result
 
 The frozen corpus and tested Git environment approvals remain exactly those in
 `../authorization.json`. Held-out source has not been opened or used for tuning.
+
+## Constructor, campaign and lifespan integration (batch 4)
+
+`fec9215` preserves and finishes the four-file constructor handoff. The original
+tracked patch matched SHA-256
+`9f533e8eb643e68a9cc5db0217b3db20a2d120d8789987635584037387cb86d6`.
+Additional regressions cover real builtin/dictionary inspections and constructor
+reflection; the final constructor command passed 253 tests. This establishes
+bounded source interpretation, not the independent Atlassian condition.
+
+`3f75327` replaces runtime rule-keyed scheduling with ordered attempt bindings,
+24-start/120-second campaign limits, discovery within the budget, fresh baseline
+and attack sessions, unstarted remainder, and explicit failure/interruption
+outcomes. Native 1.7 models/JSON validation check counts and references; merged
+findings and candidate review retain repeated proofs. Configuration precedence,
+rules-only bypass, repository Action settings, legacy migration, workspace
+counts, and console/native/SARIF consumers have focused coverage.
+
+Docker verification initially failed from socket restrictions, then from a stuck
+Docker Desktop daemon (even a trusted `git --version` container remained Created).
+The permitted run retained 28 failures and eight passes; these do not establish
+working security controls. After daemon recovery, 31 checks passed and five
+failed from a test-construction error already corrected while that run loaded
+its source. The five corrected checks then passed (`campaign-docker-corrected`),
+and both reference campaigns passed native/SARIF validation
+(`campaign-docker-native`). Each log has its own source patch and command record.
+These are fixture/independent-control Docker checks, not the required Git corpus
+campaign measurement.
+
+The full integration command `campaign-milestone-suite` failed: 1073 passed,
+36 skipped, two orchestration test-fixture failures. The stronger report validator
+rejected fabricated proof that did not match the fake outcomes. `a9c097e` corrects
+those fixtures; 56 affected orchestration/report checks passed. The full run
+started at `fec9215` plus tracked patch `d2df1f8c650a…` and untracked test snapshot,
+then overlapped later lifespan implementation. Its final coverage report read
+changed source and included the newly added, unexecuted lifespan module. The
+reported 84.49% is therefore **not clean coverage evidence for a fixed revision**.
+No full-suite pass is claimed for the campaign or subsequent source.
+
+`9d396a4` connects explicit FastMCP lifespan registration and local mounts to
+SDK context values through the shared interpreter. It preserves optional records,
+real builtin `id` inspection and constructor field identity while rejecting
+unestablished/local-shadowed registrations. 266 focused checks, lint, formatting
+and corrected strict mypy passed at their recorded patches. The full authorized
+exposed Atlassian source was materialized through the validated Phase 20 corpus
+infrastructure; its tree is
+`afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930`.
+All 90 tool registrations resolve to the recorded `main_lifespan`. An explanatory
+single-tool source trace now carries operator configuration through the actual
+SDK context helper. It still produces **zero SENT-016 matches**: inherited mixin
+initializers/forwarding, the credential-bearing client sink and enforcement
+remain unfinished. The trace is not a condition-scored measurement.
+
+The earlier post-constructor exposed measurement completed in 79.765 seconds of
+reported scan time with 90 SENT-003 and one SENT-012 finding; zero SENT-016
+condition hits. It overlaps later configuration/test edits, with static source
+unchanged, and is not isolated throughput. Source, harness, corpus and report
+identities remain in `atlassian-auth-constructor/results.json`.
+
+`evidence-v4.tar.gz` preserves 437 additional files (including failures, source
+patches, diagnostic sources and all command results above); each was read back
+against its SHA-256. Earlier diagnostic script revisions were overwritten during
+investigation before diagnostic-byte capture was added to the wrapper. Their
+failure logs remain, but exact intermediate diagnostic bytes are not claimed;
+final diagnostic scripts are in `diagnostics-v4.tar.gz`. Future wrapper snapshots
+include their own wrapper and absolute `/private/tmp/*.py` command scripts.
+
+The complete requirement map remains in `requirements.md`. No final 45-input
+repeat pair, fresh Phase 22 holdout, competitor rerun, Git corpus campaigns, paid
+request packet/evaluation, installed-wheel/Action/isolation/hosted final matrix or
+consolidated draft is complete. No paid calls, pushes, PR creation, merge, release,
+outreach or external acceptance occurred in this batch. Pilot recruitment remains
+deferred; authorized implementation and offline verification still remain.

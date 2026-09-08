@@ -104,3 +104,18 @@ condition hit**. Completion does not establish detection of the labeled fallback
 The subsequent SDK HTTP source changes pass 201 affected regressions but have
 not been measured against that condition yet. No final repeated benchmark,
 fresh holdout, runtime campaign, paid review or acceptance gate is implied.
+
+Batch 4 adds `evidence-v4.tar.gz` / `evidence-v4.json`: 437 files through
+`9d396a4`, covering the preserved constructor work, campaign migration, Docker
+failures/recovery, failed full milestone, corrections and bounded lifespan flow.
+Every member was read back against its hash. Extract after batches 1–3 and run
+the same verification snippet with `evidence-v4.json`:
+
+```sh
+tar -xzf artifacts/phase22/integration/evidence-v4.tar.gz -C /tmp/phase22-evidence
+```
+
+The full milestone failed and overlapped subsequent edits; its coverage output
+is not evidence for a fixed source revision. The exposed Atlassian condition
+still misses. See the batch-4 section in `progress.md` for exact limits, retained
+failed attempts and diagnostic-source reconstruction limitations.
