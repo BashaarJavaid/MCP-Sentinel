@@ -160,3 +160,55 @@ def test_unicode_separators_do_not_change_source_coordinates(
     assert context.blocks[0].start_line == 2
     assert context.blocks[0].text == "command(value)"
     assert not context.contains("server.py", 3, 3)
+
+
+@pytest.mark.parametrize("language", ["python", "typescript"])
+def test_returned_helper_flow_has_its_source_anchor(
+    tmp_path: Path, language: str
+) -> None:
+    from sentinel.config import load_configuration
+    from sentinel.static.engine import run_static_scan
+
+    if language == "python":
+        (tmp_path / "pyproject.toml").write_text(
+            '[project]\nname="sample"\nversion="0.1.0"\ndependencies=["mcp"]\n',
+            encoding="utf-8",
+        )
+        (tmp_path / "server.py").write_text(
+            "from mcp.server.fastmcp import FastMCP\n"
+            "from helper import identity\n"
+            'mcp=FastMCP("sample")\n'
+            "@mcp.tool()\ndef read(path: str):\n"
+            "    return open(identity(path)).read()\n",
+            encoding="utf-8",
+        )
+        helper = "helper.py"
+        source = "def identity(value):\n    return value\n"
+    else:
+        (tmp_path / "package.json").write_text(
+            '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+            encoding="utf-8",
+        )
+        (tmp_path / "server.ts").write_text(
+            'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+            'import {readFileSync} from "node:fs";\n'
+            'import {identity} from "./helper.js";\n'
+            'const server=new McpServer({name:"sample",version:"1"});\n'
+            'server.registerTool("read",{inputSchema:{}},({path})=>readFileSync(identity(path)));\n',
+            encoding="utf-8",
+        )
+        helper = "helper.ts"
+        source = "export function identity(value) {\n return value;\n}\n"
+    (tmp_path / helper).write_text(source, encoding="utf-8")
+    config = load_configuration(
+        tmp_path, environ={}, static_only=True, cli_overrides={"rules": ["SENT-012"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == 1
+    finding = report.findings[0]
+    assert isinstance(finding.evidence, StaticEvidence)
+    assert (helper, 2) in {
+        (location.path, location.range.start_line)
+        for location in finding.evidence.flow_locations
+    }
+    assert build_finding_context(tmp_path, finding).contains(helper, 2, 2)

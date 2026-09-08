@@ -655,6 +655,12 @@ class PathFlow:
                                     )
             elif isinstance(node, ast.Return):
                 value = self.expression(symbol, node.value, env)
+                if value.sources and node in self.program.parents:
+                    value = replace(
+                        value,
+                        locations=value.locations
+                        | {(symbol.file.relative_path, node.lineno)},
+                    )
                 facts = frozenset(
                     key.removeprefix("#path:")
                     for key, item in env.items()

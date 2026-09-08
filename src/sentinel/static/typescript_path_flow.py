@@ -326,6 +326,12 @@ class TypeScriptPathFlow:
             self.expression(file, node["ExprStmt"][0], env)
         elif "Return" in node:
             value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
+            if value.sources:
+                value = replace(
+                    value,
+                    locations=value.locations
+                    | {(file.relative_path, source_range(node, file).start_line)},
+                )
             facts = self.enforced(env)
             self.normal_exits[-1].append(env.copy())
             result = replace(
