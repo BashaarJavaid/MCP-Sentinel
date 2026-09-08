@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 
 from sentinel.config import load_configuration
+from sentinel.finding import StaticEvidence
 from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
@@ -868,3 +869,33 @@ def test_sdk_unset_request_context_can_select_operator_credentials(
             "SDK authentication configuration" in warning.message
             for warning in report.warnings
         )
+
+
+def test_sdk_branch_evidence_survives_finding_merge(tmp_path: Path) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "import os, requests\nfrom mcp.server.fastmcp import FastMCP\n"
+        "from contextvars import ContextVar\ntoken=ContextVar('token',default=None)\n"
+        "mcp=FastMCP('test')\n"
+        "def setup(server):\n"
+        "    if server.settings.json_response: pass\n    else: pass\n"
+        "def main():\n"
+        "    mcp.settings.json_response=bool(os.getenv('JSON_RESPONSE'))\n"
+        "    setup(mcp)\n    mcp.run(transport='streamable-http')\n"
+        "@mcp.tool()\ndef accounts():\n"
+        "    selected=token.get() or os.getenv('OPERATOR_TOKEN')\n"
+        "    return requests.get('https://api.example.com',params={'access_token':selected})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+    assert "json_response=True" in findings[0].description
+    assert "json_response=False" in findings[0].description
+    assert isinstance(findings[0].evidence, StaticEvidence)
+    assert any(
+        location.range.start_line == 7
+        for location in findings[0].evidence.flow_locations
+    )

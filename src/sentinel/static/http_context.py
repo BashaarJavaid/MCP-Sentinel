@@ -45,8 +45,9 @@ class HTTPContext:
         ] = []
         self.attached_registrations: set[ast.Call] = set()
         self.sdk_class_intact: dict[ast.AST, bool] = {}
-        self.decisions: dict[ast.AST, bool] = {}
-        self.pending_decisions: list[dict[ast.AST, bool]] = []
+        self.decisions: dict[ast.If | ast.Try, bool] = {}
+        self.decision_sources: dict[ast.If | ast.Try, Symbol] = {}
+        self.pending_decisions: list[dict[ast.If | ast.Try, bool]] = []
         self.executed_functions: set[ast.AST] = set()
         self.initialization_states: list[dict[str, Value]] = []
 
@@ -762,11 +763,16 @@ class HTTPContext:
             return None
         flow = self.flow
         if isinstance(node, ast.If):
-            relevant = any(
-                isinstance(part, ast.Attribute)
-                and part.attr == "json_response"
-                and flow.bound_value(part.value, env).key in self.sdk_records
-                for part in ast.walk(node.test)
+            selector = (
+                node.test.operand
+                if isinstance(node.test, ast.UnaryOp)
+                and isinstance(node.test.op, ast.Not)
+                else node.test
+            )
+            relevant = (
+                isinstance(selector, ast.Attribute)
+                and selector.attr == "json_response"
+                and flow.bound_value(selector.value, env).key in self.sdk_records
             )
         else:
             relevant = any(
@@ -783,6 +789,7 @@ class HTTPContext:
             )
         if not relevant:
             return None
+        self.decision_sources[node] = symbol
         if node not in self.decisions:
             self.pending_decisions.append({**self.decisions, node: False})
             self.decisions[node] = True

@@ -293,7 +293,12 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             "credential_operator_opt_in"
         ):
             captures.pop("credential_operator_opt_in", None)
-        for field in ("flow_locations", "flow_lines", "launch_transports"):
+        for field in (
+            "flow_locations",
+            "flow_lines",
+            "launch_transports",
+            "launch_branches",
+        ):
             if field in captures:
                 records = [
                     item
@@ -411,6 +416,13 @@ def _finding_from_match(
             + ", ".join(json.loads(match.captures["launch_transports"]))
             + "."
             if "launch_transports" in match.captures
+            else ""
+        )
+        + (
+            " Source launch branch alternatives: "
+            + "; ".join(json.loads(match.captures["launch_branches"]))
+            + "."
+            if "launch_branches" in match.captures
             else ""
         ),
         impact=definition.impact,

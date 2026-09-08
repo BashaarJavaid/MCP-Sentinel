@@ -272,12 +272,30 @@ class PathFlow:
             match = self.state.matches[index]
             locations = json.loads(match.captures.get("flow_locations", "[]"))
             locations.append([source.file.relative_path, call.lineno])
+            branches = []
+            for node, truth in self.http_context.decisions.items():
+                origin = self.http_context.decision_sources[node]
+                locations.append([origin.file.relative_path, node.lineno])
+                decision = (
+                    "json_response="
+                    f"{not truth if isinstance(node.test, ast.UnaryOp) else truth}"
+                    if isinstance(node, ast.If)
+                    else "normal initialization"
+                    if truth
+                    else "initialization exception alternative"
+                )
+                branches.append(f"{origin.file.relative_path}:{node.lineno} {decision}")
             self.state.matches[index] = replace(
                 match,
                 captures={
                     **match.captures,
                     "launch_transports": json.dumps([transport]),
                     "flow_locations": json.dumps(locations),
+                    **(
+                        {"launch_branches": json.dumps(sorted(branches))}
+                        if branches
+                        else {}
+                    ),
                 },
             )
 
