@@ -5,8 +5,15 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
-The latest full fixed-source milestone, `4dfd24c`, passed 1,215 tests with 36 skips
-and 88.27% branch coverage. Later Python branch/record corrections passed 425
+The latest full fixed-source milestone, `f2ea709`, passed 1,775 tests with 36 skips
+and 89.11% branch coverage. Later TypeScript middleware work at `0491f32` passed
+292 affected tests; helper-source evidence at `c6234a0` passed 49 context/review
+tests. These later edits still require final integrated verification. The first
+Meta vulnerable input at `f2ea709` completed in 119,405 ms with 49 findings;
+the five-input condition gate and a frozen fixed-label decision remain open.
+
+Earlier `4dfd24c` passed 1,215 tests with 36 skips and 88.27% branch coverage.
+Subsequent Python branch/record corrections passed 425
 affected regressions. At fixed source `34220b7`, all four exposed Atlassian
 authentication inputs completed: two vulnerable condition hits and no
 fixed-condition alerts. The eight fixed candidates explicitly qualify the

@@ -101,6 +101,10 @@ and proof-preserving review in native JSON 1.6.0. The current replay bundle uses
 one approved runtime-review refresh and four unchanged static captures. See the
 [Phase 17 verification record](docs/phase17-verification.md) for gates and acceptance status.
 
+This integration source emits native JSON 1.7.0 with ordered runtime attempts
+and workspace coverage. Final Phase 22 verification and acceptance remain open;
+historical reports and release evidence retain their recorded schema versions.
+
 ## Rules
 
 Every finding uses a stable rule ID and maps to the OWASP Agentic Top 10.
@@ -169,13 +173,13 @@ flowchart LR
     A[Untrusted MCP repository] --> B[AST + Semgrep rules]
     B --> C[Canonical candidates]
     C --> D[GPT-5.6 semantic review]
-    D --> E[Constrained four-probe plan]
+    D --> E[Bounded ordered probe attempts]
     E --> F[Docker sandbox]
     F --> G[Reviewed dynamic evidence]
     D --> H[Deduplication + provenance merge]
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.6.0]
+    H --> J[JSON 1.7.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```

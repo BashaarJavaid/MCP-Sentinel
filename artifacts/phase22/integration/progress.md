@@ -1280,3 +1280,66 @@ handlers in 40.58 s, SENT-015 processes 41 in 50.07 s, and SENT-016 reaches 19 b
 the shared 120 s deadline. This diagnostic is not a completed native report. Reusing
 startup analysis requires preserving independent handler and callback state; that
 implementation/performance work remains open.
+
+### V2 continuation through c6234a0: grouped startup, TS middleware and evidence
+
+`cb9e4e3` groups SDK startup work while copying private state per handler. A
+command-rule regression exposed its bypass of the existing command-sink precheck;
+`f2ea709` restores that precheck. Preserve both failures and corrected checks.
+At immutable `f2ea709`, the first Meta vulnerable input completed in 119,405 ms
+with 49 findings. This establishes completion of one input, not condition scoring
+or the five-input family gate. Its full suite passed 1,775 tests, 36 skipped,
+89.11% branch coverage in 1,080.75 s (`v2-full-suite-f2ea709/coverage.sqlite` and
+`v2-full-suite-f2ea709.*`). This intermediate pass does not cover later edits.
+
+`0491f32` interprets source-established Express module/factory middleware in order,
+following real `next()` calls through included helpers, literal mount prefixes and
+bounded callback arrays. Independent route state prevents cross-request mutation.
+Unknown prefixes/callbacks and replaced receivers do not establish protection.
+Repeated callback registration has its own counterexample and fix; recursive
+source helpers remain bounded, with at most 32 synchronous HTTP continuations.
+The initial 24 controls had 12 failures; scope controls found unknown-prefix and
+array failures. After fixes, 48 focused controls and the repeated-callback test
+pass; the broader TypeScript selection passes 292 tests, 470 deselected, in
+209.98 s. Strict mypy and Ruff pass after retained initial type/style failures.
+The first repeated-callback test omitted its MCP dependency and failed before
+analysis; the corrected counterexample and actual fix are separate retained runs.
+
+`c6234a0` preserves the return-line source anchor for caller-derived helper values
+in Python and TypeScript. Both missing-anchor counterexamples failed before the
+change. All 49 context/review tests pass, including exact references and the
+160-unique-source-line bound. Four loopback socket tests initially failed under
+the sandbox; the authorized local-loopback rerun passed, without model calls.
+Ruff and strict mypy pass. This metadata change still needs the final integrated
+benchmark/request compatibility and broader source-evidence audit.
+
+All five Meta development inputs are now being measured at immutable `c6234a0`;
+no outcome is assumed before the records finish. The frozen fixed-label decision
+remains pending. No held-out source has been inspected, and no paid calls, pushes,
+hosted jobs, draft creation, publication or outreach occurred in this continuation.
+Full authorized scope, final repeats, all unrelated-candidate adjudication,
+compatibility/consumer audits, Git campaigns, paid preparation, quality and draft
+delivery remain open.
+
+The `c6234a0` Meta family run finished with **0/5 completed**: vulnerable 120057 ms,
+vulnerable mutation 120046 ms, fixed 120065 ms, fixed mutation 120038 ms and safe
+120038 ms. Every failure is the actual unchanged 120-second static deadline;
+the harness returned zero while retaining these incomplete input states. Short
+module-branch regressions overlapped this development run, so it is not an
+isolated-throughput measurement. It does not supersede the one completed f2ea709
+report or establish any condition gate.
+
+`dc5c784` fixes module-level conditional Express registration, separates MCP and
+HTTP interpretation of a mixed factory, and connects source-resolved route names
+and imported handlers to coverage inventory. Two module-branch counterexamples
+and seven mixed-factory/inventory counterexamples failed before their respective
+fixes. The combined 43 controls pass, as do strict types and lint. Broader updated
+inventory/consumer verification remains required.
+
+`59e9fc5` reuses the existing immutable empty Value in credential analysis. On the
+same source-only Meta helper, counted Value allocations fall from 63592 to 53993;
+complete match/warning/visit state remains byte-identical with SHA-256
+`c1f8504c6ef4068eebd2b6901a90b209673bf06c420def4f6128666879c0bdd7`.
+These diagnostic profile timings do not establish an isolated native speedup;
+new native measurements remain necessary. All default values remain immutable,
+and no rule/deadline/source exclusion was introduced.

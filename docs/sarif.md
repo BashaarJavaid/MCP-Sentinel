@@ -45,7 +45,7 @@ and dynamic stages are skipped with `rules-only scan requested`. Finding review
 and GPT summary properties are null. Older SARIF without stage properties is
 still accepted by the Action adapter.
 
-## Coverage and review activity (native 1.6.0)
+## Coverage and review activity (native 1.7.0)
 
 `staticAnalysis.coverage` lists observed tool, prompt, and route registrations,
 locations, recognition gaps, and the rules that actually visited each surface.
@@ -73,10 +73,11 @@ GPT mode `not_run` means enabled review had no reviewable candidates. Rules-only
 retains null GPT summaries. Empty stages do not add live/replay/mixed activity.
 
 Native 1.3–1.6 baselines migrate in memory to 1.7; original bytes are preserved.
-Historical coverage and stage activity are null, and historical sent-call flags
-are null rather than inferred from prepared requests. Consumers must accept
-these nulls. Canonical findings, baseline-v2 identities, and accepted model
-payloads remain unchanged.
+Version 1.6 retains its recorded coverage, activity and sent-call flags; older
+versions keep these fields null rather than inferring them from prepared requests.
+Legacy attempts have unknown mutation, eligibility, started state and campaign
+totals. Consumers must accept these nulls. Canonical findings, baseline-v2
+identities, and accepted model payloads remain unchanged.
 
 Default result messages share the console's concise evidence and repair direction.
 They distinguish static suspicion, model corroboration, runtime observation, and

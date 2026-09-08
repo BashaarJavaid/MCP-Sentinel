@@ -13,8 +13,10 @@ The [PortunusMCP Gateway](https://github.com/BashaarJavaid/PortunusMCP) and Port
 Phase 22's user-approved expansion contract is specified in
 [`docs/phase22-technical.md`](docs/phase22-technical.md), including new rule
 meanings, workspace compatibility, bounded campaigns and schema 1.7.0 migration.
-Those changes remain pending until implemented and verified; the current scope
-and native 1.6.0 contracts below continue to describe shipped behavior.
+The integration source implements native 1.7.0; its campaign/report contract at
+the end of this document supersedes the historical scheduling and report sections.
+Final verification and acceptance remain pending. Historical native 1.6.0 evidence
+continues to describe the behavior of its recorded source.
 
 ### Supported
 
@@ -1230,11 +1232,14 @@ selected analysis and never establishes security assurance.
 ### Team-adoption contracts
 
 `sentinel scan --baseline <report.json>` accepts a bounded, regular,
-non-symlink native JSON 1.3.0, 1.4.0, 1.5.0, or 1.6.0 report. Historical reports are
-migrated in memory and validated as strict 1.6.0; source bytes remain untouched.
-Historical `dynamic_analysis` and `DynamicEvidence.proof` are null. Historical
-model counts are recovered from accepted batch judgments, and disagreement
-counts are unavailable (null). Compatible baselines must be complete,
+non-symlink native JSON 1.3.0 through 1.7.0 report. Historical reports are migrated
+in memory and validated as strict 1.7.0; source bytes remain untouched. Versions
+1.3/1.4 lack the later dynamic summary and typed proof; these fields remain null.
+Versions 1.5/1.6 preserve their recorded proof and fixed-probe outcomes as legacy
+attempts without inventing mutations, eligibility or campaign totals. Version 1.6
+retains its recorded coverage and review activity; older versions keep them null.
+For 1.3/1.4, model counts are recovered from accepted batch judgments, and
+disagreement counts remain unavailable (null). Compatible baselines must be complete,
 execution-successful, contain static analysis, select the same ordered rules,
 and use the same static-only/full mode. Target display names and Sentinel
 package versions do not bind a baseline.
@@ -1454,8 +1459,8 @@ warnings and benign prerequisites are controls. Low-level TypeScript tools/list
 metadata is recovered through the imported SDK request schema; this metadata
 recognition does not establish handler or runtime coverage. Dynamic descriptions
 are disclosed as unresolved. The existing selection, suppression, baseline and
-review pipeline applies. Native schema remains 1.6.0 until the coordinated campaign
-migration ships; the complete Phase 22 technical and external gates remain pending.
+review pipeline applies. The integrated campaign migration below emits native
+1.7.0; the complete Phase 22 technical and external gates remain pending.
 
 ### Phase 22 integrated campaign/report contract (verification in progress)
 

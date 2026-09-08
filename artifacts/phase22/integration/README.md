@@ -1,11 +1,22 @@
-# Integration evidence, batches 1–16
+# Integration evidence, batches 1–17
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `0eb39b5`. **It is not final technical acceptance.**
+through source commit `59e9fc5`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 17 retains 233 added/changed files: grouped startup and its command-precheck
+correction; the f2ea709 full milestone (1,775 passed, 36 skipped, 89.11% branch
+coverage); Express middleware, module/factory and inventory controls; returned-helper
+source anchors; and immutable credential-default profiles with exact state comparison.
+The first Meta input completes once at f2ea709; all five c6234a0 inputs time out.
+Initial failures and the still-pending fixed-label decision remain explicit.
+All 5,820,999 raw bytes were read back against their member hashes; the archive is
+849,986 bytes, SHA-256
+`6aa9aa1c0ad0a600ccfed42a807cde42b07e8b8ced03ae1ac8214e29e67e8771`.
+Extract and verify batch 16 before applying `evidence-v17.tar.gz`, then verify
+against `evidence-v17.json`. All included commands had finished before sealing.
 Batch 16 retains 450 added/changed files: bounded list and SDK/provider work,
 source launch evidence, Express factory callbacks, middleware validation caching,
 startup-path correction, all completed native reruns and the pending Meta fixed-label
