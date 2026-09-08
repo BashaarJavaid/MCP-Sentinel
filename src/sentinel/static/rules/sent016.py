@@ -19,7 +19,14 @@ from sentinel.static.model import (
     StaticMatch,
     TypeScriptSourceFile,
 )
-from sentinel.static.path_flow import PathFlow, Value, _key, combine, member_label
+from sentinel.static.path_flow import (
+    UNKNOWN_VALUE,
+    PathFlow,
+    Value,
+    _key,
+    combine,
+    member_label,
+)
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import name_of
@@ -44,7 +51,7 @@ class CredentialFlow(PathFlow):
         self.operator_predicates: dict[str, tuple[str, bool]] = {}
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
-        if not bindings.get("#credential:http", Value()).contained and any(
+        if not bindings.get("#credential:http", UNKNOWN_VALUE).contained and any(
             source.startswith("http:")
             for value in bindings.values()
             for source in value.sources
@@ -68,16 +75,16 @@ class CredentialFlow(PathFlow):
 
     def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
         if isinstance(target, ast.Name):
-            original = env.get(target.id, Value())
+            original = env.get(target.id, UNKNOWN_VALUE)
             if (
                 value.operator_credential
-                and env.get("#absent:" + original.key, Value()).contained
+                and env.get("#absent:" + original.key, UNKNOWN_VALUE).contained
             ):
                 value = replace(combine([value, original]), credential_fallback=True)
         super().assign(target, value, env)
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
-        empty = Value()
+        empty = UNKNOWN_VALUE
         http = [
             branch
             for branch in branches
@@ -116,7 +123,7 @@ class CredentialFlow(PathFlow):
             for child in node.values:
                 if truth == conjunctive or all(
                     other is child
-                    or self.truth_value(self.evaluated.get(other, Value()), env)
+                    or self.truth_value(self.evaluated.get(other, UNKNOWN_VALUE), env)
                     is conjunctive
                     for other in node.values
                 ):
@@ -132,7 +139,7 @@ class CredentialFlow(PathFlow):
             elif isinstance(node.ops[0], (ast.IsNot, ast.NotEq)):
                 self.guard(symbol, node.left, env, truth)
             return
-        value = self.evaluated.get(node, Value())
+        value = self.evaluated.get(node, UNKNOWN_VALUE)
         http_input = any(source.startswith("http:") for source in value.sources)
         predicate = self.operator_predicates.get(value.key)
         if predicate is not None and truth != predicate[1]:
@@ -175,7 +182,7 @@ class CredentialFlow(PathFlow):
             self.evaluated[node] = result
         if isinstance(node, ast.Compare) and len(node.ops) == 1:
             selected = self.environment_text.get(
-                self.evaluated.get(node.left, Value()).key
+                self.evaluated.get(node.left, UNKNOWN_VALUE).key
             )
             if selected and isinstance(node.ops[0], (ast.In, ast.NotIn)):
                 try:
@@ -352,14 +359,14 @@ class CredentialFlow(PathFlow):
                         },
                     )
                 )
-            return Value()
+            return UNKNOWN_VALUE
         result = super().call(symbol, node, env)
         if (
             method == "get"
             and receiver.key in self.context_variables
             and result.key == "None"
-            and env.get("#credential:http", Value()).contained
-            and env.get("#http:no-request", Value()).key != "True"
+            and env.get("#credential:http", UNKNOWN_VALUE).contained
+            and env.get("#http:no-request", UNKNOWN_VALUE).key != "True"
         ):
             result = replace(
                 result,
@@ -375,7 +382,7 @@ class CredentialFlow(PathFlow):
             and not node.args
             and not node.keywords
         ):
-            original = self.evaluated.get(node.func.value, Value())
+            original = self.evaluated.get(node.func.value, UNKNOWN_VALUE)
             selected = self.environment_text.get(original.key)
             if selected:
                 result = replace(
@@ -438,7 +445,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                 ),
             )
         result = super().expression(file, node, env)
-        if env.get(f"#guard:credential:present:{result.key}", Value()).contained:
+        if env.get(f"#guard:credential:present:{result.key}", UNKNOWN_VALUE).contained:
             result = replace(result, credential_present=True)
         if result.credential_present:
             result = replace(result, key=_key(result.key, "credential-present"))
@@ -464,10 +471,12 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
 
     def pattern(self, node: Any, value: Value, env: dict[str, Value]) -> None:
         name = name_of(node) if isinstance(node, dict) else None
-        original = env.get(name or "", Value())
+        original = env.get(name or "", UNKNOWN_VALUE)
         if (
             value.operator_credential
-            and env.get(f"#guard:credential:absent:{original.key}", Value()).contained
+            and env.get(
+                f"#guard:credential:absent:{original.key}", UNKNOWN_VALUE
+            ).contained
         ):
             value = replace(combine([value, original]), credential_fallback=True)
         super().pattern(node, value, env)
@@ -475,7 +484,9 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
         super().guard(value, env, truth)
         for name, current in env.items():
-            if env.get(f"#guard:credential:present:{current.key}", Value()).contained:
+            if env.get(
+                f"#guard:credential:present:{current.key}", UNKNOWN_VALUE
+            ).contained:
                 env[name] = replace(current, credential_present=True)
 
     def call(
@@ -516,7 +527,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                 for argument in arguments[1]
             ]
             options = self.objects.get(args[1].key, {}) if len(args) > 1 else {}
-            headers = self.objects.get(options.get("headers", Value()).key, {})
+            headers = self.objects.get(options.get("headers", UNKNOWN_VALUE).key, {})
             credentials = [
                 value
                 for field, value in headers.items()
@@ -546,5 +557,5 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                         },
                     )
                 )
-            return Value()
+            return UNKNOWN_VALUE
         return super().call(file, node, env)
