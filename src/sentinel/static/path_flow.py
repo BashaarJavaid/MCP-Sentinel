@@ -271,14 +271,21 @@ class PathFlow:
                     # Analyze the configured-boundary condition. An operator's
                     # absent optional root does not promise a containment policy.
                     continue
-                self.expression(symbol, node.test, env)
+                condition = self.expression(symbol, node.test, env)
+                known = self.truth_value(condition, env)
                 left, right = env.copy(), env.copy()
-                self.guard(symbol, node.test, left, True)
-                self.guard(symbol, node.test, right, False)
+                if known is not False:
+                    self.guard(symbol, node.test, left, True)
+                if known is not True:
+                    self.guard(symbol, node.test, right, False)
                 branches = []
-                if self.statements(symbol, node.body, left, returned):
+                if known is not False and self.statements(
+                    symbol, node.body, left, returned
+                ):
                     branches.append(left)
-                if self.statements(symbol, node.orelse, right, returned):
+                if known is not True and self.statements(
+                    symbol, node.orelse, right, returned
+                ):
                     branches.append(right)
                 if not branches:
                     return False
@@ -680,6 +687,40 @@ class PathFlow:
             value = self.expression(symbol, node.value, env)
             self.assign(node.target, value, env)
             return value
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            value = self.expression(symbol, node.operand, env)
+            known = self.truth_value(value, env)
+            return (
+                Value(key=repr(not known))
+                if known is not None
+                else replace(value, key=_key("not", value.key))
+            )
+        if isinstance(node, ast.Compare) and len(node.ops) == 1:
+            left = self.expression(symbol, node.left, env)
+            right = self.expression(symbol, node.comparators[0], env)
+            first, second = member_label(left), member_label(right)
+            if second is UNKNOWN_MEMBER and not right.sources:
+                try:
+                    second = ast.literal_eval(node.comparators[0])
+                except (ValueError, SyntaxError, TypeError):
+                    second = UNKNOWN_MEMBER
+            if first is not UNKNOWN_MEMBER and second is not UNKNOWN_MEMBER:
+                operator = node.ops[0]
+                if isinstance(operator, (ast.Eq, ast.NotEq)):
+                    equal = first == second
+                    return Value(key=repr(equal != isinstance(operator, ast.NotEq)))
+                if isinstance(operator, (ast.In, ast.NotIn)) and isinstance(
+                    second, (list, tuple, set, dict, str, bytes)
+                ):
+                    try:
+                        included = first in second
+                    except TypeError:
+                        pass
+                    else:
+                        return Value(
+                            key=repr(included != isinstance(operator, ast.NotIn))
+                        )
+            return combine([left, Value(), right])
         if isinstance(node, ast.BoolOp):
             values = []
             stopping = isinstance(node.op, ast.Or)
@@ -844,6 +885,47 @@ class PathFlow:
                         keywords[label] = env[marker]
             else:
                 keywords[None] = value
+        if (
+            resolved == "dataclasses.replace"
+            and self.program.external(symbol, node.func) == resolved
+            and len(args) == 1
+            and not unknown_args
+            and args[0].instance is not None
+            and not args[0].maybe_missing
+        ):
+            original = args[0]
+            assert original.instance is not None
+            owner_path, owner_name = original.instance
+            owner_file = next(
+                file for file in self.program.files if file.relative_path == owner_path
+            )
+            record_class = self.program.resolve(owner_file, owner_name)
+            fields = self.registrations.fields(record_class) if record_class else None
+            if fields is not None and keywords.keys() <= set(fields):
+                field_values = {
+                    field: keywords.get(field, self.member(original, field, env))
+                    for field in fields
+                }
+                if not any(value.maybe_missing for value in field_values.values()):
+                    copied = replace(
+                        combine(
+                            list(field_values.values()),
+                            _key(
+                                "dataclass-replacement",
+                                symbol.file.relative_path,
+                                str(node.lineno),
+                                str(node.col_offset),
+                                *self.call_sites,
+                            ),
+                        ),
+                        instance=original.instance,
+                        maybe_none=False,
+                        maybe_missing=False,
+                    )
+                    self.record_keys.add(copied.key)
+                    for field, value in field_values.items():
+                        env[self.member_key(copied, field)] = value
+                    return copied
         receiver = (
             self.expression(symbol, node.func.value, env)
             if isinstance(node.func, ast.Attribute)
@@ -925,6 +1007,18 @@ class PathFlow:
             )
         ):
             return Value()
+        if (
+            resolved in {"isinstance", "builtins.isinstance"}
+            and len(args) == 2
+            and not keywords
+            and args[0].key in self.record_keys
+            and args[0].instance is not None
+        ):
+            class_info = self.callables.get(args[1].key)
+            if class_info and self.registrations.fields(class_info) is not None:
+                # Source-established dataclasses have no custom instance check or
+                # attribute hooks. The builtin inspection does not mutate them.
+                return Value()
         if (
             method in {"keys", "items", "values"}
             and receiver.key in self.mapping_keys

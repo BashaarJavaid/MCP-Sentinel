@@ -10,6 +10,98 @@ from sentinel.static.rules.sent012 import analyze
 from tests.test_python_discovery import program
 
 
+@pytest.mark.parametrize("inspect_type", [False, True])
+@pytest.mark.parametrize(
+    ("replacement", "read", "expected"),
+    [
+        ("path=value", "copy.path", 1),
+        ("path=value", "original.path", 0),
+        ("other=value", "copy.path", 0),
+        ("**{'other': value}", "copy.path", 0),
+    ],
+)
+def test_dataclass_replacement_keeps_exact_field_and_allocation(
+    replacement: str, read: str, expected: int, inspect_type: bool
+) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from dataclasses import dataclass, replace\n"
+            "@dataclass\nclass State:\n"
+            "    path: str = '/fixed'\n    other: str = ''\n"
+            "mcp = FastMCP('test')\n@mcp.tool()\ndef read(value: str):\n"
+            "    original = State()\n"
+            + ("    if isinstance(original, State): pass\n" if inspect_type else "")
+            + f"    copy = replace(original, {replacement})\n"
+            f"    return open({read})\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == expected
+
+
+def test_dataclass_replacement_is_a_shallow_copy() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from dataclasses import dataclass, replace\n"
+            "@dataclass\nclass State:\n    paths: dict\n"
+            "mcp = FastMCP('test')\n@mcp.tool()\ndef read(value: str):\n"
+            "    original = State({'path': '/fixed'})\n"
+            "    copied = replace(original)\n"
+            "    copied.paths['path'] = value\n"
+            "    return open(original.paths['path'])\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("condition", ["mode == 'user'", "mode in ['user', 'local']"])
+def test_literal_selector_keeps_unreachable_record_writes_out(condition: str) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "def select(mode, value):\n"
+            "    state = {'path': '/fixed'}\n"
+            f"    if {condition}:\n        state['other'] = value\n"
+            "    else:\n        state['path'] = value\n"
+            "    return state\n"
+            "mcp = FastMCP('test')\n@mcp.tool()\ndef read(value: str):\n"
+            "    return open(select('user', value)['path'])\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+
+
+@pytest.mark.parametrize("custom", ["post_init", "replacement"])
+def test_dataclass_replacement_does_not_guess_custom_behavior(custom: str) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from dataclasses import dataclass, replace\n"
+            "@dataclass\nclass State:\n"
+            "    path: str = '/fixed'\n    other: str = ''\n"
+            + (
+                "    def __post_init__(self): self.path = self.other\n"
+                if custom == "post_init"
+                else "replace = unknown_replacement\n"
+            )
+            + "mcp = FastMCP('test')\n@mcp.tool()\ndef read(value: str):\n"
+            "    original = State()\n"
+            "    copied = replace(original, other=value)\n"
+            "    return open(copied.path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == 1
+
+
 @pytest.mark.parametrize(
     ("body", "expected"),
     [
