@@ -96,7 +96,11 @@ def member_label(value: Value) -> object:
 
 class PathFlow:
     rule_id = "SENT-012"
-    helper_state_prefixes: tuple[str, ...] = ("#member:", "#global-value:")
+    helper_state_prefixes: tuple[str, ...] = (
+        "#member:",
+        "#global-value:",
+        "#literal-choices:",
+    )
 
     def __init__(
         self, program: PythonProgram, state: RuleRunState, deadline: float
@@ -741,12 +745,31 @@ class PathFlow:
     def narrow(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
-        """A successful presence check excludes None on this branch only."""
+        """Retain enforced presence and literal choices on this branch only."""
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             self.narrow(symbol, node.operand, env, not truth)
         elif isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And) and truth:
             for child in node.values:
                 self.narrow(symbol, child, env, True)
+        elif (
+            isinstance(node, ast.Compare)
+            and len(node.ops) == 1
+            and isinstance(node.ops[0], (ast.Eq, ast.NotEq, ast.In, ast.NotIn))
+            and (choices := self.compared_strings(node)) is not None
+        ):
+            value = self.bound_value(node.left, env)
+            if value.key and value.instance is None:
+                previous = self.literal_choices(value, env)
+                positive = truth != isinstance(node.ops[0], (ast.NotEq, ast.NotIn))
+                remaining = (
+                    (choices if previous is None else previous & choices)
+                    if positive
+                    else (previous - choices if previous is not None else None)
+                )
+                if remaining is not None:
+                    env["#literal-choices:" + value.key] = Value(
+                        key=repr(tuple(sorted(remaining)))
+                    )
         elif (
             isinstance(node, ast.Compare)
             and len(node.ops) == 1
@@ -769,6 +792,30 @@ class PathFlow:
                             locations=current.locations
                             | {(symbol.file.relative_path, node.lineno)},
                         )
+
+    @staticmethod
+    def compared_strings(node: ast.Compare) -> frozenset[str] | None:
+        try:
+            literal = ast.literal_eval(node.comparators[0])
+        except (ValueError, SyntaxError, TypeError):
+            return None
+        if isinstance(node.ops[0], (ast.Eq, ast.NotEq)) and isinstance(literal, str):
+            return frozenset({literal})
+        if (
+            isinstance(node.ops[0], (ast.In, ast.NotIn))
+            and isinstance(literal, (list, tuple, set))
+            and all(isinstance(item, str) for item in literal)
+        ):
+            return frozenset(literal)
+        return None
+
+    @staticmethod
+    def literal_choices(value: Value, env: dict[str, Value]) -> frozenset[str] | None:
+        recorded = env.get("#literal-choices:" + value.key)
+        if recorded is None:
+            return None
+        choices = member_label(recorded)
+        return frozenset(choices) if isinstance(choices, tuple) else None
 
     def protect(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> None:
         assert isinstance(node.func, ast.Attribute)
@@ -923,6 +970,16 @@ class PathFlow:
         if isinstance(node, ast.Compare) and len(node.ops) == 1:
             left = self.expression(symbol, node.left, env)
             right = self.expression(symbol, node.comparators[0], env)
+            possible = self.literal_choices(left, env)
+            if possible and (choices := self.compared_strings(node)) is not None:
+                outcomes = {item in choices for item in possible}
+                if len(outcomes) == 1:
+                    return Value(
+                        key=repr(
+                            outcomes.pop()
+                            != isinstance(node.ops[0], (ast.NotEq, ast.NotIn))
+                        )
+                    )
             first, second = member_label(left), member_label(right)
             if isinstance(node.ops[0], (ast.Is, ast.IsNot)) and (
                 (left.key in self.non_none and right.key == "None")

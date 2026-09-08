@@ -626,6 +626,61 @@ def test_replaced_factory_method_is_not_mistaken_for_original() -> None:
     assert state.warnings
 
 
+@pytest.mark.parametrize(
+    ("guard", "change", "expected"),
+    [
+        ("if mode not in ['oauth', 'pat', 'basic']: raise ValueError()", "", 0),
+        ("if not (mode in ('oauth', 'pat', 'basic')): raise ValueError()", "", 0),
+        ("if mode != 'pat': raise ValueError()", "", 0),
+        ("if other not in ['oauth', 'pat', 'basic']: raise ValueError()", "", 1),
+        ("mode in ['oauth', 'pat', 'basic']", "", 1),
+        (
+            "if mode not in ['oauth', 'pat', 'basic']: raise ValueError()",
+            "mode = other",
+            1,
+        ),
+        (
+            "if mode not in ['oauth', 'pat', 'basic']: raise ValueError()",
+            "mode = mode + other",
+            1,
+        ),
+        ("if mode not in ['oauth', 'pat', 'basic']: pass", "", 1),
+    ],
+)
+def test_enforced_literal_choices_exclude_impossible_fallthrough(
+    guard: str, change: str, expected: int
+) -> None:
+    state = RuleRunState()
+    source = (
+        "def choose(mode, path):\n"
+        "    if mode == 'oauth': return '/fixed/oauth'\n"
+        "    elif mode == 'pat': return '/fixed/pat'\n"
+        "    elif mode == 'basic': return '/fixed/basic'\n"
+        "    return path\n"
+        "@mcp.tool()\ndef read(mode, other, path):\n"
+        f"    {guard}\n    {change or 'pass'}\n"
+        "    alias = mode\n    return open(choose(alias, path))\n"
+    )
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
+
+
+def test_custom_equality_does_not_establish_literal_choices() -> None:
+    source = (
+        "class Mode:\n"
+        "    def __eq__(self, other): return unknown()\n"
+        "@mcp.tool()\ndef read(path):\n"
+        "    mode = Mode()\n"
+        "    if mode not in ['oauth', 'pat']: raise ValueError()\n"
+        "    if mode == 'oauth': return open('/fixed/oauth')\n"
+        "    if mode == 'pat': return open('/fixed/pat')\n"
+        "    return open(path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == 1
+
+
 def test_rebound_sdk_context_annotation_stays_caller_controlled() -> None:
     state = RuleRunState()
     analyze(
