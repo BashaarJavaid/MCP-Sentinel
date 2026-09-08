@@ -194,15 +194,25 @@ class RegistrationFlow:
             if inherited is None:
                 return None
             fields.extend(field for field in inherited if field not in fields)
+        hooks = {
+            "__init__",
+            "__new__",
+            "__post_init__",
+            "__getattribute__",
+            "__getattr__",
+            "__setattr__",
+        }
         for part in node.body:
-            if isinstance(part, Function) and part.name in {
-                "__init__",
-                "__new__",
-                "__post_init__",
-                "__getattribute__",
-                "__getattr__",
-                "__setattr__",
-            }:
+            if isinstance(part, (ast.Assign, ast.AnnAssign)):
+                targets = (
+                    part.targets if isinstance(part, ast.Assign) else [part.target]
+                )
+                if any(
+                    isinstance(target, ast.Name) and target.id in hooks
+                    for target in targets
+                ):
+                    return None
+            if isinstance(part, Function) and part.name in hooks:
                 return None
             if isinstance(part, ast.AnnAssign) and isinstance(part.target, ast.Name):
                 if isinstance(part.value, ast.Call):

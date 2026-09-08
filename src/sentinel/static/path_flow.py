@@ -18,6 +18,7 @@ from sentinel.static.ast_utils import (
 from sentinel.static.discovery import Function, PythonProgram, Symbol
 from sentinel.static.execution import Sources, check_deadline, union
 from sentinel.static.model import RuleRunState
+from sentinel.static.registration_flow import RegistrationFlow
 
 
 @dataclass(frozen=True)
@@ -84,6 +85,11 @@ class PathFlow:
         self.globals: dict[tuple[str, str], Value] = {}
         self.global_members: dict[str, Value] = {}
         self.mapping_keys: set[str] = set()
+        self.record_keys: set[str] = set()
+        self.callables: dict[str, Symbol] = {}
+        self.bound_receivers: dict[str, Value] = {}
+        self.closures: dict[str, dict[str, Value]] = {}
+        self.registrations = RegistrationFlow(program)
         self.members: dict[str, dict[object, str]] = {}
         self.member_defaults: dict[str, Value] = {}
         self.call_sites: list[str] = []
@@ -311,7 +317,7 @@ class PathFlow:
         while pending:
             check_deadline(self.deadline)
             current = pending.pop()
-            if current.key in self.mapping_keys:
+            if current.key in self.mapping_keys or current.key in self.record_keys:
                 if current.key in seen:
                     continue
                 seen.add(current.key)
@@ -353,7 +359,7 @@ class PathFlow:
         key = self.member_key(value, member)
         fallback = replace(
             env.get("#member:unknown:" + value.key, Value())
-            if value.key in self.mapping_keys
+            if value.key in self.mapping_keys or value.key in self.record_keys
             else value,
             key=_key(value.key, repr(member)),
             contained=False,
@@ -454,14 +460,41 @@ class PathFlow:
             return Value()
         if isinstance(node, ast.Constant):
             return Value(key=repr(node.value))
+        if isinstance(node, ast.Lambda):
+            callable_key = _key(
+                "lambda",
+                symbol.file.relative_path,
+                str(node.lineno),
+                str(node.col_offset),
+                *self.call_sites,
+            )
+            function = ast.copy_location(
+                ast.FunctionDef(
+                    name="lambda_body",
+                    args=node.args,
+                    body=[ast.copy_location(ast.Return(value=node.body), node.body)],
+                    decorator_list=[],
+                ),
+                node,
+            )
+            self.callables[callable_key] = Symbol(symbol.file, "lambda_body", function)
+            self.closures[callable_key] = env
+            return Value(key=callable_key)
         if isinstance(node, ast.Name):
             if node.id in env:
                 value = env[node.id]
                 return (
                     self.aggregate(value, env)
-                    if value.key in self.mapping_keys
+                    if value.key in self.mapping_keys or value.key in self.record_keys
                     else value
                 )
+            target = self.program.resolve_in(
+                Symbol(symbol.file, symbol.name, node), node.id
+            )
+            if target and isinstance(target.node, (Function, ast.ClassDef)):
+                binding_key = _key("callable", target.file.relative_path, target.name)
+                self.callables[binding_key] = target
+                return Value(key=binding_key)
             key = (symbol.file.relative_path, node.id)
             if key not in self.globals:
                 self.globals[key] = Value(key=":".join(key))
@@ -560,6 +593,19 @@ class PathFlow:
             value = self.expression(symbol, node.value, env)
             if self.member_key(value, node.attr) in env:
                 return self.member(value, node.attr, env)
+            if value.instance:
+                owner_path, owner_name = value.instance
+                owner_file = next(
+                    file
+                    for file in self.program.files
+                    if file.relative_path == owner_path
+                )
+                method = self.program.resolve(owner_file, owner_name + "." + node.attr)
+                if method and isinstance(method.node, Function):
+                    method_key = _key("bound-method", value.key, node.attr)
+                    self.callables[method_key] = method
+                    self.bound_receivers[method_key] = value
+                    return Value(key=method_key)
             return replace(
                 value,
                 key=value.key + "." + node.attr,
@@ -766,25 +812,103 @@ class PathFlow:
                 + "]",
                 contained=False,
             )
+        if (
+            resolved in {"getattr", "builtins.getattr"}
+            and root not in env
+            and len(node.args) in {2, 3}
+            and isinstance(node.args[1], ast.Constant)
+        ):
+            member = self.member(args[0], node.args[1].value, env)
+            return (
+                combine([member, args[2]])
+                if member.maybe_missing and len(args) == 3
+                else member
+            )
         helper_name = name
         if name.startswith(("self.", "cls.")) and "." in symbol.name:
             helper_name = symbol.name.rsplit(".", 1)[0] + "." + name.split(".", 1)[1]
         helper = self.program.resolve_in(symbol, helper_name)
-        if receiver.instance:
+        callable_value = self.expression(symbol, node.func, env)
+        bound_callable = self.callables.get(callable_value.key)
+        if bound_callable:
+            helper = bound_callable
+        if receiver.instance and not bound_callable:
             owner_path, owner_name = receiver.instance
             owner_file = next(
                 file for file in self.program.files if file.relative_path == owner_path
             )
             helper = self.program.resolve(owner_file, owner_name + "." + method)
-        if helper and isinstance(helper.node, ast.ClassDef) and root not in env:
+        if (
+            helper
+            and isinstance(helper.node, ast.ClassDef)
+            and (root not in env or bound_callable)
+        ):
+            fields = self.registrations.fields(helper)
+            if fields is not None and len(args) <= len(fields) and None not in keywords:
+                bindings = dict(zip(fields, args, strict=False))
+                if not (bindings.keys() & keywords.keys()) and keywords.keys() <= set(
+                    fields
+                ):
+                    bindings.update(
+                        (key, value)
+                        for key, value in keywords.items()
+                        if key is not None
+                    )
+                    if set(bindings) == set(fields):
+                        record = combine(
+                            list(bindings.values()),
+                            _key(
+                                "record",
+                                symbol.file.relative_path,
+                                str(node.lineno),
+                                str(node.col_offset),
+                                *self.call_sites,
+                            ),
+                        )
+                        self.record_keys.add(record.key)
+                        for field, value in bindings.items():
+                            env[self.member_key(record, field)] = value
+                        return replace(
+                            record, instance=(helper.file.relative_path, helper.name)
+                        )
             if not self.program.plain_instance(helper):
                 self.unresolved(symbol, node, "custom construction or instance state")
                 return replace(result, instance=None)
-            return replace(result, instance=(helper.file.relative_path, helper.name))
+            return replace(
+                result,
+                key=_key(
+                    "instance",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                ),
+                instance=(helper.file.relative_path, helper.name),
+            )
         if (
             helper
             and isinstance(helper.node, Function)
-            and (name.split(".")[0] not in env or receiver.instance is not None)
+            and any(
+                not (
+                    isinstance(decorator, ast.Name)
+                    and decorator.id in {"staticmethod", "classmethod"}
+                    and not self.program.bindings[helper.file.relative_path].get(
+                        decorator.id
+                    )
+                )
+                for decorator in helper.node.decorator_list
+            )
+        ):
+            self.unresolved(symbol, node, "decorated helper may replace behavior")
+            helper = None
+        if (
+            helper
+            and isinstance(helper.node, Function)
+            and (
+                name.split(".")[0] not in env
+                or receiver.instance is not None
+                or bound_callable is not None
+            )
         ):
             parameters = helper.node.args
             positional = [p.arg for p in (*parameters.posonlyargs, *parameters.args)]
@@ -835,6 +959,17 @@ class PathFlow:
                 and not parameters.kwarg
                 and None not in keywords
             ):
+                for name, value in self.closures.get(callable_value.key, {}).items():
+                    bindings.setdefault(name, value)
+                declared = (*parameters.posonlyargs, *parameters.args)
+                if (
+                    declared
+                    and declared[0].arg in {"self", "cls"}
+                    and "." in helper.name
+                ):
+                    bindings[declared[0].arg] = self.bound_receivers.get(
+                        callable_value.key, receiver
+                    )
                 bindings.update(
                     (key, value)
                     for key, value in env.items()
@@ -892,4 +1027,6 @@ class PathFlow:
             repository_object=False,
             instance=None,
             option_safe=False,
+            url_checks=frozenset(),
+            credential_present=False,
         )

@@ -94,7 +94,12 @@ class URLFlow(PathFlow):
         try:
             result = super().function(symbol, bindings)
             returns = self.return_facts[-1]
-            if returns and result.key not in self.mapping_keys:
+            if (
+                returns
+                and result.key not in self.mapping_keys
+                and result.key not in self.record_keys
+                and result.key not in self.callables
+            ):
                 result = replace(
                     result,
                     key=_key(

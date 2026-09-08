@@ -400,3 +400,25 @@ def test_json_container_is_one_fixed_prefix_option_value(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
     )
     assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
+
+
+@pytest.mark.parametrize("decorator", ["", "@replace_guard\n"])
+def test_decorated_helper_does_not_establish_option_rejection(
+    tmp_path: Path, decorator: str
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\nimport git\n"
+        "def replace_guard(fn): return lambda value: value\n"
+        + decorator
+        + 'def guard(ref):\n    if ref.startswith("-"): raise ValueError()\n'
+        'mcp=FastMCP("test")\n@mcp.tool()\ndef diff(ref: str):\n'
+        '    guard(ref)\n    return git.Repo("/workspace").git.diff(ref)\n',
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == bool(
+        decorator
+    )

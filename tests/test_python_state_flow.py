@@ -124,3 +124,94 @@ def test_member_flow(body: str, expected: int) -> None:
         flow=PathFlow(index, state, time.monotonic() + 10),
     )
     assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("spec = make_spec(value)\n    return open(spec.path)", 1),
+        ("spec = make_spec(value)\n    return spec.reader(spec.path)", 1),
+        (
+            'spec = make_spec(value)\n    spec.path = "/fixed"\n'
+            "    return open(spec.path)",
+            0,
+        ),
+        ('spec = make_spec(value)\n    return open(getattr(spec, "path"))', 1),
+    ],
+)
+def test_factory_record_fields_and_callbacks(body: str, expected: int) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "@dataclass\nclass Spec:\n    path: str\n    reader: object\n"
+            "def read_path(path): return open(path)\n"
+            "def make_spec(path): return Spec(path=path, reader=read_path)\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n    ' + body + "\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize("custom", ["", "__init__ = replacement\n"])
+def test_dataclass_custom_constructor_is_not_field_binding(custom: str) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "@dataclass\nclass Spec:\n    reader: object\n    " + custom + "\n"
+            "def read_path(path): return open(path)\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n'
+            "    spec=Spec(reader=read_path)\n    return spec.reader(value)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == (not custom)
+    if custom:
+        assert state.warnings
+
+
+@pytest.mark.parametrize(
+    "invocation", ["return spec.read()", "reader=spec.read\n    return reader()"]
+)
+def test_record_bound_method_keeps_receiver(invocation: str) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "@dataclass\nclass Spec:\n    path: str\n"
+            "    def read(self): return open(self.path)\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n'
+            "    spec=Spec(path=value)\n    " + invocation + "\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "callback",
+    [
+        "lambda path: open(path)",
+        "lambda path: open(value)",
+        'lambda path: open("/fixed")',
+    ],
+)
+def test_factory_lambda_callback(callback: str) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "@dataclass\nclass Spec:\n    reader: object\n"
+            "def make_spec(value): return Spec(reader=" + callback + ")\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n'
+            "    spec=make_spec(value)\n    return spec.reader(value)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == ('"/fixed"' not in callback)
