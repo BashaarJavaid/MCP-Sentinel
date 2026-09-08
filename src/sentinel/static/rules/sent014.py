@@ -71,11 +71,14 @@ class OptionFlow(PathFlow):
                     return True
         return False
 
-    def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
+    def entry_group(
+        self, entries: tuple[tuple[ToolBinding, dict[str, Value]], ...]
+    ) -> None:
         if self.has_command_sinks:
-            super().entry(tool, bindings)
+            super().entry_group(entries)
         else:
-            self.state.exempt("no supported Python command sink syntax")
+            for _ in entries:
+                self.state.exempt("no supported Python command sink syntax")
 
     def sequence(self, values: tuple[Value, ...], identity: str) -> Value:
         result = combine(list(values), _key("argv", identity, *(v.key for v in values)))
