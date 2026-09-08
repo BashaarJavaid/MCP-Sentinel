@@ -2495,24 +2495,42 @@ class PathFlow:
                     )
                 ]
                 protected = {value.key for value in bound_values if value.contained}
-                for key, value in env.items():
-                    if value.key in protected:
-                        env[key] = replace(value, contained=True)
                 option_checked = {
                     value.key for value in bound_values if value.option_safe
                 }
-                for key, value in env.items():
-                    if value.key in option_checked:
-                        env[key] = replace(value, option_safe=True)
+                url_checked: dict[str, Value] = {}
                 for value in bound_values:
                     if value.url_checks:
-                        for key, current in env.items():
-                            if current.key == value.key:
-                                env[key] = replace(
-                                    current,
-                                    url_checks=current.url_checks | value.url_checks,
-                                    locations=current.locations | value.locations,
-                                )
+                        previous = url_checked.get(value.key)
+                        url_checked[value.key] = (
+                            replace(
+                                value,
+                                url_checks=value.url_checks | previous.url_checks,
+                                locations=value.locations | previous.locations,
+                            )
+                            if previous is not None
+                            else value
+                        )
+                if protected or option_checked or url_checked:
+                    for key, current in env.items():
+                        checked = url_checked.get(current.key)
+                        if (
+                            checked
+                            or current.key in protected
+                            or current.key in option_checked
+                        ):
+                            env[key] = replace(
+                                current,
+                                contained=current.contained or current.key in protected,
+                                option_safe=current.option_safe
+                                or current.key in option_checked,
+                                url_checks=current.url_checks | checked.url_checks
+                                if checked
+                                else current.url_checks,
+                                locations=current.locations | checked.locations
+                                if checked
+                                else current.locations,
+                            )
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
