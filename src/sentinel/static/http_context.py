@@ -398,13 +398,13 @@ class HTTPContext:
                     == "starlette.middleware.Middleware"
                 ):
                     continue
-                if self.reachable(node, roots) and any(
+                if any(
                     resolved is not None and resolved.node in classes
                     for value in values
                     for resolved in [
                         flow.program.resolve_in(context, qualified_name(value) or "")
                     ]
-                ):
+                ) and self.reachable(node, roots):
                     flow.unresolved(
                         context, node, "replaced or escaped HTTP middleware"
                     )
