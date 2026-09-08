@@ -969,3 +969,23 @@ fixed-handler profile resolves application eligibility once across two entries,
 retains zero matches and 264 distinct diagnostics. All 314 lifespan/URL/credential
 controls pass in 47.13 seconds; strict mypy checks 143 source/test/script files,
 and Ruff/formatting pass. This removes repeated AST scans, not the input deadline.
+
+### Nested source decorators
+
+After `a25c864`, the upload trace identified an included error-handling decorator
+on the write-access wrapper. The original shared interpreter rejected that nested
+decorated callable and never reached the upload handler. A durable forwarding/
+replacement pair reproduces the miss before the correction. Registered and nested
+functions now share explicit decorator evaluation/application, retaining genuine
+wraps metadata and unresolved unknown replacements. A source-order control also
+exposed the source-name-only recursion check: two distinct closures from the same
+factory were incorrectly treated as recursive. Callable allocation identity now
+distinguishes them while retaining the 64-frame limit.
+
+The corrected affected suite passes 610 tests in 70.19 seconds. The real upload
+trace reaches upload_attachment and get_confluence_fetcher, but the returned
+fetcher remains unresolved and there is no condition hit yet. The ongoing native
+measurement uses the immutable earlier `3a2a276` checkout; it cannot verify this
+later decorator correction. Raw failures, source-order controls, traces and type
+annotation correction remain under `continuation-nested-decorator-*` and
+`continuation-upload-nested-decorator-*`, after sealed batch 13.

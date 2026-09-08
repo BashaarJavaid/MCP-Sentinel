@@ -848,6 +848,67 @@ def test_decorator_order_uses_the_callable_captured_at_registration(
     assert len(state.matches) == expected
 
 
+@pytest.mark.parametrize("forward", [True, False])
+def test_nested_source_decorator_runs_the_selected_callable(forward: bool) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from functools import wraps\n"
+            "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+            "def errors(func):\n"
+            "    @wraps(func)\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        try:\n            "
+            + ("return func(*args, **kwargs)" if forward else "return 'fixed'")
+            + "\n        except Exception: raise\n"
+            "    return wrapped\n"
+            "def decorate(func):\n"
+            "    @wraps(func)\n    @errors\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        return func(*args, **kwargs)\n"
+            "    return wrapped\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == forward
+
+
+@pytest.mark.parametrize("forward", [False, True])
+def test_decorator_factories_evaluate_in_source_order(forward: bool) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+            "def select(state, forward):\n"
+            "    state['forward'] = forward\n"
+            "    def decorate(func):\n"
+            "        def wrapped(*args, **kwargs):\n"
+            "            if state['forward']: return func(*args, **kwargs)\n"
+            "            return 'fixed'\n"
+            "        return wrapped\n"
+            "    return decorate\n"
+            "def decorate(func):\n    state={}\n"
+            f"    @select(state, {not forward!r})\n    @select(state, {forward!r})\n"
+            "    def wrapped(*args, **kwargs): return func(*args, **kwargs)\n"
+            "    return wrapped\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == forward
+
+
 def test_decorator_factory_keeps_each_returned_closure_separate() -> None:
     from sentinel.static.model import RuleRunState
     from sentinel.static.rules.sent012 import analyze

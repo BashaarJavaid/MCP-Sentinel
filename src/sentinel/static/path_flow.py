@@ -285,22 +285,12 @@ class PathFlow:
             "registered-original", tool.handler.file.relative_path, tool.handler.name
         )
         self.callables[key] = Symbol(tool.handler.file, tool.handler.name, original)
-        local = {**bindings, "#registered": Value(key=key)}
-        for decorator in reversed(decorators):
-            application = ast.copy_location(
-                ast.Call(
-                    func=decorator,
-                    args=[ast.Name(id="#registered", ctx=ast.Load())],
-                    keywords=[],
-                ),
-                decorator,
-            )
-            local["#registered"] = self.expression(tool.handler, application, local)
-            if local["#registered"].key not in self.callables:
-                self.unresolved(
-                    tool.handler, decorator, "registered decorator result unresolved"
-                )
-                return
+        local = bindings.copy()
+        local["#registered"] = self.decorate(
+            tool.handler, Value(key=key), decorators, local
+        )
+        if local["#registered"].key not in self.callables:
+            return
         positional = {p.arg for p in node.args.posonlyargs}
         invocation = ast.copy_location(
             ast.Call(
@@ -318,11 +308,53 @@ class PathFlow:
         )
         self.expression(tool.handler, invocation, local)
 
+    def decorate(
+        self,
+        symbol: Symbol,
+        value: Value,
+        decorators: list[ast.expr],
+        env: dict[str, Value],
+    ) -> Value:
+        evaluated: list[tuple[ast.expr, Value]] = []
+        for decorator in decorators:
+            if (
+                isinstance(decorator, ast.Call)
+                and len(decorator.args) == 1
+                and not decorator.keywords
+                and (qualified_name(decorator.func) or "").split(".")[0] not in env
+                and self.program.external(symbol, decorator.func) == "functools.wraps"
+            ):
+                wrapped = self.expression(symbol, decorator.args[0], env)
+                if wrapped.key in self.callables:
+                    continue
+                evaluated.append((decorator, Value()))
+                continue
+            evaluated.append((decorator, self.expression(symbol, decorator, env)))
+        for decorator, factory in reversed(evaluated):
+            env["#decorator-factory"] = factory
+            env["#decorator-value"] = value
+            application = ast.copy_location(
+                ast.Call(
+                    func=ast.Name(id="#decorator-factory", ctx=ast.Load()),
+                    args=[ast.Name(id="#decorator-value", ctx=ast.Load())],
+                    keywords=[],
+                ),
+                decorator,
+            )
+            value = self.expression(symbol, application, env)
+            if value.key not in self.callables:
+                self.unresolved(symbol, decorator, "source decorator result unresolved")
+                return value
+        return value
+
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
         if self.http_context.continued(symbol, bindings):
             return Value()
-        key = (symbol.file.relative_path, symbol.name)
+        key = (
+            symbol.file.relative_path,
+            symbol.name + ":" + bindings.get("#callable-origin", Value()).key,
+        )
         # ponytail: bound recursive interpretation; use summaries for deeper flows.
         if (
             key in self.active
@@ -420,6 +452,8 @@ class PathFlow:
                             f"#global-value:{symbol.file.relative_path}:{target.id}"
                         ] = value
             elif isinstance(node, Function):
+                original = copy.copy(node)
+                original.decorator_list = []
                 key = _key(
                     "closure",
                     symbol.file.relative_path,
@@ -429,10 +463,12 @@ class PathFlow:
                 self.callables[key] = Symbol(
                     symbol.file,
                     symbol.name + "." + node.name,
-                    node,
+                    original,
                 )
                 self.closures[key] = env
-                env[node.name] = Value(key=key)
+                env[node.name] = self.decorate(
+                    symbol, Value(key=key), node.decorator_list, env
+                )
             elif isinstance(node, ast.Global):
                 for name in node.names:
                     env["#global:" + name] = Value(key=name)
@@ -2277,6 +2313,7 @@ class PathFlow:
                     f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}"
                 )
                 try:
+                    bindings["#callable-origin"] = callable_value
                     returned = self.function(helper, bindings)
                 finally:
                     self.call_sites.pop()

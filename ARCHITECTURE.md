@@ -373,6 +373,13 @@ individual captured state. Only genuine default `functools.wraps(function)` is
 metadata-only; other unresolved decoration cannot establish callback behavior.
 The interpreter never imports or executes the decorated target on the host.
 
+Included decorators on nested function definitions use the same application path:
+factory expressions evaluate in source order, then apply in reverse order.
+Distinct closure allocations may call one another even when they share source;
+recursion is bounded by callable identity and the existing 64-frame ceiling.
+Unknown decorator results remain unresolved rather than executing the original
+body by assumption.
+
 Python HTTP client identity is shared by URL and credential flow for the existing
 httpx, requests and aiohttp client constructors. Ordinary member state tracks
 replacement and escape; an unknown receiver cannot establish a request method.
