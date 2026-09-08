@@ -40,6 +40,50 @@ CHECK = """parsed = urlparse(url)
 
 
 @pytest.mark.parametrize(
+    ("condition", "replace_value", "expected", "expected_calls"),
+    [
+        ("allowed(url)", False, 0, ["allowed"]),
+        ("allowed(url)", True, 1, ["allowed"]),
+        ("True or allowed(url)", False, 1, []),
+    ],
+)
+def test_url_guard_interprets_its_validator_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    condition: str,
+    replace_value: bool,
+    expected: int,
+    expected_calls: list[str],
+) -> None:
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent015 import URLFlow
+
+    original = URLFlow.function
+    calls = []
+
+    def traced(self: URLFlow, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        if symbol.name == "allowed":
+            calls.append(symbol.name)
+        return original(self, symbol, bindings)
+
+    monkeypatch.setattr(URLFlow, "function", traced)
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def allowed(value):\n"
+        "    parsed = urlparse(value)\n"
+        "    return parsed.scheme == 'https' and "
+        "parsed.hostname == 'images.example.com'\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        f"    if not ({condition}): raise ValueError('rejected')\n"
+        + ("    url = other\n" if replace_value else "")
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+    assert calls == expected_calls
+
+
+@pytest.mark.parametrize(
     ("body", "expected"),
     [
         ("return requests.get(url)", 1),

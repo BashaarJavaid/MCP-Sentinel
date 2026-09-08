@@ -87,8 +87,12 @@ class URLFlow(PathFlow):
         self.ip_lists: dict[str, Value] = {}
         self.return_facts: list[list[tuple[Facts | None, Facts | None]]] = []
         self.fact_keys: dict[str, tuple[str, str]] = {}
+        self.evaluated: dict[ast.AST, Value] = {}
+        self.expression_depth = 0
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        previous = self.evaluated, self.expression_depth
+        self.evaluated, self.expression_depth = {}, 0
         self.return_facts.append([])
         try:
             result = super().function(symbol, bindings)
@@ -127,6 +131,7 @@ class URLFlow(PathFlow):
             return result
         finally:
             self.return_facts.pop()
+            self.evaluated, self.expression_depth = previous
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         super().merge(env, branches)
@@ -248,9 +253,23 @@ class URLFlow(PathFlow):
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
     ) -> Value:
+        if self.expression_depth == 0:
+            self.evaluated = {}
+        self.expression_depth += 1
+        try:
+            result = self.expression_value(symbol, node, env)
+            if node is not None:
+                self.evaluated[node] = result
+            return result
+        finally:
+            self.expression_depth -= 1
+
+    def expression_value(
+        self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
+    ) -> Value:
         result = super().expression(symbol, node, env)
         if isinstance(node, ast.List) and len(node.elts) == 1:
-            item = self.expression(symbol, node.elts[0], env)
+            item = self.evaluated.get(node.elts[0], Value())
             if self.parts.get(item.key, ("", ""))[1] == "ip":
                 result = replace(
                     result,
@@ -260,14 +279,14 @@ class URLFlow(PathFlow):
                 )
                 self.ip_lists[result.key] = item
         if isinstance(node, ast.BoolOp):
-            values = [self.expression(symbol, child, env) for child in node.values]
+            values = [self.evaluated.get(child, Value()) for child in node.values]
             parts = {self.parts[v.key] for v in values if v.key in self.parts}
             if len(parts) == 1 and all(
                 not v.sources or v.key in self.parts for v in values
             ):
                 self.parts[result.key] = next(iter(parts))
         if isinstance(node, ast.Attribute):
-            receiver = self.expression(symbol, node.value, env)
+            receiver = self.evaluated.get(node.value, Value())
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
         if isinstance(node, (ast.BinOp, ast.JoinedStr)):
@@ -281,7 +300,7 @@ class URLFlow(PathFlow):
         )
         prefix = ""
         for part in prefix_nodes:
-            value = self.expression(symbol, part, env)
+            value = self.evaluated.get(part, Value())
             try:
                 literal = ast.literal_eval(value.key)
             except (ValueError, SyntaxError):
@@ -332,7 +351,7 @@ class URLFlow(PathFlow):
                 return frozenset().union(*children)
             return frozenset.intersection(*children) if children else frozenset()
         if isinstance(node, ast.Attribute):
-            value = self.expression(symbol, node.value, env)
+            value = self.evaluated.get(node.value, Value())
             origin, part = self.parts.get(value.key, ("", ""))
             if part == "ip" and (
                 "not:" + node.attr in IP_CHECKS or node.attr == "is_global"
@@ -340,7 +359,7 @@ class URLFlow(PathFlow):
                 return frozenset({(origin, ("" if truth else "not:") + node.attr)})
             return frozenset()
         if isinstance(node, (ast.Call, ast.Name)):
-            result = self.expression(symbol, node, env)
+            result = self.evaluated.get(node, Value())
             return self.predicates.get(result.key, (frozenset(), frozenset()))[
                 int(truth)
             ]
@@ -352,7 +371,7 @@ class URLFlow(PathFlow):
             or (not truth and isinstance(operator, (ast.NotIn, ast.NotEq)))
         ):
             return frozenset()
-        checked = self.expression(symbol, node.left, env)
+        checked = self.evaluated.get(node.left, Value())
         origin, part = self.parts.get(checked.key, ("", ""))
         values = self.literals(symbol, node.comparators[0])
         if not values:
