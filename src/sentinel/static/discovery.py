@@ -255,6 +255,44 @@ class PythonProgram:
         seen = seen | {key}
         first, _, rest = name.partition(".")
         nodes = self.bindings[file.relative_path].get(first, [])
+        if len(nodes) > 1 and all(
+            isinstance(item, Function)
+            and self.parents.get(item) is file.tree
+            and not item.decorator_list
+            for item in nodes
+        ):
+            definitions = [item for item in nodes if isinstance(item, Function)]
+            if all(
+                all(
+                    isinstance(statement, ast.Pass)
+                    or (
+                        isinstance(statement, ast.Expr)
+                        and isinstance(statement.value, ast.Constant)
+                        and isinstance(statement.value.value, str)
+                    )
+                    for statement in item.body
+                )
+                for item in definitions[:-1]
+            ):
+                # A placeholder can be discarded only if no eager expression
+                # observed it before the final unconditional definition.
+                pending: list[ast.AST] = list(
+                    file.tree.body[: file.tree.body.index(definitions[-1])]
+                )
+                observed = False
+                while pending:
+                    check_deadline(self.deadline)
+                    item = pending.pop()
+                    if isinstance(item, ast.Name) and item.id == first:
+                        observed = True
+                        break
+                    pending.extend(
+                        child
+                        for child in ast.iter_child_nodes(item)
+                        if not isinstance(item, Function) or child not in item.body
+                    )
+                if not observed:
+                    nodes = [definitions[-1]]
         if len(nodes) != 1:
             return None
         node = nodes[0]

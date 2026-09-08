@@ -443,3 +443,39 @@ def test_function_local_import_has_its_own_binding(
         assert resolved is not None
         assert resolved.file.relative_path == "package/helpers.py"
         assert resolved.name == "read"
+
+
+@pytest.mark.parametrize("body", ["return open(path)", "return 'safe'"])
+def test_unobserved_module_forward_declaration_uses_later_implementation(
+    body: str,
+) -> None:
+    index = program(
+        {
+            "server.py": "def read(path): pass\n"
+            "def invoke(path): return read(path)\n"
+            f"def read(path): {body}\n"
+        }
+    )
+    target = index.resolve(index.files[0], "read")
+    assert target is not None
+    assert isinstance(target.node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert target.node.lineno == 3
+
+
+@pytest.mark.parametrize(
+    "between",
+    [
+        "saved = read\n",
+        "def capture(callback=read): pass\n",
+        "@read\ndef decorated(): pass\n",
+    ],
+)
+def test_observed_forward_declaration_remains_unresolved(between: str) -> None:
+    index = program(
+        {
+            "server.py": "def read(path): pass\n"
+            + between
+            + "def read(path): return open(path)\n"
+        }
+    )
+    assert index.resolve(index.files[0], "read") is None
