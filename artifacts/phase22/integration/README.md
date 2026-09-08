@@ -150,3 +150,33 @@ bytes. Per-command JSON records link exact commands, source patches, diagnostic
 snapshots and exit codes. Later documentation bookkeeping is recorded in Git.
 The input deadline and the frozen credential-fallback condition remain unmet;
 four incidental single-tool client candidates are not condition hits.
+
+Batches 6 and 7 extend that history without replacing the earlier seals. Batch 6
+contains 251 files through `5065f16`, including the fixed `f12e891` full-suite
+milestone, eighteen exposed gap measurements and Kubernetes development scoring.
+Batch 7 contains 531 added/changed files through `2a332f2`, including the original
+dirty September 8 handoff/recovery archive, corrected registration and containment
+flows, the fixed `4dfd24c` full suite and coverage, Excel/mobile/Meta/Mastra
+measurements, revised unrelated-finding adjudication and all failed regressions.
+Every member was read back against its per-file SHA-256. Batch 7 is 121,265,808 raw
+bytes in 3,563,339 compressed bytes; archive SHA-256:
+`68cdc015de92912b4dd746000f28ca6a5b1521ab9bc4f74d6e78a7ec434837f6`.
+
+Extract in order, verifying each batch against its own manifest before extracting
+the next batch, because later batches can retain newer diagnostic files at the
+same relative path:
+
+```sh
+tar -xzf artifacts/phase22/integration/evidence-v6.tar.gz -C /tmp/phase22-evidence
+# Run the verification snippet above with evidence-v6.json before continuing.
+tar -xzf artifacts/phase22/integration/evidence-v7.tar.gz -C /tmp/phase22-evidence
+# Run the verification snippet above with evidence-v7.json.
+```
+
+The batch-7 packaging command and script are recorded in `evidence-v7.json` and
+its nested `diagnostics-v7.tar.gz`. The command refuses existing output seals.
+`continuation-4dfd24c-full-suite` passed 1,215 tests, 36 skipped, at 88.27% branch
+coverage; the original combined database was copied, and the older detached
+checkout/database remain untouched. Later commits have separate focused evidence.
+These packets do not establish the final Phase 22 benchmark, reviewed, runtime,
+hosted or delivery gates; see the full requirement map and progress history.
