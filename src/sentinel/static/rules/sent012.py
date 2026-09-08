@@ -1,7 +1,8 @@
 """SENT-012: caller-controlled filesystem paths without enforced containment."""
 
 from sentinel.static.ast_utils import range_for_node
-from sentinel.static.discovery import Function, PythonProgram
+from sentinel.static.discovery import Function, PythonProgram, ToolBinding
+from sentinel.static.http_discovery import HTTPBinding
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.path_flow import PathFlow, Value
 
@@ -12,10 +13,11 @@ def analyze(
     deadline: float = float("inf"),
     *,
     flow: PathFlow | None = None,
+    entries: tuple[ToolBinding | HTTPBinding, ...] | None = None,
 ) -> None:
     flow = flow or PathFlow(program, state, deadline)
     visited: set[tuple[str, int]] = set()
-    for tool in program.tools():
+    for tool in program.tools() if entries is None else entries:
         state.visit(
             tool.registration.file.relative_path, range_for_node(tool.registration.node)
         )

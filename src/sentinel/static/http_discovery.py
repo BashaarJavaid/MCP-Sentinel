@@ -48,6 +48,36 @@ def shadowed(program: PythonProgram, node: ast.AST, name: str) -> bool:
     return False
 
 
+def injected_parameters(
+    node: ast.FunctionDef | ast.AsyncFunctionDef, imports: dict[str, str]
+) -> set[str]:
+    positional = (*node.args.posonlyargs, *node.args.args)
+    defaults = dict(
+        zip(
+            (p.arg for p in positional[len(positional) - len(node.args.defaults) :]),
+            node.args.defaults,
+            strict=True,
+        )
+    )
+    defaults.update(
+        (p.arg, default)
+        for p, default in zip(node.args.kwonlyargs, node.args.kw_defaults, strict=True)
+        if default is not None
+    )
+    return {
+        parameter.arg
+        for parameter in (*positional, *node.args.kwonlyargs)
+        if any(
+            isinstance(part, ast.Call)
+            and resolve_name(qualified_name(part.func) or "", imports)
+            in {"fastapi.Depends", "fastapi.Security"}
+            for expression in (parameter.annotation, defaults.get(parameter.arg))
+            if expression is not None
+            for part in ast.walk(expression)
+        )
+    }
+
+
 def handlers(program: PythonProgram) -> tuple[HTTPBinding, ...]:
     found: list[HTTPBinding] = []
     for file in program.files:
@@ -108,6 +138,7 @@ def handlers(program: PythonProgram) -> tuple[HTTPBinding, ...]:
                                         *node.args.kwonlyargs,
                                     )
                                     if p.arg not in {"self", "cls"}
+                                    and p.arg not in injected_parameters(node, imports)
                                 ),
                             )
                         )

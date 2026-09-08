@@ -9,13 +9,13 @@ from dataclasses import replace
 from sentinel.static.ast_utils import (
     match_from_node,
     qualified_name,
-    range_for_node,
     resolve_name,
 )
 from sentinel.static.discovery import Symbol
 from sentinel.static.http_discovery import handlers
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.path_flow import PathFlow, Value, _key, combine
+from sentinel.static.rules.sent012 import analyze
 
 
 class CredentialFlow(PathFlow):
@@ -175,25 +175,4 @@ class CredentialFlow(PathFlow):
 def detect(context: StaticContext, state: RuleRunState) -> None:
     program = context.python_program
     flow = CredentialFlow(program, state, context.deadline)
-    for binding in handlers(program):
-        state.visit(
-            binding.registration.file.relative_path,
-            range_for_node(binding.registration.node),
-        )
-        state.visit(
-            binding.handler.file.relative_path, range_for_node(binding.handler.node)
-        )
-        flow.function(
-            binding.handler,
-            {
-                parameter.arg: Value(
-                    sources=frozenset({parameter.arg}),
-                    key=f"{binding.handler.file.relative_path}:{parameter.lineno}:{parameter.arg}",
-                    locations=frozenset(
-                        {(binding.handler.file.relative_path, parameter.lineno)}
-                    ),
-                )
-                for parameter in binding.caller_parameters
-            },
-        )
-    state.warnings.extend(program.warnings)
+    analyze(program, state, context.deadline, flow=flow, entries=handlers(program))

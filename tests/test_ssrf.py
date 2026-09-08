@@ -347,3 +347,18 @@ def test_guarded_url_in_optional_state(tmp_path: Path, fallback: str) -> None:
         f"    return requests.get(state.get('url', {fallback}))\n",
     )
     assert len(findings) == (fallback == "url")
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+def test_http_request_url_boundary(tmp_path: Path, checked: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastapi import FastAPI, Request\nimport requests\n"
+        "from urllib.parse import urlparse\napp=FastAPI()\n"
+        '@app.get("/fetch")\ndef fetch(request: Request):\n'
+        '    url=request.query_params.get("url")\n'
+        '    other=request.query_params.get("other")\n    '
+        + CHECK.replace("urlparse(url)", f"urlparse({checked})")
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == (checked != "url")

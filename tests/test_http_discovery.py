@@ -67,3 +67,24 @@ def test_registered_imported_callback_and_middleware_parameters() -> None:
         ("fetch", ("request",), None),
         ("Headers.dispatch", ("request",), "call_next"),
     ]
+
+
+@pytest.mark.parametrize(
+    "parameter",
+    [
+        "token: str = Depends(operator_token)",
+        'token: Annotated[str, Depends(operator_token)] = ""',
+    ],
+)
+def test_dependency_injection_is_not_a_caller_parameter(parameter: str) -> None:
+    index = program(
+        {
+            "server.py": "from fastapi import FastAPI, Depends\n"
+            "from typing import Annotated\n"
+            'app=FastAPI()\ndef operator_token(): return "operator"\n'
+            f'@app.get("/fetch")\ndef fetch(url: str, {parameter}): return url\n'
+        }
+    )
+    assert [[p.arg for p in entry.caller_parameters] for entry in handlers(index)] == [
+        ["url"]
+    ]
