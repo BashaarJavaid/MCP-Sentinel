@@ -547,3 +547,115 @@ def test_mixin_construction_keeps_unknown_hooks_unresolved(change: str) -> None:
     analyze(index, state, time.monotonic() + 10)
     assert not state.matches
     assert any("custom construction" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize("local_import", [False, True])
+@pytest.mark.parametrize("initially_unsafe", [False, True])
+@pytest.mark.parametrize(
+    "selected", ["provider.read(path)", "saved(path)", "provider.invoke(path)"]
+)
+def test_source_module_callback_replacement_keeps_saved_binding(
+    local_import: bool, initially_unsafe: bool, selected: str
+) -> None:
+    imported = "import provider"
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            + ("" if local_import else imported + "\n")
+            + "mcp=FastMCP('test')\n"
+            "@mcp.tool()\ndef read(path: str):\n"
+            + ("    " + imported + "\n" if local_import else "")
+            + "    saved = provider.read\n"
+            + (
+                "    provider.read = lambda path: open('/fixed')\n"
+                if initially_unsafe
+                else "    provider.read = lambda path: open(path)\n"
+            )
+            + f"    return {selected}\n",
+            "provider.py": (
+                "def read(path): return open(path)\n"
+                if initially_unsafe
+                else "def read(path): return open('/fixed')\n"
+            )
+            + "def invoke(path): return read(path)\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == (
+        initially_unsafe if selected == "saved(path)" else not initially_unsafe
+    )
+
+
+@pytest.mark.parametrize("import_time", ["before", "after"])
+def test_source_import_captures_callback_at_the_import_statement(
+    import_time: str,
+) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nimport provider\n"
+            + (
+                "from provider import read as saved\n"
+                if import_time == "before"
+                else ""
+            )
+            + "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    provider.read = lambda path: open(path)\n"
+            + (
+                "    from provider import read as saved\n"
+                if import_time == "after"
+                else ""
+            )
+            + "    return saved(path)\n",
+            "provider.py": "def read(path): return open('/fixed')\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == (import_time == "after")
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "provider.read = unknown",
+        "unknown(provider)",
+        "provider.read = lambda path: open(path); del provider.read",
+    ],
+)
+@pytest.mark.parametrize("call", ["provider.read(path)", "provider.invoke(path)"])
+def test_unknown_source_module_mutation_does_not_restore_the_original_callback(
+    replacement: str, call: str
+) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nimport provider\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            f"    {replacement}\n    return {call}\n",
+            "provider.py": "def read(path): return open(path)\n"
+            "def invoke(path): return read(path)\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+    assert state.warnings
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["provider.__dict__['read'] = unknown", "vars(provider)['read'] = unknown"],
+)
+def test_source_module_reflection_invalidates_callable_identity(mutation: str) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nimport provider\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            f"    {mutation}\n    return provider.read(path)\n",
+            "provider.py": "def read(path): return open(path)\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+    assert state.warnings

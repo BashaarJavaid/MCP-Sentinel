@@ -428,6 +428,11 @@ execute the framework or assume downstream task changes propagate back upstream.
 Custom construction/call/attribute hooks, replaced or escaped middleware classes,
 and unknown continuation forwarding cannot establish protection. Dynamic provider
 patching and general external middleware behavior remain unsupported.
+Included Python module imports retain module identity through known-field callback
+replacement and saved callbacks. Function-local imports read the current binding;
+an earlier saved callback retains its original source body. Unknown module escape,
+reflection and deletion cannot restore the original callback. This source-only
+interpretation does not import target modules or establish SDK provider attachment.
 Known-field builtin `setattr` on the established Starlette state wrapper updates
 that state without escaping the assigned service object. Unknown fields, replaced
 setters and arbitrary object setters do not establish this contract.

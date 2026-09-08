@@ -18,7 +18,7 @@ from sentinel.static.ast_utils import (
 )
 from sentinel.static.discovery import Function, PythonProgram, Symbol, ToolBinding
 from sentinel.static.execution import Sources, check_deadline, union
-from sentinel.static.model import RuleRunState
+from sentinel.static.model import ParsedPythonFile, RuleRunState
 from sentinel.static.registration_flow import RegistrationFlow
 
 
@@ -124,6 +124,11 @@ class PathFlow:
         }
         self.globals: dict[tuple[str, str], Value] = {}
         self.global_members: dict[str, Value] = {}
+        self.source_modules: dict[str, ParsedPythonFile] = {}
+        self.module_values = {
+            file.relative_path: Value(key=_key("source-module", file.relative_path))
+            for file in program.files
+        }
         self.mapping_keys: set[str] = set()
         self.optional_mappings: dict[str, Value] = {}
         self.record_keys: set[str] = set()
@@ -519,6 +524,14 @@ class PathFlow:
             elif isinstance(node, ast.Global):
                 for name in node.names:
                     env["#global:" + name] = Value(key=name)
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                for imported in node.names:
+                    name = imported.asname or imported.name.split(".")[0]
+                    imported_target = self.program.resolve_import(
+                        symbol.file, node, name, value_binding=True
+                    )
+                    if imported_target is not None:
+                        env[name] = self.source_value(imported_target, env)
             elif isinstance(node, ast.Delete):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
@@ -542,8 +555,12 @@ class PathFlow:
                                 owner_value.key, {}
                             ).items():
                                 if label is UNKNOWN_MEMBER or member_name == label:
-                                    env[marker] = replace(
-                                        env.get(marker, Value()), maybe_missing=True
+                                    env[marker] = (
+                                        replace(
+                                            env.get(marker, Value()), maybe_missing=True
+                                        )
+                                        if label is UNKNOWN_MEMBER
+                                        else Value(key="#missing", maybe_missing=True)
                                     )
             elif isinstance(node, ast.Return):
                 value = self.expression(symbol, node.value, env)
@@ -787,6 +804,9 @@ class PathFlow:
                     env[self.member_key(destination, label)] = env[existing]
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
+        if value.key in self.source_modules and member in {"__dict__", "__class__"}:
+            self.update_mapping(value, Value(), env)
+            return Value()
         if value.key in self.instance_alternatives:
             result = self.combine_instances(
                 [
@@ -1183,6 +1203,32 @@ class PathFlow:
                         | {(symbol.file.relative_path, node.lineno)},
                     )
 
+    def source_value(self, target: Symbol, env: dict[str, Value]) -> Value:
+        module = self.module_values[target.file.relative_path]
+        if isinstance(target.node, ast.Module):
+            self.source_modules[module.key] = target.file
+            self.record_keys.add(module.key)
+            return module
+        if module.key in self.source_modules:
+            marker = self.member_key(module, target.name)
+            if marker in env or "#member:unknown:" + module.key in env:
+                return self.member(module, target.name, env)
+        if isinstance(target.node, (Function, ast.ClassDef)):
+            callable_key = _key("callable", target.file.relative_path, target.name)
+            self.callables[callable_key] = target
+            return Value(key=callable_key)
+        key = (target.file.relative_path, target.name)
+        if key not in self.globals:
+            self.globals[key] = Value(key=":".join(key))
+            local = {
+                name: value
+                for name, value in env.items()
+                if name.startswith(self.helper_state_prefixes)
+            }
+            self.globals[key] = self.expression(target, target.node, local)
+            env.update(local)
+        return self.globals[key]
+
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
     ) -> Value:
@@ -1221,6 +1267,11 @@ class PathFlow:
                     if value.key in self.mapping_keys or value.key in self.record_keys
                     else value
                 )
+            module = self.module_values[symbol.file.relative_path]
+            if module.key in self.source_modules:
+                marker = self.member_key(module, node.id)
+                if marker in env or "#member:unknown:" + module.key in env:
+                    return self.member(module, node.id, env)
             target = self.program.resolve_in(
                 Symbol(symbol.file, symbol.name, node), node.id
             )
@@ -1236,6 +1287,16 @@ class PathFlow:
                 declarations = self.program.bindings[symbol.file.relative_path].get(
                     node.id, []
                 )
+                if len(declarations) == 1 and isinstance(
+                    declarations[0], (ast.Import, ast.ImportFrom)
+                ):
+                    imported = self.program.resolve_import(
+                        symbol.file, declarations[0], node.id, value_binding=True
+                    )
+                    if imported is not None:
+                        initial: dict[str, Value] = {}
+                        self.globals[key] = self.source_value(imported, initial)
+                        self.global_members.update(initial)
                 if len(declarations) == 1 and isinstance(
                     declarations[0], (ast.Assign, ast.AnnAssign)
                 ):
@@ -1469,6 +1530,20 @@ class PathFlow:
             )
         if isinstance(node, ast.Attribute):
             value = self.expression(symbol, node.value, env)
+            if value.key in self.source_modules:
+                if node.attr in {"__dict__", "__class__"}:
+                    self.unresolved(symbol, node, "source module reflection")
+                    return self.member(value, node.attr, env)
+                if (
+                    self.member_key(value, node.attr) in env
+                    or "#member:unknown:" + value.key in env
+                ):
+                    return self.member(value, node.attr, env)
+                target = self.program.resolve(
+                    self.source_modules[value.key], node.attr, value_binding=True
+                )
+                if target is not None:
+                    return self.source_value(target, env)
             if self.member_key(value, node.attr) in env or any(
                 self.member_key(original, node.attr) in env
                 or "#member:unknown:" + original.key in env
@@ -2210,6 +2285,15 @@ class PathFlow:
         bound_callable = self.callables.get(callable_value.key)
         if bound_callable:
             helper = bound_callable
+        elif receiver.key in self.source_modules:
+            helper = None
+        elif isinstance(node.func, ast.Name):
+            module = self.module_values[symbol.file.relative_path]
+            if module.key in self.source_modules and (
+                self.member_key(module, node.func.id) in env
+                or "#member:unknown:" + module.key in env
+            ):
+                helper = None
         if receiver.instance and not bound_callable:
             owner_path, owner_name = receiver.instance
             owner_file = next(
@@ -2446,9 +2530,14 @@ class PathFlow:
                 )
                 # Carry reachable object state, not every temporary object from
                 # the caller. Globals, closures and bound methods remain roots.
-                pending = [(value, False) for value in self.globals.values()] + [
-                    (value, True) for value in bindings.values()
-                ]
+                pending = (
+                    [(value, False) for value in self.globals.values()]
+                    + [(value, True) for value in bindings.values()]
+                    + [
+                        (self.module_values[file.relative_path], False)
+                        for file in self.source_modules.values()
+                    ]
+                )
                 reached: set[str] = set()
                 while pending:
                     check_deadline(self.deadline)

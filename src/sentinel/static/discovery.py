@@ -385,6 +385,11 @@ class PythonProgram:
                     + ([module] if module else [])
                 )
             imported = ".".join(part for part in (module, alias.name, rest) if part)
+        modules = self.modules.get(imported, [])
+        if value_binding and modules:
+            return (
+                Symbol(modules[0], "", modules[0].tree) if len(modules) == 1 else None
+            )
         parts = imported.split(".")
         for stop in range(len(parts) - 1, 0, -1):
             candidates = self.modules.get(".".join(parts[:stop]), [])
