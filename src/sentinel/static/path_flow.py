@@ -602,7 +602,9 @@ class PathFlow:
                 label = member_label(self.bound_value(target.slice, env))
                 if label is not UNKNOWN_MEMBER:
                     self.member(receiver, label, env)
-                    env[self.member_key(receiver, label)] = value
+                    env[self.member_key(receiver, label)] = replace(
+                        value, maybe_missing=False
+                    )
                 else:
                     self.update_mapping(receiver, value, env)
         elif isinstance(target, ast.Attribute):
@@ -616,7 +618,9 @@ class PathFlow:
                         env[name] = replace(current, instance=None)
             if receiver.key:
                 self.member(receiver, target.attr, env)
-                env[self.member_key(receiver, target.attr)] = value
+                env[self.member_key(receiver, target.attr)] = replace(
+                    value, maybe_missing=False
+                )
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         if len(branches) == 1:
@@ -934,7 +938,7 @@ class PathFlow:
                     self.update_mapping(Value(key=mapping_key), value, env)
                 if isinstance(field, ast.Constant):
                     marker = self.member_key(Value(key=mapping_key), field.value)
-                    env[marker] = value
+                    env[marker] = replace(value, maybe_missing=False)
                     self.member_defaults.setdefault(marker, Value())
             self.mapping_keys.add(mapping_key)
             return replace(
@@ -1203,7 +1207,7 @@ class PathFlow:
             if keyword.arg is not None:
                 if keyword.arg in keywords:
                     keywords[None] = value
-                keywords[keyword.arg] = value
+                keywords[keyword.arg] = replace(value, maybe_missing=False)
             elif (
                 value.key in self.mapping_keys
                 and "#member:unknown:" + value.key not in env
@@ -1421,7 +1425,9 @@ class PathFlow:
                 if label is None:
                     self.update_mapping(mapping, value, env)
                 else:
-                    env[self.member_key(mapping, label)] = value
+                    env[self.member_key(mapping, label)] = replace(
+                        value, maybe_missing=False
+                    )
             return self.aggregate(mapping, env)
         if method == "update" and receiver.key in self.mapping_keys:
             for argument in args:
@@ -1430,7 +1436,9 @@ class PathFlow:
                 if label is None:
                     self.update_mapping(receiver, value, env)
                 else:
-                    env[self.member_key(receiver, label)] = value
+                    env[self.member_key(receiver, label)] = replace(
+                        value, maybe_missing=False
+                    )
             return Value()
         if (method == "resolve" and receiver.path_object) or (
             resolved == "os.path.realpath"
@@ -1659,7 +1667,9 @@ class PathFlow:
                         )
                         self.record_keys.add(record.key)
                         for field, value in bindings.items():
-                            env[self.member_key(record, field)] = value
+                            env[self.member_key(record, field)] = replace(
+                                value, maybe_missing=False
+                            )
                         return replace(
                             record,
                             instance=(helper.file.relative_path, helper.name),

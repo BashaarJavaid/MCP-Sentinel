@@ -681,6 +681,37 @@ def test_custom_equality_does_not_establish_literal_choices() -> None:
     assert len(state.matches) == 1
 
 
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        "kwargs = {'output': getattr(obj, 'output', None)}; "
+        "config = replace(base, **kwargs)",
+        "kwargs = {}; kwargs['output'] = getattr(obj, 'output', None); "
+        "config = replace(base, **kwargs)",
+        "kwargs = dict(output=getattr(obj, 'output', None)); "
+        "config = replace(base, **kwargs)",
+        "kwargs = {}; kwargs.update(output=getattr(obj, 'output', None)); "
+        "config = replace(base, **kwargs)",
+        "config = Config(getattr(obj, 'output', None)); config = replace(config)",
+    ],
+)
+def test_assigned_record_fields_exist_when_their_values_are_uncertain(
+    configuration: str,
+) -> None:
+    source = (
+        "from dataclasses import dataclass, replace\n"
+        "@dataclass\nclass Config:\n    output: str\n"
+        "@mcp.tool()\ndef read(obj, path):\n"
+        "    base = Config('/fixed')\n"
+        f"    {configuration}\n"
+        "    if not config: return open(path)\n"
+        "    return open('/fixed')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert not state.matches
+
+
 def test_rebound_sdk_context_annotation_stays_caller_controlled() -> None:
     state = RuleRunState()
     analyze(
