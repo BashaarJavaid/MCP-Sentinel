@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 from pathlib import Path
+from weakref import WeakKeyDictionary
 
 from sentinel.finding import SourceRange
 from sentinel.static.model import ParsedPythonFile, StaticMatch
@@ -90,8 +91,15 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
     return tuple(regions)
 
 
+_SCOPES: WeakKeyDictionary[ast.AST, tuple[ast.AST, ...]] = WeakKeyDictionary()
+
+
 def scope_nodes(node: ast.AST) -> tuple[ast.AST, ...]:
     """Walk one lexical body, excluding nested function/class implementation."""
+    # Scanner ASTs are immutable; release cached walks with their source snapshot.
+    cached = _SCOPES.get(node)
+    if cached is not None:
+        return cached
     pending = list(reversed(list(ast.iter_child_nodes(node))))
     result: list[ast.AST] = []
     while pending:
@@ -101,7 +109,9 @@ def scope_nodes(node: ast.AST) -> tuple[ast.AST, ...]:
             current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
         ):
             pending.extend(reversed(list(ast.iter_child_nodes(current))))
-    return tuple(result)
+    cached = tuple(result)
+    _SCOPES[node] = cached
+    return cached
 
 
 def discover_prompt_functions(

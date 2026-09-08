@@ -39,6 +39,31 @@ CHECK = """parsed = urlparse(url)
 """
 
 
+@pytest.mark.parametrize("enabled", [False, True])
+def test_plain_boolean_helper_preserves_request_reachability(
+    tmp_path: Path, enabled: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + f"def enabled(): return {enabled!r}\n"
+        + "@mcp.tool()\ndef fetch(url: str):\n"
+        "    if enabled(): return requests.get(url)\n",
+    )
+    assert len(findings) == enabled
+
+
+def test_plain_true_helper_does_not_validate_the_requested_url(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def permitted(url): return True\n"
+        "@mcp.tool()\ndef fetch(url: str):\n"
+        "    if not permitted(url): raise ValueError('rejected')\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == 1
+
+
 @pytest.mark.parametrize(
     ("guard", "expected"),
     [

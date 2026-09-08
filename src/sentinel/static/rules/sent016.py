@@ -44,7 +44,7 @@ class CredentialFlow(PathFlow):
         self.operator_predicates: dict[str, tuple[str, bool]] = {}
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
-        if any(
+        if not bindings.get("#credential:http", Value()).contained and any(
             source.startswith("http:")
             for value in bindings.values()
             for source in value.sources
@@ -77,10 +77,11 @@ class CredentialFlow(PathFlow):
         super().assign(target, value, env)
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        empty = Value()
         http = [
             branch
             for branch in branches
-            if branch.get("#credential:http", Value()).contained
+            if branch.get("#credential:http", empty).contained
         ]
         # ponytail: follow the successful HTTP getter path; exception-prefix
         # correlation needs separate state. Keep the stdio alternative distinct.
@@ -92,12 +93,16 @@ class CredentialFlow(PathFlow):
             if name.startswith(
                 ("#absent:", "#credential:excluded:", "#credential:opt-in:")
             ):
+                first = branches[0].get(name, empty) if branches else empty
+                if all(branch.get(name, empty) is first for branch in branches[1:]):
+                    env[name] = first
+                    continue
                 env[name] = (
                     replace(
                         combine([branch[name] for branch in branches]), contained=True
                     )
-                    if all(branch.get(name, Value()).contained for branch in branches)
-                    else Value()
+                    if all(branch.get(name, empty).contained for branch in branches)
+                    else empty
                 )
 
     def guard(
@@ -128,6 +133,7 @@ class CredentialFlow(PathFlow):
                 self.guard(symbol, node.left, env, truth)
             return
         value = self.evaluated.get(node, Value())
+        http_input = any(source.startswith("http:") for source in value.sources)
         predicate = self.operator_predicates.get(value.key)
         if predicate is not None and truth != predicate[1]:
             env["#credential:opt-in:" + predicate[0]] = Value(
@@ -136,7 +142,7 @@ class CredentialFlow(PathFlow):
                 | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
             )
         if not isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
-            if not truth and value.sources:
+            if not truth and http_input:
                 env["#credential:excluded:" + value.key] = replace(
                     value,
                     contained=True,
@@ -144,7 +150,7 @@ class CredentialFlow(PathFlow):
                     | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
                 )
             return
-        if value.sources:
+        if http_input:
             if not truth:
                 env["#absent:" + value.key] = replace(
                     value,

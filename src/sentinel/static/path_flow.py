@@ -604,9 +604,38 @@ class PathFlow:
                 env[self.member_key(receiver, target.attr)] = value
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        if len(branches) == 1:
+            # Most helper exits have one surviving branch. Avoid re-combining
+            # every unchanged member, preserving the same protection semantics.
+            env.update(branches[0])
+            for name, value in branches[0].items():
+                if name.startswith("#path:"):
+                    env[name] = Value(contained=value.contained)
+                elif not value.sources and (
+                    value.contained or value.option_safe or value.url_checks
+                ):
+                    env[name] = replace(
+                        value,
+                        contained=False,
+                        option_safe=False,
+                        url_checks=frozenset(),
+                    )
+            return
         unknown = Value()
+        first, *rest = branches or [{}]
         for name in set().union(*(b.keys() for b in branches)):
             default = self.member_defaults.get(name, unknown)
+            value = first.get(name, default)
+            if (
+                not name.startswith("#path:")
+                and (
+                    value.sources
+                    or not (value.contained or value.option_safe or value.url_checks)
+                )
+                and all(branch.get(name, default) is value for branch in rest)
+            ):
+                env[name] = value
+                continue
             values = [branch.get(name, default) for branch in branches]
             env[name] = (
                 Value(contained=all(value.contained for value in values))

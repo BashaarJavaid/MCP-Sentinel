@@ -100,6 +100,7 @@ class URLFlow(PathFlow):
             returns = self.return_facts[-1]
             if (
                 returns
+                and any(false or true for false, true in returns)
                 and result.key not in self.mapping_keys
                 and result.key not in self.record_keys
                 and result.key not in self.callables
@@ -155,11 +156,12 @@ class URLFlow(PathFlow):
             if isinstance(node, ast.Return):
                 super().statements(symbol, [node], env, returned)
                 value = returned[-1]
-                enforced = frozenset(
-                    self.fact_keys[key]
-                    for key, item in env.items()
-                    if key in self.fact_keys and item.contained
-                )
+                checked = [
+                    key
+                    for key in env.keys() & self.fact_keys.keys()
+                    if env[key].contained
+                ]
+                enforced = frozenset(self.fact_keys[key] for key in checked)
                 false, true = self.predicates.get(value.key, (frozenset(), frozenset()))
                 known = None
                 if isinstance(node.value, ast.Constant):
@@ -177,17 +179,12 @@ class URLFlow(PathFlow):
                         None if known is False else true | enforced,
                     )
                 )
-                returned[-1] = replace(
-                    value,
-                    locations=value.locations
-                    | frozenset().union(
-                        *(
-                            item.locations
-                            for key, item in env.items()
-                            if key in self.fact_keys and item.contained
-                        )
-                    ),
-                )
+                if checked:
+                    returned[-1] = replace(
+                        value,
+                        locations=value.locations
+                        | frozenset().union(*(env[key].locations for key in checked)),
+                    )
                 return False
             if isinstance(node, ast.Try) and len(node.body) == 1:
                 assignment = node.body[0]
@@ -402,6 +399,8 @@ class URLFlow(PathFlow):
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
         facts = self.facts(symbol, node, env, truth)
+        if not facts:
+            return
         for origin, check in facts:
             key = "#url:" + _key(origin, check)
             self.fact_keys[key] = (origin, check)

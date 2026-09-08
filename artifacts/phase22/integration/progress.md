@@ -606,3 +606,21 @@ SENT-016 from running. `auth-containment-profile-current/` retains a bounded,
 incomplete cProfile run: branch merges and repeated lexical-scope walks dominate.
 All earlier marker, optional-return, style/type and nonexistent-test failures
 remain preserved. This is not a technical acceptance checkpoint.
+
+### Shared flow work and plain helper return truth
+
+Immutable lexical walks are reused while their source AST remains alive. Branch
+merges reuse unchanged values; empty URL facts no longer scan the entire state.
+A reproduced URL false alarm came from treating an ordinary boolean helper as a
+validation predicate: an unreachable request after `return False` appeared
+reachable. Predicate identities now require actual destination facts. All 324
+affected flow/discovery tests, focused mypy, Ruff and formatting pass in
+`continuation-shared-flow-unchanged-*` and `continuation-shared-flow-final-format`.
+
+`auth-component-costs-common-facts/` retains isolated component diagnostics:
+SENT-015 completes in 42.47s and SENT-016 in 40.29s, with unchanged raw match and
+warning counts. These overlapped tests and are not isolated throughput or full
+scanner acceptance. Both inputs in `auth-common-facts-pair-continuation/` still
+exceed the unchanged 120-second deadline. Earlier component profiles, incomplete
+full scans and the failing plain-helper regression remain preserved. Actual auth
+condition scoring, incidental path adjudication and final acceptance remain open.
