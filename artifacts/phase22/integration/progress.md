@@ -1020,3 +1020,30 @@ these failures. Exact configurations/outcomes/reports are in
 `atlassian-asgi-3a2-development/`, with driver/source identity in
 `continuation-atlassian-asgi-nine-native.*`. The fixed checkout remains unchanged;
 it does not measure the later decorator or cache-state corrections.
+
+### Alternative service instances and checked URL paths
+
+The remaining fixed permission-search candidate came from merging distinct
+source-constructed service instances without their actual configuration fields,
+then dropping validated authority facts when appending a literal URL path.
+The shared interpreter now retains bounded same-class alternatives and live member
+aliases; writes weakly update possible receivers. Required constructed fields stay
+present when their receiver exists, while nullable receivers, field deletion and
+unknown mutation retain caller defaults. Rejecting a disjunction of missing
+parent/child values now establishes both surviving values' presence.
+
+SENT-015 retains checks when a validated base gets a literal path delimiter;
+unrestricted host suffixes, replaced prefixes and altered formatting remain
+candidates. The real fixed get_user_profile trace now reaches the permission-search
+request with scheme/literal-IP checks and no match. This is source-specific trace
+evidence, not a new whole-input result or a DNS-rebinding claim. The earlier 3a2a276
+native reports remain unchanged. The upload profile at af67e21 still reaches the
+120-second deadline; it identifies repeated helper/state work for optimization.
+
+Verification: 550 affected regressions pass in 55.45 seconds, plus 79 shared
+state/execution tests in 9.50 seconds; strict mypy checks 143 files and Ruff/format
+checks pass. The initial nonexistent test paths, missing literal helper, field
+removal failures and type-name collisions are retained with their corrections in
+continuation-service-*, continuation-checked-url-path-* and
+continuation-ssrf-checked-path-source.*. Evidence after batch 13 awaits sealing;
+native completion, all final measurements and remaining authorized scope stay open.

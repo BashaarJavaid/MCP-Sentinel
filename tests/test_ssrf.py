@@ -901,6 +901,145 @@ def test_http_request_url_boundary(tmp_path: Path, checked: str) -> None:
     assert len(findings) == (checked != "url")
 
 
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("nested", [False, True])
+def test_alternative_service_instances_retain_their_destination_fields(
+    tmp_path: Path, guarded: bool, nested: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Config:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "class Client:\n"
+        + (
+            "    def __init__(self, url): self.config = Config(url)\n"
+            "    def fetch(self): return requests.get(self.config.url)\n"
+            if nested
+            else "    def __init__(self, url): self.url = url\n"
+            "    def fetch(self): return requests.get(self.url)\n"
+        )
+        + "def choose(url, selected):\n"
+        + ("    " + CHECK if guarded else "")
+        + "    if selected: return Client(url)\n"
+        "    return Client('https://images.example.com/fixed')\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    return choose(url, selected).fetch()\n",
+    )
+    assert len(findings) == (not guarded)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["", "original.url = other", "chosen.url = other", "unknown(chosen, other)"],
+)
+def test_alternative_service_fields_observe_alias_mutation(
+    tmp_path: Path, mutation: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str, selected: bool):\n    "
+        + CHECK
+        + "    original = Client(url)\n"
+        "    chosen = original if selected else Client('https://images.example.com/fixed')\n"
+        + ("    " + mutation + "\n" if mutation else "")
+        + "    return requests.get(chosen.url)\n",
+    )
+    assert len(findings) == bool(mutation)
+
+
+def test_writing_an_alternative_service_does_not_protect_every_original(
+    tmp_path: Path,
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    original = Client(url)\n"
+        "    chosen = original if selected else Client('https://images.example.com/fixed')\n"
+        "    chosen.url = 'https://images.example.com/other'\n"
+        "    return requests.get(original.url)\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize("change", ["unknown(chosen)", "del chosen.url"])
+def test_service_field_removal_keeps_caller_default_visible(
+    tmp_path: Path, change: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self): self.url='https://images.example.com/fixed'\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    original = Client()\n"
+        "    chosen = original if selected else Client()\n"
+        f"    {change}\n"
+        "    return requests.get(getattr(original, 'url', url))\n",
+    )
+    assert len(findings) == 1
+
+
+def test_nullable_service_keeps_caller_default_visible(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self): self.url='https://images.example.com/fixed'\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    chosen = Client() if selected else None\n"
+        "    return requests.get(getattr(chosen, 'url', url))\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_rejecting_missing_parent_or_child_preserves_dataclass_fields(
+    tmp_path: Path, guarded: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "from dataclasses import dataclass, replace\n"
+        "@dataclass\nclass Config:\n    url: str\n"
+        "class Box:\n    def __init__(self, config): self.config=config\n"
+        "def choose(url, selected):\n"
+        + ("    " + CHECK if guarded else "")
+        + "    if selected: return Box(Config(url))\n    return None\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    box = choose(url, selected)\n"
+        "    if not box or not box.config: raise ValueError()\n"
+        "    config = replace(box.config)\n"
+        "    return requests.get(config.url)\n",
+    )
+    assert len(findings) == (not guarded)
+
+
+@pytest.mark.parametrize(
+    ("destination", "expected"),
+    [
+        ("f'{url}/path'", 0),
+        ("url + '/path'", 0),
+        ("url + '/' + endpoint", 0),
+        ("f'{url}{endpoint}'", 1),
+        ("f'{endpoint}{url}/path'", 1),
+        ("f'{url!r}/path'", 1),
+        ("(url * 2) + '/path'", 1),
+    ],
+)
+def test_appending_a_path_to_a_checked_url_preserves_its_authority(
+    tmp_path: Path, destination: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, endpoint: str):\n    "
+        + CHECK
+        + f"    return requests.get({destination})\n",
+    )
+    assert len(findings) == expected
+
+
 def test_unknown_mutator_cannot_preserve_url_member_guard(tmp_path: Path) -> None:
     findings = scan(
         tmp_path / "target",

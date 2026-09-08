@@ -18,7 +18,7 @@ from sentinel.static.model import (
     StaticMatch,
     TypeScriptSourceFile,
 )
-from sentinel.static.path_flow import PathFlow, Value, _key, combine
+from sentinel.static.path_flow import PathFlow, Value, _key, combine, member_label
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
@@ -340,6 +340,30 @@ class URLFlow(PathFlow):
             if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
             else []
         )
+        if prefix_nodes:
+            first_node = prefix_nodes[0]
+            first = self.evaluated.get(first_node, Value())
+            suffix = (
+                member_label(self.evaluated.get(prefix_nodes[1], Value()))
+                if len(prefix_nodes) > 1
+                else None
+            )
+            if (
+                restricted(first.url_checks)
+                and first.instance is None
+                and not (
+                    isinstance(first_node, ast.FormattedValue)
+                    and (
+                        first_node.conversion != -1
+                        or first_node.format_spec is not None
+                    )
+                )
+                and (
+                    "authority" in first.url_checks
+                    or (isinstance(suffix, str) and suffix.startswith("/"))
+                )
+            ):
+                result = replace(result, url_checks=first.url_checks | {"authority"})
         prefix = ""
         for part in prefix_nodes:
             value = self.evaluated.get(part, Value())
@@ -357,7 +381,9 @@ class URLFlow(PathFlow):
             if prefix_nodes:
                 result = replace(result, key=repr(prefix))
         if fixed_destination(prefix):
-            result = replace(result, url_checks=frozenset({"scheme", "host"}))
+            result = replace(
+                result, url_checks=frozenset({"scheme", "host", "authority"})
+            )
         if isinstance(node, (ast.Compare, ast.BoolOp, ast.UnaryOp, ast.Attribute)):
             self.predicates[result.key] = (
                 self.facts(symbol, node, env, False),

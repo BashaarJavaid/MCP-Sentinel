@@ -127,12 +127,14 @@ class PathFlow:
         self.mapping_keys: set[str] = set()
         self.optional_mappings: dict[str, Value] = {}
         self.record_keys: set[str] = set()
+        self.instance_alternatives: dict[str, tuple[Value, ...]] = {}
         self.callables: dict[str, Symbol] = {}
         self.bound_receivers: dict[str, Value] = {}
         self.closures: dict[str, dict[str, Value]] = {}
         self.registrations = RegistrationFlow(program)
         self.members: dict[str, dict[object, str]] = {}
         self.member_defaults: dict[str, Value] = {}
+        self.required_members: set[str] = set()
         self.call_sites: list[str] = []
         self.yielding: set[tuple[str, str]] = set()
         self.argument_tuples: dict[str, tuple[Value, ...]] = {}
@@ -395,7 +397,7 @@ class PathFlow:
                 self.exits[-1].append(bindings.copy())
             if self.exits[-1]:
                 self.merge(bindings, self.exits[-1])
-            result = combine(returned)
+            result = self.combine_instances(returned)
             if any(value.key in self.path_conditions for value in returned):
                 pairs = [self.path_condition(value) for value in returned]
                 false = [pair[0] for pair in pairs if pair[0] is not None]
@@ -472,6 +474,32 @@ class PathFlow:
             elif isinstance(node, ast.Global):
                 for name in node.names:
                     env["#global:" + name] = Value(key=name)
+            elif isinstance(node, ast.Delete):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        env.pop(target.id, None)
+                    elif isinstance(target, (ast.Attribute, ast.Subscript)):
+                        receiver = self.expression(symbol, target.value, env)
+                        label = (
+                            target.attr
+                            if isinstance(target, ast.Attribute)
+                            else member_label(
+                                self.expression(symbol, target.slice, env)
+                            )
+                        )
+                        for owner_value in self.instance_alternatives.get(
+                            receiver.key, (receiver,)
+                        ):
+                            env["#member:unknown:" + owner_value.key] = Value(
+                                maybe_missing=True
+                            )
+                            for member_name, marker in self.members.get(
+                                owner_value.key, {}
+                            ).items():
+                                if label is UNKNOWN_MEMBER or member_name == label:
+                                    env[marker] = replace(
+                                        env.get(marker, Value()), maybe_missing=True
+                                    )
             elif isinstance(node, ast.Return):
                 value = self.expression(symbol, node.value, env)
                 facts = frozenset(
@@ -649,6 +677,23 @@ class PathFlow:
             member, "#member:" + _key(value.key, repr(member))
         )
 
+    def combine_instances(self, values: list[Value]) -> Value:
+        result = combine(values)
+        if result.instance is not None:
+            alternatives = {
+                alternative.key: alternative
+                for value in values
+                if value.instance is not None
+                for alternative in self.instance_alternatives.get(value.key, (value,))
+            }
+            # ponytail: bound may-alias state; larger unions stay unresolved.
+            if 1 < len(alternatives) <= 32:
+                self.instance_alternatives[result.key] = tuple(alternatives.values())
+                self.record_keys.add(result.key)
+            elif len(alternatives) > 32:
+                return replace(result, instance=None)
+        return result
+
     def aggregate(self, value: Value, env: dict[str, Value]) -> Value:
         pending = [value]
         seen: set[str] = set()
@@ -656,6 +701,7 @@ class PathFlow:
         while pending:
             check_deadline(self.deadline)
             current = pending.pop()
+            pending.extend(self.instance_alternatives.get(current.key, ()))
             if current.key in self.mapping_keys or current.key in self.record_keys:
                 if current.key in seen:
                     continue
@@ -695,6 +741,19 @@ class PathFlow:
                     env[self.member_key(destination, label)] = env[existing]
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
+        if value.key in self.instance_alternatives:
+            result = self.combine_instances(
+                [
+                    self.member(original, member, env)
+                    for original in self.instance_alternatives[value.key]
+                ]
+            )
+            return replace(
+                result,
+                maybe_missing=result.maybe_missing
+                or value.maybe_missing
+                or value.maybe_none,
+            )
         if value.key in self.http_context.state_owners:
             return self.member(self.http_context.state_owners[value.key], member, env)
         if value.key in self.optional_mappings:
@@ -718,6 +777,14 @@ class PathFlow:
             fallback = Value(key="#missing", maybe_missing=True)
         result = env.get(key, fallback)
         self.member_defaults.setdefault(key, fallback)
+        if (
+            key in self.required_members
+            and value.instance is not None
+            and "#member:unknown:" + value.key not in env
+        ):
+            return replace(
+                result, maybe_missing=value.maybe_missing or value.maybe_none
+            )
         return result
 
     def with_default(
@@ -785,6 +852,31 @@ class PathFlow:
         return self.program.instance_method(symbol, name) if symbol else None
 
     def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
+        if isinstance(target, (ast.Attribute, ast.Subscript)):
+            receiver = self.bound_value(target.value, env)
+            if receiver.key in self.instance_alternatives:
+                label = (
+                    target.attr
+                    if isinstance(target, ast.Attribute)
+                    else member_label(self.bound_value(target.slice, env))
+                )
+                for original in self.instance_alternatives[receiver.key]:
+                    env["#assignment-owner"] = original
+                    actual = copy.copy(target)
+                    actual.value = ast.Name(id="#assignment-owner", ctx=ast.Load())
+                    self.assign(
+                        actual,
+                        self.combine_instances(
+                            [
+                                self.member(original, label, env)
+                                if label is not UNKNOWN_MEMBER
+                                else self.aggregate(original, env),
+                                value,
+                            ]
+                        ),
+                        env,
+                    )
+                return
         if isinstance(target, ast.Name):
             env[target.id] = value
         elif isinstance(target, (ast.Tuple, ast.List)):
@@ -860,7 +952,7 @@ class PathFlow:
             env[name] = (
                 Value(contained=all(value.contained for value in values))
                 if name.startswith("#path:")
-                else combine(values)
+                else self.combine_instances(values)
             )
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
@@ -951,9 +1043,12 @@ class PathFlow:
         """Retain enforced presence and literal choices on this branch only."""
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             self.narrow(symbol, node.operand, env, not truth)
-        elif isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And) and truth:
+        elif isinstance(node, ast.BoolOp) and (
+            (isinstance(node.op, ast.And) and truth)
+            or (isinstance(node.op, ast.Or) and not truth)
+        ):
             for child in node.values:
-                self.narrow(symbol, child, env, True)
+                self.narrow(symbol, child, env, truth)
         elif (
             isinstance(node, ast.Compare)
             and len(node.ops) == 1
@@ -1328,7 +1423,11 @@ class PathFlow:
             )
         if isinstance(node, ast.Attribute):
             value = self.expression(symbol, node.value, env)
-            if self.member_key(value, node.attr) in env:
+            if self.member_key(value, node.attr) in env or any(
+                self.member_key(original, node.attr) in env
+                or "#member:unknown:" + original.key in env
+                for original in self.instance_alternatives.get(value.key, ())
+            ):
                 return self.member(value, node.attr, env)
             if value.instance:
                 owner_path, owner_name = value.instance
@@ -1633,7 +1732,10 @@ class PathFlow:
                     for field, value in field_values.items():
                         marker = self.member_key(copied, field)
                         env[marker] = value
-                        self.member_defaults[marker] = Value()
+                        self.member_defaults[marker] = Value(
+                            key="#missing", maybe_missing=True
+                        )
+                        self.required_members.add(marker)
                     return copied
         super_owner = None
         if (
@@ -2110,7 +2212,10 @@ class PathFlow:
                             env[marker] = replace(value, maybe_missing=False)
                             # A branch without this allocation does not make a
                             # declared field optional on the constructed record.
-                            self.member_defaults[marker] = Value()
+                            self.member_defaults[marker] = Value(
+                                key="#missing", maybe_missing=True
+                            )
+                            self.required_members.add(marker)
                         return replace(
                             record,
                             instance=(helper.file.relative_path, helper.name),
@@ -2306,6 +2411,10 @@ class PathFlow:
                         continue
                     reached.add(current.key)
                     pending.extend(
+                        (original, from_argument)
+                        for original in self.instance_alternatives.get(current.key, ())
+                    )
+                    pending.extend(
                         (value, from_argument)
                         for value in self.argument_tuples.get(current.key, ())
                     )
@@ -2364,6 +2473,13 @@ class PathFlow:
                             "custom construction replaced methods "
                             "or exposed instance state",
                         )
+                    else:
+                        for marker in self.members.get(initialized.key, {}).values():
+                            if marker in env and not env[marker].maybe_missing:
+                                self.member_defaults[marker] = Value(
+                                    key="#missing", maybe_missing=True
+                                )
+                                self.required_members.add(marker)
                     return self.aggregate(initialized, env)
                 # Propagate facts about actual values, not internal control markers.
                 # Markers can share an empty key with unrelated unknown values.
@@ -2410,6 +2526,11 @@ class PathFlow:
             or value.key in self.record_keys
         }
         escaped.update(
+            original.key
+            for key in tuple(escaped)
+            for original in self.instance_alternatives.get(key, ())
+        )
+        escaped.update(
             alias_owner.key
             for key in tuple(escaped)
             if (
@@ -2437,6 +2558,7 @@ class PathFlow:
                             url_checks=frozenset(),
                             credential_present=False,
                             instance=None,
+                            maybe_missing=True,
                         )
                 env["#member:unknown:" + owner] = changed
             for key, value in env.items():
