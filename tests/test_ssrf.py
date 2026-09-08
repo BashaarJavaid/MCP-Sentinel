@@ -363,3 +363,58 @@ def test_http_request_url_boundary(tmp_path: Path, checked: str) -> None:
         + "    return requests.get(url)\n",
     )
     assert len(findings) == (checked != "url")
+
+
+def test_unknown_mutator_cannot_preserve_url_member_guard(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    mutate(state,other)\n'
+        '    return requests.get(state["url"])\n',
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    "inspection",
+    [
+        "len(state)",
+        "isinstance(state, dict)",
+        "state.keys()",
+        "state.items()",
+        "state.values()",
+    ],
+)
+def test_builtin_dictionary_inspection_preserves_url_guard(
+    tmp_path: Path, inspection: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    '
+        + inspection
+        + "\n"
+        + '    return requests.get(state["url"])\n',
+    )
+    assert not findings
+
+
+@pytest.mark.parametrize("name", ["len", "isinstance"])
+def test_shadowed_inspection_is_not_a_builtin(tmp_path: Path, name: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + name
+        + " = unknown_inspection\n"
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    '
+        + name
+        + "(state, other)\n"
+        + '    return requests.get(state["url"])\n',
+    )
+    assert len(findings) == 1

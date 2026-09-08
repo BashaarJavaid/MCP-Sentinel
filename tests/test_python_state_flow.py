@@ -259,3 +259,48 @@ def test_record_defaults_and_explicit_keyword_expansion(construction: str) -> No
     state = RuleRunState()
     analyze(index, state, time.monotonic() + 10)
     assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    ("initializer", "expected"),
+    [
+        ("self.path = path", 1),
+        (
+            "self.path = Path(path).resolve()\n"
+            '        self.path.relative_to(Path("/allowed").resolve())',
+            0,
+        ),
+        (
+            "self.path = Path(path).resolve()\n"
+            '        self.path.relative_to(Path("/allowed").resolve())\n'
+            "        self.path = other",
+            1,
+        ),
+        ("self.path = path\n        self.read = replacement", 0),
+        ('self.path = path\n        self.__dict__["read"] = replacement', 0),
+        (
+            'self.path = path\n        getattr(self, "__dict__")["read"] = replacement',
+            0,
+        ),
+        ('self.path = path\n        vars(self)["read"] = replacement', 0),
+        ('self.path = path\n        setattr(self, "read", replacement)', 0),
+    ],
+)
+def test_source_constructor_state(initializer: str, expected: int) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from pathlib import Path\n"
+            "class Reader:\n    def __init__(self, path, other):\n        "
+            + initializer
+            + "\n"
+            "    def read(self): return open(self.path)\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(path,other):\n'
+            "    return Reader(path,other).read()\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == expected
+    if "replacement" in initializer:
+        assert state.warnings

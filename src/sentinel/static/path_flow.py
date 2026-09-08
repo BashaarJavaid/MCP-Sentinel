@@ -183,6 +183,8 @@ class PathFlow:
                     node.targets if isinstance(node, ast.Assign) else [node.target]
                 )
                 for target in targets:
+                    if isinstance(target, (ast.Attribute, ast.Subscript)):
+                        self.expression(symbol, target.value, env)
                     self.assign(target, value, env)
             elif isinstance(node, ast.Return):
                 returned.append(self.expression(symbol, node.value, env))
@@ -399,6 +401,13 @@ class PathFlow:
             return self.member(self.bound_value(node.value, env), node.attr, env)
         return Value()
 
+    def instance_member(self, value: Value, name: str) -> Symbol | None:
+        if value.instance is None:
+            return None
+        path, owner = value.instance
+        file = next(file for file in self.program.files if file.relative_path == path)
+        return self.program.resolve(file, owner + "." + name)
+
     def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
         if isinstance(target, ast.Name):
             env[target.id] = value
@@ -416,7 +425,10 @@ class PathFlow:
                     self.update_mapping(receiver, value, env)
         elif isinstance(target, ast.Attribute):
             receiver = self.bound_value(target.value, env)
-            if receiver.instance is not None:
+            if receiver.instance is not None and (
+                target.attr.startswith("__")
+                or self.instance_member(receiver, target.attr) is not None
+            ):
                 for name, current in env.items():
                     if current.key == receiver.key:
                         env[name] = replace(current, instance=None)
@@ -735,6 +747,28 @@ class PathFlow:
             locations=result.locations | {(symbol.file.relative_path, node.lineno)},
         )
         if (
+            resolved in {"len", "builtins.len"}
+            and len(args) == 1
+            and args[0].key in self.mapping_keys
+            and not keywords
+        ) or (
+            resolved in {"isinstance", "builtins.isinstance"}
+            and len(args) == 2
+            and args[0].key in self.mapping_keys
+            and qualified_name(node.args[1]) == "dict"
+            and "dict" not in env
+            and "dict" not in self.program.bindings[symbol.file.relative_path]
+            and not keywords
+        ):
+            return Value()
+        if (
+            method in {"keys", "items", "values"}
+            and receiver.key in self.mapping_keys
+            and not args
+            and not keywords
+        ):
+            return replace(self.aggregate(receiver, env), instance=None)
+        if (
             resolved in {"dict", "builtins.dict"}
             and root not in env
             and not any(
@@ -882,6 +916,7 @@ class PathFlow:
             and root not in env
             and len(node.args) in {2, 3}
             and member_label(args[1]) is not UNKNOWN_MEMBER
+            and not str(member_label(args[1])).startswith("__")
             and not any(
                 not isinstance(declaration, (ast.Import, ast.ImportFrom))
                 for declaration in declarations
@@ -907,6 +942,7 @@ class PathFlow:
                 file for file in self.program.files if file.relative_path == owner_path
             )
             helper = self.program.resolve(owner_file, owner_name + "." + method)
+        constructing: Value | None = None
         if (
             helper
             and isinstance(helper.node, ast.ClassDef)
@@ -943,10 +979,7 @@ class PathFlow:
                         return replace(
                             record, instance=(helper.file.relative_path, helper.name)
                         )
-            if not self.program.plain_instance(helper):
-                self.unresolved(symbol, node, "custom construction or instance state")
-                return replace(result, instance=None)
-            return replace(
+            instance = replace(
                 result,
                 key=_key(
                     "instance",
@@ -957,6 +990,26 @@ class PathFlow:
                 ),
                 instance=(helper.file.relative_path, helper.name),
             )
+            if self.program.plain_instance(helper):
+                return instance
+            initializer = self.instance_member(instance, "__init__")
+            if not (
+                self.program.plain_instance(helper, inspect_init=True)
+                and initializer is not None
+                and isinstance(initializer.node, Function)
+                and not initializer.node.decorator_list
+                and not any(
+                    isinstance(part, ast.Attribute)
+                    and part.attr in {"__dict__", "__class__"}
+                    for part in ast.walk(initializer.node)
+                )
+            ):
+                self.unresolved(symbol, node, "custom construction or instance state")
+                return replace(result, instance=None)
+            constructing = instance
+            receiver = instance
+            self.record_keys.add(instance.key)
+            helper = initializer
         if (
             helper
             and isinstance(helper.node, Function)
@@ -984,7 +1037,16 @@ class PathFlow:
         ):
             parameters = helper.node.args
             positional = [p.arg for p in (*parameters.posonlyargs, *parameters.args)]
-            if "." in helper.name and positional and positional[0] in {"self", "cls"}:
+            bound_parameter = (
+                positional[0]
+                if positional
+                and (
+                    constructing is not None
+                    or ("." in helper.name and positional[0] in {"self", "cls"})
+                )
+                else None
+            )
+            if bound_parameter is not None:
                 positional = positional[1:]
             bindings = dict(zip(positional, args, strict=False))
             valid = len(args) <= len(positional) and not (
@@ -1033,13 +1095,8 @@ class PathFlow:
             ):
                 for name, value in self.closures.get(callable_value.key, {}).items():
                     bindings.setdefault(name, value)
-                declared = (*parameters.posonlyargs, *parameters.args)
-                if (
-                    declared
-                    and declared[0].arg in {"self", "cls"}
-                    and "." in helper.name
-                ):
-                    bindings[declared[0].arg] = self.bound_receivers.get(
+                if bound_parameter is not None:
+                    bindings[bound_parameter] = self.bound_receivers.get(
                         callable_value.key, receiver
                     )
                 bindings.update(
@@ -1047,6 +1104,11 @@ class PathFlow:
                     for key, value in env.items()
                     if key.startswith("#member:")
                 )
+                initial_instances = {
+                    value.key
+                    for value in bindings.values()
+                    if value.instance is not None
+                }
                 self.call_sites.append(
                     f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}"
                 )
@@ -1059,6 +1121,24 @@ class PathFlow:
                     for key, value in bindings.items()
                     if key.startswith("#member:")
                 )
+                invalidated = {
+                    value.key
+                    for value in bindings.values()
+                    if value.key in initial_instances and value.instance is None
+                }
+                for key, value in env.items():
+                    if value.key in invalidated:
+                        env[key] = replace(value, instance=None)
+                if constructing is not None and bound_parameter is not None:
+                    initialized = bindings[bound_parameter]
+                    if initialized.instance is None:
+                        self.unresolved(
+                            symbol,
+                            node,
+                            "custom construction replaced methods "
+                            "or exposed instance state",
+                        )
+                    return self.aggregate(initialized, env)
                 protected = {
                     value.key for value in bindings.values() if value.contained
                 }
@@ -1083,6 +1163,37 @@ class PathFlow:
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
+        escaped = {
+            value.key
+            for value in (*values, receiver)
+            if value.instance is not None
+            or value.key in self.mapping_keys
+            or value.key in self.record_keys
+        }
+        if escaped:
+            changed = replace(
+                combine(values),
+                contained=False,
+                option_safe=False,
+                url_checks=frozenset(),
+                credential_present=False,
+                instance=None,
+            )
+            for owner in escaped:
+                for marker in self.members.get(owner, {}).values():
+                    if marker in env:
+                        env[marker] = replace(
+                            combine([env[marker], changed]),
+                            contained=False,
+                            option_safe=False,
+                            url_checks=frozenset(),
+                            credential_present=False,
+                            instance=None,
+                        )
+                env["#member:unknown:" + owner] = changed
+            for key, value in env.items():
+                if value.key in escaped:
+                    env[key] = replace(value, instance=None)
         if result.sources:
             self.unresolved(symbol, node, f"unresolved call to {name}")
         return replace(

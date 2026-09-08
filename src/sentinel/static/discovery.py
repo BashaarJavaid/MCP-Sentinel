@@ -308,9 +308,14 @@ class PythonProgram:
         return None
 
     def plain_instance(
-        self, symbol: Symbol, seen: frozenset[tuple[str, str]] = frozenset()
+        self,
+        symbol: Symbol,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+        *,
+        inspect_init: bool = False,
     ) -> bool:
-        """Only infer instances whose construction cannot replace methods or state."""
+        """With inspect_init, callers must interpret the initializer before binding."""
+        check_deadline(self.deadline)
         node = symbol.node
         key = (symbol.file.relative_path, symbol.name)
         if (
@@ -321,18 +326,30 @@ class PythonProgram:
         ):
             return False
         for child in scope_nodes(node):
-            if isinstance(child, Function) and child.name in {"__new__", "__init__"}:
+            if isinstance(child, Function) and child.name in (
+                {"__new__", "__getattribute__", "__getattr__", "__setattr__"}
+                | (set() if inspect_init else {"__init__"})
+            ):
                 return False
             if (
                 isinstance(child, ast.Name)
                 and isinstance(child.ctx, ast.Store)
-                and child.id in {"__new__", "__init__"}
+                and child.id
+                in {
+                    "__new__",
+                    "__init__",
+                    "__getattribute__",
+                    "__getattr__",
+                    "__setattr__",
+                }
             ):
                 return False
         for base in node.bases:
             name = qualified_name(base)
             parent = self.resolve(symbol.file, name) if name else None
-            if parent is None or not self.plain_instance(parent, seen | {key}):
+            if parent is None or not self.plain_instance(
+                parent, seen | {key}, inspect_init=inspect_init
+            ):
                 return False
         return True
 
