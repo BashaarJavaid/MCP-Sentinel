@@ -548,3 +548,31 @@ first two attempts assumed the wrong source root and overly specific call-site
 lines; the corrected scorer uses the manifest scan root and cited statements inside
 the actual fallback function. Scans overlapped focused checks, so durations are
 not isolated throughput. This is neither a final holdout result nor runtime proof.
+
+### Git bounded campaigns on fixed source 80bd278
+
+`git-campaigns-80bd278/results.json` records all 13 eligible historical Git inputs
+in the approved separate SDK environment. The exact packet, input trees and
+existing image ID were checked before execution. Each campaign planned 80
+attempts, started/tested 24 and retained 56 unstarted attempts. Each returned
+incomplete analysis (exit 3); cleanup passed. The driver reused one compatible
+fixed-source campaign and ran the other twelve sequentially. Its exit zero means
+the measurements finished, not that analysis completed. No model calls ran.
+
+`git-native-80bd278/` additionally runs the staging vulnerable input through the
+production orchestrator with explicit degraded review, no API key and cache
+disabled. Native JSON and SARIF validate offline; console retains INCOMPLETE;
+the remaining campaign work yields exit 3. This is source-specific runtime and
+consumer evidence, not final integrated acceptance or proof of Git defenses.
+The fixed checkout `/private/tmp/mcp-phase22-runtime-80bd278` remains preserved.
+
+### Exact review source lines and manifest candidates
+
+Eight failing regressions exposed non-Python manifest parsing and fabricated or
+misaligned context lines. Context now parses only Python as Python, uses bounded
+source windows for manifests, rejects primary ranges beyond actual source, and
+keeps Unicode string separators from changing LF/CRLF/CR source coordinates.
+The unchanged 160-source-line budget and runtime-proof blocks remain in place.
+`continuation-review-source-bounds-after` passes 92 affected review/campaign/report
+tests; focused mypy, Ruff and formatting pass after retained style failures.
+Exact affected-request comparison and final capture reuse remain separate gates.

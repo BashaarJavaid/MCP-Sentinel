@@ -82,7 +82,7 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
     for path, line in anchors[:160]:
         if path not in sources:
             try:
-                sources[path] = _read_source(root, path).splitlines()
+                sources[path] = _source_lines(_read_source(root, path))
             except InfrastructureError:
                 continue
         if 1 <= line <= len(sources[path]):
@@ -149,6 +149,11 @@ def _read_source(root: Path, relative: str) -> str:
         ) from error
 
 
+def _source_lines(source: str) -> list[str]:
+    # read_text normalizes CRLF/CR; Unicode separators inside strings are not lines.
+    return source.removesuffix("\n").split("\n") if source else []
+
+
 def _base_finding_context(root: Path, finding: Finding) -> FindingContext:
     if not isinstance(finding.location, FileLocation):
         evidence_text = sanitize_text(
@@ -179,9 +184,13 @@ def _base_finding_context(root: Path, finding: Finding) -> FindingContext:
         )
     path = root / finding.location.path
     source = _read_source(root, finding.location.path)
-    lines = source.splitlines()
+    lines = _source_lines(source)
     target_line = finding.location.range.start_line
-    if path.suffix in {".ts", ".mts", ".cts"}:
+    if finding.location.range.end_line > len(lines):
+        raise InfrastructureError(
+            f"GPT finding location is outside source: {finding.location.path}"
+        )
+    if path.suffix != ".py":
         start, end = _centered_window(
             1, max(1, len(lines)), max(1, len(lines)), 80, focus=target_line
         )
