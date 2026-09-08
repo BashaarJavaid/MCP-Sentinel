@@ -125,7 +125,7 @@ def run_semgrep(
                 "--output",
                 str(output),
                 "--jobs",
-                str(min(4, os.cpu_count() or 1)),
+                "1",
                 "--timeout",
                 str(SEMGREP_TIMEOUT_SECONDS),
                 "--metrics",
@@ -145,6 +145,7 @@ def run_semgrep(
                     encoding="utf-8",
                     timeout=remaining,
                     env=environment,
+                    cwd=scan_root,
                 )
             except (OSError, subprocess.TimeoutExpired) as error:
                 raise InfrastructureError(
@@ -211,7 +212,8 @@ def _collect_results(
         rule_id = metadata.get("sentinel_rule_id")
         if rule_id not in results:
             continue
-        raw_path = Path(str(item.get("path", ""))).resolve()
+        reported_path = Path(str(item.get("path", "")))
+        raw_path = (scan_root / reported_path).resolve()
         relative = _relative_path(raw_path, files, scan_root)
         start = item.get("start", {})
         end = item.get("end", {})

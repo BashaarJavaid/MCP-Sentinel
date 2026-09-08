@@ -1085,3 +1085,21 @@ This verifies historical prepared requests and capture compatibility only. It
 does not rebuild current detector candidates or their source blocks, establish
 current reviewed retention, or identify the final replacement set. Those gates
 remain open until final offline scans and exact request preparation finish.
+
+### Semgrep subprocess working directory
+
+The worker experiment passes 47 regressions but does not remove the upload timeout;
+it is reverted. Semgrep timing isolates about 26 seconds of subprocess work versus
+0.66 seconds of rule scanning on 312 selected files. The pinned 1.176.0 source
+explains the cost: explicit files outside the child process's CWD each require a
+core target-discovery subprocess. Project-root/novcs flags do not remove it.
+
+Launching Semgrep with the already validated scan root as CWD reduces the isolated
+measurement to 2.56 seconds. A repeated comparison preserves all 312 selected paths
+and all 35 canonical rule/location/snippet/capture records. The initial comparison
+also included Semgrep's CWD-dependent internal check_id prefix and failed; that
+prefix is not Sentinel's canonical rule ID or Finding identity. Both comparisons
+are retained. A paired absolute/relative/escaping-path regression exposes and fixes
+relative result resolution against the new subprocess CWD; scope rejection stays
+enforced. All 56 engine/TypeScript/workspace regressions and five adapter controls
+pass. Final native input completion has not yet been measured at this correction.
