@@ -6,6 +6,7 @@ import ast
 import hashlib
 import json
 import re
+from itertools import islice, zip_longest
 from pathlib import Path
 
 from sentinel.config import resolve_within_root
@@ -77,9 +78,25 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
             for item in (finding.location, *locations)
         )
     )
+    bounded_anchors = anchors[:160]
+    if len(anchors) > 160:
+        by_file: dict[str, list[tuple[str, int]]] = {}
+        for anchor in anchors:
+            by_file.setdefault(anchor[0], []).append(anchor)
+        bounded_anchors = tuple(
+            islice(
+                (
+                    anchor
+                    for row in zip_longest(*by_file.values())
+                    for anchor in row
+                    if anchor is not None
+                ),
+                160,
+            )
+        )
     sources: dict[str, list[str]] = {}
     selected: dict[str, set[int]] = {}
-    for path, line in anchors[:160]:
+    for path, line in bounded_anchors:
         if path not in sources:
             try:
                 sources[path] = _source_lines(_read_source(root, path))
@@ -89,7 +106,7 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
             selected.setdefault(path, set()).add(line)
     remaining = 160 - sum(map(len, selected.values()))
     for distance in range(1, 41):
-        for path, line in anchors[:160]:
+        for path, line in bounded_anchors:
             if path not in selected:
                 continue
             for nearby in (line - distance, line + distance):

@@ -212,3 +212,27 @@ def test_returned_helper_flow_has_its_source_anchor(
         for location in finding.evidence.flow_locations
     }
     assert build_finding_context(tmp_path, finding).contains(helper, 2, 2)
+
+
+def test_large_shared_sink_context_keeps_each_source_file(tmp_path: Path) -> None:
+    import json
+
+    (tmp_path / "server.py").write_text("command(value)\n", encoding="utf-8")
+    (tmp_path / "callers.py").write_text("call(value)\n" * 200, encoding="utf-8")
+    (tmp_path / "guard.py").write_text(
+        "def validate(value):\n    return value\n", encoding="utf-8"
+    )
+    finding = _finding_from_match(
+        match(
+            flow_locations=json.dumps(
+                [("callers.py", line) for line in range(1, 201)] + [("guard.py", 2)]
+            )
+        ),
+        uuid4(),
+        NOW,
+    )
+    context = build_finding_context(tmp_path, finding)
+    assert context.contains("guard.py", 2, 2)
+    assert context.contains("server.py", 1, 1)
+    assert sum(block.end_line - block.start_line + 1 for block in context.blocks) == 160
+    assert context.omitted_flow_locations

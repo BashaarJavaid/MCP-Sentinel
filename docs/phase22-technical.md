@@ -102,13 +102,14 @@ variables and `[sandbox]` settings accept positive integers with CLI > environme
 configuration. Preserve baseline validity, schema checks, observable effects,
 isolation, interruption cleanup and runtime-proof protection.
 
-Native schema 1.7.0 will add workspace coverage and one `probe_outcomes` record per
+The integration's native schema 1.7.0 adds workspace coverage and one `probe_outcomes` record per
 planned attempt, stable attempt IDs and campaign budget/coverage totals. Record all
 untested remainders; exhausting a budget with eligible work remaining returns 3.
 Migrate 1.3–1.6 reports/baselines without changing Finding identities, suppression,
 nullable reviews or runtime proof; old outcomes become legacy attempts without
-invented historical coverage. SARIF stays 2.1.0. Until migration ships, native
-reports remain 1.6.0.
+invented historical coverage. SARIF stays 2.1.0. This integration emits 1.7.0;
+final migration/consumer verification and technical acceptance remain pending.
+Historical native reports retain their recorded schema versions.
 
 ## Delivery and outstanding decisions
 

@@ -543,7 +543,10 @@ Static evidence carries resolved repository-relative flow locations in canonical
 Finding provenance. Candidate-bound review retains compatible existing context
 when those locations are already supplied. Otherwise it supplies source, guard
 and sink blocks within 160 total source lines, with redaction and explicit omitted
-flow locations. References must ground in supplied blocks. Changed blocks or
+flow locations. When more than 160 distinct anchors compete, selection rotates
+across their source files so numerous callers cannot crowd out a separate guard
+or credential-selection file. Smaller contexts retain their existing selection.
+References must ground in supplied blocks. Changed blocks or
 omissions change context/request cache identity; unaffected captures are reusable
 only after request compatibility checks. Runtime proof retains its existing
 separate trusted-evidence treatment.
