@@ -312,6 +312,7 @@ class PathFlow:
                 for target in targets:
                     if isinstance(target, (ast.Attribute, ast.Subscript)):
                         owner = self.expression(symbol, target.value, env)
+                        env[f"#bound-expression:{id(target.value)}"] = owner
                         self.workbooks.discard(owner.key)
                     self.assign(target, value, env)
                     if isinstance(target, ast.Name) and env.get("#global:" + target.id):
@@ -557,6 +558,9 @@ class PathFlow:
         return result
 
     def bound_value(self, node: ast.AST, env: dict[str, Value]) -> Value:
+        evaluated = env.get(f"#bound-expression:{id(node)}")
+        if evaluated is not None:
+            return evaluated
         if isinstance(node, ast.Constant):
             return Value(key=repr(node.value))
         if isinstance(node, ast.Name):
@@ -846,8 +850,21 @@ class PathFlow:
                         for name, value in global_env.items()
                         if name.startswith("#member:")
                     )
-            for name, value in self.global_members.items():
-                env.setdefault(name, value)
+            pending = [self.globals[key]]
+            reached: set[str] = set()
+            while pending:
+                check_deadline(self.deadline)
+                current = pending.pop()
+                if current.key in reached:
+                    continue
+                reached.add(current.key)
+                for marker in (
+                    *self.members.get(current.key, {}).values(),
+                    "#member:unknown:" + current.key,
+                ):
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
+                        pending.append(env[marker])
             return self.globals[key]
         if isinstance(node, ast.Dict):
             mapping_key = _key(
@@ -1751,7 +1768,44 @@ class PathFlow:
                     (key, value)
                     for key, value in env.items()
                     if key.startswith(self.helper_state_prefixes)
+                    and not key.startswith("#member:")
                 )
+                # Carry reachable object state, not every temporary object from
+                # the caller. Globals, closures and bound methods remain roots.
+                pending = [(value, False) for value in self.globals.values()] + [
+                    (value, True) for value in bindings.values()
+                ]
+                reached: set[str] = set()
+                while pending:
+                    check_deadline(self.deadline)
+                    current, from_argument = pending.pop()
+                    if current.key in reached:
+                        continue
+                    reached.add(current.key)
+                    pending.extend(
+                        (value, from_argument)
+                        for value in self.argument_tuples.get(current.key, ())
+                    )
+                    pending.extend(
+                        (value, from_argument)
+                        for value in self.closures.get(current.key, {}).values()
+                    )
+                    if current.key in self.bound_receivers:
+                        pending.append(
+                            (self.bound_receivers[current.key], from_argument)
+                        )
+                    for marker in (
+                        *self.members.get(current.key, {}).values(),
+                        "#member:unknown:" + current.key,
+                    ):
+                        if marker in env:
+                            value = env[marker]
+                            # Unchanged globals load on use; carry caller mutations.
+                            if from_argument or value is not self.global_members.get(
+                                marker
+                            ):
+                                bindings[marker] = value
+                            pending.append((value, from_argument))
                 initial_instances = {
                     value.key
                     for value in bindings.values()

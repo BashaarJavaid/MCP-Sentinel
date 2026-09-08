@@ -14,6 +14,27 @@ from tests.conftest import NOW, make_target
 from tests.test_python_discovery import program
 
 
+@pytest.mark.parametrize("callback", ["read_global", "lambda: open(state['path'])"])
+def test_helper_keeps_mutated_global_and_closure_state(callback: str) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from proxy import invoke\n"
+                "state = {'path': '/srv/fixed'}\n"
+                "def read_global(): return open(state['path'])\n"
+                "@mcp.tool()\ndef read(path):\n"
+                "    state['path'] = path\n"
+                f"    return invoke({callback})\n",
+                "proxy.py": "def invoke(callback): return callback()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert state.matches[0].path == "server.py"
+
+
 def test_configured_launch_globals_keep_transport_specific_path_evidence() -> None:
     source = (
         "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"

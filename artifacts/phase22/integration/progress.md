@@ -658,3 +658,30 @@ Six separate TypeScript class controls have been added for the recording path.
 Three caller-to-method regressions currently fail; fixed-path/replacement/escape
 controls pass. Their implementation remains open and their test file is retained
 as deliberate uncommitted work, separate from this Python/Semgrep checkpoint.
+
+### Reachable member state and evaluated assignment receivers
+
+The real fixed auth trace passed 52,051 member bindings through 251 helper calls;
+even scalar masking helpers received 185–273 members. Helpers now receive the
+members reachable from actual arguments, closures and bound receivers, plus
+changed global state. Reading one global loads that object's fields instead of
+all global dictionaries. Unchanged global data loads when used. The same trace
+now passes 6,872 member bindings, retaining all 251 calls, four raw credential
+candidates and 87 warnings. This is bounded source interpretation, not auth proof.
+
+Two additional callback tests reproduced a pre-existing global-assignment miss
+on both the new source and the trusted `156ee17` PathFlow implementation. The
+assignment receiver had been evaluated correctly and then discarded; binding the
+write used an unknown receiver instead. The actual receiver is now retained for
+the write without evaluating it again. Both global and closure callback tests pass.
+`continuation-reachable-global-bound-quality` passes 331 affected tests in 55.83s;
+focused type/style/format checks pass. Before the subsequent global-load and
+receiver changes, the broader intermediate run passed 527 tests in 316.91s.
+
+`auth-lazy-global-stage-costs/` still times out: Semgrep 28.27s, containment 25.96s,
+URL 30.83s and credential analysis interrupted at 29.43s. Earlier partial state
+reduction, failed callback tests, prior-source comparison, diagnostic import/type
+failures and corrected runs are all retained. Those timings overlapped focused
+checks and are not isolated throughput. The final receiver change still requires
+native auth remeasurement. Technical acceptance, the fresh holdout and the
+separate TypeScript class implementation remain unfinished.
