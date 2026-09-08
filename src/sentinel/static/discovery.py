@@ -90,6 +90,7 @@ class PythonProgram:
         self.bindings: dict[str, dict[str, list[ast.AST]]] = {}
         self.warnings: list[ReportWarning] = []
         self._tools: tuple[ToolBinding, ...] | None = None
+        self._method_orders: dict[ast.AST, tuple[Symbol | str, ...]] = {}
         self.parents = {
             child: parent
             for file in files
@@ -321,6 +322,107 @@ class PythonProgram:
             return Symbol(file, name, node)
         return None
 
+    def external(self, symbol: Symbol, node: ast.AST) -> str:
+        name = qualified_name(node) or ""
+        declarations = self.bindings[symbol.file.relative_path].get(
+            name.split(".")[0], []
+        )
+        if len(declarations) != 1 or not isinstance(
+            declarations[0], (ast.Import, ast.ImportFrom)
+        ):
+            return ""
+        imported = resolve_name(name, import_aliases(symbol.file))
+        if any(
+            ".".join(imported.split(".")[:end]) in self.modules
+            for end in range(1, len(imported.split(".")))
+        ):
+            return ""
+        return imported
+
+    def method_order(
+        self, symbol: Symbol, seen: frozenset[ast.AST] = frozenset()
+    ) -> tuple[Symbol | str, ...] | None:
+        """C3 order for included source classes; never construct target types."""
+        check_deadline(self.deadline)
+        node = symbol.node
+        if not isinstance(node, ast.ClassDef) or node in seen or node.keywords:
+            return None
+        if node in self._method_orders:
+            return self._method_orders[node]
+        bases: list[Symbol | str] = []
+        orders: list[list[Symbol | str]] = []
+        for base in node.bases:
+            imported = self.external(symbol, base)
+            if imported == "typing.Protocol":
+                bases.append(imported)
+                orders.append([imported])
+                continue
+            name = qualified_name(base)
+            parent = self.resolve(symbol.file, name) if name else None
+            order = self.method_order(parent, seen | {node}) if parent else None
+            if order is None or parent is None:
+                return None
+            bases.append(parent)
+            orders.append(list(order))
+        sequences = [*orders, bases]
+        result: list[Symbol | str] = [symbol]
+        while any(sequences):
+            check_deadline(self.deadline)
+            head = next(
+                (
+                    sequence[0]
+                    for sequence in sequences
+                    if sequence
+                    and not any(sequence[0] in other[1:] for other in sequences)
+                ),
+                None,
+            )
+            if head is None:
+                return None
+            result.append(head)
+            for sequence in sequences:
+                if sequence and sequence[0] == head:
+                    sequence.pop(0)
+        self._method_orders[node] = tuple(result)
+        return tuple(result)
+
+    def instance_method(
+        self, symbol: Symbol, name: str, *, after: Symbol | None = None
+    ) -> Symbol | None:
+        order = self.method_order(symbol)
+        if order is None:
+            return None
+        if after is not None:
+            positions = [
+                i
+                for i, item in enumerate(order)
+                if isinstance(item, Symbol) and item.node is after.node
+            ]
+            if len(positions) != 1:
+                return None
+            order = order[positions[0] + 1 :]
+        for owner in order:
+            if isinstance(owner, str):
+                return None
+            assert isinstance(owner.node, ast.ClassDef)
+            declarations = [
+                part
+                for part in scope_nodes(owner.node)
+                if (isinstance(part, Function) and part.name == name)
+                or (
+                    isinstance(part, ast.Name)
+                    and isinstance(part.ctx, ast.Store)
+                    and part.id == name
+                )
+            ]
+            if declarations:
+                return (
+                    Symbol(owner.file, owner.name + "." + name, declarations[0])
+                    if len(declarations) == 1 and isinstance(declarations[0], Function)
+                    else None
+                )
+        return None
+
     def plain_instance(
         self,
         symbol: Symbol,
@@ -336,12 +438,25 @@ class PythonProgram:
             key in seen
             or not isinstance(node, ast.ClassDef)
             or node.keywords
-            or node.decorator_list
+            or any(
+                self.external(symbol, decorator) != "typing.runtime_checkable"
+                or not any(
+                    self.external(symbol, base) == "typing.Protocol"
+                    for base in node.bases
+                )
+                for decorator in node.decorator_list
+            )
         ):
             return False
         for child in scope_nodes(node):
             if isinstance(child, Function) and child.name in (
-                {"__new__", "__getattribute__", "__getattr__", "__setattr__"}
+                {
+                    "__new__",
+                    "__getattribute__",
+                    "__getattr__",
+                    "__setattr__",
+                    "__init_subclass__",
+                }
                 | (set() if inspect_init else {"__init__"})
             ):
                 return False
@@ -351,6 +466,7 @@ class PythonProgram:
                 and child.id
                 in {
                     "__new__",
+                    "__init_subclass__",
                     "__init__",
                     "__getattribute__",
                     "__getattr__",
@@ -359,6 +475,10 @@ class PythonProgram:
             ):
                 return False
         for base in node.bases:
+            if self.external(symbol, base) == "typing.Protocol":
+                if not seen:
+                    return False
+                continue
             name = qualified_name(base)
             parent = self.resolve(symbol.file, name) if name else None
             if parent is None or not self.plain_instance(

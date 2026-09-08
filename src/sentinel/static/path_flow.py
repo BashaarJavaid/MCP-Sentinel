@@ -37,12 +37,20 @@ class Value:
     credential_fallback: bool = False
     credential_present: bool = False
     maybe_missing: bool = False
+    maybe_none: bool = False
 
 
 def combine(values: list[Value], key: str = "") -> Value:
+    if values:
+        first = values[0]
+        if all(value == first for value in values[1:]) and (
+            first.sources
+            or not (first.contained or first.option_safe or first.url_checks)
+        ):
+            return replace(first, key=key) if key and key != first.key else first
     present = [value for value in values if value.key != "None"]
     if present and len(present) != len(values):
-        return replace(combine(present, key), maybe_missing=True)
+        return replace(combine(present, key), maybe_none=True)
     tainted = [v for v in values if v.sources]
     keys = sorted({v.key for v in values})
     return Value(
@@ -64,6 +72,7 @@ def combine(values: list[Value], key: str = "") -> Value:
         any(v.credential_fallback for v in values),
         bool(values) and all(v.credential_present for v in values),
         any(v.maybe_missing for v in values),
+        any(v.maybe_none for v in values),
     )
 
 
@@ -111,9 +120,10 @@ class PathFlow:
         self.member_defaults: dict[str, Value] = {}
         self.call_sites: list[str] = []
         self.yielding: set[tuple[str, str]] = set()
+        self.argument_tuples: dict[str, tuple[Value, ...]] = {}
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
-        from sentinel.static.lifespan import external, tool_lifespan
+        from sentinel.static.lifespan import tool_lifespan
 
         node = tool.handler.node
         assert isinstance(node, Function)
@@ -126,7 +136,7 @@ class PathFlow:
             )
             if parameter.arg not in bindings
             and parameter.annotation is not None
-            and external(self.program, tool.handler, parameter.annotation)
+            and self.program.external(tool.handler, parameter.annotation)
             in {
                 "fastmcp.Context",
                 "fastmcp.server.context.Context",
@@ -468,7 +478,8 @@ class PathFlow:
             return None
         path, owner = value.instance
         file = next(file for file in self.program.files if file.relative_path == path)
-        return self.program.resolve(file, owner + "." + name)
+        symbol = self.program.resolve(file, owner)
+        return self.program.instance_method(symbol, name) if symbol else None
 
     def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
         if isinstance(target, ast.Name):
@@ -506,6 +517,36 @@ class PathFlow:
                     for branch in branches
                 ]
             )
+
+    def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
+        if value.maybe_missing or value.maybe_none:
+            return None
+        if value.key in self.record_keys and value.instance is not None:
+            path, name = value.instance
+            file = next(
+                file for file in self.program.files if file.relative_path == path
+            )
+            owner = self.program.resolve(file, name)
+            order = self.program.method_order(owner) if owner else None
+            if order is not None and not any(
+                (isinstance(part, Function) and part.name in {"__bool__", "__len__"})
+                or (
+                    isinstance(part, ast.Name)
+                    and isinstance(part.ctx, ast.Store)
+                    and part.id in {"__bool__", "__len__"}
+                )
+                for parent in order
+                if isinstance(parent, Symbol)
+                for part in scope_nodes(parent.node)
+            ):
+                return True
+        if value.key in self.mapping_keys and "#member:unknown:" + value.key not in env:
+            return any(
+                marker in env for marker in self.members.get(value.key, {}).values()
+            )
+        if not value.sources and value.key in {"True", "False", "None"}:
+            return value.key == "True"
+        return None
 
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
@@ -629,7 +670,10 @@ class PathFlow:
                     self.member_defaults.setdefault(marker, Value())
             self.mapping_keys.add(mapping_key)
             return replace(
-                combine(values, mapping_key), maybe_missing=False, instance=None
+                combine(values, mapping_key),
+                maybe_missing=False,
+                maybe_none=False,
+                instance=None,
             )
         if isinstance(node, ast.Call):
             return self.call(symbol, node, env)
@@ -639,6 +683,17 @@ class PathFlow:
             value = self.expression(symbol, node.value, env)
             self.assign(node.target, value, env)
             return value
+        if isinstance(node, ast.BoolOp):
+            values = []
+            stopping = isinstance(node.op, ast.Or)
+            for index, operand in enumerate(node.values):
+                value = self.expression(symbol, operand, env)
+                truth = self.truth_value(value, env)
+                if truth is None or truth is stopping or index == len(node.values) - 1:
+                    values.append(value)
+                if truth is stopping:
+                    break
+            return combine(values)
         if isinstance(node, ast.IfExp):
             self.expression(symbol, node.test, env)
             branches = []
@@ -696,7 +751,10 @@ class PathFlow:
                     for file in self.program.files
                     if file.relative_path == owner_path
                 )
-                method = self.program.resolve(owner_file, owner_name + "." + node.attr)
+                owner = self.program.resolve(owner_file, owner_name)
+                method = (
+                    self.program.instance_method(owner, node.attr) if owner else None
+                )
                 if method and isinstance(method.node, Function):
                     method_key = _key("bound-method", value.key, node.attr)
                     self.callables[method_key] = method
@@ -750,7 +808,21 @@ class PathFlow:
             )
         ):
             resolved = ""
-        args = [self.expression(symbol, arg, env) for arg in node.args]
+        args = []
+        unknown_args = False
+        for arg in node.args:
+            value = self.expression(
+                symbol, arg.value if isinstance(arg, ast.Starred) else arg, env
+            )
+            if isinstance(arg, ast.Starred):
+                expanded = self.argument_tuples.get(value.key)
+                if expanded is None:
+                    unknown_args = True
+                    args.append(value)
+                else:
+                    args.extend(expanded)
+            else:
+                args.append(value)
         keywords: dict[str | None, Value] = {}
         for keyword in node.keywords:
             value = self.expression(symbol, keyword.value, env)
@@ -780,6 +852,23 @@ class PathFlow:
             if isinstance(node.func, ast.Attribute)
             else Value()
         )
+        super_owner = None
+        if (
+            isinstance(node.func, ast.Attribute)
+            and isinstance(node.func.value, ast.Call)
+            and isinstance(node.func.value.func, ast.Name)
+            and node.func.value.func.id == "super"
+            and not node.func.value.args
+            and not node.func.value.keywords
+            and "super" not in env
+            and "super" not in self.program.bindings[symbol.file.relative_path]
+            and isinstance(symbol.node, Function)
+        ):
+            enclosing_class = self.program.parents.get(symbol.node)
+            method_parameters = (*symbol.node.args.posonlyargs, *symbol.node.args.args)
+            if isinstance(enclosing_class, ast.ClassDef) and method_parameters:
+                super_owner = Symbol(symbol.file, enclosing_class.name, enclosing_class)
+                receiver = env.get(method_parameters[0].arg, Value())
         if (
             resolved == "fastmcp.server.dependencies.get_http_request"
             and not any(
@@ -812,6 +901,16 @@ class PathFlow:
         )
         if (
             (resolved in {"id", "builtins.id"} and len(args) == 1 and not keywords)
+            or (
+                resolved in {"hasattr", "builtins.hasattr"}
+                and len(args) == 2
+                and not keywords
+                and args[0].key in self.record_keys
+                and args[0].instance is not None
+                and isinstance(member_label(args[1]), str)
+                and self.member_key(args[0], member_label(args[1])) in env
+                and self.instance_member(args[0], str(member_label(args[1]))) is None
+            )
             or (
                 resolved in {"len", "builtins.len"}
                 and len(args) == 1
@@ -1009,7 +1108,12 @@ class PathFlow:
             owner_file = next(
                 file for file in self.program.files if file.relative_path == owner_path
             )
-            helper = self.program.resolve(owner_file, owner_name + "." + method)
+            owner_symbol = self.program.resolve(owner_file, owner_name)
+            helper = (
+                self.program.instance_method(owner_symbol, method, after=super_owner)
+                if owner_symbol
+                else None
+            )
         constructing: Value | None = None
         if (
             helper
@@ -1048,6 +1152,7 @@ class PathFlow:
                             record,
                             instance=(helper.file.relative_path, helper.name),
                             maybe_missing=False,
+                            maybe_none=False,
                         )
             instance = replace(
                 result,
@@ -1060,6 +1165,7 @@ class PathFlow:
                 ),
                 instance=(helper.file.relative_path, helper.name),
                 maybe_missing=False,
+                maybe_none=False,
             )
             if self.program.plain_instance(helper):
                 return instance
@@ -1108,11 +1214,20 @@ class PathFlow:
         ):
             parameters = helper.node.args
             positional = [p.arg for p in (*parameters.posonlyargs, *parameters.args)]
+            descriptors = {
+                decorator.id
+                for decorator in helper.node.decorator_list
+                if isinstance(decorator, ast.Name)
+            }
             bound_parameter = (
                 positional[0]
                 if positional
+                and "staticmethod" not in descriptors
                 and (
                     constructing is not None
+                    or "classmethod" in descriptors
+                    or super_owner is not None
+                    or callable_value.key in self.bound_receivers
                     or ("." in helper.name and positional[0] in {"self", "cls"})
                 )
                 else None
@@ -1120,8 +1235,10 @@ class PathFlow:
             if bound_parameter is not None:
                 positional = positional[1:]
             bindings = dict(zip(positional, args, strict=False))
-            valid = len(args) <= len(positional) and not (
-                set(bindings) & keywords.keys()
+            valid = (
+                not unknown_args
+                and (len(args) <= len(positional) or parameters.vararg is not None)
+                and not (set(bindings) & keywords.keys())
             )
             bindings.update(
                 (key, value) for key, value in keywords.items() if key is not None
@@ -1148,6 +1265,38 @@ class PathFlow:
                 *positional,
                 *(parameter.arg for parameter in parameters.kwonlyargs),
             ]
+            if parameters.vararg is not None:
+                tuple_key = _key(
+                    "arguments",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    *self.call_sites,
+                )
+                extra_args = tuple(args[len(positional) :])
+                self.argument_tuples[tuple_key] = extra_args
+                bindings[parameters.vararg.arg] = combine(list(extra_args), tuple_key)
+                all_parameters.append(parameters.vararg.arg)
+            if parameters.kwarg is not None:
+                extra = {
+                    key: value
+                    for key, value in bindings.items()
+                    if key not in all_parameters
+                }
+                for key in extra:
+                    del bindings[key]
+                mapping = Value(
+                    key=_key(
+                        "keywords",
+                        symbol.file.relative_path,
+                        str(node.lineno),
+                        *self.call_sites,
+                    )
+                )
+                self.mapping_keys.add(mapping.key)
+                for key, value in extra.items():
+                    env[self.member_key(mapping, key)] = value
+                bindings[parameters.kwarg.arg] = mapping
+                all_parameters.append(parameters.kwarg.arg)
             for parameter in all_parameters:
                 if parameter not in bindings and parameter in defaults:
                     bindings[parameter] = self.expression(
@@ -1160,8 +1309,6 @@ class PathFlow:
                     {parameter.arg for parameter in parameters.posonlyargs}
                     & keywords.keys()
                 )
-                and not parameters.vararg
-                and not parameters.kwarg
                 and None not in keywords
             ):
                 for name, value in self.closures.get(callable_value.key, {}).items():

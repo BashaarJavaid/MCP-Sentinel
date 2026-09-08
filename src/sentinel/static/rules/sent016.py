@@ -103,7 +103,7 @@ class CredentialFlow(PathFlow):
             for expression in node.values:
                 value = self.expression(symbol, expression, env)
                 values.append(value)
-                if value.credential_present:
+                if value.credential_present or self.truth_value(value, env) is True:
                     break
             result = combine(values)
             if any(v.sources and not v.credential_present for v in values[:-1]) and any(

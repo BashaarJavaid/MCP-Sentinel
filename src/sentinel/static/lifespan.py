@@ -5,31 +5,11 @@ from __future__ import annotations
 import ast
 
 from sentinel.static.ast_utils import (
-    import_aliases,
     qualified_name,
-    resolve_name,
     scope_nodes,
 )
 from sentinel.static.discovery import Function, PythonProgram, Symbol, ToolBinding
 from sentinel.static.execution import check_deadline
-
-
-def external(program: PythonProgram, symbol: Symbol, node: ast.AST) -> str:
-    name = qualified_name(node) or ""
-    declarations = program.bindings[symbol.file.relative_path].get(
-        name.split(".")[0], []
-    )
-    if len(declarations) != 1 or not isinstance(
-        declarations[0], (ast.Import, ast.ImportFrom)
-    ):
-        return ""
-    imported = resolve_name(name, import_aliases(symbol.file))
-    if any(
-        ".".join(imported.split(".")[:end]) in program.modules
-        for end in range(1, len(imported.split(".")))
-    ):
-        return ""
-    return imported
 
 
 def server_class(
@@ -40,7 +20,7 @@ def server_class(
 ) -> bool:
     check_deadline(program.deadline)
     node = node.value if isinstance(node, ast.Subscript) else node
-    if external(program, symbol, node) in {
+    if program.external(symbol, node) in {
         "fastmcp.FastMCP",
         "mcp.server.fastmcp.FastMCP",
     }:
@@ -165,7 +145,7 @@ def tool_lifespan(program: PythonProgram, tool: ToolBinding) -> Symbol | None:
             decorators = callback.node.decorator_list
             if (
                 len(decorators) != 1
-                or external(program, callback, decorators[0])
+                or program.external(callback, decorators[0])
                 != "contextlib.asynccontextmanager"
             ):
                 return None

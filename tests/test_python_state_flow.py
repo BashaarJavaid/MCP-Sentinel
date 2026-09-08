@@ -304,3 +304,126 @@ def test_source_constructor_state(initializer: str, expected: int) -> None:
     assert len(state.matches) == expected
     if "replacement" in initializer:
         assert state.warnings
+
+
+@pytest.mark.parametrize("protocol", [False, True])
+@pytest.mark.parametrize(
+    "argument", ["path=value", "value", "path=value if unknown else None"]
+)
+def test_source_mixin_initializer_uses_python_method_order(
+    protocol: bool, argument: str
+) -> None:
+    index = program(
+        {
+            "app.py": 'from mcp.server.fastmcp import FastMCP\nmcp=FastMCP("test")\n'
+            "class Client:\n"
+            "    def __init__(self, path): self.path=path\n"
+            "    def read(self): return open(self.path)\n"
+            + (
+                "from typing import Protocol, runtime_checkable\n"
+                "@runtime_checkable\nclass Shape(Protocol): pass\n"
+                "class First(Client, Shape):\n"
+                if protocol
+                else "class First(Client):\n"
+            )
+            + "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        hasattr(self, 'path')\n"
+            "class Second(Client):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "class Reader(First, Second): pass\n"
+            "@mcp.tool()\ndef read(value):\n"
+            f"    reader=Reader({argument})\n    return reader.read()\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("fallback", ['Reader("fixed")', "None"])
+def test_constructed_record_truth_keeps_actual_member(fallback: str) -> None:
+    index = program(
+        {
+            "app.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from dataclasses import dataclass\n"
+            'mcp=FastMCP("test")\n@dataclass\nclass Reader:\n'
+            '    path: str\n    ignored: str = ""\n'
+            "@mcp.tool()\ndef read(value):\n"
+            '    reader=Reader(path="fixed", ignored=value)\n'
+            f"    selected=reader or {fallback}\n    return open(selected.path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert not state.matches
+
+
+def test_replaced_truth_method_cannot_protect_an_alternative_record() -> None:
+    index = program(
+        {
+            "app.py": 'from mcp.server.fastmcp import FastMCP\nmcp=FastMCP("test")\n'
+            "class Reader:\n    __bool__ = unknown\n"
+            "    def __init__(self, path): self.path=path\n"
+            "@mcp.tool()\ndef read(value):\n"
+            '    selected=Reader("fixed") or Reader(value)\n'
+            "    return open(selected.path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "method, invocation",
+    [
+        ("def read(receiver): return open(receiver.path)", "Reader(value).read()"),
+        (
+            "@staticmethod\n    def read(self): return open(self)",
+            'Reader("fixed").read(value)',
+        ),
+    ],
+)
+def test_bound_methods_follow_descriptor_binding(method: str, invocation: str) -> None:
+    index = program(
+        {
+            "app.py": 'from mcp.server.fastmcp import FastMCP\nmcp=FastMCP("test")\n'
+            "class Reader:\n    def __init__(self, path): self.path=path\n    "
+            + method
+            + "\n@mcp.tool()\ndef read(value):\n"
+            + f"    return {invocation}\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("change", ["protocol_alias", "init_subclass", "unknown_base"])
+def test_mixin_construction_keeps_unknown_hooks_unresolved(change: str) -> None:
+    source = (
+        "from mcp.server.fastmcp import FastMCP\nfrom typing import Protocol\n"
+        'mcp=FastMCP("test")\n'
+        + ("Protocol=unknown\n" if change == "protocol_alias" else "")
+        + "class Shape(Protocol): pass\n"
+        + "class Client:\n    def __init__(self, path): self.path=path\n"
+        + (
+            "    def __init_subclass__(cls): cls.read=unknown\n"
+            if change == "init_subclass"
+            else ""
+        )
+        + "    def read(self): return open(self.path)\n"
+        + (
+            "class Reader(Client, Unknown): pass\n"
+            if change == "unknown_base"
+            else "class Reader(Client, Shape): pass\n"
+        )
+        + "@mcp.tool()\ndef read(value): return Reader(value).read()\n"
+    )
+    index = program({"app.py": source})
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert not state.matches
+    assert any("custom construction" in warning.message for warning in state.warnings)
