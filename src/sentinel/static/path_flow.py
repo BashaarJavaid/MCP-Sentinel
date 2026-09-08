@@ -1133,6 +1133,12 @@ class PathFlow:
         }:
             sink = args[0] if args else keywords.get("file", keywords.get("path"))
         elif (
+            resolved
+            in {"openpyxl.load_workbook", "openpyxl.reader.excel.load_workbook"}
+            and self.program.external(symbol, node.func) == resolved
+        ):
+            sink = args[0] if args else keywords.get("filename")
+        elif (
             method
             in {
                 "read_text",

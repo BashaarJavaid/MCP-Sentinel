@@ -14,6 +14,44 @@ from tests.test_python_discovery import program
 
 
 @pytest.mark.parametrize(
+    ("setup", "guard", "argument", "expected"),
+    [
+        ("", "", "path", 1),
+        ("", "", "filename=path", 1),
+        ("", "path = '/srv/data/fixed.xlsx'", "path", 0),
+        (
+            "",
+            "p = Path(path).resolve(); "
+            "p.relative_to(Path('/srv/data').resolve()); path = str(p)",
+            "path",
+            0,
+        ),
+        ("load = custom", "", "path", 0),
+        ("", "load = custom", "path", 0),
+    ],
+)
+def test_source_bound_workbook_path(
+    tmp_path: Path, setup: str, guard: str, argument: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from pathlib import Path\nfrom openpyxl import load_workbook as load\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        + setup
+        + "\n@mcp.tool()\ndef read(path: str):\n"
+        + ("    " + guard + "\n" if guard else "")
+        + f"    return load({argument})\n",
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-012"]}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert not result.incomplete
+    assert len(result.findings) == expected
+
+
+@pytest.mark.parametrize(
     ("body", "unsafe"),
     [
         ("return open(path)", True),

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from dataclasses import replace
 from typing import Any
 
@@ -30,7 +31,7 @@ def all_facts(values: list[Facts]) -> Facts:
     )
 
 
-def common_facts(values: list[Facts]) -> Facts:
+def common_facts(values: Sequence[Facts]) -> Facts:
     possible = [value for value in values if value is not None]
     return frozenset.intersection(*possible) if possible else None
 
@@ -53,6 +54,10 @@ class TypeScriptPathFlow:
         self.parents: dict[str, Value] = {}
         self.closures: dict[str, dict[str, Value]] = {}
         self.root_directories: dict[str, Value] = {}
+        self.sdk_instances: set[str] = set()
+        self.call_sites: list[TypeScriptSymbol] = []
+        self.normal_exits: list[list[frozenset[str]]] = []
+        self.function_effects: Facts = frozenset()
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -107,9 +112,12 @@ class TypeScriptPathFlow:
             location.start_column,
         )
         if function is None or identity in self.active or len(self.active) >= 64:
+            self.function_effects = frozenset()
             self.warning(symbol.file, symbol.node, "recursive or unsupported handler")
             return combine(args)
         self.active.add(identity)
+        exits: list[frozenset[str]] = []
+        self.normal_exits.append(exits)
         try:
             env = dict(captured or {})
             parameters = function["fparams"][1]
@@ -131,10 +139,21 @@ class TypeScriptPathFlow:
                     )
             returned: list[Value] = []
             if self.statement(symbol.file, function["fbody"]["FBStmt"], env, returned):
+                exits.append(self.enforced(env))
                 returned.append(Value())
+            self.function_effects = common_facts(exits)
             return self.combined(returned)
         finally:
+            self.normal_exits.pop()
             self.active.remove(identity)
+
+    @staticmethod
+    def enforced(env: dict[str, Value]) -> frozenset[str]:
+        return frozenset(
+            name
+            for name, item in env.items()
+            if name.startswith("#guard:") and item.contained
+        )
 
     def pattern(self, node: Any, value: Value, env: dict[str, Value]) -> None:
         if not isinstance(node, dict):
@@ -192,11 +211,8 @@ class TypeScriptPathFlow:
             self.expression(file, node["ExprStmt"][0], env)
         elif "Return" in node:
             value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
-            facts = frozenset(
-                name
-                for name, item in env.items()
-                if name.startswith("#guard:") and item.contained
-            )
+            facts = self.enforced(env)
+            self.normal_exits[-1].append(facts)
             result = replace(
                 value,
                 key=_key(value.key, "return", *sorted(facts))
@@ -326,6 +342,8 @@ class TypeScriptPathFlow:
             return self.globals[key]
         if "Await" in node:
             return self.expression(file, node["Await"][1], env)
+        if "Cast" in node:
+            return self.expression(file, node["Cast"][2], env)
         if "Container" in node:
             return self.combined(
                 [self.expression(file, item, env) for item in node["Container"][1][1]]
@@ -343,6 +361,17 @@ class TypeScriptPathFlow:
             return self.combined(values)
         if "Call" in node:
             return self.call(file, node, env)
+        if "New" in node:
+            constructor = node["New"][1].get("t", {}).get("TyExpr", {})
+            binding = self.callables.get(self.expression(file, constructor, env).key)
+            if binding and binding.external == (
+                "@modelcontextprotocol/sdk/server/mcp.js.McpServer"
+            ):
+                result = Value(
+                    key=_key(file.relative_path, str(source_range(node, file)))
+                )
+                self.sdk_instances.add(result.key)
+                return result
         if "Lambda" in node or "FuncDef" in node:
             value = Value(key=_key(file.relative_path, str(source_range(node, file))))
             self.callables[value.key] = TypeScriptSymbol(file, node)
@@ -414,9 +443,22 @@ class TypeScriptPathFlow:
         self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
     ) -> Value:
         callee, arguments = node["Call"]
-        args = [
-            self.expression(file, item.get("Arg", item), env) for item in arguments[1]
-        ]
+        operator = callee.get("Special", [{}])[0]
+        if isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
+            local = env.copy()
+            args = []
+            truth = operator["Op"] == "And"
+            for item in arguments[1]:
+                value = self.expression(file, item.get("Arg", item), local)
+                args.append(value)
+                if self.condition(value)[int(truth)] is None:
+                    break
+                self.guard(value, local, truth)
+        else:
+            args = [
+                self.expression(file, item.get("Arg", item), env)
+                for item in arguments[1]
+            ]
         receiver = (
             self.expression(file, callee["DotAccess"][0], env)
             if "DotAccess" in callee
@@ -429,6 +471,13 @@ class TypeScriptPathFlow:
             else None
         )
         external = (symbol.external or "").removeprefix("node:") if symbol else ""
+        if (
+            receiver.key in self.sdk_instances
+            and receiver.key not in self.invalidated_objects
+            and name.rsplit(".", 1)[-1] == "registerTool"
+        ):
+            self.registered(file, node, args)
+            return Value()
         location = source_range(node, file)
         result = combine(args + ([receiver] if receiver.sources else []))
         result = replace(
@@ -627,7 +676,15 @@ class TypeScriptPathFlow:
             return result
         if symbol and symbol.function:
             callable_value = self.expression(file, callee, env)
-            return self.function(symbol, args, self.closures.get(callable_value.key))
+            self.call_sites.append(TypeScriptSymbol(file, node))
+            try:
+                value = self.function(
+                    symbol, args, self.closures.get(callable_value.key)
+                )
+                self.apply_facts(self.function_effects, env)
+                return value
+            finally:
+                self.call_sites.pop()
         if (
             "DotAccess" in callee
             and name.rsplit(".", 1)[-1]
@@ -671,6 +728,20 @@ class TypeScriptPathFlow:
                         self.normalized.add(result.key)
                     return replace(value, key=result.key)
                 return result
+        if "Special" not in callee:
+            pending = [receiver, *args]
+            seen: set[str] = set()
+            while pending:
+                value = pending.pop()
+                if value.key in seen:
+                    continue
+                seen.add(value.key)
+                pending.extend(self.objects.get(value.key, {}).values())
+                if value.key in self.sdk_instances:
+                    self.invalidated_objects.add(value.key)
+                    self.warning(
+                        file, node, "SDK instance escapes to an unresolved call"
+                    )
         if result.sources and not (
             external.startswith(("path.", "path/posix.", "path/win32."))
             or "Special" in callee
@@ -679,8 +750,33 @@ class TypeScriptPathFlow:
             self.warning(file, node, f"unresolved call to {name}")
         return result
 
+    def registered(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+    ) -> None:
+        if len(args) != 3:
+            self.warning(file, node, "unsupported registration arguments")
+            return
+        callback = self.callables.get(args[2].key)
+        if callback is None or callback.function is None:
+            self.warning(file, node, "unresolved registered callback")
+            return
+        origin = self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node)
+        location = source_range(origin.node, origin.file)
+        self.state.visit(origin.file.relative_path, location)
+        caller = Value(
+            sources=frozenset({"tool:arguments"}),
+            key=_key(origin.file.relative_path, str(location), args[0].key),
+            locations=frozenset(
+                (site.file.relative_path, source_range(site.node, site.file).start_line)
+                for site in [*self.call_sites, TypeScriptSymbol(file, node)]
+            ),
+        )
+        self.function(callback, [caller, Value()], self.closures.get(args[2].key))
+
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
-        facts = self.condition(value)[int(truth)]
+        self.apply_facts(self.condition(value)[int(truth)], env)
+
+    def apply_facts(self, facts: Facts, env: dict[str, Value]) -> None:
         for fact in facts or ():
             env[fact] = Value(contained=True)
         for fact, (base, target) in self.boundaries.items():
@@ -719,7 +815,13 @@ def analyze(
     entries: tuple[TypeScriptBinding | TypeScriptHTTPBinding, ...] | None = None,
 ) -> None:
     flow = flow or TypeScriptPathFlow(program, state)
+    factories: set[int] = set()
     for tool in program.tools() if entries is None else entries:
+        if isinstance(tool, TypeScriptBinding) and tool.factory is not None:
+            if id(tool.factory.node) not in factories:
+                factories.add(id(tool.factory.node))
+                flow.function(tool.factory, [])
+            continue
         location = source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)
         handler = tool.handler

@@ -66,6 +66,7 @@ class TypeScriptBinding:
     handler: TypeScriptSymbol | None
     schema: TypeScriptSymbol | None
     description: TypeScriptSymbol | None
+    factory: TypeScriptSymbol | None = None
 
 
 class TypeScriptProgram:
@@ -325,7 +326,18 @@ class TypeScriptProgram:
                         description,
                     )
                 )
-        return tuple(found)
+        from sentinel.static.typescript_registration_flow import factory_tools
+
+        wrapped = factory_tools(self)
+        registrations = {id(tool.registration.node) for tool in wrapped}
+        return (
+            tuple(
+                tool
+                for tool in found
+                if id(tool.registration.node) not in registrations
+            )
+            + wrapped
+        )
 
     @staticmethod
     def text(file: TypeScriptSourceFile, node: Any) -> str:

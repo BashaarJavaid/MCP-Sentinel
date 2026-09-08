@@ -383,3 +383,35 @@ verification are not isolated throughput. Fresh Phase 22 holdout source remains
 outside tuning. Final conditions, campaign/Docker verification, final repeat and
 comparative measurements, review evaluation and consolidated draft delivery
 remain open. No paid calls, pushes, merges, publications or outreach occurred.
+
+## September 8 continuation: preserved registration and workbook work
+
+The starting HEAD, five-file tracked diff, essential untracked registration module,
+recovery archive, corpus and Git environment packet all match the handoff hashes.
+The archive remains an unfinished recovery packet. The initial process inspection
+was denied by the sandbox; the permitted read-only retry found no competing
+verification process. No second agent runs in this worktree.
+
+`continuation-registration-before` reproduces seven failures: six outer-call
+registration origins and one escaped SDK instance. The shared TypeScript flow now
+retains balanced source call sites, rejects unknown calls receiving SDK instances
+(including record members), and reports those escapes. The cross-file regression
+keeps two wrapped registrations, their schemas, locations and examined-rule
+inventory distinct. Existing cast, callback replacement and constant controls are
+preserved. An initial cross-file test used an invalid configuration keyword; the
+corrected test and failed attempt are retained separately.
+
+`continuation-void-guard-before` reproduces two lost successful-helper protections.
+Normal return/fallthrough exits now carry their common enforced facts back to the
+caller. Boolean return values alone do not establish enforcement, and conditional
+calls do not export unconditional guard facts. Caught failures, early returns,
+unrelated paths and replaced inputs remain alerts. The original workbook-loader
+sink work is preserved with its six controls; it does not resolve the Excel
+transport/configuration condition.
+
+`continuation-registration-quality`: 325 focused tests passed in 76.07 seconds on
+its exact retained patch. Later edits only changed formatting and the covariant
+annotation for the common-facts input. Whole-project Ruff, formatting and strict
+mypy pass in `continuation-registration-{ruff-final,format-corrected,mypy-final}`;
+initial style/type failures remain. This is not a final whole-suite, independent
+condition, campaign or acceptance gate. All uncompleted requirements remain open.
