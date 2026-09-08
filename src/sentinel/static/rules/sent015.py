@@ -18,7 +18,7 @@ from sentinel.static.model import (
     StaticMatch,
     TypeScriptSourceFile,
 )
-from sentinel.static.path_flow import PathFlow, Value, _key
+from sentinel.static.path_flow import PathFlow, Value, _key, combine
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
@@ -465,6 +465,70 @@ class URLFlow(PathFlow):
         ):
             return receiver
         client = self.http_client(receiver, method, env)
+        service = self.http_clients.get(receiver.key, "")
+        service_request = client and service in {
+            "atlassian.Jira",
+            "atlassian.Confluence",
+        }
+        if service_request:
+            named_request = method == "myself" and service == "atlassian.Jira"
+            if named_request or method in {
+                "get",
+                "post",
+                "put",
+                "patch",
+                "delete",
+                "request",
+            }:
+                args = [self.expression(symbol, arg, env) for arg in node.args]
+                keywords = {
+                    kw.arg: self.expression(symbol, kw.value, env)
+                    for kw in node.keywords
+                }
+                if (
+                    not self.http_client(receiver, "request", env)
+                    or (named_request and not self.http_client(receiver, "get", env))
+                    or self.member_key(receiver, "url_joiner") in env
+                ):
+                    self.unresolved(
+                        symbol, node, "replaced service request implementation"
+                    )
+                    return Value()
+                if (
+                    None in keywords
+                    or any(isinstance(arg, ast.Starred) for arg in node.args)
+                    or (named_request and (args or keywords))
+                ):
+                    self.unresolved(
+                        symbol, node, "unresolved service request arguments"
+                    )
+                    return Value()
+                url = self.member(receiver, "url", env)
+                if not named_request:
+                    index = int(method == "request")
+                    if (
+                        len(args) > index + 1
+                        or (
+                            method != "request"
+                            and len(args) <= index
+                            and "path" not in keywords
+                        )
+                        or (len(args) > index and "path" in keywords)
+                    ):
+                        self.unresolved(symbol, node, "unresolved service request path")
+                        return Value()
+                    path = keywords.get(
+                        "path", args[index] if len(args) > index else Value()
+                    )
+                    absolute = self.truth_value(
+                        keywords.get("absolute", Value(key="False")), env
+                    )
+                    if absolute is True:
+                        url = path
+                    elif absolute is None:
+                        url = combine([url, path])
+                self.url_sink(symbol, node, url, name)
+                return Value()
         request = method in {
             "get",
             "post",
@@ -475,7 +539,7 @@ class URLFlow(PathFlow):
             "options",
             "request",
         } and (
-            client
+            (client and not service_request)
             or external in {f"{library}.{method}" for library in ("requests", "httpx")}
         )
         if request or external == "urllib.request.urlopen":
@@ -485,21 +549,7 @@ class URLFlow(PathFlow):
                 node.args[index] if len(node.args) > index else None,
             )
             url = self.expression(symbol, argument_node, env)
-            if url.sources and not restricted(url.url_checks):
-                self.state.matches.append(
-                    replace(
-                        match_from_node(self.rule_id, symbol.file, node, "url-flow"),
-                        captures={
-                            "sink_name": name,
-                            "flow_locations": json.dumps(
-                                sorted(
-                                    url.locations
-                                    | {(symbol.file.relative_path, node.lineno)}
-                                )
-                            ),
-                        },
-                    )
-                )
+            self.url_sink(symbol, node, url, name)
             return Value()
         result = super().call(symbol, node, env)
         helper = self.program.resolve_in(symbol, name)
@@ -508,6 +558,23 @@ class URLFlow(PathFlow):
         ):
             result = replace(result, url_checks=frozenset())
         return result
+
+    def url_sink(self, symbol: Symbol, node: ast.Call, url: Value, name: str) -> None:
+        if url.sources and not restricted(url.url_checks):
+            self.state.matches.append(
+                replace(
+                    match_from_node(self.rule_id, symbol.file, node, "url-flow"),
+                    captures={
+                        "sink_name": name,
+                        "flow_locations": json.dumps(
+                            sorted(
+                                url.locations
+                                | {(symbol.file.relative_path, node.lineno)}
+                            )
+                        ),
+                    },
+                )
+            )
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:

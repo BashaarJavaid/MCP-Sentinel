@@ -374,6 +374,15 @@ supports enforced standard-library IP-address predicates and a statically nonemp
 literal-address validation loop. The exception path for nonliteral hostname
 resolution does not establish DNS safety.
 
+Genuine Atlassian Jira/Confluence clients retain their current base URL at REST
+`get`, `post`, `put`, `patch`, `delete`, `request` and Jira `myself()` calls.
+Construction alone does not establish a request. The
+[SDK REST contract](https://github.com/atlassian-api/atlassian-python-api/blob/4.0.7/atlassian/rest_client.py)
+joins relative paths to that base; explicit `absolute=True` selects the supplied
+path. Replaced URL values are checked at the call, while unknown sessions, escaped
+clients and replaced request methods remain unresolved. Other SDK methods and
+middleware-to-tool request-state relationships are not established by this support.
+
 This rule's destination condition covers prohibited schemes and literal
 private/loopback destinations. Hostname resolution, DNS rebinding, and complete
 redirect-policy verification are not established by these checks. Ambiguous

@@ -380,6 +380,15 @@ Receiver evaluation is scoped to one call across rule delegation, and credential
 requests evaluate positional effects before reading keyword values. Client-level
 authentication defaults are not yet a supported credential source.
 
+SENT-015 also tracks the current base URL on genuine Atlassian Jira/Confluence
+clients at supported REST requests and Jira `myself()`. A constructor alone is
+not a request. Relative REST paths retain the base destination; `absolute=True`
+selects the supplied path, and an unknown flag preserves both possibilities.
+The request requires an intact requests session; replaced methods, unknown
+sessions and escaped clients do not establish the SDK request contract. Middleware
+checks on the source of SDK request state still need their application attachment
+established before they can qualify a destination.
+
 Genuine Python `contextvars.ContextVar` allocations retain their declared default
 and request-local `get`, `set` and matching single-use `reset` state through included
 helpers. Per-read defaults apply only to unset variables; setting `None` does not

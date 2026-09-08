@@ -886,3 +886,27 @@ local-variable name collision and formatting, are retained in
 `continuation-context-variable-*`. This is bounded shared-flow support, not proof
 of the Meta middleware attachment or final independent condition. Those source
 relationships and the complete final gates remain open.
+
+### Atlassian request destinations and unresolved middleware state
+
+After `49f36ce`, shared client identity records genuine Jira/Confluence base URLs
+and requests sessions. SENT-015 emits at supported REST requests and Jira myself,
+not construction. Current URL values, relative/absolute path selection, guarded
+destinations, known sessions and replaced/escaped implementations have durable
+controls. Request argument effects precede the SDK's session/base-URL lookup.
+The corrected initial tests fail four cases before implementation; 444 affected
+tests pass after the first implementation. Final request-path/delegation controls
+pass all 114 URL tests, with strict mypy, Ruff and formatting. The first fixture's
+indentation error, intermediate style failures and all source traces are retained.
+
+All four original historical Atlassian SSRF/upload source trees were compared
+byte-for-byte with Phase 20's validated inventories. The vulnerable Jira trace
+now finds requests at client.py:184 and users.py:62 with the HTTP request origin.
+The fixed trace also alerts: the real destination validation is in attached ASGI
+middleware, whose state is not yet connected to get_http_request. These are
+diagnostics, not a native pair measurement or a passing fixed-condition gate.
+The mistaken first diagnostic selected an invented prefixed tool name and failed;
+the corrected trace selects the source-established get_issue handler. Historical
+Phase 20 held-out inputs are already exposed; fresh Phase 22 holdout source has
+not been used for this work. Middleware association/state and upload conditions
+remain required work.

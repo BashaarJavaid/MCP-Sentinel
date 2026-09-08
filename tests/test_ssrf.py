@@ -39,6 +39,129 @@ CHECK = """parsed = urlparse(url)
 """
 
 
+@pytest.mark.parametrize(
+    ("client", "operation"),
+    [
+        ("Jira", "myself()"),
+        ("Confluence", "get('rest/api/user/current')"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("guard", "change", "expected"),
+    [
+        ("", "pass", 1),
+        (CHECK, "pass", 0),
+        ("", "service.url = 'https://images.example.com'", 0),
+        (CHECK, "service.url = other", 1),
+        ("", "service = unknown", 0),
+        ("", "unknown(service)", 0),
+    ],
+)
+def test_atlassian_service_requests_use_current_base_url(
+    tmp_path: Path, client: str, operation: str, guard: str, change: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + f"from atlassian import {client} as Service\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        + ("    " + guard if guard else "")
+        + f"    service = Service(url=url)\n    {change}\n"
+        f"    return service.{operation}\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("service = Confluence(url=url)", 0),
+        (
+            "service = Confluence(url=url)\n    service.get = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url)",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url, absolute=True)",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    service.get('https://images.example.com', absolute=True)",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url, absolute=other)",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    service.request('GET', path='rest/api/user/current')",
+            1,
+        ),
+        ("service = Confluence(url=url)\n    service.unknown_method()", 0),
+        (
+            "service = Confluence(url=url, session=unknown)\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url, session=requests.Session())\n"
+            "    service.get('rest/api/user/current')",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n    service._session.request = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n    service._session = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "Confluence = unknown\n"
+            "    Confluence(url=url).get('rest/api/user/current')",
+            0,
+        ),
+        ("service = Confluence(url=url)\n    service.get()", 0),
+        (
+            "service = Confluence(url=url)\n    service.request = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n    service.url_joiner = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    def prepare():\n        service._session = unknown\n"
+            "        return 'rest/api/user/current'\n    service.get(prepare())",
+            0,
+        ),
+        ("service = Confluence(url=url)\n    service.get('path', path='duplicate')", 0),
+    ],
+)
+def test_service_url_contract_requires_a_reachable_request(
+    tmp_path: Path, source: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "from atlassian import Confluence\n"
+        "@mcp.tool()\ndef fetch(url: str, other: bool):\n    " + source + "\n",
+    )
+    assert len(findings) == expected
+
+
 @pytest.mark.parametrize("enabled", [False, True])
 def test_plain_boolean_helper_preserves_request_reachability(
     tmp_path: Path, enabled: bool

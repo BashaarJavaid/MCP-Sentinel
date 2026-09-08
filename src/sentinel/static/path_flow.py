@@ -634,11 +634,20 @@ class PathFlow:
 
     def http_client(self, value: Value, method: str, env: dict[str, Value]) -> bool:
         marker = self.members.get(value.key, {}).get(method)
-        return (
+        intact = (
             value.key in self.http_clients
             and "#member:unknown:" + value.key not in env
             and (marker is None or marker not in env)
         )
+        if intact and self.http_clients[value.key] in {
+            "atlassian.Jira",
+            "atlassian.Confluence",
+        }:
+            session = self.member(value, "_session", env)
+            return self.http_clients.get(
+                session.key
+            ) == "requests.Session" and self.http_client(session, "request", env)
+        return intact
 
     def bound_value(self, node: ast.AST, env: dict[str, Value]) -> Value:
         evaluated = env.get(f"#bound-expression:{id(node)}")
@@ -1410,6 +1419,8 @@ class PathFlow:
                 "httpx.AsyncClient",
                 "requests.Session",
                 "aiohttp.ClientSession",
+                "atlassian.Jira",
+                "atlassian.Confluence",
             }
             and self.program.external(symbol, node.func) == resolved
         ):
@@ -1424,6 +1435,30 @@ class PathFlow:
             )
             self.http_clients[value.key] = resolved
             self.record_keys.add(value.key)
+            if resolved in {"atlassian.Jira", "atlassian.Confluence"}:
+                if (
+                    unknown_args
+                    or None in keywords
+                    or len(args) > 1
+                    or (args and "url" in keywords)
+                    or not (args or "url" in keywords)
+                ):
+                    self.unresolved(
+                        symbol, node, "unresolved service constructor arguments"
+                    )
+                    return Value()
+                base_url = keywords.get("url", args[0] if args else Value())
+                env[self.member_key(value, "url")] = replace(
+                    base_url,
+                    locations=base_url.locations
+                    | {(symbol.file.relative_path, node.lineno)},
+                )
+                session = keywords.get("session", Value(key="None"))
+                if session.key == "None":
+                    session = Value(key=_key(value.key, "default-session"))
+                    self.http_clients[session.key] = "requests.Session"
+                    self.record_keys.add(session.key)
+                env[self.member_key(value, "_session")] = session
             return value
         if (
             resolved == "dataclasses.replace"
