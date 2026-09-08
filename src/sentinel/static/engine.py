@@ -289,6 +289,10 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             "containment_gap"
         ):
             captures.pop("containment_gap", None)
+        if match.captures.get("credential_operator_opt_in") != existing.captures.get(
+            "credential_operator_opt_in"
+        ):
+            captures.pop("credential_operator_opt_in", None)
         for field in ("flow_locations", "flow_lines", "launch_transports"):
             if field in captures:
                 records = [
@@ -385,6 +389,14 @@ def _finding_from_match(
             f" Tool input reaches {match.captures['execution_sinks']} "
             "through a same-file helper."
             if "execution_sinks" in match.captures
+            else ""
+        )
+        + (
+            " On this path, an environment check rejects the fallback at the "
+            "declared default for "
+            + ", ".join(json.loads(match.captures["credential_operator_opt_in"]))
+            + "; verify the effective setting and authorization policy."
+            if "credential_operator_opt_in" in match.captures
             else ""
         )
         + (

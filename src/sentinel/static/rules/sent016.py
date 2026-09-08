@@ -12,14 +12,14 @@ from sentinel.static.ast_utils import (
     qualified_name,
     resolve_name,
 )
-from sentinel.static.discovery import Symbol
+from sentinel.static.discovery import PythonProgram, Symbol
 from sentinel.static.model import (
     RuleRunState,
     StaticContext,
     StaticMatch,
     TypeScriptSourceFile,
 )
-from sentinel.static.path_flow import PathFlow, Value, _key, combine
+from sentinel.static.path_flow import PathFlow, Value, _key, combine, member_label
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import name_of
@@ -29,6 +29,28 @@ from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 
 class CredentialFlow(PathFlow):
     rule_id = "SENT-016"
+    helper_state_prefixes = (
+        *PathFlow.helper_state_prefixes,
+        "#absent:",
+        "#credential:",
+    )
+
+    def __init__(
+        self, program: PythonProgram, state: RuleRunState, deadline: float
+    ) -> None:
+        super().__init__(program, state, deadline)
+        self.evaluated: dict[ast.AST, Value] = {}
+        self.environment_text: dict[str, tuple[str, str]] = {}
+        self.operator_predicates: dict[str, tuple[str, bool]] = {}
+
+    def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        if any(
+            source.startswith("http:")
+            for value in bindings.values()
+            for source in value.sources
+        ):
+            bindings["#credential:http"] = Value(contained=True)
+        return super().function(symbol, bindings)
 
     def external(self, symbol: Symbol, node: ast.AST, env: dict[str, Value]) -> str:
         name = qualified_name(node) or ""
@@ -55,13 +77,27 @@ class CredentialFlow(PathFlow):
         super().assign(target, value, env)
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        http = [
+            branch
+            for branch in branches
+            if branch.get("#credential:http", Value()).contained
+        ]
+        # ponytail: follow the successful HTTP getter path; exception-prefix
+        # correlation needs separate state. Keep the stdio alternative distinct.
+        branches = http or branches
         super().merge(env, branches)
+        if http:
+            env["#credential:http"] = Value(contained=True)
         for name in env:
-            if name.startswith("#absent:"):
-                env[name] = Value(
-                    contained=all(
-                        branch.get(name, Value()).contained for branch in branches
+            if name.startswith(
+                ("#absent:", "#credential:excluded:", "#credential:opt-in:")
+            ):
+                env[name] = (
+                    replace(
+                        combine([branch[name] for branch in branches]), contained=True
                     )
+                    if all(branch.get(name, Value()).contained for branch in branches)
+                    else Value()
                 )
 
     def guard(
@@ -70,6 +106,16 @@ class CredentialFlow(PathFlow):
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
             self.guard(symbol, node.operand, env, not truth)
             return
+        if isinstance(node, ast.BoolOp):
+            conjunctive = isinstance(node.op, ast.And)
+            for child in node.values:
+                if truth == conjunctive or all(
+                    other is child
+                    or self.truth_value(self.evaluated.get(other, Value()), env)
+                    is conjunctive
+                    for other in node.values
+                ):
+                    self.guard(symbol, child, env, truth)
         if (
             isinstance(node, ast.Compare)
             and len(node.ops) == 1
@@ -81,12 +127,31 @@ class CredentialFlow(PathFlow):
             elif isinstance(node.ops[0], (ast.IsNot, ast.NotEq)):
                 self.guard(symbol, node.left, env, truth)
             return
+        value = self.evaluated.get(node, Value())
+        predicate = self.operator_predicates.get(value.key)
+        if predicate is not None and truth != predicate[1]:
+            env["#credential:opt-in:" + predicate[0]] = Value(
+                contained=True,
+                locations=value.locations
+                | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
+            )
         if not isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
+            if not truth and value.sources:
+                env["#credential:excluded:" + value.key] = replace(
+                    value,
+                    contained=True,
+                    locations=value.locations
+                    | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
+                )
             return
-        value = self.expression(symbol, node, env)
         if value.sources:
             if not truth:
-                env["#absent:" + value.key] = Value(contained=True)
+                env["#absent:" + value.key] = replace(
+                    value,
+                    contained=True,
+                    locations=value.locations
+                    | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
+                )
             for name, current in env.items():
                 if current.key == value.key:
                     env[name] = replace(
@@ -99,9 +164,34 @@ class CredentialFlow(PathFlow):
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
     ) -> Value:
+        result = self._expression(symbol, node, env)
+        if node is not None:
+            self.evaluated[node] = result
+        if isinstance(node, ast.Compare) and len(node.ops) == 1:
+            selected = self.environment_text.get(
+                self.evaluated.get(node.left, Value()).key
+            )
+            if selected and isinstance(node.ops[0], (ast.In, ast.NotIn)):
+                try:
+                    accepted = ast.literal_eval(node.comparators[0])
+                except (ValueError, TypeError, SyntaxError):
+                    accepted = None
+                if isinstance(accepted, (tuple, list, set)) and all(
+                    isinstance(item, str) for item in accepted
+                ):
+                    self.operator_predicates[result.key] = (
+                        selected[0],
+                        (selected[1] in accepted) != isinstance(node.ops[0], ast.NotIn),
+                    )
+        return result
+
+    def _expression(
+        self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
+    ) -> Value:
         if (
             isinstance(node, ast.Subscript)
             and self.external(symbol, node.value, env) == "os.environ"
+            and self.program.external(symbol, node.value) == "os.environ"
         ):
             return Value(
                 key=_key(symbol.file.relative_path, str(node.lineno), ast.dump(node)),
@@ -128,12 +218,26 @@ class CredentialFlow(PathFlow):
         service_client = external in {"atlassian.Jira", "atlassian.Confluence"} and (
             self.program.external(symbol, node.func) == external
         )
-        if external in {"os.getenv", "os.environ.get"}:
-            return Value(
-                key=_key(symbol.file.relative_path, str(node.lineno), ast.dump(node)),
+        if external in {"os.getenv", "os.environ.get"} and (
+            self.program.external(symbol, node.func) == external
+        ):
+            args = [self.expression(symbol, arg, env) for arg in node.args]
+            result = Value(
+                key=_key(
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    ast.dump(node),
+                    *self.call_sites,
+                    *(arg.key for arg in args),
+                ),
                 operator_credential=True,
                 locations=frozenset({(symbol.file.relative_path, node.lineno)}),
             )
+            if len(args) == 2 and not node.keywords:
+                name, default = (member_label(arg) for arg in args)
+                if isinstance(name, str) and isinstance(default, str):
+                    self.environment_text[result.key] = (name, default)
+            return result
         if service_client or external in {
             f"{library}.{method}"
             for library in ("requests", "httpx")
@@ -169,10 +273,35 @@ class CredentialFlow(PathFlow):
                         in {"authorization", "x-api-key", "access_token", "api_key"}
                         and marker in env
                     )
-            crossing = combine([v for v in credentials if v.credential_fallback])
+            absent = combine(
+                [
+                    value
+                    for key, value in env.items()
+                    if key.startswith(("#absent:", "#credential:excluded:"))
+                    and value.contained
+                ]
+            )
+            crossing = combine(
+                [
+                    replace(combine([value, absent]), credential_fallback=True)
+                    if value.operator_credential and absent.sources
+                    else value
+                    for value in credentials
+                    if value.credential_fallback
+                    or (value.operator_credential and absent.sources)
+                ]
+            )
             if crossing.credential_fallback and any(
                 source.startswith("http:") for source in crossing.sources
             ):
+                settings = {
+                    key.removeprefix("#credential:opt-in:"): value
+                    for key, value in env.items()
+                    if key.startswith("#credential:opt-in:") and value.contained
+                }
+                locations = crossing.locations | frozenset().union(
+                    *(value.locations for value in settings.values())
+                )
                 self.state.matches.append(
                     replace(
                         match_from_node(
@@ -180,9 +309,18 @@ class CredentialFlow(PathFlow):
                         ),
                         captures={
                             "sink_name": qualified_name(node.func) or "request",
+                            **(
+                                {
+                                    "credential_operator_opt_in": json.dumps(
+                                        sorted(settings)
+                                    )
+                                }
+                                if settings
+                                else {}
+                            ),
                             "flow_locations": json.dumps(
                                 sorted(
-                                    crossing.locations
+                                    locations
                                     | {(symbol.file.relative_path, node.lineno)}
                                 )
                             ),
@@ -190,7 +328,31 @@ class CredentialFlow(PathFlow):
                     )
                 )
             return Value()
-        return super().call(symbol, node, env)
+        result = super().call(symbol, node, env)
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "lower"
+            and not node.args
+            and not node.keywords
+        ):
+            original = self.evaluated.get(node.func.value, Value())
+            selected = self.environment_text.get(original.key)
+            if selected:
+                result = replace(
+                    original,
+                    key=_key(original.key, "lower"),
+                    locations=original.locations
+                    | {(symbol.file.relative_path, node.lineno)},
+                )
+                self.environment_text[result.key] = (selected[0], selected[1].lower())
+        if (
+            external == "fastmcp.server.dependencies.get_http_request"
+            and self.program.external(symbol, node.func) == external
+            and not node.args
+            and not node.keywords
+        ):
+            env["#credential:http"] = Value(contained=True)
+        return result
 
 
 def detect(context: StaticContext, state: RuleRunState) -> None:

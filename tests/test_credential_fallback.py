@@ -347,3 +347,131 @@ def test_local_module_cannot_impersonate_sdk_http_getter(tmp_path: Path) -> None
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
+@pytest.mark.parametrize("helper", [False, True])
+@pytest.mark.parametrize(
+    ("branch", "expected"),
+    [
+        ("if token: return Service(token=token)", 1),
+        ("if not token: raise ValueError('missing')", 0),
+        (
+            "if not other: raise ValueError('missing')\n"
+            "    if token: return Service(token=token)",
+            1,
+        ),
+    ],
+)
+def test_absent_http_credential_selects_separate_operator_client(
+    tmp_path: Path, helper: bool, branch: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nfrom atlassian import Jira as Service\n"
+        "import os\napp=FastAPI()\n"
+        "def operator_client():\n    return Service(token=os.getenv('OWNER'))\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    other=request.headers.get('X-Other')\n    " + branch + "\n"
+        "    return "
+        + ("operator_client()" if helper else "Service(token=os.getenv('OWNER'))")
+        + "\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
+
+
+@pytest.mark.parametrize("refuse_http", [False, True])
+def test_sdk_auth_mode_fallback_preserves_successful_http_context(
+    tmp_path: Path, refuse_http: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from atlassian import Jira as Service\nimport os\nmcp=FastMCP('test')\n"
+        "def operator_client():\n    return Service(token=os.getenv('OWNER'))\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    in_http=False\n    try:\n"
+        "        request=get_http_request()\n        in_http=True\n"
+        "        mode=request.headers.get('X-Auth-Mode')\n"
+        "        token=request.headers.get('Authorization')\n"
+        "        if mode == 'pat' and token:\n            return Service(token=token)\n"
+        "    except RuntimeError:\n        pass\n"
+        + (
+            "    if in_http: raise ValueError('refusing HTTP fallback')\n"
+            if refuse_http
+            else ""
+        )
+        + "    return operator_client()\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == (
+        not refuse_http
+    )
+
+
+@pytest.mark.parametrize(
+    ("default", "guard", "conditional"),
+    [
+        ("", "if not opted_in('ALLOW_FALLBACK'): raise ValueError('refuse')", True),
+        (
+            "true",
+            "if not opted_in('ALLOW_FALLBACK'): raise ValueError('refuse')",
+            False,
+        ),
+        ("", "if opted_in('ALLOW_FALLBACK'): pass", False),
+        ("", "opted_in('ALLOW_FALLBACK')", False),
+        (
+            "",
+            "opted_in('UNRELATED')\n"
+            "    if not opted_in('ALLOW_FALLBACK'): raise ValueError('refuse')",
+            True,
+        ),
+        (
+            "",
+            "opted_in = lambda name: True\n"
+            "    if not opted_in('ALLOW_FALLBACK'): raise ValueError('refuse')",
+            False,
+        ),
+        ("", "if not opted_in('ALLOW_FALLBACK'): return operator_client()", False),
+        (
+            "",
+            "def optional_config():\n"
+            "        if opted_in('EXTRA'): return {}\n"
+            "        return None\n"
+            "    optional_config()",
+            False,
+        ),
+    ],
+)
+def test_operator_fallback_reports_enforced_nondefault_configuration(
+    tmp_path: Path, default: str, guard: str, conditional: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nfrom atlassian import Jira as Service\n"
+        "import os\napp=FastAPI()\n"
+        "def opted_in(name):\n"
+        f"    return os.getenv(name, {default!r}).lower() in ('true', '1', 'yes')\n"
+        "def operator_client():\n    return Service(token=os.getenv('OWNER'))\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if token: return Service(token=token)\n    " + guard + "\n"
+        "    return operator_client()\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+    assert ("declared default" in findings[0].description) is conditional
+    if conditional:
+        assert "ALLOW_FALLBACK" in findings[0].description

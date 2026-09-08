@@ -96,6 +96,7 @@ def member_label(value: Value) -> object:
 
 class PathFlow:
     rule_id = "SENT-012"
+    helper_state_prefixes: tuple[str, ...] = ("#member:", "#global-value:")
 
     def __init__(
         self, program: PythonProgram, state: RuleRunState, deadline: float
@@ -1679,7 +1680,7 @@ class PathFlow:
                 bindings.update(
                     (key, value)
                     for key, value in env.items()
-                    if key.startswith(("#member:", "#global-value:"))
+                    if key.startswith(self.helper_state_prefixes)
                 )
                 initial_instances = {
                     value.key
@@ -1696,7 +1697,7 @@ class PathFlow:
                 env.update(
                     (key, value)
                     for key, value in bindings.items()
-                    if key.startswith(("#member:", "#global-value:"))
+                    if key.startswith(self.helper_state_prefixes)
                 )
                 invalidated = {
                     value.key
@@ -1716,19 +1717,28 @@ class PathFlow:
                             "or exposed instance state",
                         )
                     return self.aggregate(initialized, env)
-                protected = {
-                    value.key for value in bindings.values() if value.contained
-                }
+                # Propagate facts about actual values, not internal control markers.
+                # Markers can share an empty key with unrelated unknown values.
+                bound_values = [
+                    value
+                    for name, value in bindings.items()
+                    if value.key
+                    and (
+                        not name.startswith("#")
+                        or name.startswith(("#member:", "#global-value:"))
+                    )
+                ]
+                protected = {value.key for value in bound_values if value.contained}
                 for key, value in env.items():
                     if value.key in protected:
                         env[key] = replace(value, contained=True)
                 option_checked = {
-                    value.key for value in bindings.values() if value.option_safe
+                    value.key for value in bound_values if value.option_safe
                 }
                 for key, value in env.items():
                     if value.key in option_checked:
                         env[key] = replace(value, option_safe=True)
-                for value in bindings.values():
+                for value in bound_values:
                     if value.url_checks:
                         for key, current in env.items():
                             if current.key == value.key:

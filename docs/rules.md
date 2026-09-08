@@ -404,6 +404,18 @@ values replaced after validation. Dictionary member writes, copies and helper
 mutations retain the relevant credential selection. A local stdio tool's use of
 its owner's credentials alone does not establish an HTTP caller boundary.
 
+The integration also follows negative caller-authentication branches into a
+separately constructed operator client, including helper calls. A successfully
+acquired SDK HTTP context retains its branch state separately from the getter's
+non-HTTP alternative. Exception-prefix state within the `try` body remains a
+bounded-flow limitation. Enforced environment comparisons can annotate a
+fallback with the setting whose declared default would reject that path. The
+candidate remains visible: the effective environment and intended authorization
+policy still require review. Ignored checks, optional helper returns, replaced
+predicates and a shared sink with an unqualified path do not establish that
+qualification. These source-flow controls do not complete the real Atlassian
+condition or the unchanged per-input execution deadline.
+
 TypeScript follows explicit module-level Express route registrations, including
 imported handlers and re-exports, into global `fetch`, `node-fetch`, and
 `undici.fetch` credential headers. It tracks `process.env` fallback selected by

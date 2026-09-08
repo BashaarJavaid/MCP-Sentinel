@@ -576,3 +576,33 @@ The unchanged 160-source-line budget and runtime-proof blocks remain in place.
 `continuation-review-source-bounds-after` passes 92 affected review/campaign/report
 tests; focused mypy, Ruff and formatting pass after retained style failures.
 Exact affected-request comparison and final capture reuse remain separate gates.
+
+### Branch-selected operator clients and shared control metadata
+
+Separate caller/operator client branches now retain enforced caller absence or
+negative authentication conditions across helpers. Successful SDK HTTP getter
+state is kept apart from the non-HTTP alternative. Environment comparison helpers
+retain the actual selected setting/default and can qualify a fallback when the
+declared default rejects it; the effective configuration is not assumed.
+The candidate is retained, and mixed guarded/unguarded paths drop the blanket
+qualification. Exception-prefix state remains a bounded-flow limitation.
+
+An optional-return regression caught an incorrect inherited opt-in requirement:
+shared helper return handling treated an internal control marker's empty key as
+protection for unrelated empty-key values. The shared code now propagates these
+facts only from actual arguments/members/globals. The corrected fixed-source
+trace qualifies the real global branch with ALLOW_GLOBAL_CRED_FALLBACK and no
+longer claims an unrelated OAuth-enable requirement. Incidental client candidates
+remain distinct raw paths and require adjudication after native deduplication.
+
+`continuation-credential-bound-values-quality` passed 492 affected tests in
+328.17 seconds while an isolated profile ran concurrently. These are source-flow
+regressions, not an independent-condition result. Both full auth inputs in
+`auth-branch-pair-continuation/` exceeded the unchanged 120-second limit. The
+harness exit zero and its empty diagnostic `inputs` print do not supersede the
+two incomplete `outcomes` records. `auth-branch-stage-costs/` measured about 31s
+in Semgrep, 49s in SENT-012, and 34s in SENT-015 before the deadline prevented
+SENT-016 from running. `auth-containment-profile-current/` retains a bounded,
+incomplete cProfile run: branch merges and repeated lexical-scope walks dominate.
+All earlier marker, optional-return, style/type and nonexistent-test failures
+remain preserved. This is not a technical acceptance checkpoint.
