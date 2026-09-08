@@ -280,3 +280,18 @@ The first driver stopped at its incorrect eight-input count before scanning;
 the corrected selection includes the ninth input, the historical upload safe
 control. That failed driver and its exact bytes remain in this seal.
 Earlier seals, recovery, detached checkouts and coverage remain unchanged.
+
+Batch 14 retains 251 added/changed files through `18e385f`, including the finished
+3a2a276 native run (four SSRF inputs complete, five upload timeouts), nested source
+decorators, request caches, alternative service fields, checked URL paths, the
+af67e21 timeout profile and all failed/corrected controls. Source-specific traces
+do not replace native completion or final benchmark gates.
+
+Every member was read back against its SHA-256. The archive contains 29,906,489
+raw bytes in 1,085,395 compressed bytes; SHA-256:
+`b602ea8e884350005a4210bae8abcb7ff4b95e83e04884443c066d17edddd2a8`.
+After verifying batch 13, extract `evidence-v14.tar.gz` and verify against
+`evidence-v14.json` before later batches. Its script is in `diagnostics-v14.tar.gz`.
+The active `continuation-upload-native-18e` command and `upload-native-18e/`
+directory are excluded until finished. Earlier seals, original recovery, detached
+checkouts and coverage databases remain unchanged.
