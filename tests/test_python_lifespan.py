@@ -116,6 +116,37 @@ def test_lifespan_value_reaches_only_registered_sdk_context(
         assert ("'operator-source'" in flow.seen) is (registration == "startup")
 
 
+def test_repeated_lifespan_analysis_keeps_declared_record_fields_present() -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+
+    index = program(
+        {
+            "app.py": "from fastmcp import FastMCP, Context\n"
+            "from contextlib import asynccontextmanager\n"
+            "from dataclasses import dataclass, replace\n"
+            "@dataclass\nclass Config:\n    output: str\n"
+            "@asynccontextmanager\nasync def startup(app):\n"
+            "    config = None\n"
+            "    if unknown(): config = Config('/fixed')\n"
+            "    yield {'configuration': config}\n"
+            "server = FastMCP(lifespan=startup)\n"
+            + "".join(
+                f"@server.tool()\ndef {name}(path, ctx: Context):\n"
+                "    config = ctx.request_context.lifespan_context['configuration']\n"
+                "    if not config: raise ValueError()\n"
+                "    copied = replace(config)\n"
+                "    if not copied: return open(path)\n"
+                "    return open('/fixed')\n"
+                for name in ("first", "second")
+            )
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+
+
 def test_local_server_parameter_cannot_borrow_global_lifespan() -> None:
     from sentinel.static.lifespan import tool_lifespan
 

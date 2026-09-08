@@ -1264,7 +1264,9 @@ class PathFlow:
                     )
                     self.record_keys.add(copied.key)
                     for field, value in field_values.items():
-                        env[self.member_key(copied, field)] = value
+                        marker = self.member_key(copied, field)
+                        env[marker] = value
+                        self.member_defaults[marker] = Value()
                     return copied
         receiver = (
             self.expression(symbol, node.func.value, env)
@@ -1667,9 +1669,11 @@ class PathFlow:
                         )
                         self.record_keys.add(record.key)
                         for field, value in bindings.items():
-                            env[self.member_key(record, field)] = replace(
-                                value, maybe_missing=False
-                            )
+                            marker = self.member_key(record, field)
+                            env[marker] = replace(value, maybe_missing=False)
+                            # A branch without this allocation does not make a
+                            # declared field optional on the constructed record.
+                            self.member_defaults[marker] = Value()
                         return replace(
                             record,
                             instance=(helper.file.relative_path, helper.name),
