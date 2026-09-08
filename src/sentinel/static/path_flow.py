@@ -363,8 +363,10 @@ class PathFlow:
                 left, right = env.copy(), env.copy()
                 if known is not False:
                     self.guard(symbol, node.test, left, True)
+                    self.narrow(symbol, node.test, left, True)
                 if known is not True:
                     self.guard(symbol, node.test, right, False)
+                    self.narrow(symbol, node.test, right, False)
                 branches = []
                 if known is not False and self.statements(
                     symbol, node.body, left, returned
@@ -623,6 +625,7 @@ class PathFlow:
             return
         unknown = Value()
         first, *rest = branches or [{}]
+        second = rest[0] if len(rest) == 1 else None
         for name in set().union(*(b.keys() for b in branches)):
             default = self.member_defaults.get(name, unknown)
             value = first.get(name, default)
@@ -632,7 +635,11 @@ class PathFlow:
                     value.sources
                     or not (value.contained or value.option_safe or value.url_checks)
                 )
-                and all(branch.get(name, default) is value for branch in rest)
+                and (
+                    second.get(name, default) is value
+                    if second is not None
+                    else all(branch.get(name, default) is value for branch in rest)
+                )
             ):
                 env[name] = value
                 continue
@@ -721,6 +728,38 @@ class PathFlow:
                 for key, current in env.items():
                     if current.key in facts:
                         env[key] = replace(current, contained=True)
+
+    def narrow(
+        self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
+    ) -> None:
+        """A successful presence check excludes None on this branch only."""
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            self.narrow(symbol, node.operand, env, not truth)
+        elif isinstance(node, ast.BoolOp) and isinstance(node.op, ast.And) and truth:
+            for child in node.values:
+                self.narrow(symbol, child, env, True)
+        elif (
+            isinstance(node, ast.Compare)
+            and len(node.ops) == 1
+            and isinstance(node.comparators[0], ast.Constant)
+            and node.comparators[0].value is None
+            and isinstance(node.ops[0], (ast.Is, ast.IsNot, ast.Eq, ast.NotEq))
+        ):
+            present = truth == isinstance(node.ops[0], (ast.IsNot, ast.NotEq))
+            if present:
+                self.narrow(symbol, node.left, env, True)
+        elif truth and isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
+            value = self.bound_value(node, env)
+            if value.key and (value.maybe_none or value.maybe_missing):
+                for name, current in env.items():
+                    if current.key == value.key:
+                        env[name] = replace(
+                            current,
+                            maybe_none=False,
+                            maybe_missing=False,
+                            locations=current.locations
+                            | {(symbol.file.relative_path, node.lineno)},
+                        )
 
     def protect(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> None:
         assert isinstance(node.func, ast.Attribute)
@@ -936,6 +975,7 @@ class PathFlow:
             for expression, truth in ((node.body, True), (node.orelse, False)):
                 local = env.copy()
                 self.guard(symbol, node.test, local, truth)
+                self.narrow(symbol, node.test, local, truth)
                 local["#conditional-result"] = self.expression(
                     symbol, expression, local
                 )
@@ -955,6 +995,7 @@ class PathFlow:
                 for condition in generator.ifs:
                     self.expression(symbol, condition, local)
                     self.guard(symbol, condition, local, True)
+                    self.narrow(symbol, condition, local, True)
             if isinstance(node, ast.DictComp):
                 return combine(
                     [

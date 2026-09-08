@@ -475,3 +475,39 @@ def test_operator_fallback_reports_enforced_nondefault_configuration(
     assert ("declared default" in findings[0].description) is conditional
     if conditional:
         assert "ALLOW_FALLBACK" in findings[0].description
+
+
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("if not config: raise ValueError('missing config')", 0),
+        ("if config is None: raise ValueError('missing config')", 0),
+        ("config is None", 1),
+        ("if not request.headers.get('Other'): raise ValueError('unrelated')", 1),
+    ],
+)
+def test_optional_config_refusal_prevents_operator_default(
+    tmp_path: Path, guard: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from dataclasses import dataclass\nfrom fastapi import FastAPI, Request\n"
+        "from atlassian import Jira\nimport os\napp=FastAPI()\n"
+        "@dataclass\nclass Config:\n    token: str\n"
+        "def optional_config(request):\n"
+        "    if request.headers.get('Enabled'):\n"
+        "        return Config('explicit-credential')\n"
+        "    return None\n"
+        "def client(config, request):\n"
+        "    config = config or Config(request.headers.get('Authorization') "
+        "or os.getenv('OWNER'))\n"
+        "    return Jira(token=config.token)\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    config = optional_config(request)\n    " + guard + "\n"
+        "    return client(config, request)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected

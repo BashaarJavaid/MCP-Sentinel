@@ -101,6 +101,8 @@ class PythonProgram:
         self.warnings: list[ReportWarning] = []
         self._tools: tuple[ToolBinding, ...] | None = None
         self._method_orders: dict[ast.AST, tuple[Symbol | str, ...]] = {}
+        self._resolved: dict[tuple[str, str, bool], Symbol | None] = {}
+        self._resolved_in: dict[tuple[ast.AST, str, str], Symbol | None] = {}
         self.parents = {
             child: parent
             for file in files
@@ -131,6 +133,22 @@ class PythonProgram:
             self.bindings[file.relative_path] = dict(bindings)
 
     def resolve_in(
+        self,
+        symbol: Symbol,
+        name: str,
+        seen: frozenset[tuple[int, str]] = frozenset(),
+        *,
+        global_seen: frozenset[tuple[str, str]] = frozenset(),
+    ) -> Symbol | None:
+        check_deadline(self.deadline)
+        if seen or global_seen:
+            return self._resolve_in(symbol, name, seen, global_seen=global_seen)
+        key = (symbol.node, symbol.name, name)
+        if key not in self._resolved_in:
+            self._resolved_in[key] = self._resolve_in(symbol, name)
+        return self._resolved_in[key]
+
+    def _resolve_in(
         self,
         symbol: Symbol,
         name: str,
@@ -186,6 +204,24 @@ class PythonProgram:
         return self.resolve(symbol.file, name, global_seen)
 
     def resolve(
+        self,
+        file: ParsedPythonFile,
+        name: str,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+        *,
+        value_binding: bool = False,
+    ) -> Symbol | None:
+        check_deadline(self.deadline)
+        # The source index is immutable. Cache complete queries only: a recursive
+        # query's cycle/depth budget must not borrow another traversal's result.
+        if seen:
+            return self._resolve(file, name, seen, value_binding=value_binding)
+        key = (file.relative_path, name, value_binding)
+        if key not in self._resolved:
+            self._resolved[key] = self._resolve(file, name, value_binding=value_binding)
+        return self._resolved[key]
+
+    def _resolve(
         self,
         file: ParsedPythonFile,
         name: str,

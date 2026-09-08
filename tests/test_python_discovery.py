@@ -303,6 +303,25 @@ def test_registration_resolution_obeys_shared_static_deadline() -> None:
         index.tools()
 
 
+def test_warm_resolution_retains_cycle_budgets_and_deadline() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program({"server.py": "def read(p): return p\n"})
+    file = index.files[0]
+    symbol = index.resolve(file, "read")
+    assert symbol is not None
+    assert index.resolve_in(symbol, "read") == symbol
+    assert index.resolve(file, "read", frozenset({("server.py", "read")})) is None
+    assert (
+        index.resolve_in(symbol, "read", frozenset({(id(symbol.node), "read")})) is None
+    )
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.resolve(file, "read")
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.resolve_in(symbol, "read")
+
+
 def test_partially_resolved_factory_keeps_unknown_registration_visible() -> None:
     index = program(
         {

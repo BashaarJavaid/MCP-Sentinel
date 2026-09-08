@@ -624,3 +624,37 @@ scanner acceptance. Both inputs in `auth-common-facts-pair-continuation/` still
 exceed the unchanged 120-second deadline. Earlier component profiles, incomplete
 full scans and the failing plain-helper regression remain preserved. Actual auth
 condition scoring, incidental path adjudication and final acceptance remain open.
+
+### Immutable resolution, selected-file batches and presence checks
+
+Complete Python name-resolution queries now reuse the immutable source index;
+recursive calls retain their own cycle/depth budget and every lookup still checks
+the deadline. A warmed-cache regression checks those boundaries. Semgrep batches
+the same sorted selected files by encoded argument size (100,000 bytes on POSIX,
+20,000 on Windows) instead of 200 files per process. Two before-failing tests check
+complete path retention and batch boundaries. No rules or source paths are omitted.
+The byte limit reserves room for fixed flags; process failures remain explicit.
+
+`continuation-semgrep-byte-batches-after` passed 57 affected checks and
+`continuation-semgrep-resolution-final-checks` passed three targeted checks.
+An exploratory bounded flow-key cache did not resolve the deadline and was not
+added. `auth-url-profile-resolution/` completed all 90 tool interpretations in
+98.4 profiled seconds, with zero raw URL matches and 21,689 warnings. Branch merges
+still account for about 26 cumulative profiled seconds. This is a component
+profile, not a complete scan. Native stage measurements still time out at 120s;
+Semgrep's measured 28s is total process/scan time, not startup time alone.
+
+The auth trace also exposed a shared presence issue: rejection of an absent
+configuration was not retained in later helpers. Branch-local narrowing now
+preserves successful truth/None checks without executing the expression again.
+Two failing refusal regressions now pass alongside ignored/unrelated controls;
+329 affected tests pass in `continuation-presence-narrowing-quality`. The original
+caller-tainted draft of the regression already passed and is preserved separately.
+The real fixed-source trace now returns a non-None global configuration. Its
+OAuth/PAT configuration merge still loses class identity and produces incidental
+candidates; neither the named auth condition nor the deadline gate passes yet.
+
+Six separate TypeScript class controls have been added for the recording path.
+Three caller-to-method regressions currently fail; fixed-path/replacement/escape
+controls pass. Their implementation remains open and their test file is retained
+as deliberate uncommitted work, separate from this Python/Semgrep checkpoint.
