@@ -410,3 +410,36 @@ def test_unsupported_dataclass_layout_is_not_callback_binding(field: str) -> Non
     )
     node = index.files[0].tree.body[-1]
     assert RegistrationFlow(index).fields(Symbol(index.files[0], "Spec", node)) is None
+
+
+@pytest.mark.parametrize(
+    ("declaration", "reference"),
+    [
+        ("from .helpers import read as selected", "selected"),
+        ("from . import helpers as selected", "selected.read"),
+        ("import package.helpers as selected", "selected.read"),
+    ],
+)
+@pytest.mark.parametrize("replaced", [False, True])
+def test_function_local_import_has_its_own_binding(
+    declaration: str, reference: str, replaced: bool
+) -> None:
+    index = program(
+        {
+            "package/server.py": "def selected(path): return path\n"
+            "def handler(path):\n"
+            f"    {declaration}\n"
+            + ("    selected = unknown\n" if replaced else "")
+            + f"    return {reference}(path)\n",
+            "package/helpers.py": "def read(path): return open(path)\n",
+        }
+    )
+    owner = index.resolve(index.files[0], "handler")
+    assert owner is not None
+    resolved = index.resolve_in(owner, reference)
+    if replaced:
+        assert resolved is None
+    else:
+        assert resolved is not None
+        assert resolved.file.relative_path == "package/helpers.py"
+        assert resolved.name == "read"

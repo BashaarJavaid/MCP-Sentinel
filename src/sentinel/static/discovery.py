@@ -187,6 +187,11 @@ class PythonProgram:
                             bindings[node.id].append(self.parents[node])
                         elif isinstance(node, ast.arg):
                             bindings[node.arg].append(node)
+                        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                            for imported in node.names:
+                                bindings[
+                                    imported.asname or imported.name.split(".")[0]
+                                ].append(node)
                     self.local_bindings[owner] = dict(bindings)
                 nodes = self.local_bindings[owner].get(first, [])
                 if nodes:
@@ -201,6 +206,8 @@ class PythonProgram:
                         ancestor = self.parents.get(ancestor)
                     if isinstance(node, Function) and not rest:
                         return Symbol(symbol.file, ".".join(names), node)
+                    if isinstance(node, (ast.Import, ast.ImportFrom)):
+                        return self.resolve_import(symbol.file, node, name, global_seen)
                     if isinstance(node, (ast.Assign, ast.AnnAssign)) and node.value:
                         alias = qualified_name(node.value)
                         if alias:
@@ -307,41 +314,9 @@ class PythonProgram:
                 else None
             )
         if isinstance(node, (ast.Import, ast.ImportFrom)):
-            alias = next(
-                item
-                for item in node.names
-                if (item.asname or item.name.split(".")[0]) == first
+            return self.resolve_import(
+                file, node, name, seen, value_binding=value_binding
             )
-            if isinstance(node, ast.Import):
-                imported = (
-                    alias.name + ("." + rest if rest else "") if alias.asname else name
-                )
-            else:
-                module = node.module or ""
-                if node.level:
-                    parent = list(PurePosixPath(file.relative_path).parent.parts)
-                    if node.level > len(parent):
-                        return None
-                    module = ".".join(
-                        parent[: len(parent) - node.level + 1]
-                        + ([module] if module else [])
-                    )
-                imported = ".".join(part for part in (module, alias.name, rest) if part)
-            parts = imported.split(".")
-            for stop in range(len(parts) - 1, 0, -1):
-                candidates = self.modules.get(".".join(parts[:stop]), [])
-                if candidates:
-                    return (
-                        self.resolve(
-                            candidates[0],
-                            ".".join(parts[stop:]),
-                            seen,
-                            value_binding=value_binding,
-                        )
-                        if len(candidates) == 1
-                        else None
-                    )
-            return None
         if isinstance(node, ast.ClassDef) and rest:
             members = [
                 child
@@ -377,6 +352,52 @@ class PythonProgram:
             return next(iter(inherited.values())) if len(inherited) == 1 else None
         if not rest and isinstance(node, (Function, ast.ClassDef)):
             return Symbol(file, name, node)
+        return None
+
+    def resolve_import(
+        self,
+        file: ParsedPythonFile,
+        node: ast.Import | ast.ImportFrom,
+        name: str,
+        seen: frozenset[tuple[str, str]] = frozenset(),
+        *,
+        value_binding: bool = False,
+    ) -> Symbol | None:
+        first, _, rest = name.partition(".")
+        alias = next(
+            item
+            for item in node.names
+            if (item.asname or item.name.split(".")[0]) == first
+        )
+        if isinstance(node, ast.Import):
+            imported = (
+                alias.name + ("." + rest if rest else "") if alias.asname else name
+            )
+        else:
+            module = node.module or ""
+            if node.level:
+                parent = list(PurePosixPath(file.relative_path).parent.parts)
+                if node.level > len(parent):
+                    return None
+                module = ".".join(
+                    parent[: len(parent) - node.level + 1]
+                    + ([module] if module else [])
+                )
+            imported = ".".join(part for part in (module, alias.name, rest) if part)
+        parts = imported.split(".")
+        for stop in range(len(parts) - 1, 0, -1):
+            candidates = self.modules.get(".".join(parts[:stop]), [])
+            if candidates:
+                return (
+                    self.resolve(
+                        candidates[0],
+                        ".".join(parts[stop:]),
+                        seen,
+                        value_binding=value_binding,
+                    )
+                    if len(candidates) == 1
+                    else None
+                )
         return None
 
     def external(self, symbol: Symbol, node: ast.AST) -> str:
