@@ -18,7 +18,14 @@ from sentinel.static.model import (
     StaticMatch,
     TypeScriptSourceFile,
 )
-from sentinel.static.path_flow import PathFlow, Value, _key, combine, member_label
+from sentinel.static.path_flow import (
+    UNKNOWN_VALUE,
+    PathFlow,
+    Value,
+    _key,
+    combine,
+    member_label,
+)
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
@@ -142,7 +149,7 @@ class URLFlow(PathFlow):
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         conditional = {}
-        unknown = Value()
+        unknown = UNKNOWN_VALUE
         for marker in set().union(*(branch.keys() for branch in branches)):
             if not marker.startswith("#url-truth:"):
                 continue
@@ -303,7 +310,7 @@ class URLFlow(PathFlow):
     ) -> Value:
         result = super().expression(symbol, node, env)
         if isinstance(node, ast.List) and len(node.elts) == 1:
-            item = self.evaluated.get(node.elts[0], Value())
+            item = self.evaluated.get(node.elts[0], UNKNOWN_VALUE)
             if self.parts.get(item.key, ("", ""))[1] == "ip":
                 result = replace(
                     result,
@@ -313,14 +320,14 @@ class URLFlow(PathFlow):
                 )
                 self.ip_lists[result.key] = item
         if isinstance(node, ast.BoolOp):
-            values = [self.evaluated.get(child, Value()) for child in node.values]
+            values = [self.evaluated.get(child, UNKNOWN_VALUE) for child in node.values]
             parts = {self.parts[v.key] for v in values if v.key in self.parts}
             if len(parts) == 1 and all(
                 not v.sources or v.key in self.parts for v in values
             ):
                 self.parts[result.key] = next(iter(parts))
         if isinstance(node, ast.Attribute):
-            receiver = self.evaluated.get(node.value, Value())
+            receiver = self.evaluated.get(node.value, UNKNOWN_VALUE)
             if (
                 self.parts.get(receiver.key, ("", ""))[1] == "ip"
                 and node.attr == "ipv4_mapped"
@@ -343,9 +350,9 @@ class URLFlow(PathFlow):
         )
         if prefix_nodes:
             first_node = prefix_nodes[0]
-            first = self.evaluated.get(first_node, Value())
+            first = self.evaluated.get(first_node, UNKNOWN_VALUE)
             suffix = (
-                member_label(self.evaluated.get(prefix_nodes[1], Value()))
+                member_label(self.evaluated.get(prefix_nodes[1], UNKNOWN_VALUE))
                 if len(prefix_nodes) > 1
                 else None
             )
@@ -367,7 +374,7 @@ class URLFlow(PathFlow):
                 result = replace(result, url_checks=first.url_checks | {"authority"})
         prefix = ""
         for part in prefix_nodes:
-            value = self.evaluated.get(part, Value())
+            value = self.evaluated.get(part, UNKNOWN_VALUE)
             try:
                 literal = ast.literal_eval(value.key)
             except (ValueError, SyntaxError):
@@ -426,7 +433,7 @@ class URLFlow(PathFlow):
                 return frozenset().union(*children)
             return frozenset.intersection(*children) if children else frozenset()
         if isinstance(node, ast.Attribute):
-            value = self.evaluated.get(node.value, Value())
+            value = self.evaluated.get(node.value, UNKNOWN_VALUE)
             origin, part = self.parts.get(value.key, ("", ""))
             if part == "ip" and (
                 "not:" + node.attr in IP_CHECKS or node.attr == "is_global"
@@ -434,7 +441,7 @@ class URLFlow(PathFlow):
                 return frozenset({(origin, ("" if truth else "not:") + node.attr)})
             return frozenset()
         if isinstance(node, (ast.Call, ast.Name)):
-            result = self.evaluated.get(node, Value())
+            result = self.evaluated.get(node, UNKNOWN_VALUE)
             return self.predicates.get(result.key, (frozenset(), frozenset()))[
                 int(truth)
             ]
@@ -446,7 +453,7 @@ class URLFlow(PathFlow):
             or (not truth and isinstance(operator, (ast.NotIn, ast.NotEq)))
         ):
             return frozenset()
-        checked = self.evaluated.get(node.left, Value())
+        checked = self.evaluated.get(node.left, UNKNOWN_VALUE)
         origin, part = self.parts.get(checked.key, ("", ""))
         values = self.literals(symbol, node.comparators[0])
         if not values:
@@ -470,11 +477,11 @@ class URLFlow(PathFlow):
             return
         facts = self.facts(symbol, node, env, truth)
         if isinstance(node, ast.Name):
-            value = self.evaluated.get(node, Value())
+            value = self.evaluated.get(node, UNKNOWN_VALUE)
             if value.sources:
                 env["#url-truth:" + value.key] = Value(key=repr(truth))
                 if truth:
-                    selected = env.get("#url-conditional:" + value.key, Value())
+                    selected = env.get("#url-conditional:" + value.key, UNKNOWN_VALUE)
                     facts |= frozenset(
                         (value.key, check)
                         for check in self.conditional_checks.get(selected.key, ())
@@ -574,7 +581,7 @@ class URLFlow(PathFlow):
                     self.unresolved(
                         symbol, node, "replaced service request implementation"
                     )
-                    return Value()
+                    return UNKNOWN_VALUE
                 if (
                     None in keywords
                     or any(isinstance(arg, ast.Starred) for arg in node.args)
@@ -583,7 +590,7 @@ class URLFlow(PathFlow):
                     self.unresolved(
                         symbol, node, "unresolved service request arguments"
                     )
-                    return Value()
+                    return UNKNOWN_VALUE
                 url = self.member(receiver, "url", env)
                 if not named_request:
                     index = int(method == "request")
@@ -597,9 +604,9 @@ class URLFlow(PathFlow):
                         or (len(args) > index and "path" in keywords)
                     ):
                         self.unresolved(symbol, node, "unresolved service request path")
-                        return Value()
+                        return UNKNOWN_VALUE
                     path = keywords.get(
-                        "path", args[index] if len(args) > index else Value()
+                        "path", args[index] if len(args) > index else UNKNOWN_VALUE
                     )
                     absolute = self.truth_value(
                         keywords.get("absolute", Value(key="False")), env
@@ -609,7 +616,7 @@ class URLFlow(PathFlow):
                     elif absolute is None:
                         url = combine([url, path])
                 self.url_sink(symbol, node, url, name)
-                return Value()
+                return UNKNOWN_VALUE
         request = method in {
             "get",
             "post",
@@ -631,7 +638,7 @@ class URLFlow(PathFlow):
             )
             url = self.expression(symbol, argument_node, env)
             self.url_sink(symbol, node, url, name)
-            return Value()
+            return UNKNOWN_VALUE
         result = super().call(symbol, node, env)
         helper = self.program.resolve_in(symbol, name)
         if not helper and not (
@@ -713,7 +720,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         checks = frozenset(
             check
             for check in ("scheme", "host")
-            if env.get(f"#guard:url:{result.key}:{check}", Value()).contained
+            if env.get(f"#guard:url:{result.key}:{check}", UNKNOWN_VALUE).contained
         )
         return replace(result, url_checks=result.url_checks | checks)
 
@@ -816,7 +823,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                         },
                     )
                 )
-            return Value()
+            return UNKNOWN_VALUE
         result = super().call(file, node, env)
         operator = callee.get("Special", [{}])[0]
         if (

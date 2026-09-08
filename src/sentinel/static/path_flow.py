@@ -41,6 +41,9 @@ class Value:
     maybe_none: bool = False
 
 
+UNKNOWN_VALUE = Value()
+
+
 def combine(values: list[Value], key: str = "") -> Value:
     if values:
         first = values[0]
@@ -379,7 +382,7 @@ class PathFlow:
                 wrapped = self.expression(symbol, decorator.args[0], env)
                 if wrapped.key in self.callables:
                     continue
-                evaluated.append((decorator, Value()))
+                evaluated.append((decorator, UNKNOWN_VALUE))
                 continue
             evaluated.append((decorator, self.expression(symbol, decorator, env)))
         for decorator, factory in reversed(evaluated):
@@ -402,10 +405,10 @@ class PathFlow:
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
         if self.http_context.continued(symbol, bindings):
-            return Value()
+            return UNKNOWN_VALUE
         key = (
             symbol.file.relative_path,
-            symbol.name + ":" + bindings.get("#callable-origin", Value()).key,
+            symbol.name + ":" + bindings.get("#callable-origin", UNKNOWN_VALUE).key,
         )
         # ponytail: bound recursive interpretation; use summaries for deeper flows.
         if (
@@ -485,7 +488,7 @@ class PathFlow:
         returned: list[Value],
     ) -> bool:
         for node in body:
-            if env.get("#http:stop", Value()).key == "True":
+            if env.get("#http:stop", UNKNOWN_VALUE).key == "True":
                 return False
             check_deadline(self.deadline)
             if isinstance(node, (ast.Assign, ast.AnnAssign)):
@@ -557,7 +560,8 @@ class PathFlow:
                                 if label is UNKNOWN_MEMBER or member_name == label:
                                     env[marker] = (
                                         replace(
-                                            env.get(marker, Value()), maybe_missing=True
+                                            env.get(marker, UNKNOWN_VALUE),
+                                            maybe_missing=True,
                                         )
                                         if label is UNKNOWN_MEMBER
                                         else Value(key="#missing", maybe_missing=True)
@@ -680,7 +684,7 @@ class PathFlow:
                 )
             elif isinstance(node, ast.Assert):
                 self.expression(symbol, node.test, env)
-        return env.get("#http:stop", Value()).key != "True"
+        return env.get("#http:stop", UNKNOWN_VALUE).key != "True"
 
     @staticmethod
     def disabled_boundary(symbol: Symbol, node: ast.If, env: dict[str, Value]) -> bool:
@@ -794,7 +798,7 @@ class PathFlow:
             unknown = source
         if unknown is not None:
             marker = "#member:unknown:" + destination.key
-            env[marker] = combine([env.get(marker, Value()), unknown])
+            env[marker] = combine([env.get(marker, UNKNOWN_VALUE), unknown])
             for existing in self.members.get(destination.key, {}).values():
                 if existing in env:
                     env[existing] = combine([env[existing], unknown])
@@ -805,8 +809,8 @@ class PathFlow:
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
         if value.key in self.source_modules and member in {"__dict__", "__class__"}:
-            self.update_mapping(value, Value(), env)
-            return Value()
+            self.update_mapping(value, UNKNOWN_VALUE, env)
+            return UNKNOWN_VALUE
         if value.key in self.instance_alternatives:
             result = self.combine_instances(
                 [
@@ -829,7 +833,7 @@ class PathFlow:
             )
         key = self.member_key(value, member)
         fallback = replace(
-            env.get("#member:unknown:" + value.key, Value())
+            env.get("#member:unknown:" + value.key, UNKNOWN_VALUE)
             if value.key in self.mapping_keys or value.key in self.record_keys
             else value,
             key=_key(value.key, repr(member)),
@@ -900,14 +904,14 @@ class PathFlow:
         if isinstance(node, ast.Constant):
             return Value(key=repr(node.value))
         if isinstance(node, ast.Name):
-            return env.get(node.id, Value())
+            return env.get(node.id, UNKNOWN_VALUE)
         if isinstance(node, ast.Subscript):
             label = member_label(self.bound_value(node.slice, env))
             if label is not UNKNOWN_MEMBER:
                 return self.member(self.bound_value(node.value, env), label, env)
         if isinstance(node, ast.Attribute):
             return self.member(self.bound_value(node.value, env), node.attr, env)
-        return Value()
+        return UNKNOWN_VALUE
 
     def instance_member(self, value: Value, name: str) -> Symbol | None:
         if value.instance is None:
@@ -994,7 +998,7 @@ class PathFlow:
                         url_checks=frozenset(),
                     )
             return
-        unknown = Value()
+        unknown = UNKNOWN_VALUE
         first, *rest = branches or [{}]
         second = rest[0] if len(rest) == 1 else None
         for name in set().union(*(b.keys() for b in branches)):
@@ -1192,7 +1196,9 @@ class PathFlow:
         ):
             return
         value = self.expression(symbol, node.func.value, env)
-        base = self.expression(symbol, node.args[0], env) if node.args else Value()
+        base = (
+            self.expression(symbol, node.args[0], env) if node.args else UNKNOWN_VALUE
+        )
         if value.path_object and value.resolved and base.resolved and not base.sources:
             for name, current in env.items():
                 if current.key == value.key:
@@ -1234,7 +1240,7 @@ class PathFlow:
     ) -> Value:
         check_deadline(self.deadline)
         if node is None:
-            return Value()
+            return UNKNOWN_VALUE
         if self.call_receivers is not None and node in self.call_receivers:
             return self.call_receivers[node]
         if isinstance(node, ast.Constant):
@@ -1342,7 +1348,7 @@ class PathFlow:
                 if isinstance(field, ast.Constant):
                     marker = self.member_key(Value(key=mapping_key), field.value)
                     env[marker] = replace(value, maybe_missing=False)
-                    self.member_defaults.setdefault(marker, Value())
+                    self.member_defaults.setdefault(marker, UNKNOWN_VALUE)
             self.mapping_keys.add(mapping_key)
             return replace(
                 combine(values, mapping_key),
@@ -1441,7 +1447,7 @@ class PathFlow:
                         return Value(
                             key=repr(included != isinstance(operator, ast.NotIn))
                         )
-            result = combine([left, Value(), right])
+            result = combine([left, UNKNOWN_VALUE, right])
             facts: set[str] = set()
             if isinstance(node.ops[0], (ast.Eq, ast.NotEq)):
                 for checked, base in ((left, right), (right, left)):
@@ -1585,7 +1591,7 @@ class PathFlow:
                 contained=False,
             )
         if isinstance(node, (ast.Lambda, ast.FunctionDef, ast.AsyncFunctionDef)):
-            return Value()
+            return UNKNOWN_VALUE
         values = [
             self.expression(symbol, child, env) for child in ast.iter_child_nodes(node)
         ]
@@ -1605,7 +1611,7 @@ class PathFlow:
         self, symbol: Symbol, node: ast.Call, env: dict[str, Value]
     ) -> Value:
         if not isinstance(node.func, ast.Attribute):
-            return Value()
+            return UNKNOWN_VALUE
         receiver = node.func.value
         if self.call_receivers is not None and receiver in self.call_receivers:
             return self.call_receivers[receiver]
@@ -1629,7 +1635,7 @@ class PathFlow:
                     },
                 }
             )
-            return Value()
+            return UNKNOWN_VALUE
         name = qualified_name(node.func) or "dynamic call"
         resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
         root = name.split(".")[0]
@@ -1755,15 +1761,15 @@ class PathFlow:
                         self.context_tokens.get(args[0].key) == receiver.key
                         and "#member:unknown:" + args[0].key not in env
                         and previous is not None
-                        and env.get("#context:valid:" + args[0].key, Value()).key
+                        and env.get("#context:valid:" + args[0].key, UNKNOWN_VALUE).key
                         == "True"
                     ):
                         env[marker] = previous
                         env["#context:valid:" + args[0].key] = Value(key="False")
                         return Value(key="None")
             self.unresolved(symbol, node, "unresolved ContextVar operation")
-            env[marker] = Value()
-            return Value()
+            env[marker] = UNKNOWN_VALUE
+            return UNKNOWN_VALUE
         if (
             resolved
             in {
@@ -1798,8 +1804,8 @@ class PathFlow:
                     self.unresolved(
                         symbol, node, "unresolved service constructor arguments"
                     )
-                    return Value()
-                base_url = keywords.get("url", args[0] if args else Value())
+                    return UNKNOWN_VALUE
+                base_url = keywords.get("url", args[0] if args else UNKNOWN_VALUE)
                 env[self.member_key(value, "url")] = replace(
                     base_url,
                     locations=base_url.locations
@@ -1874,7 +1880,7 @@ class PathFlow:
             method_parameters = (*symbol.node.args.posonlyargs, *symbol.node.args.args)
             if isinstance(enclosing_class, ast.ClassDef) and method_parameters:
                 super_owner = Symbol(symbol.file, enclosing_class.name, enclosing_class)
-                receiver = env.get(method_parameters[0].arg, Value())
+                receiver = env.get(method_parameters[0].arg, UNKNOWN_VALUE)
         http_value = self.http_context.call(
             symbol, node, resolved, receiver, args, keywords, env, super_owner
         )
@@ -1893,9 +1899,9 @@ class PathFlow:
             and not args
             and not keywords
         ):
-            if env.get("#http:no-request", Value()).key == "True":
+            if env.get("#http:no-request", UNKNOWN_VALUE).key == "True":
                 env["#http:stop"] = Value(key="True")
-                return Value()
+                return UNKNOWN_VALUE
             if "#http:request" in env:
                 return env["#http:request"]
             request = Value(
@@ -1941,7 +1947,7 @@ class PathFlow:
             member = self.member(args[0], member_label(args[1]), env)
             if member.key == "#missing" or not member.maybe_missing:
                 return Value(key=repr(member.key != "#missing"))
-            return Value()
+            return UNKNOWN_VALUE
         if (
             (resolved in {"id", "builtins.id"} and len(args) == 1 and not keywords)
             or (
@@ -1970,7 +1976,7 @@ class PathFlow:
                 and not keywords
             )
         ):
-            return Value()
+            return UNKNOWN_VALUE
         if (
             resolved in {"isinstance", "builtins.isinstance"}
             and len(args) == 2
@@ -2001,7 +2007,7 @@ class PathFlow:
                         args[0].maybe_none or args[0].maybe_missing
                     ):
                         return Value(key=repr(matches_type))
-                return Value()
+                return UNKNOWN_VALUE
         if (
             method in {"keys", "items", "values"}
             and receiver.key in self.mapping_keys
@@ -2010,7 +2016,7 @@ class PathFlow:
         ):
             if method == "keys":
                 return replace(
-                    env.get("#member:unknown:" + receiver.key, Value()),
+                    env.get("#member:unknown:" + receiver.key, UNKNOWN_VALUE),
                     key=_key("mapping-keys", receiver.key),
                     instance=None,
                 )
@@ -2061,7 +2067,7 @@ class PathFlow:
                     ),
                     env,
                 )
-                return Value()
+                return UNKNOWN_VALUE
             for argument in args:
                 self.update_mapping(receiver, argument, env)
             for label, value in keywords.items():
@@ -2071,7 +2077,7 @@ class PathFlow:
                     env[self.member_key(receiver, label)] = replace(
                         value, maybe_missing=False
                     )
-            return Value()
+            return UNKNOWN_VALUE
         if (method == "resolve" and receiver.path_object) or (
             resolved == "os.path.realpath"
             and self.program.external(symbol, node.func) == resolved
@@ -2115,7 +2121,7 @@ class PathFlow:
             "is_file",
             "is_dir",
         }:
-            return Value()
+            return UNKNOWN_VALUE
         sink: Value | None = None
         workbook = (
             resolved
@@ -2214,7 +2220,7 @@ class PathFlow:
             "close",
             "remove",
         }:
-            return Value()
+            return UNKNOWN_VALUE
         if method == "get" and (receiver.sources or receiver.key in self.mapping_keys):
             label = member_label(args[0]) if args else UNKNOWN_MEMBER
             if label is not UNKNOWN_MEMBER:
