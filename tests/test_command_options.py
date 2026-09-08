@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 
 from sentinel.config import load_configuration
+from sentinel.finding import FileLocation
 from sentinel.static.engine import run_static_scan
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.rules.sent014 import TypeScriptOptionFlow
@@ -15,12 +16,18 @@ from sentinel.static.typescript_path_flow import analyze
 from tests.conftest import NOW, make_target
 
 
+@pytest.mark.parametrize("unreferenced_command", [False, True])
 def test_no_command_sinks_does_not_interpret_service_construction(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unreferenced_command: bool
 ) -> None:
     from sentinel.static.path_flow import PathFlow
 
     root = make_target(tmp_path / "target", target_yaml="")
+    if unreferenced_command:
+        (root / "unreferenced.py").write_text(
+            "import subprocess\ndef test_helper(): subprocess.run(['test'])\n",
+            encoding="utf-8",
+        )
     (root / "server.py").write_text(
         "from mcp.server.fastmcp import FastMCP\n"
         "mcp = FastMCP('test')\n"
@@ -39,6 +46,39 @@ def test_no_command_sinks_does_not_interpret_service_construction(
     result = run_static_scan(config, uuid4(), timestamp=NOW)
     assert not result.incomplete
     assert not result.findings
+
+
+def test_command_precheck_follows_relative_reexports_and_import_cycles(
+    tmp_path: Path,
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    package = root / "helpers"
+    package.mkdir()
+    (package / "__init__.py").write_text(
+        "from .bridge import invoke\n", encoding="utf-8"
+    )
+    (package / "bridge.py").write_text(
+        "from .commands import invoke\n", encoding="utf-8"
+    )
+    (package / "commands.py").write_text(
+        "from . import bridge\nfrom subprocess import check_output as execute\n"
+        "def invoke(ref): return execute(['git', 'show', ref])\n",
+        encoding="utf-8",
+    )
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\nfrom helpers import invoke\n"
+        "mcp = FastMCP('test')\n@mcp.tool()\ndef show(ref: str):\n"
+        "    return invoke(ref)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    result = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert not result.incomplete
+    assert len(result.findings) == 1
+    assert isinstance(result.findings[0].location, FileLocation)
+    assert result.findings[0].location.path == "helpers/commands.py"
 
 
 @pytest.mark.parametrize(

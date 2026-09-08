@@ -41,9 +41,23 @@ class OptionFlow(PathFlow):
         self.has_command_sinks = self.command_sinks_present()
 
     def command_sinks_present(self) -> bool:
+        from sentinel.static.lifespan import tool_lifespan
+
+        roots: set[str] = set()
+        for tool in self.program.tools():
+            roots.update(
+                (tool.handler.file.relative_path, tool.registration.file.relative_path)
+            )
+            lifespan = tool_lifespan(self.program, tool)
+            if lifespan is not None:
+                roots.add(lifespan.file.relative_path)
+        reachable = self.program.reachable_files(roots)
         # This is a necessary syntax condition for call() below, not a claim
-        # about unsupported command APIs. Inspect every included source file.
+        # about unsupported command APIs. All files remain in the source index;
+        # follow every included import from registrations, handlers and lifespans.
         for file in self.program.files:
+            if file.relative_path not in reachable:
+                continue
             aliases = self.aliases[file.relative_path]
             for node in ast.walk(file.tree):
                 check_deadline(self.deadline)

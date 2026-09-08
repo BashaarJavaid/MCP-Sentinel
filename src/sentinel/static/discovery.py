@@ -339,6 +339,45 @@ class PythonProgram:
             return ""
         return imported
 
+    def reachable_files(self, roots: set[str]) -> frozenset[str]:
+        """Over-approximate included imports, including ambiguous package matches."""
+        files = {file.relative_path: file for file in self.files}
+        pending = list(roots)
+        reached: set[str] = set()
+        while pending:
+            path = pending.pop()
+            check_deadline(self.deadline)
+            if path in reached or path not in files:
+                continue
+            reached.add(path)
+            file = files[path]
+            for node in ast.walk(file.tree):
+                check_deadline(self.deadline)
+                if isinstance(node, ast.Import):
+                    names = [alias.name for alias in node.names]
+                elif isinstance(node, ast.ImportFrom):
+                    module = node.module or ""
+                    if node.level:
+                        parent = list(PurePosixPath(path).parent.parts)
+                        if node.level > len(parent):
+                            continue
+                        module = ".".join(
+                            parent[: len(parent) - node.level + 1]
+                            + ([module] if module else [])
+                        )
+                    names = [f"{module}.{alias.name}" for alias in node.names]
+                else:
+                    continue
+                for name in names:
+                    parts = name.split(".")
+                    for end in range(1, len(parts) + 1):
+                        pending.extend(
+                            candidate.relative_path
+                            for candidate in self.modules.get(".".join(parts[:end]), [])
+                            if candidate.relative_path not in reached
+                        )
+        return frozenset(reached)
+
     def method_order(
         self, symbol: Symbol, seen: frozenset[ast.AST] = frozenset()
     ) -> tuple[Symbol | str, ...] | None:
