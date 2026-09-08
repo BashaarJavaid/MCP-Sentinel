@@ -1103,3 +1103,99 @@ are retained. A paired absolute/relative/escaping-path regression exposes and fi
 relative result resolution against the new subprocess CWD; scope rejection stays
 enforced. All 56 engine/TypeScript/workspace regressions and five adapter controls
 pass. Final native input completion has not yet been measured at this correction.
+
+### Handoff-v2 continuation: verified state and middleware/local imports
+
+The continuation verified clean `020cde82dbe39d49f79187a3bfbac20d5f70f3e3`,
+all retained worktrees, no other active writer, and the exact corpus, Git
+packet and both handoff archive hashes. The installed approved Git image still
+has its recorded identity (`v2-git-image-identity`, Linux arm64). No paid calls,
+pushes, draft creation, publication or external contact occurred.
+
+`v2-upload-family-020cde8` measures all five upload inputs on unchanged scanner
+source: **0/5 complete**, each exceeding the unchanged 120-second deadline.
+The harness exits zero after recording the failures. Its initial tracked patch
+is empty; only new regression tests were edited while it ran. Brief focused
+counterexample checks overlapped later inputs; the first timeout preceded those
+checks. This is completion evidence, not an isolated throughput benchmark, and
+does not erase the older fixed-input completion.
+
+`f3fab7d` adds attached genuine BaseHTTPMiddleware dispatch, request/ContextVar
+propagation and explicit continuation/refusal. Custom call/construction hooks,
+replaced/escaped middleware and unknown forwarding cannot establish protection.
+Unknown forwarding now traverses closure captures as well as receiver state.
+`2b45b10` resolves included function-local imports before same-named globals.
+These are shared prerequisites, **not a completed Meta condition**: actual SDK
+launch/provider patches and module replacement remain unfinished.
+
+The two original safe middleware misses, callback-escape and class-mutation
+failures, the missing credential condition and local-import failures were
+reproduced before correction. The combined affected suite passed **673 tests in
+56.80 seconds**. Strict mypy initially caught a local variable type collision;
+its correction passed mypy and 36 discovery tests. Ruff and formatting checks
+passed. Scratch adapter diagnostics include retained parent-index and test-config
+failures; they are not native scanner measurements.
+
+`1840f13` reuses immutable lexical shadow lookups and one empty URL-merge default.
+Profiling identified 28,571 empty allocations in URL merging for one warm upload
+handler; the change reduces that component to 859 and total empty allocations
+from 60,310 to 32,598. Three boundary flows on the production upload handler have
+byte-identical complete matches/warnings before and after (`v2-flow-default-equivalence`,
+SHA-256 `a84ad26f04feaa93a9fea16e7920307c036ca8972463722a30a452f8a06a06a4`).
+501 affected tests pass, plus nine source/deadline checks and corrected strict
+mypy. These focused profiles are not whole-input acceptance. The first warm
+profile's unique-handler assertion failed because local imports now recover
+additional explicit test registrations; the corrected diagnostic selects the
+production registration without excluding source from native scans.
+
+A new five-input native run uses the immutable detached
+`/private/tmp/mcp-phase22-verify-v2-perf` at `1840f13`; its source and imports are
+checked by `v2-upload-family-1840f13`. It finished with 3/5 completed inputs:
+vulnerable 117544ms, vulnerable mutation 119078ms, fixed 123515ms total wall time
+(static processing remained within the unchanged 120-second deadline). Fixed
+mutation and download safe control timed out at 120134ms and 120183ms. Later
+inputs overlapped independent verification; these are completion observations,
+not isolated throughput measurements. Condition adjudication remains open. Final repeats, holdout,
+adjudication, review/campaign/report audits, all final quality/hosted checks,
+paid-request preparation and consolidated draft delivery remain open. The full
+86-row requirement map remains authoritative; no phase gate is marked complete.
+
+
+`0d3f9a3` retains source module identity, explicit callback replacements, saved
+callbacks and function-local import timing. Unknown escape, reflection and
+deletion do not restore the original callable. Actual Meta vulnerable/fixed
+`setup_http_auth_patching` source traces establish the three assignments in auth,
+api and authentication; they do not establish HTTP attachment or the named
+credential condition (`v2-meta-source-module-patch`). 552 affected tests pass
+(`v2-module-delete-fixed-shared`), strict mypy and Ruff pass. Retained failures
+include the original 6/12 replacement misses, 4 unknown-mutation failures, the
+reflection and deletion counterexamples, an initial type error and a nonexistent
+test filename; corrected runs do not erase them. SDK launch/provider attachment
+and the later same-name middleware implementation still need integration.
+
+`6da955e` reuses frozen empty Value objects in the shared path/URL hot paths.
+632 affected tests, mypy and Ruff pass (`v2-immutable-shared-corrected`,
+`v2-immutable-types`, `v2-immutable-lint`). The actual production upload handler
+retains byte-identical matches/warnings in all three flows before/after the change
+(`v2-flow-immutable-equivalence`, SHA-256
+`a84ad26f04feaa93a9fea16e7920307c036ca8972463722a30a452f8a06a06a4`).
+Comparable warm component profiles record 29,200 versus 14,526 Value allocations
+and 0.644 versus 0.627 profiled seconds; these are not isolated native throughput.
+A mistaken diagnostic output directory failed safely without overwriting prior
+evidence; the corrected comparison and missing-test-path attempts are retained.
+
+`a035585` resolves unobserved module-level no-op forward declarations to the later
+unconditional undecorated implementation, retaining ambiguity for eager captures.
+The original two resolution failures and three safe controls precede the fix.
+489 shared tests and corrected strict mypy pass. Actual Meta source resolves the
+final middleware implementation at vulnerable line 281/fixed line 303 while
+preserving all three token provider replacements (`v2-meta-forward-source`).
+This does not yet establish SDK launch/provider/middleware attachment.
+
+Evidence batch 15 seals completed post-v14 diagnostics through `a035585`, including
+the supplied v2 handoff/supplemental snapshot and all retained new failures. The
+ongoing `v2-upload-family-6da955e` run is excluded until it finishes. Its detached
+verification worktree is `/private/tmp/mcp-phase22-verify-v2-immutable`; independent
+focused tests overlap this run, so latency is not isolated throughput. Final
+measurements, audits, paid preparation, consolidated draft and acceptance remain
+open; the 86 requirements are not reduced by these intermediate commits.

@@ -1,11 +1,15 @@
-# Integration evidence, batches 1–6
+# Integration evidence, batches 1–15
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `536bb69`. **It is not final technical acceptance.**
+through source commit `a035585`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 15 adds completed post-v14 evidence, HTTP dispatch/import/module/forward-
+declaration corrections and profiling. The `1840f13` upload run completed 3/5
+inputs; two timed out. The ongoing `6da955e` upload rerun is excluded. All member
+hashes are verified by readback; prior seals and recovery snapshots are preserved.
 Batch 6 (`evidence-v6.tar.gz`, `evidence-v6.json`) adds 251 files through
 `5065f16`, including the exact `f12e891` full-suite milestone, its coverage
 database, the 18-input incomplete development run, TypeScript HTTP regressions,
