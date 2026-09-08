@@ -21,7 +21,7 @@ from sentinel.static.model import RuleRunState
 from sentinel.static.registration_flow import RegistrationFlow
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Value:
     sources: Sources = frozenset()
     key: str = ""
@@ -131,6 +131,7 @@ class PathFlow:
         self.launch_states: list[dict[tuple[str, str], Value]] = []
         self.non_none: set[str] = set()
         self.workbooks: set[str] = set()
+        self.reported_warnings: set[tuple[str, int, str]] = set()
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.launches import for_tool
@@ -284,6 +285,10 @@ class PathFlow:
             self.active.remove(key)
 
     def unresolved(self, symbol: Symbol, node: ast.AST, reason: str) -> None:
+        identity = (symbol.file.relative_path, getattr(node, "lineno", 1), reason)
+        if identity in self.reported_warnings:
+            return
+        self.reported_warnings.add(identity)
         self.state.warnings.append(
             ReportWarning(
                 code="static_flow_unresolved",

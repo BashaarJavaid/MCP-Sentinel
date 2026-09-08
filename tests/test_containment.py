@@ -35,6 +35,23 @@ def test_helper_keeps_mutated_global_and_closure_state(callback: str) -> None:
     assert state.matches[0].path == "server.py"
 
 
+def test_repeated_helper_limit_reports_each_source_reason_once() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "def checked(p): return unknown(p)\n"
+                "@mcp.tool()\ndef read_one(path): return open(checked(path))\n"
+                "@mcp.tool()\ndef read_two(path): return open(checked(path))\n"
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 2
+    assert len(state.warnings) == 1
+    assert "server.py:1" in state.warnings[0].message
+
+
 def test_configured_launch_globals_keep_transport_specific_path_evidence() -> None:
     source = (
         "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"

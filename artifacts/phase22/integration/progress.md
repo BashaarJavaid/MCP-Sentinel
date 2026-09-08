@@ -685,3 +685,28 @@ failures and corrected runs are all retained. Those timings overlapped focused
 checks and are not isolated throughput. The final receiver change still requires
 native auth remeasurement. Technical acceptance, the fresh holdout and the
 separate TypeScript class implementation remain unfinished.
+
+### First complete native auth pair after state corrections
+
+Internal flow values now use dataclass slots. Identical Python source-limit
+warnings are constructed once per rule/file/line/reason, matching the final
+warning identity; coverage no longer repeats the same limitation for every helper
+encounter. This does not count or remove rule visits, paths or findings. A durable
+before-failing regression retains both tool findings and one shared source reason.
+`auth-warning-equivalence.json` compares the old and new warning methods on the
+same fixed auth trace: 87 encounters become 55 distinct warnings, with identical
+warning keys and raw matches. The affected suite passes 332 tests; type/style/
+format checks pass. The slot-only and concurrently checked repeats still timed out.
+
+`auth-quiet-pair-continuation/` then completed both original full auth inputs using
+the production rules-only pipeline without concurrent agent test/profile jobs.
+Vulnerable: 95 findings and 117.296s total wall time. Fixed: 94 findings, 118.387s
+static duration and 122.299s total wall time including reporting. The configured
+120-second static deadline is unchanged; completion is recorded by the native
+pipeline. All incomplete earlier runs remain retained. This is a source-specific
+pair, not the final repeated benchmark or an isolated-machine throughput claim.
+
+Each report contains four SENT-016 client candidates. Fixed candidates still merge
+incidental per-user paths with the flag-gated global path and lose that distinction.
+The named auth condition has not passed adjudication. Broader callback/enum/class
+support, remaining families, all final checks and draft delivery remain open.

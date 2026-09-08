@@ -1040,6 +1040,9 @@ Static inventory uses included files and existing recognizers. Registrations
 are distinguished by kind and source location, preserving duplicate names and
 resolved handler locations. Reasons identify computed names, imported schemas
 or implementations, unsupported handler forms, and unresolved execution flows.
+Repeated identical Python flow limitations are reported once per rule, source
+line and reason. These entries describe distinct source limitations, not a count
+of executions or analyzed paths; surface and rule-visit accounting remains separate.
 Rule visits are recorded inside the actual detector loops, before exemptions,
 and are independent of the broader model-context catalog. File/configuration
 rules (`SENT-005`, `SENT-007`) stay separate. Configuration-excluded IDs are
