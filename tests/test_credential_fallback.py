@@ -997,12 +997,25 @@ def test_typescript_attached_http_middleware(
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == expected
+    assert report.summary.coverage is not None
+    routes = [
+        surface
+        for surface in report.summary.coverage.surfaces
+        if surface.kind == "http_route"
+    ]
+    assert len(routes) == 1
+    assert routes[0].status == "recognized"
+    assert routes[0].handler is not None and routes[0].handler.path == "routes.ts"
+    assert "SENT-016" in routes[0].examined_rule_ids
 
 
 @pytest.mark.parametrize(
     ("registration", "expected"),
     [
         ('app.use("/accounts", auth); app.get("/accounts", handler);', 0),
+        ('if (true) app.get("/accounts", handler);', 1),
+        ('if (true) app.use(auth); app.get("/accounts", handler);', 0),
+        ('if (enabled) app.use(auth); app.get("/accounts", handler);', 1),
         ('app.use("/other", auth); app.get("/accounts", handler);', 1),
         ('app.use("/account", auth); app.get("/accounts", handler);', 1),
         ('app.get("/accounts", handler); app.use(auth);', 1),
@@ -1076,3 +1089,36 @@ def test_typescript_repeated_http_middleware(tmp_path: Path) -> None:
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == 1
+
+
+@pytest.mark.parametrize("protected", [False, True])
+def test_typescript_mixed_mcp_http_factory(tmp_path: Path, protected: bool) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        "export function createServer() {\n"
+        ' const server=new McpServer({name:"sample",version:"1"});\n'
+        ' server.registerTool("ping",{inputSchema:{}},()=>"pong");\n'
+        " const app=express();\n"
+        ' app.get("/accounts", (req,res)=>{\n'
+        + (
+            " if (!req.headers.authorization) return res.sendStatus(401);\n"
+            if protected
+            else ""
+        )
+        + " const token=req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        ' return fetch("https://api.example.com",{headers:{Authorization:token}});\n'
+        " }); return app;\n}\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == (not protected)

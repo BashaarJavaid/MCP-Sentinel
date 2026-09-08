@@ -1532,8 +1532,18 @@ class TypeScriptPathFlow:
         else:
             env: dict[str, Value] = {}
             for statement in initializer.node.get("Pr", []):
-                if "DefStmt" in statement or "ExprStmt" in statement:
-                    self.statement(initializer.file, statement, env, [])
+                if statement.keys() & {
+                    "DefStmt",
+                    "ExprStmt",
+                    "Block",
+                    "If",
+                    "Try",
+                    "Switch",
+                    "For",
+                    "While",
+                    "Throw",
+                }:
+                    alive = self.statement(initializer.file, statement, env, [])
                     self.globals.update(
                         ((initializer.file.relative_path, name), value)
                         for name, value in env.items()
@@ -1544,6 +1554,8 @@ class TypeScriptPathFlow:
                         for key, value in env.items()
                         if key.startswith(self.state_prefixes)
                     )
+                    if not alive:
+                        break
         routes = self.http_routes[start:]
         del self.http_routes[start:]
         if not routes:
@@ -1690,7 +1702,7 @@ def analyze(
     entries: tuple[TypeScriptBinding | TypeScriptHTTPBinding, ...] | None = None,
 ) -> None:
     flow = flow or TypeScriptPathFlow(program, state)
-    factories: set[int] = set()
+    factories: set[tuple[bool, int]] = set()
     for tool in program.tools() if entries is None else entries:
         initializer = (
             tool.initializer
@@ -1698,10 +1710,11 @@ def analyze(
             else tool.factory
         )
         if initializer is not None:
-            if id(initializer.node) not in factories:
-                factories.add(id(initializer.node))
+            identity = (isinstance(tool, TypeScriptHTTPBinding), id(initializer.node))
+            if identity not in factories:
+                factories.add(identity)
                 if isinstance(tool, TypeScriptHTTPBinding):
-                    flow.http_initialize(initializer)
+                    type(flow)(program, state).http_initialize(initializer)
                 else:
                     flow.function(initializer, [])
             continue

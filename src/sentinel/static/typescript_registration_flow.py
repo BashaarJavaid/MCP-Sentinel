@@ -105,6 +105,7 @@ class HTTPRegistrationFlow(TypeScriptPathFlow):
                 TypeScriptSymbol(file, node),
                 self.callables.get(args[-1].key),
                 self.factory,
+                self.string_literals.get(args[0].key),
             )
         )
 

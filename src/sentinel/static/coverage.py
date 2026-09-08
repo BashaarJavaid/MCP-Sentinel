@@ -344,6 +344,9 @@ def inventory(
     resolved_ts = (
         context.typescript_program.tools() if context.files.typescript_files else ()
     )
+    resolved_http = (
+        context.typescript_http_handlers if context.files.typescript_files else ()
+    )
     for ts_file in context.files.typescript_files:
         check_deadline(context.deadline)
         source = ts_file.source
@@ -480,6 +483,44 @@ def inventory(
                 if handler_symbol
                 else None,
             )
+        http_locations: set[tuple[int, int]] = set()
+        http_bindings: set[tuple[int, int, str | None]] = set()
+        for http_binding in resolved_http:
+            if http_binding.registration.file != ts_file:
+                continue
+            handler_symbol = (
+                http_binding.handler
+                if http_binding.handler and http_binding.handler.function
+                else None
+            )
+            identity = (
+                id(http_binding.registration.node),
+                id(handler_symbol.node) if handler_symbol else 0,
+                http_binding.name,
+            )
+            if identity in http_bindings:
+                continue
+            http_bindings.add(identity)
+            registration = ts_source_range(http_binding.registration.node, ts_file)
+            http_locations.add((registration.start_line, registration.start_column))
+            add(
+                "http_route",
+                http_binding.name,
+                ts_file.relative_path,
+                registration,
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None,
+                "computed_route"
+                if http_binding.name is None
+                else "unresolved_handler"
+                if handler_symbol is None
+                else None,
+                "route name or source handler cannot be fully resolved",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
+            )
         receivers = ts._http_receivers(source)
         mcp = ts._mcp_server_receivers(source)
         pattern = re.compile(rf"\b({ts._IDENTIFIER})\s*\.\s*({ts._IDENTIFIER})\s*\(")
@@ -494,6 +535,12 @@ def inventory(
             if not route and not unsupported:
                 continue
             match_location = ts.offset_range(source, match.start(), match.end())
+            if (
+                route
+                and (match_location.start_line, match_location.start_column)
+                in http_locations
+            ):
+                continue
             if method == "setRequestHandler" and any(
                 (
                     ts_source_range(item.registration.node, ts_file).start_line,

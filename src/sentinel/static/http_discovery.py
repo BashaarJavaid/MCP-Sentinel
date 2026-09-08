@@ -24,6 +24,7 @@ class TypeScriptHTTPBinding:
     registration: TypeScriptSymbol
     handler: TypeScriptSymbol | None
     initializer: TypeScriptSymbol | None = None
+    name: str | None = None
 
 
 def typescript_handlers(
