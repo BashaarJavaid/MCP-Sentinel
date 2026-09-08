@@ -37,6 +37,27 @@ def instance(program: PythonProgram, context: Symbol, node: ast.AST) -> Symbol |
 
 def launches(program: PythonProgram) -> tuple[Launch, ...]:
     found = []
+    replaced: set[ast.AST] = set()
+    for file in program.files:
+        for node in ast.walk(file.tree):
+            check_deadline(program.deadline)
+            receivers = (
+                [node.value]
+                if isinstance(node, ast.Attribute)
+                and node.attr == "run"
+                and isinstance(node.ctx, (ast.Store, ast.Del))
+                else [*node.args, *(kw.value for kw in node.keywords)]
+                if isinstance(node, ast.Call)
+                else []
+            )
+            # Escaped server instances may have their launch method replaced.
+            # Source-bound wrapper execution is not established by this index.
+            for receiver in receivers:
+                value = instance(
+                    program, Symbol(file, "launch mutation", node), receiver
+                )
+                if value is not None:
+                    replaced.add(value.node)
     for file in program.files:
         for call in ast.walk(file.tree):
             check_deadline(program.deadline)
@@ -62,7 +83,8 @@ def launches(program: PythonProgram) -> tuple[Launch, ...]:
                 ast.Constant("stdio"),
             )
             supported = (
-                isinstance(owner, Function)
+                server.node not in replaced
+                and isinstance(owner, Function)
                 and not owner.decorator_list
                 and not (
                     owner.args.args

@@ -455,3 +455,39 @@ failures, two nonexistent-test command mistakes, all failed regressions and
 intermediate source patches remain preserved. Whole-project mypy/Ruff/format
 pass in `continuation-containment-{mypy,ruff,format}`. No final full quality,
 benchmark, review, campaign, hosted or delivery gate is claimed.
+
+### Fixed-source 4dfd24c milestone and URL/launch follow-up
+
+`continuation-4dfd24c-full-suite` ran with implementation/test bytes held fixed:
+1,215 passed, 36 skipped in 963.81 seconds, with 88.27% branch coverage. The
+combined database is retained as `continuation-4dfd24c.coverage`; its preservation
+record binds it to the commit. Schema and third-party-notice checks also pass.
+This is an integration milestone, not the final Phase 22 acceptance source.
+
+`containment-4dfd24c/` contains ten completed exposed Excel/mobile scans, their
+native reports and source-condition adjudication. Four vulnerable inputs have
+condition-correct candidates; six fixed/control inputs have no matched alert.
+Excel remote-mode candidates include real launch/global/path/load/save flow;
+retained stdio alerts do not establish a remote-policy violation. Mobile evidence
+covers screenshot output; the remaining physical-containment candidates concern
+symlinks excluded by the frozen named condition. Recording output remains open.
+All unrelated candidates and uncertainty are retained separately. Scans overlapped
+pytest, so their durations are not isolated throughput measurements.
+
+`meta-unrelated-adjudication-continuation.json` reviews all 240 unrelated instances
+from the earlier `meta-ssrf-development-five` reports: 25 source-supported false
+alarms, 205 uncertain framework/schema-enforcement cases, and ten uncertain output
+resource-policy cases. This is implementation-agent source review, not independent
+acceptance. The unchanged historical 70-warning backlog remains unadjudicated.
+
+Three URL-composition regressions reproduced lost fixed-authority information and
+an unsupported formatting exemption. SENT-015 now preserves bounded constant
+string composition using evaluated source values, without executing target code.
+Four launch replacement/deletion/escape regressions reproduced unsafe configured
+state assumptions. Such launches now retain unconfigured analysis and a warning;
+source-bound execution of SDK wrappers remains outside this launch index.
+`continuation-url-launch-quality-corrected` passed 338 affected tests in 63.53s;
+whole-project Ruff, formatting and strict mypy passed. The initial wrong test-file
+selection and every failed reproduction remain in the evidence. Meta and Mastra
+remeasurements are separate source-specific commands; their results are not
+assumed here. All other authorized implementation/final gates remain open.

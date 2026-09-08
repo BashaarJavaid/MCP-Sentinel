@@ -84,13 +84,13 @@ The continuation starts at `83c9985` plus tracked patch
 | R18 | Historical atlassian-auth condition | SENT-016 and shared lifecycle/middleware/client flows | `fec9215` completed with ZERO SENT-016 hits; `c71e43e` and later intermediate runs exceeded 120 seconds; condition remains unmet |
 | R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | `f12e891` original pair completes but misses vulnerable condition; final gate open |
 | R20 | Historical atlassian-upload condition | SENT-012, service factories | Both original inputs exceed 120 seconds at `f12e891`; open |
-| R21 | Historical excel-boundary condition | SENT-012 | `f12e891` original pair completes, vulnerable condition missed; open |
+| R21 | Historical excel-boundary condition | SENT-012 | `4dfd24c`: five exposed inputs completed; two vulnerable condition hits, zero fixed/control matched alerts; stdio policy mismatch separate; final repeat open |
 | R22 | Historical filesystem-prefix condition | SENT-012, TS normalization/component/physical-parent flow | Earlier four-input gate retained; integrated remeasurement open |
 | R23 | Historical git-arguments condition | SENT-014 | Final independent measurement open |
 | R24 | Historical git-repository condition | SENT-012 | PR #23 narrow result retained; integrated remeasurement open |
 | R25 | Historical git-staging condition | SENT-012 | PR #23 narrow result retained; integrated remeasurement open |
 | R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | `5065f16`, `typescript_execution.py`, `test_command_execution.py` | Five development inputs complete, two vulnerable hits, zero fixed/mutation/control condition alerts; `kubernetes-development-shared/condition-adjudication.json`; final repeat open |
-| R27 | Historical mobile-output condition | SENT-012 | `f12e891` original pair completes, vulnerable condition missed; wrapper/normalization support open |
+| R27 | Historical mobile-output condition | SENT-012 | `4dfd24c`: five exposed inputs completed; two vulnerable screenshot condition hits, zero fixed/control matched alerts; residual symlink uncertainty separate; recording and final repeat open |
 | R28 | Mastra failure-return flags and unsafe directory fallback | SENT-012, TS shared flow | Development pair/mutations/control open |
 | R29 | Explicit description override, exfiltration, cross-tool redirection | SENT-013, description/discovery | Earlier independent development result retained; final discovery/holdout/retention open |
 | R30 | Benign instructions and quoted warnings; parameter/low-level metadata | SENT-013 | Existing regressions; final-source acceptance open |
@@ -130,11 +130,11 @@ The continuation starts at `83c9985` plus tracked patch
 | R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | Frozen condition scorer + per-input adjudication | Open; R18 currently misses |
 | R65 | All five Phase 22 development pairs, paired mutations, controls | Frozen Phase 22 runner | Prior partial measurements retained; full final run open |
 | R66 | Fresh holdout outside tuning, separate results/no invented threshold | Approved frozen Phase 22 corpus | Source not opened for tuning; final evaluation open |
-| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | Evidence/adjudication ledger | Meta 240 instances and other changed findings remain open; historical 70 explicitly unadjudicated |
+| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | Evidence/adjudication ledger | Meta 240 source-reviewed: 25 false alarms, 205 uncertain framework enforcement, 10 uncertain resource policy; correction/final remeasurement and other changed findings open; historical 70 explicitly unadjudicated |
 | R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | Existing comparator runner | Open |
 | R69 | Per-input statuses/support/completion denominators, repeated differences | Measurement/scoring infrastructure | Final results open; harness exit alone never qualifies |
 | R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | Authorized Git packet + existing sandbox | Exact packet/image verified; integrated campaigns open; Phase 20 preserved |
-| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | Makefile/workflows + locked environment | Fixed `f12e891` milestone: 1138 passed, 36 skipped, 87.94% branch coverage; later focused passes separate; final candidate full suite open |
+| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | Makefile/workflows + locked environment | Fixed `4dfd24c` milestone: 1215 passed, 36 skipped, 88.27% branch coverage; retained database/logs; later 338 focused passes separate; final candidate full suite open |
 | R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | Existing commands/workflows | Final gate open; no live convenience generation |
 | R73 | Docker/Action/rules-only network isolation and supported fixtures | Existing suites/workflows | Integrated gate open; permitted Docker run evidence retained |
 | R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | Existing 12 quality + 12 wheel jobs, Docker/isolation jobs | No final hosted run yet; historical scanner job cannot replace integrated measurement |

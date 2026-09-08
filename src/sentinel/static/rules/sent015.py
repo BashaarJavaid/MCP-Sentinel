@@ -21,6 +21,7 @@ from sentinel.static.model import (
 from sentinel.static.path_flow import PathFlow, Value, _key
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.semgrep_ast import source_range
+from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
 from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
@@ -291,10 +292,14 @@ class URLFlow(PathFlow):
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
         if isinstance(node, (ast.BinOp, ast.JoinedStr)):
             result = replace(result, url_checks=frozenset())
+        if isinstance(node, ast.FormattedValue) and (
+            node.conversion != -1 or node.format_spec is not None
+        ):
+            result = replace(result, key=_key("formatted", result.key, ast.dump(node)))
         prefix_nodes = (
             node.values
             if isinstance(node, ast.JoinedStr)
-            else [node.left]
+            else [node.left, node.right]
             if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
             else []
         )
@@ -307,7 +312,13 @@ class URLFlow(PathFlow):
                 break
             if value.sources or not isinstance(literal, str):
                 break
+            # Bound constant expansion by the existing source-size ceiling.
+            if len(prefix) + len(literal) > MAX_STATIC_FILE_BYTES:
+                break
             prefix += literal
+        else:
+            if prefix_nodes:
+                result = replace(result, key=repr(prefix))
         if fixed_destination(prefix):
             result = replace(result, url_checks=frozenset({"scheme", "host"}))
         if isinstance(node, (ast.Compare, ast.BoolOp, ast.UnaryOp, ast.Attribute)):

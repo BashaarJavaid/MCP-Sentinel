@@ -501,3 +501,56 @@ def test_shadowed_inspection_is_not_a_builtin(tmp_path: Path, name: str) -> None
         + '    return requests.get(state["url"])\n',
     )
     assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    ("declarations", "body", "expected"),
+    [
+        (
+            "VERSION = 'v24.0'\nBASE = f'https://graph.example.com/{VERSION}'",
+            "url = f'{BASE}/{endpoint}'",
+            0,
+        ),
+        (
+            "VERSION = 'v24.0'\nBASE = 'https://graph.example.com/' + VERSION",
+            "url = BASE + '/' + endpoint",
+            0,
+        ),
+        (
+            "BASE = 'https://graph.example.com/'",
+            "base = BASE\nurl = f'{base}{endpoint}'",
+            0,
+        ),
+        (
+            "BASE = 'https://graph.example.com/'",
+            "base = endpoint\nurl = f'{base}/image'",
+            1,
+        ),
+        (
+            "HOST = '127.0.0.1'\nBASE = f'http://{HOST}/'",
+            "url = f'{BASE}{endpoint}'",
+            1,
+        ),
+        (
+            "SCHEME = 'https'\nBASE = f'{SCHEME}://'",
+            "url = f'{BASE}{endpoint}/image'",
+            1,
+        ),
+        ("BASE = 'https://graph.example.com'", "url = f'{BASE}{endpoint}'", 1),
+        ("BASE = 'https://graph.example.com/'", "url = f'{BASE!r}{endpoint}'", 1),
+    ],
+)
+def test_python_composed_url_authority(
+    declarations: str, body: str, expected: int
+) -> None:
+    from sentinel.static.rules.sent012 import analyze as analyze_python
+    from sentinel.static.rules.sent015 import URLFlow
+    from tests.test_python_discovery import program
+
+    source = PREFIX + declarations + "\n@mcp.tool()\ndef fetch(endpoint: str):\n"
+    source += "\n".join("    " + line for line in body.splitlines())
+    source += "\n    return requests.get(url)\n"
+    index = program({"server.py": source})
+    state = RuleRunState()
+    analyze_python(index, state, flow=URLFlow(index, state, time.monotonic() + 10))
+    assert len(state.matches) == expected

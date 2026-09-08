@@ -605,3 +605,27 @@ def test_custom_factory_construction_stays_explicitly_unresolved(
     )
     assert not state.matches
     assert any("custom construction" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "mcp.run = unknown",
+        "alias = mcp\nalias.run = unknown",
+        "setattr(mcp, 'run', unknown)",
+        "del mcp.run",
+    ],
+)
+def test_replaced_launch_cannot_establish_configured_globals(mutation: str) -> None:
+    source = (
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n@mcp.tool()\ndef read(path):\n"
+        "    if ROOT is None: return open(path)\n"
+        "    return open('/srv/data/fixed')\n" + mutation + "\n"
+        "def configured():\n    global ROOT\n    ROOT = '/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert state.matches
+    assert any("launch" in warning.message for warning in state.warnings)

@@ -192,3 +192,14 @@ The exposed Excel/mobile development measurements are retained under
 results, not final repeated accuracy, held-out, runtime or reviewed-tier evidence.
 Recording/device-command coverage and the other unmet conditions remain open.
 The full Phase 22 technical scope and consolidated draft are still unfinished.
+
+The fixed `4dfd24c` integration milestone passed 1,215 tests with 36 skips and
+88.27% branch coverage, plus schema/notices checks. Its ten exposed Excel/mobile
+inputs completed with four vulnerable condition hits and no fixed/control
+condition-matched alerts. Separate stdio-policy and symlink candidates remain;
+this does not establish whole-repository cleanliness or recording coverage.
+Subsequent URL-composition and replaced-launch corrections have 338 affected
+regression passes and whole-project style/type checks. Exact source-specific
+results, original failures and remaining requirements are in the integration
+packet. Final repeated benchmarks, unresolved conditions, paid review, hosted
+verification and consolidated draft delivery remain unfinished.
