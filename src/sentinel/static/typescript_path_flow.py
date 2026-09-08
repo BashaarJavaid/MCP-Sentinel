@@ -60,6 +60,8 @@ class TypeScriptPathFlow:
         self.function_effects: Facts = frozenset()
         self.path_inputs: dict[str, frozenset[str]] = {}
         self.basenames: dict[str, Value] = {}
+        self.origins: dict[str, frozenset[str]] = {}
+        self.initial_prefixes: dict[str, tuple[frozenset[str], tuple[str, int]]] = {}
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -78,6 +80,14 @@ class TypeScriptPathFlow:
 
     def combined(self, values: list[Value]) -> Value:
         result = combine(values)
+        if result.sources:
+            self.origins[result.key] = frozenset().union(
+                *(
+                    self.origins.get(v.key, frozenset({v.key}))
+                    for v in values
+                    if v.sources
+                )
+            )
         if len({value.key for value in values}) > 1 and all(
             value.key in self.objects and value.key not in self.invalidated_objects
             for value in values
@@ -303,6 +313,25 @@ class TypeScriptPathFlow:
             self.pattern(pattern, self.expression(file, iterable, env), local)
             self.statement(file, body, local, returned)
             self.merge(env, [env.copy(), local])
+        elif "While" in node:
+            _, condition, body = node["While"]
+            value = self.expression(file, condition.get("Cond", condition), env)
+            branches = []
+            for truth in (False, True):
+                if self.condition(value)[int(truth)] is None:
+                    continue
+                local = env.copy()
+                self.guard(value, local, truth)
+                if not truth or self.statement(file, body, local, returned):
+                    branches.append(local)
+                    if truth:
+                        # ponytail: one iteration; extend for loop-carried state.
+                        self.warning(
+                            file, node, "later while-loop iterations unresolved"
+                        )
+            if not branches:
+                return False
+            self.merge(env, branches)
         elif "Switch" in node:
             _, condition, cases = node["Switch"]
             self.expression(file, condition, env)
@@ -525,6 +554,14 @@ class TypeScriptPathFlow:
             resolved=False,
             locations=result.locations | {(file.relative_path, location.start_line)},
         )
+        if result.sources:
+            self.origins[result.key] = frozenset().union(
+                *(
+                    self.origins.get(value.key, frozenset({value.key}))
+                    for value in [*args, receiver]
+                    if value.sources
+                )
+            )
         if external in {
             "fs.realpath",
             "fs.realpathSync",
@@ -665,6 +702,18 @@ class TypeScriptPathFlow:
                 self.boundaries[fact] = (base, receiver)
                 self.conditions[result.key] = (frozenset(), frozenset({fact}))
         if name.endswith(".startsWith") and len(args) == 1:
+            if (
+                receiver.sources
+                and self.canonical(receiver)
+                and self.canonical(args[0])
+                and not args[0].sources
+            ):
+                fact = f"#guard:initial-prefix:{args[0].key}:{receiver.key}"
+                self.initial_prefixes[fact] = (
+                    self.origins.get(receiver.key, frozenset({receiver.key})),
+                    (file.relative_path, location.start_line),
+                )
+                self.conditions[result.key] = (frozenset(), frozenset({fact}))
             separator = self.callables.get(args[0].key)
             if (
                 separator
@@ -728,6 +777,12 @@ class TypeScriptPathFlow:
         ):
             value = args[0]
             if self.rule_id == "SENT-012" and value.sources and not value.contained:
+                origins = self.origins.get(value.key, frozenset({value.key}))
+                prefix_locations = {
+                    location
+                    for fact, (checked, location) in self.initial_prefixes.items()
+                    if origins <= checked and env.get(fact, Value()).contained
+                }
                 self.state.matches.append(
                     StaticMatch(
                         rule_id="SENT-012",
@@ -742,11 +797,14 @@ class TypeScriptPathFlow:
                                 if env.get(
                                     f"#guard:lexical:{value.key}", Value()
                                 ).contained
+                                else {"containment_gap": "after-prefix"}
+                                if prefix_locations
                                 else {}
                             ),
                             "flow_locations": json.dumps(
                                 sorted(
                                     value.locations
+                                    | prefix_locations
                                     | {(file.relative_path, location.start_line)}
                                 )
                             ),
@@ -759,7 +817,16 @@ class TypeScriptPathFlow:
             self.call_sites.append(TypeScriptSymbol(file, node))
             try:
                 value = self.function(
-                    symbol, args, self.closures.get(callable_value.key)
+                    symbol,
+                    args,
+                    {
+                        **self.closures.get(callable_value.key, {}),
+                        **{
+                            key: value
+                            for key, value in env.items()
+                            if key.startswith("#guard:")
+                        },
+                    },
                 )
                 self.apply_facts(self.function_effects, env)
                 return value

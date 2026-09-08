@@ -375,6 +375,10 @@ def _finding_from_match(
             "The source enforces a lexical directory boundary on this path, but "
             "physical containment through symlinks is not established on every path."
             if match.captures.get("containment_gap") == "physical"
+            else "The originating caller path passed a normalized root-prefix check; "
+            "filesystem paths derived afterward still lack complete containment "
+            "guarantees."
+            if match.captures.get("containment_gap") == "after-prefix"
             else definition.description
         )
         + (

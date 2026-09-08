@@ -239,6 +239,20 @@ computed members, schemas and calls remain explicit gaps. Technical rule accepta
 the new independent corpus evaluation and reviewed-tier measurements remain
 pending; this draft implementation does not complete Phase 22.
 
+The current integration also follows explicit parameterless FastMCP launches and
+their preceding module-global assignments, retaining the analyzed transports in
+findings. Replaced or unresolved launch methods retain unconfigured analysis.
+Source-bound openpyxl workbook loads and saves are filesystem sinks; unknown or
+replaced workbook receivers do not establish that API identity.
+
+TypeScript boolean status fields can carry enforced helper-return conditions.
+Discarding the field, replacing it, or letting its record escape to an unknown
+call does not establish protection. A retained candidate can distinguish an
+initial normalized root-prefix check from the containment of paths derived
+afterward. That initial check does not establish component, parent-fallback or
+symlink safety. While loops receive zero-or-one-iteration source interpretation;
+later loop-carried state is explicitly unresolved. No target loop is executed.
+
 ## SENT-013 { #sent-013 }
 
 ### Tool-description poisoning

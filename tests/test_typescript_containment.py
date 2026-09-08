@@ -634,3 +634,64 @@ def test_returned_record_guard_requires_relevant_unmodified_field(
         + " return fs.readFile(p);",
         expected,
     )
+
+
+@pytest.mark.parametrize("loop", [False, True])
+@pytest.mark.parametrize(
+    ("checked", "enforce", "expected"),
+    [("input", True, True), ("input", False, False), ("other", True, False)],
+)
+def test_fallback_records_relevant_initial_prefix_precondition(
+    tmp_path: Path, checked: str, enforce: bool, expected: bool, loop: bool
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function check(input) { const root = path.resolve('/srv/docs'); "
+        "const p = path.resolve(path.join(root, input)); "
+        "if (!p.startsWith(root)) return {denied:true}; "
+        "return {denied:false}; }\n"
+        "function fallback(input) { const parts = input.split('/'); "
+        + ("while (parts.length > 0) { " if loop else "")
+        + "const fullPath = path.join('/srv/docs', parts.join('/')); "
+        "return fs.readdirSync(fullPath); " + ("} return ''; " if loop else "") + "}\n"
+        'server.registerTool("read", {}, ({input, other}) => { '
+        f"const result = check({checked}); "
+        + ("if (result.denied) return null; " if enforce else "")
+        + "return fallback(input); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("containment_gap") == "after-prefix"
+    ) is expected
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("while (false) { return fs.readFile(input); } return null;", 0),
+        ("while (true) { return fs.readFile(input); } return fs.readFile(input);", 1),
+        (
+            "const root = await fs.realpath(ROOT); const p = await fs.realpath(input); "
+            "while (unknown) { if (!p.startsWith(root + path.sep)) "
+            "throw new Error(); } "
+            "return fs.readFile(p);",
+            1,
+        ),
+    ],
+)
+def test_while_return_and_zero_iteration_guards(
+    tmp_path: Path, body: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(tmp_path, body, expected)

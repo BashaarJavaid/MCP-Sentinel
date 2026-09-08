@@ -518,3 +518,33 @@ pass. `continuation-record-status-quality` passed 284 affected tests in 89.86s;
 strict mypy, Ruff and formatting pass after retained line-length failures. The
 last correction only split Python test string literals. This establishes bounded
 record-status flow, not the complete Mastra condition or final technical gate.
+
+### Mastra initial rejection versus derived directory paths
+
+The first prefix-precondition repeat still missed the real fallback: the generic
+handling of `while` did not bind its local path variable. Three durable loop
+variants reproduced the miss. Shared TypeScript statements now interpret zero or
+one iteration, retaining returns and rejecting any protection inferred solely from
+an optional iteration. Later loop-carried state remains explicitly unresolved.
+
+The flow separately records the originating input of derived paths and an enforced
+normalized string-prefix precondition. Guard facts survive relevant helper calls
+and returned status fields. This does not exempt the filesystem sink or establish
+containment of later parent paths, prefix siblings or symlinks. Mixed paths to a
+shared sink retain the general description if any path lacks that precondition.
+`continuation-fallback-loop-quality` passed 324 affected tests in 111.27 seconds;
+nine targeted loop/status controls passed, including unreachable-loop and
+zero-iteration cases. Whole-project strict mypy, Ruff and formatting pass. Original
+prefix/loop regressions, style failures and scorer mistakes remain retained.
+
+`mastra-fallback-loop-continuation/` contains five complete development scans,
+with two vulnerable condition hits and zero fixed/control condition-matched alerts.
+The readdir evidence includes the registered entry, initial path handling and
+findNearestDirectory's split/join path inside its first iteration. Fixed candidates
+explicitly require the originating input to pass its prefix check, excluding the
+frozen initially rejected, non-shared-prefix traversal condition. Other path
+candidates remain visible and unrelated-policy review remains open. The scorer's
+first two attempts assumed the wrong source root and overly specific call-site
+lines; the corrected scorer uses the manifest scan root and cited statements inside
+the actual fallback function. Scans overlapped focused checks, so durations are
+not isolated throughput. This is neither a final holdout result nor runtime proof.

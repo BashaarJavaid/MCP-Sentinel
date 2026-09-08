@@ -91,7 +91,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R25 | Historical git-staging condition | SENT-012 | PR #23 narrow result retained; integrated remeasurement open |
 | R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | `5065f16`, `typescript_execution.py`, `test_command_execution.py` | Five development inputs complete, two vulnerable hits, zero fixed/mutation/control condition alerts; `kubernetes-development-shared/condition-adjudication.json`; final repeat open |
 | R27 | Historical mobile-output condition | SENT-012 | `4dfd24c`: five exposed inputs completed; two vulnerable screenshot condition hits, zero fixed/control matched alerts; residual symlink uncertainty separate; recording and final repeat open |
-| R28 | Mastra failure-return flags and unsafe directory fallback | SENT-012, TS shared flow | Development pair/mutations/control open |
+| R28 | Mastra failure-return flags and unsafe directory fallback | SENT-012, TS shared flow | Five development inputs completed with two vulnerable condition hits and zero fixed/control matched alerts; `mastra-fallback-loop-continuation/condition-adjudication.json`; later loop-carried state, unrelated review and final repeat remain open |
 | R29 | Explicit description override, exfiltration, cross-tool redirection | SENT-013, description/discovery | Earlier independent development result retained; final discovery/holdout/retention open |
 | R30 | Benign instructions and quoted warnings; parameter/low-level metadata | SENT-013 | Existing regressions; final-source acceptance open |
 | R31 | dbt selector options through nested factories/mutable argv | SENT-014 | Earlier 5/5 development result retained; final remeasurement open |
