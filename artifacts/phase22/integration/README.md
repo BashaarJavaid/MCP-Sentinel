@@ -262,3 +262,21 @@ After verifying batch 11, extract `evidence-v12.tar.gz` and verify it against
 `evidence-v12.json` before applying later batches. The packaging script is retained
 in `diagnostics-v12.tar.gz`. Earlier seals, the original recovery packet and
 detached checkouts/coverage databases remain unchanged.
+
+Batch 13 retains 313 added/changed files through `3a2a276`: current HTTP request
+identity, source-established ASGI middleware and ordered request state, optional
+mapping/URL facts, metadata caching, focused vulnerable/fixed traces and every
+intermediate failure. The corrected affected suite passes 606 tests; these traces
+do not establish whole-input native or final benchmark acceptance.
+
+Every member was read back against its SHA-256. The archive contains 2,040,449 raw
+bytes in 577,270 compressed bytes; SHA-256:
+`d2bfffadaf65fd3a3f8438209d0a3b058441665d32f21a44997faa174e63ccb9`.
+After verifying batch 12, extract `evidence-v13.tar.gz` and verify it against
+`evidence-v13.json` before applying later batches. Its script is retained in
+`diagnostics-v13.tar.gz`. The running `continuation-atlassian-asgi-nine-native`
+command and `atlassian-asgi-3a2-development/` directory are excluded until finished.
+The first driver stopped at its incorrect eight-input count before scanning;
+the corrected selection includes the ninth input, the historical upload safe
+control. That failed driver and its exact bytes remain in this seal.
+Earlier seals, recovery, detached checkouts and coverage remain unchanged.
