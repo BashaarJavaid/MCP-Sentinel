@@ -454,6 +454,10 @@ that provenance. This interpretation never runs the SDK or target server.
 Plain startup branches follow the selected launch: an alternative transport or
 an unconditional early return/raise cannot configure that launch. The scanner
 does not infer such termination through loops, helpers or try/finally regions.
+Tools with the same explicit launch sites share the source startup interpretation.
+Each handler/request alternative receives its own mutable globals, member tables,
+closures and guard state; only immutable values, source syntax and source-index
+caches are shared. This does not model persistent state between tool invocations.
 Included Python module imports retain module identity through known-field callback
 replacement and saved callbacks. Function-local imports read the current binding;
 an earlier saved callback retains its original source body. Unknown module escape,

@@ -1,8 +1,11 @@
 """SENT-012: caller-controlled filesystem paths without enforced containment."""
 
+import ast
+
 from sentinel.static.ast_utils import range_for_node
 from sentinel.static.discovery import Function, PythonProgram, ToolBinding
 from sentinel.static.http_discovery import HTTPBinding
+from sentinel.static.launches import for_tool
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.path_flow import PathFlow, Value
 
@@ -17,6 +20,9 @@ def analyze(
 ) -> None:
     flow = flow or PathFlow(program, state, deadline)
     visited: set[tuple[str, int]] = set()
+    groups: dict[
+        tuple[ast.AST, ...], list[tuple[ToolBinding | HTTPBinding, dict[str, Value]]]
+    ] = {}
     for tool in program.tools() if entries is None else entries:
         state.visit(
             tool.registration.file.relative_path, range_for_node(tool.registration.node)
@@ -47,9 +53,22 @@ def analyze(
             for parameter in tool.caller_parameters
         }
         if isinstance(tool, ToolBinding):
-            flow.entry(tool, bindings)
+            launches = for_tool(program, tool)
+            group = tuple(launch.call for launch in launches) or (node,)
+            groups.setdefault(group, []).append((tool, bindings))
         else:
-            flow.function(tool.handler, bindings)
+            groups[(node,)] = [(tool, bindings)]
+    for entries_ in groups.values():
+        tools = tuple(
+            (tool, bindings)
+            for tool, bindings in entries_
+            if isinstance(tool, ToolBinding)
+        )
+        if tools:
+            flow.entry_group(tools)
+        else:
+            for tool, bindings in entries_:
+                flow.function(tool.handler, bindings)
     state.warnings.extend(program.warnings)
 
 

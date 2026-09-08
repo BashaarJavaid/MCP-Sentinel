@@ -93,6 +93,46 @@ def test_sdk_setup_follows_the_selected_launch_path(
     assert ("setup_stdio" in executed) == (transport == "stdio")
 
 
+@pytest.mark.parametrize("order", ["change,read", "read,change"])
+def test_sdk_tools_keep_independent_startup_callbacks(order: str) -> None:
+    from unittest.mock import patch
+
+    from sentinel.static.discovery import Function
+    from sentinel.static.http_context import HTTPContext
+
+    definitions = {
+        "change": "@mcp.tool()\ndef change(path: str):\n"
+        "    helpers.current = lambda: path\n"
+        "    return open(helpers.current())\n",
+        "read": "@mcp.tool()\ndef read(): return open(helpers.current())\n",
+    }
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nimport helpers\n"
+            "mcp=FastMCP('test')\n"
+            "def main():\n"
+            "    helpers.current = lambda: '/fixed/file'\n"
+            "    mcp.run(transport='streamable-http')\n"
+            + "".join(definitions[name] for name in order.split(",")),
+            "helpers.py": "def current(): return '/original/file'\n",
+        }
+    )
+    state = RuleRunState()
+    with patch.object(
+        HTTPContext,
+        "prepare_launch",
+        autospec=True,
+        side_effect=HTTPContext.prepare_launch,
+    ) as prepare:
+        analyze(index, state, deadline=time.monotonic() + 15)
+        assert prepare.call_count == 1
+    assert len({(match.path, match.range.start_line) for match in state.matches}) == 1
+    assert "open(helpers.current())" in state.matches[0].snippet
+    changed = index.resolve(index.files[0], "change")
+    assert changed is not None and isinstance(changed.node, Function)
+    assert state.matches[0].range.start_line > changed.node.lineno
+
+
 @pytest.mark.parametrize("inspect_type", [False, True])
 @pytest.mark.parametrize(
     ("replacement", "read", "expected"),

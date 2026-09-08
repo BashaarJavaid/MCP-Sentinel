@@ -40,6 +40,9 @@ class Value:
     maybe_missing: bool = False
     maybe_none: bool = False
 
+    def __deepcopy__(self, memo: dict[int, object]) -> Value:
+        return self
+
 
 UNKNOWN_VALUE = Value()
 
@@ -194,11 +197,18 @@ class PathFlow:
         return True
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
+        self.entry_group(((tool, bindings),))
+
+    def entry_group(
+        self, entries: tuple[tuple[ToolBinding, dict[str, Value]], ...]
+    ) -> None:
         from sentinel.static.launches import for_tool
 
+        tool, bindings = entries[0]
         launches = for_tool(self.program, tool)
         if not launches:
-            self.entry_handler(tool, bindings)
+            for tool, bindings in entries:
+                self.entry_handler(tool, bindings)
             return
         original = self.globals.copy()
         original_members = self.global_members.copy()
@@ -212,54 +222,60 @@ class PathFlow:
                         continue
                     prepared_any = True
                     start = len(self.state.matches)
-                    for state in prepared:
-                        self.entry_handler(
-                            tool,
-                            {
-                                **bindings,
-                                **{
-                                    key: value
-                                    for key, value in state.items()
-                                    if key.startswith(self.helper_state_prefixes)
-                                },
-                                "#http:prepared": Value(key="True"),
-                            },
-                        )
-                    for initial in self.http_context.initialization_states:
-                        self.entry_handler(
-                            tool,
-                            {
-                                **bindings,
-                                **{
-                                    key: value
-                                    for key, value in initial.items()
-                                    if key.startswith(self.helper_state_prefixes)
-                                },
-                                "#http:prepared": Value(key="True"),
-                                "#http:no-request": Value(key="True"),
-                            },
-                        )
+                    memo: dict[int, object] = {
+                        id(self.program): self.program,
+                        id(self.state): self.state,
+                        id(self.reported_warnings): self.reported_warnings,
+                    }
+                    memo.update(
+                        (id(node), node)
+                        for pair in self.program.parents.items()
+                        for node in pair
+                    )
+                    memo.update((id(file), file) for file in self.program.files)
+                    if self.registrations.calls is not None:
+                        memo[id(self.registrations.calls)] = self.registrations.calls
+                    for states, no_request in (
+                        (prepared, False),
+                        (self.http_context.initialization_states, True),
+                    ):
+                        for state in states:
+                            local = {
+                                key: value
+                                for key, value in state.items()
+                                if key.startswith(self.helper_state_prefixes)
+                            }
+                            local["#http:prepared"] = Value(key="True")
+                            if no_request:
+                                local["#http:no-request"] = Value(key="True")
+                            for current, parameters in entries:
+                                check_deadline(self.deadline)
+                                # Share source syntax/caches and immutable values;
+                                # keep mutable globals and callback state private.
+                                fork = copy.deepcopy(self, memo.copy())
+                                fork.entry_handler(current, {**parameters, **local})
                     self.launch_evidence(
                         start, launch.function, launch.call, launch.transport
                     )
                 if prepared_any:
                     continue
-                self.globals = original.copy()
-                self.global_members = original_members.copy()
-                if not isinstance(launch.function.node, Function):
-                    self.entry_handler(tool, bindings.copy())
-                    continue
-                self.launch_call = launch.call
-                self.launch_states = []
-                self.function(launch.function, {})
-                self.launch_call = None
-                for globals_ in self.launch_states:
-                    self.globals = globals_.copy()
-                    start = len(self.state.matches)
-                    self.entry_handler(tool, bindings.copy())
-                    self.launch_evidence(
-                        start, launch.function, launch.call, launch.transport
-                    )
+                for current, parameters in entries:
+                    self.globals = original.copy()
+                    self.global_members = original_members.copy()
+                    if not isinstance(launch.function.node, Function):
+                        self.entry_handler(current, parameters.copy())
+                        continue
+                    self.launch_call = launch.call
+                    self.launch_states = []
+                    self.function(launch.function, {})
+                    self.launch_call = None
+                    for globals_ in self.launch_states:
+                        self.globals = globals_.copy()
+                        start = len(self.state.matches)
+                        self.entry_handler(current, parameters.copy())
+                        self.launch_evidence(
+                            start, launch.function, launch.call, launch.transport
+                        )
         finally:
             self.globals = original
             self.global_members = original_members
