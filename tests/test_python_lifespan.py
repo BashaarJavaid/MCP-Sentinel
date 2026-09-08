@@ -161,3 +161,55 @@ def test_local_server_parameter_cannot_borrow_global_lifespan() -> None:
         }
     )
     assert tool_lifespan(index, index.tools()[0]) is None
+
+
+@pytest.mark.parametrize("mounted", [False, True])
+def test_http_application_owner_follows_the_registered_server(mounted: bool) -> None:
+    from sentinel.static.lifespan import tool_servers
+
+    index = program(
+        {
+            "app.py": "from fastmcp import FastMCP\nfrom tools import child\n"
+            "class App(FastMCP):\n"
+            "    def http_app(self): return super().http_app()\n"
+            "parent = App('parent')\n"
+            + ("parent.mount(child, 'child')\n" if mounted else ""),
+            "tools.py": "from fastmcp import FastMCP\nchild = FastMCP('child')\n"
+            "@child.tool()\ndef fetch(): return None\n",
+        }
+    )
+    servers = tool_servers(index, index.tools()[0])
+    assert [
+        (server.file.relative_path, ast.unparse(server.node)) for server in servers
+    ] == [("app.py", "App('parent')") if mounted else ("tools.py", "FastMCP('child')")]
+
+
+@pytest.mark.parametrize(
+    "base",
+    [
+        "fastmcp.FastMCP",
+        "mcp.server.fastmcp.FastMCP",
+        "starlette.middleware.base.BaseHTTPMiddleware",
+    ],
+)
+@pytest.mark.parametrize("generic", [False, True])
+def test_framework_override_resolution_does_not_assume_unknown_base_methods(
+    base: str, generic: bool
+) -> None:
+    module, _, name = base.rpartition(".")
+    index = program(
+        {
+            "app.py": f"from {module} import {name} as Base\n"
+            f"class App({'Base[object]' if generic else 'Base'}):\n"
+            "    def selected(self): return None\n"
+        }
+    )
+    owner = index.resolve(index.files[0], "App")
+    assert owner is not None
+    method = index.instance_method(owner, "selected")
+    if generic and base == "starlette.middleware.base.BaseHTTPMiddleware":
+        assert method is None
+        return
+    assert method is not None and method.name == "App.selected"
+    assert index.instance_method(owner, "unknown") is None
+    assert not index.plain_instance(owner, inspect_init=True)

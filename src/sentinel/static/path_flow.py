@@ -49,9 +49,13 @@ def combine(values: list[Value], key: str = "") -> Value:
             or not (first.contained or first.option_safe or first.url_checks)
         ):
             return replace(first, key=key) if key and key != first.key else first
-    present = [value for value in values if value.key != "None"]
+    present = [value for value in values if value.key not in {"None", "#missing"}]
     if present and len(present) != len(values):
-        return replace(combine(present, key), maybe_none=True)
+        return replace(
+            combine(present, key),
+            maybe_none=any(value.maybe_none or value.key == "None" for value in values),
+            maybe_missing=any(value.maybe_missing for value in values),
+        )
     tainted = [v for v in values if v.sources]
     keys = sorted({v.key for v in values})
     return Value(
@@ -108,6 +112,8 @@ class PathFlow:
     def __init__(
         self, program: PythonProgram, state: RuleRunState, deadline: float
     ) -> None:
+        from sentinel.static.http_context import HTTPContext
+
         self.program = program
         self.state = state
         self.deadline = deadline
@@ -119,6 +125,7 @@ class PathFlow:
         self.globals: dict[tuple[str, str], Value] = {}
         self.global_members: dict[str, Value] = {}
         self.mapping_keys: set[str] = set()
+        self.optional_mappings: dict[str, Value] = {}
         self.record_keys: set[str] = set()
         self.callables: dict[str, Symbol] = {}
         self.bound_receivers: dict[str, Value] = {}
@@ -143,6 +150,7 @@ class PathFlow:
         self.context_tokens: dict[str, str] = {}
         self.call_receivers: dict[ast.AST, Value] | None = None
         self.reported_warnings: set[tuple[str, int, str]] = set()
+        self.http_context = HTTPContext(self)
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.launches import for_tool
@@ -189,6 +197,32 @@ class PathFlow:
     def entry_handler(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.lifespan import tool_lifespan
 
+        if (
+            self.rule_id in {"SENT-015", "SENT-016"}
+            and "#http:prepared" not in bindings
+        ):
+            states = self.http_context.prepare(tool)
+            if states is not None:
+                for state in states:
+                    prepared = {
+                        **bindings,
+                        **{
+                            key: value
+                            for key, value in state.items()
+                            if key.startswith(self.helper_state_prefixes)
+                        },
+                        "#http:prepared": Value(key="True"),
+                    }
+                    self.entry_handler(tool, prepared)
+                self.entry_handler(
+                    tool,
+                    {
+                        **bindings,
+                        "#http:prepared": Value(key="True"),
+                        "#http:no-request": Value(key="True"),
+                    },
+                )
+                return
         node = tool.handler.node
         assert isinstance(node, Function)
         contexts = [
@@ -286,6 +320,8 @@ class PathFlow:
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
+        if self.http_context.continued(symbol, bindings):
+            return Value()
         key = (symbol.file.relative_path, symbol.name)
         # ponytail: bound recursive interpretation; use summaries for deeper flows.
         if (
@@ -365,6 +401,8 @@ class PathFlow:
         returned: list[Value],
     ) -> bool:
         for node in body:
+            if env.get("#http:stop", Value()).key == "True":
+                return False
             check_deadline(self.deadline)
             if isinstance(node, (ast.Assign, ast.AnnAssign)):
                 value = self.expression(symbol, node.value, env)
@@ -516,7 +554,7 @@ class PathFlow:
                 )
             elif isinstance(node, ast.Assert):
                 self.expression(symbol, node.test, env)
-        return True
+        return env.get("#http:stop", Value()).key != "True"
 
     @staticmethod
     def disabled_boundary(symbol: Symbol, node: ast.If, env: dict[str, Value]) -> bool:
@@ -567,6 +605,10 @@ class PathFlow:
         return False
 
     def member_key(self, value: Value, member: object) -> str:
+        if value.key in self.http_context.state_owners:
+            return self.member_key(self.http_context.state_owners[value.key], member)
+        if value.key in self.optional_mappings:
+            return self.member_key(self.optional_mappings[value.key], member)
         return self.members.setdefault(value.key, {}).setdefault(
             member, "#member:" + _key(value.key, repr(member))
         )
@@ -617,6 +659,13 @@ class PathFlow:
                     env[self.member_key(destination, label)] = env[existing]
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
+        if value.key in self.http_context.state_owners:
+            return self.member(self.http_context.state_owners[value.key], member, env)
+        if value.key in self.optional_mappings:
+            return replace(
+                self.member(self.optional_mappings[value.key], member, env),
+                maybe_missing=True,
+            )
         key = self.member_key(value, member)
         fallback = replace(
             env.get("#member:unknown:" + value.key, Value())
@@ -629,9 +678,34 @@ class PathFlow:
             credential_present=False,
             maybe_missing=True,
         )
+        if value.key in self.mapping_keys and "#member:unknown:" + value.key not in env:
+            fallback = Value(key="#missing", maybe_missing=True)
         result = env.get(key, fallback)
         self.member_defaults.setdefault(key, fallback)
         return result
+
+    def with_default(
+        self, value: Value, default: Value, node: ast.AST, env: dict[str, Value]
+    ) -> Value:
+        if value.key == "#missing":
+            return default
+        if not value.maybe_missing:
+            return value
+        if (
+            isinstance(node, ast.Dict)
+            and not node.keys
+            and value.key in self.mapping_keys
+            and "#member:unknown:" + value.key not in env
+        ):
+            # ponytail: only fresh empty defaults; ambiguous writes weakly update
+            # the populated alias. General mapping unions need branch identities.
+            original = self.optional_mappings.get(value.key, value)
+            result = replace(value, key=_key("optional-mapping", original.key))
+            self.optional_mappings[result.key] = original
+            self.mapping_keys.add(result.key)
+            self.members[result.key] = self.members.setdefault(original.key, {})
+            return result
+        return combine([value, default])
 
     def http_client(self, value: Value, method: str, env: dict[str, Value]) -> bool:
         marker = self.members.get(value.key, {}).get(method)
@@ -685,7 +759,9 @@ class PathFlow:
             if receiver.key:
                 label = member_label(self.bound_value(target.slice, env))
                 if label is not UNKNOWN_MEMBER:
-                    self.member(receiver, label, env)
+                    previous = self.member(receiver, label, env)
+                    if receiver.key in self.optional_mappings:
+                        value = combine([previous, value])
                     env[self.member_key(receiver, label)] = replace(
                         value, maybe_missing=False
                     )
@@ -752,6 +828,8 @@ class PathFlow:
             )
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
+        if value.key in self.optional_mappings:
+            return None
         if value.key in self.path_conditions:
             false, true = self.path_conditions[value.key]
             if false is None:
@@ -1046,6 +1124,9 @@ class PathFlow:
                 self.call_receivers = previous
         if isinstance(node, (ast.List, ast.Tuple)):
             elements = tuple(self.expression(symbol, child, env) for child in node.elts)
+            middleware = self.http_context.sequence(symbol, node, elements)
+            if middleware is not None:
+                return middleware
             value = combine(list(elements))
             self.path_arrays[node] = elements
             return value
@@ -1077,6 +1158,20 @@ class PathFlow:
                         )
                     )
             first, second = member_label(left), member_label(right)
+            if (
+                isinstance(node.ops[0], (ast.In, ast.NotIn))
+                and first is not UNKNOWN_MEMBER
+                and right.key in self.mapping_keys
+                and "#member:unknown:" + right.key not in env
+            ):
+                member = self.member(right, first, env)
+                if member.key == "#missing" or not member.maybe_missing:
+                    return Value(
+                        key=repr(
+                            (member.key != "#missing")
+                            != isinstance(node.ops[0], ast.NotIn)
+                        )
+                    )
             if isinstance(node.ops[0], (ast.Is, ast.IsNot)) and (
                 (left.key in self.non_none and right.key == "None")
                 or (right.key in self.non_none and left.key == "None")
@@ -1521,6 +1616,11 @@ class PathFlow:
             if isinstance(enclosing_class, ast.ClassDef) and method_parameters:
                 super_owner = Symbol(symbol.file, enclosing_class.name, enclosing_class)
                 receiver = env.get(method_parameters[0].arg, Value())
+        http_value = self.http_context.call(
+            symbol, node, resolved, receiver, args, keywords, env, super_owner
+        )
+        if http_value is not None:
+            return http_value
         if (
             resolved == "fastmcp.server.dependencies.get_http_request"
             and not any(
@@ -1534,6 +1634,9 @@ class PathFlow:
             and not args
             and not keywords
         ):
+            if env.get("#http:no-request", Value()).key == "True":
+                env["#http:stop"] = Value(key="True")
+                return Value()
             if "#http:request" in env:
                 return env["#http:request"]
             request = Value(
@@ -1567,6 +1670,19 @@ class PathFlow:
         ):
             self.non_none.add(result.key)
             return result
+        if (
+            resolved in {"hasattr", "builtins.hasattr"}
+            and root not in env
+            and not declarations
+            and len(args) == 2
+            and not keywords
+            and args[0].key in self.http_context.state_owners
+            and isinstance(member_label(args[1]), str)
+        ):
+            member = self.member(args[0], member_label(args[1]), env)
+            if member.key == "#missing" or not member.maybe_missing:
+                return Value(key=repr(member.key != "#missing"))
+            return Value()
         if (
             (resolved in {"id", "builtins.id"} and len(args) == 1 and not keywords)
             or (
@@ -1633,6 +1749,12 @@ class PathFlow:
             and not args
             and not keywords
         ):
+            if method == "keys":
+                return replace(
+                    env.get("#member:unknown:" + receiver.key, Value()),
+                    key=_key("mapping-keys", receiver.key),
+                    instance=None,
+                )
             return replace(self.aggregate(receiver, env), instance=None)
         if (
             resolved in {"dict", "builtins.dict"}
@@ -1670,6 +1792,17 @@ class PathFlow:
                     )
             return self.aggregate(mapping, env)
         if method == "update" and receiver.key in self.mapping_keys:
+            if receiver.key in self.optional_mappings:
+                # A write may target the empty fallback or the populated alias.
+                self.update_mapping(
+                    self.optional_mappings[receiver.key],
+                    combine(
+                        [receiver, *args, *keywords.values()],
+                        _key("ambiguous-update", receiver.key),
+                    ),
+                    env,
+                )
+                return Value()
             for argument in args:
                 self.update_mapping(receiver, argument, env)
             for label, value in keywords.items():
@@ -1827,8 +1960,13 @@ class PathFlow:
             label = member_label(args[0]) if args else UNKNOWN_MEMBER
             if label is not UNKNOWN_MEMBER:
                 member = self.member(receiver, label, env)
-                if member.maybe_missing:
-                    member = combine([member, args[1] if len(args) > 1 else Value()])
+                get_default = args[1] if len(args) > 1 else Value(key="None")
+                member = self.with_default(
+                    member,
+                    get_default,
+                    node.args[1] if len(node.args) > 1 else ast.Constant(None),
+                    env,
+                )
                 return replace(member, maybe_missing=False)
             return replace(
                 receiver,
@@ -1851,7 +1989,7 @@ class PathFlow:
         ):
             member = self.member(args[0], member_label(args[1]), env)
             return (
-                combine([member, args[2]])
+                self.with_default(member, args[2], node.args[2], env)
                 if member.maybe_missing and len(args) == 3
                 else member
             )
@@ -2171,6 +2309,8 @@ class PathFlow:
                     value
                     for name, value in bindings.items()
                     if value.key
+                    and not value.maybe_missing
+                    and not value.maybe_none
                     and (
                         not name.startswith("#")
                         or name.startswith(("#member:", "#global-value:"))
@@ -2198,6 +2338,7 @@ class PathFlow:
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
+        self.http_context.unknown_call(node, (*values, receiver), env)
         self.workbooks.difference_update(value.key for value in (*values, receiver))
         escaped = {
             value.key
@@ -2206,6 +2347,15 @@ class PathFlow:
             or value.key in self.mapping_keys
             or value.key in self.record_keys
         }
+        escaped.update(
+            alias_owner.key
+            for key in tuple(escaped)
+            if (
+                alias_owner := self.optional_mappings.get(key)
+                or self.http_context.state_owners.get(key)
+            )
+            is not None
+        )
         if escaped:
             changed = replace(
                 combine(values),

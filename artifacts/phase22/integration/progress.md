@@ -924,3 +924,40 @@ its state relationship became reachable by the existing helper-state traversal.
 All five new controls and the 454-test affected suite pass (57.45 seconds), with
 strict mypy and Ruff. The source change does not attach ASGI middleware or close
 the independent Atlassian/Meta conditions. Its evidence follows sealed batch 12.
+
+### Source-established ASGI middleware and request state
+
+The continuation after `1352a9e` connects source-bound FastMCP HTTP application
+overrides, explicit Starlette middleware sequences, included ASGI constructors
+and ordered continuations to the tool's genuine HTTP request. Mounted application
+ownership, SDK subclass methods, request/state aliases, known dictionary keys,
+fresh empty mapping defaults and optional URL guard facts use the existing
+source interpreter. Mapped IPv4 checks retain the original URL identity.
+Replaced/escaped applications, unknown callbacks, unrelated applications and
+reordered validation/overwrite controls remain conservative. A separate path
+without an HTTP request preserves stdio sinks, including calls preceding the
+getter. This does not implement dynamic provider patches or BaseHTTPMiddleware
+dispatch, close the Meta condition, or execute target code.
+
+The first broad run found an unsafe optional-member protection propagation;
+its retained result is 601 passes and one failure. The shared helper now propagates
+unconditional facts only from definitely present values. The corrected affected
+suite passes 606 tests in 65.79 seconds; strict mypy passes 124 source/test files,
+and Ruff/formatting pass. Membership, empty-default, mapped-IP, middleware-state,
+callback and alias failures and all intermediate diagnostic scripts remain in
+`continuation-http-*`, `continuation-mapping-*`, `continuation-optional-map-*`
+and the earlier per-change logs. The first membership negative control used a
+literal URL rather than caller data; the corrected control uses a second input.
+
+The selected real fixed Atlassian `get_issue` trace now has zero SENT-015 matches;
+its profile retains 264 unresolved diagnostics. This is one handler, not whole-input
+completion or a native benchmark pass. Profiling exposes repeated application
+metadata scans; performance work and native vulnerable/fixed measurements remain
+required under the unchanged 120-second input limit. All post-batch-12 evidence
+is retained locally and awaits the next numbered seal. Final evaluation, remaining
+families, review compatibility, hosted gates and consolidated delivery stay open.
+
+The corresponding vulnerable profile retains both Jira requests (client.py:184
+and users.py:62), with 251 unresolved diagnostics. Both profiles exit zero;
+instrumentation and overlapping verification make them diagnostic evidence,
+not isolated throughput measurements.

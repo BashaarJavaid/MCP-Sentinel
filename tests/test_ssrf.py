@@ -205,6 +205,263 @@ def test_sdk_http_request_state_does_not_leak_between_tools(tmp_path: Path) -> N
     assert len(findings) == 1
 
 
+@pytest.mark.parametrize("guard", ["", CHECK])
+@pytest.mark.parametrize("attach", [False, True])
+@pytest.mark.parametrize(
+    ("replacement", "intact"),
+    [
+        ("", True),
+        ("mcp.http_app = unknown", False),
+        ("App.http_app = unknown", False),
+        ("unknown(mcp)", False),
+        ("def poison():\n    mcp.http_app = unknown", True),
+        ("def poison():\n    mcp.http_app = unknown\npoison()", False),
+    ],
+)
+def test_registered_asgi_middleware_state_reaches_its_tool(
+    tmp_path: Path, guard: str, attach: bool, replacement: str, intact: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "from urllib.parse import urlparse\nimport requests\n"
+        "class Guard:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        "        url = request.headers.get('X-URL')\n"
+        + ("        " + guard.replace("\n", "\n    ").rstrip() + "\n" if guard else "")
+        + "        request.state.url = url\n"
+        "        hasattr(request.state, 'url')\n"
+        "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "unrelated = App('other')\n"
+        + ("mcp = App('target')\n" if attach else "mcp = FastMCP('target')\n")
+        + replacement
+        + "\n"
+        + "@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (0 if guard and attach and intact else 1)
+
+
+@pytest.mark.parametrize(
+    ("body", "getter", "expected"),
+    [
+        ("return", "    get_http_request()\n", 0),
+        ("return", "", 1),
+        ("return", "    requests.get(url)\n    get_http_request()\n", 1),
+        ("await self.app(scope, receive, send)", "    get_http_request()\n", 1),
+        (
+            "await unknown(self.app, scope, receive, send)",
+            "    get_http_request()\n",
+            1,
+        ),
+        (
+            "self.app = unknown\nawait self.app(scope, receive, send)",
+            "    get_http_request()\n",
+            1,
+        ),
+    ],
+)
+def test_unknown_middleware_continuation_cannot_prove_refusal(
+    tmp_path: Path, body: str, getter: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\nimport requests\n"
+        "class Guard:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n        "
+        + body.replace("\n", "\n        ")
+        + "\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "mcp = App('test')\n@mcp.tool()\ndef fetch(url: str):\n"
+        + getter
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+def test_returned_ip_error_checks_the_mapped_address_of_the_requested_url(
+    tmp_path: Path, checked: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n"
+        "def ip_error(hostname):\n"
+        "    try: addr = ipaddress.ip_address(hostname)\n"
+        "    except ValueError: return None\n"
+        "    if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped:\n"
+        "        addr = addr.ipv4_mapped\n"
+        "    if not addr.is_global: return 'blocked address'\n"
+        "    return None\n"
+        "def url_error(url):\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): return 'blocked scheme'\n"
+        "    error = ip_error(parsed.hostname)\n"
+        "    if error: return error\n"
+        "    return None\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        f"    error = url_error({checked})\n"
+        "    if error: raise ValueError(error)\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == (0 if checked == "url" else 1)
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+@pytest.mark.parametrize("replace_url", [False, True])
+def test_optional_url_guard_applies_when_the_same_value_is_later_used(
+    tmp_path: Path, checked: str, replace_url: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "@mcp.tool()\ndef fetch(url: str | None, other: str):\n"
+        f"    if {checked}:\n"
+        "        "
+        + CHECK.replace("urlparse(url)", f"urlparse({checked})")
+        .replace("\n", "\n    ")
+        .rstrip()
+        + "\n"
+        + ("    url = other\n" if replace_url else "")
+        + "    if url: return requests.get(url)\n",
+    )
+    assert len(findings) == (0 if (checked == "other") == replace_url else 1)
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+def test_conditionally_assigned_mapping_retains_its_member_guards(
+    tmp_path: Path, guard: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def prepare(state, url):\n"
+        "    if not url: return\n"
+        + ("    " + guard if guard else "")
+        + "    state['headers'] = {'url': url}\n"
+        "@mcp.tool()\ndef fetch(url: str | None):\n"
+        "    state = {}\n    prepare(state, url)\n"
+        "    headers = state.get('headers')\n"
+        "    if headers: return requests.get(headers['url'])\n",
+    )
+    assert len(findings) == (0 if guard else 1)
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+def test_reading_dictionary_keys_does_not_escape_its_validated_values(
+    tmp_path: Path, guard: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str):\n"
+        + ("    " + guard if guard else "")
+        + "    options = {'url': url}\n"
+        "    log(list(options.keys()))\n"
+        "    return requests.get(options['url'])\n",
+    )
+    assert len(findings) == (0 if guard else 1)
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+@pytest.mark.parametrize("escaped", [False, True])
+def test_known_dictionary_membership_preserves_nested_state(
+    tmp_path: Path, enabled: bool, escaped: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + "    scope = {'state': {'url': url}}\n"
+        + ("    unknown(scope)\n" if escaped else "")
+        + "    scope = dict(scope)\n"
+        + (
+            "    if 'state' not in scope:\n"
+            if enabled
+            else "    if 'state' in scope:\n"
+        )
+        + "        scope['state'] = {'url': other}\n"
+        + "    return requests.get(scope['state']['url'])\n",
+    )
+    assert len(findings) == (0 if enabled and not escaped else 1)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "",
+        "headers['url'] = other",
+        "original['url'] = other",
+        "headers.update({'url': other})",
+        "unknown(headers, other)",
+    ],
+)
+def test_optional_mapping_with_empty_default_preserves_alias_writes(
+    tmp_path: Path, mutation: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str, selected: bool):\n    "
+        + CHECK
+        + "    original = {'url': url}\n    state = {}\n"
+        + "    if selected: state['headers'] = original\n"
+        + "    headers = state.get('headers', {})\n"
+        + ("    " + mutation + "\n" if mutation else "")
+        + "    return requests.get(headers.get('url'))\n",
+    )
+    assert len(findings) == bool(mutation)
+
+
+@pytest.mark.parametrize("validate_last", [False, True])
+def test_registered_middleware_order_controls_the_requested_value(
+    tmp_path: Path, validate_last: bool
+) -> None:
+    layers = "Overwrite, Validate" if validate_last else "Validate, Overwrite"
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "from urllib.parse import urlparse\nimport requests\n"
+        "class Validate:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        "        url = request.state.url\n        "
+        + CHECK.replace("\n", "\n    ").rstrip()
+        + "\n"
+        "        await self.app(scope, receive, send)\n"
+        "class Overwrite:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        "        request.state.url = request.headers.get('X-URL')\n"
+        "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=["
+        + ", ".join(f"Middleware({name})" for name in layers.split(", "))
+        + "], **kwargs)\n"
+        "mcp = App('test')\n@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (0 if validate_last else 1)
+
+
 @pytest.mark.parametrize("enabled", [False, True])
 def test_plain_boolean_helper_preserves_request_reachability(
     tmp_path: Path, enabled: bool

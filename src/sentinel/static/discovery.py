@@ -439,7 +439,16 @@ class PythonProgram:
         orders: list[list[Symbol | str]] = []
         for base in node.bases:
             imported = self.external(symbol, base)
-            if imported == "typing.Protocol":
+            if isinstance(base, ast.Subscript) and self.external(
+                symbol, base.value
+            ) in {"fastmcp.FastMCP", "mcp.server.fastmcp.FastMCP"}:
+                imported = self.external(symbol, base.value)
+            if imported in {
+                "typing.Protocol",
+                "fastmcp.FastMCP",
+                "mcp.server.fastmcp.FastMCP",
+                "starlette.middleware.base.BaseHTTPMiddleware",
+            }:
                 bases.append(imported)
                 orders.append([imported])
                 continue

@@ -79,6 +79,11 @@ def fixed_destination(prefix: str) -> bool:
 
 class URLFlow(PathFlow):
     rule_id = "SENT-015"
+    helper_state_prefixes = (
+        *PathFlow.helper_state_prefixes,
+        "#url-conditional:",
+        "#url-truth:",
+    )
 
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
@@ -89,6 +94,7 @@ class URLFlow(PathFlow):
         self.fact_keys: dict[str, tuple[str, str]] = {}
         self.evaluated: dict[ast.AST, Value] = {}
         self.expression_depth = 0
+        self.conditional_checks: dict[str, frozenset[str]] = {}
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         previous = self.evaluated, self.expression_depth
@@ -135,7 +141,37 @@ class URLFlow(PathFlow):
             self.evaluated, self.expression_depth = previous
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        conditional = {}
+        for marker in set().union(*(branch.keys() for branch in branches)):
+            if not marker.startswith("#url-truth:"):
+                continue
+            origin = marker.removeprefix("#url-truth:")
+            possible = [
+                branch
+                for branch in branches
+                if branch.get(marker, Value()).key != "False"
+            ]
+            if not possible or len(possible) == len(branches):
+                continue
+            checks = frozenset.intersection(
+                *(
+                    frozenset().union(
+                        *(
+                            value.url_checks
+                            for value in branch.values()
+                            if value.key == origin
+                        )
+                    )
+                    for branch in possible
+                )
+            )
+            if checks:
+                conditional[origin] = checks
         super().merge(env, branches)
+        for origin, checks in conditional.items():
+            key = _key("conditional-url", origin, *sorted(checks))
+            self.conditional_checks[key] = checks
+            env["#url-conditional:" + origin] = Value(key=key)
         for key in env.keys() & self.fact_keys.keys():
             env[key] = replace(
                 env[key],
@@ -284,6 +320,11 @@ class URLFlow(PathFlow):
                 self.parts[result.key] = next(iter(parts))
         if isinstance(node, ast.Attribute):
             receiver = self.evaluated.get(node.value, Value())
+            if (
+                self.parts.get(receiver.key, ("", ""))[1] == "ip"
+                and node.attr == "ipv4_mapped"
+            ):
+                result = replace(receiver, maybe_none=True)
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
         if isinstance(node, (ast.BinOp, ast.JoinedStr)):
@@ -397,7 +438,20 @@ class URLFlow(PathFlow):
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            self.guard(symbol, node.operand, env, not truth)
+            return
         facts = self.facts(symbol, node, env, truth)
+        if isinstance(node, ast.Name):
+            value = self.evaluated.get(node, Value())
+            if value.sources:
+                env["#url-truth:" + value.key] = Value(key=repr(truth))
+                if truth:
+                    selected = env.get("#url-conditional:" + value.key, Value())
+                    facts |= frozenset(
+                        (value.key, check)
+                        for check in self.conditional_checks.get(selected.key, ())
+                    )
         if not facts:
             return
         for origin, check in facts:

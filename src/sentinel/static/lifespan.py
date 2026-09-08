@@ -58,7 +58,9 @@ def server_class(
     return server_class(program, target, cls.bases[0], seen | {cls})
 
 
-def tool_lifespan(program: PythonProgram, tool: ToolBinding) -> Symbol | None:
+def _server_graph(
+    program: PythonProgram, tool: ToolBinding
+) -> tuple[list[Symbol], dict[ast.AST, list[Symbol]]]:
     def instance(context: Symbol, node: ast.AST) -> Symbol | None:
         name = qualified_name(node)
         owner = program.parents.get(node)
@@ -108,7 +110,7 @@ def tool_lifespan(program: PythonProgram, tool: ToolBinding) -> Symbol | None:
             if server:
                 servers.append(server)
     if len(servers) != 1:
-        return None
+        return [], {}
     parents: dict[ast.AST, list[Symbol]] = {}
     for file in program.files:
         for part in scope_nodes(file.tree):
@@ -126,6 +128,29 @@ def tool_lifespan(program: PythonProgram, tool: ToolBinding) -> Symbol | None:
             child = instance(context, mount_call.args[0])
             if parent and child:
                 parents.setdefault(child.node, []).append(parent)
+    return servers, parents
+
+
+def tool_servers(program: PythonProgram, tool: ToolBinding) -> tuple[Symbol, ...]:
+    """Return the source-established outer applications for this registered tool."""
+    pending, parents = _server_graph(program, tool)
+    seen: set[ast.AST] = set()
+    roots = []
+    while pending:
+        check_deadline(program.deadline)
+        server = pending.pop()
+        if server.node in seen:
+            return ()
+        seen.add(server.node)
+        if server.node in parents:
+            pending.extend(parents[server.node])
+        else:
+            roots.append(server)
+    return tuple(roots)
+
+
+def tool_lifespan(program: PythonProgram, tool: ToolBinding) -> Symbol | None:
+    servers, parents = _server_graph(program, tool)
     pending = servers
     seen: set[ast.AST] = set()
     callbacks = []

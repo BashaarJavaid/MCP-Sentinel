@@ -404,6 +404,27 @@ within an analyzed tool entry, including across included helpers. Replacing a
 state value changes the downstream value; a later tool entry starts independently.
 This identity alone does not establish application middleware or cross-task context.
 
+For an unambiguous registered FastMCP application, SENT-015/016 can interpret an
+included `http_app` override that passes a literal sequence of genuine Starlette
+`Middleware` registrations to `super().http_app`. Included ASGI constructors and
+`__call__` methods run symbolically in registration order. Scope dictionaries,
+Starlette request/state aliases and the continuation's current request retain the
+same member identities. Replaced or escaped applications, unknown callback
+forwarding and unresolved middleware sequences do not establish protection.
+An uninvoked source helper is not evidence that an application was mutated.
+The separate path without an HTTP request retains stdio findings and exception
+fallbacks; HTTP middleware cannot remove an earlier reachable stdio sink.
+Dynamic provider patching, BaseHTTPMiddleware dispatch and general external
+middleware behavior remain unsupported by this connection.
+
+Known dictionary membership and genuinely missing keys preserve optional field
+identity. A fresh empty dictionary default supports reads through the populated
+alias, with conservative writes to that alias; general mapping alternatives are
+not modeled. Optional protected fields cannot unconditionally protect a caller's
+original value. SENT-015 retains URL checks across an optional value's absence
+only when the same value is later present, and follows an IP address's mapped
+IPv4 value without claiming DNS resolution or rebinding protection.
+
 Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
 `slice` copies and bounded branch alternatives through included helpers. The
 interpreter retains at most 32 layouts of 256 positions; larger layouts, computed
