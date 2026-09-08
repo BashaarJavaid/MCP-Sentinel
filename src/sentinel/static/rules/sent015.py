@@ -93,7 +93,7 @@ class URLFlow(PathFlow):
         try:
             result = super().function(symbol, bindings)
             returns = self.return_facts[-1]
-            if returns:
+            if returns and result.key not in self.mapping_keys:
                 result = replace(
                     result,
                     key=_key(
@@ -265,7 +265,7 @@ class URLFlow(PathFlow):
             receiver = self.expression(symbol, node.value, env)
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
-        if isinstance(node, (ast.BinOp, ast.JoinedStr, ast.Subscript, ast.Attribute)):
+        if isinstance(node, (ast.BinOp, ast.JoinedStr)):
             result = replace(result, url_checks=frozenset())
         prefix_nodes = (
             node.values
@@ -490,7 +490,9 @@ class URLFlow(PathFlow):
             return Value()
         result = super().call(symbol, node, env)
         helper = self.program.resolve_in(symbol, name)
-        if not helper:
+        if not helper and not (
+            method == "get" and (receiver.sources or receiver.key in self.mapping_keys)
+        ):
             result = replace(result, url_checks=frozenset())
         return result
 

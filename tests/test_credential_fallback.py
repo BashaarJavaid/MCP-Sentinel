@@ -68,3 +68,23 @@ def test_stdio_owner_credentials_do_not_establish_http_crossing(tmp_path: Path) 
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert not run_static_scan(configuration, uuid4(), timestamp=NOW).findings
+
+
+@pytest.mark.parametrize("replace_token", [False, True])
+def test_mutable_outbound_credentials(tmp_path: Path, replace_token: bool) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nimport os\nimport requests\n"
+        "app = FastAPI()\n@app.get('/data')\nasync def fetch(request: Request):\n"
+        "    headers = {}\n"
+        '    token = request.headers.get("Authorization")\n'
+        '    headers["Authorization"] = token or os.environ["OPERATOR_TOKEN"]\n'
+        + ('    headers["Authorization"] = token\n' if replace_token else "")
+        + '    return requests.get("https://api.example.com/", headers=headers)\n',
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(configuration, uuid4(), timestamp=NOW).findings
+    assert len(findings) == (not replace_token)

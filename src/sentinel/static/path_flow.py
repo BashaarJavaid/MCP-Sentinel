@@ -35,6 +35,7 @@ class Value:
     operator_credential: bool = False
     credential_fallback: bool = False
     credential_present: bool = False
+    maybe_missing: bool = False
 
 
 def combine(values: list[Value], key: str = "") -> Value:
@@ -52,12 +53,13 @@ def combine(values: list[Value], key: str = "") -> Value:
         if values and all(v.instance == values[0].instance for v in values)
         else None,
         bool(tainted) and all(v.option_safe for v in tainted),
-        frozenset.intersection(*(v.url_checks for v in values))
-        if values
+        frozenset.intersection(*(v.url_checks for v in tainted))
+        if tainted
         else frozenset(),
         any(v.operator_credential for v in values),
         any(v.credential_fallback for v in values),
         bool(values) and all(v.credential_present for v in values),
+        any(v.maybe_missing for v in values),
     )
 
 
@@ -80,6 +82,11 @@ class PathFlow:
             file.relative_path: import_aliases(file) for file in program.files
         }
         self.globals: dict[tuple[str, str], Value] = {}
+        self.global_members: dict[str, Value] = {}
+        self.mapping_keys: set[str] = set()
+        self.members: dict[str, dict[object, str]] = {}
+        self.member_defaults: dict[str, Value] = {}
+        self.call_sites: list[str] = []
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
@@ -292,23 +299,114 @@ class PathFlow:
                     pending.extend(ast.iter_child_nodes(expression))
         return False
 
-    @staticmethod
-    def assign(target: ast.AST, value: Value, env: dict[str, Value]) -> None:
+    def member_key(self, value: Value, member: object) -> str:
+        return self.members.setdefault(value.key, {}).setdefault(
+            member, "#member:" + _key(value.key, repr(member))
+        )
+
+    def aggregate(self, value: Value, env: dict[str, Value]) -> Value:
+        pending = [value]
+        seen: set[str] = set()
+        leaves = []
+        while pending:
+            check_deadline(self.deadline)
+            current = pending.pop()
+            if current.key in self.mapping_keys:
+                if current.key in seen:
+                    continue
+                seen.add(current.key)
+                pending.extend(
+                    env[key]
+                    for key in self.members.get(current.key, {}).values()
+                    if key in env
+                )
+                unknown = env.get("#member:unknown:" + current.key)
+                if unknown is not None:
+                    pending.append(unknown)
+            else:
+                leaves.append(current)
+        return replace(
+            value,
+            sources=union(item.sources for item in leaves),
+            locations=value.locations
+            | frozenset().union(*(item.locations for item in leaves)),
+        )
+
+    def update_mapping(
+        self, destination: Value, source: Value, env: dict[str, Value]
+    ) -> None:
+        unknown = env.get("#member:unknown:" + source.key)
+        if source.key not in self.mapping_keys:
+            unknown = source
+        if unknown is not None:
+            marker = "#member:unknown:" + destination.key
+            env[marker] = combine([env.get(marker, Value()), unknown])
+            for existing in self.members.get(destination.key, {}).values():
+                if existing in env:
+                    env[existing] = combine([env[existing], unknown])
+        if source.key in self.mapping_keys:
+            for label, existing in tuple(self.members.get(source.key, {}).items()):
+                if existing in env:
+                    env[self.member_key(destination, label)] = env[existing]
+
+    def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
+        key = self.member_key(value, member)
+        fallback = replace(
+            env.get("#member:unknown:" + value.key, Value())
+            if value.key in self.mapping_keys
+            else value,
+            key=_key(value.key, repr(member)),
+            contained=False,
+            option_safe=False,
+            url_checks=frozenset(),
+            credential_present=False,
+            maybe_missing=True,
+        )
+        result = env.get(key, fallback)
+        self.member_defaults.setdefault(key, fallback)
+        return result
+
+    def bound_value(self, node: ast.AST, env: dict[str, Value]) -> Value:
+        if isinstance(node, ast.Name):
+            return env.get(node.id, Value())
+        if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant):
+            return self.member(self.bound_value(node.value, env), node.slice.value, env)
+        if isinstance(node, ast.Attribute):
+            return self.member(self.bound_value(node.value, env), node.attr, env)
+        return Value()
+
+    def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
         if isinstance(target, ast.Name):
             env[target.id] = value
         elif isinstance(target, (ast.Tuple, ast.List)):
             for child in target.elts:
-                PathFlow.assign(child, value, env)
-        elif isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
-            receiver = env.get(target.value.id)
-            if receiver is not None and receiver.instance is not None:
+                self.assign(child, value, env)
+        elif isinstance(target, ast.Subscript):
+            receiver = self.bound_value(target.value, env)
+            if receiver.key:
+                if isinstance(target.slice, ast.Constant):
+                    self.member(receiver, target.slice.value, env)
+                    env[self.member_key(receiver, target.slice.value)] = value
+                else:
+                    self.update_mapping(receiver, value, env)
+        elif isinstance(target, ast.Attribute):
+            receiver = self.bound_value(target.value, env)
+            if receiver.instance is not None:
                 for name, current in env.items():
                     if current.key == receiver.key:
                         env[name] = replace(current, instance=None)
+            if receiver.key:
+                self.member(receiver, target.attr, env)
+                env[self.member_key(receiver, target.attr)] = value
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         for name in set().union(*(b.keys() for b in branches)):
-            env[name] = combine([branch.get(name, Value()) for branch in branches])
+            env[name] = combine(
+                [
+                    branch.get(name, self.member_defaults.get(name, Value()))
+                    for branch in branches
+                ]
+            )
 
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
@@ -358,7 +456,12 @@ class PathFlow:
             return Value(key=repr(node.value))
         if isinstance(node, ast.Name):
             if node.id in env:
-                return env[node.id]
+                value = env[node.id]
+                return (
+                    self.aggregate(value, env)
+                    if value.key in self.mapping_keys
+                    else value
+                )
             key = (symbol.file.relative_path, node.id)
             if key not in self.globals:
                 self.globals[key] = Value(key=":".join(key))
@@ -368,10 +471,38 @@ class PathFlow:
                 if len(declarations) == 1 and isinstance(
                     declarations[0], (ast.Assign, ast.AnnAssign)
                 ):
+                    global_env: dict[str, Value] = {}
                     self.globals[key] = self.expression(
-                        symbol, declarations[0].value, {}
+                        symbol, declarations[0].value, global_env
                     )
+                    self.global_members.update(
+                        (name, value)
+                        for name, value in global_env.items()
+                        if name.startswith("#member:")
+                    )
+            for name, value in self.global_members.items():
+                env.setdefault(name, value)
             return self.globals[key]
+        if isinstance(node, ast.Dict):
+            mapping_key = _key(
+                "mapping",
+                symbol.file.relative_path,
+                str(node.lineno),
+                str(node.col_offset),
+                *self.call_sites,
+            )
+            values = []
+            for field, expression in zip(node.keys, node.values, strict=True):
+                value = self.expression(symbol, expression, env)
+                values.append(value)
+                if field is None:
+                    self.update_mapping(Value(key=mapping_key), value, env)
+                if isinstance(field, ast.Constant):
+                    marker = self.member_key(Value(key=mapping_key), field.value)
+                    env[marker] = value
+                    self.member_defaults.setdefault(marker, Value())
+            self.mapping_keys.add(mapping_key)
+            return combine(values, mapping_key)
         if isinstance(node, ast.Call):
             return self.call(symbol, node, env)
         if isinstance(node, ast.Await):
@@ -415,13 +546,28 @@ class PathFlow:
             return self.expression(symbol, node.elt, local)
         if isinstance(node, ast.Subscript):
             value = self.expression(symbol, node.value, env)
+            if isinstance(node.slice, ast.Constant):
+                return self.member(value, node.slice.value, env)
             return replace(
-                value, key=value.key + "[" + ast.dump(node.slice) + "]", contained=False
+                value,
+                key=value.key + "[" + ast.dump(node.slice) + "]",
+                contained=False,
+                option_safe=False,
+                url_checks=frozenset(),
+                credential_present=False,
             )
         if isinstance(node, ast.Attribute):
             value = self.expression(symbol, node.value, env)
+            if self.member_key(value, node.attr) in env:
+                return self.member(value, node.attr, env)
             return replace(
-                value, key=value.key + "." + node.attr, contained=False, instance=None
+                value,
+                key=value.key + "." + node.attr,
+                contained=False,
+                instance=None,
+                option_safe=False,
+                url_checks=frozenset(),
+                credential_present=False,
             )
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
             left = self.expression(symbol, node.left, env)
@@ -478,6 +624,48 @@ class PathFlow:
             result,
             locations=result.locations | {(symbol.file.relative_path, node.lineno)},
         )
+        if (
+            resolved in {"dict", "builtins.dict"}
+            and root not in env
+            and not any(
+                not isinstance(declaration, (ast.Import, ast.ImportFrom))
+                for declaration in declarations
+            )
+        ) or (
+            method == "copy"
+            and receiver.key in self.mapping_keys
+            and not args
+            and not keywords
+        ):
+            mapping = Value(
+                key=_key(
+                    "mapping-call",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                )
+            )
+            self.mapping_keys.add(mapping.key)
+            if method == "copy":
+                self.update_mapping(mapping, receiver, env)
+            elif args:
+                self.update_mapping(mapping, args[0], env)
+            for label, value in keywords.items():
+                if label is None:
+                    self.update_mapping(mapping, value, env)
+                else:
+                    env[self.member_key(mapping, label)] = value
+            return self.aggregate(mapping, env)
+        if method == "update" and receiver.key in self.mapping_keys:
+            for argument in args:
+                self.update_mapping(receiver, argument, env)
+            for label, value in keywords.items():
+                if label is None:
+                    self.update_mapping(receiver, value, env)
+                else:
+                    env[self.member_key(receiver, label)] = value
+            return Value()
         if (
             method == "resolve" and receiver.path_object
         ) or resolved == "os.path.realpath":
@@ -564,7 +752,12 @@ class PathFlow:
                 if resolved == "git.Repo"
                 else result
             )
-        if method == "get" and receiver.sources:
+        if method == "get" and (receiver.sources or receiver.key in self.mapping_keys):
+            if node.args and isinstance(node.args[0], ast.Constant):
+                member = self.member(receiver, node.args[0].value, env)
+                if member.maybe_missing:
+                    member = combine([member, args[1] if len(args) > 1 else Value()])
+                return replace(member, maybe_missing=False)
             return replace(
                 receiver,
                 key=receiver.key
@@ -642,7 +835,23 @@ class PathFlow:
                 and not parameters.kwarg
                 and None not in keywords
             ):
-                returned = self.function(helper, bindings)
+                bindings.update(
+                    (key, value)
+                    for key, value in env.items()
+                    if key.startswith("#member:")
+                )
+                self.call_sites.append(
+                    f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}"
+                )
+                try:
+                    returned = self.function(helper, bindings)
+                finally:
+                    self.call_sites.pop()
+                env.update(
+                    (key, value)
+                    for key, value in bindings.items()
+                    if key.startswith("#member:")
+                )
                 protected = {
                     value.key for value in bindings.values() if value.contained
                 }

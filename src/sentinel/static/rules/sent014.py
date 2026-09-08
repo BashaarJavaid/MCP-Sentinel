@@ -98,7 +98,6 @@ class OptionFlow(PathFlow):
                 return self.sequence(self.entries(left) + self.entries(right), identity)
         value = super().expression(symbol, node, env)
         if isinstance(node, ast.Dict):
-            value = replace(value, key=_key("json-dict", identity, value.key))
             self.json_containers.add(value.key)
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             self.literals[value.key] = node.value
@@ -136,7 +135,7 @@ class OptionFlow(PathFlow):
                     )
                 except (ValueError, TypeError):
                     pass
-        if isinstance(node, (ast.BinOp, ast.JoinedStr, ast.Subscript, ast.Attribute)):
+        if isinstance(node, (ast.BinOp, ast.JoinedStr)):
             value = replace(value, option_safe=False)
         # A literal prefix fixes this argv slot's option name. This does not
         # establish safety of a dangerous option's value (e.g. --upload-pack).

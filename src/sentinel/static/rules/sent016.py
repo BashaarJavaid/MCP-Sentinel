@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import json
 from dataclasses import replace
-from typing import Any
 
 from sentinel.static.ast_utils import (
     match_from_node,
@@ -22,10 +21,6 @@ from sentinel.static.path_flow import PathFlow, Value, _key, combine
 class CredentialFlow(PathFlow):
     rule_id = "SENT-016"
 
-    def __init__(self, *args: Any) -> None:
-        super().__init__(*args)
-        self.credentials: dict[str, Value] = {}
-
     def external(self, symbol: Symbol, node: ast.AST, env: dict[str, Value]) -> str:
         name = qualified_name(node) or ""
         root = name.split(".")[0]
@@ -40,8 +35,7 @@ class CredentialFlow(PathFlow):
             return ""
         return resolve_name(name, self.aliases[symbol.file.relative_path])
 
-    @staticmethod
-    def assign(target: ast.AST, value: Value, env: dict[str, Value]) -> None:
+    def assign(self, target: ast.AST, value: Value, env: dict[str, Value]) -> None:
         if isinstance(target, ast.Name):
             original = env.get(target.id, Value())
             if (
@@ -49,7 +43,7 @@ class CredentialFlow(PathFlow):
                 and env.get("#absent:" + original.key, Value()).contained
             ):
                 value = replace(combine([value, original]), credential_fallback=True)
-        PathFlow.assign(target, value, env)
+        super().assign(target, value, env)
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         super().merge(env, branches)
@@ -118,28 +112,7 @@ class CredentialFlow(PathFlow):
             ):
                 result = replace(result, credential_fallback=True)
             return result
-        result = super().expression(symbol, node, env)
-        if isinstance(node, ast.Dict):
-            result = replace(
-                result,
-                key=_key(
-                    "credential-map",
-                    symbol.file.relative_path,
-                    str(node.lineno),
-                    result.key,
-                ),
-            )
-            self.credentials[result.key] = combine(
-                [
-                    self.expression(symbol, value, env)
-                    for key, value in zip(node.keys, node.values, strict=True)
-                    if isinstance(key, ast.Constant)
-                    and isinstance(key.value, str)
-                    and key.value.lower()
-                    in {"authorization", "x-api-key", "access_token", "api_key"}
-                ]
-            )
-        return result
+        return super().expression(symbol, node, env)
 
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         external = self.external(symbol, node.func, env)
@@ -169,7 +142,14 @@ class CredentialFlow(PathFlow):
                 if keyword.arg == "auth":
                     credentials.append(value)
                 elif keyword.arg in {"headers", "params", "data", "json"}:
-                    credentials.append(self.credentials.get(value.key, Value()))
+                    credentials.extend(
+                        env[marker]
+                        for field, marker in self.members.get(value.key, {}).items()
+                        if isinstance(field, str)
+                        and field.lower()
+                        in {"authorization", "x-api-key", "access_token", "api_key"}
+                        and marker in env
+                    )
             crossing = combine([v for v in credentials if v.credential_fallback])
             if crossing.credential_fallback:
                 self.state.matches.append(

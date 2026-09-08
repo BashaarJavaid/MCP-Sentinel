@@ -18,6 +18,19 @@ from tests.conftest import NOW, make_target
 @pytest.mark.parametrize(
     ("body", "expected"),
     [
+        (
+            'state = {"ref": ref}\n'
+            '    if ref.startswith("-"): raise ValueError()\n'
+            '    return repo.git.diff(state["ref"])',
+            0,
+        ),
+        (
+            'state = {"ref": ref}\n'
+            '    if ref.startswith("-"): raise ValueError()\n'
+            '    state["ref"] = other\n'
+            '    return repo.git.diff(state["ref"])',
+            1,
+        ),
         ("return repo.git.diff(ref)", 1),
         ('return repo.git.checkout(ref, "--")', 1),
         ("return repo.git.show(ref)", 1),

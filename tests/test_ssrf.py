@@ -332,3 +332,18 @@ def test_returned_validation_error_requires_enforcement(
         + "\n    return requests.get(url)\n",
     )
     assert len(findings) == expected
+
+
+@pytest.mark.parametrize("fallback", ["None", "url"])
+def test_guarded_url_in_optional_state(tmp_path: Path, fallback: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def prepare(url):\n    state = {}\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme != 'https': return state\n"
+        "    if parsed.hostname != 'images.example.com': return state\n"
+        "    state['url'] = url\n    return state\n"
+        "@mcp.tool()\ndef fetch(url:str):\n    state = prepare(url)\n"
+        f"    return requests.get(state.get('url', {fallback}))\n",
+    )
+    assert len(findings) == (fallback == "url")
