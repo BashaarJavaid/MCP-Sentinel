@@ -1199,3 +1199,84 @@ verification worktree is `/private/tmp/mcp-phase22-verify-v2-immutable`; indepen
 focused tests overlap this run, so latency is not isolated throughput. Final
 measurements, audits, paid preparation, consolidated draft and acceptance remain
 open; the 86 requirements are not reduced by these intermediate commits.
+
+### V2 source continuation through `f58d7d1` (not final acceptance)
+
+`53c68be` preserves bounded list/tuple allocation, append and iteration through
+aliases and helpers. The corrected shared run passed 637 tests, with 103 later
+state controls; original failures and corrected unsupported cases remain retained.
+`a2940e2` interprets genuine MCP 1.29 startup/provider relationships, attached
+middleware, saved callbacks, source-selected JSON-response branches and unset
+HTTP ContextVar fallback. The corrected shared run passed 794 tests. This is
+bounded source interpretation, not SDK/target execution or a native condition gate.
+`ca8efa1` preserves source launch alternatives and source locations through finding
+merge; 309 affected tests and corrected style/types pass.
+
+The completed `v2-upload-family-6da955e` native run reports four completed inputs:
+vulnerable 96,076 ms, vulnerable mutation 110,242 ms, fixed 107,291 ms, fixed mutation
+107,886 ms. The safe download control timed out at 120,184 ms. These elapsed values
+overlap focused verification and are not isolated throughput. Counts are 98/98/96/96;
+source-condition adjudication and final integrated repetitions remain open.
+
+Both fixed-source Meta runs, `v2-meta-sdk-a2940e2` and `v2-meta-sdk-d2ba110`, report
+**0/5 completed** at the unchanged 120-second deadline. Harness exits were zero;
+per-input results explicitly remain incomplete. `d2ba110` narrows immutable source
+reachability checks. `f58d7d1` caches middleware class validation using original
+source functions and attached registrations, retaining deadline and newly reachable
+mutation controls. The source-cache check passed 123 SDK/middleware tests; the prior
+cache draft passed 364 shared tests. Sampled Meta account-handler outputs for all
+three shared flows remain byte-identical, SHA-256
+`4a4c578b1686f61323d616371cd768425cb0dcc061da19989fb139081509804e`.
+Warm profiles and cache diagnostics are component evidence with overlapping work,
+not native completion. The first cache draft did not reuse entries because its key
+included generated adapters; the original-source key corrects that measured issue.
+
+`16a0da6` follows Express factory routes through included helpers and callback
+closures. Corrected vulnerable/guard/replacement controls pass, with 665 affected
+tests and strict types/style. Initial diagnostics failed target validation before
+reaching the detector; the corrected counterexample reproduces the actual miss on
+the preserved pre-change source. Middleware chains and client configurations remain
+separate unfinished TypeScript requirements.
+
+`meta-fixed-label-review-v1/` records a source-level conflict with the frozen Meta
+fixed label: the alternate SSE-response configuration selects a different patched
+provider from the Streamable HTTP application actually served. A source-only
+absent-header witness and installed-SDK source identities are retained. No runtime
+exploit or final native acceptance is claimed. The user's choice of a versioned
+erratum/configuration amendment remains pending; frozen labels, prerequisites and
+gates have not been changed. Unrelated fixed candidates still require separate
+adjudication. Independent technical work continues while that decision is pending.
+
+The safe-upload rerun and selected-startup-path regression are subsequent work in
+progress. The first isolated-control driver used an incorrect record field and
+failed before measurement; its corrected command is separate. Full benchmarks,
+fresh holdout, consumer/compatibility audits, final quality, paid preparation and
+consolidated draft delivery remain unfinished. There have been no paid calls,
+pushes, hosted runs, new drafts, merges or outreach.
+
+`v2-upload-safe-6da955e-isolated-corrected` completes the remaining safe control in
+99,783 ms with 96 findings. All five upload-family inputs now have completed native
+reports at `6da955e`, across the four-completed original run and separate retry.
+`v2-upload-6da955e-adjudication/condition-adjudication.json` uses the existing frozen
+input validator and condition scorer: two vulnerable Confluence upload condition
+hits, zero fixed/safe condition alerts. The mutation's imported identity helper is
+source-reviewed separately; native evidence cites its call but not its body.
+Two separate page-content read candidates remain policy-uncertain. Other rules and
+the historical 70-warning backlog are not adjudicated by this packet. No separate
+Jira detection or HTTP runtime proof is claimed. The safe retry had no other native
+scan/profile, but a short regression ran during harness startup; timings are not a
+general isolated-throughput guarantee. The earlier timeout and failed driver remain.
+
+`0eb39b5` constrains plain SDK startup branches to the selected launch and excludes
+unconditionally terminating prefixes. Eight source-path controls preserve caught
+exceptions, conditional returns and separate HTTP/stdio launches; 702 affected tests
+and strict types/style pass. A source-specific one-input Meta native run follows;
+completion remains open until its per-input outcome is inspected. Future final
+repeats must use the integrated candidate, not substitute these older reports.
+
+The first Meta input at `0eb39b5` remains incomplete at 120,041 ms. The subsequent
+instrumented full source scan confirms the remaining cost: SENT-012 processes 41
+handlers in 40.58 s, SENT-015 processes 41 in 50.07 s, and SENT-016 reaches 19 before
+the shared 120 s deadline. This diagnostic is not a completed native report. Reusing
+startup analysis requires preserving independent handler and callback state; that
+implementation/performance work remains open.

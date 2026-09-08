@@ -219,3 +219,23 @@ condition alerts, with physical symlink uncertainty retained separately. Every
 existing candidate retains its earlier content; each input adds one recording
 candidate. Batch 11 retains exact commands, native reports, scoring and failures.
 Remaining families and final integrated gates stay open.
+
+The v2 continuation adds bounded SDK startup/provider/middleware interpretation,
+source branch evidence, source module replacement, list iteration and Express
+factory callbacks. Source-specific shared tests pass; this does not complete the
+remaining TypeScript middleware/client contract. Upload at `6da955e` completes four
+of five inputs; its safe control timed out. Meta at both `a2940e2` and `d2ba110`
+completes zero of five inputs within 120 seconds. Later source-validation caching
+has regression and component-equivalence evidence, not a passing native gate.
+The frozen Meta fixed-label configuration conflict awaits an explicit versioned
+decision; original labels and evidence are unchanged. See the integration progress
+ledger and `meta-fixed-label-review-v1/` packet. Final technical verification,
+reviewed evaluation, draft delivery and pilot-dependent acceptance remain open.
+
+A separate safe-control retry completes at `6da955e` in 99.8 seconds. Across that
+retry and the original run, all five upload-family reports complete, with two
+source-adjudicated vulnerable Confluence condition hits and zero fixed/safe alerts.
+Two page-content candidates remain policy-uncertain. Meta still times out on its
+first input at `0eb39b5`; repeated startup interpretation remains a measured cost.
+Evidence batch 16 preserves these results, failures and pending decisions. They do
+not substitute for final integrated repeats or independent acceptance.
