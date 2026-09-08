@@ -130,7 +130,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | Frozen condition scorer + per-input adjudication | Open; R18 currently misses |
 | R65 | All five Phase 22 development pairs, paired mutations, controls | Frozen Phase 22 runner | Prior partial measurements retained; full final run open |
 | R66 | Fresh holdout outside tuning, separate results/no invented threshold | Approved frozen Phase 22 corpus | Source not opened for tuning; final evaluation open |
-| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | Evidence/adjudication ledger | Meta 240 source-reviewed: 25 false alarms, 205 uncertain framework enforcement, 10 uncertain resource policy; correction/final remeasurement and other changed findings open; historical 70 explicitly unadjudicated |
+| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | Evidence/adjudication ledger | Meta v2 source review: 20 corrected fixed-authority false alarms; 220 uncertain framework/resource/operator-policy cases; five-input repeat passes named condition, final remeasurement/other changed findings open; historical 70 explicitly unadjudicated |
 | R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | Existing comparator runner | Open |
 | R69 | Per-input statuses/support/completion denominators, repeated differences | Measurement/scoring infrastructure | Final results open; harness exit alone never qualifies |
 | R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | Authorized Git packet + existing sandbox | Exact packet/image verified; integrated campaigns open; Phase 20 preserved |

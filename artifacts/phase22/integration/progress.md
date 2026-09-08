@@ -491,3 +491,30 @@ whole-project Ruff, formatting and strict mypy passed. The initial wrong test-fi
 selection and every failed reproduction remain in the evidence. Meta and Mastra
 remeasurements are separate source-specific commands; their results are not
 assumed here. All other authorized implementation/final gates remain open.
+
+### 45ea165 development measurements and returned-status guards
+
+The Meta URL-composition repeat completed five inputs. Exact candidate-key
+comparison shows only twenty removals: four fixed Graph API authority false alarms
+per input. Two vulnerable inputs retain the original image-URL condition hits;
+fixed variants/control have no named-condition alert. Reports and scoring are in
+`meta-url-composition-continuation/`. The original 240-instance adjudication is
+preserved; its `-v2.json` revision classifies five operator-selected destination
+cases as uncertain policy, since the base is unknown and private-base controls
+remain intentional. Thus twenty false alarms were corrected and 220 unrelated
+instances remain uncertain; independent human acceptance is not implied.
+
+The Mastra repeat completed five inputs with ten findings each, including broad
+directory findings on fixed sources. It does not pass the source-condition gate.
+The returned `isSecurityViolation` field must preserve the initial rejection
+branch before fallback is interpreted; prefix-collision/symlink conditions also
+remain distinct from the frozen ordinary-directory prerequisite.
+
+Shared TypeScript flow now retains common record fields across returns and carries
+branch facts on their boolean status values. Replacement and unknown escape
+invalidate those facts, including nested records and credential consumers. One
+positive regression failed before correction; all seven status-field controls
+pass. `continuation-record-status-quality` passed 284 affected tests in 89.86s;
+strict mypy, Ruff and formatting pass after retained line-length failures. The
+last correction only split Python test string literals. This establishes bounded
+record-status flow, not the complete Mastra condition or final technical gate.

@@ -78,6 +78,15 @@ class TypeScriptPathFlow:
 
     def combined(self, values: list[Value]) -> Value:
         result = combine(values)
+        if len({value.key for value in values}) > 1 and all(
+            value.key in self.objects and value.key not in self.invalidated_objects
+            for value in values
+        ):
+            fields = set.intersection(*(set(self.objects[v.key]) for v in values))
+            self.objects[result.key] = {
+                name: self.combined([self.objects[v.key][name] for v in values])
+                for name in fields
+            }
         if values and all(self.canonical(value) for value in values):
             self.normalized.add(result.key)
             self.path_inputs[result.key] = frozenset.intersection(
@@ -234,7 +243,17 @@ class TypeScriptPathFlow:
                     true | facts if true is not None else None,
                 )
             if value.key in self.objects:
-                self.objects[result.key] = self.objects[value.key]
+                fields = self.objects[value.key].copy()
+                for name, field in fields.items():
+                    if field.key in self.conditions:
+                        guarded = replace(field, key=_key(field.key, *sorted(facts)))
+                        false, true = self.condition(field)
+                        self.conditions[guarded.key] = (
+                            false | facts if false is not None else None,
+                            true | facts if true is not None else None,
+                        )
+                        fields[name] = guarded
+                self.objects[result.key] = fields
             returned.append(result)
             return False
         elif "Throw" in node:
@@ -310,8 +329,19 @@ class TypeScriptPathFlow:
         return True
 
     def member(self, value: Value, name: str) -> Value:
-        return self.objects.get(value.key, {}).get(
+        field = self.objects.get(value.key, {}).get(
             name, replace(value, key=_key(value.key, name), contained=False)
+        )
+        return (
+            replace(
+                field,
+                key=_key("invalidated", value.key, name),
+                contained=False,
+                url_checks=frozenset(),
+                credential_present=False,
+            )
+            if value.key in self.invalidated_objects
+            else field
         )
 
     def expression(
@@ -787,6 +817,8 @@ class TypeScriptPathFlow:
                     continue
                 seen.add(value.key)
                 pending.extend(self.objects.get(value.key, {}).values())
+                if value.key in self.objects:
+                    self.invalidated_objects.add(value.key)
                 if value.key in self.sdk_instances:
                     self.invalidated_objects.add(value.key)
                     self.warning(

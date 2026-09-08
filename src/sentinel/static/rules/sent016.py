@@ -247,7 +247,10 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
         return result
 
     def member(self, value: Value, name: str) -> Value:
-        if name in self.objects.get(value.key, {}):
+        if (
+            name in self.objects.get(value.key, {})
+            and value.key not in self.invalidated_objects
+        ):
             return self.objects[value.key][name]
         return replace(
             super().member(value, name),

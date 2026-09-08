@@ -597,3 +597,40 @@ def test_lexical_output_guard_discloses_remaining_physical_path_gap(
     )
     assert len(state.matches) == 1
     assert (state.matches[0].captures.get("containment_gap") == "physical") is enforce
+
+
+@pytest.mark.parametrize(
+    ("call", "expected"),
+    [
+        ("const result = check(p); if (result.denied) return null;", 0),
+        ("const result = check(root); if (result.denied) return null;", 1),
+        ("const result = check(p);", 1),
+        (
+            "const result = check(p); result.denied = false; "
+            "if (result.denied) return null;",
+            1,
+        ),
+        (
+            "const result = check(p); unknown(result); if (result.denied) return null;",
+            1,
+        ),
+        (
+            "const result = check(p); unknown({result}); "
+            "if (result.denied) return null;",
+            1,
+        ),
+        ("const result = check(p); if (result.denied) return null; p = input;", 1),
+    ],
+)
+def test_returned_record_guard_requires_relevant_unmodified_field(
+    tmp_path: Path, call: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); let p = await fs.realpath(input); "
+        "function check(p) { if (!p.startsWith(root + path.sep)) "
+        "return {denied:true}; return {denied:false}; } "
+        + call
+        + " return fs.readFile(p);",
+        expected,
+    )
