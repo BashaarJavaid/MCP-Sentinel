@@ -1018,6 +1018,25 @@ class PathFlow:
             if class_info and self.registrations.fields(class_info) is not None:
                 # Source-established dataclasses have no custom instance check or
                 # attribute hooks. The builtin inspection does not mutate them.
+                instance_path, instance_name = args[0].instance
+                instance_file = next(
+                    file
+                    for file in self.program.files
+                    if file.relative_path == instance_path
+                )
+                actual_class = self.program.resolve(instance_file, instance_name)
+                order = (
+                    self.program.method_order(actual_class) if actual_class else None
+                )
+                if order is not None:
+                    matches_type = any(
+                        isinstance(parent, Symbol) and parent.node is class_info.node
+                        for parent in order
+                    )
+                    if not matches_type or not (
+                        args[0].maybe_none or args[0].maybe_missing
+                    ):
+                        return Value(key=repr(matches_type))
                 return Value()
         if (
             method in {"keys", "items", "values"}

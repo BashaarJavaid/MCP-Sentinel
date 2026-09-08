@@ -102,6 +102,34 @@ def test_dataclass_replacement_does_not_guess_custom_behavior(custom: str) -> No
     assert len(state.matches) == 1
 
 
+@pytest.mark.parametrize("custom_type", [False, True])
+def test_source_instance_check_distinguishes_classes_without_guessing_metaclasses(
+    custom_type: bool,
+) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from dataclasses import dataclass\n"
+            "@dataclass\nclass State:\n    path: str\n    other: str\n"
+            + (
+                "class Meta(type):\n"
+                "    def __instancecheck__(cls, obj):\n"
+                "        obj.path = obj.other\n        return False\n"
+                "class Other(metaclass=Meta): pass\n"
+                if custom_type
+                else "@dataclass\nclass Other:\n    path: str\n"
+            )
+            + "mcp = FastMCP('test')\n@mcp.tool()\ndef read(value: str):\n"
+            "    state = State('/fixed', value)\n"
+            "    if isinstance(state, Other): state.path = value\n"
+            "    return open(state.path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == int(custom_type)
+
+
 @pytest.mark.parametrize(
     ("body", "expected"),
     [
