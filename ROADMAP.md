@@ -1161,8 +1161,12 @@ linked native 1.7 reporting and repeated runtime proof (`3f75327`), with
 orchestration-fixture corrections (`a9c097e`), registered lifespan flow
 (`9d396a4`), bounded service construction (`c71e43e`), direct credential-bearing
 client sinks (`a2b88f1`) and actual-evaluation URL facts (`ee6c9f5`). These changes remain
-undelivered and have no final technical acceptance. The latest full milestone
-failed; focused corrections and real fixture Docker/native/SARIF checks do not
+undelivered and have no final technical acceptance. After the retained failed
+milestone, the fixed `f12e891` checkout passed 1138 tests, 36 skipped and 87.94%
+branch coverage. Later TypeScript HTTP and shared shell-dispatch commits have
+focused checks; the five-input Kubernetes development measurement now completes
+with two vulnerable condition hits and zero fixed/mutation/control condition
+alerts. Batch 6 preserves these source-specific results and failures. They do not
 replace final-candidate checks. At `c71e43e`, the exposed Atlassian-auth input
 again exceeded the unchanged 120-second static deadline. The later `ee6c9f5`
 measurement remains incomplete despite measured interpretation corrections. Completing that input,

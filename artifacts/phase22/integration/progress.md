@@ -330,3 +330,56 @@ read back and verified; batches 1–4 are unchanged. The focused source checks
 above pass, and the owning documentation build passed (`service-evidence-docs`),
 but all final technical and external gates remain explicitly open as mapped in
 `requirements.md`. No consolidated draft has been created.
+
+## Batch 6: fixed-source milestone and measured execution correction
+
+`f12e891` distinguishes real dataclass classes and inherited classes during
+`isinstance`, preserving conservative custom-metaclass behavior. Its focused
+gate passed 316 tests. A detached verification checkout at that exact commit
+then passed **1138 tests, 36 skipped, 87.94% branch coverage** in 927.50 seconds.
+`service-milestone-fixed-suite` records the fixed checkout, exact imports and
+empty final tracked diff. The original coverage database and JSON export are
+retained as `service-milestone-f12.coverage` and `service-milestone-coverage.json`.
+This is a milestone result, not a pass for subsequent source changes.
+
+The same fixed checkout ran 18 original exposed historical vulnerable/fixed
+inputs, excluding atlassian-auth (`exposed-pairs-f12`). Sixteen completed; both
+atlassian-upload inputs exceeded 120 seconds. The completed Atlassian SSRF,
+Excel, mobile and Kubernetes vulnerable inputs still missed their named rules.
+Git/filesystem reports require condition adjudication; report completion alone
+does not establish those gates. The harness returned zero while two inputs were
+incomplete. This run is neither the final 45-input repeat nor fresh holdout.
+
+`1d83b9c` adds shared TypeScript Express HTTP route discovery and direct
+credential/URL flow, including imported handlers, rejected missing credentials,
+nullish/OR/imperative fallback, source binding controls and stdio controls.
+235 affected regressions, Ruff, formatting and strict mypy pass at the retained
+source patch. Initial malformed target-fixture results are retained and are not
+treated as TypeScript counterexamples. `typescript-http-f12-counterexample`
+provides a valid prior-source failure. Two later imperative-branch false alarms
+were reproduced and corrected through shared impossible-branch handling.
+This does not complete middleware/factory or independent SENT-016 conditions.
+
+`5065f16` feeds TypeScript shell execution through shared SDK discovery and
+cross-file flow. The two failing low-level-dispatch regressions now pass;
+220 existing execution/static regressions pass, followed by Ruff, formatting
+and strict mypy. The last edits before committing only reflow source/test lines
+and update owning documentation. The benchmark source patch is recorded in
+`kubernetes-development-shared.json`; no implementation changed during that run.
+All five approved historical Kubernetes inputs completed: two vulnerable
+condition hits, zero condition-matched fixed/mutation/control alerts. The
+scoring packet is `kubernetes-development-shared/condition-adjudication.json`.
+Its first scoring attempt incorrectly expected the original function spelling
+in the alias mutation and failed; the corrected scorer validates the actual
+`execSync as runKubectlProcess` import and source flow. All failures are retained.
+Thirty-two new unrelated execution candidates were source-reviewed: thirty
+supported static candidates and two uncertain context-selection instances.
+None is runtime-confirmed or independently human-accepted. Unchanged candidates
+and the historical 70-warning backlog remain explicitly separate.
+
+Batch 6 preserves 251 added/changed evidence files (94,420,419 raw bytes), with
+every archived member read back against its SHA-256. Timings from concurrent
+verification are not isolated throughput. Fresh Phase 22 holdout source remains
+outside tuning. Final conditions, campaign/Docker verification, final repeat and
+comparative measurements, review evaluation and consolidated draft delivery
+remain open. No paid calls, pushes, merges, publications or outreach occurred.

@@ -5,6 +5,17 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
+The latest fixed-source milestone at `f12e891` passed 1138 tests, with 36 skips
+and 87.94% branch coverage. Later commits add direct TypeScript HTTP flows
+(`1d83b9c`) and shared TypeScript shell dispatch (`5065f16`), with their focused
+checks recorded separately. The five-input Kubernetes development measurement
+completed with two vulnerable condition hits and no named-condition alerts on
+the fixed/mutation/control inputs. Other independent conditions remain unmet:
+the 18-input exposed check on `f12e891` completed only 16 inputs, with both upload
+inputs timing out, and retained SSRF/Excel/mobile/execution misses at that source.
+Batch 6 seals 251 evidence files. This is not the final candidate, the final
+historical repeat, reviewed evaluation or a complete technical acceptance packet.
+
 ## Active delivery workflow
 
 The user approved one integration branch with batched PR/CI delivery on

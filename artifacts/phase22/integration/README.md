@@ -1,9 +1,19 @@
-# Integration evidence, batches 1–3
+# Integration evidence, batches 1–6
 
 This packet preserves intermediate implementation, failures and measurements
 through source commit `536bb69`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
+
+The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 6 (`evidence-v6.tar.gz`, `evidence-v6.json`) adds 251 files through
+`5065f16`, including the exact `f12e891` full-suite milestone, its coverage
+database, the 18-input incomplete development run, TypeScript HTTP regressions,
+and the five-input Kubernetes measurement/adjudication. Extract batches in
+numeric order into the same evidence directory. Verify each batch immediately
+after extraction using its own manifest before applying the next batch; later
+versions may retain newer bytes at a shared diagnostic path. Sealed archives
+are unchanged. Source-specific limits and failed attempts are in `progress.md`.
 
 `evidence-v1.tar.gz` is lossless. `evidence-v1.json` records its SHA-256 and the
 size and SHA-256 of every member. Every archived member was read back and checked

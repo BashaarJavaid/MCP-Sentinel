@@ -82,15 +82,15 @@ The continuation starts at `83c9985` plus tracked patch
 | R16 | Repository escapes and symlinks; dynamic single Python package | Config/traversal/workspace tests | Final-source audit open |
 | R17 | Helm original bytes/text secrets and explicit YAML omission | Traversal/config tests | Final integrated strict-YAML/config/Helm measurement open |
 | R18 | Historical atlassian-auth condition | SENT-016 and shared lifecycle/middleware/client flows | `fec9215` completed with ZERO SENT-016 hits; `c71e43e` and later intermediate runs exceeded 120 seconds; condition remains unmet |
-| R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | Final independent measurement open |
-| R20 | Historical atlassian-upload condition | SENT-012, service factories | Open |
-| R21 | Historical excel-boundary condition | SENT-012 | Open |
+| R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | `f12e891` original pair completes but misses vulnerable condition; final gate open |
+| R20 | Historical atlassian-upload condition | SENT-012, service factories | Both original inputs exceed 120 seconds at `f12e891`; open |
+| R21 | Historical excel-boundary condition | SENT-012 | `f12e891` original pair completes, vulnerable condition missed; open |
 | R22 | Historical filesystem-prefix condition | SENT-012, TS normalization/component/physical-parent flow | Earlier four-input gate retained; integrated remeasurement open |
 | R23 | Historical git-arguments condition | SENT-014 | Final independent measurement open |
 | R24 | Historical git-repository condition | SENT-012 | PR #23 narrow result retained; integrated remeasurement open |
 | R25 | Historical git-staging condition | SENT-012 | PR #23 narrow result retained; integrated remeasurement open |
-| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | Shared execution engine | Final independent measurement open |
-| R27 | Historical mobile-output condition | SENT-012 | Open |
+| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | `5065f16`, `typescript_execution.py`, `test_command_execution.py` | Five development inputs complete, two vulnerable hits, zero fixed/mutation/control condition alerts; `kubernetes-development-shared/condition-adjudication.json`; final repeat open |
+| R27 | Historical mobile-output condition | SENT-012 | `f12e891` original pair completes, vulnerable condition missed; wrapper/normalization support open |
 | R28 | Mastra failure-return flags and unsafe directory fallback | SENT-012, TS shared flow | Development pair/mutations/control open |
 | R29 | Explicit description override, exfiltration, cross-tool redirection | SENT-013, description/discovery | Earlier independent development result retained; final discovery/holdout/retention open |
 | R30 | Benign instructions and quoted warnings; parameter/low-level metadata | SENT-013 | Existing regressions; final-source acceptance open |
@@ -134,7 +134,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | Existing comparator runner | Open |
 | R69 | Per-input statuses/support/completion denominators, repeated differences | Measurement/scoring infrastructure | Final results open; harness exit alone never qualifies |
 | R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | Authorized Git packet + existing sandbox | Exact packet/image verified; integrated campaigns open; Phase 20 preserved |
-| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | Makefile/workflows + locked environment | Focused passes retained; final candidate full suite open |
+| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | Makefile/workflows + locked environment | Fixed `f12e891` milestone: 1138 passed, 36 skipped, 87.94% branch coverage; later focused passes separate; final candidate full suite open |
 | R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | Existing commands/workflows | Final gate open; no live convenience generation |
 | R73 | Docker/Action/rules-only network isolation and supported fixtures | Existing suites/workflows | Integrated gate open; permitted Docker run evidence retained |
 | R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | Existing 12 quality + 12 wheel jobs, Docker/isolation jobs | No final hosted run yet; historical scanner job cannot replace integrated measurement |
@@ -142,9 +142,9 @@ The continuation starts at `83c9985` plus tracked patch
 | R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | Exact future approval packet | Explicit paid authorization still required |
 | R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | Existing reviewer/measurement infrastructure | Approval-dependent; prepare after offline gates |
 | R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | Existing scoring/ledger | Approval-dependent; not replaced by replay or synthetic checks |
-| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | Integration archives and command wrapper | Verified v5 preserves 439 additional files through `4d88844`; per-file readback passed; sealed v1–v4 preserved |
+| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | Integration archives and command wrapper | Verified v6 preserves 251 additional/changed files through `5065f16`; per-file readback passed; sealed v1–v5 preserved |
 | R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | Requirement map + acceptance packet | Final packet open; exploratory source overlap must stay disclosed |
-| R81 | Reviewable local commits on single integration branch; preserve old drafts | Git history and PRs #22–36 | Local commits through `4d88844`; no repeated parent updates/pushes |
+| R81 | Reviewable local commits on single integration branch; preserve old drafts | Git history and PRs #22–36 | Local commits through `5065f16`; no repeated parent updates/pushes |
 | R82 | Inspect real ancestry/bases and deliver one consolidated final draft | Git/GitHub delivery | PR #36 head `phase22/description-poisoning` at `8b6b0dd` verified as ancestor; selected base, final draft open |
 | R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | Roadmap/status/acceptance packet | Final reconciliation open; no Phase 22 completion claim |
 | R84 | Human technical acceptance and external pilot-dependent gate | User/maintainer evidence | Unmet external decisions; Phase 21 deferred, five workflows/ranked blockers still required |
