@@ -119,3 +119,24 @@ The full milestone failed and overlapped subsequent edits; its coverage output
 is not evidence for a fixed source revision. The exposed Atlassian condition
 still misses. See the batch-4 section in `progress.md` for exact limits, retained
 failed attempts and diagnostic-source reconstruction limitations.
+
+
+Batch 5 adds `evidence-v5.tar.gz` / `evidence-v5.json`: 439 files through
+`4d88844`, including source-established service construction, client credential
+sinks, interpretation profiles, incomplete Atlassian runs, regressions and their
+failed/corrected checks. Each archived member was read back against its SHA-256.
+Extract after batches 1–4 and use the existing verification snippet with
+`evidence-v5.json`:
+
+```sh
+tar -xzf artifacts/phase22/integration/evidence-v5.tar.gz -C /tmp/phase22-evidence
+```
+
+The packaging command was the locked environment's Python running
+`/private/tmp/phase22-package-evidence-v5.py` (exit 0). The script is retained in
+`diagnostics-v5.tar.gz` inside the packet; it refuses to overwrite the sealed
+version-5 archive/index. The archive holds 2,892,761 raw bytes in 589,041 compressed
+bytes. Per-command JSON records link exact commands, source patches, diagnostic
+snapshots and exit codes. Later documentation bookkeeping is recorded in Git.
+The input deadline and the frozen credential-fallback condition remain unmet;
+four incidental single-tool client candidates are not condition hits.

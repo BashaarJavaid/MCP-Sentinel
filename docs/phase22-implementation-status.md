@@ -98,7 +98,7 @@ and `evidence-v3.json` and their checksummed archives.
 | SENT-013/014/015/016 and Kubernetes SENT-002 | SENT-013 delivered; SENT-014 nested command flows and SENT-015 request flows now have local controls and development measurements | Complete SENT-014/015/016 and Kubernetes, remaining detector support and final rule acceptance. SENT-013 holdout and reviewed retention remain pending. |
 | uv/npm/pnpm membership, local exports, aliases and inherited compiler settings | Workspace/module tests; aggregate root and individual-package configuration checks | Complete structured member coverage, unsupported/inaccessible counts, all negative compatibility cases and detector integration. Dynamic scans still select one Python package. |
 | Candidate-bound 160-line review context | Integrated draft carries merged flow locations and context blocks; multiline redaction/context/proof regressions pass | Complete deduplication, omission/redaction/boundary/reference checks, request/cache compatibility and runtime-proof preservation. Prepare replacements only for changed requests. |
-| Bounded ordered campaigns | Existing runtime pipeline remains rule-keyed | Implement ordered attempts, stable IDs, round-robin fairness, 24-attempt/120-second budgets, settings precedence, fresh baseline/attack containers, schema drift, interruption/cleanup and explicit unstarted remainder. |
+| Bounded ordered campaigns | Local `3f75327` implements ordered attempts, stable IDs, fair rounds, 24-start/120-second budgets and linked outcomes; reference Docker campaigns passed | Complete final candidate audit, Git corpus campaigns, full suite and hosted verification; discovery and failed attacks do not establish exploitation or defense. |
 | Native 1.7.0 and consumers | Report/migration draft incorporated into integration; native 1.7 is not yet verified | Complete attempt/discovery/outcome references and invariants, legacy 1.3–1.6 migrations, workspace consistency, Finding/report schemas, console/JSON/SARIF and owning documentation. |
 | Independent evidence and held-out evaluation | Existing corpus authorization and Git environment preserved unchanged | Finish development-condition measurements before evaluating fresh holdout source. Held-out performance has not been measured here. |
 | Unrelated findings and competitor measurement | `shared-containment/finding-delta.json` compares 45 inputs; unchanged historical backlog remains unadjudicated | Adjudicate any later new/changed unrelated findings. Rerun the pinned comparable Semgrep measurements; Snyk/Cisco performance remains unmeasured. |
@@ -136,8 +136,26 @@ and SARIF validation; the required Git corpus campaigns remain unmeasured.
 
 The exposed Atlassian source establishes the registered lifespan-to-context
 relationship, but SENT-016 still misses its credential-fallback condition.
-Inherited service construction and enforcement, other required static conditions,
+The later `c71e43e` supports source-established mixin construction; HTTP middleware enforcement, other required static conditions,
 final offline/reviewed measurements, all final quality gates and draft delivery
 remain open. Paid calls, human acceptance and external pilots remain separate
 checkpoints. The complete requirement/evidence map and source-specific limits
 are in the integration packet's `requirements.md` and `progress.md`.
+
+
+Local source through `ee6c9f5` adds exact mixin forwarding, direct
+Jira/Confluence credential arguments, an import-aware command precheck and URL
+facts derived from the actual expression evaluation. The combined focused gate
+passed 301 tests plus Ruff, formatting and strict mypy. The exposed Atlassian
+authentication input still exceeds 120 seconds before all rules finish; its
+latest instrumented run is incomplete. These corrections do not satisfy that
+condition or the final technical gate. Commands, patches and failures remain
+under `artifacts/phase22/integration/`; see the service-construction section of
+`progress.md` for source-specific measurements.
+
+
+`4d88844` adds bounded dataclass replacement/type-inspection and literal selector
+branch controls; 314 focused regressions, Ruff, formatting and strict mypy pass
+at their retained patches. Batch 5 contains 439 further evidence files, each
+verified after archive creation. It preserves all incomplete measurements and
+incidental-candidate limits; it is not a final technical acceptance packet.

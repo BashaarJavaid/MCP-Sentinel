@@ -363,7 +363,8 @@ human acceptance remain separate Phase 22 gates.
   credentials can inherit the server operator's authority at an outbound service.
 - **Impact:** High; theoretical likelihood produces initial Medium severity.
 - **Engine:** Python source flow from registered HTTP handlers to supported
-  requests/httpx credential arguments, including caller headers obtained through
+  requests/httpx credential arguments and source-bound Jira/Confluence token or
+  password constructor arguments, including caller headers obtained through
   the source-established SDK HTTP request getter.
 - **Remediation:** Reject absent or invalid caller credentials before invoking the
   protected operation. Keep operator credentials separate from caller sessions.
@@ -372,7 +373,12 @@ human acceptance remain separate Phase 22 gates.
   does not establish permission to act with operator credentials.
 
 The current implementation follows environment-derived operator credentials into
-`auth` arguments or recognized credential fields in headers/parameters/payloads.
+`auth` arguments, recognized credential fields in headers/parameters/payloads,
+and the `token`/`password` keywords of imported `atlassian.Jira` and
+`atlassian.Confluence` clients. Replaced imports, local impersonating modules and
+caller-shadowed constructors do not establish those external sinks. Client URL
+and username arguments alone are not treated as credential use. Session-based
+client authentication still requires additional flow support.
 It distinguishes caller-token rejection from checks of unrelated values and
 values replaced after validation. Dictionary member writes, copies and helper
 mutations retain the relevant credential selection. A local stdio tool's use of

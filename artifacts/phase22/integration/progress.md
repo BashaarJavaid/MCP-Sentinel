@@ -240,3 +240,93 @@ request packet/evaluation, installed-wheel/Action/isolation/hosted final matrix 
 consolidated draft is complete. No paid calls, pushes, PR creation, merge, release,
 outreach or external acceptance occurred in this batch. Pilot recruitment remains
 deferred; authorized implementation and offline verification still remain.
+
+
+## Service construction and measured interpretation corrections
+
+`c71e43e` follows bounded C3 mixin initializers, genuine Protocol bases, exact
+positional/keyword forwarding (including present nullable keywords), real method
+descriptors and source-established record truth. It retains conservative custom
+construction/reflection controls. Its 280 focused regressions and corrected
+lint/type/format commands are recorded under `source-service-*`.
+
+The complete exposed Atlassian authentication input at that source exceeded the
+unchanged 120-second static deadline (`atlassian-auth-service-measure`). Its
+harness exited zero but the input is **incomplete**. Subsequent instrumented runs
+`atlassian-auth-stage-profile`, `atlassian-auth-merge-stages` and
+`atlassian-auth-sink-stages` also retain their incomplete status. Partial detector
+matches and warnings are not scored as completed input results.
+
+`1abade5` removes repeated allocation of immutable merge defaults and checks for
+supported command sink syntax. `cc283a1` follows included imports from handlers,
+registrations and their lifespan sources, including relative imports, re-exports,
+cycles and ambiguous module matches. Files remain in the source index. Tool
+visits remain recorded; an absent supported command form is not a claim that
+unknown command APIs are safe. The first whole-source precheck could not avoid
+unreachable subprocess calls in included tests; that intermediate run is retained.
+
+`a2b88f1` follows explicit HTTP caller-to-operator selection into imported
+`atlassian.Jira`/`Confluence` token and password keywords. Six missed cases were
+reproduced first; enforced and unrelated guards, noncredential keywords, local
+module impersonation and replaced/caller-shadowed bindings have controls. These
+are direct-flow regressions. They do not establish the actual Atlassian middleware,
+session-authentication or frozen fallback condition.
+
+`ee6c9f5` corrects repeated interpretation during URL fact extraction. Facts now
+use the values from the actual expression evaluation, scoped to its function and
+expression. A once-only validator regression first failed; replaced values and
+short-circuit-skipped validators also have controls. The same source-only,
+single-tool profile changed from 83,061,516 calls / 23.302 seconds to 5,765,131
+calls / 1.738 seconds. These are instrumented diagnostic timings, not independent
+throughput measurements or condition scores.
+
+The combined source through `ee6c9f5` passed 301 focused regressions (9.17 seconds),
+Ruff, formatting and strict mypy (118 configured source files), recorded as
+`source-evaluation-quality-final-{0,1,2,3}` with exact patches and command identities.
+Earlier failed regressions, a mistaken test location attribute and lint/type/format
+failures remain retained. No full suite result is attached to this later source.
+
+Read-only GitHub inspection verified PR #36's head
+`8b6b0ddf1d6f6cf5a8da3ab9421471865b801455`, branch
+`phase22/description-poisoning`, as the integration branch's existing ancestor.
+That is the selected consolidated draft base; the final draft has not been
+created. `delivery-parent-pr36-permitted` retains the remote metadata and the
+initial network-restricted failure is preserved separately. Old drafts remain.
+
+
+The whole exposed input at `ee6c9f5` is still **incomplete**
+(`atlassian-auth-evaluation-stages/results.json`). The instrumented run records
+SENT-012 at 44.652 seconds, SENT-014 at 1.390 seconds and SENT-015 at 40.371
+seconds, then reaches the unchanged 120-second deadline before SENT-016 finishes.
+The harness exit zero is not a completed scan or condition hit. Source files
+were held fixed during this run; documentation work overlapped it. Fresh holdout
+source remains outside tuning. No new paid calls, pushes, draft creation,
+merges, releases or outreach occurred.
+
+
+The subsequent bounded dataclass/selector correction preserves exact fields and
+shallow-copy aliases for genuine `dataclasses.replace`, keeps supported builtin
+dataclass type inspection from invalidating records, and excludes impossible
+branches for recoverable literal equality/membership selectors. Custom hooks and
+replaced bindings remain conservative. Seven copy/type-control forms and literal
+selector controls retain their initial failures. The broader regression run also
+caught two predicate-key regressions and, in a later edit, two branch-evaluation
+snapshot regressions; all are retained with their corrections. Final focused
+verification is `dataclass-selector-branch-snapshot-corrected` (314 passed in 9.08
+seconds) and `dataclass-selector-verified-{0,1,2}` (Ruff, formatting, strict mypy).
+
+Current single-tool diagnostics expose four incidental SENT-016 client candidates
+on per-user configuration paths. These are not the frozen missing-caller/global
+fallback condition. The original config survives type inspection now, but some
+record/keyword fields remain unresolved across optional/branch state. The four
+candidates require further adjudication/correction; they must not be substituted
+for independent condition scoring. There is no complete-input pass for this later
+source and no final full-suite or hosted result.
+
+
+Batch 5 seals 439 added/changed evidence files through `4d88844` in
+`evidence-v5.tar.gz`, with per-file hashes in `evidence-v5.json`. All members were
+read back and verified; batches 1–4 are unchanged. The focused source checks
+above pass, and the owning documentation build passed (`service-evidence-docs`),
+but all final technical and external gates remain explicitly open as mapped in
+`requirements.md`. No consolidated draft has been created.

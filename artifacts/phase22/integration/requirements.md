@@ -70,7 +70,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R04 | Reflection, unknown mutation, custom hooks and constructor/decorator ambiguity | Same shared flow and containment controls | Computed `getattr` and `vars` assignment targets reproduced and fixed; broader unsupported flows remain explicit |
 | R05 | Imported handlers and schemas | `discovery.py`, TypeScript discovery, registration flow | Open: detector and inventory support must both be established |
 | R06 | Aliases/re-exports, local imports and package exports | Shared module resolvers | Existing delivered controls; final integrated coverage open |
-| R07 | Statically bound helpers, factories, inherited/bound methods | Shared discovery/path/registration flow | `83c9985`, `fec9215`; real service/lifecycle condition gates open |
+| R07 | Statically bound helpers, factories, inherited/bound methods | Shared discovery/path/registration flow | `83c9985`, `fec9215`, `9d396a4`, `c71e43e`; C3 mixins, forwarding, descriptors and registered lifespan controls pass; real service/lifecycle conditions remain open |
 | R08 | Cross-file caller/guard/sink evidence and binding identity | Shared Python/TypeScript flows | Existing controls retained; final condition measurements open |
 | R09 | Genuine SDK context vs caller/fake/rebound/local SDK | Shared discovery/context source checks | Existing source controls retained; real middleware-to-tool paths open |
 | R10 | Low-level registration and dispatch | Shared discovery/registration | Final required source forms open |
@@ -81,7 +81,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R15 | Inaccessible/unsupported members, ambiguity/import/reflection/schema gaps | Workspace/discovery diagnostics | Final-source audit open |
 | R16 | Repository escapes and symlinks; dynamic single Python package | Config/traversal/workspace tests | Final-source audit open |
 | R17 | Helm original bytes/text secrets and explicit YAML omission | Traversal/config tests | Final integrated strict-YAML/config/Helm measurement open |
-| R18 | Historical atlassian-auth condition | SENT-016 and shared lifecycle/middleware/client flows | `fec9215` exposed input completed, 90 SENT-003 + one SENT-012; ZERO SENT-016 hits; condition remains unmet |
+| R18 | Historical atlassian-auth condition | SENT-016 and shared lifecycle/middleware/client flows | `fec9215` completed with ZERO SENT-016 hits; `c71e43e` and later intermediate runs exceeded 120 seconds; condition remains unmet |
 | R19 | Historical atlassian-ssrf condition | SENT-015, shared URL flow and enforced returned errors | Final independent measurement open |
 | R20 | Historical atlassian-upload condition | SENT-012, service factories | Open |
 | R21 | Historical excel-boundary condition | SENT-012 | Open |
@@ -97,9 +97,9 @@ The continuation starts at `83c9985` plus tracked patch
 | R31 | dbt selector options through nested factories/mutable argv | SENT-014 | Earlier 5/5 development result retained; final remeasurement open |
 | R32 | Git option positions, rejection, command-specific terminators, object APIs | SENT-014 Python/TS controls | Full acceptance open; preserve unrelated/replaced TS fix `37f2190` |
 | R33 | Meta image caller URL request and scheme/private/loopback checks | SENT-015 | Earlier 5/5 result retained; final remeasurement/adjudication open |
-| R34 | Fixed public authority plus caller suffix; enforced actual return value | SENT-015/shared flow | Existing regressions retained; redirects/DNS rebinding outside claim |
+| R34 | Fixed public authority plus caller suffix; enforced actual return value | SENT-015/shared flow | `ee6c9f5` derives facts from actual evaluation (once-only, replacement and short-circuit controls); redirects/DNS rebinding outside claim |
 | R35 | Meta ContextVar/HTTP authentication/operator fallback | SENT-016/shared flow | Open |
-| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | SENT-016/shared flow | Open; successful scan is still a condition miss |
+| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | SENT-016/shared flow | `c71e43e` reaches actual client initializers; `a2b88f1` adds token/password sinks with binding controls. Middleware/session/authorization relationships and condition measurement remain open |
 | R37 | Applicable Python and TypeScript positives/negatives for every new rule | Rule-specific test files | SENT-016 TypeScript and real flows remain open |
 | R38 | Rule defaults, selection, inline suppression, baseline/severity identities | Catalog/config/CLI/rule tests | Earlier per-rule checks retained; final integrated acceptance open |
 | R39 | Canonical Finding, evidence/provenance/remediation/OWASP and limitations | Rules/Finding/report/docs | Final acceptance checklist open |
@@ -142,10 +142,10 @@ The continuation starts at `83c9985` plus tracked patch
 | R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | Exact future approval packet | Explicit paid authorization still required |
 | R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | Existing reviewer/measurement infrastructure | Approval-dependent; prepare after offline gates |
 | R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | Existing scoring/ledger | Approval-dependent; not replaced by replay or synthetic checks |
-| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | Integration archives and command wrapper | New expanded logs need v4 packaging; sealed v1–v3 preserved |
+| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | Integration archives and command wrapper | Verified v5 preserves 439 additional files through `4d88844`; per-file readback passed; sealed v1–v4 preserved |
 | R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | Requirement map + acceptance packet | Final packet open; exploratory source overlap must stay disclosed |
-| R81 | Reviewable local commits on single integration branch; preserve old drafts | Git history and PRs #22–36 | `fec9215` added; no repeated parent updates/pushes |
-| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | Git/GitHub delivery | Final draft/base selection open; no merge or publication authorized |
+| R81 | Reviewable local commits on single integration branch; preserve old drafts | Git history and PRs #22–36 | Local commits through `4d88844`; no repeated parent updates/pushes |
+| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | Git/GitHub delivery | PR #36 head `phase22/description-poisoning` at `8b6b0dd` verified as ancestor; selected base, final draft open |
 | R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | Roadmap/status/acceptance packet | Final reconciliation open; no Phase 22 completion claim |
 | R84 | Human technical acceptance and external pilot-dependent gate | User/maintainer evidence | Unmet external decisions; Phase 21 deferred, five workflows/ranked blockers still required |
 | R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | Shared existing trust boundaries | Required across every implementation/check; no target executed on host |

@@ -1156,8 +1156,20 @@ campaign, reviewed-evaluation or hosted acceptance gates. See the
 [implementation status](docs/phase22-implementation-status.md). The
 [workspace increment](docs/phase22-workspaces.md) records the corrected
 TypeScript parent, aggregate workspace source scanning and separately retained
-verification. Native 1.7.0, campaigns, the remaining detector families and
-condition-level technical acceptance are still pending.
+verification. Local integration commits now implement ordered bounded attempts,
+linked native 1.7 reporting and repeated runtime proof (`3f75327`), with
+orchestration-fixture corrections (`a9c097e`), registered lifespan flow
+(`9d396a4`), bounded service construction (`c71e43e`), direct credential-bearing
+client sinks (`a2b88f1`) and actual-evaluation URL facts (`ee6c9f5`). These changes remain
+undelivered and have no final technical acceptance. The latest full milestone
+failed; focused corrections and real fixture Docker/native/SARIF checks do not
+replace final-candidate checks. At `c71e43e`, the exposed Atlassian-auth input
+again exceeded the unchanged 120-second static deadline. The later `ee6c9f5`
+measurement remains incomplete despite measured interpretation corrections. Completing that input,
+its missing credential-fallback detection, the remaining detector conditions,
+final migration/campaign verification, paid evaluation and consolidated draft
+delivery remain authorized technical work. Human acceptance and the deferred
+external pilot gate remain separately unmet.
 
 ### Objective
 
