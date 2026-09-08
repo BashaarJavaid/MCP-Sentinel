@@ -344,3 +344,27 @@ def test_discovery_reuses_snapshot_and_retains_unknown_bindings() -> None:
     index.deadline = 0
     with pytest.raises(InfrastructureError, match="120-second"):
         index.tools()
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "reader: ClassVar[object]",
+        "reader: InitVar[object]",
+        "reader: object = []",
+        "reader: object\n    @property\n    def reader(self): return replacement",
+    ],
+)
+def test_unsupported_dataclass_layout_is_not_callback_binding(field: str) -> None:
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.registration_flow import RegistrationFlow
+
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass, InitVar\n"
+            "from typing import ClassVar\n"
+            "@dataclass\nclass Spec:\n    " + field + "\n"
+        }
+    )
+    node = index.files[0].tree.body[-1]
+    assert RegistrationFlow(index).fields(Symbol(index.files[0], "Spec", node)) is None

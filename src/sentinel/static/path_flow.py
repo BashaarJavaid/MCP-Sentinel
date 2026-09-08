@@ -68,6 +68,20 @@ def _key(*parts: str) -> str:
     return hashlib.sha256(json.dumps(parts).encode()).hexdigest()
 
 
+UNKNOWN_MEMBER = object()
+
+
+def member_label(value: Value) -> object:
+    if value.sources:
+        return UNKNOWN_MEMBER
+    try:
+        label = ast.literal_eval(value.key)
+        hash(label)
+        return label
+    except (ValueError, SyntaxError, TypeError):
+        return UNKNOWN_MEMBER
+
+
 class PathFlow:
     rule_id = "SENT-012"
 
@@ -373,10 +387,14 @@ class PathFlow:
         return result
 
     def bound_value(self, node: ast.AST, env: dict[str, Value]) -> Value:
+        if isinstance(node, ast.Constant):
+            return Value(key=repr(node.value))
         if isinstance(node, ast.Name):
             return env.get(node.id, Value())
-        if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant):
-            return self.member(self.bound_value(node.value, env), node.slice.value, env)
+        if isinstance(node, ast.Subscript):
+            label = member_label(self.bound_value(node.slice, env))
+            if label is not UNKNOWN_MEMBER:
+                return self.member(self.bound_value(node.value, env), label, env)
         if isinstance(node, ast.Attribute):
             return self.member(self.bound_value(node.value, env), node.attr, env)
         return Value()
@@ -390,9 +408,10 @@ class PathFlow:
         elif isinstance(target, ast.Subscript):
             receiver = self.bound_value(target.value, env)
             if receiver.key:
-                if isinstance(target.slice, ast.Constant):
-                    self.member(receiver, target.slice.value, env)
-                    env[self.member_key(receiver, target.slice.value)] = value
+                label = member_label(self.bound_value(target.slice, env))
+                if label is not UNKNOWN_MEMBER:
+                    self.member(receiver, label, env)
+                    env[self.member_key(receiver, label)] = value
                 else:
                     self.update_mapping(receiver, value, env)
         elif isinstance(target, ast.Attribute):
@@ -579,8 +598,9 @@ class PathFlow:
             return self.expression(symbol, node.elt, local)
         if isinstance(node, ast.Subscript):
             value = self.expression(symbol, node.value, env)
-            if isinstance(node.slice, ast.Constant):
-                return self.member(value, node.slice.value, env)
+            label = member_label(self.expression(symbol, node.slice, env))
+            if label is not UNKNOWN_MEMBER:
+                return self.member(value, label, env)
             return replace(
                 value,
                 key=value.key + "[" + ast.dump(node.slice) + "]",
@@ -655,9 +675,30 @@ class PathFlow:
         ):
             resolved = ""
         args = [self.expression(symbol, arg, env) for arg in node.args]
-        keywords = {
-            kw.arg: self.expression(symbol, kw.value, env) for kw in node.keywords
-        }
+        keywords: dict[str | None, Value] = {}
+        for keyword in node.keywords:
+            value = self.expression(symbol, keyword.value, env)
+            if keyword.arg is not None:
+                if keyword.arg in keywords:
+                    keywords[None] = value
+                keywords[keyword.arg] = value
+            elif (
+                value.key in self.mapping_keys
+                and "#member:unknown:" + value.key not in env
+            ):
+                for label, marker in self.members.get(value.key, {}).items():
+                    if marker not in env:
+                        continue
+                    if (
+                        not isinstance(label, str)
+                        or label in keywords
+                        or env[marker].maybe_missing
+                    ):
+                        keywords[None] = value
+                    else:
+                        keywords[label] = env[marker]
+            else:
+                keywords[None] = value
         receiver = (
             self.expression(symbol, node.func.value, env)
             if isinstance(node.func, ast.Attribute)
@@ -822,8 +863,9 @@ class PathFlow:
                 else result
             )
         if method == "get" and (receiver.sources or receiver.key in self.mapping_keys):
-            if node.args and isinstance(node.args[0], ast.Constant):
-                member = self.member(receiver, node.args[0].value, env)
+            label = member_label(args[0]) if args else UNKNOWN_MEMBER
+            if label is not UNKNOWN_MEMBER:
+                member = self.member(receiver, label, env)
                 if member.maybe_missing:
                     member = combine([member, args[1] if len(args) > 1 else Value()])
                 return replace(member, maybe_missing=False)
@@ -839,9 +881,13 @@ class PathFlow:
             resolved in {"getattr", "builtins.getattr"}
             and root not in env
             and len(node.args) in {2, 3}
-            and isinstance(node.args[1], ast.Constant)
+            and member_label(args[1]) is not UNKNOWN_MEMBER
+            and not any(
+                not isinstance(declaration, (ast.Import, ast.ImportFrom))
+                for declaration in declarations
+            )
         ):
-            member = self.member(args[0], node.args[1].value, env)
+            member = self.member(args[0], member_label(args[1]), env)
             return (
                 combine([member, args[2]])
                 if member.maybe_missing and len(args) == 3
@@ -877,6 +923,9 @@ class PathFlow:
                         for key, value in keywords.items()
                         if key is not None
                     )
+                    for field, default in self.registrations.defaults(helper).items():
+                        if field not in bindings:
+                            bindings[field] = self.expression(default, default.node, {})
                     if set(bindings) == set(fields):
                         record = combine(
                             list(bindings.values()),

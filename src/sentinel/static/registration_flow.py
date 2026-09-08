@@ -150,9 +150,32 @@ class RegistrationFlow:
         self.incomplete = True
         return ()
 
+    def defaults(self, symbol: Symbol) -> dict[str, Symbol]:
+        """Defaults of a class already accepted by fields(), without evaluating it."""
+        check_deadline(self.program.deadline)
+        node = symbol.node
+        assert isinstance(node, ast.ClassDef)
+        defaults = {}
+        for base in node.bases:
+            name = qualified_name(
+                base.value if isinstance(base, ast.Subscript) else base
+            )
+            parent = self.program.resolve(symbol.file, name) if name else None
+            if parent is not None:
+                defaults.update(self.defaults(parent))
+        for part in node.body:
+            if (
+                isinstance(part, ast.AnnAssign)
+                and isinstance(part.target, ast.Name)
+                and part.value is not None
+            ):
+                defaults[part.target.id] = Symbol(symbol.file, symbol.name, part.value)
+        return defaults
+
     def fields(
         self, symbol: Symbol, seen: frozenset[ast.AST] = frozenset()
     ) -> tuple[str, ...] | None:
+        check_deadline(self.program.deadline)
         node = symbol.node
         if not isinstance(node, ast.ClassDef) or node in seen or node.keywords:
             return None
@@ -202,6 +225,11 @@ class RegistrationFlow:
             "__getattr__",
             "__setattr__",
         }
+        declared_fields = {
+            part.target.id
+            for part in node.body
+            if isinstance(part, ast.AnnAssign) and isinstance(part.target, ast.Name)
+        }
         for part in node.body:
             if isinstance(part, (ast.Assign, ast.AnnAssign)):
                 targets = (
@@ -212,10 +240,24 @@ class RegistrationFlow:
                     for target in targets
                 ):
                     return None
-            if isinstance(part, Function) and part.name in hooks:
+            if isinstance(part, Function) and part.name in hooks | declared_fields:
                 return None
             if isinstance(part, ast.AnnAssign) and isinstance(part.target, ast.Name):
-                if isinstance(part.value, ast.Call):
+                if isinstance(part.value, (ast.Call, ast.Dict, ast.List, ast.Set)):
+                    return None
+                annotation = part.annotation
+                if isinstance(annotation, ast.Constant) and isinstance(
+                    annotation.value, str
+                ):
+                    try:
+                        annotation = ast.parse(annotation.value, mode="eval").body
+                    except SyntaxError:
+                        return None
+                if any(
+                    resolve_name(qualified_name(item) or "", aliases)
+                    in {"typing.ClassVar", "dataclasses.InitVar"}
+                    for item in ast.walk(annotation)
+                ):
                     return None
                 if part.target.id not in fields:
                     fields.append(part.target.id)

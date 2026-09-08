@@ -215,3 +215,47 @@ def test_factory_lambda_callback(callback: str) -> None:
     state = RuleRunState()
     analyze(index, state, time.monotonic() + 10)
     assert len(state.matches) == ('"/fixed"' not in callback)
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ('key="path"\n    return open(state.get(key))', 0),
+        ('key="other"\n    return open(state.get(key))', 1),
+        ('key="path"\n    return open(state[key])', 0),
+        ('key="path"\n    state[key]=value\n    return open(state["path"])', 1),
+        ('spec=make_spec("path")\n    return open(state.get(spec.path))', 0),
+        ('spec=make_spec("other")\n    return open(state.get(spec.path))', 1),
+    ],
+)
+def test_bound_member_names(body: str, expected: int) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "@dataclass\nclass Spec:\n    path: str\n"
+            "def make_spec(path): return Spec(path)\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n'
+            '    state={"path":"/fixed", "other":value}\n    ' + body + "\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize("construction", ["Spec(path=value)", 'Spec(**{"path":value})'])
+def test_record_defaults_and_explicit_keyword_expansion(construction: str) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "from mcp.server.fastmcp import FastMCP\n"
+            "def read_path(path): return open(path)\n"
+            "@dataclass\nclass Spec:\n    path: str\n    reader: object = read_path\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\ndef read(value):\n'
+            "    spec=" + construction + "\n    return spec.reader(spec.path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, time.monotonic() + 10)
+    assert len(state.matches) == 1
