@@ -2455,6 +2455,18 @@ class PathFlow:
                     if current.key in reached:
                         continue
                     reached.add(current.key)
+                    # Scalars cannot expose additional helper state. Most cached
+                    # globals and member values are leaves; do not build empty
+                    # traversal generators and unknown-member tuples for them.
+                    if (
+                        current.key not in self.members
+                        and current.key not in self.instance_alternatives
+                        and current.key not in self.argument_tuples
+                        and current.key not in self.closures
+                        and current.key not in self.bound_receivers
+                        and "#member:unknown:" + current.key not in env
+                    ):
+                        continue
                     pending.extend(
                         (original, from_argument)
                         for original in self.instance_alternatives.get(current.key, ())
