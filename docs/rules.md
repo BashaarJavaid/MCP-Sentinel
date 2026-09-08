@@ -239,6 +239,12 @@ computed members, schemas and calls remain explicit gaps. Technical rule accepta
 the new independent corpus evaluation and reviewed-tier measurements remain
 pending; this draft implementation does not complete Phase 22.
 
+Included tool decorators are followed through their returned callable and captured
+arguments. The exact registration position determines which wrappers affect the
+registered handler. A wrapper that substitutes a fixed path or never invokes the
+handler does not establish the original caller-to-sink flow. Unresolved decorators
+remain an explicit limitation, including nondefault or impersonated `wraps`.
+
 The current integration also follows explicit parameterless FastMCP launches and
 their preceding module-global assignments, retaining the analyzed transports in
 findings. Replaced or unresolved launch methods retain unconfigured analysis.

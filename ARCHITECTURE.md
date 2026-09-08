@@ -365,6 +365,14 @@ unknown receiver mutation remain explicit limitations. Computed writes, deletion
 and escaped receivers invalidate inferred method behavior. This source support
 does not by itself establish an external executable's command or output semantics.
 
+Python tool discovery retains the exact registration decorator separately from
+its historical finding location. Source-defined decorators inside that registration
+are interpreted in application order; an outer decorator applied afterward does
+not change the callable already registered. Nested returned functions retain their
+individual captured state. Only genuine default `functools.wraps(function)` is
+metadata-only; other unresolved decoration cannot establish callback behavior.
+The interpreter never imports or executes the decorated target on the host.
+
 Python HTTP client identity is shared by URL and credential flow for the existing
 httpx, requests and aiohttp client constructors. Ordinary member state tracks
 replacement and escape; an unknown receiver cannot establish a request method.

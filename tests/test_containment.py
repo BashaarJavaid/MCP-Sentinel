@@ -779,3 +779,98 @@ def test_replaced_launch_cannot_establish_configured_globals(mutation: str) -> N
     analyze(program({"server.py": source}), state)
     assert state.matches
     assert any("launch" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    ("wrapper", "expected"),
+    [
+        ("return func(*args, **kwargs)", 1),
+        ("kwargs['path'] = '/srv/fixed'\n        return func(**kwargs)", 0),
+        ("return '/srv/fixed'", 0),
+        ("func = unknown\n        return func(*args, **kwargs)", 0),
+        ("return func(path=kwargs['path'])", 1),
+    ],
+)
+def test_registered_handler_runs_its_included_decorator(
+    wrapper: str, expected: int
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "wrapper.py": "from functools import wraps\n"
+            "def decorate(func):\n"
+            "    @wraps(func)\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        " + wrapper + "\n"
+            "    return wrapped\n",
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from wrapper import decorate\nmcp = FastMCP('test')\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("registration", "expected"), [("inner", 0), ("outer", 1), ("call", 0)]
+)
+def test_decorator_order_uses_the_callable_captured_at_registration(
+    registration: str, expected: int
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    decorators = {
+        "inner": "@mcp.tool()\n@decorate",
+        "outer": "@decorate\n@mcp.tool()",
+        "call": "@decorate",
+    }[registration]
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp = FastMCP('test')\n"
+            "def decorate(func):\n"
+            "    def wrapper(**kwargs): return func(path='/fixed')\n"
+            "    return wrapper\n" + decorators + "\ndef read(path: str):\n"
+            "    return open(path).read()\n"
+            + ("mcp.add_tool(read)\n" if registration == "call" else "")
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == expected
+
+
+def test_decorator_factory_keeps_each_returned_closure_separate() -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp = FastMCP('test')\n"
+            "def choose(forward):\n"
+            "    def decorate(func):\n"
+            "        def wrapper(**kwargs):\n"
+            "            if forward: return func(**kwargs)\n"
+            "            return func(path='/fixed')\n"
+            "        return wrapper\n"
+            "    return decorate\n"
+            "@mcp.tool()\n@choose(False)\ndef fixed(path: str):\n"
+            "    return open(path).read()\n"
+            "@mcp.tool()\n@choose(True)\ndef vulnerable(path: str):\n"
+            "    return open(path).read()\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == 1
+    assert state.matches[0].range.start_line == 17

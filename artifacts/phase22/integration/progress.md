@@ -841,3 +841,27 @@ operator fallback/context and middleware enforcement are not established, and
 there are zero SENT-016 matches in this diagnostic. Source-established decorator,
 launch/middleware and ContextVar flow remain required. These shared client tests
 do not pass that condition or replace the remaining native measurements.
+
+
+### Source-defined tool decorators and captured state
+
+The continuation after `7ab3214` records the exact registration decorator while
+preserving its existing source location. Entry analysis applies the inner
+source-defined decorators and invokes their returned callable; outer decorators
+do not change the callable already registered. Named nested functions retain
+individual closure state. Genuine default functools.wraps preserves behavior;
+unresolved decoration does not establish it. Three original decorator controls
+fail before the change; all nine forwarding, substitution, non-invocation,
+replacement, registration-order and factory-isolation controls pass afterward.
+The broad affected suite passes 399 tests with strict mypy and final Ruff/format
+checks. The first implementation tried to use the historical FunctionDef location
+as the decorator identity, and then needed named closure capture; both intermediate
+failures and diagnostic import/line-number mistakes remain retained.
+
+The real Meta DEVELOPMENT trace now reaches get_current_access_token and carries
+operator credential provenance into get_ad_accounts and make_api_request through
+the included wrapper. It still reports no HTTP handler and two unresolved
+launches, so it correctly has no established HTTP caller fallback finding yet.
+The actual source-selected launch, middleware association, ContextVar state and
+fixed middleware rejection remain unfinished. This progress is not a condition
+hit, native development measurement, reviewed evaluation or final technical gate.

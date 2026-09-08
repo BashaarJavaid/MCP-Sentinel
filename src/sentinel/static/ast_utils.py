@@ -16,6 +16,7 @@ class ToolRegion:
     name: str
     function: ast.AsyncFunctionDef | ast.FunctionDef
     node: ast.AST
+    registration_decorator: ast.AST | None = None
 
 
 def qualified_name(node: ast.AST) -> str | None:
@@ -67,14 +68,14 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
                             and isinstance(keyword.value.value, str)
                         ):
                             tool_name = keyword.value.value
-                regions.append(ToolRegion(tool_name, node, node))
+                regions.append(ToolRegion(tool_name, node, node, decorator))
             if name and name.endswith(".call_tool"):
                 parameters = node.args.posonlyargs + node.args.args
                 selector = parameters[0].arg if parameters else "name"
                 for branch in scope_nodes(node):
                     literal = _dispatcher_literal(branch, selector)
                     if literal is not None:
-                        regions.append(ToolRegion(literal, node, branch))
+                        regions.append(ToolRegion(literal, node, branch, decorator))
                     elif (
                         isinstance(branch, ast.Match)
                         and isinstance(branch.subject, ast.Name)
@@ -87,7 +88,9 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
                                     qualified_name(case.pattern.value) or ""
                                 )
                                 if literal is not None:
-                                    regions.append(ToolRegion(literal, node, case))
+                                    regions.append(
+                                        ToolRegion(literal, node, case, decorator)
+                                    )
     return tuple(regions)
 
 

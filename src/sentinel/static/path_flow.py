@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import hashlib
 import json
 from dataclasses import dataclass, replace
@@ -231,7 +232,53 @@ class PathFlow:
                 bindings[name] = context
                 bindings[self.member_key(context, "request_context")] = request
                 bindings[self.member_key(request, "lifespan_context")] = value
-        self.function(tool.handler, bindings)
+        decorators = node.decorator_list
+        if (
+            tool.registration_decorator is not None
+            and tool.registration_decorator in decorators
+        ):
+            decorators = decorators[decorators.index(tool.registration_decorator) + 1 :]
+        if not decorators:
+            self.function(tool.handler, bindings)
+            return
+        original = copy.copy(node)
+        original.decorator_list = []
+        key = _key(
+            "registered-original", tool.handler.file.relative_path, tool.handler.name
+        )
+        self.callables[key] = Symbol(tool.handler.file, tool.handler.name, original)
+        local = {**bindings, "#registered": Value(key=key)}
+        for decorator in reversed(decorators):
+            application = ast.copy_location(
+                ast.Call(
+                    func=decorator,
+                    args=[ast.Name(id="#registered", ctx=ast.Load())],
+                    keywords=[],
+                ),
+                decorator,
+            )
+            local["#registered"] = self.expression(tool.handler, application, local)
+            if local["#registered"].key not in self.callables:
+                self.unresolved(
+                    tool.handler, decorator, "registered decorator result unresolved"
+                )
+                return
+        positional = {p.arg for p in node.args.posonlyargs}
+        invocation = ast.copy_location(
+            ast.Call(
+                func=ast.Name(id="#registered", ctx=ast.Load()),
+                args=[
+                    ast.Name(id=p.arg, ctx=ast.Load()) for p in node.args.posonlyargs
+                ],
+                keywords=[
+                    ast.keyword(arg=name, value=ast.Name(id=name, ctx=ast.Load()))
+                    for name in bindings
+                    if not name.startswith("#") and name not in positional
+                ],
+            ),
+            node,
+        )
+        self.expression(tool.handler, invocation, local)
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         check_deadline(self.deadline)
@@ -330,6 +377,20 @@ class PathFlow:
                         env[
                             f"#global-value:{symbol.file.relative_path}:{target.id}"
                         ] = value
+            elif isinstance(node, Function):
+                key = _key(
+                    "closure",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    *self.call_sites,
+                )
+                self.callables[key] = Symbol(
+                    symbol.file,
+                    symbol.name + "." + node.name,
+                    node,
+                )
+                self.closures[key] = env
+                env[node.name] = Value(key=key)
             elif isinstance(node, ast.Global):
                 for name in node.names:
                     env["#global:" + name] = Value(key=name)
@@ -1771,6 +1832,13 @@ class PathFlow:
                     and not self.program.bindings[helper.file.relative_path].get(
                         decorator.id
                     )
+                )
+                and not (
+                    isinstance(decorator, ast.Call)
+                    and len(decorator.args) == 1
+                    and not decorator.keywords
+                    and self.program.external(helper, decorator.func)
+                    == "functools.wraps"
                 )
                 for decorator in helper.node.decorator_list
             )

@@ -40,6 +40,7 @@ class ToolBinding:
     registration: Symbol
     handler: Symbol
     region: ast.AST
+    registration_decorator: ast.AST | None = None
 
     @cached_property
     def caller_parameters(self) -> tuple[ast.arg, ...]:
@@ -590,6 +591,7 @@ class PythonProgram:
                         Symbol(file, region.name, region.node),
                         decorated,
                         region.node,
+                        region.registration_decorator,
                     )
                 )
             parents = self.parents
