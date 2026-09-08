@@ -7,6 +7,7 @@ import copy
 import hashlib
 import json
 from dataclasses import dataclass, replace
+from functools import lru_cache
 
 from sentinel.report.model import ReportWarning
 from sentinel.static.ast_utils import (
@@ -87,6 +88,7 @@ def combine(values: list[Value], key: str = "") -> Value:
     )
 
 
+@lru_cache(maxsize=4096)
 def _key(*parts: str) -> str:
     return hashlib.sha256(json.dumps(parts).encode()).hexdigest()
 
