@@ -103,6 +103,16 @@ def scan(
         help="Offline rules: no GPT, review cache, Docker, or target execution.",
     ),
     rules: str | None = typer.Option(None, "--rules"),
+    max_probe_attempts: int | None = typer.Option(
+        None,
+        "--max-probe-attempts",
+        help="Maximum started runtime attempts (default 24).",
+    ),
+    campaign_timeout_seconds: int | None = typer.Option(
+        None,
+        "--campaign-timeout-seconds",
+        help="Runtime campaign budget including discovery (default 120s).",
+    ),
     llm_model: str | None = typer.Option(None, "--llm-model"),
     llm_reasoning_effort: str | None = typer.Option(None, "--llm-reasoning-effort"),
     llm_base_url: str | None = typer.Option(None, "--llm-base-url"),
@@ -136,6 +146,10 @@ def scan(
                 "model": llm_model,
                 "reasoning_effort": llm_reasoning_effort,
                 "base_url": llm_base_url,
+            },
+            sandbox_cli_overrides={
+                "max_probe_attempts": max_probe_attempts,
+                "campaign_timeout_seconds": campaign_timeout_seconds,
             },
             trust_llm_endpoint=trust_llm_endpoint,
             target_launch_cmd=target_launch_cmd,

@@ -559,17 +559,14 @@
           "default": null
         },
         "probe_outcomes": {
+          "default": [],
           "items": {
             "$ref": "#/$defs/DynamicProbeOutcome"
           },
-          "minItems": 1,
           "title": "Probe Outcomes",
           "type": "array"
         }
       },
-      "required": [
-        "probe_outcomes"
-      ],
       "title": "DynamicAnalysisSummary",
       "type": "object"
     },
@@ -612,6 +609,19 @@
     "DynamicEvidence": {
       "additionalProperties": false,
       "properties": {
+        "attempt_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attempt Id"
+        },
         "kind": {
           "const": "dynamic",
           "default": "dynamic",
@@ -625,6 +635,19 @@
           },
           "title": "Logs",
           "type": "array"
+        },
+        "mutation": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mutation"
         },
         "probe_id": {
           "minLength": 1,
@@ -796,6 +819,18 @@
           },
           "title": "Schema Checks",
           "type": "array"
+        },
+        "started": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started"
         },
         "status": {
           "enum": [

@@ -24,7 +24,7 @@ from sentinel.report.coverage import (
 
 def discovery_snapshot(
     probe_id: str,
-    role: Literal["baseline", "attack"],
+    role: Literal["discovery", "baseline", "attack"],
     tools: tuple[Tool, ...],
     *,
     more_pages: bool,

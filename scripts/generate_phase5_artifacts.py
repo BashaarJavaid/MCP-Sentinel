@@ -207,9 +207,17 @@ def _run_dynamic_case(case: dict[str, Any]) -> dict[str, Any]:
         scan_id=scan_id,
         timestamp=timestamp,
     )
-    if set(dynamic.campaign.ordered_probe_ids) != set(DYNAMIC_RULE_IDS):
-        raise RuntimeError(f"dynamic truth case {case['id']} skipped a required probe")
     probe_id = str(expectation["probe_id"])
+    if not any(
+        item.probe_id == probe_id
+        and item.target_tool == tool_name
+        and item.status == "tested"
+        and item.attack_attempted
+        for item in dynamic.observations
+    ):
+        raise RuntimeError(
+            f"dynamic truth case {case['id']} has no completed matching attempt"
+        )
     observed = any(
         finding.rule_id == probe_id and tool_name in finding.location.path
         for finding in dynamic.findings

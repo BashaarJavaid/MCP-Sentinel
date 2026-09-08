@@ -33,7 +33,7 @@ Inline suppressions use native SARIF `inSource` suppressions while preserving
 their reason and directive location in result properties. Baseline-matched
 findings remain results with `baselineMatched: true`; they are not removed.
 
-Native report 1.6.0 places all four probe outcomes in
+Native report 1.7.0 places every planned attempt outcome in
 `invocations[].properties.dynamicAnalysis`. Unsupported, untested, or inconclusive
 probes set `analysisComplete: false` and exit 3 while retaining partial findings.
 `executionSuccessful` describes infrastructure health. Finding properties retain
@@ -53,14 +53,16 @@ locations, recognition gaps, and the rules that actually visited each surface.
 implementation. Configuration-excluded IDs and execution skips stay separate.
 The total possible static surface is unknown.
 
-`dynamicAnalysis.coverage.discovery` keeps each existing baseline/attack
+`dynamicAnalysis.coverage.discovery` keeps campaign discovery and each baseline/attack
 `tools/list` response separate. It records tool names, schema hashes, explicit
 nested field paths, unresolved field space, and whether more pages exist. Only
 an unpaginated complete returned catalog establishes that session's tool total.
 Probe outcomes record `baseline_attempted` and `attack_attempted` at the call
 boundary. Planned bindings and baseline-only calls are not adversarial coverage.
-The campaign still makes only four fixed attempts, not one attempt per tool or
-parameter. Permission sidecars describe intended grants; they do not enforce
+The campaign schedules bounded rounds across supported tools and arguments;
+`attempt_id` distinguishes mutations under the same rule. `started` includes
+startup failures. Campaign totals must agree with records, and eligible
+unstarted remainders cause exit 3. Empty discovery does not invent attempts. Permission sidecars describe intended grants; they do not enforce
 runtime resource boundaries.
 
 `reviewActivity.static` and `.dynamic` record `not_requested`, `not_reached`,
@@ -70,7 +72,7 @@ abstention is reviewed work with a visible `needs_review` judgment. Aggregate
 GPT mode `not_run` means enabled review had no reviewable candidates. Rules-only
 retains null GPT summaries. Empty stages do not add live/replay/mixed activity.
 
-Native 1.3–1.5 baselines migrate in memory to 1.6; original bytes are preserved.
+Native 1.3–1.6 baselines migrate in memory to 1.7; original bytes are preserved.
 Historical coverage and stage activity are null, and historical sent-call flags
 are null rather than inferred from prepared requests. Consumers must accept
 these nulls. Canonical findings, baseline-v2 identities, and accepted model
@@ -93,3 +95,21 @@ non-fork runs remain fail-closed if required analysis or upload fails.
 
 `artifacts/example.sarif` is retained as historical evidence and is not
 regenerated for a documentation-only change.
+
+## Ordered attempts and workspaces (native 1.7.0)
+
+This is the Phase 22 integration contract, with final verification pending.
+Planned bindings, baseline/attack snapshots and outcomes join by unique attempt
+ID; a campaign discovery snapshot has no attempt ID. IDs use probe, tool,
+argument path and mutation, independent of schema fingerprints and timings.
+Totals enforce `tested <= started <= eligible <= planned`, the started attempt
+budget, and `remaining_eligible_attempts = eligible_attempts - started_attempts`.
+Unsupported or unavailable information remains explicit. Historical outcomes
+become legacy attempts without invented eligibility, mutation or started counts.
+
+Workspace coverage records declarations, unique member paths, per-member source
+and surface counts, unavailable members and unapplied nested configuration.
+Surface counts agree with the observed inventory; shared files belong to the
+most specific member and are not double-counted. Native validation checks these
+relationships in addition to JSON Schema. Repeated runtime proofs remain in
+finding provenance, native output, SARIF and candidate-bound review context.

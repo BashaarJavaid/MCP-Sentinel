@@ -36,10 +36,32 @@ class WorkspaceMemberCoverage(ContractModel):
     reasons: tuple[NonEmptyString, ...] = ()
     nested_configurations: tuple[str, ...] = ()
 
+    @model_validator(mode="after")
+    def validate_member(self) -> WorkspaceMemberCoverage:
+        counts = (
+            self.python_file_count,
+            self.typescript_file_count,
+            self.recognized_surface_count,
+            self.unresolved_surface_count,
+            self.unsupported_surface_count,
+        )
+        if self.status != "incomplete" and any(value is None for value in counts):
+            raise ValueError("observed workspace members require known counts")
+        if self.status != "included" and not self.reasons:
+            raise ValueError("unavailable workspace members require a reason")
+        return self
+
 
 class WorkspaceCoverage(ContractModel):
     declarations: tuple[str, ...]
     members: tuple[WorkspaceMemberCoverage, ...]
+
+    @model_validator(mode="after")
+    def validate_members(self) -> WorkspaceCoverage:
+        paths = [member.path for member in self.members]
+        if len(set(paths)) != len(paths):
+            raise ValueError("workspace members require unique paths")
+        return self
 
 
 class StaticCoverage(ContractModel):
@@ -49,6 +71,38 @@ class StaticCoverage(ContractModel):
     file_wide_rule_ids: tuple[str, ...]
     unresolved_flows: tuple[RecognitionReason, ...] = ()
     workspace: WorkspaceCoverage | None = None
+
+    @model_validator(mode="after")
+    def validate_workspace_surfaces(self) -> StaticCoverage:
+        if self.workspace is not None:
+            members = self.workspace.members
+            counts = {
+                member.path: {
+                    status: 0 for status in ("recognized", "unresolved", "unsupported")
+                }
+                for member in members
+            }
+            for surface in self.surfaces:
+                owners = [
+                    member.path
+                    for member in members
+                    if member.status != "incomplete"
+                    and (
+                        member.path == "."
+                        or surface.location.path.startswith(member.path + "/")
+                    )
+                ]
+                if not owners:
+                    raise ValueError("workspace surface has no observed member")
+                counts[max(owners, key=len)][surface.status] += 1
+            for member in members:
+                for status, count in counts[member.path].items():
+                    reported = getattr(member, status + "_surface_count")
+                    if reported is not None and reported != count:
+                        raise ValueError(
+                            "workspace surface counts must match inventory"
+                        )
+        return self
 
 
 class UnresolvedFieldSpace(ContractModel):

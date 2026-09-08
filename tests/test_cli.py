@@ -328,16 +328,33 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
         nonlocal dynamic_calls
         dynamic_calls += 1
         bindings = {
-            rule_id: ProbeBinding(rule_id, None, None, None)
+            rule_id: ProbeBinding(rule_id, "test", None, None)
             for rule_id in DEFAULT_ORDER
         }
         return DynamicScanResult(
             findings=(),
             warnings=(),
             image=DependencyImage("deps:test", "cache-key", True),
-            campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+            campaign=ProbeCampaign(
+                DEFAULT_ORDER,
+                tuple(bindings.values()),
+                None,
+                True,
+                enumeration_complete=True,
+            ),
             observations=tuple(
-                _Observation(rule_id, "test", None, {}, {}, (), False)
+                _Observation(
+                    rule_id,
+                    "test",
+                    None,
+                    {},
+                    {},
+                    (),
+                    False,
+                    started=True,
+                    attempt_id=bindings[rule_id].attempt_id,
+                    mutation=bindings[rule_id].mutation,
+                )
                 for rule_id in DEFAULT_ORDER
             ),
         )

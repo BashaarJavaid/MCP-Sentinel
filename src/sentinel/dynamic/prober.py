@@ -6,10 +6,11 @@ import asyncio
 import copy
 import hashlib
 import json
+import time
 from dataclasses import dataclass
 from dataclasses import field as dataclass_field
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import UUID, uuid4
 
 from mcp.shared.exceptions import McpError
@@ -26,6 +27,7 @@ from sentinel.dynamic.arguments import (
 )
 from sentinel.dynamic.catalog import RULE_BY_ID, RULE_IDS
 from sentinel.dynamic.coverage import discovery_snapshot
+from sentinel.dynamic.merge import merge_findings
 from sentinel.dynamic.sandbox import (
     CANARY_PATH,
     PROBE_TIMEOUT_SECONDS,
@@ -52,14 +54,15 @@ from sentinel.llm.context import sanitize_text
 from sentinel.llm.tools import ToolCatalog, extract_tool_catalog
 from sentinel.permissions import PermissionsManifest, load_permissions_manifest
 from sentinel.report.coverage import (
+    CampaignCoverage,
     DiscoverySnapshot,
     DynamicCoverage,
     PlannedProbeBinding,
 )
 from sentinel.report.model import (
-    PROBE_IDS,
     DynamicAnalysisSummary,
     DynamicProbeOutcome,
+    ProbeId,
     ReportWarning,
 )
 
@@ -81,14 +84,49 @@ class ProbeBinding:
     field: str | None
     marker: str | None
     container_field: str | None = None
+    path: tuple[str, ...] = ()
+    schema_sha256: str | None = None
+
+    @property
+    def argument_path(self) -> tuple[str, ...]:
+        return self.path or tuple(
+            part for part in (self.container_field, self.field) if part is not None
+        )
+
+    @property
+    def mutation(self) -> str:
+        return {
+            OVERSIZED_MARKER: "oversized",
+            INJECTION_MARKER: "injection",
+            WRONG_TYPE_MARKER: "wrong_type",
+            OMIT_MARKER: "omit",
+        }.get(self.marker or "", "out_of_scope")
+
+    @property
+    def attempt_id(self) -> str:
+        return (
+            self.probe_id
+            + ":"
+            + _identity(
+                [self.probe_id, self.target_tool, self.argument_path, self.mutation]
+            )
+        )
 
 
-@dataclass(frozen=True)
+@dataclass
 class ProbeCampaign:
     ordered_probe_ids: tuple[str, ...]
-    bindings: dict[str, ProbeBinding]
+    bindings: tuple[ProbeBinding, ...]
     primary_finding_id: str | None
     used_fallback: bool
+    discovery: tuple[DiscoverySnapshot, ...] = ()
+    enumeration_complete: bool = False
+    max_probe_attempts: int = 24
+    timeout_seconds: int = 120
+    budget_exhausted: bool = False
+    elapsed_ms: float = 0
+    failure: str | None = None
+    execution_successful: bool = True
 
 
 @dataclass(frozen=True)
@@ -101,37 +139,56 @@ class DynamicScanResult:
 
     @property
     def complete(self) -> bool:
-        return len(self.observations) == 4 and all(
-            item.status == "tested" for item in self.observations
+        return (
+            self.campaign.enumeration_complete
+            and len(self.observations) == len(self.campaign.bindings)
+            and all(item.status == "tested" for item in self.observations)
         )
 
     @property
     def summary(self) -> DynamicAnalysisSummary:
-        by_id = {item.probe_id: item for item in self.observations}
-
-        def attempt_id(item: _Observation) -> str:
-            return f"{item.probe_id}:" + _identity(
-                [item.target_tool, item.argument_path, item.field]
-            )
-
+        started = sum(item.started for item in self.observations)
         return DynamicAnalysisSummary(
             coverage=DynamicCoverage(
-                discovery=tuple(
-                    snapshot.model_copy(update={"attempt_id": attempt_id(item)})
+                discovery=self.campaign.discovery
+                + tuple(
+                    snapshot.model_copy(update={"attempt_id": item.attempt_id})
                     for item in self.observations
                     for snapshot in item.discovery
                 ),
                 planned_bindings=tuple(
                     PlannedProbeBinding(
-                        probe_id=item.probe_id, tool=item.target_tool, field=item.field
+                        probe_id=item.probe_id,
+                        tool=item.target_tool,
+                        field=item.field,
+                        attempt_id=item.attempt_id,
+                        argument_path=item.argument_path,
+                        mutation=item.mutation,
                     )
-                    for item in self.campaign.bindings.values()
+                    for item in self.campaign.bindings
+                ),
+                campaign=CampaignCoverage(
+                    max_probe_attempts=self.campaign.max_probe_attempts,
+                    timeout_seconds=self.campaign.timeout_seconds,
+                    planned_attempts=len(self.campaign.bindings),
+                    eligible_attempts=len(self.campaign.bindings),
+                    started_attempts=started,
+                    tested_attempts=sum(
+                        item.status == "tested" for item in self.observations
+                    ),
+                    remaining_eligible_attempts=len(self.campaign.bindings) - started,
+                    enumeration_complete=self.campaign.enumeration_complete,
+                    budget_exhausted=self.campaign.budget_exhausted,
+                    elapsed_ms=self.campaign.elapsed_ms,
                 ),
             ),
             probe_outcomes=tuple(
                 DynamicProbeOutcome(
-                    attempt_id=attempt_id(item),
-                    probe_id=probe_id,
+                    attempt_id=item.attempt_id,
+                    probe_id=cast(ProbeId, item.probe_id),
+                    mutation=item.mutation,
+                    started=item.started,
+                    eligible=True,
                     status=item.status,
                     baseline_attempted=item.baseline_attempted,
                     attack_attempted=item.attack_attempted,
@@ -153,27 +210,15 @@ class DynamicScanResult:
                     timings=item.timings,
                     execution_successful=item.execution_successful,
                 )
-                for probe_id in PROBE_IDS
-                for item in (
-                    by_id.get(probe_id)
-                    or _Observation(
-                        probe_id,
-                        "",
-                        None,
-                        {},
-                        {},
-                        (),
-                        False,
-                        status="untested",
-                        reason="probe result unavailable",
-                    ),
-                )
+                for item in self.observations
             ),
         )
 
     @property
     def execution_successful(self) -> bool:
-        return all(item.execution_successful for item in self.observations)
+        return self.campaign.execution_successful and all(
+            item.execution_successful for item in self.observations
+        )
 
 
 @dataclass
@@ -196,6 +241,9 @@ class _Observation:
     baseline_attempted: bool = False
     attack_attempted: bool = False
     discovery: list[DiscoverySnapshot] = dataclass_field(default_factory=list)
+    attempt_id: str = ""
+    mutation: str | None = None
+    started: bool = False
 
     @property
     def verdict(self) -> Literal["violation_observed", "no_violation_observed"] | None:
@@ -211,10 +259,11 @@ def run_dynamic_scan(
     scan_id: UUID,
     timestamp: datetime,
 ) -> DynamicScanResult:
-    """Build the target image and execute every approved dynamic probe once."""
+    """Build the target image and run the bounded ordered runtime campaign."""
 
     sandbox.preflight()
     image = sandbox.prepare_dependency_image()
+    started_at = time.monotonic()
     catalog = extract_tool_catalog(
         sandbox.configuration.scan_root,
         sandbox.configuration.scanner.scanner.ignore_paths,
@@ -224,14 +273,23 @@ def run_dynamic_scan(
     if manifest is None:  # pragma: no cover - required=True
         raise InfrastructureError("permissions manifest disappeared before probing")
     observations = asyncio.run(
-        _run_campaign(sandbox, image.reference, campaign, manifest)
+        _run_campaign(
+            sandbox, image.reference, campaign, manifest, started_at=started_at
+        )
     )
     findings = tuple(
         _finding_from_observation(item, scan_id, timestamp)
         for item in observations
         if item.vulnerable
     )
+    findings = merge_findings((), findings, catalog)
     warnings = catalog.warnings + ((warning,) if warning is not None else ())
+    if campaign.failure:
+        warnings += (
+            ReportWarning(
+                code="dynamic_discovery_incomplete", message=campaign.failure
+            ),
+        )
     warnings += tuple(
         ReportWarning(
             code=f"dynamic_probe_{item.status}",
@@ -270,7 +328,7 @@ def build_probe_campaign(
         return (
             ProbeCampaign(
                 tuple(plan.ordered_probe_ids),
-                bindings,
+                tuple(bindings.values()),
                 str(finding.finding_id),
                 False,
             ),
@@ -286,7 +344,109 @@ def build_probe_campaign(
             "used the fixed safe dynamic probe order and runtime schemas."
         ),
     )
-    return ProbeCampaign(DEFAULT_ORDER, bindings, None, True), warning
+    return ProbeCampaign(DEFAULT_ORDER, tuple(bindings.values()), None, True), warning
+
+
+def enumerate_attempts(
+    tools: tuple[Tool, ...],
+    manifest: PermissionsManifest,
+    priorities: ProbeCampaign,
+    *,
+    deadline: float = float("inf"),
+) -> tuple[ProbeBinding, ...]:
+    """One choice per tool per round, rotating rules and fields within each tool."""
+    hints = {(item.probe_id, item.target_tool): item for item in priorities.bindings}
+    queues: dict[str, list[ProbeBinding]] = {}
+    for tool in sorted(tools, key=lambda item: item.name):
+        if time.monotonic() >= deadline:
+            raise TimeoutError("campaign deadline exhausted during enumeration")
+        by_rule: dict[str, list[ProbeBinding]] = {rule: [] for rule in RULE_IDS}
+        digest = _identity(tool.inputSchema)
+        if tool.name not in manifest.tools:
+            by_rule["SENT-008"].append(
+                ProbeBinding("SENT-008", tool.name, None, None, schema_sha256=digest)
+            )
+
+        def fields(
+            raw: dict[str, Any],
+            path: tuple[str, ...],
+            seen: frozenset[int],
+            tool: Tool = tool,
+            by_rule: dict[str, list[ProbeBinding]] = by_rule,
+            digest: str = digest,
+        ) -> None:
+            if time.monotonic() >= deadline:
+                raise TimeoutError("campaign deadline exhausted during enumeration")
+            schema = resolve_schema(raw, tool.inputSchema)
+            if id(schema) in seen or len(path) >= 8:
+                return
+            seen = seen | {id(schema)}
+            properties = schema.get("properties", {})
+            if not isinstance(properties, dict):
+                return
+            properties = {
+                **{name: {} for name in schema.get("required", [])},
+                **properties,
+            }
+            for field in sorted(properties):
+                child = resolve_schema(properties[field], tool.inputSchema)
+                child_path = (*path, field)
+                kind = child.get("type")
+                kinds = set(kind) if isinstance(kind, list) else {kind}
+                markers = []
+                if kinds & {"string", "object", "array"}:
+                    markers.append(("SENT-009", OVERSIZED_MARKER))
+                if "string" in kinds:
+                    markers.append(("SENT-010", INJECTION_MARKER))
+                if kind is not None:
+                    markers.append(("SENT-011", WRONG_TYPE_MARKER))
+                if field in schema.get("required", []):
+                    markers.append(("SENT-011", OMIT_MARKER))
+                for rule, marker in markers:
+                    by_rule[rule].append(
+                        ProbeBinding(
+                            rule,
+                            tool.name,
+                            field,
+                            marker,
+                            path=child_path,
+                            schema_sha256=digest,
+                        )
+                    )
+                fields(child, child_path, seen)
+
+        try:
+            schema_validator(tool.inputSchema)
+            fields(tool.inputSchema, (), frozenset())
+        except UnsupportedSchema:
+            # The discovery snapshot retains the unsupported schema and reason.
+            pass
+        for rule, choices in by_rule.items():
+            hint = hints.get((rule, tool.name))
+            if hint:
+                choices.sort(
+                    key=lambda item: (
+                        item.field != hint.field,
+                        item.marker != hint.marker,
+                    )
+                )
+        queues[tool.name] = [
+            choices[index]
+            for index in range(max(map(len, by_rule.values()), default=0))
+            for rule in priorities.ordered_probe_ids
+            for choices in (by_rule[rule],)
+            if index < len(choices)
+        ]
+    if tools and not any(tool.name not in manifest.tools for tool in tools):
+        queues[OUT_OF_SCOPE_CANARY] = [
+            ProbeBinding("SENT-008", OUT_OF_SCOPE_CANARY, None, None)
+        ]
+    return tuple(
+        choices[index]
+        for index in range(max(map(len, queues.values()), default=0))
+        for choices in queues.values()
+        if index < len(choices)
+    )
 
 
 async def _run_campaign(
@@ -294,64 +454,117 @@ async def _run_campaign(
     image: str,
     campaign: ProbeCampaign,
     manifest: PermissionsManifest,
+    *,
+    started_at: float | None = None,
 ) -> tuple[_Observation, ...]:
+    started_at = time.monotonic() if started_at is None else started_at
+    settings = sandbox.configuration.scanner.sandbox
+    campaign.max_probe_attempts = settings.max_probe_attempts
+    campaign.timeout_seconds = settings.campaign_timeout_seconds
+    deadline = started_at + campaign.timeout_seconds
     observations: list[_Observation] = []
-    deadline = asyncio.get_running_loop().time() + 120
+    discovery = _Observation("campaign", "", None, {}, {}, (), False)
+    priorities = ProbeCampaign(
+        campaign.ordered_probe_ids,
+        campaign.bindings,
+        campaign.primary_finding_id,
+        campaign.used_fallback,
+    )
+    campaign.bindings = ()
+    try:
+        async with sandbox.probe_session(
+            image, "discovery", timeout=_session_timeout({"deadline": deadline})
+        ) as probe:
+            tools = await _list_tools(probe, discovery, "discovery")
+        campaign.discovery = tuple(discovery.discovery)
+        campaign.bindings = enumerate_attempts(
+            tools, manifest, priorities, deadline=deadline
+        )
+        campaign.enumeration_complete = all(
+            snapshot.more_pages is False and snapshot.tool_total is not None
+            for snapshot in campaign.discovery
+        )
+        if not campaign.enumeration_complete:
+            campaign.failure = "runtime discovery is incomplete; observed tools only"
+    except (
+        InfrastructureError,
+        TimeoutError,
+        asyncio.CancelledError,
+        KeyboardInterrupt,
+    ) as error:
+        campaign.failure = sanitize_text(str(error)) or "runtime discovery interrupted"
+        campaign.execution_successful = False
+        campaign.budget_exhausted = time.monotonic() >= deadline
+        campaign.discovery = tuple(discovery.discovery) or (
+            DiscoverySnapshot(
+                probe_id="campaign",
+                role="discovery",
+                tools=(),
+                more_pages=None,
+                tool_total=None,
+                reason=campaign.failure,
+            ),
+        )
+        campaign.elapsed_ms = (time.monotonic() - started_at) * 1000
+        return ()
     stopped: str | None = None
-    for probe_id in campaign.ordered_probe_ids:
-        binding = campaign.bindings[probe_id]
-        if stopped or asyncio.get_running_loop().time() >= deadline:
-            observations.append(
-                _Observation(
-                    probe_id,
-                    binding.target_tool or "<unbound>",
-                    binding.field,
-                    {},
-                    {},
-                    (),
-                    False,
-                    status="untested",
-                    reason=stopped or "campaign deadline exhausted",
+    started = 0
+    for binding in campaign.bindings:
+        observation = _Observation(
+            binding.probe_id,
+            binding.target_tool or "",
+            binding.field,
+            {},
+            {},
+            (),
+            False,
+            status="untested",
+            reason="not started",
+            argument_path=binding.argument_path,
+            attempt_id=binding.attempt_id,
+            mutation=binding.mutation,
+        )
+        if not stopped and (
+            started >= campaign.max_probe_attempts or time.monotonic() >= deadline
+        ):
+            stopped = (
+                "campaign attempt budget exhausted"
+                if started >= campaign.max_probe_attempts
+                else "campaign deadline exhausted"
+            )
+            campaign.budget_exhausted = True
+        if stopped:
+            observation.reason = stopped
+        else:
+            started += 1
+            observation.started = True
+            try:
+                observation = await _run_one(
+                    sandbox,
+                    image,
+                    binding,
+                    manifest,
+                    {"initialized": False, "deadline": deadline},
                 )
-            )
-            continue
-        try:
-            observation = await _run_one(
-                sandbox,
-                image,
-                binding,
-                manifest,
-                {"initialized": False, "deadline": deadline},
-            )
-        except TimeoutError:
-            observation = _Observation(
-                probe_id,
-                binding.target_tool or "<unbound>",
-                binding.field,
-                {},
-                {"timed_out": True},
-                (),
-                False,
-                status="inconclusive",
-                reason="session timeout without decisive process evidence",
-            )
-        except InfrastructureError as error:
-            stopped = sanitize_text(str(error))
-            observation = _Observation(
-                probe_id,
-                binding.target_tool or "<unbound>",
-                binding.field,
-                {},
-                {},
-                (),
-                False,
-                status="inconclusive",
-                reason=stopped,
-                execution_successful=False,
-            )
+            except (
+                TimeoutError,
+                InfrastructureError,
+                asyncio.CancelledError,
+                KeyboardInterrupt,
+            ) as error:
+                observation.status = "inconclusive"
+                observation.reason = sanitize_text(str(error)) or "campaign interrupted"
+                if not isinstance(error, TimeoutError):
+                    stopped = observation.reason
+                    observation.execution_successful = False
+            observation.started = True
+            observation.attempt_id = binding.attempt_id
+            observation.mutation = binding.mutation
+            observation.argument_path = binding.argument_path
+            if not observation.execution_successful:
+                stopped = observation.reason
         observations.append(observation)
-        if not observation.execution_successful:
-            stopped = observation.reason
+    campaign.elapsed_ms = (time.monotonic() - started_at) * 1000
     return tuple(observations)
 
 
@@ -370,6 +583,10 @@ async def _run_one(
         {},
         (),
         False,
+        attempt_id=binding.attempt_id,
+        mutation=binding.mutation,
+        started=True,
+        argument_path=binding.argument_path,
     )
     try:
         await _baseline_and_attack(
@@ -384,9 +601,10 @@ async def _run_one(
     except TimeoutError:
         observation.status = "inconclusive"
         observation.reason = "campaign deadline exhausted before a decisive result"
-    except InfrastructureError as error:
-        observation.status = "inconclusive"
-        observation.reason = sanitize_text(str(error))
+    except (InfrastructureError, asyncio.CancelledError, KeyboardInterrupt) as error:
+        if not observation.vulnerable:
+            observation.status = "inconclusive"
+        observation.reason = sanitize_text(str(error)) or "runtime attempt interrupted"
         observation.execution_successful = False
     return observation
 
@@ -399,7 +617,9 @@ def _session_timeout(state: dict[str, Any]) -> float:
 
 
 async def _list_tools(
-    probe: ProbeSession, observation: _Observation, role: Literal["baseline", "attack"]
+    probe: ProbeSession,
+    observation: _Observation,
+    role: Literal["discovery", "baseline", "attack"],
 ) -> tuple[Tool, ...]:
     try:
         listed = await asyncio.wait_for(
@@ -507,18 +727,24 @@ async def _baseline_and_attack(
         ) as probe:
             state["initialized"] = True
             tools = await _list_tools(probe, observation, "baseline")
-            selected = _select_runtime_binding(binding, tools, manifest)
+            selected = binding
+            if binding.schema_sha256 is not None and not any(
+                item.name == binding.target_tool
+                and _identity(item.inputSchema) == binding.schema_sha256
+                for item in tools
+            ):
+                raise InvalidBaseline("runtime schema changed after campaign discovery")
             observation.target_tool = selected.target_tool or OUT_OF_SCOPE_CANARY
             observation.field = selected.field
-            observation.argument_path = tuple(
-                part
-                for part in (selected.container_field, selected.field)
-                if part is not None
-            )
+            observation.argument_path = selected.argument_path
             tool = next(
                 (item for item in tools if item.name == selected.target_tool), None
             )
             if binding.probe_id == "SENT-008":
+                if selected.target_tool in manifest.tools:
+                    raise UnsupportedSchema(
+                        "out-of-scope attempt targets a granted tool"
+                    )
                 granted = sorted(
                     (item for item in tools if item.name in manifest.tools),
                     key=lambda item: item.name,
@@ -697,63 +923,6 @@ def _sanitize_json(value: Any) -> JsonValue:
     return sanitize_text(str(value))
 
 
-def _select_runtime_binding(
-    binding: ProbeBinding,
-    tools: tuple[Tool, ...],
-    manifest: PermissionsManifest,
-) -> ProbeBinding:
-    if binding.probe_id == "SENT-008":
-        ungranted = sorted(
-            tool.name for tool in tools if tool.name not in manifest.tools
-        )
-        return ProbeBinding(
-            binding.probe_id,
-            ungranted[0] if ungranted else OUT_OF_SCOPE_CANARY,
-            None,
-            None,
-        )
-    by_name = {tool.name: tool for tool in tools}
-    if binding.target_tool in by_name and binding.field is not None:
-        properties = _properties(by_name[binding.target_tool])
-        if binding.field in properties:
-            return binding
-        containers = [
-            name
-            for name, schema in properties.items()
-            if schema.get("type") == "object"
-            and schema.get("additionalProperties") is True
-        ]
-        if len(containers) == 1 and binding.probe_id != "SENT-011":
-            return ProbeBinding(
-                binding.probe_id,
-                binding.target_tool,
-                binding.field,
-                binding.marker,
-                containers[0],
-            )
-    for tool in sorted(tools, key=lambda item: item.name):
-        properties = _properties(tool)
-        field = _compatible_field(binding.probe_id, tool, properties)
-        if field is not None:
-            marker = {
-                "SENT-009": OVERSIZED_MARKER,
-                "SENT-010": INJECTION_MARKER,
-                "SENT-011": WRONG_TYPE_MARKER,
-            }[binding.probe_id]
-            return ProbeBinding(binding.probe_id, tool.name, field, marker)
-    fallback = sorted(tools, key=lambda item: item.name)
-    return ProbeBinding(
-        binding.probe_id,
-        fallback[0].name if fallback else OUT_OF_SCOPE_CANARY,
-        "__sentinel_argument__",
-        {
-            "SENT-009": OVERSIZED_MARKER,
-            "SENT-010": INJECTION_MARKER,
-            "SENT-011": WRONG_TYPE_MARKER,
-        }[binding.probe_id],
-    )
-
-
 def _probe_arguments(
     binding: ProbeBinding,
     tools: tuple[Tool, ...],
@@ -774,12 +943,12 @@ def _probe_arguments(
         return arguments, _sanitize_json_dict(arguments)
     target = arguments
     properties = _properties(tool)
-    if binding.container_field is not None:
-        nested = arguments.get(binding.container_field)
+    for part in binding.argument_path[:-1]:
+        nested = target.get(part)
         if not isinstance(nested, dict):
             raise UnsupportedSchema("runtime object envelope is not an object")
         target = nested
-        container_schema = properties.get(binding.container_field, {})
+        container_schema = resolve_schema(properties.get(part, {}), tool.inputSchema)
         properties = container_schema.get("properties", {})
     field_schema = resolve_schema(properties.get(binding.field, {}), tool.inputSchema)
     if binding.marker == INJECTION_MARKER:
@@ -812,8 +981,7 @@ def _probe_arguments(
                 if any(error["keyword"] == "type" for error in errors):
                     break
             else:
-                # Omission is only useful when the complete schema proves it required.
-                target.pop(binding.field, None)
+                raise UnsupportedSchema("no verified type violation for this binding")
         errors = schema_errors(validator, arguments)
         if not errors or not any(
             error["keyword"] in {"type", "required"} for error in errors
@@ -822,9 +990,9 @@ def _probe_arguments(
                 "no verified type or required-field violation for this binding"
             )
     redacted = copy.deepcopy(arguments)
-    redacted_target = (
-        redacted[binding.container_field] if binding.container_field else redacted
-    )
+    redacted_target = redacted
+    for part in binding.argument_path[:-1]:
+        redacted_target = redacted_target[part]
     if binding.field in target:
         redacted_target[binding.field] = binding.marker
     return arguments, _sanitize_json_dict(redacted)
@@ -870,22 +1038,6 @@ def _properties(tool: Tool) -> dict[str, dict[str, Any]]:
     for name in schema.get("required", []):
         properties.setdefault(name, {})
     return properties
-
-
-def _compatible_field(
-    probe_id: str, tool: Tool, properties: dict[str, dict[str, Any]]
-) -> str | None:
-    required = resolve_schema(tool.inputSchema, tool.inputSchema).get("required", [])
-    for name in sorted(properties):
-        kind = properties[name].get("type")
-        kinds = set(kind) if isinstance(kind, list) else {kind}
-        if probe_id == "SENT-009" and kinds & {"string", "array", "object"}:
-            return name
-        if probe_id == "SENT-010" and "string" in kinds:
-            return name
-        if probe_id == "SENT-011" and (name in required or bool(properties)):
-            return name
-    return None
 
 
 def _valid_plan(plan: ProbePlan, catalog: ToolCatalog) -> bool:
@@ -939,6 +1091,8 @@ def _finding_from_observation(
     definition = RULE_BY_ID[observation.probe_id]
     evidence = DynamicEvidence(
         probe_id=observation.probe_id,
+        attempt_id=observation.attempt_id or None,
+        mutation=observation.mutation,
         request=observation.request,
         response=_sanitize_json_dict(
             {

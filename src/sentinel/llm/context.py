@@ -153,7 +153,9 @@ def _base_finding_context(root: Path, finding: Finding) -> FindingContext:
     if not isinstance(finding.location, FileLocation):
         evidence_text = sanitize_text(
             json.dumps(
-                proof_identity(finding.evidence)
+                [proof_identity(item) for item in runtime_evidence(finding)]
+                if len(runtime_evidence(finding)) > 1
+                else proof_identity(finding.evidence)
                 if isinstance(finding.evidence, DynamicEvidence)
                 and finding.evidence.proof is not None
                 else finding.evidence.model_dump(mode="json", exclude={"proof"}),

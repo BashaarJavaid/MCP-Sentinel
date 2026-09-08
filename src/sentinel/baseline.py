@@ -19,6 +19,7 @@ from sentinel.finding import (
     proof_identity,
     runtime_evidence,
 )
+from sentinel.report.json_report import report_model_input
 from sentinel.report.model import (
     BaselineSummary,
     ScanReport,
@@ -74,7 +75,7 @@ def load_baseline(path: Path) -> LoadedBaseline:
     normalized = migrate_report_data(data)
     try:
         validate_report_data(normalized)
-        report = ScanReport.model_validate_json(_model_input(normalized))
+        report = ScanReport.model_validate_json(report_model_input(normalized))
     except InfrastructureError as error:
         raise UsageError(f"baseline report is invalid: {error}") from error
     except ValidationError as error:
@@ -261,6 +262,7 @@ def migrate_report_data(data: dict[str, Any]) -> dict[str, Any]:
                     "legacy_attempt": True,
                     "mutation": None,
                     "eligible": None,
+                    "started": None,
                 }
                 for item in outcomes
             ],
@@ -344,22 +346,3 @@ def _migrate_to_15(data: dict[str, Any]) -> dict[str, Any]:
         review["disagreement_count"] = None
         migrated["gpt_review"] = review
     return migrated
-
-
-def _model_input(data: dict[str, Any]) -> str:
-    payload = dict(data)
-    payload["analysis_complete"] = payload.pop("analysisComplete", None)
-    payload["execution_successful"] = payload.pop("executionSuccessful", None)
-    raw_findings = payload.get("findings")
-    if isinstance(raw_findings, list):
-        findings = []
-        for raw in raw_findings:
-            if isinstance(raw, dict):
-                finding = dict(raw)
-                finding.pop("severity", None)
-                finding.pop("review_disagrees", None)
-                findings.append(finding)
-            else:
-                findings.append(raw)
-        payload["findings"] = findings
-    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))

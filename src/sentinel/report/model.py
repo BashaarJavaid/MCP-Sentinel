@@ -26,6 +26,7 @@ from sentinel.finding import (
     TokenUsage,
     ensure_utc,
     format_utc,
+    runtime_evidence,
 )
 from sentinel.report.coverage import (
     DynamicCoverage,
@@ -99,6 +100,13 @@ class StaticAnalysisSummary(ContractModel):
             raise ValueError("static rule outcomes must match selected rule order")
         if sum(item.match_count for item in self.rule_outcomes) != self.total_matches:
             raise ValueError("static rule matches must sum to total_matches")
+        if self.coverage is not None and self.coverage.workspace is not None:
+            file_count = sum(
+                (member.python_file_count or 0) + (member.typescript_file_count or 0)
+                for member in self.coverage.workspace.members
+            )
+            if file_count > self.scanned_file_count:
+                raise ValueError("workspace file counts exceed scanned files")
         return self
 
 
@@ -112,6 +120,7 @@ class DynamicProbeOutcome(ContractModel):
     probe_id: ProbeId
     mutation: str | None = None
     eligible: bool | None = None
+    started: bool | None = None
     status: Literal["tested", "unsupported", "untested", "inconclusive"]
     verdict: Literal["violation_observed", "no_violation_observed"] | None
     tool: str | None
@@ -130,17 +139,25 @@ class DynamicProbeOutcome(ContractModel):
     @model_validator(mode="after")
     def validate_verdict(self) -> DynamicProbeOutcome:
         if self.legacy_attempt and (
-            self.mutation is not None or self.eligible is not None
+            self.mutation is not None
+            or self.eligible is not None
+            or self.started is not None
         ):
             raise ValueError("legacy attempts cannot invent mutation or eligibility")
         if (self.status == "tested") != (self.verdict is not None):
             raise ValueError("only tested probes require a verdict")
+        if self.started is False and (
+            self.baseline_attempted or self.attack_attempted or self.status == "tested"
+        ):
+            raise ValueError("unstarted attempts cannot contain executed probes")
+        if self.started is True and self.eligible is not True:
+            raise ValueError("started attempts must be eligible")
         return self
 
 
 class DynamicAnalysisSummary(ContractModel):
     coverage: DynamicCoverage | None = None
-    probe_outcomes: tuple[DynamicProbeOutcome, ...] = Field(min_length=1)
+    probe_outcomes: tuple[DynamicProbeOutcome, ...] = ()
 
     @model_validator(mode="after")
     def validate_probes(self) -> DynamicAnalysisSummary:
@@ -151,6 +168,13 @@ class DynamicAnalysisSummary(ContractModel):
             campaign = self.coverage.campaign
             if any(item.legacy_attempt for item in self.probe_outcomes):
                 raise ValueError("legacy attempts cannot establish campaign coverage")
+            if any(
+                item.started is None or item.eligible is None or item.mutation is None
+                for item in self.probe_outcomes
+            ):
+                raise ValueError(
+                    "campaign attempts require explicit execution and eligibility"
+                )
             if campaign.planned_attempts != len(self.probe_outcomes):
                 raise ValueError("every planned attempt requires an outcome")
             if campaign.eligible_attempts != sum(
@@ -161,6 +185,44 @@ class DynamicAnalysisSummary(ContractModel):
                 item.status == "tested" for item in self.probe_outcomes
             ):
                 raise ValueError("campaign tested count must match outcomes")
+            if campaign.started_attempts != sum(
+                item.started is True for item in self.probe_outcomes
+            ):
+                raise ValueError("campaign started count must match outcomes")
+            bindings = self.coverage.planned_bindings
+            if [item.attempt_id for item in bindings] != ids:
+                raise ValueError("planned bindings must match ordered attempt IDs")
+            for binding, outcome in zip(bindings, self.probe_outcomes, strict=True):
+                if (
+                    binding.probe_id,
+                    binding.tool,
+                    binding.field,
+                    binding.argument_path,
+                    binding.mutation,
+                ) != (
+                    outcome.probe_id,
+                    outcome.tool,
+                    outcome.field,
+                    outcome.argument_path,
+                    outcome.mutation,
+                ):
+                    raise ValueError("binding identity must match its outcome")
+        if self.coverage is not None:
+            by_id = {item.attempt_id: item for item in self.probe_outcomes}
+            for snapshot in self.coverage.discovery:
+                if snapshot.role == "discovery":
+                    if snapshot.attempt_id is not None:
+                        raise ValueError(
+                            "campaign discovery does not belong to an attempt"
+                        )
+                elif snapshot.attempt_id is not None:
+                    matched = by_id.get(snapshot.attempt_id)
+                    if matched is None or matched.probe_id != snapshot.probe_id:
+                        raise ValueError(
+                            "discovery must reference its matching attempt"
+                        )
+                elif self.coverage.campaign is not None:
+                    raise ValueError("attempt discovery requires an attempt ID")
         return self
 
 
@@ -346,6 +408,40 @@ class ScanReport(ContractModel):
         if self.dynamic_analysis is not None:
             outcomes = self.dynamic_analysis.probe_outcomes
             coverage = self.dynamic_analysis.coverage
+            if (
+                self.analysis_complete
+                and not outcomes
+                and (coverage is None or coverage.campaign is None)
+            ):
+                raise ValueError("unknown discovery cannot establish complete analysis")
+            if coverage is not None and coverage.campaign is not None:
+                by_id = {item.attempt_id: item for item in outcomes}
+                for finding in self.findings:
+                    for evidence in runtime_evidence(finding):
+                        outcome = by_id.get(evidence.attempt_id or "")
+                        proof = evidence.proof
+                        if (
+                            outcome is None
+                            or proof is None
+                            or outcome.verdict != "violation_observed"
+                            or (
+                                evidence.probe_id,
+                                evidence.mutation,
+                                proof.tool,
+                                proof.field,
+                                proof.argument_path,
+                            )
+                            != (
+                                outcome.probe_id,
+                                outcome.mutation,
+                                outcome.tool,
+                                outcome.field,
+                                outcome.argument_path,
+                            )
+                        ):
+                            raise ValueError(
+                                "runtime proof must reference its observed attempt"
+                            )
             if (
                 self.analysis_complete
                 and coverage is not None

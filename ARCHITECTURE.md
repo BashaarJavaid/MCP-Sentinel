@@ -1306,3 +1306,52 @@ recognition does not establish handler or runtime coverage. Dynamic descriptions
 are disclosed as unresolved. The existing selection, suppression, baseline and
 review pipeline applies. Native schema remains 1.6.0 until the coordinated campaign
 migration ships; the complete Phase 22 technical and external gates remain pending.
+
+### Phase 22 integrated campaign/report contract (verification in progress)
+
+The integration source implements native 1.7.0 ordered attempts. This section
+supersedes the fixed four-attempt scheduling above for this source branch;
+historical Phase 17/19 and Phase 20 evidence retains its original contract.
+This is not a release or technical acceptance statement.
+
+After dependency-image preparation, the campaign clock starts. A separate Docker
+session discovers the runtime catalog; discovery and enumeration consume the
+campaign budget. The scheduler enumerates supported explicit object-property
+paths (depth 8), inert oversized/injection mutations, wrong-type mutations and
+required-field omissions. Listed ungranted tools receive SENT-008 attempts; a
+nonempty entirely granted catalog receives the existing unknown-name control.
+Empty discovery creates no attempts. Pagination, unsupported schemas and
+unresolved field space remain explicit in discovery records.
+
+Rounds select one attempt per tool, rotating eligible rules and fields within
+each tool. Valid candidate-bound GPT priorities reorder choices within each
+round without removing attempts or starving other tools. Attempt IDs hash the
+probe, tool, exact argument path and mutation. Schema fingerprints are separate
+and checked between discovery, baseline and attack. They are not attempt IDs.
+
+Defaults are 24 **started** attempts or 120 seconds, whichever comes first.
+Startup failure counts as started. Each attempt has fresh separate baseline and
+attack containers; invalid baselines prevent attack. Cleanup runs after expiry
+or interruption. All planned attempts retain outcomes, including unstarted
+remainders; incomplete discovery, unsupported/inconclusive results and eligible
+remainders make analysis incomplete. The existing observable-effect conditions
+remain necessary for findings; neither discovery nor an unsuccessful attack
+establishes a security defense.
+
+`--max-probe-attempts` / `SENTINEL_MAX_PROBE_ATTEMPTS` /
+`[sandbox].max_probe_attempts` and `--campaign-timeout-seconds` /
+`SENTINEL_CAMPAIGN_TIMEOUT_SECONDS` / `[sandbox].campaign_timeout_seconds`
+accept positive integers with CLI > environment > file > default precedence.
+Rules-only bypasses sandbox settings. The Action invokes the same configuration
+loader on its selected repository path.
+
+Native 1.7.0 links ordered planned bindings, attempt discovery and outcomes by
+unique IDs. `tested <= started <= eligible <= planned`, the started budget,
+remaining eligible count and totals must agree with records. Workspace members
+have unique paths, observed file counts and inventory-matched surface counts;
+unavailable counts remain null. Native JSON validation enforces these relational
+constraints in addition to the packaged JSON Schema. SARIF remains 2.1.0.
+Legacy 1.3–1.6 reports become explicit legacy attempts with unknown mutation,
+eligibility, started counts and campaign totals; original findings, nullable
+reviews and suppressions remain unchanged. Repeated attempts at a shared finding
+retain every proof in provenance and candidate-bound review context.

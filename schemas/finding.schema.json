@@ -338,6 +338,19 @@
     "DynamicEvidence": {
       "additionalProperties": false,
       "properties": {
+        "attempt_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attempt Id"
+        },
         "kind": {
           "const": "dynamic",
           "default": "dynamic",
@@ -351,6 +364,19 @@
           },
           "title": "Logs",
           "type": "array"
+        },
+        "mutation": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mutation"
         },
         "probe_id": {
           "minLength": 1,

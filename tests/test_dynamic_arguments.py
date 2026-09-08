@@ -19,10 +19,12 @@ from sentinel.dynamic.arguments import (
     schema_validator,
 )
 from sentinel.dynamic.prober import (
+    DEFAULT_ORDER,
     OVERSIZED_MARKER,
     ProbeBinding,
+    ProbeCampaign,
     _probe_arguments,
-    _select_runtime_binding,
+    enumerate_attempts,
 )
 from sentinel.permissions import PermissionsManifest
 
@@ -188,14 +190,13 @@ def test_runtime_binding_supports_union_types_and_required_fields(
     manifest = PermissionsManifest.model_validate(
         {"version": 1, "tools": {"process": {}}}
     )
-    binding = _select_runtime_binding(
-        ProbeBinding("SENT-011", None, None, None), (tool,), manifest
+    attempts = enumerate_attempts(
+        (tool,), manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
     )
+    binding = next(item for item in attempts if item.probe_id == "SENT-011")
     arguments, _ = _probe_arguments(binding, (tool,))
     assert binding.field == "value"
     assert not Draft202012Validator(schema).is_valid(arguments)
     if "properties" in schema:
-        binding = _select_runtime_binding(
-            ProbeBinding("SENT-009", None, None, None), (tool,), manifest
-        )
+        binding = next(item for item in attempts if item.probe_id == "SENT-009")
         assert binding.field == "value"

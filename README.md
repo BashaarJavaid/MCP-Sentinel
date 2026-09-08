@@ -37,8 +37,10 @@ surface totals remain unknown; zero findings are not proof of safety. See the
 Phase 22 adds bounded imported handlers/schemas and containment flows;
 computed registrations and unresolved source forms remain coverage gaps.
 Permission sidecars express intended grants; they do not enforce runtime
-boundaries. Dynamic probing still makes four fixed attempts, not a campaign
-against every discovered tool and field.
+boundaries. The Phase 22 integration source schedules bounded rounds across discovered
+tools and supported fields (24 started attempts or 120 seconds by default).
+Native 1.7.0 and campaign verification remain in progress; published releases
+and historical evidence retain their recorded versions.
 
 ## Quickstart
 

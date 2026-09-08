@@ -158,6 +158,8 @@ class RuntimeProof(ContractModel):
 class DynamicEvidence(ContractModel):
     kind: Literal["dynamic"] = "dynamic"
     probe_id: NonEmptyString
+    attempt_id: NonEmptyString | None = None
+    mutation: NonEmptyString | None = None
     request: dict[str, JsonValue]
     response: dict[str, JsonValue]
     logs: tuple[str, ...] = ()
@@ -414,7 +416,7 @@ def runtime_evidence(finding: Finding) -> tuple[DynamicEvidence, ...]:
                 if isinstance(entry.evidence, DynamicEvidence)
                 and entry.evidence.proof is not None
             ),
-            key=lambda evidence: evidence.probe_id,
+            key=lambda evidence: (evidence.probe_id, evidence.attempt_id or ""),
         )
     )
 
@@ -435,6 +437,11 @@ def proof_identity(evidence: DynamicEvidence) -> dict[str, JsonValue]:
         result = {"is_error": evidence.response.get("is_error")}
 
     return {
+        **(
+            {"attempt_id": evidence.attempt_id, "mutation": evidence.mutation}
+            if evidence.attempt_id is not None
+            else {}
+        ),
         "probe_id": evidence.probe_id,
         "proof": proof.model_dump(mode="json", exclude={"baseline"}),
         "request": evidence.request,

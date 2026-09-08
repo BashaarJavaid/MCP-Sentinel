@@ -77,3 +77,9 @@ target dependency installation are separate prerequisites. TypeScript rejects
 After dependency installation, rules-only scanning needs no network. Installing
 dependencies, auditing dependencies, and the Action's SARIF upload have separate
 network requirements. A completed scan is not proof of security.
+
+For the Phase 22 integration, optional runtime campaign limits belong in
+`sentinel.toml` under `[sandbox]`: `max_probe_attempts = 24` and
+`campaign_timeout_seconds = 120`. Onboarding does not need to write these
+defaults. See [configuration](configuration.md#dynamic-outcomes-and-valid-examples)
+for overrides and the rules-only bypass.

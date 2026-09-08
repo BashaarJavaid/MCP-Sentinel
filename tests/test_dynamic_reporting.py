@@ -15,6 +15,7 @@ from sentinel.dynamic.merge import merge_findings
 from sentinel.dynamic.prober import (
     DEFAULT_ORDER,
     DynamicScanResult,
+    ProbeBinding,
     ProbeCampaign,
     _finding_from_observation,
     _Observation,
@@ -68,6 +69,25 @@ def _proof(**changes: Any) -> Finding:
 
 
 def _result(observations: tuple[_Observation, ...]) -> DynamicScanResult:
+    bindings = tuple(
+        ProbeBinding(
+            item.probe_id,
+            item.target_tool,
+            item.field,
+            {
+                "SENT-009": "__SENTINEL_OVERSIZED__",
+                "SENT-010": "__SENTINEL_INJECTION__",
+                "SENT-011": "__SENTINEL_WRONG_TYPE__",
+            }.get(item.probe_id),
+            path=item.argument_path,
+        )
+        for item in observations
+    )
+    for item, binding in zip(observations, bindings, strict=True):
+        item.attempt_id = binding.attempt_id
+        item.mutation = binding.mutation
+        item.argument_path = binding.argument_path
+        item.started = item.status != "untested"
     return DynamicScanResult(
         tuple(
             _finding_from_observation(item, SCAN_ID, NOW)
@@ -76,7 +96,9 @@ def _result(observations: tuple[_Observation, ...]) -> DynamicScanResult:
         ),
         (),
         DependencyImage("test", "test", True),
-        ProbeCampaign(DEFAULT_ORDER, {}, None, True),
+        ProbeCampaign(
+            DEFAULT_ORDER, bindings, None, True, enumeration_complete=bool(observations)
+        ),
         observations,
     )
 
@@ -133,8 +155,7 @@ def test_missing_results_are_untested_and_invalid_contracts_rejected() -> None:
     dynamic = _result(())
     assert not dynamic.complete
     assert all(item.status == "untested" for item in dynamic.summary.probe_outcomes)
-    with pytest.raises(ValidationError, match="at least 1"):
-        DynamicAnalysisSummary(probe_outcomes=())
+    assert DynamicAnalysisSummary(probe_outcomes=()).probe_outcomes == ()
     with pytest.raises(ValidationError, match="only tested"):
         DynamicProbeOutcome(
             attempt_id="test:SENT-008",
@@ -147,7 +168,7 @@ def test_missing_results_are_untested_and_invalid_contracts_rejected() -> None:
         )
     payload = _report(()).model_dump(exclude={"findings"})
     payload.update(dynamic_analysis=dynamic.summary)
-    with pytest.raises(ValidationError, match="incomplete probes"):
+    with pytest.raises(ValidationError, match="incomplete campaign"):
         ScanReport.model_validate({**payload, "findings": ()})
 
 
