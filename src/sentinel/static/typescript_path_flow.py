@@ -58,6 +58,8 @@ class TypeScriptPathFlow:
         self.call_sites: list[TypeScriptSymbol] = []
         self.normal_exits: list[list[frozenset[str]]] = []
         self.function_effects: Facts = frozenset()
+        self.path_inputs: dict[str, frozenset[str]] = {}
+        self.basenames: dict[str, Value] = {}
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -78,6 +80,12 @@ class TypeScriptPathFlow:
         result = combine(values)
         if values and all(self.canonical(value) for value in values):
             self.normalized.add(result.key)
+            self.path_inputs[result.key] = frozenset.intersection(
+                *(
+                    self.path_inputs.get(value.key, frozenset({value.key}))
+                    for value in values
+                )
+            )
         if any(value.key in self.conditions for value in values):
             self.conditions[result.key] = (
                 common_facts([self.condition(value)[0] for value in values]),
@@ -508,6 +516,27 @@ class TypeScriptPathFlow:
             return replace(args[0], locations=result.locations)
         if external == "path.resolve":
             self.normalized.add(result.key)
+            if len(args) == 1:
+                self.path_inputs[result.key] = self.path_inputs.get(
+                    args[0].key, frozenset({args[0].key})
+                )
+        if external == "path.basename" and len(args) == 1:
+            self.basenames[result.key] = args[0]
+        if external == "path.join" and len(args) == 2:
+            parent = self.parents.get(args[0].key)
+            basename = self.basenames.get(args[1].key)
+            if parent and basename and parent.key == basename.key and args[0].resolved:
+                self.normalized.add(result.key)
+                self.path_inputs[result.key] = self.path_inputs.get(
+                    parent.key, frozenset({parent.key})
+                )
+        if (
+            name.endswith(".toLowerCase")
+            and not args
+            and self.canonical(receiver)
+            and env.get("#guard:platform:win32", Value()).contained
+        ):
+            return receiver
         if external == "path.dirname" and len(args) == 1 and self.canonical(args[0]):
             self.parents[result.key] = args[0]
         if (
@@ -551,6 +580,20 @@ class TypeScriptPathFlow:
             and operator.get("Op") in {"PhysEq", "NotPhysEq"}
             and len(args) == 2
         ):
+            raw = [argument.get("Arg", argument) for argument in arguments[1]]
+            if (
+                name_of(raw[0]) == "process.platform"
+                and "process" not in env
+                and "process" not in self.program.bindings[file.relative_path]
+                and self.program.literal(TypeScriptSymbol(file, raw[1])) == "win32"
+            ):
+                pair: tuple[Facts, Facts] = (
+                    frozenset(),
+                    frozenset({"#guard:platform:win32"}),
+                )
+                self.conditions[result.key] = (
+                    pair if operator["Op"] == "PhysEq" else pair[::-1]
+                )
             target, base = args if args[0].sources else list(reversed(args))
             for directory, separator_value in (args, list(reversed(args))):
                 binding = self.callables.get(separator_value.key)
@@ -664,6 +707,13 @@ class TypeScriptPathFlow:
                         match_kinds=("path-flow",),
                         captures={
                             "sink_name": name,
+                            **(
+                                {"containment_gap": "physical"}
+                                if env.get(
+                                    f"#guard:lexical:{value.key}", Value()
+                                ).contained
+                                else {}
+                            ),
                             "flow_locations": json.dumps(
                                 sorted(
                                     value.locations
@@ -796,15 +846,22 @@ class TypeScriptPathFlow:
                         if current.key == original.key:
                             env[name] = replace(current, contained=True)
         for key, (base, target, _) in self.relative.items():
-            if not (base.resolved and target.resolved and not base.sources):
+            if not (
+                self.canonical(base) and self.canonical(target) and not base.sources
+            ):
                 continue
             if all(
                 env.get(f"#guard:{key}:{part}", Value()).contained
                 for part in ("parent", "absolute")
             ):
-                for name, current in env.items():
-                    if current.key == target.key:
-                        env[name] = replace(current, contained=True)
+                for original_key in self.path_inputs.get(
+                    target.key, frozenset({target.key})
+                ):
+                    env[f"#guard:lexical:{original_key}"] = Value(contained=True)
+                if base.resolved and target.resolved:
+                    for name, current in env.items():
+                        if current.key == target.key:
+                            env[name] = replace(current, contained=True)
 
 
 def analyze(

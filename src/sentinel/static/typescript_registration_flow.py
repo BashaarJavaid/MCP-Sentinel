@@ -47,6 +47,7 @@ class RegistrationFlow(TypeScriptPathFlow):
                 self.values.get(config.get("inputSchema", Value()).key),
                 self.values.get(config.get("description", Value()).key),
                 self.factory,
+                TypeScriptSymbol(file, node),
             )
         )
 

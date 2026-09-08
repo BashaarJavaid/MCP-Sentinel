@@ -7,6 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import PurePosixPath
+from typing import TYPE_CHECKING
 
 from sentinel.report.model import ReportWarning
 from sentinel.static.ast_utils import (
@@ -21,6 +22,9 @@ from sentinel.static.execution import check_deadline
 from sentinel.static.model import ParsedPythonFile
 
 Function = ast.FunctionDef | ast.AsyncFunctionDef
+
+if TYPE_CHECKING:
+    from sentinel.static.launches import Launch
 
 
 @dataclass(frozen=True)
@@ -80,6 +84,12 @@ class ToolBinding:
 
 class PythonProgram:
     """A bounded index of unambiguous local imports, exports and static aliases."""
+
+    @cached_property
+    def launches(self) -> tuple[Launch, ...]:
+        from sentinel.static.launches import launches
+
+        return launches(self)
 
     def __init__(
         self, files: tuple[ParsedPythonFile, ...], *, deadline: float = float("inf")

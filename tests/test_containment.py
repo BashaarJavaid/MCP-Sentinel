@@ -1,5 +1,6 @@
 """Containment checks must protect the actual value before its filesystem use."""
 
+import json
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,6 +12,91 @@ from sentinel.static.model import RuleRunState
 from sentinel.static.rules.sent012 import analyze
 from tests.conftest import NOW, make_target
 from tests.test_python_discovery import program
+
+
+def test_configured_launch_globals_keep_transport_specific_path_evidence() -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n"
+        "def checked(path):\n"
+        "    if ROOT is None: return path\n"
+        "    root = os.path.realpath(ROOT)\n"
+        "    p = os.path.realpath(os.path.join(root, path))\n"
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n"
+        "    return p\n"
+        "@mcp.tool()\ndef read(path):\n    return open(checked(path))\n"
+        "def http():\n    global ROOT\n    ROOT = os.environ.get('ROOT', '/srv/data')\n"
+        "    mcp.run(transport='streamable-http')\n"
+        "def stdio():\n    mcp.run(transport='stdio')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == 1
+    assert json.loads(state.matches[0].captures["launch_transports"]) == ["stdio"]
+    vulnerable = source.replace(
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n", ""
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": vulnerable}), state)
+    assert {
+        json.loads(match.captures["launch_transports"])[0] for match in state.matches
+    } == {
+        "stdio",
+        "streamable-http",
+    }
+
+
+@pytest.mark.parametrize(
+    "extra", ["mcp.run()", "def other(transport):\n    mcp.run(transport=transport)"]
+)
+def test_unresolved_launch_cannot_hide_unconfigured_handler(extra: str) -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n@mcp.tool()\ndef read(path):\n"
+        "    if ROOT is None: return open(path)\n"
+        "    return open('/srv/data/fixed')\n"
+        "def configured():\n    global ROOT\n    ROOT='/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n" + extra + "\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert state.matches
+    assert any("launch" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("if not inside(root, p): raise ValueError()", 0),
+        ("if not inside(root, p): return None", 0),
+        ("inside(root, p)", 1),
+        ("if not inside(root, other): raise ValueError()", 1),
+        ("if not inside(root, p): raise ValueError()\np = other_input", 1),
+        (
+            "try:\n    if not inside(root, p): raise ValueError()\n"
+            "except ValueError:\n    pass",
+            1,
+        ),
+    ],
+)
+def test_realpath_commonpath_boolean_helper(guard: str, expected: int) -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "def inside(root, p):\n"
+        "    root = os.path.realpath(root)\n    p = os.path.realpath(p)\n"
+        "    if p == root: return True\n"
+        "    try:\n        return os.path.commonpath([root, p]) == root\n"
+        "    except ValueError:\n        return False\n"
+        "@mcp.tool()\ndef read(path, other_input):\n"
+        "    root = os.path.realpath('/srv/data')\n"
+        "    p = os.path.realpath(path)\n"
+        "    other = os.path.realpath('/srv/data/fixed')\n"
+        + "\n".join("    " + line for line in guard.splitlines())
+        + "\n    return open(p)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
 
 
 @pytest.mark.parametrize(
@@ -49,6 +135,33 @@ def test_source_bound_workbook_path(
     result = run_static_scan(configuration, uuid4(), timestamp=NOW)
     assert not result.incomplete
     assert len(result.findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("construction", "mutation", "expected"),
+    [
+        ("Workbook()", "", 1),
+        ("load_workbook('/srv/data/fixed.xlsx')", "", 1),
+        ("Workbook()", "wb.save = replacement", 0),
+        ("Workbook()", "unknown(wb)", 0),
+        ("Workbook()", "wb.create_sheet('new')", 1),
+        ("custom()", "", 0),
+    ],
+)
+def test_workbook_save_requires_source_bound_receiver(
+    construction: str, mutation: str, expected: int
+) -> None:
+    source = (
+        "from openpyxl import Workbook, load_workbook\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+        "@mcp.tool()\ndef write(path):\n"
+        f"    wb = {construction}\n"
+        + (f"    {mutation}\n" if mutation else "")
+        + "    wb.save(filename=path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
 
 
 @pytest.mark.parametrize(

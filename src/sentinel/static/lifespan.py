@@ -46,6 +46,7 @@ def server_class(
         "tool",
         "add_tool",
         "register_tool",
+        "run",
     }
     for part in scope_nodes(cls):
         if (isinstance(part, Function) and part.name in hooks) or (

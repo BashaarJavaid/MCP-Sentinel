@@ -415,3 +415,43 @@ annotation for the common-facts input. Whole-project Ruff, formatting and strict
 mypy pass in `continuation-registration-{ruff-final,format-corrected,mypy-final}`;
 initial style/type failures remain. This is not a final whole-suite, independent
 condition, campaign or acceptance gate. All uncompleted requirements remain open.
+
+### Containment continuation after 96712f3
+
+Enforced realpath/commonpath helper predicates retain actual value identity and
+successful-return guard facts. Two original commonpath failures were reproduced;
+317 affected regressions passed before launch-state changes. Explicit SDK launch
+functions now supply their preceding global assignments to handler interpretation.
+Native descriptions and flow evidence retain all observed launch transports;
+module-level/dynamic/unresolved launch state also retains an unconfigured handler
+analysis. Two hidden-unconfigured-launch regressions failed before correction.
+Workbook save recognition requires a genuine constructor/loader receiver; direct
+replacement and escape controls remain. The first save gate reproduced three
+misses, then all twelve workbook load/save controls passed.
+
+`continuation-excel-launch-measure` completed all five exposed Excel inputs at its
+retained source patch. Each report has seven SENT-003 and eighteen SENT-012
+candidates. Vulnerable variants cite SSE/streamable HTTP/stdio launches; fixed
+variants and the safe control cite only stdio. These stdio candidates remain
+visible and require source-condition adjudication; no whole-repository clean
+claim is made. Later workbook-save support is not included in this earlier run.
+
+TypeScript relative-path guards now retain a lexical-boundary fact across
+normalization, successful helpers and the guarded Windows case-folding branch.
+That fact narrows a residual path candidate to physical/symlink uncertainty,
+without erasing it. `continuation-mobile-lexical-measure` completed five exposed
+inputs: vulnerable variants retain ordinary screenshot boundary findings, while
+fixed variants/control retain narrower physical-containment candidates. Existing
+non-symlink-parent prerequisites matter to adjudication. Recording/device-command
+coverage and final-candidate measurement are not established by that result.
+
+A local wrapper regression found that inventory counted the shared internal SDK
+registration as a third tool. The correction retains SDK source coordinates in
+bindings while inventory uses the two outer registration calls. Imported and
+same-file wrapper cases pass. Source-specific checks include 380 Python/engine
+regressions, 256 TypeScript/shared regressions and then 448 combined regressions;
+subsequent inventory corrections have their own retained tests. Style/type
+failures, two nonexistent-test command mistakes, all failed regressions and
+intermediate source patches remain preserved. Whole-project mypy/Ruff/format
+pass in `continuation-containment-{mypy,ruff,format}`. No final full quality,
+benchmark, review, campaign, hosted or delivery gate is claimed.

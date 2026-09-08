@@ -360,6 +360,18 @@ def inventory(
             reasons = []
             registration = ts.offset_range(source, tool.start, tool.end)
             key = (registration.start_line, registration.start_column)
+            if any(
+                item.sdk_registration is not None
+                and item.sdk_registration.node is not item.registration.node
+                and item.sdk_registration.file == ts_file
+                and (
+                    ts_source_range(item.sdk_registration.node, ts_file).start_line,
+                    ts_source_range(item.sdk_registration.node, ts_file).start_column,
+                )
+                == key
+                for item in resolved_ts
+            ):
+                continue
             handled.add(key)
             ts_binding = next(
                 (

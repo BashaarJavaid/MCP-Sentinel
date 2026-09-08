@@ -121,8 +121,59 @@ class PathFlow:
         self.call_sites: list[str] = []
         self.yielding: set[tuple[str, str]] = set()
         self.argument_tuples: dict[str, tuple[Value, ...]] = {}
+        self.path_conditions: dict[
+            str, tuple[frozenset[str] | None, frozenset[str] | None]
+        ] = {}
+        self.common_paths: dict[str, tuple[Value, ...]] = {}
+        self.path_arrays: dict[ast.AST, tuple[Value, ...]] = {}
+        self.launch_call: ast.Call | None = None
+        self.launch_states: list[dict[tuple[str, str], Value]] = []
+        self.non_none: set[str] = set()
+        self.workbooks: set[str] = set()
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
+        from sentinel.static.launches import for_tool
+
+        launches = for_tool(self.program, tool)
+        if not launches:
+            self.entry_handler(tool, bindings)
+            return
+        original = self.globals.copy()
+        try:
+            for launch in launches:
+                self.globals = original.copy()
+                if not isinstance(launch.function.node, Function):
+                    self.entry_handler(tool, bindings.copy())
+                    continue
+                self.launch_call = launch.call
+                self.launch_states = []
+                self.function(launch.function, {})
+                self.launch_call = None
+                for globals_ in self.launch_states:
+                    self.globals = globals_.copy()
+                    start = len(self.state.matches)
+                    self.entry_handler(tool, bindings.copy())
+                    for index in range(start, len(self.state.matches)):
+                        match = self.state.matches[index]
+                        locations = json.loads(
+                            match.captures.get("flow_locations", "[]")
+                        )
+                        locations.append(
+                            [launch.function.file.relative_path, launch.call.lineno]
+                        )
+                        self.state.matches[index] = replace(
+                            match,
+                            captures={
+                                **match.captures,
+                                "launch_transports": json.dumps([launch.transport]),
+                                "flow_locations": json.dumps(locations),
+                            },
+                        )
+        finally:
+            self.globals = original
+            self.launch_call = None
+
+    def entry_handler(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.lifespan import tool_lifespan
 
         node = tool.handler.node
@@ -217,7 +268,16 @@ class PathFlow:
                 self.exits[-1].append(bindings.copy())
             if self.exits[-1]:
                 self.merge(bindings, self.exits[-1])
-            return combine(returned)
+            result = combine(returned)
+            if any(value.key in self.path_conditions for value in returned):
+                pairs = [self.path_condition(value) for value in returned]
+                false = [pair[0] for pair in pairs if pair[0] is not None]
+                true = [pair[1] for pair in pairs if pair[1] is not None]
+                self.path_conditions[result.key] = (
+                    frozenset.intersection(*false) if false else None,
+                    frozenset.intersection(*true) if true else None,
+                )
+            return result
         finally:
             self.exits.pop()
             self.active.remove(key)
@@ -250,10 +310,36 @@ class PathFlow:
                 )
                 for target in targets:
                     if isinstance(target, (ast.Attribute, ast.Subscript)):
-                        self.expression(symbol, target.value, env)
+                        owner = self.expression(symbol, target.value, env)
+                        self.workbooks.discard(owner.key)
                     self.assign(target, value, env)
+                    if isinstance(target, ast.Name) and env.get("#global:" + target.id):
+                        env[
+                            f"#global-value:{symbol.file.relative_path}:{target.id}"
+                        ] = value
+            elif isinstance(node, ast.Global):
+                for name in node.names:
+                    env["#global:" + name] = Value(key=name)
             elif isinstance(node, ast.Return):
-                returned.append(self.expression(symbol, node.value, env))
+                value = self.expression(symbol, node.value, env)
+                facts = frozenset(
+                    key.removeprefix("#path:")
+                    for key, item in env.items()
+                    if key.startswith("#path:") and item.contained
+                )
+                if value.key in self.path_conditions or (
+                    facts and value.key in {"True", "False", "None"}
+                ):
+                    pair = self.path_condition(value)
+                    result = replace(
+                        value, key=_key("path-return", value.key, *sorted(facts))
+                    )
+                    self.path_conditions[result.key] = (
+                        pair[0] | facts if pair[0] is not None else None,
+                        pair[1] | facts if pair[1] is not None else None,
+                    )
+                    value = result
+                returned.append(value)
                 self.exits[-1].append(env.copy())
                 return False
             elif isinstance(node, ast.Raise):
@@ -520,9 +606,20 @@ class PathFlow:
         unknown = Value()
         for name in set().union(*(b.keys() for b in branches)):
             default = self.member_defaults.get(name, unknown)
-            env[name] = combine([branch.get(name, default) for branch in branches])
+            values = [branch.get(name, default) for branch in branches]
+            env[name] = (
+                Value(contained=all(value.contained for value in values))
+                if name.startswith("#path:")
+                else combine(values)
+            )
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
+        if value.key in self.path_conditions:
+            false, true = self.path_conditions[value.key]
+            if false is None:
+                return True
+            if true is None:
+                return False
         if value.maybe_missing or value.maybe_none:
             return None
         if value.key in self.record_keys and value.instance is not None:
@@ -552,6 +649,17 @@ class PathFlow:
             return value.key == "True"
         return None
 
+    def path_condition(
+        self, value: Value
+    ) -> tuple[frozenset[str] | None, frozenset[str] | None]:
+        return self.path_conditions.get(
+            value.key,
+            (
+                None if value.key == "True" else frozenset(),
+                None if value.key in {"False", "None"} else frozenset(),
+            ),
+        )
+
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
     ) -> None:
@@ -567,6 +675,22 @@ class PathFlow:
             and node.func.attr == "is_relative_to"
         ):
             self.protect(symbol, node, env)
+        else:
+            evaluated = (
+                self.expression(symbol, node, env)
+                if isinstance(node, ast.Name)
+                else None
+            )
+            # Calls/comparisons are recorded at their actual evaluation, so a
+            # guard never invokes a validator a second time.
+            evaluated = evaluated or env.get(f"#path-expression:{id(node)}")
+            if evaluated is not None:
+                facts = self.path_condition(evaluated)[int(truth)] or frozenset()
+                for key in facts:
+                    env["#path:" + key] = Value(contained=True)
+                for key, current in env.items():
+                    if current.key in facts:
+                        env[key] = replace(current, contained=True)
 
     def protect(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> None:
         assert isinstance(node.func, ast.Attribute)
@@ -634,6 +758,8 @@ class PathFlow:
                 self.callables[binding_key] = target
                 return Value(key=binding_key)
             key = (symbol.file.relative_path, node.id)
+            if f"#global-value:{key[0]}:{key[1]}" in env:
+                return env[f"#global-value:{key[0]}:{key[1]}"]
             if key not in self.globals:
                 self.globals[key] = Value(key=":".join(key))
                 declarations = self.program.bindings[symbol.file.relative_path].get(
@@ -680,7 +806,15 @@ class PathFlow:
                 instance=None,
             )
         if isinstance(node, ast.Call):
-            return self.call(symbol, node, env)
+            value = self.call(symbol, node, env)
+            if value.key in self.path_conditions:
+                env[f"#path-expression:{id(node)}"] = value
+            return value
+        if isinstance(node, (ast.List, ast.Tuple)):
+            elements = tuple(self.expression(symbol, child, env) for child in node.elts)
+            value = combine(list(elements))
+            self.path_arrays[node] = elements
+            return value
         if isinstance(node, ast.Await):
             return self.expression(symbol, node.value, env)
         if isinstance(node, ast.NamedExpr):
@@ -699,6 +833,11 @@ class PathFlow:
             left = self.expression(symbol, node.left, env)
             right = self.expression(symbol, node.comparators[0], env)
             first, second = member_label(left), member_label(right)
+            if isinstance(node.ops[0], (ast.Is, ast.IsNot)) and (
+                (left.key in self.non_none and right.key == "None")
+                or (right.key in self.non_none and left.key == "None")
+            ):
+                return Value(key=repr(isinstance(node.ops[0], ast.IsNot)))
             if second is UNKNOWN_MEMBER and not right.sources:
                 try:
                     second = ast.literal_eval(node.comparators[0])
@@ -706,9 +845,14 @@ class PathFlow:
                     second = UNKNOWN_MEMBER
             if first is not UNKNOWN_MEMBER and second is not UNKNOWN_MEMBER:
                 operator = node.ops[0]
-                if isinstance(operator, (ast.Eq, ast.NotEq)):
+                if isinstance(operator, (ast.Eq, ast.NotEq)) or (
+                    isinstance(operator, (ast.Is, ast.IsNot))
+                    and (first is None or second is None)
+                ):
                     equal = first == second
-                    return Value(key=repr(equal != isinstance(operator, ast.NotEq)))
+                    return Value(
+                        key=repr(equal != isinstance(operator, (ast.NotEq, ast.IsNot)))
+                    )
                 if isinstance(operator, (ast.In, ast.NotIn)) and isinstance(
                     second, (list, tuple, set, dict, str, bytes)
                 ):
@@ -720,7 +864,31 @@ class PathFlow:
                         return Value(
                             key=repr(included != isinstance(operator, ast.NotIn))
                         )
-            return combine([left, Value(), right])
+            result = combine([left, Value(), right])
+            facts: set[str] = set()
+            if isinstance(node.ops[0], (ast.Eq, ast.NotEq)):
+                for checked, base in ((left, right), (right, left)):
+                    paths = self.common_paths.get(checked.key, (checked,))
+                    if (
+                        base.resolved
+                        and not base.sources
+                        and all(value.resolved for value in paths)
+                    ):
+                        facts.update(value.key for value in paths if value.sources)
+            if facts:
+                result = replace(
+                    result,
+                    key=_key("path-comparison", ast.dump(node), left.key, right.key),
+                )
+                pair: tuple[frozenset[str], frozenset[str]] = (
+                    frozenset(),
+                    frozenset(facts),
+                )
+                self.path_conditions[result.key] = (
+                    pair[::-1] if isinstance(node.ops[0], ast.NotEq) else pair
+                )
+                env[f"#path-expression:{id(node)}"] = result
+            return result
         if isinstance(node, ast.BoolOp):
             values = []
             stopping = isinstance(node.op, ast.Or)
@@ -834,6 +1002,21 @@ class PathFlow:
         )
 
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
+        if node is self.launch_call:
+            self.launch_states.append(
+                {
+                    **self.globals,
+                    **{
+                        (path, name): value
+                        for key, value in env.items()
+                        if key.startswith("#global-value:")
+                        for path, name in [
+                            key.removeprefix("#global-value:").rsplit(":", 1)
+                        ]
+                    },
+                }
+            )
+            return Value()
         name = qualified_name(node.func) or "dynamic call"
         resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
         root = name.split(".")[0]
@@ -979,6 +1162,15 @@ class PathFlow:
             locations=result.locations | {(symbol.file.relative_path, node.lineno)},
         )
         if (
+            resolved in {"os.getenv", "os.environ.get"}
+            and self.program.external(symbol, node.func) == resolved
+            and len(args) == 2
+            and member_label(args[1]) is not UNKNOWN_MEMBER
+            and args[1].key != "None"
+        ):
+            self.non_none.add(result.key)
+            return result
+        if (
             (resolved in {"id", "builtins.id"} and len(args) == 1 and not keywords)
             or (
                 resolved in {"hasattr", "builtins.hasattr"}
@@ -1087,12 +1279,26 @@ class PathFlow:
                 else:
                     env[self.member_key(receiver, label)] = value
             return Value()
-        if (
-            method == "resolve" and receiver.path_object
-        ) or resolved == "os.path.realpath":
+        if (method == "resolve" and receiver.path_object) or (
+            resolved == "os.path.realpath"
+            and self.program.external(symbol, node.func) == resolved
+        ):
             return replace(
                 result if args else receiver, resolved=True, locations=result.locations
             )
+        if (
+            resolved == "os.path.commonpath"
+            and len(args) == 1
+            and not keywords
+            and self.program.external(symbol, node.func) == resolved
+        ):
+            path_values = self.path_arrays.get(node.args[0])
+            if path_values:
+                result = replace(
+                    result, key=_key("commonpath", *(v.key for v in path_values))
+                )
+                self.common_paths[result.key] = path_values
+            return result
         if resolved == "pathlib.Path" and name.split(".")[0] not in env:
             return replace(result, path_object=True)
         if resolved in {"str", "os.fspath"} and name.split(".")[0] not in env:
@@ -1118,6 +1324,29 @@ class PathFlow:
         }:
             return Value()
         sink: Value | None = None
+        workbook = (
+            resolved
+            in {
+                "openpyxl.Workbook",
+                "openpyxl.workbook.Workbook",
+                "openpyxl.workbook.workbook.Workbook",
+                "openpyxl.load_workbook",
+                "openpyxl.reader.excel.load_workbook",
+            }
+            and self.program.external(symbol, node.func) == resolved
+        )
+        if workbook and resolved.endswith("Workbook"):
+            value = Value(
+                key=_key(
+                    "workbook",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                )
+            )
+            self.workbooks.add(value.key)
+            return value
         if resolved in {
             "open",
             "builtins.open",
@@ -1132,11 +1361,7 @@ class PathFlow:
             "shutil.rmtree",
         }:
             sink = args[0] if args else keywords.get("file", keywords.get("path"))
-        elif (
-            resolved
-            in {"openpyxl.load_workbook", "openpyxl.reader.excel.load_workbook"}
-            and self.program.external(symbol, node.func) == resolved
-        ):
+        elif workbook or (receiver.key in self.workbooks and method == "save"):
             sink = args[0] if args else keywords.get("filename")
         elif (
             method
@@ -1174,11 +1399,29 @@ class PathFlow:
                         },
                     )
                 )
+            if workbook:
+                value = Value(
+                    key=_key(
+                        "workbook",
+                        symbol.file.relative_path,
+                        str(node.lineno),
+                        str(node.col_offset),
+                        *self.call_sites,
+                    )
+                )
+                self.workbooks.add(value.key)
+                return value
             return (
                 replace(result, repository_object=True)
                 if resolved == "git.Repo"
                 else result
             )
+        if receiver.key in self.workbooks and method in {
+            "create_sheet",
+            "close",
+            "remove",
+        }:
+            return Value()
         if method == "get" and (receiver.sources or receiver.key in self.mapping_keys):
             label = member_label(args[0]) if args else UNKNOWN_MEMBER
             if label is not UNKNOWN_MEMBER:
@@ -1436,7 +1679,7 @@ class PathFlow:
                 bindings.update(
                     (key, value)
                     for key, value in env.items()
-                    if key.startswith("#member:")
+                    if key.startswith(("#member:", "#global-value:"))
                 )
                 initial_instances = {
                     value.key
@@ -1453,7 +1696,7 @@ class PathFlow:
                 env.update(
                     (key, value)
                     for key, value in bindings.items()
-                    if key.startswith("#member:")
+                    if key.startswith(("#member:", "#global-value:"))
                 )
                 invalidated = {
                     value.key
@@ -1497,6 +1740,7 @@ class PathFlow:
                 return replace(
                     returned, locations=returned.locations | result.locations
                 )
+        self.workbooks.difference_update(value.key for value in (*values, receiver))
         escaped = {
             value.key
             for value in (*values, receiver)

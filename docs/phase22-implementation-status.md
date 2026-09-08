@@ -170,3 +170,25 @@ branch controls; 314 focused regressions, Ruff, formatting and strict mypy pass
 at their retained patches. Batch 5 contains 439 further evidence files, each
 verified after archive creation. It preserves all incomplete measurements and
 incidental-candidate limits; it is not a final technical acceptance packet.
+
+### September 8 containment continuation (local integration)
+
+`96712f3` preserves the dirty workbook/TypeScript work and corrects wrapped
+registration origins, escaped SDK instances and successful void-helper guard
+facts. The subsequent containment change interprets explicit parameterless
+FastMCP launch functions and their global assignments, keeping transport-specific
+source evidence. Unresolved launches retain an unconfigured analysis and warning.
+It recognizes enforced realpath/commonpath boolean helpers and source-bound
+openpyxl workbook loads and saves; unknown/replaced workbook receivers remain
+unsupported. TypeScript inventory associates wrapped calls with their internal
+SDK registration without inventing an extra tool.
+
+For TypeScript output checks, lexical normalization and enforced relative-path
+checks remain distinct from physical containment. A candidate whose lexical
+boundary is established reports the remaining symlink uncertainty explicitly;
+it is not silently suppressed or described as a demonstrated bypass.
+The exposed Excel/mobile development measurements are retained under
+`artifacts/phase22/integration/`, with exact source patches. These are development
+results, not final repeated accuracy, held-out, runtime or reviewed-tier evidence.
+Recording/device-command coverage and the other unmet conditions remain open.
+The full Phase 22 technical scope and consolidated draft are still unfinished.

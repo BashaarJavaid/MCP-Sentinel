@@ -67,6 +67,7 @@ class TypeScriptBinding:
     schema: TypeScriptSymbol | None
     description: TypeScriptSymbol | None
     factory: TypeScriptSymbol | None = None
+    sdk_registration: TypeScriptSymbol | None = None
 
 
 class TypeScriptProgram:

@@ -80,8 +80,10 @@ def test_factory_registration_wrapper_preserves_callback_binding(
     assert len(state.matches) == expected
 
 
+@pytest.mark.parametrize("local", [False, True])
 def test_imported_factory_wrapper_keeps_each_registration_and_metadata(
     tmp_path: Path,
+    local: bool,
 ) -> None:
     (tmp_path / "package.json").write_text(
         '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}', encoding="utf-8"
@@ -103,6 +105,16 @@ def test_imported_factory_wrapper_keeps_each_registration_and_metadata(
         'async () => fs.readFileSync("/srv/fixed"));\nreturn server;\n}\n',
         encoding="utf-8",
     )
+    if local:
+        path = tmp_path / "server.ts"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                'import {register} from "./wrapper.js";', ""
+            )
+            + (tmp_path / "wrapper.ts").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        (tmp_path / "wrapper.ts").unlink()
     configuration = load_configuration(
         tmp_path, environ={}, static_only=True, cli_overrides={"rules": ("SENT-012",)}
     )
@@ -110,6 +122,7 @@ def test_imported_factory_wrapper_keeps_each_registration_and_metadata(
     assert not result.incomplete
     assert len(result.findings) == 1
     assert result.summary.coverage is not None
+    assert len(result.summary.coverage.surfaces) == 2
     surfaces = [
         item
         for item in result.summary.coverage.surfaces
@@ -548,3 +561,39 @@ def test_successful_void_guard_requires_all_normal_exits(
         "function check(p) { " + body + " } " + call + " return fs.readFile(p);",
         expected,
     )
+
+
+@pytest.mark.parametrize("enforce", [True, False])
+def test_lexical_output_guard_discloses_remaining_physical_path_gap(
+    tmp_path: Path, enforce: bool
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function inside(p, root) { const rel = path.relative(root, p); "
+        'if (path.isAbsolute(rel) || rel.startsWith("..")) return false; '
+        "return true; }\n"
+        "function check(input) { const p = path.resolve(input); "
+        'const roots = [path.resolve("/srv/data")]; '
+        'const windows = process.platform === "win32"; '
+        "const allowed = roots.some(root => { if (windows) "
+        "return inside(p.toLowerCase(), root.toLowerCase()); "
+        "return inside(p, root); }); "
+        + ("if (!allowed) throw new Error();" if enforce else "")
+        + "}\n"
+        'server.registerTool("write", {inputSchema:{input:z.string()}}, '
+        'async ({input}) => {check(input); fs.writeFileSync(input, "x");});\n'
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (state.matches[0].captures.get("containment_gap") == "physical") is enforce

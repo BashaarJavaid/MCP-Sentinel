@@ -285,7 +285,11 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             groups[key] = match
             continue
         captures = {**match.captures, **existing.captures}
-        for field in ("flow_locations", "flow_lines"):
+        if match.captures.get("containment_gap") != existing.captures.get(
+            "containment_gap"
+        ):
+            captures.pop("containment_gap", None)
+        for field in ("flow_locations", "flow_lines", "launch_transports"):
             if field in captures:
                 records = [
                     item
@@ -367,11 +371,23 @@ def _finding_from_match(
         ),
         rule_id=match.rule_id,
         title=definition.title,
-        description=definition.description
+        description=(
+            "The source enforces a lexical directory boundary on this path, but "
+            "physical containment through symlinks is not established on every path."
+            if match.captures.get("containment_gap") == "physical"
+            else definition.description
+        )
         + (
             f" Tool input reaches {match.captures['execution_sinks']} "
             "through a same-file helper."
             if "execution_sinks" in match.captures
+            else ""
+        )
+        + (
+            " Analyzed source-declared launch transports: "
+            + ", ".join(json.loads(match.captures["launch_transports"]))
+            + "."
+            if "launch_transports" in match.captures
             else ""
         ),
         impact=definition.impact,
