@@ -43,7 +43,7 @@ class Value:
 def combine(values: list[Value], key: str = "") -> Value:
     if values:
         first = values[0]
-        if all(value == first for value in values[1:]) and (
+        if all(value is first or value == first for value in values[1:]) and (
             first.sources
             or not (first.contained or first.option_safe or first.url_checks)
         ):
@@ -510,13 +510,10 @@ class PathFlow:
                 env[self.member_key(receiver, target.attr)] = value
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        unknown = Value()
         for name in set().union(*(b.keys() for b in branches)):
-            env[name] = combine(
-                [
-                    branch.get(name, self.member_defaults.get(name, Value()))
-                    for branch in branches
-                ]
-            )
+            default = self.member_defaults.get(name, unknown)
+            env[name] = combine([branch.get(name, default) for branch in branches])
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
         if value.maybe_missing or value.maybe_none:

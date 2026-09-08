@@ -15,6 +15,32 @@ from sentinel.static.typescript_path_flow import analyze
 from tests.conftest import NOW, make_target
 
 
+def test_no_command_sinks_does_not_interpret_service_construction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sentinel.static.path_flow import PathFlow
+
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "mcp = FastMCP('test')\n"
+        "@mcp.tool()\ndef fetch(value: str):\n"
+        "    return Service(value).fetch()\n",
+        encoding="utf-8",
+    )
+
+    def unexpected(*args: object, **kwargs: object) -> None:
+        pytest.fail("command analysis interpreted an input with no supported sinks")
+
+    monkeypatch.setattr(PathFlow, "function", unexpected)
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-014"]}
+    )
+    result = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert not result.incomplete
+    assert not result.findings
+
+
 @pytest.mark.parametrize(
     ("body", "expected"),
     [

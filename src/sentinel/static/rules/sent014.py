@@ -8,7 +8,8 @@ from dataclasses import replace
 from typing import Any
 
 from sentinel.static.ast_utils import match_from_node, qualified_name, resolve_name
-from sentinel.static.discovery import Symbol
+from sentinel.static.discovery import Symbol, ToolBinding
+from sentinel.static.execution import check_deadline
 from sentinel.static.model import (
     RuleRunState,
     StaticContext,
@@ -22,6 +23,11 @@ from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 
+COMMAND_CALLS = frozenset(
+    f"subprocess.{method}"
+    for method in ("run", "Popen", "call", "check_call", "check_output")
+)
+
 
 class OptionFlow(PathFlow):
     rule_id = "SENT-014"
@@ -32,6 +38,30 @@ class OptionFlow(PathFlow):
         self.literals: dict[str, str] = {}
         self.git_commands: set[str] = set()
         self.json_containers: set[str] = set()
+        self.has_command_sinks = self.command_sinks_present()
+
+    def command_sinks_present(self) -> bool:
+        # This is a necessary syntax condition for call() below, not a claim
+        # about unsupported command APIs. Inspect every included source file.
+        for file in self.program.files:
+            aliases = self.aliases[file.relative_path]
+            for node in ast.walk(file.tree):
+                check_deadline(self.deadline)
+                if isinstance(node, ast.Attribute) and node.attr == "git":
+                    return True
+                if (
+                    isinstance(node, ast.Call)
+                    and resolve_name(qualified_name(node.func) or "", aliases)
+                    in COMMAND_CALLS
+                ):
+                    return True
+        return False
+
+    def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
+        if self.has_command_sinks:
+            super().entry(tool, bindings)
+        else:
+            self.state.exempt("no supported Python command sink syntax")
 
     def sequence(self, values: tuple[Value, ...], identity: str) -> Value:
         result = combine(list(values), _key("argv", identity, *(v.key for v in values)))
@@ -46,8 +76,9 @@ class OptionFlow(PathFlow):
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         super().merge(env, branches)
+        unknown = Value()
         for name, value in env.items():
-            variants = [branch.get(name, Value()) for branch in branches]
+            variants = [branch.get(name, unknown) for branch in branches]
             sequences = [self.argv.get(v.key) for v in variants]
             if sequences and all(v is not None for v in sequences):
                 # A terminator is trusted only when every path retains its order.
@@ -302,13 +333,7 @@ class OptionFlow(PathFlow):
                     if value.key == receiver.key:
                         env[binding] = changed
                 return Value()
-        if resolved in {
-            "subprocess.run",
-            "subprocess.Popen",
-            "subprocess.call",
-            "subprocess.check_call",
-            "subprocess.check_output",
-        }:
+        if resolved in COMMAND_CALLS:
             expression = (
                 node.args[0]
                 if node.args
