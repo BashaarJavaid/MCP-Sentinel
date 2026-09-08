@@ -411,7 +411,7 @@ within an analyzed tool entry, including across included helpers. Replacing a
 state value changes the downstream value; a later tool entry starts independently.
 This identity alone does not establish application middleware or cross-task context.
 
-For an unambiguous registered FastMCP application, SENT-015/016 can interpret an
+For an unambiguous registered FastMCP application, SENT-012/015/016 can interpret an
 included `http_app` override that passes a literal sequence of genuine Starlette
 `Middleware` registrations to `super().http_app`. Included ASGI constructors and
 `__call__` methods run symbolically in registration order. Scope dictionaries,
@@ -423,6 +423,9 @@ The separate path without an HTTP request retains stdio findings and exception
 fallbacks; HTTP middleware cannot remove an earlier reachable stdio sink.
 Dynamic provider patching, BaseHTTPMiddleware dispatch and general external
 middleware behavior remain unsupported by this connection.
+Known-field builtin `setattr` on the established Starlette state wrapper updates
+that state without escaping the assigned service object. Unknown fields, replaced
+setters and arbitrary object setters do not establish this contract.
 
 Known dictionary membership and genuinely missing keys preserve optional field
 identity. A fresh empty dictionary default supports reads through the populated

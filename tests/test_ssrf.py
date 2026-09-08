@@ -426,8 +426,9 @@ def test_optional_mapping_with_empty_default_preserves_alias_writes(
 
 
 @pytest.mark.parametrize("validate_last", [False, True])
+@pytest.mark.parametrize("setter", [False, True])
 def test_registered_middleware_order_controls_the_requested_value(
-    tmp_path: Path, validate_last: bool
+    tmp_path: Path, validate_last: bool, setter: bool
 ) -> None:
     layers = "Overwrite, Validate" if validate_last else "Validate, Overwrite"
     findings = scan(
@@ -449,8 +450,12 @@ def test_registered_middleware_order_controls_the_requested_value(
         "    def __init__(self, app): self.app = app\n"
         "    async def __call__(self, scope, receive, send):\n"
         "        request = Request(scope)\n"
-        "        request.state.url = request.headers.get('X-URL')\n"
-        "        await self.app(scope, receive, send)\n"
+        + (
+            "        setattr(request.state, 'url', request.headers.get('X-URL'))\n"
+            if setter
+            else "        request.state.url = request.headers.get('X-URL')\n"
+        )
+        + "        await self.app(scope, receive, send)\n"
         "class App(FastMCP):\n"
         "    def http_app(self, middleware=None, **kwargs):\n"
         "        return super().http_app(middleware=["

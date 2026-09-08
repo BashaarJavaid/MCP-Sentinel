@@ -989,3 +989,34 @@ measurement uses the immutable earlier `3a2a276` checkout; it cannot verify this
 later decorator correction. Raw failures, source-order controls, traces and type
 annotation correction remain under `continuation-nested-decorator-*` and
 `continuation-upload-nested-decorator-*`, after sealed batch 13.
+
+### HTTP request caches and upload service identity
+
+The next containment regression reproduces a service-return miss caused by an
+unknown cached request object. SENT-012 now consumes the same source-established
+HTTP middleware state as the URL/credential rules, with its separate stdio path
+retained. A second regression reproduces the genuine Starlette state `setattr`
+being treated as an unknown escape of the assigned fetcher. Known-field builtin
+writes now use the actual shared state member, including source-resolved field
+names. Middleware validation/overwrite order has both direct and setattr controls.
+
+The selected real Confluence upload handler reaches open on the HTTP path in the
+vulnerable source; the fixed source reaches the same read through validate_safe_path
+with no match. A prior trace reached the sink only through stdio and is explicitly
+not an HTTP condition hit. These are source traces, not native completion or
+runtime exploitation. All 616 affected regressions pass in 64.10 seconds, with
+strict mypy across 143 files. Style failures and their string-layout corrections
+are retained after batch 13; final whole-input performance remains open.
+
+The earlier immutable `3a2a276` native measurement is finished: **4/9 completed**.
+The four historical SSRF originals/mutations finish in 88,007, 89,263, 94,345 and
+96,120 ms. Both vulnerable variants retain the two initial Jira request candidates;
+both fixed variants omit those candidates. A third permission-search URL candidate
+remains in all four reports and requires separate source adjudication before a
+fixed-condition gate can be claimed. All five historical upload inputs (including
+the download safe control) exceed the unchanged 120-second timeout and produce
+incomplete outcomes, not native reports. The harness exits zero after recording
+these failures. Exact configurations/outcomes/reports are in
+`atlassian-asgi-3a2-development/`, with driver/source identity in
+`continuation-atlassian-asgi-nine-native.*`. The fixed checkout remains unchanged;
+it does not measure the later decorator or cache-state corrections.

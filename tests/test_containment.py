@@ -909,6 +909,56 @@ def test_decorator_factories_evaluate_in_source_order(forward: bool) -> None:
     assert len(state.matches) == forward
 
 
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("cache", [False, True])
+def test_http_request_cache_retains_the_source_constructed_service(
+    guarded: bool, cache: bool
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from fastmcp import FastMCP\n"
+            "from fastmcp.server.dependencies import get_http_request\n"
+            "from starlette.middleware import Middleware\nfrom pathlib import Path\n"
+            "class PassThrough:\n"
+            "    def __init__(self, app): self.app=app\n"
+            "    async def __call__(self, scope, receive, send):\n"
+            "        await self.app(scope, receive, send)\n"
+            "class App(FastMCP):\n"
+            "    def http_app(self, middleware=None, **kwargs):\n"
+            "        return super().http_app("
+            "middleware=[Middleware(PassThrough)], **kwargs)\n"
+            "class Client:\n"
+            "    def read(self, path):\n"
+            + (
+                "        path=Path(path).resolve()\n"
+                "        if not path.is_relative_to(Path('/srv').resolve()): "
+                "raise ValueError()\n"
+                if guarded
+                else ""
+            )
+            + "        return open(path).read()\n"
+            "def service():\n    request=get_http_request()\n"
+            "    cached=getattr(request.state, 'client', None)\n"
+            "    if cached: return cached\n    client = Client()\n"
+            + (
+                "    key = 'client'\n    setattr(request.state, key, client)\n"
+                if cache
+                else ""
+            )
+            + "    return client\n"
+            "mcp=App('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    return service().read(path)\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == (not guarded)
+
+
 def test_decorator_factory_keeps_each_returned_closure_separate() -> None:
     from sentinel.static.model import RuleRunState
     from sentinel.static.rules.sent012 import analyze

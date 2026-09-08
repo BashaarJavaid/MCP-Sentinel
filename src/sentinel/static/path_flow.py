@@ -198,7 +198,7 @@ class PathFlow:
         from sentinel.static.lifespan import tool_lifespan
 
         if (
-            self.rule_id in {"SENT-015", "SENT-016"}
+            self.rule_id in {"SENT-012", "SENT-015", "SENT-016"}
             and "#http:prepared" not in bindings
         ):
             states = self.http_context.prepare(tool)
@@ -2012,6 +2012,31 @@ class PathFlow:
                 + "]",
                 contained=False,
             )
+        if (
+            resolved in {"setattr", "builtins.setattr"}
+            and root not in env
+            and len(args) == 3
+            and not unknown_args
+            and not keywords
+            and args[0].key in self.http_context.state_owners
+            and isinstance(member_label(args[1]), str)
+            and not str(member_label(args[1])).startswith("__")
+            and not any(
+                not isinstance(declaration, (ast.Import, ast.ImportFrom))
+                for declaration in declarations
+            )
+        ):
+            env["#setattr-target"] = args[0]
+            self.assign(
+                ast.Attribute(
+                    value=ast.Name(id="#setattr-target", ctx=ast.Load()),
+                    attr=str(member_label(args[1])),
+                    ctx=ast.Store(),
+                ),
+                args[2],
+                env,
+            )
+            return Value(key="None")
         if (
             resolved in {"getattr", "builtins.getattr"}
             and root not in env
