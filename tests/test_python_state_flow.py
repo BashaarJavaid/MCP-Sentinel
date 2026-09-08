@@ -39,6 +39,60 @@ def test_http_middleware_validation_tracks_reachable_mutation() -> None:
         context.base_http_layer(Value(key="guard"), Value(key="next"))
 
 
+@pytest.mark.parametrize("transport", ["streamable-http", "stdio"])
+@pytest.mark.parametrize(
+    ("prefix", "login_continues"),
+    [
+        ("    if os.getenv('LOGIN'):\n        login()\n        return\n", False),
+        (
+            "    if os.getenv('LOGIN'):\n"
+            "        login()\n        raise RuntimeError('stop')\n",
+            False,
+        ),
+        (
+            "    if os.getenv('LOGIN'):\n"
+            "        login()\n        if os.getenv('STOP'): return\n",
+            True,
+        ),
+        (
+            "    try:\n        if os.getenv('LOGIN'):\n"
+            "            login()\n            raise RuntimeError('stop')\n"
+            "    except RuntimeError: pass\n",
+            True,
+        ),
+    ],
+)
+def test_sdk_setup_follows_the_selected_launch_path(
+    prefix: str, login_continues: bool, transport: str
+) -> None:
+    from sentinel.static.launches import for_tool
+
+    index = program(
+        {
+            "server.py": "import os\nfrom mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n"
+            "def login(): login_side_effect()\n"
+            "def setup_http(): http_side_effect()\n"
+            "def setup_stdio(): stdio_side_effect()\n"
+            "def main():\n" + prefix + "    if os.getenv('HTTP'):\n"
+            "        setup_http()\n        mcp.run(transport='streamable-http')\n"
+            "    else:\n"
+            "        setup_stdio()\n        mcp.run(transport='stdio')\n"
+            "@mcp.tool()\ndef read(path: str): return open(path)\n"
+        }
+    )
+    flow = PathFlow(index, RuleRunState(), time.monotonic() + 15)
+    tool = index.tools()[0]
+    launch = next(item for item in for_tool(index, tool) if item.transport == transport)
+    assert flow.http_context.prepare_launch(tool, launch) is not None
+    executed = {
+        getattr(node, "name", "") for node in flow.http_context.executed_functions
+    }
+    assert ("setup_http" in executed) == (transport == "streamable-http")
+    assert ("login" in executed) == login_continues
+    assert ("setup_stdio" in executed) == (transport == "stdio")
+
+
 @pytest.mark.parametrize("inspect_type", [False, True])
 @pytest.mark.parametrize(
     ("replacement", "read", "expected"),

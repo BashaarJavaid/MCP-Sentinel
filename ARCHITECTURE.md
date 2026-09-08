@@ -451,6 +451,9 @@ middleware request state; failed launch resolution cannot establish configured
 globals. An unset request ContextVar can retain HTTP absence provenance when its
 fallback selects an operator credential; ordinary stdio defaults do not acquire
 that provenance. This interpretation never runs the SDK or target server.
+Plain startup branches follow the selected launch: an alternative transport or
+an unconditional early return/raise cannot configure that launch. The scanner
+does not infer such termination through loops, helpers or try/finally regions.
 Included Python module imports retain module identity through known-field callback
 replacement and saved callbacks. Function-local imports read the current binding;
 an earlier saved callback retains its original source body. Unknown module escape,

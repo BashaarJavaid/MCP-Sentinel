@@ -43,6 +43,8 @@ class HTTPContext:
         self.sdk_primitives: dict[ast.Call, tuple[Value, str]] = {}
         self.sdk_preparing = False
         self.sdk_skipped_calls: set[ast.Call] = set()
+        self.launch_paths: dict[ast.Call, dict[ast.If, bool]] = {}
+        self.sdk_path: dict[ast.If, bool] = {}
         self.sdk_entries: list[
             tuple[Value | None, Value, Symbol, dict[str, Value]]
         ] = []
@@ -672,6 +674,11 @@ class HTTPContext:
         ):
             return None
         context = Symbol(launch.function.file, owner.name, owner)
+        if launch.call not in self.launch_paths:
+            self.launch_paths[launch.call] = self.source_launch_path(
+                owner.body, launch.call
+            )
+        self.sdk_path = self.launch_paths[launch.call]
         server = Value(key=_key("sdk-server", root.file.relative_path, root.name))
         self.sdk_records.add(server.key)
         flow.record_keys.add(server.key)
@@ -754,6 +761,40 @@ class HTTPContext:
             self.sdk_preparing = self.preparing = False
             self.continuation = None
             self.sdk_skipped_calls = set()
+            self.sdk_path = {}
+
+    def source_launch_path(
+        self, statements: list[ast.stmt], call: ast.Call
+    ) -> dict[ast.If, bool]:
+        """Constrain plain startup branches to paths that reach this launch."""
+        selected = {}
+        for statement in statements:
+            check_deadline(self.flow.deadline)
+            contains = any(part is call for part in ast.walk(statement))
+            if isinstance(statement, ast.If):
+                if contains:
+                    truth = any(
+                        part is call
+                        for child in statement.body
+                        for part in ast.walk(child)
+                    )
+                    selected[statement] = truth
+                    selected.update(
+                        self.source_launch_path(
+                            statement.body if truth else statement.orelse, call
+                        )
+                    )
+                else:
+                    terminals = [
+                        bool(branch) and isinstance(branch[-1], (ast.Return, ast.Raise))
+                        for branch in (statement.body, statement.orelse)
+                    ]
+                    if terminals[0] != terminals[1]:
+                        selected[statement] = not terminals[0]
+            if contains:
+                # Do not infer termination through try/finally, loops or helpers.
+                break
+        return selected
 
     def launch_variants(
         self, tool: ToolBinding, launch: Launch
@@ -783,6 +824,8 @@ class HTTPContext:
             return None
         flow = self.flow
         if isinstance(node, ast.If):
+            if node in self.sdk_path:
+                return self.sdk_path[node]
             selector = (
                 node.test.operand
                 if isinstance(node.test, ast.UnaryOp)
