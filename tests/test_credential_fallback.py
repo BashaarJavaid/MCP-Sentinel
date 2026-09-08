@@ -899,3 +899,49 @@ def test_sdk_branch_evidence_survives_finding_merge(tmp_path: Path) -> None:
         location.range.start_line == 7
         for location in findings[0].evidence.flow_locations
     )
+
+
+@pytest.mark.parametrize(
+    ("guard", "protected"),
+    [
+        ("", False),
+        ("if (!token) throw Error('missing');", True),
+        ("if (!req.headers.other) throw Error('missing');", False),
+        ("if (!token) res.sendStatus(401);", False),
+        ("if (!token) throw Error('missing'); token=req.headers.other;", False),
+    ],
+)
+@pytest.mark.parametrize("replaced", [False, True])
+def test_typescript_factory_http_callback(
+    tmp_path: Path, guard: str, protected: bool, replaced: bool
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        'import {attach} from "./routes.js";\n'
+        "export function createApp() {\n"
+        " const app=express();\n"
+        + (" app.get = replacement;\n" if replaced else "")
+        + " attach(app);\n return app;\n}\n",
+        encoding="utf-8",
+    )
+    (root / "routes.ts").write_text(
+        "export function attach(app) {\n"
+        ' app.get("/accounts", async (req, res) => {\n'
+        "  let token=req.headers.authorization;\n"
+        + guard
+        + "\n  token=token || process.env.OPERATOR_TOKEN;\n"
+        '  return fetch("https://api.example.com",{headers:{Authorization:token}});\n'
+        " });\n}\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == (not protected and not replaced)

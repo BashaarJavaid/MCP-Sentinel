@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 class TypeScriptHTTPBinding:
     registration: TypeScriptSymbol
     handler: TypeScriptSymbol | None
+    factory: TypeScriptSymbol | None = None
 
 
 def typescript_handlers(
@@ -64,7 +65,9 @@ def typescript_handlers(
                     program.resolve_node(file, args[1]["Arg"]),
                 )
             )
-    return tuple(found)
+    from sentinel.static.typescript_registration_flow import factory_http_handlers
+
+    return (*found, *factory_http_handlers(program))
 
 
 @dataclass(frozen=True)

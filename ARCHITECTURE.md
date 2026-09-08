@@ -406,6 +406,13 @@ reported as unresolved. This does not establish middleware-to-tool attachment.
 Known scalar literal truth controls short-circuit flow without invoking target
 objects or their truth methods.
 
+Source-defined TypeScript factories can register Express routes through included
+helpers and captured callbacks. The shared interpreter requires a genuine Express
+constructor and intact route method; caller request provenance reaches the actual
+callback and its enforced guards. Replaced methods and unknown application escape
+remain unresolved. This bounded support currently requires a single route callback;
+middleware chains and request-client configurations need separate interpretation.
+
 Repeated genuine FastMCP HTTP request getters share one request/state identity
 within an analyzed tool entry, including across included helpers. Replacing a
 state value changes the downstream value; a later tool entry starts independently.

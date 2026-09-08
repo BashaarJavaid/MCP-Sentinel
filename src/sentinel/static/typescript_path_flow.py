@@ -57,6 +57,7 @@ class TypeScriptPathFlow:
         self.closures: dict[str, dict[str, Value]] = {}
         self.root_directories: dict[str, Value] = {}
         self.sdk_instances: set[str] = set()
+        self.http_instances: set[str] = set()
         self.call_sites: list[TypeScriptSymbol] = []
         self.normal_exits: list[list[dict[str, Value]]] = []
         self.function_effects: Facts = frozenset()
@@ -872,6 +873,22 @@ class TypeScriptPathFlow:
             ]
         name = name_of(callee) or "dynamic call"
         external = (symbol.external or "").removeprefix("node:") if symbol else ""
+        if external in {"express.default", "express.Router", "express.default.Router"}:
+            instance = Value(
+                key=_key(file.relative_path, str(source_range(node, file)))
+            )
+            self.http_instances.add(instance.key)
+            self.objects[instance.key] = {}
+            return instance
+        if (
+            receiver.key in self.http_instances
+            and receiver.key not in self.invalidated_objects
+            and name.rsplit(".", 1)[-1]
+            in {"get", "post", "put", "patch", "delete", "head", "options", "all"}
+            and name.rsplit(".", 1)[-1] not in self.objects.get(receiver.key, {})
+        ):
+            self.http_registered(file, node, args)
+            return receiver
         if (
             receiver.key in self.sdk_instances
             and receiver.key not in self.invalidated_objects
@@ -1385,6 +1402,25 @@ class TypeScriptPathFlow:
         )
         self.function(callback, [caller, Value()], self.closures.get(args[2].key))
 
+    def http_registered(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+    ) -> None:
+        if len(args) != 2:
+            self.warning(file, node, "unsupported HTTP middleware sequence")
+            return
+        callback = self.callables.get(args[1].key)
+        if callback is None or callback.function is None:
+            self.warning(file, node, "unresolved HTTP callback")
+            return
+        location = source_range(node, file)
+        self.state.visit(file.relative_path, location)
+        caller = Value(
+            sources=frozenset({"http:request"}),
+            key=_key(file.relative_path, str(location), "http-request"),
+            locations=frozenset({(file.relative_path, location.start_line)}),
+        )
+        self.function(callback, [caller, Value()], self.closures.get(args[1].key))
+
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
         self.apply_facts(self.condition(value)[int(truth)], env)
         conditional = env.get("#conditional:" + value.key)
@@ -1439,7 +1475,7 @@ def analyze(
     flow = flow or TypeScriptPathFlow(program, state)
     factories: set[int] = set()
     for tool in program.tools() if entries is None else entries:
-        if isinstance(tool, TypeScriptBinding) and tool.factory is not None:
+        if tool.factory is not None:
             if id(tool.factory.node) not in factories:
                 factories.add(id(tool.factory.node))
                 flow.function(tool.factory, [])

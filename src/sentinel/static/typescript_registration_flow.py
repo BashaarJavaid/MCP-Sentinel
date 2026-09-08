@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.path_flow import Value
 from sentinel.static.typescript_discovery import (
@@ -77,6 +78,59 @@ def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
             ):
                 continue
             flow = RegistrationFlow(program, factory)
+            flow.function(factory, [])
+            found.extend(flow.found)
+            program.warnings.extend(
+                warning
+                for warning in flow.state.warnings
+                if warning not in program.warnings
+            )
+    return tuple(found)
+
+
+class HTTPRegistrationFlow(TypeScriptPathFlow):
+    def __init__(self, program: TypeScriptProgram, factory: TypeScriptSymbol) -> None:
+        super().__init__(program, RuleRunState())
+        self.factory = factory
+        self.found: list[TypeScriptHTTPBinding] = []
+
+    def http_registered(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+    ) -> None:
+        if len(args) != 2:
+            self.warning(file, node, "unsupported HTTP middleware sequence")
+            return
+        self.found.append(
+            TypeScriptHTTPBinding(
+                TypeScriptSymbol(file, node),
+                self.callables.get(args[1].key),
+                self.factory,
+            )
+        )
+
+
+def factory_http_handlers(
+    program: TypeScriptProgram,
+) -> tuple[TypeScriptHTTPBinding, ...]:
+    found = []
+    for path, bindings in program.bindings.items():
+        file = program.files[path]
+        for declarations in bindings.values():
+            if len(declarations) != 1:
+                continue
+            factory = TypeScriptSymbol(file, declarations[0])
+            if factory.function is None:
+                continue
+            if not any(
+                constructor is not None
+                and constructor.external
+                in {"express.default", "express.Router", "express.default.Router"}
+                for node in walk(factory.node)
+                if "Call" in node
+                for constructor in [program.resolve_node(file, node["Call"][0])]
+            ):
+                continue
+            flow = HTTPRegistrationFlow(program, factory)
             flow.function(factory, [])
             found.extend(flow.found)
             program.warnings.extend(
