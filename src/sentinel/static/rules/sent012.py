@@ -30,7 +30,9 @@ def analyze(
         visited.add(key)
         bindings = {
             parameter.arg: Value(
-                sources=frozenset({parameter.arg}),
+                sources=frozenset(
+                    {("http:" if isinstance(tool, HTTPBinding) else "") + parameter.arg}
+                ),
                 key=f"{tool.handler.file.relative_path}:{node.lineno}:{parameter.arg}",
                 locations=frozenset(
                     {

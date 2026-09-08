@@ -80,7 +80,8 @@ def test_mutable_outbound_credentials(tmp_path: Path, replace_token: bool) -> No
         '    token = request.headers.get("Authorization")\n'
         '    headers["Authorization"] = token or os.environ["OPERATOR_TOKEN"]\n'
         + ('    headers["Authorization"] = token\n' if replace_token else "")
-        + '    return requests.get("https://api.example.com/", headers=headers)\n',
+        + '    return requests.get("https://api.example.com/", '
+        "headers=headers)\n",
         encoding="utf-8",
     )
     configuration = load_configuration(
@@ -88,3 +89,62 @@ def test_mutable_outbound_credentials(tmp_path: Path, replace_token: bool) -> No
     )
     findings = run_static_scan(configuration, uuid4(), timestamp=NOW).findings
     assert len(findings) == (not replace_token)
+
+
+@pytest.mark.parametrize(
+    ("setup", "guard", "expected"),
+    [
+        ("", "", 1),
+        ("", '    if not token: raise ValueError("missing token")\n', 0),
+        ("get_http_request = unknown\n", "", 0),
+    ],
+)
+def test_sdk_http_request_credentials(
+    tmp_path: Path, setup: str, guard: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "import os\nimport requests\n"
+        + setup
+        + 'mcp=FastMCP("test")\n@mcp.tool()\ndef fetch():\n'
+        "    request=get_http_request()\n"
+        '    token=request.headers.get("Authorization")\n'
+        + guard
+        + "    token=token or "
+        'os.getenv("OPERATOR_TOKEN")\n'
+        '    return requests.get("https://api.example.com/", '
+        'headers={"Authorization": token})\n',
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert (
+        len(run_static_scan(configuration, uuid4(), timestamp=NOW).findings) == expected
+    )
+
+
+def test_local_module_cannot_impersonate_sdk_http_getter(tmp_path: Path) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    package = root / "fastmcp" / "server"
+    package.mkdir(parents=True)
+    (package / "dependencies.py").write_text(
+        "def get_http_request(): return custom\n", encoding="utf-8"
+    )
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        'import os\nimport requests\nmcp=FastMCP("test")\n'
+        "@mcp.tool()\ndef fetch():\n"
+        '    token=get_http_request().headers.get("Authorization") or '
+        'os.getenv("OPERATOR_TOKEN")\n'
+        '    return requests.get("https://api.example.com/", '
+        'headers={"Authorization": token})\n',
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings

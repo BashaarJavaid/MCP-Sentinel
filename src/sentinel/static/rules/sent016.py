@@ -150,7 +150,9 @@ class CredentialFlow(PathFlow):
                         and marker in env
                     )
             crossing = combine([v for v in credentials if v.credential_fallback])
-            if crossing.credential_fallback:
+            if crossing.credential_fallback and any(
+                source.startswith("http:") for source in crossing.sources
+            ):
                 self.state.matches.append(
                     replace(
                         match_from_node(
@@ -179,5 +181,5 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
         state,
         context.deadline,
         flow=flow,
-        entries=context.python_http_handlers,
+        entries=(*program.tools(), *context.python_http_handlers),
     )

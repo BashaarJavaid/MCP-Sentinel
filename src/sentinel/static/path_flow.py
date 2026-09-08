@@ -663,6 +663,29 @@ class PathFlow:
             if isinstance(node.func, ast.Attribute)
             else Value()
         )
+        if (
+            resolved == "fastmcp.server.dependencies.get_http_request"
+            and not any(
+                module in self.program.modules
+                for module in (
+                    "fastmcp",
+                    "fastmcp.server",
+                    "fastmcp.server.dependencies",
+                )
+            )
+            and not args
+            and not keywords
+        ):
+            return Value(
+                sources=frozenset({"http:request"}),
+                key=_key(
+                    "http-request",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    *self.call_sites,
+                ),
+                locations=frozenset({(symbol.file.relative_path, node.lineno)}),
+            )
         values = [*args, *keywords.values()]
         method = name.rsplit(".", 1)[-1]
         result = combine(values + ([receiver] if receiver.sources else []))

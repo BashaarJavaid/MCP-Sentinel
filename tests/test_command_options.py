@@ -312,6 +312,14 @@ def test_optional_safe_selector_keeps_command_prefix_and_copy(
     [
         ("SENT-014", "    return repo.git.show(ref)", "Critical", "High", "ASI05:2026"),
         ("SENT-015", "    return requests.get(ref)", "High", "Medium", "ASI02:2026"),
+        (
+            "SENT-016",
+            '    return requests.get("https://api.example.com/", '
+            'headers={"Authorization": token})',
+            "High",
+            "Medium",
+            "ASI03:2026",
+        ),
     ],
 )
 def test_flow_rule_cli_selection_suppression_baseline_and_severity(
@@ -330,10 +338,21 @@ def test_flow_rule_cli_selection_suppression_baseline_and_severity(
 
     root = make_target(tmp_path / "target", target_yaml="")
     source = root / "server.py"
+    entry = (
+        '@api.get("/data")\ndef run(request: Request):\n'
+        '    token=request.headers.get("Authorization") or '
+        'os.getenv("OPERATOR_TOKEN")\n'
+        if rule_id == "SENT-016"
+        else "@mcp.tool()\ndef run(ref:str):\n"
+    )
     source.write_text(
         "from mcp.server.fastmcp import FastMCP\nimport git\nimport requests\n"
-        'mcp=FastMCP("test")\n@mcp.tool()\ndef run(ref:str):\n'
-        '    repo=git.Repo("/workspace")\n' + sink + "\n",
+        "from fastapi import FastAPI, Request\nimport os\napi=FastAPI()\n"
+        'mcp=FastMCP("test")\n'
+        + entry
+        + '    repo=git.Repo("/workspace")\n'
+        + sink
+        + "\n",
         encoding="utf-8",
     )
     runner = CliRunner()
