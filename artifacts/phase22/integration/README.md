@@ -198,3 +198,15 @@ preserves native JSON, SARIF, console and their checksums for a production
 orchestrator run on the same fixed source. Model calls were disabled. These are
 bounded execution/consumer measurements; they do not establish Git defenses or
 the final integrated source gate.
+
+Batch 9 retains 485 added/changed files through `e2b6345`: credential branch
+corrections, presence/receiver regressions, static profiles, all failed auth
+deadlines, and the unfinished TypeScript class tests captured with commands.
+Every member was read back against its hash. The archive contains 4,146,993 raw
+bytes in 450,155 compressed bytes; SHA-256:
+`20a66027e1c736102f8e23149894d8467bcda47b211b923386d32f4c660a378c`.
+After verifying batch 8, extract `evidence-v9.tar.gz` into the same directory and
+verify it with `evidence-v9.json`. Its exact packaging script is retained in
+`diagnostics-v9.tar.gz`. All earlier seals and coverage databases remain unchanged.
+The 331-test focused result does not replace final full-suite or benchmark gates;
+auth still exceeds the deadline and the TypeScript class implementation is open.
