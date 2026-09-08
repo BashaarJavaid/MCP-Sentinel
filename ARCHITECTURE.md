@@ -436,6 +436,11 @@ interpretation does not import target modules or establish SDK provider attachme
 An unconditional module-level no-op forward declaration can resolve to its later
 undecorated implementation when no earlier eager expression captured the placeholder.
 Conditional, decorated or previously observed replacements remain unresolved.
+Known Python lists/tuples retain element and allocation identity through indexing
+and bounded iteration; lists also retain builtin append through aliases/helpers.
+The interpreter follows at most 32 known positions, including appended elements.
+Larger or unresolved layouts, starred expansion and break/continue loops retain
+conservative aggregate flow rather than establishing ordered execution.
 Known-field builtin `setattr` on the established Starlette state wrapper updates
 that state without escaping the assigned service object. Unknown fields, replaced
 setters and arbitrary object setters do not establish this contract.

@@ -659,3 +659,94 @@ def test_source_module_reflection_invalidates_callable_identity(mutation: str) -
     analyze(index, state)
     assert not state.matches
     assert state.warnings
+
+
+@pytest.mark.parametrize("append", [False, True])
+def test_known_list_iteration_updates_the_selected_callback(append: bool) -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    callbacks={'read': lambda path: 'safe'}\n"
+            "    names=[]\n"
+            + ("    names.append('read')\n" if append else "")
+            + "    for name in names:\n"
+            "        callbacks[name] = lambda path: open(path)\n"
+            "    return callbacks['read'](path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == append
+
+
+def test_empty_list_does_not_execute_its_loop_body() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    for name in []:\n        open(path)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+
+
+def test_list_iteration_observes_appended_values() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    paths=['/fixed']\n    for selected in paths:\n"
+            "        if selected == '/fixed': paths.append(path)\n"
+            "        else: open(selected)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert state.matches
+
+
+def test_tuple_has_no_builtin_append_method() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    paths=()\n    paths.append(path)\n"
+            "    for selected in paths: open(selected)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert not state.matches
+    assert state.warnings
+
+
+def test_list_append_through_a_helper_preserves_allocation_identity() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "def append(paths, value): paths.append(value)\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    paths=[]\n    alias=paths\n    append(alias,path)\n"
+            "    for selected in paths: open(selected)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == 1
+
+
+def test_oversized_list_cannot_hide_a_tainted_last_element() -> None:
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp=FastMCP('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    paths=[" + ",".join(["'/fixed'"] * 33 + ["path"]) + "]\n"
+            "    for selected in paths: open(selected)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert state.matches

@@ -135,6 +135,7 @@ class PathFlow:
         self.mapping_keys: set[str] = set()
         self.optional_mappings: dict[str, Value] = {}
         self.record_keys: set[str] = set()
+        self.sequence_keys: dict[str, bool] = {}
         self.instance_alternatives: dict[str, tuple[Value, ...]] = {}
         self.callables: dict[str, Symbol] = {}
         self.bound_receivers: dict[str, Value] = {}
@@ -653,9 +654,38 @@ class PathFlow:
             elif isinstance(node, (ast.For, ast.AsyncFor, ast.While)):
                 branch = env.copy()
                 if isinstance(node, (ast.For, ast.AsyncFor)):
-                    self.assign(
-                        node.target, self.expression(symbol, node.iter, env), branch
-                    )
+                    iterable = self.expression(symbol, node.iter, env)
+                    elements = self.sequence_elements(iterable, env)
+                    if elements is not None and (
+                        not elements
+                        or not any(
+                            isinstance(part, (ast.Break, ast.Continue))
+                            for statement in node.body
+                            for part in ast.walk(statement)
+                        )
+                    ):
+                        position = 0
+                        while (
+                            elements is not None
+                            and position < len(elements)
+                            and position < 32
+                        ):
+                            self.assign(node.target, elements[position], env)
+                            if not self.statements(symbol, node.body, env, returned):
+                                return False
+                            position += 1
+                            elements = self.sequence_elements(iterable, env)
+                        if elements is None or position < len(elements):
+                            self.unresolved(
+                                symbol, node, "mutated or over-budget list iteration"
+                            )
+                            self.assign(node.target, self.aggregate(iterable, env), env)
+                            uncertain = env.copy()
+                            self.statements(symbol, node.body, uncertain, returned)
+                            self.merge(env, [env.copy(), uncertain])
+                        self.statements(symbol, node.orelse, env, returned)
+                        continue
+                    self.assign(node.target, iterable, branch)
                 else:
                     self.expression(symbol, node.test, env)
                 self.statements(symbol, node.body, branch, returned)
@@ -743,6 +773,17 @@ class PathFlow:
         if member not in fields:
             fields[member] = "#member:" + _key(value.key, repr(member))
         return fields[member]
+
+    def sequence_elements(
+        self, value: Value, env: dict[str, Value]
+    ) -> tuple[Value, ...] | None:
+        if value.key not in self.sequence_keys or "#member:unknown:" + value.key in env:
+            return None
+        length = member_label(self.member(value, "#length", env))
+        # ponytail: bounded source lists; summarize larger or ambiguous layouts.
+        if not isinstance(length, int) or not 0 <= length <= 32:
+            return None
+        return tuple(self.member(value, position, env) for position in range(length))
 
     def combine_instances(self, values: list[Value]) -> Value:
         result = combine(values)
@@ -1026,6 +1067,9 @@ class PathFlow:
             )
 
     def truth_value(self, value: Value, env: dict[str, Value]) -> bool | None:
+        elements = self.sequence_elements(value, env)
+        if elements is not None:
+            return bool(elements)
         if value.key in self.optional_mappings:
             return None
         if value.key in self.path_conditions:
@@ -1371,7 +1415,23 @@ class PathFlow:
             middleware = self.http_context.sequence(symbol, node, elements)
             if middleware is not None:
                 return middleware
-            value = combine(list(elements))
+            value = combine(
+                list(elements),
+                _key(
+                    "sequence",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                ),
+            )
+            self.sequence_keys[value.key] = isinstance(node, ast.List)
+            self.record_keys.add(value.key)
+            if any(isinstance(child, ast.Starred) for child in node.elts):
+                env["#member:unknown:" + value.key] = value
+            env[self.member_key(value, "#length")] = Value(key=repr(len(elements)))
+            for position, element in enumerate(elements):
+                env[self.member_key(value, position)] = element
             self.path_arrays[node] = elements
             return value
         if isinstance(node, ast.Await):
@@ -1886,6 +1946,26 @@ class PathFlow:
         )
         if http_value is not None:
             return http_value
+        if (
+            isinstance(node.func, ast.Attribute)
+            and node.func.attr == "append"
+            and receiver.key in self.sequence_keys
+        ):
+            if not self.sequence_keys[receiver.key]:
+                self.unresolved(symbol, node, "tuple has no builtin append method")
+                return UNKNOWN_VALUE
+            elements = self.sequence_elements(receiver, env)
+            if (
+                elements is not None
+                and len(elements) < 32
+                and len(args) == 1
+                and not keywords
+            ):
+                env[self.member_key(receiver, len(elements))] = args[0]
+                env[self.member_key(receiver, "#length")] = Value(
+                    key=repr(len(elements) + 1)
+                )
+                return Value(key="None")
         if (
             resolved == "fastmcp.server.dependencies.get_http_request"
             and not any(
