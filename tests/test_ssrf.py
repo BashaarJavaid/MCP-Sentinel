@@ -205,6 +205,57 @@ def test_sdk_http_request_state_does_not_leak_between_tools(tmp_path: Path) -> N
     assert len(findings) == 1
 
 
+def test_repeated_middleware_state_keeps_handler_mutations_local(
+    tmp_path: Path,
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "import requests\n"
+        "class Inject:\n"
+        "    def __init__(self, app): self.app=app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request=Request(scope)\n"
+        "        request.state.url=request.headers.get('X-URL')\n"
+        "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Inject)], **kwargs)\n"
+        "mcp=App('test')\n"
+        "@mcp.tool()\ndef first():\n"
+        "    get_http_request().state.url='https://images.example.com/fixed'\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef second():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == 1
+
+
+def test_repeated_startup_state_keeps_handler_mutations_local(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX.replace('mcp = FastMCP("test")\n', "")
+        + "from mcp.server.fastmcp import Context\n"
+        "from contextlib import asynccontextmanager\n"
+        "from dataclasses import dataclass\n"
+        "@dataclass\nclass Config:\n    url: str\n"
+        "@asynccontextmanager\nasync def startup(app):\n"
+        "    yield {'config': Config('https://images.example.com/fixed')}\n"
+        "mcp=FastMCP('test', lifespan=startup)\n"
+        "@mcp.tool()\ndef first(url: str, ctx: Context):\n"
+        "    config=ctx.request_context.lifespan_context['config']\n"
+        "    config.url=url\n    return requests.get(config.url)\n"
+        "@mcp.tool()\ndef second(other: str, ctx: Context):\n"
+        "    url=ctx.request_context.lifespan_context['config'].url\n"
+        "    if url != 'https://images.example.com/fixed':\n"
+        "        return requests.get(other)\n",
+    )
+    assert len(findings) == 1
+
+
 @pytest.mark.parametrize("guard", ["", CHECK])
 @pytest.mark.parametrize("attach", [False, True])
 @pytest.mark.parametrize(

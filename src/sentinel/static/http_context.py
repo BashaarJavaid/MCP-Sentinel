@@ -30,6 +30,7 @@ class HTTPContext:
         self.next_keys: set[str] = set()
         self.middleware_instances: set[str] = set()
         self.state_owners: dict[str, Value] = {}
+        self.prepared_states: dict[ast.AST, list[dict[str, Value]]] = {}
 
     def sequence(
         self, symbol: Symbol, node: ast.List | ast.Tuple, values: tuple[Value, ...]
@@ -240,6 +241,8 @@ class HTTPContext:
             return None
         root = roots[0]
         assert isinstance(root.node, ast.Call)
+        if not flow.launch_states and root.node in self.prepared_states:
+            return [state.copy() for state in self.prepared_states[root.node]]
         application = self.application_method(root)
         if application is None:
             return None
@@ -369,7 +372,24 @@ class HTTPContext:
                 method.node,
             )
             flow.expression(method, call, env)
-            return None if self.incomplete else self.states.copy()
+            if self.incomplete:
+                return None
+            if not flow.launch_states and all(
+                flow.reusable_state(
+                    [
+                        value
+                        for key, value in state.items()
+                        if key.startswith(flow.helper_state_prefixes)
+                        and not key.startswith("#member:")
+                    ],
+                    state,
+                )
+                for state in self.states
+            ):
+                self.prepared_states[root.node] = [
+                    state.copy() for state in self.states
+                ]
+            return self.states.copy()
         finally:
             self.continuation = None
             self.preparing = False

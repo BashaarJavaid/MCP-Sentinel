@@ -153,6 +153,36 @@ class PathFlow:
         self.call_receivers: dict[ast.AST, Value] | None = None
         self.reported_warnings: set[tuple[str, int, str]] = set()
         self.http_context = HTTPContext(self)
+        self.lifespan_states: dict[
+            tuple[ast.AST, tuple[ast.AST, ...]], tuple[Value, dict[str, Value]]
+        ] = {}
+
+    def reusable_state(self, values: list[Value], env: dict[str, Value]) -> bool:
+        """Only reuse record/scalar state whose mutable contents live in env."""
+        pending = values.copy()
+        seen: set[str] = set()
+        while pending:
+            check_deadline(self.deadline)
+            value = pending.pop()
+            if value.key in seen:
+                continue
+            seen.add(value.key)
+            if (
+                value.key in self.callables
+                or value.key in self.workbooks
+                or value.key in self.argument_tuples
+            ):
+                return False
+            pending.extend(self.instance_alternatives.get(value.key, ()))
+            pending.extend(
+                env[marker]
+                for marker in (
+                    *self.members.get(value.key, {}).values(),
+                    "#member:unknown:" + value.key,
+                )
+                if marker in env
+            )
+        return True
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
         from sentinel.static.launches import for_tool
@@ -197,7 +227,7 @@ class PathFlow:
             self.launch_call = None
 
     def entry_handler(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
-        from sentinel.static.lifespan import tool_lifespan
+        from sentinel.static.lifespan import tool_lifespan, tool_servers
 
         if (
             self.rule_id in {"SENT-012", "SENT-015", "SENT-016"}
@@ -246,13 +276,28 @@ class PathFlow:
         ]
         lifespan = tool_lifespan(self.program, tool) if contexts else None
         if lifespan is not None:
-            local: dict[str, Value] = {}
-            identity = (lifespan.file.relative_path, lifespan.name)
-            self.yielding.add(identity)
-            try:
-                value = self.function(lifespan, local)
-            finally:
-                self.yielding.remove(identity)
+            roots = tuple(server.node for server in tool_servers(self.program, tool))
+            cache_key = (lifespan.node, roots)
+            cached = (
+                self.lifespan_states.get(cache_key) if not self.launch_states else None
+            )
+            if cached is not None:
+                value, local = cached
+            else:
+                local = {}
+                identity = (lifespan.file.relative_path, lifespan.name)
+                self.yielding.add(identity)
+                try:
+                    value = self.function(lifespan, local)
+                finally:
+                    self.yielding.remove(identity)
+                if (
+                    roots
+                    and not self.launch_states
+                    and not any(item.sources for item in local.values())
+                    and self.reusable_state([value], local)
+                ):
+                    self.lifespan_states[cache_key] = (value, local.copy())
             bindings.update(
                 (key, value)
                 for key, value in local.items()
