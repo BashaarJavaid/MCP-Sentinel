@@ -1047,3 +1047,41 @@ removal failures and type-name collisions are retained with their corrections in
 continuation-service-*, continuation-checked-url-path-* and
 continuation-ssrf-checked-path-source.*. Evidence after batch 13 awaits sealing;
 native completion, all final measurements and remaining authorized scope stay open.
+
+### Measured startup and helper traversal cost
+
+The unprofiled 18e385f upload input remains incomplete at 120,110 ms. The next
+shared optimization propagates helper guard facts in one environment pass
+(`247f960`; 629 affected tests). Instrumented native measurement still times out:
+SENT-012 takes 51.081 seconds, including 180 lifespan calls totaling 9.812 seconds.
+
+`d4228fe` reuses bounded startup records and prepared HTTP state with separate
+handler environments. Callable/workbook/argument-tuple state is excluded from
+reuse, and explicit launch states bypass it. Mutation and launch controls pass;
+339 URL/lifespan/credential tests and 292 shared tests pass, with the corrected
+startup control separately rerun. Native instrumentation confirms one lifespan
+call per rule, SENT-012 at 36.972 seconds, but the input still times out.
+
+A single-handler line profile identifies repeated traversal of scalar leaves.
+Its inclusive nested times must not be summed or treated as native throughput.
+`7daa9c6` skips leaves without members, aliases, tuples, closures, receivers or
+unknown member state. All 631 affected regressions pass in 64.27 seconds, with
+strict mypy across 143 files and style/format checks. Native instrumentation
+records SENT-012 at 32.108 seconds and SENT-015 at 40.378 seconds; SENT-016 remains
+unfinished at the 120-second limit. These failures stay in the post-batch-14
+command records. Native completion and the final gates remain open.
+
+### Historical request identity and replay compatibility
+
+The current production request builder reproduces all 35 requests in the frozen
+Phase 20 completion-v2 preparation exactly. Their captures pass the actual checked
+ledger/hash transport and response validator with zero model calls. The first
+diagnostic looked only in the original capture directory, found 17 captures and
+incorrectly marked the other 18 requests changed. The corrected diagnostic also
+uses completion-v2 captures and retains both results. See
+`historical-request-compatibility-v2.json` and the archived command scripts.
+
+This verifies historical prepared requests and capture compatibility only. It
+does not rebuild current detector candidates or their source blocks, establish
+current reviewed retention, or identify the final replacement set. Those gates
+remain open until final offline scans and exact request preparation finish.

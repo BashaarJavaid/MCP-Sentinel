@@ -125,7 +125,7 @@ def run_semgrep(
                 "--output",
                 str(output),
                 "--jobs",
-                "1",
+                str(min(4, os.cpu_count() or 1)),
                 "--timeout",
                 str(SEMGREP_TIMEOUT_SECONDS),
                 "--metrics",

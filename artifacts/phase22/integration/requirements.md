@@ -107,7 +107,7 @@ The continuation starts at `83c9985` plus tracked patch
 | R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | Existing correctness tests | Preserve; final-source full suite open |
 | R42 | Candidate-bound 160 unique SOURCE lines across files | `llm/context.py`, review tests | Existing draft/focused tests; full offline context gate open |
 | R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | Context/reviewer tests | `ecdf579` corrects manifest parsing, nonexistent primary ranges and Unicode source-line drift; 92 affected tests pass. Exact request compatibility/final regression gate open |
-| R44 | Unchanged request/cache compatibility and capture reuse | Reviewer/cache/capture infrastructure | Actual per-request comparison and replacement selection open |
+| R44 | Unchanged request/cache compatibility and capture reuse | Reviewer/cache/capture infrastructure | All 35 historical prepared requests reproduce exactly and their captures pass checked replay; initial missing-directory diagnostic retained/corrected. Current candidate/context rebuilding and final replacement selection remain open |
 | R45 | Nullable reviews/Finding identities and all runtime proof through review | Finding/context/merge/report | Repeated standalone proofs now covered by `test_probe_campaign.py`; final gate open |
 | R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | `dynamic/prober.py`, `test_probe_campaign.py` | Integration implementation under verification; no final Docker gate yet |
 | R47 | Fair rounds and rule/argument rotation; bounded GPT priorities | Same campaign tests | Focused controls pass; final gate open |
