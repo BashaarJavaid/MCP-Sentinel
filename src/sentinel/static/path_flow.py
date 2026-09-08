@@ -135,6 +135,8 @@ class PathFlow:
         self.launch_states: list[dict[tuple[str, str], Value]] = []
         self.non_none: set[str] = set()
         self.workbooks: set[str] = set()
+        self.http_clients: dict[str, str] = {}
+        self.call_receivers: dict[ast.AST, Value] | None = None
         self.reported_warnings: set[tuple[str, int, str]] = set()
 
     def entry(self, tool: ToolBinding, bindings: dict[str, Value]) -> None:
@@ -566,6 +568,14 @@ class PathFlow:
         self.member_defaults.setdefault(key, fallback)
         return result
 
+    def http_client(self, value: Value, method: str, env: dict[str, Value]) -> bool:
+        marker = self.members.get(value.key, {}).get(method)
+        return (
+            value.key in self.http_clients
+            and "#member:unknown:" + value.key not in env
+            and (marker is None or marker not in env)
+        )
+
     def bound_value(self, node: ast.AST, env: dict[str, Value]) -> Value:
         evaluated = env.get(f"#bound-expression:{id(node)}")
         if evaluated is not None:
@@ -849,6 +859,8 @@ class PathFlow:
         check_deadline(self.deadline)
         if node is None:
             return Value()
+        if self.call_receivers is not None and node in self.call_receivers:
+            return self.call_receivers[node]
         if isinstance(node, ast.Constant):
             return Value(key=repr(node.value))
         if isinstance(node, ast.Lambda):
@@ -948,10 +960,15 @@ class PathFlow:
                 instance=None,
             )
         if isinstance(node, ast.Call):
-            value = self.call(symbol, node, env)
-            if value.key in self.path_conditions:
-                env[f"#path-expression:{id(node)}"] = value
-            return value
+            previous = self.call_receivers
+            self.call_receivers = {}
+            try:
+                value = self.call(symbol, node, env)
+                if value.key in self.path_conditions:
+                    env[f"#path-expression:{id(node)}"] = value
+                return value
+            finally:
+                self.call_receivers = previous
         if isinstance(node, (ast.List, ast.Tuple)):
             elements = tuple(self.expression(symbol, child, env) for child in node.elts)
             value = combine(list(elements))
@@ -1158,6 +1175,19 @@ class PathFlow:
             else result
         )
 
+    def call_receiver(
+        self, symbol: Symbol, node: ast.Call, env: dict[str, Value]
+    ) -> Value:
+        if not isinstance(node.func, ast.Attribute):
+            return Value()
+        receiver = node.func.value
+        if self.call_receivers is not None and receiver in self.call_receivers:
+            return self.call_receivers[receiver]
+        value = self.expression(symbol, receiver, env)
+        if self.call_receivers is not None:
+            self.call_receivers[receiver] = value
+        return value
+
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         if node is self.launch_call:
             self.launch_states.append(
@@ -1186,6 +1216,7 @@ class PathFlow:
             )
         ):
             resolved = ""
+        receiver = self.call_receiver(symbol, node, env)
         args = []
         unknown_args = False
         for arg in node.args:
@@ -1225,6 +1256,28 @@ class PathFlow:
                         keywords[label] = env[marker]
             else:
                 keywords[None] = value
+        if (
+            resolved
+            in {
+                "httpx.Client",
+                "httpx.AsyncClient",
+                "requests.Session",
+                "aiohttp.ClientSession",
+            }
+            and self.program.external(symbol, node.func) == resolved
+        ):
+            value = Value(
+                key=_key(
+                    "http-client",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                )
+            )
+            self.http_clients[value.key] = resolved
+            self.record_keys.add(value.key)
+            return value
         if (
             resolved == "dataclasses.replace"
             and self.program.external(symbol, node.func) == resolved
@@ -1268,11 +1321,6 @@ class PathFlow:
                         env[marker] = value
                         self.member_defaults[marker] = Value()
                     return copied
-        receiver = (
-            self.expression(symbol, node.func.value, env)
-            if isinstance(node.func, ast.Attribute)
-            else Value()
-        )
         super_owner = None
         if (
             isinstance(node.func, ast.Attribute)

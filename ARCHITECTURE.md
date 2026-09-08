@@ -365,6 +365,13 @@ unknown receiver mutation remain explicit limitations. Computed writes, deletion
 and escaped receivers invalidate inferred method behavior. This source support
 does not by itself establish an external executable's command or output semantics.
 
+Python HTTP client identity is shared by URL and credential flow for the existing
+httpx, requests and aiohttp client constructors. Ordinary member state tracks
+replacement and escape; an unknown receiver cannot establish a request method.
+Receiver evaluation is scoped to one call across rule delegation, and credential
+requests evaluate positional effects before reading keyword values. Client-level
+authentication defaults are not yet a supported credential source.
+
 Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
 `slice` copies and bounded branch alternatives through included helpers. The
 interpreter retains at most 32 layouts of 256 positions; larger layouts, computed

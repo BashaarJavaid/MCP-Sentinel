@@ -304,11 +304,7 @@ class OptionFlow(PathFlow):
             )
         ):
             resolved = ""
-        receiver = (
-            self.expression(symbol, node.func.value, env)
-            if isinstance(node.func, ast.Attribute)
-            else Value()
-        )
+        receiver = self.call_receiver(symbol, node, env)
         method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
         if receiver.key in self.git_commands:
             arguments: list[Value] = []

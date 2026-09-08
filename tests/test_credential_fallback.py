@@ -511,3 +511,119 @@ def test_optional_config_refusal_prevents_operator_default(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("constructor", "context"),
+    [
+        ("httpx.AsyncClient", "async with"),
+        ("httpx.Client", "with"),
+        ("requests.Session", "with"),
+        ("aiohttp.ClientSession", "async with"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ("pass", 2),
+        ("client.get = unknown", 0),
+        ("unknown(client)", 0),
+        ("client = unknown", 0),
+    ],
+)
+def test_http_client_identity_is_shared_by_url_and_credential_flows(
+    tmp_path: Path, constructor: str, context: str, change: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\n"
+        "import os, httpx, requests, aiohttp\napp = FastAPI()\n"
+        "@app.get('/data')\nasync def fetch(request: Request):\n"
+        "    token = request.headers.get('Authorization') or os.getenv('TOKEN')\n"
+        f"    {context} {constructor}() as client:\n"
+        f"        {change}\n"
+        "        return client.get(request.query_params.get('url'), "
+        "params={'access_token': token})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root,
+        environ={},
+        static_only=True,
+        cli_overrides={"rules": ["SENT-015", "SENT-016"]},
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == expected
+    if expected:
+        assert {finding.rule_id for finding in findings} == {"SENT-015", "SENT-016"}
+
+
+@pytest.mark.parametrize("rule", ["SENT-012", "SENT-014", "SENT-015", "SENT-016"])
+@pytest.mark.parametrize("method", ["get", "unknown_method"])
+def test_python_client_receiver_is_evaluated_once_per_call(
+    monkeypatch: pytest.MonkeyPatch, rule: str, method: str
+) -> None:
+    import time
+
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import PathFlow, Value
+    from sentinel.static.rules.sent012 import analyze
+    from sentinel.static.rules.sent014 import OptionFlow
+    from sentinel.static.rules.sent015 import URLFlow
+    from sentinel.static.rules.sent016 import CredentialFlow
+    from tests.test_python_discovery import program
+
+    flow_types: dict[str, type[PathFlow]] = {
+        "SENT-012": PathFlow,
+        "SENT-014": OptionFlow,
+        "SENT-015": URLFlow,
+        "SENT-016": CredentialFlow,
+    }
+    flow_type = flow_types[rule]
+    original = flow_type.function
+    calls = []
+
+    def traced(self: PathFlow, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        if symbol.name == "client_factory":
+            calls.append(symbol)
+        return original(self, symbol, bindings)
+
+    monkeypatch.setattr(flow_type, "function", traced)
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "import httpx, subprocess\nmcp = FastMCP('test')\n"
+            "def client_factory(): return httpx.Client()\n"
+            "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+            "    subprocess.run(['git', '--version'])\n"
+            f"    client_factory().{method}(url)\n"
+            f"    client_factory().{method}(other)\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, flow=flow_type(index, state, time.monotonic() + 20))
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize("request_call", ["requests.get", "httpx.Client().get"])
+def test_request_arguments_run_before_credential_keyword_values(
+    tmp_path: Path, request_call: str
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\n"
+        "import os, httpx, requests\napp = FastAPI()\n"
+        "def prepare(params):\n"
+        "    params['access_token'] = 'fixed'\n"
+        "    return 'https://api.example.com'\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token = request.headers.get('Authorization') or os.getenv('TOKEN')\n"
+        "    params = {'access_token': token}\n"
+        f"    return {request_call}(prepare(params), params=params)\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings

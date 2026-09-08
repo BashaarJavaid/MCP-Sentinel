@@ -805,3 +805,39 @@ Six physical-gap candidates and fifteen unchanged unrelated candidates remain
 separate. The campaign took 245.94s overall; no target or model was executed.
 Batch 11 seals 170 files with full hash readback. This completes a development
 recording check, not final repeated benchmarks or Phase 22 technical acceptance.
+
+
+### Shared HTTP clients and the remaining Meta boundary
+
+After `761b9c2`, HTTP client construction/identity moves into the existing Python
+flow state, shared by URL and credential rules. Per-request credentials on the
+supported httpx/requests/aiohttp clients are recognized; unknown escape and method
+replacement invalidate both rules' assumptions. Twelve of sixteen controls fail
+before this change; all sixteen pass afterward. Receiver delegation controls then
+expose repeated factory interpretation in the shared flow and rule overrides.
+A cache scoped to one call preserves the actual receiver through delegation and
+callee lookup. Positional request effects now occur before credential keywords;
+two before-failing controls replace the credential through that argument flow.
+All 390 affected tests pass, along with strict mypy, Ruff and formatting.
+
+The first receiver test used HTTP routes for rules that do not analyze those
+entries; its correction still lacked command syntax for SENT-014's intentional
+precheck. Both diagnostic/test mistakes and a reserved pytest parameter-name
+failure remain retained. The final fixture includes a supported inert command
+syntax and verifies each receiver invocation separately. A failed source-edit
+anchor left one intermediate rerun unchanged; that failure is retained too.
+
+The Meta fallback snapshots inspected here are approved Phase 22 DEVELOPMENT,
+not historical Phase 20: `continuation-meta-development-source-identity` verifies
+106 vulnerable and 108 fixed projected files against the frozen manifest.
+The first identity diagnostic selected zero inputs from the wrong manifest and
+establishes nothing. The corrected selected-only check asserts two development
+inputs; no fresh holdout source is inspected.
+
+`continuation-meta-fallback-launches-trace` finds 41 tools, no HTTP entries and two
+explicit unresolved launches. The selected tool reaches make_api_request directly;
+its included meta_api_tool decorator is not yet interpreted. Consequently the
+operator fallback/context and middleware enforcement are not established, and
+there are zero SENT-016 matches in this diagnostic. Source-established decorator,
+launch/middleware and ContextVar flow remain required. These shared client tests
+do not pass that condition or replace the remaining native measurements.

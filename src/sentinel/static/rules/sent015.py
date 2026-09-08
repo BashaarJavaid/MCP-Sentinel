@@ -83,7 +83,6 @@ class URLFlow(PathFlow):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         self.parts: dict[str, tuple[str, str]] = {}
-        self.clients: dict[str, str] = {}
         self.predicates: dict[str, tuple[Facts, Facts]] = {}
         self.ip_lists: dict[str, Value] = {}
         self.return_facts: list[list[tuple[Facts | None, Facts | None]]] = []
@@ -423,11 +422,7 @@ class URLFlow(PathFlow):
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         external = self.external(symbol, node.func, env)
         name = qualified_name(node.func) or ""
-        receiver = (
-            self.expression(symbol, node.func.value, env)
-            if isinstance(node.func, ast.Attribute)
-            else Value()
-        )
+        receiver = self.call_receiver(symbol, node, env)
         method = name.rsplit(".", 1)[-1]
         if receiver.key in self.ip_lists:
             # A known nonempty validation list ceases to prove iteration after mutation.
@@ -469,23 +464,7 @@ class URLFlow(PathFlow):
             and self.parts.get(receiver.key, ("", ""))[1] == "scheme"
         ):
             return receiver
-        if external in {
-            "httpx.Client",
-            "httpx.AsyncClient",
-            "requests.Session",
-            "aiohttp.ClientSession",
-        }:
-            result = Value(
-                key=_key(
-                    symbol.file.relative_path,
-                    str(node.lineno),
-                    str(node.col_offset),
-                    external,
-                )
-            )
-            self.clients[result.key] = external.split(".")[0]
-            return result
-        client = self.clients.get(receiver.key)
+        client = self.http_client(receiver, method, env)
         request = method in {
             "get",
             "post",
@@ -496,7 +475,7 @@ class URLFlow(PathFlow):
             "options",
             "request",
         } and (
-            client is not None
+            client
             or external in {f"{library}.{method}" for library in ("requests", "httpx")}
         )
         if request or external == "urllib.request.urlopen":

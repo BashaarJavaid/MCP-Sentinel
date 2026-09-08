@@ -412,8 +412,13 @@ The current implementation follows environment-derived operator credentials into
 and the `token`/`password` keywords of imported `atlassian.Jira` and
 `atlassian.Confluence` clients. Replaced imports, local impersonating modules and
 caller-shadowed constructors do not establish those external sinks. Client URL
-and username arguments alone are not treated as credential use. Session-based
-client authentication still requires additional flow support.
+and username arguments alone are not treated as credential use. Explicit request
+credentials are also recognized on source-established `httpx.Client`,
+`httpx.AsyncClient`, `requests.Session` and `aiohttp.ClientSession` receivers.
+URL and credential checks share that identity; method replacement and unknown
+escape invalidate it. Constructor-level session authentication defaults still
+require additional flow support. Receiver factories are evaluated once per call,
+and positional argument effects precede credential keyword values.
 It distinguishes caller-token rejection from checks of unrelated values and
 values replaced after validation. Dictionary member writes, copies and helper
 mutations retain the relevant credential selection. A local stdio tool's use of

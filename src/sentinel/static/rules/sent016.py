@@ -244,20 +244,39 @@ class CredentialFlow(PathFlow):
                 if isinstance(name, str) and isinstance(default, str):
                     self.environment_text[result.key] = (name, default)
             return result
-        if service_client or external in {
-            f"{library}.{method}"
-            for library in ("requests", "httpx")
-            for method in (
-                "get",
-                "post",
-                "put",
-                "patch",
-                "delete",
-                "head",
-                "options",
-                "request",
-            )
-        }:
+        method = node.func.attr if isinstance(node.func, ast.Attribute) else ""
+        receiver = self.call_receiver(symbol, node, env)
+        client_request = self.http_client(receiver, method, env) and method in {
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options",
+            "request",
+        }
+        if (
+            service_client
+            or client_request
+            or external
+            in {
+                f"{library}.{method}"
+                for library in ("requests", "httpx")
+                for method in (
+                    "get",
+                    "post",
+                    "put",
+                    "patch",
+                    "delete",
+                    "head",
+                    "options",
+                    "request",
+                )
+            }
+        ):
+            for argument in node.args:
+                self.expression(symbol, argument, env)
             credentials = []
             for keyword in node.keywords:
                 value = self.expression(symbol, keyword.value, env)
