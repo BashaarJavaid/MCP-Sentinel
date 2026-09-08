@@ -1,5 +1,7 @@
 """HTTP inventory uses actual registrations and rejects replaced bindings."""
 
+import ast
+
 import pytest
 
 from sentinel.static.http_discovery import handlers
@@ -107,3 +109,19 @@ def test_unrelated_calls_do_not_repeat_scope_discovery() -> None:
     ) as shadow:
         assert len(handlers(index)) == 1
         assert shadow.call_count == 1
+
+
+def test_shadow_lookup_keeps_source_and_deadline_boundaries() -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static.http_discovery import shadowed
+
+    for parameters, expected in (("app", True), ("", False)):
+        index = program({"server.py": f"def serve({parameters}):\n    app.run()\n"})
+        call = next(
+            node for node in ast.walk(index.files[0].tree) if isinstance(node, ast.Call)
+        )
+        assert shadowed(index, call, "app") is expected
+        assert shadowed(index, call, "app") is expected
+        index.deadline = 0
+        with pytest.raises(InfrastructureError, match="timeout"):
+            shadowed(index, call, "app")

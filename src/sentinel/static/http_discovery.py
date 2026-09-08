@@ -76,26 +76,23 @@ class HTTPBinding:
 
 
 def shadowed(program: PythonProgram, node: ast.AST, name: str) -> bool:
+    check_deadline(program.deadline)
     child = node
     owner = program.parents.get(node)
     while owner is not None:
-        if (
-            isinstance(owner, (Function, ast.ClassDef))
-            and not (
-                isinstance(owner, Function)
-                and (child in owner.decorator_list or child is owner.args)
-            )
-            and any(
-                (isinstance(part, ast.arg) and part.arg == name)
-                or (
-                    isinstance(part, ast.Name)
-                    and isinstance(part.ctx, ast.Store)
-                    and part.id == name
-                )
-                for part in scope_nodes(owner)
-            )
+        if isinstance(owner, (Function, ast.ClassDef)) and not (
+            isinstance(owner, Function)
+            and (child in owner.decorator_list or child is owner.args)
         ):
-            return True
+            if owner not in program.scope_variables:
+                program.scope_variables[owner] = frozenset(
+                    part.arg if isinstance(part, ast.arg) else part.id
+                    for part in scope_nodes(owner)
+                    if isinstance(part, ast.arg)
+                    or (isinstance(part, ast.Name) and isinstance(part.ctx, ast.Store))
+                )
+            if name in program.scope_variables[owner]:
+                return True
         child, owner = owner, program.parents.get(owner)
     return False
 

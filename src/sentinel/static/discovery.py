@@ -121,6 +121,7 @@ class PythonProgram:
             for child in ast.iter_child_nodes(parent)
         }
         self.local_bindings: dict[ast.AST, dict[str, list[ast.AST]]] = {}
+        self.scope_variables: dict[ast.AST, frozenset[str]] = {}
         for file in files:
             parts = list(PurePosixPath(file.relative_path).with_suffix("").parts)
             if parts[-1] == "__init__":

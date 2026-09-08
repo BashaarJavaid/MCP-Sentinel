@@ -142,6 +142,7 @@ class URLFlow(PathFlow):
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         conditional = {}
+        unknown = Value()
         for marker in set().union(*(branch.keys() for branch in branches)):
             if not marker.startswith("#url-truth:"):
                 continue
@@ -149,7 +150,7 @@ class URLFlow(PathFlow):
             possible = [
                 branch
                 for branch in branches
-                if branch.get(marker, Value()).key != "False"
+                if branch.get(marker, unknown).key != "False"
             ]
             if not possible or len(possible) == len(branches):
                 continue
@@ -176,7 +177,7 @@ class URLFlow(PathFlow):
             env[key] = replace(
                 env[key],
                 contained=all(
-                    branch.get(key, Value()).contained for branch in branches
+                    branch.get(key, unknown).contained for branch in branches
                 ),
             )
 
