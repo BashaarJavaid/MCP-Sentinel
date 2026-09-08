@@ -47,9 +47,15 @@ directives that match no finding emit `inline_suppression_unused`.
 - Remediation: use explicit parsers and fixed command allowlists
 
 Helper findings point to the tool's call site and identify the known sink.
-Imported helpers, recursion, ambiguous bindings, and unsupported control or
-mutation paths remain unresolved and can emit `static_flow_unresolved`.
-There is no fixed helper-depth cap; the existing scan deadline still applies.
+TypeScript shell calls also use shared SDK registration and source bindings to
+follow imported helpers, low-level request dispatch and command reassignment.
+These findings cite the external sink with cross-file source evidence. `exec`
+and `execSync` invoke shells; `execFile`/`spawn` forms require established
+`shell: true` for this added shell flow. Separate argv without a shell is not a
+shell-injection finding. The existing command-option rule covers its own contract.
+Recursion, ambiguous bindings and unsupported control or mutation paths can emit
+`static_flow_unresolved`. Shared TypeScript flow has a 64-frame recursion bound;
+the existing scan deadline also applies.
 `static_review_context_incomplete` means a traced flow exceeds the unchanged
 GPT context window. An unresolved flow is not evidence of safety.
 

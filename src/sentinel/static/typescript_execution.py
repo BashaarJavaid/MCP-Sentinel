@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, replace
+from typing import Any
 
 from sentinel.finding import SourceRange
 from sentinel.static.execution import (
@@ -23,6 +25,8 @@ from sentinel.static.model import (
     StaticMatch,
     TypeScriptSourceFile,
 )
+from sentinel.static.path_flow import Value
+from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript import (
     _IDENTIFIER,
     TypeScriptTool,
@@ -35,6 +39,9 @@ from sentinel.static.typescript import (
     _tool_match,
     offset_range,
 )
+from sentinel.static.typescript_discovery import name_of
+from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+from sentinel.static.typescript_path_flow import analyze as analyze_shared
 
 
 def _mask(source: str) -> str:
@@ -209,6 +216,77 @@ def detect(
                 deadline=context.deadline,
                 first_direct_only=True,
             )
+    additions = RuleRunState()
+    analyze_shared(
+        context.typescript_program,
+        additions,
+        flow=ShellFlow(context.typescript_program, additions),
+    )
+    existing = {(match.path, match.range) for match in state.matches}
+    state.matches.extend(
+        match
+        for match in additions.matches
+        if (match.path, match.range) not in existing
+    )
+    state.warnings.extend(additions.warnings)
+    state.visits.extend(
+        visit for visit in additions.visits if visit not in state.visits
+    )
+
+
+class ShellFlow(TypeScriptPathFlow):
+    """External shell calls reuse the registration and cross-file value interpreter."""
+
+    rule_id = "SENT-002"
+
+    def call(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
+    ) -> Value:
+        callee, arguments = node["Call"]
+        binding = (
+            self.callables.get(self.expression(file, callee, env).key)
+            if "Special" not in callee
+            else None
+        )
+        external = (binding.external or "").removeprefix("node:") if binding else ""
+        if external in {
+            "child_process.exec",
+            "child_process.execSync",
+            "child_process.execFile",
+            "child_process.execFileSync",
+            "child_process.spawn",
+            "child_process.spawnSync",
+        }:
+            args = [
+                self.expression(file, arg.get("Arg", arg), env) for arg in arguments[1]
+            ]
+            shell = external in {"child_process.exec", "child_process.execSync"}
+            if not shell and len(args) >= 2:
+                options = self.objects.get(args[-1].key, {})
+                setting = options.get("shell")
+                shell = setting is not None and self.condition(setting)[0] is None
+            if shell and args and args[0].sources:
+                location = source_range(node, file)
+                self.state.matches.append(
+                    StaticMatch(
+                        self.rule_id,
+                        file.relative_path,
+                        location,
+                        self.program.text(file, node),
+                        match_kinds=("typescript-flow",),
+                        captures={
+                            "sink_name": name_of(callee) or external,
+                            "flow_locations": json.dumps(
+                                sorted(
+                                    args[0].locations
+                                    | {(file.relative_path, location.start_line)}
+                                )
+                            ),
+                        },
+                    )
+                )
+            return Value()
+        return super().call(file, node, env)
 
 
 class _Analyzer:
