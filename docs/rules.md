@@ -452,9 +452,13 @@ imported handlers and re-exports, into global `fetch`, `node-fetch`, and
 `undici.fetch` credential headers. It tracks `process.env` fallback selected by
 `||`, `??`, or an enforced absent-token branch, and checks the actual caller
 value when rejection returns or throws. Rebound application, environment and
-request bindings remain unresolved. Middleware sequences, nested application
-factories and ContextVar-style lifecycle relationships require further support;
-the direct route tests do not establish those conditions.
+request bindings remain unresolved. Python follows genuine `ContextVar` allocation,
+defaults and request-local `get`/`set`/matching single-use `reset` through included
+helpers, including token clearing and separate request state. These operations
+follow the [Python context variable contract](https://docs.python.org/3/library/contextvars.html).
+Manual context switching, spawned tasks, middleware sequences and nested
+application attachment still require further support; the direct route tests do
+not establish those lifecycle conditions.
 
 ```python
 token = request.headers.get("Authorization")

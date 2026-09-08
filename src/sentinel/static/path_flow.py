@@ -101,6 +101,7 @@ class PathFlow:
         "#member:",
         "#global-value:",
         "#literal-choices:",
+        "#context:",
     )
 
     def __init__(
@@ -137,6 +138,8 @@ class PathFlow:
         self.non_none: set[str] = set()
         self.workbooks: set[str] = set()
         self.http_clients: dict[str, str] = {}
+        self.context_variables: dict[str, Value | None] = {}
+        self.context_tokens: dict[str, str] = {}
         self.call_receivers: dict[ast.AST, Value] | None = None
         self.reported_warnings: set[tuple[str, int, str]] = set()
 
@@ -770,8 +773,9 @@ class PathFlow:
             return any(
                 marker in env for marker in self.members.get(value.key, {}).values()
             )
-        if not value.sources and value.key in {"True", "False", "None"}:
-            return value.key == "True"
+        literal = member_label(value)
+        if literal is None or isinstance(literal, (str, bytes, bool, int, float)):
+            return bool(literal)
         return None
 
     def path_condition(
@@ -1317,6 +1321,88 @@ class PathFlow:
                         keywords[label] = env[marker]
             else:
                 keywords[None] = value
+        if (
+            resolved == "contextvars.ContextVar"
+            and self.program.external(symbol, node.func) == resolved
+            and len(args) == 1
+            and not unknown_args
+            and keywords.keys() <= {"default"}
+            and isinstance(member_label(args[0]), str)
+        ):
+            value = Value(
+                key=_key(
+                    "context-variable",
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                )
+            )
+            self.context_variables[value.key] = keywords.get("default")
+            self.record_keys.add(value.key)
+            self.member_defaults["#context:" + value.key] = Value(
+                key="#context-unset", maybe_missing=True
+            )
+            return value
+        if receiver.key in self.context_variables and isinstance(
+            node.func, ast.Attribute
+        ):
+            marker = "#context:" + receiver.key
+            method = node.func.attr
+            method_marker = self.members.get(receiver.key, {}).get(method)
+            current = env.get(marker, self.member_defaults[marker])
+            if (
+                not keywords
+                and not unknown_args
+                and "#member:unknown:" + receiver.key not in env
+                and (method_marker is None or method_marker not in env)
+            ):
+                if method == "get" and len(args) <= 1:
+                    context_default = (
+                        args[0] if args else self.context_variables[receiver.key]
+                    )
+                    if not current.maybe_missing:
+                        return current
+                    if context_default is not None:
+                        return (
+                            context_default
+                            if current.key == "#context-unset"
+                            else combine(
+                                [replace(current, maybe_missing=False), context_default]
+                            )
+                        )
+                elif method == "set" and len(args) == 1:
+                    token = Value(
+                        key=_key(
+                            "context-token",
+                            symbol.file.relative_path,
+                            str(node.lineno),
+                            str(node.col_offset),
+                            *self.call_sites,
+                        )
+                    )
+                    self.context_tokens[token.key] = receiver.key
+                    self.record_keys.add(token.key)
+                    env["#context:token:" + token.key] = current
+                    env["#context:valid:" + token.key] = Value(key="True")
+                    env[marker] = replace(args[0], maybe_missing=False)
+                    return token
+                elif method == "reset" and len(args) == 1:
+                    token_marker = "#context:token:" + args[0].key
+                    previous = env.get(token_marker)
+                    if (
+                        self.context_tokens.get(args[0].key) == receiver.key
+                        and "#member:unknown:" + args[0].key not in env
+                        and previous is not None
+                        and env.get("#context:valid:" + args[0].key, Value()).key
+                        == "True"
+                    ):
+                        env[marker] = previous
+                        env["#context:valid:" + args[0].key] = Value(key="False")
+                        return Value(key="None")
+            self.unresolved(symbol, node, "unresolved ContextVar operation")
+            env[marker] = Value()
+            return Value()
         if (
             resolved
             in {

@@ -380,6 +380,16 @@ Receiver evaluation is scoped to one call across rule delegation, and credential
 requests evaluate positional effects before reading keyword values. Client-level
 authentication defaults are not yet a supported credential source.
 
+Genuine Python `contextvars.ContextVar` allocations retain their declared default
+and request-local `get`, `set` and matching single-use `reset` state through included
+helpers. Per-read defaults apply only to unset variables; setting `None` does not
+restore the default. State merges and escaped tokens cannot establish a valid
+reset. Separate handler entries start from the declared default. Manual context
+switching and scheduler-created tasks are not modeled; unsupported operations are
+reported as unresolved. This does not establish middleware-to-tool attachment.
+Known scalar literal truth controls short-circuit flow without invoking target
+objects or their truth methods.
+
 Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
 `slice` copies and bounded branch alternatives through included helpers. The
 interpreter retains at most 32 layouts of 256 positions; larger layouts, computed

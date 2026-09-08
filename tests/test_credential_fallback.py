@@ -627,3 +627,107 @@ def test_request_arguments_run_before_credential_keyword_values(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
+@pytest.mark.parametrize(
+    ("setup", "read", "expected"),
+    [
+        ("token.set(request.headers.get('Authorization'))", "token.get()", 1),
+        ("token.set('explicit')", "token.get()", 0),
+        ("token.set(None)", "token.get('explicit')", 1),
+        ("pass", "token.get('explicit')", 0),
+        ("token.set('explicit'); token.set(None)", "token.get()", 1),
+        ("saved = token.set('explicit'); token.reset(saved)", "token.get()", 1),
+        (
+            "token.set('explicit'); saved = token.set(None); token.reset(saved)",
+            "token.get()",
+            0,
+        ),
+        ("other.set('explicit')", "token.get()", 1),
+        ("alias = token; alias.set('explicit')", "token.get()", 0),
+        ("if request.headers.get('Other'): token.set('explicit')", "token.get()", 1),
+        ("set_token('explicit')", "token.get()", 0),
+        ("token.set('explicit')", "read_token()", 0),
+    ],
+)
+def test_context_variable_credential_state(
+    tmp_path: Path, setup: str, read: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from contextvars import ContextVar\n"
+        "from fastapi import FastAPI, Request\n"
+        "import os, requests\napp = FastAPI()\n"
+        "token = ContextVar('token', default=None)\n"
+        "other = ContextVar('token', default=None)\n"
+        "def set_token(value): return token.set(value)\n"
+        "def read_token(): return token.get()\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    if request.headers.get('Authorization'): return\n"
+        f"    {setup}\n"
+        f"    credential = {read} or os.getenv('OWNER')\n"
+        "    return requests.get('https://api.example.com', "
+        "params={'access_token': credential})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "token.get()",
+        "saved = token.set('explicit'); other.reset(saved)",
+        "saved = token.set('explicit'); token.reset(saved); token.reset(saved)",
+        "saved = token.set('explicit')\n"
+        "    if condition: token.reset(saved)\n"
+        "    token.reset(saved)",
+        "unknown(token); token.get('explicit')",
+        "saved = token.set('explicit'); unknown(saved); token.reset(saved)",
+        "token.get = unknown; token.get('explicit')",
+    ],
+)
+def test_unresolved_context_operations_cannot_establish_state(operation: str) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import PathFlow, Value
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from contextvars import ContextVar\n"
+            "token = ContextVar('token')\nother = ContextVar('token')\n"
+            f"def fetch(condition):\n    {operation}\n"
+        }
+    )
+    handler = index.resolve(index.files[0], "fetch")
+    assert handler is not None
+    state = RuleRunState()
+    flow = PathFlow(index, state, float("inf"))
+    flow.function(handler, {"condition": Value(sources=frozenset({"condition"}))})
+    assert any(
+        "unresolved ContextVar operation" in item.message for item in state.warnings
+    )
+
+
+def test_context_state_does_not_leak_between_handler_entries() -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import PathFlow
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from contextvars import ContextVar\n"
+            "token = ContextVar('token', default='default')\n"
+            "def first(): token.set('previous-request')\n"
+            "def second(): return token.get()\n"
+        }
+    )
+    first = index.resolve(index.files[0], "first")
+    second = index.resolve(index.files[0], "second")
+    assert first is not None and second is not None
+    flow = PathFlow(index, RuleRunState(), float("inf"))
+    flow.function(first, {})
+    assert flow.function(second, {}).key == "'default'"

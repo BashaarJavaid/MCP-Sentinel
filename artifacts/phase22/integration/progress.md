@@ -865,3 +865,24 @@ launches, so it correctly has no established HTTP caller fallback finding yet.
 The actual source-selected launch, middleware association, ContextVar state and
 fixed middleware rejection remain unfinished. This progress is not a condition
 hit, native development measurement, reviewed evaluation or final technical gate.
+
+### Request-local Python context variables
+
+The continuation after `10cc14c` follows genuine ContextVar allocation identity,
+declared/per-read defaults, set values and matching single-use reset tokens using
+the shared flow's existing environment/merge mechanism. Helpers carry this state;
+separate handler entries do not inherit a previous request. Invalid, escaped,
+replaced or potentially reused operations remain unresolved. Manual context
+switching and spawned tasks are not modeled. Known scalar literal truth now stops
+unreachable fallback expressions without invoking custom target truth methods.
+
+The first credential fixtures omitted a checked absent caller credential in most
+cases; their failures do not establish the intended SENT-016 boundary. Corrected
+fixtures exposed the literal-truth gap, and the corrected context controls pass.
+The broad affected suite passes 410 tests in 60.49 seconds. Subsequent token-escape
+hardening passes 130 credential/HTTP tests in 44.06 seconds, strict mypy across 142
+source files, Ruff and formatting. All intermediate failures, including a mypy
+local-variable name collision and formatting, are retained in
+`continuation-context-variable-*`. This is bounded shared-flow support, not proof
+of the Meta middleware attachment or final independent condition. Those source
+relationships and the complete final gates remain open.
