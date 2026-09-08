@@ -456,8 +456,9 @@ completed at `34220b7`, with two vulnerable condition hits and no fixed-conditio
 alerts at the declared default. This is source adjudication, not runtime proof,
 fresh holdout evidence or the final repeated benchmark.
 
-TypeScript follows explicit module-level Express route registrations, including
-imported handlers and re-exports, into global `fetch`, `node-fetch`, and
+TypeScript follows source-established Express module/factory route registrations,
+including imported handlers, re-exports and ordered `use`/route middleware, into
+global `fetch`, `node-fetch`, and
 `undici.fetch` credential headers. It tracks `process.env` fallback selected by
 `||`, `??`, or an enforced absent-token branch, and checks the actual caller
 value when rejection returns or throws. Rebound application, environment and
@@ -465,9 +466,12 @@ request bindings remain unresolved. Python follows genuine `ContextVar` allocati
 defaults and request-local `get`/`set`/matching single-use `reset` through included
 helpers, including token clearing and separate request state. These operations
 follow the [Python context variable contract](https://docs.python.org/3/library/contextvars.html).
-Manual context switching, spawned tasks, middleware sequences and nested
-application attachment still require further support; the direct route tests do
-not establish those lifecycle conditions.
+TypeScript middleware guards qualify the same caller value only when actual
+`next()` forwarding reaches the callback. Unknown mount paths, error forwarding
+and nested routers cannot establish protection. Literal arrays are bounded to
+256 entries and synchronous continuation depth to 32; larger layouts remain
+unresolved. Manual Python context switching and spawned tasks remain unsupported;
+route tests do not establish SDK lifecycle conditions.
 
 The genuine FastMCP HTTP getter retains current request state across included
 helpers within a tool entry, following the

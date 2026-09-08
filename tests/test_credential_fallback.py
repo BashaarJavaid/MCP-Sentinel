@@ -945,3 +945,134 @@ def test_typescript_factory_http_callback(
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == (not protected and not replaced)
+
+
+@pytest.mark.parametrize("factory", [False, True])
+@pytest.mark.parametrize("attachment", ["route", "use"])
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("", 1),
+        ("if (!req.headers.authorization) return res.sendStatus(401);", 0),
+        ("if (!req.headers.other) return res.sendStatus(401);", 1),
+        ("if (!req.headers.authorization) res.sendStatus(401);", 1),
+        ("return res.sendStatus(401);", 0),
+        ("next = () => {};", 0),
+    ],
+)
+def test_typescript_attached_http_middleware(
+    tmp_path: Path, factory: bool, attachment: str, guard: str, expected: int
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    registration = (
+        'app.get("/accounts", auth, handler);'
+        if attachment == "route"
+        else 'app.use(auth); app.get("/accounts", handler);'
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        'import {auth, handler} from "./routes.js";\n'
+        + ("export function createApp() {\n" if factory else "")
+        + " const app=express();\n"
+        + registration
+        + ("\n return app;\n}\n" if factory else "\n"),
+        encoding="utf-8",
+    )
+    (root / "routes.ts").write_text(
+        "function forward(next) { next(); }\n"
+        "export function auth(req, res, next) {\n" + guard + "\n forward(next);\n}\n"
+        "export async function handler(req, res) {\n"
+        " const token=req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        ' return fetch("https://api.example.com",{headers:{Authorization:token}});\n'
+        "}\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("registration", "expected"),
+    [
+        ('app.use("/accounts", auth); app.get("/accounts", handler);', 0),
+        ('app.use("/other", auth); app.get("/accounts", handler);', 1),
+        ('app.use("/account", auth); app.get("/accounts", handler);', 1),
+        ('app.get("/accounts", handler); app.use(auth);', 1),
+        ('app.use(process.env.PREFIX, auth); app.get("/accounts", handler);', 1),
+        ('app.use("/:id", auth); app.get("/accounts", handler);', 1),
+        ('app.use(auth); app.get("/accounts", mutate, handler);', 1),
+        ('app.use(auth); app.get("/accounts", unknown, handler);', 1),
+        ('app.get("/accounts", auth, unknown, handler);', 1),
+        ('const other=express(); other.use(auth); app.get("/accounts", handler);', 1),
+        ('app.use([auth]); app.get("/accounts", handler);', 0),
+        ('app.get("/accounts", [auth, handler]);', 0),
+        (
+            'app.use(auth); app.get("/accounts", handler); app.get("/other", handler);',
+            0,
+        ),
+        (
+            'app.get("/accounts", handler); app.use(auth); app.get("/other", handler);',
+            1,
+        ),
+    ],
+)
+def test_typescript_http_middleware_scope(
+    tmp_path: Path, registration: str, expected: int
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        "const app=express();\n"
+        "function auth(req,res,next) {\n"
+        " if (!req.headers.authorization) return res.sendStatus(401);\n"
+        " next();\n}\n"
+        "function mutate(request,response,next) {\n"
+        " request.headers.authorization=request.headers.other; next();\n}\n"
+        "function handler(request,response) {\n"
+        " const token=request.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        ' return fetch("https://api.example.com",{headers:{Authorization:token}});\n'
+        "}\n" + registration,
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == expected
+
+
+def test_typescript_repeated_http_middleware(tmp_path: Path) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        "const app=express();\n"
+        "function pass(req,res,next) { next(); }\n"
+        'app.get("/accounts", pass, pass, (req,res)=> {\n'
+        " const token=req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        ' return fetch("https://api.example.com",{headers:{Authorization:token}});\n'
+        "});\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == 1

@@ -438,6 +438,8 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                 ),
             )
         result = super().expression(file, node, env)
+        if env.get(f"#guard:credential:present:{result.key}", Value()).contained:
+            result = replace(result, credential_present=True)
         if result.credential_present:
             result = replace(result, key=_key(result.key, "credential-present"))
             self.conditions[result.key] = (None, frozenset())

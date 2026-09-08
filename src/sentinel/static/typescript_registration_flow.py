@@ -97,30 +97,33 @@ class HTTPRegistrationFlow(TypeScriptPathFlow):
     def http_registered(
         self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
     ) -> None:
-        if len(args) != 2:
+        if len(args) < 2:
             self.warning(file, node, "unsupported HTTP middleware sequence")
             return
         self.found.append(
             TypeScriptHTTPBinding(
                 TypeScriptSymbol(file, node),
-                self.callables.get(args[1].key),
+                self.callables.get(args[-1].key),
                 self.factory,
             )
         )
 
 
-def factory_http_handlers(
+def source_http_handlers(
     program: TypeScriptProgram,
 ) -> tuple[TypeScriptHTTPBinding, ...]:
     found = []
     for path, bindings in program.bindings.items():
         file = program.files[path]
-        for declarations in bindings.values():
-            if len(declarations) != 1:
-                continue
-            factory = TypeScriptSymbol(file, declarations[0])
-            if factory.function is None:
-                continue
+        initializers = [TypeScriptSymbol(file, program.trees[path])]
+        initializers.extend(
+            symbol
+            for declarations in bindings.values()
+            if len(declarations) == 1
+            for symbol in [TypeScriptSymbol(file, declarations[0])]
+            if symbol.function is not None
+        )
+        for factory in initializers:
             if not any(
                 constructor is not None
                 and constructor.external
@@ -131,7 +134,7 @@ def factory_http_handlers(
             ):
                 continue
             flow = HTTPRegistrationFlow(program, factory)
-            flow.function(factory, [])
+            flow.http_initialize(factory)
             found.extend(flow.found)
             program.warnings.extend(
                 warning

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from collections.abc import Sequence
 from dataclasses import replace
@@ -39,7 +40,7 @@ def common_facts(values: Sequence[Facts]) -> Facts:
 
 class TypeScriptPathFlow:
     rule_id = "SENT-012"
-    state_prefixes = ("#instance:", "#array:", "#conditional:")
+    state_prefixes = ("#instance:", "#array:", "#conditional:", "#http-middleware:")
 
     def __init__(self, program: TypeScriptProgram, state: RuleRunState) -> None:
         self.program, self.state = program, state
@@ -58,6 +59,16 @@ class TypeScriptPathFlow:
         self.root_directories: dict[str, Value] = {}
         self.sdk_instances: set[str] = set()
         self.http_instances: set[str] = set()
+        self.http_sequences: dict[
+            str, tuple[tuple[str | None, tuple[Value, ...]], ...]
+        ] = {}
+        self.http_routes: list[
+            tuple[TypeScriptSourceFile, dict[str, Any], list[Value]]
+        ] = []
+        self.http_continuations: dict[
+            str, tuple[TypeScriptSymbol, tuple[Value, ...], Value, Value]
+        ] = {}
+        self.http_depth = 0
         self.call_sites: list[TypeScriptSymbol] = []
         self.normal_exits: list[list[dict[str, Value]]] = []
         self.function_effects: Facts = frozenset()
@@ -597,6 +608,10 @@ class TypeScriptPathFlow:
                     marker = "#array:" + value.key
                     if marker in self.global_members:
                         env.setdefault(marker, self.global_members[marker])
+                if value.key in self.http_instances:
+                    marker = "#http-middleware:" + value.key
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
                 for field in tuple(self.instance_fields.get(value.key, ())):
                     marker = self.instance_marker(value, field)
                     if marker in self.global_members:
@@ -723,6 +738,9 @@ class TypeScriptPathFlow:
             if "DotAccess" in target:
                 receiver = self.expression(file, target["DotAccess"][0], env)
                 assigned_field = name_of(target["DotAccess"][2])
+                if "http:request" in receiver.sources and assigned_field:
+                    env[self.instance_marker(receiver, assigned_field)] = value
+                    return value
                 class_key = self.instances.get(receiver.key, receiver.key)
                 if class_key in self.classes and assigned_field:
                     members = self.class_members(self.classes[class_key]) or {}
@@ -743,6 +761,12 @@ class TypeScriptPathFlow:
             parent = self.expression(file, receiver, env)
             self.receivers[id(node)] = parent
             member = name_of(field) or "?"
+            if "http:request" in parent.sources:
+                if parent.key in self.invalidated_objects:
+                    parent = replace(parent, key=_key("invalidated", parent.key))
+                marker = self.instance_marker(parent, member)
+                if marker in env:
+                    return env[marker]
             class_key = self.instances.get(parent.key, parent.key)
             if class_key in self.classes:
                 value = env.get(
@@ -873,22 +897,88 @@ class TypeScriptPathFlow:
             ]
         name = name_of(callee) or "dynamic call"
         external = (symbol.external or "").removeprefix("node:") if symbol else ""
+        if callable_value.key in self.http_continuations:
+            if args:
+                self.warning(file, node, "HTTP next(error/route) forwarding unresolved")
+                return Value()
+            origin, next_callbacks, request, response = self.http_continuations[
+                callable_value.key
+            ]
+            return self.http_chain(origin, next_callbacks, request, response, env)
         if external in {"express.default", "express.Router", "express.default.Router"}:
             instance = Value(
-                key=_key(file.relative_path, str(source_range(node, file)))
+                key=_key(
+                    file.relative_path,
+                    str(source_range(node, file)),
+                    *(
+                        str(source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
+                )
             )
+            if instance.key in self.http_instances:
+                return instance
             self.http_instances.add(instance.key)
             self.objects[instance.key] = {}
+            layout = Value(key=_key(instance.key, "http-middleware"))
+            self.http_sequences[layout.key] = ()
+            env["#http-middleware:" + instance.key] = layout
             return instance
         if (
             receiver.key in self.http_instances
             and receiver.key not in self.invalidated_objects
-            and name.rsplit(".", 1)[-1]
-            in {"get", "post", "put", "patch", "delete", "head", "options", "all"}
             and name.rsplit(".", 1)[-1] not in self.objects.get(receiver.key, {})
         ):
-            self.http_registered(file, node, args)
-            return receiver
+            http_method = name.rsplit(".", 1)[-1]
+            marker = "#http-middleware:" + receiver.key
+            previous = env.get(marker, Value())
+            sequence = self.http_sequences.get(previous.key)
+            if http_method == "use":
+                prefix = self.string_literals.get(args[0].key) if args else None
+                callbacks = args[1:] if prefix is not None else args
+                if (
+                    prefix is None
+                    and callbacks
+                    and not (
+                        callbacks[0].key in self.callables
+                        or callbacks[0].key in self.arrays
+                    )
+                ):
+                    self.warning(file, node, "unresolved HTTP middleware or mount path")
+                    callbacks = [Value()]
+                callbacks = self.http_callbacks(callbacks, env)
+                layout = Value(
+                    key=_key(previous.key, str(prefix), *(v.key for v in callbacks))
+                )
+                if sequence is not None and callbacks:
+                    self.http_sequences[layout.key] = (
+                        *sequence,
+                        (prefix, tuple(callbacks)),
+                    )
+                env[marker] = layout
+                return receiver
+            if (
+                http_method
+                in {"get", "post", "put", "patch", "delete", "head", "options", "all"}
+                and args
+            ):
+                callbacks = []
+                route = self.string_literals.get(args[0].key)
+                if sequence is None:
+                    callbacks.append(Value())
+                for prefix, layers in sequence or ():
+                    if prefix is None:
+                        callbacks.extend(layers)
+                    elif route is None or any(char in prefix for char in ":*?+()[]{}"):
+                        callbacks.append(Value())
+                    elif route == prefix or route.startswith(prefix.rstrip("/") + "/"):
+                        callbacks.extend(layers)
+                self.http_registered(
+                    file,
+                    node,
+                    [args[0], *callbacks, *self.http_callbacks(args[1:], env)],
+                )
+                return receiver
         if (
             receiver.key in self.sdk_instances
             and receiver.key not in self.invalidated_objects
@@ -1318,6 +1408,7 @@ class TypeScriptPathFlow:
                     or value.key in self.instances
                     or value.key in self.classes
                     or value.key in self.arrays
+                    or "http:request" in value.sources
                 ):
                     self.invalidated_objects.add(value.key)
                 if value.key in self.sdk_instances:
@@ -1402,24 +1493,144 @@ class TypeScriptPathFlow:
         )
         self.function(callback, [caller, Value()], self.closures.get(args[2].key))
 
+    def http_callbacks(self, values: list[Value], env: dict[str, Value]) -> list[Value]:
+        pending = list(reversed(values))
+        callbacks: list[Value] = []
+        # ponytail: flatten at most 256 entries; larger layouts stay unresolved.
+        for _ in range(256):
+            if not pending:
+                return callbacks
+            value = pending.pop()
+            if value.key not in self.arrays:
+                callbacks.append(value)
+                continue
+            variants = self.array_items(value, env)
+            if variants is not None and len(variants) == 1:
+                pending.extend(reversed(variants[0]))
+            else:
+                callbacks.append(Value())
+        return [*callbacks, Value()]
+
     def http_registered(
         self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
     ) -> None:
-        if len(args) != 2:
+        if len(args) < 2:
             self.warning(file, node, "unsupported HTTP middleware sequence")
             return
-        callback = self.callables.get(args[1].key)
-        if callback is None or callback.function is None:
-            self.warning(file, node, "unresolved HTTP callback")
+        self.http_routes.append((file, node, args))
+
+    def http_initialize(self, initializer: TypeScriptSymbol) -> None:
+        start = len(self.http_routes)
+        if initializer.function is not None:
+            self.function(initializer, [])
+        else:
+            env: dict[str, Value] = {}
+            for statement in initializer.node.get("Pr", []):
+                if "DefStmt" in statement or "ExprStmt" in statement:
+                    self.statement(initializer.file, statement, env, [])
+                    self.globals.update(
+                        ((initializer.file.relative_path, name), value)
+                        for name, value in env.items()
+                        if not name.startswith("#") and "." not in name
+                    )
+                    self.global_members.update(
+                        (key, value)
+                        for key, value in env.items()
+                        if key.startswith(self.state_prefixes)
+                    )
+        routes = self.http_routes[start:]
+        del self.http_routes[start:]
+        if not routes:
             return
-        location = source_range(node, file)
-        self.state.visit(file.relative_path, location)
-        caller = Value(
-            sources=frozenset({"http:request"}),
-            key=_key(file.relative_path, str(location), "http-request"),
-            locations=frozenset({(file.relative_path, location.start_line)}),
+        memo: dict[int, object] = {
+            id(self.program): self.program,
+            id(self.state): self.state,
+        }
+        memo.update((id(file), file) for file in self.program.files.values())
+        memo.update(
+            (id(node), node)
+            for tree in self.program.trees.values()
+            for node in walk(tree)
         )
-        self.function(callback, [caller, Value()], self.closures.get(args[1].key))
+        for file, node, args in routes:
+            fork = copy.deepcopy(self, memo.copy())
+            location = source_range(node, file)
+            self.state.visit(file.relative_path, location)
+            caller = Value(
+                sources=frozenset({"http:request"}),
+                key=_key(file.relative_path, str(location), "http-request"),
+                locations=frozenset({(file.relative_path, location.start_line)}),
+            )
+            fork.http_chain(
+                TypeScriptSymbol(file, node), tuple(args[1:]), caller, Value(), {}
+            )
+
+    def http_chain(
+        self,
+        origin: TypeScriptSymbol,
+        callbacks: tuple[Value, ...],
+        request: Value,
+        response: Value,
+        env: dict[str, Value],
+    ) -> Value:
+        check_deadline(self.program.deadline)
+        if not callbacks:
+            return Value()
+        # ponytail: cap synchronous next chains; longer chains remain unresolved.
+        if self.http_depth >= 32:
+            self.warning(origin.file, origin.node, "HTTP continuation depth limit")
+            return Value()
+        for _index, callback in enumerate(callbacks):
+            check_deadline(self.program.deadline)
+            handler = self.callables.get(callback.key)
+            if (
+                handler is not None
+                and handler.function is not None
+                and callback.key not in self.invalidated_objects
+                and len(handler.function["fparams"][1]) != 4
+            ):
+                break
+            self.warning(
+                origin.file, origin.node, "unresolved HTTP middleware/callback"
+            )
+            self.invalidated_objects.add(request.key)
+            env = {}
+        else:
+            return Value()
+        remaining = callbacks[_index + 1 :]
+        request = replace(
+            request,
+            locations=request.locations
+            | {
+                (
+                    handler.file.relative_path,
+                    source_range(handler.node, handler.file).start_line,
+                )
+            },
+        )
+        next_value = Value(key=_key(request.key, callback.key, str(len(remaining))))
+        self.http_continuations[next_value.key] = (
+            origin,
+            tuple(remaining),
+            request,
+            response,
+        )
+        captured = {
+            **self.closures.get(callback.key, {}),
+            **{
+                key: value
+                for key, value in env.items()
+                if key.startswith(("#guard:", *self.state_prefixes))
+            },
+        }
+        active = self.active
+        self.active = set()
+        self.http_depth += 1
+        try:
+            return self.function(handler, [request, response, next_value], captured)
+        finally:
+            self.http_depth -= 1
+            self.active = active
 
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
         self.apply_facts(self.condition(value)[int(truth)], env)
@@ -1475,10 +1686,18 @@ def analyze(
     flow = flow or TypeScriptPathFlow(program, state)
     factories: set[int] = set()
     for tool in program.tools() if entries is None else entries:
-        if tool.factory is not None:
-            if id(tool.factory.node) not in factories:
-                factories.add(id(tool.factory.node))
-                flow.function(tool.factory, [])
+        initializer = (
+            tool.initializer
+            if isinstance(tool, TypeScriptHTTPBinding)
+            else tool.factory
+        )
+        if initializer is not None:
+            if id(initializer.node) not in factories:
+                factories.add(id(initializer.node))
+                if isinstance(tool, TypeScriptHTTPBinding):
+                    flow.http_initialize(initializer)
+                else:
+                    flow.function(initializer, [])
             continue
         location = source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)
