@@ -12,7 +12,6 @@ from sentinel.static.ast_utils import (
     resolve_name,
 )
 from sentinel.static.discovery import Symbol
-from sentinel.static.http_discovery import handlers
 from sentinel.static.model import RuleRunState, StaticContext
 from sentinel.static.path_flow import PathFlow, Value, _key, combine
 from sentinel.static.rules.sent012 import analyze
@@ -175,4 +174,10 @@ class CredentialFlow(PathFlow):
 def detect(context: StaticContext, state: RuleRunState) -> None:
     program = context.python_program
     flow = CredentialFlow(program, state, context.deadline)
-    analyze(program, state, context.deadline, flow=flow, entries=handlers(program))
+    analyze(
+        program,
+        state,
+        context.deadline,
+        flow=flow,
+        entries=context.python_http_handlers,
+    )

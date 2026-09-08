@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 
 from sentinel.config import load_configuration
+from sentinel.finding import Finding
 from sentinel.static.engine import run_static_scan
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
@@ -14,7 +15,7 @@ from sentinel.static.typescript_path_flow import analyze
 from tests.conftest import NOW, make_target
 
 
-def scan(root: Path, source: str) -> tuple:
+def scan(root: Path, source: str) -> tuple[Finding, ...]:
     make_target(root, target_yaml="")
     (root / "server.py").write_text(source, encoding="utf-8")
     configuration = load_configuration(

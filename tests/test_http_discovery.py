@@ -88,3 +88,22 @@ def test_dependency_injection_is_not_a_caller_parameter(parameter: str) -> None:
     assert [[p.arg for p in entry.caller_parameters] for entry in handlers(index)] == [
         ["url"]
     ]
+
+
+def test_unrelated_calls_do_not_repeat_scope_discovery() -> None:
+    from unittest.mock import patch
+
+    from sentinel.static import http_discovery
+
+    index = program(
+        {
+            "server.py": "from fastapi import FastAPI\napp=FastAPI()\n"
+            '@app.get("/data")\ndef fetch(request):\n'
+            "    result = transform(request)\n    log(result)\n    return result\n"
+        }
+    )
+    with patch.object(
+        http_discovery, "shadowed", wraps=http_discovery.shadowed
+    ) as shadow:
+        assert len(handlers(index)) == 1
+        assert shadow.call_count == 1

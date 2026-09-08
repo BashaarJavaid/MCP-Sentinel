@@ -144,8 +144,6 @@ def handlers(program: PythonProgram) -> tuple[HTTPBinding, ...]:
                         )
             elif isinstance(node, ast.Call):
                 name = qualified_name(node.func) or ""
-                if shadowed(program, node, name.split(".")[0]):
-                    continue
                 external = resolve_name(name, imports)
                 callback = None
                 middleware = external == "starlette.middleware.Middleware"
@@ -169,6 +167,8 @@ def handlers(program: PythonProgram) -> tuple[HTTPBinding, ...]:
                 ):
                     callback = node.args[0]
                     middleware = True
+                if callback is None or shadowed(program, node, name.split(".")[0]):
+                    continue
                 target = (
                     program.resolve_in(
                         Symbol(file, name, node), qualified_name(callback) or ""

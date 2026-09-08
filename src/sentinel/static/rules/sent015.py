@@ -12,7 +12,6 @@ from urllib.parse import urlsplit
 
 from sentinel.static.ast_utils import match_from_node, qualified_name, resolve_name
 from sentinel.static.discovery import Symbol
-from sentinel.static.http_discovery import handlers
 from sentinel.static.model import (
     RuleRunState,
     StaticContext,
@@ -509,7 +508,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
         state,
         context.deadline,
         flow=URLFlow(context.python_program, state, context.deadline),
-        entries=(*context.python_program.tools(), *handlers(context.python_program)),
+        entries=(*context.python_program.tools(), *context.python_http_handlers),
     )
     if context.files.typescript_files:
         analyze_typescript(

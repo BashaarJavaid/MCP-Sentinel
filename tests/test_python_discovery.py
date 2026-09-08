@@ -319,3 +319,28 @@ def test_partially_resolved_factory_keeps_unknown_registration_visible() -> None
     )
     assert len(index.tools()) == 1
     assert any(w.code == "static_handler_unresolved" for w in index.warnings)
+
+
+def test_discovery_reuses_snapshot_and_retains_unknown_bindings() -> None:
+    from unittest.mock import patch
+
+    from sentinel.errors import InfrastructureError
+
+    index = program(
+        {
+            "server.py": "def read(path): return open(path)\n"
+            "server.add_tool(read)\nserver.add_tool(missing)\n"
+        }
+    )
+    bindings = index.tools()
+    warnings = tuple(index.warnings)
+    assert bindings and warnings
+    with patch(
+        "sentinel.static.discovery.discover_tool_regions",
+        side_effect=AssertionError("repeated source discovery"),
+    ):
+        assert index.tools() == bindings
+        assert tuple(index.warnings) == warnings
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="120-second"):
+        index.tools()

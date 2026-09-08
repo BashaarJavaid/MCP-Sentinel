@@ -15,6 +15,7 @@ from sentinel.report.model import ReportWarning, StaticAnalysisSummary
 
 if TYPE_CHECKING:
     from sentinel.static.discovery import PythonProgram
+    from sentinel.static.http_discovery import HTTPBinding
     from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
@@ -108,6 +109,12 @@ class StaticContext:
         from sentinel.static.discovery import PythonProgram
 
         return PythonProgram(self.files.python_files, deadline=self.deadline)
+
+    @cached_property
+    def python_http_handlers(self) -> tuple[HTTPBinding, ...]:
+        from sentinel.static.http_discovery import handlers
+
+        return handlers(self.python_program)
 
     @cached_property
     def typescript_program(self) -> TypeScriptProgram:

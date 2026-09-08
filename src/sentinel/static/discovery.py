@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 from collections import defaultdict
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import PurePosixPath
 
 from sentinel.report.model import ReportWarning
@@ -36,7 +37,7 @@ class ToolBinding:
     handler: Symbol
     region: ast.AST
 
-    @property
+    @cached_property
     def caller_parameters(self) -> tuple[ast.arg, ...]:
         assert isinstance(self.handler.node, Function)
         aliases = import_aliases(self.handler.file)
@@ -88,6 +89,7 @@ class PythonProgram:
         self.modules: dict[str, list[ParsedPythonFile]] = defaultdict(list)
         self.bindings: dict[str, dict[str, list[ast.AST]]] = {}
         self.warnings: list[ReportWarning] = []
+        self._tools: tuple[ToolBinding, ...] | None = None
         self.parents = {
             child: parent
             for file in files
@@ -338,6 +340,8 @@ class PythonProgram:
         from sentinel.static.registration_flow import RegistrationFlow
 
         check_deadline(self.deadline)
+        if self._tools is not None:
+            return self._tools
         registrations = RegistrationFlow(self)
         found: list[ToolBinding] = []
         self.warnings.clear()
@@ -438,4 +442,5 @@ class PythonProgram:
                             handler.node,
                         )
                     )
-        return tuple(found)
+        self._tools = tuple(found)
+        return self._tools
