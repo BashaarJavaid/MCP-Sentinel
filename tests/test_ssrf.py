@@ -162,6 +162,49 @@ def test_service_url_contract_requires_a_reachable_request(
     assert len(findings) == expected
 
 
+@pytest.mark.parametrize("guard", ["", CHECK])
+@pytest.mark.parametrize("replace_url", [False, True])
+def test_sdk_http_getter_retains_the_current_tool_request_state(
+    tmp_path: Path, guard: str, replace_url: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from urllib.parse import urlparse\nimport requests\nmcp = FastMCP('test')\n"
+        "def downstream():\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    request = get_http_request()\n"
+        "    url = request.query_params.get('url')\n"
+        + ("    " + guard if guard else "")
+        + "    request.state.url = url\n"
+        + (
+            "    request.state.url = request.query_params.get('other')\n"
+            if replace_url
+            else ""
+        )
+        + "    return downstream()\n",
+    )
+    assert len(findings) == (0 if guard and not replace_url else 1)
+
+
+def test_sdk_http_request_state_does_not_leak_between_tools(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "import requests\nmcp = FastMCP('test')\n"
+        "def downstream():\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef first():\n"
+        "    get_http_request().state.url = 'https://images.example.com'\n"
+        "    return downstream()\n"
+        "@mcp.tool()\ndef second():\n    return downstream()\n",
+    )
+    assert len(findings) == 1
+
+
 @pytest.mark.parametrize("enabled", [False, True])
 def test_plain_boolean_helper_preserves_request_reachability(
     tmp_path: Path, enabled: bool

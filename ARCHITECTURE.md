@@ -399,6 +399,11 @@ reported as unresolved. This does not establish middleware-to-tool attachment.
 Known scalar literal truth controls short-circuit flow without invoking target
 objects or their truth methods.
 
+Repeated genuine FastMCP HTTP request getters share one request/state identity
+within an analyzed tool entry, including across included helpers. Replacing a
+state value changes the downstream value; a later tool entry starts independently.
+This identity alone does not establish application middleware or cross-task context.
+
 Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
 `slice` copies and bounded branch alternatives through included helpers. The
 interpreter retains at most 32 layouts of 256 positions; larger layouts, computed

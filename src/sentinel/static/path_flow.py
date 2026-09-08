@@ -102,6 +102,7 @@ class PathFlow:
         "#global-value:",
         "#literal-choices:",
         "#context:",
+        "#http:",
     )
 
     def __init__(
@@ -1533,7 +1534,9 @@ class PathFlow:
             and not args
             and not keywords
         ):
-            return Value(
+            if "#http:request" in env:
+                return env["#http:request"]
+            request = Value(
                 sources=frozenset({"http:request"}),
                 key=_key(
                     "http-request",
@@ -1543,6 +1546,11 @@ class PathFlow:
                 ),
                 locations=frozenset({(symbol.file.relative_path, node.lineno)}),
             )
+            env["#http:request"] = request
+            env[self.member_key(request, "state")] = replace(
+                request, key=_key(request.key, "state")
+            )
+            return request
         values = [*args, *keywords.values()]
         method = name.rsplit(".", 1)[-1]
         result = combine(values + ([receiver] if receiver.sources else []))

@@ -910,3 +910,17 @@ the corrected trace selects the source-established get_issue handler. Historical
 Phase 20 held-out inputs are already exposed; fresh Phase 22 holdout source has
 not been used for this work. Middleware association/state and upload conditions
 remain required work.
+
+### Shared HTTP getter identity
+
+After `43f5c96`, repeated genuine FastMCP get_http_request calls share request/state
+identity within each tool entry. Included helpers retain state writes and their
+validation facts; replacement writes lose the earlier protection, and separate
+tool entries remain isolated. The first proposed regression used an unrelated
+FastAPI route, which does not establish FastMCP's request context; that fixture
+and its failure are retained without a support claim. The corrected FastMCP tool
+regression fails before the fix. Caching the request alone was insufficient until
+its state relationship became reachable by the existing helper-state traversal.
+All five new controls and the 454-test affected suite pass (57.45 seconds), with
+strict mypy and Ruff. The source change does not attach ASGI middleware or close
+the independent Atlassian/Meta conditions. Its evidence follows sealed batch 12.

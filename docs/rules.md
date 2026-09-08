@@ -469,6 +469,12 @@ Manual context switching, spawned tasks, middleware sequences and nested
 application attachment still require further support; the direct route tests do
 not establish those lifecycle conditions.
 
+The genuine FastMCP HTTP getter retains current request state across included
+helpers within a tool entry, following the
+[SDK request-context contract](https://gofastmcp.com/v2/servers/context).
+Separate tool entries do not inherit each other's state. This does not infer
+middleware attachment from a class name or an unrelated HTTP route.
+
 ```python
 token = request.headers.get("Authorization")
 # Candidate: an unauthenticated caller selects the operator credential.
