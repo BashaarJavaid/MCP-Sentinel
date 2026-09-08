@@ -10,6 +10,144 @@ from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
 
+@pytest.mark.parametrize(
+    "selection",
+    [
+        "token = token || process.env.OPERATOR_TOKEN;",
+        "token = token ?? process.env.OPERATOR_TOKEN;",
+        "if (!token) token = process.env.OPERATOR_TOKEN;",
+    ],
+)
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("", 1),
+        ("if (!token) throw new Error('missing');", 0),
+        ("if (!token) return res.sendStatus(401);", 0),
+        ("if (!other) throw new Error('missing');", 1),
+        ("if (!token) res.sendStatus(401);", 1),
+        ("if (!token) throw new Error('missing'); token = other;", 1),
+    ],
+)
+def test_typescript_http_credential_selection(
+    tmp_path: Path, guard: str, expected: int, selection: str
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\nconst app = express();\n'
+        'app.post("/data", async (req, res) => {\n'
+        "  let token = req.headers.authorization;\n"
+        "  const other = req.headers.other;\n"
+        f"  {guard}\n"
+        f"  {selection}\n"
+        '  return fetch("https://api.example.com", '
+        "{headers: {Authorization: token}});\n"
+        "});\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("setup", "parameters", "sink", "expected"),
+    [
+        ("", "req, res", "fetch", 1),
+        ('import send from "node-fetch";', "req, res", "send", 1),
+        ("express = unknown;", "req, res", "fetch", 0),
+        ("app = unknown;", "req, res", "fetch", 0),
+        ("const process = custom;", "req, res", "fetch", 0),
+        ("", "req, res, process", "fetch", 0),
+        ("const fetch = custom;", "req, res", "fetch", 0),
+    ],
+)
+def test_typescript_http_source_and_sink_bindings(
+    tmp_path: Path, setup: str, parameters: str, sink: str, expected: int
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express"; let app = express();\n'
+        + setup
+        + f'\napp.post("/data", async ({parameters}) => {{\n'
+        "const token = req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        f'return {sink}("https://api.example.com", '
+        "{headers: {Authorization: token}});\n"
+        "});\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
+
+
+def test_typescript_imported_http_handler(tmp_path: Path) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express"; import { handle } from "./barrel.js";\n'
+        'const app = express(); app.post("/data", handle);\n',
+        encoding="utf-8",
+    )
+    (root / "barrel.ts").write_text(
+        'export { handler as handle } from "./handler.js";\n', encoding="utf-8"
+    )
+    (root / "handler.ts").write_text(
+        "export async function handler(req, res) {\n"
+        "const token = req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        'return fetch("https://api.example.com", {headers:{Authorization:token}});\n'
+        "}\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+
+
+def test_typescript_tool_input_does_not_establish_http_authority(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'const server = new McpServer({name:"owner",version:"1"});\n'
+        'server.registerTool("fetch", {inputSchema:{token:z.string()}}, '
+        "async ({token}) => {\n"
+        'return fetch("https://api.example.com", '
+        "{headers:{Authorization:token || process.env.OPERATOR_TOKEN}});\n"
+        "});\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
 @pytest.mark.parametrize("client", ["Jira", "Confluence"])
 @pytest.mark.parametrize(
     ("argument", "guard", "expected"),

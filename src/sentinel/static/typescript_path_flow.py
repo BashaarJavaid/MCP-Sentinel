@@ -8,10 +8,12 @@ from typing import Any
 
 from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
+from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
 from sentinel.static.path_flow import Value, _key, combine
 from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import (
+    TypeScriptBinding,
     TypeScriptProgram,
     TypeScriptSymbol,
     name_of,
@@ -220,6 +222,8 @@ class TypeScriptPathFlow:
             value = self.expression(file, test, env)
             branches = []
             for branch, truth in ((left, True), (right, False)):
+                if self.condition(value)[int(truth)] is None:
+                    continue
                 local = env.copy()
                 self.guard(value, local, truth)
                 if branch is None or self.statement(file, branch, local, returned):
@@ -331,6 +335,8 @@ class TypeScriptPathFlow:
             condition = self.expression(file, test, env)
             values = []
             for branch, truth in ((left, True), (right, False)):
+                if self.condition(condition)[int(truth)] is None:
+                    continue
                 local = env.copy()
                 self.guard(condition, local, truth)
                 values.append(self.expression(file, branch, local))
@@ -710,9 +716,10 @@ def analyze(
     state: RuleRunState,
     *,
     flow: TypeScriptPathFlow | None = None,
+    entries: tuple[TypeScriptBinding | TypeScriptHTTPBinding, ...] | None = None,
 ) -> None:
     flow = flow or TypeScriptPathFlow(program, state)
-    for tool in program.tools():
+    for tool in program.tools() if entries is None else entries:
         location = source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)
         handler = tool.handler
@@ -728,7 +735,15 @@ def analyze(
         )
         args = [
             Value(
-                sources=frozenset({str(index)}) if index == 0 else frozenset(),
+                sources=frozenset(
+                    {
+                        "http:request"
+                        if isinstance(tool, TypeScriptHTTPBinding)
+                        else str(index)
+                    }
+                )
+                if index == 0
+                else frozenset(),
                 key=f"{handler.file.relative_path}:{location}:{index}",
                 locations=frozenset(
                     {(tool.registration.file.relative_path, location.start_line)}

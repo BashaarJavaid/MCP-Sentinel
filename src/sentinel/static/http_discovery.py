@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ast
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from sentinel.static.ast_utils import (
     import_aliases,
@@ -13,6 +14,57 @@ from sentinel.static.ast_utils import (
 )
 from sentinel.static.discovery import Function, PythonProgram, Symbol
 from sentinel.static.execution import check_deadline
+
+if TYPE_CHECKING:
+    from sentinel.static.typescript_discovery import TypeScriptProgram, TypeScriptSymbol
+
+
+@dataclass(frozen=True)
+class TypeScriptHTTPBinding:
+    registration: TypeScriptSymbol
+    handler: TypeScriptSymbol | None
+
+
+def typescript_handlers(
+    program: TypeScriptProgram,
+) -> tuple[TypeScriptHTTPBinding, ...]:
+    """Explicit module-level Express routes, using the existing module resolver."""
+    from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
+
+    found = []
+    for path, tree in program.trees.items():
+        file = program.files[path]
+        for statement in tree["Pr"]:
+            check_deadline(program.deadline)
+            expression = statement.get("ExprStmt", [None])[0]
+            if not isinstance(expression, dict) or "Call" not in expression:
+                continue
+            callee, arguments = expression["Call"]
+            name = name_of(callee) or ""
+            receiver, _, method = name.rpartition(".")
+            if method not in {"get", "post", "put", "patch", "delete", "head", "all"}:
+                continue
+            app = program.resolve(file, receiver)
+            if app is None or "Call" not in app.node:
+                continue
+            constructor = program.resolve_node(app.file, app.node["Call"][0])
+            if constructor is None or constructor.external not in {
+                "express.default",
+                "express.Router",
+                "express.default.Router",
+            }:
+                continue
+            args = arguments[1]
+            if len(args) != 2 or any("Arg" not in arg for arg in args):
+                program.unresolved(file, "HTTP route middleware sequence or arguments")
+                continue
+            found.append(
+                TypeScriptHTTPBinding(
+                    TypeScriptSymbol(file, expression),
+                    program.resolve_node(file, args[1]["Arg"]),
+                )
+            )
+    return tuple(found)
 
 
 @dataclass(frozen=True)

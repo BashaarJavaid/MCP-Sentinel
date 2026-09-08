@@ -362,7 +362,7 @@ human acceptance remain separate Phase 22 gates.
 - **OWASP:** ASI03:2026 — Identity & Privilege Abuse. A request without caller
   credentials can inherit the server operator's authority at an outbound service.
 - **Impact:** High; theoretical likelihood produces initial Medium severity.
-- **Engine:** Python source flow from registered HTTP handlers to supported
+- **Engine:** Python and TypeScript source flow from registered HTTP handlers to supported
   requests/httpx credential arguments and source-bound Jira/Confluence token or
   password constructor arguments, including caller headers obtained through
   the source-established SDK HTTP request getter.
@@ -383,6 +383,15 @@ It distinguishes caller-token rejection from checks of unrelated values and
 values replaced after validation. Dictionary member writes, copies and helper
 mutations retain the relevant credential selection. A local stdio tool's use of
 its owner's credentials alone does not establish an HTTP caller boundary.
+
+TypeScript follows explicit module-level Express route registrations, including
+imported handlers and re-exports, into global `fetch`, `node-fetch`, and
+`undici.fetch` credential headers. It tracks `process.env` fallback selected by
+`||`, `??`, or an enforced absent-token branch, and checks the actual caller
+value when rejection returns or throws. Rebound application, environment and
+request bindings remain unresolved. Middleware sequences, nested application
+factories and ContextVar-style lifecycle relationships require further support;
+the direct route tests do not establish those conditions.
 
 ```python
 token = request.headers.get("Authorization")

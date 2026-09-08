@@ -534,6 +534,10 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
             context.typescript_program,
             state,
             flow=TypeScriptURLFlow(context.typescript_program, state),
+            entries=(
+                *context.typescript_program.tools(),
+                *context.typescript_http_handlers,
+            ),
         )
 
 

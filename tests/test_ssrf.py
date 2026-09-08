@@ -40,6 +40,45 @@ CHECK = """parsed = urlparse(url)
 
 
 @pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("", 1),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error();',
+            0,
+        ),
+        (
+            'const u = new URL(req.query.other); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error();',
+            1,
+        ),
+    ],
+)
+def test_typescript_http_url_boundary(
+    tmp_path: Path, guard: str, expected: int
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express"; const app = express();\n'
+        'app.get("/image", async (req, res) => {\n'
+        "const url = req.query.url;\n" + guard + "\nreturn fetch(url);\n});\n",
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-015"]}
+    )
+    assert (
+        len(run_static_scan(configuration, uuid4(), timestamp=NOW).findings) == expected
+    )
+
+
+@pytest.mark.parametrize(
     ("condition", "replace_value", "expected", "expected_calls"),
     [
         ("allowed(url)", False, 0, ["allowed"]),
