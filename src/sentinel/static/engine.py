@@ -386,6 +386,13 @@ def _finding_from_match(
             else definition.description
         )
         + (
+            " With the source-selected mobilecli executable, the recording "
+            "command writes the caller-controlled --output path. Executable "
+            "overrides require separate verification."
+            if match.captures.get("cli_output") == "mobilecli screenrecord --output"
+            else ""
+        )
+        + (
             f" Tool input reaches {match.captures['execution_sinks']} "
             "through a same-file helper."
             if "execution_sinks" in match.captures

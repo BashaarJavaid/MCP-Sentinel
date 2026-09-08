@@ -695,3 +695,161 @@ def test_while_return_and_zero_iteration_guards(
     tmp_path: Path, body: str, expected: int
 ) -> None:
     test_enforced_relevant_containment(tmp_path, body, expected)
+
+
+@pytest.mark.parametrize(
+    ("binary", "command", "setup", "expected"),
+    [
+        ('"mobilecli"', '"screenrecord"', "", 1),
+        (
+            'path.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${process.platform}-${process.arch}`)",
+            '"screenrecord"',
+            "",
+            1,
+        ),
+        (
+            'unknown.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${process.platform}-${process.arch}`)",
+            '"screenrecord"',
+            "",
+            0,
+        ),
+        (
+            'path.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${args.binary}`)",
+            '"screenrecord"',
+            "",
+            0,
+        ),
+        ('["mobilecli"]', '"screenrecord"', "", 0),
+        ('"unrelated"', '"screenrecord"', "", 0),
+        ('"mobilecli"', '"devices"', "", 0),
+        ("args.binary", '"screenrecord"', "", 0),
+        ('"mobilecli"', '"screenrecord"', "cp.spawn = unknown;", 0),
+        ('"mobilecli"', '"screenrecord"', 'output = "/srv/fixed.mp4";', 0),
+        (
+            '"mobilecli"',
+            '"screenrecord"',
+            'const base = fs.realpathSync("/srv/data"); '
+            "output = fs.realpathSync(output); "
+            "if (!output.startsWith(base + path.sep)) throw new Error();",
+            0,
+        ),
+        (
+            '"mobilecli"',
+            '"screenrecord"',
+            'const base = fs.realpathSync("/srv/data"); '
+            "const other = fs.realpathSync(args.other); "
+            "if (!other.startsWith(base + path.sep)) throw new Error();",
+            1,
+        ),
+    ],
+)
+def test_mobile_recording_requires_actual_executable_and_output_flow(
+    tmp_path: Path, binary: str, command: str, setup: str, expected: int
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import cp from "node:child_process"; import fs from "node:fs"; '
+        'import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("record", {inputSchema:{output:z.string()}}, args => {'
+        "let output = args.output; "
+        + setup
+        + " const argv = ["
+        + command
+        + ', "--device", args.device, "--output", output, "--silent"]; '
+        'if (args.duration) argv.push("--time-limit", String(args.duration)); '
+        "return cp.spawn(" + binary + ", argv);});\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert bool(state.matches) is bool(expected)
+    assert all(
+        m.captures.get("cli_output") == "mobilecli screenrecord --output"
+        for m in state.matches
+    )
+
+
+@pytest.mark.parametrize(
+    ("setup", "physical"),
+    [
+        ('if (input) check(input); const output = input || "/srv/data/fixed";', True),
+        ('if (other) check(input); const output = input || "/srv/data/fixed";', False),
+        ('if (input) check(other); const output = input || "/srv/data/fixed";', False),
+        (
+            "if (input) check(input); input = other; "
+            'const output = input || "/srv/data/fixed";',
+            False,
+        ),
+        ("if (input) check(input); const output = other || input;", False),
+    ],
+)
+def test_optional_path_guard_only_protects_its_truthy_returned_value(
+    tmp_path: Path, setup: str, physical: bool
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        "function check(input) { const target = path.resolve(input); "
+        'const relative = path.relative(path.resolve("/srv/data"), target); '
+        'if (path.isAbsolute(relative) || relative.startsWith("..")) throw Error(); }\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("write", {}, ({input, other}) => { '
+        + setup
+        + ' fs.writeFileSync(output, "data"); });\n'
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (state.matches[0].captures.get("containment_gap") == "physical") is physical
+
+
+@pytest.mark.parametrize(
+    ("argv", "expected"),
+    [
+        ('["screenrecord", "--device", "--output", "--output", args.output]', True),
+        ('["screenrecord", "--output", args.output, "--output", "/fixed"]', False),
+        ('["screenrecord", "--unknown", args.output, "--output", args.output]', False),
+        ('["screenrecord", "--device", args.output]', False),
+    ],
+)
+def test_recording_output_is_an_option_value_not_a_matching_token(
+    tmp_path: Path, argv: str, expected: bool
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {spawn} from "node:child_process";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("record", {}, args => spawn("mobilecli", ' + argv + "));"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert bool(state.matches) is expected
+    if '"--unknown"' in argv or '", "/fixed"' in argv:
+        assert any("unresolved" in warning.message for warning in state.warnings)

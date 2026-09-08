@@ -180,6 +180,93 @@ def test_python_git_reference_option_position(
             'args.ref = other; return cp.execFileSync("git", ["show", args.ref]);',
             1,
         ),
+        ('const args = ["show", ref]; return cp.spawn("git", args);', 1),
+        ('const args = ["show"]; args.push(ref); return cp.spawn("git", args);', 1),
+        (
+            'const args = ["show"]; const alias = args; alias.push(ref); '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show"]; function add(a) { a.push(ref); } '
+            'add(args); return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show"]; if (other) args.push(ref); '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show", "--"]; args.push(ref); '
+            'return cp.spawn("git", args);',
+            0,
+        ),
+        (
+            'const args = ["show"]; if (other) args.push("--"); '
+            'args.push(ref); return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show", "--", ref]; const copy = args.slice(); '
+            'return cp.spawn("git", copy);',
+            0,
+        ),
+        (
+            'const args = ["show"]; const copy = args.slice(); copy.push(ref); '
+            'return cp.spawn("git", args);',
+            0,
+        ),
+        (
+            'const args = ["show"]; const copy = args.slice(); copy.push(ref); '
+            'return cp.spawn("git", copy);',
+            1,
+        ),
+        (
+            'const args = ["show", "--", ref]; unknown(args); '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show", "--", ref]; args[1] = other; '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show", "fixed"]; args[1] = ref; '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show"]; args.push(ref); const object = {args}; '
+            'unknown(object); return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show"]; args.push = unknown; args.push(ref); '
+            'return cp.spawn("git", args);',
+            0,
+        ),
+        (
+            'const args = ["show", ref]; const repo = simpleGit(); '
+            "return repo.raw(args);",
+            1,
+        ),
+        (
+            'const args = ["show", "fixed"]; const alias = args; alias[1] = ref; '
+            'return cp.spawn("git", args);',
+            1,
+        ),
+        (
+            'const args = ["show", "--", ref]; unknown(args); '
+            "const repo = simpleGit(); return repo.raw(args);",
+            1,
+        ),
+        (
+            'const args = ["--"]; args.push(ref); unknown(args); '
+            "const repo = simpleGit(); return repo.diff(args);",
+            1,
+        ),
         ("const repo = simpleGit(); return repo.diff([ref]);", 1),
         ('const repo = simpleGit(); return repo.diff(["--", ref]);', 0),
     ],

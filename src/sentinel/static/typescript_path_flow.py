@@ -39,6 +39,7 @@ def common_facts(values: Sequence[Facts]) -> Facts:
 
 class TypeScriptPathFlow:
     rule_id = "SENT-012"
+    state_prefixes = ("#instance:", "#array:", "#conditional:")
 
     def __init__(self, program: TypeScriptProgram, state: RuleRunState) -> None:
         self.program, self.state = program, state
@@ -70,6 +71,11 @@ class TypeScriptPathFlow:
         self.lexical_this: set[str] = set()
         self.receivers: dict[int, Value] = {}
         self.call_values: dict[int, Value] | None = None
+        self.arrays: set[str] = set()
+        self.array_states: dict[str, tuple[tuple[Value, ...], ...]] = {}
+        self.string_literals: dict[str, str] = {}
+        self.mobilecli_paths: set[str] = set()
+        self.string_prefixes: dict[str, str] = {}
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -86,8 +92,14 @@ class TypeScriptPathFlow:
     def condition(self, value: Value) -> tuple[Facts, Facts]:
         return self.conditions.get(value.key, (frozenset(), frozenset()))
 
-    def combined(self, values: list[Value]) -> Value:
-        result = combine(values)
+    def combined(self, values: list[Value], key: str = "") -> Value:
+        result = combine(values, key)
+        if values and all(value.key in self.array_states for value in values):
+            result = self.array_state(
+                tuple(items for v in values for items in self.array_states[v.key])
+            )
+        if any(value.key in self.mobilecli_paths for value in values):
+            self.mobilecli_paths.add(result.key)
         if result.sources:
             self.origins[result.key] = frozenset().union(
                 *(
@@ -119,6 +131,46 @@ class TypeScriptPathFlow:
                 common_facts([self.condition(value)[1] for value in values]),
             )
         return result
+
+    def array_state(self, variants: tuple[tuple[Value, ...], ...]) -> Value:
+        variants = tuple(dict.fromkeys(variants))
+        result = combine(
+            [value for items in variants for value in items],
+            _key("array-state", repr(variants)),
+        )
+        # ponytail: cap branch alternatives; larger arrays remain unresolved.
+        if len(variants) <= 32 and all(len(items) <= 256 for items in variants):
+            self.array_states[result.key] = variants
+        return result
+
+    def array_items(
+        self, value: Value, env: dict[str, Value]
+    ) -> tuple[tuple[Value, ...], ...] | None:
+        if value.key in self.invalidated_objects:
+            return None
+        return self.array_states.get(env.get("#array:" + value.key, Value()).key)
+
+    def array_value(
+        self,
+        file: TypeScriptSourceFile,
+        node: Any,
+        variants: tuple[tuple[Value, ...], ...],
+        env: dict[str, Value],
+    ) -> Value:
+        state = self.array_state(variants)
+        value = self.combined(
+            [value for items in variants for value in items],
+            key=_key(
+                "array",
+                file.relative_path,
+                str(source_range(node, file)),
+                *(str(source_range(call.node, call.file)) for call in self.call_sites),
+            ),
+        )
+        self.arrays.add(value.key)
+        self.mobilecli_paths.discard(value.key)
+        env["#array:" + value.key] = state
+        return value
 
     def warning(self, file: TypeScriptSourceFile, node: Any, reason: str) -> None:
         location = source_range(node, file)
@@ -187,7 +239,7 @@ class TypeScriptPathFlow:
                         {
                             key: value
                             for key, value in exit.items()
-                            if key.startswith("#instance:")
+                            if key.startswith(self.state_prefixes)
                         }
                         for exit in exits
                     ],
@@ -298,6 +350,7 @@ class TypeScriptPathFlow:
             test = condition.get("Cond", condition)
             value = self.expression(file, test, env)
             branches = []
+            conditional_facts: list[Facts] = [None, None]
             for branch, truth in ((left, True), (right, False)):
                 if self.condition(value)[int(truth)] is None:
                     continue
@@ -305,9 +358,21 @@ class TypeScriptPathFlow:
                 self.guard(value, local, truth)
                 if branch is None or self.statement(file, branch, local, returned):
                     branches.append(local)
+                    conditional_facts[int(truth)] = self.enforced(local)
             if not branches:
                 return False
             self.merge(env, branches)
+            if value.sources and any(
+                facts and facts - self.enforced(env) for facts in conditional_facts
+            ):
+                marker = Value(
+                    key=_key("conditional", value.key, repr(conditional_facts))
+                )
+                self.conditions[marker.key] = (
+                    conditional_facts[0],
+                    conditional_facts[1],
+                )
+                env["#conditional:" + value.key] = marker
         elif "Try" in node:
             _, body, handlers, otherwise, final = node["Try"]
             branches, final_states = [], []
@@ -453,7 +518,9 @@ class TypeScriptPathFlow:
                     local,
                 )
                 env.update(
-                    (k, v) for k, v in local.items() if k.startswith("#instance:")
+                    (k, v)
+                    for k, v in local.items()
+                    if k.startswith(self.state_prefixes)
                 )
                 env[self.instance_marker(value, name)] = initialized
 
@@ -483,6 +550,12 @@ class TypeScriptPathFlow:
             return Value()
         if "L" in node:
             result = Value(key=json.dumps(node["L"], sort_keys=True))
+            literal = self.program.literal(TypeScriptSymbol(file, node))
+            if isinstance(literal, str):
+                self.string_literals[result.key] = literal
+                self.string_prefixes[result.key] = literal
+                if literal == "mobilecli":
+                    self.mobilecli_paths.add(result.key)
             boolean = node["L"].get("Bool")
             if boolean:
                 self.conditions[result.key] = (
@@ -510,7 +583,7 @@ class TypeScriptPathFlow:
                         self.global_members.update(
                             (k, v)
                             for k, v in local.items()
-                            if k.startswith("#instance:")
+                            if k.startswith(self.state_prefixes)
                         )
             pending = [self.globals[key]]
             seen: set[str] = set()
@@ -519,6 +592,10 @@ class TypeScriptPathFlow:
                 if value.key in seen:
                     continue
                 seen.add(value.key)
+                if value.key in self.arrays:
+                    marker = "#array:" + value.key
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
                 for field in tuple(self.instance_fields.get(value.key, ())):
                     marker = self.instance_marker(value, field)
                     if marker in self.global_members:
@@ -544,9 +621,12 @@ class TypeScriptPathFlow:
         if "Cast" in node:
             return self.expression(file, node["Cast"][2], env)
         if "Container" in node:
-            return self.combined(
-                [self.expression(file, item, env) for item in node["Container"][1][1]]
+            items = tuple(
+                self.expression(file, item, env) for item in node["Container"][1][1]
             )
+            if node["Container"][0] == "Array":
+                return self.array_value(file, node, (items,), env)
+            return self.combined(list(items))
         if "Conditional" in node:
             test, left, right = node["Conditional"]
             condition = self.expression(file, test, env)
@@ -616,7 +696,7 @@ class TypeScriptPathFlow:
                     env.update(
                         (k, v)
                         for k, v in captured.items()
-                        if k.startswith("#instance:")
+                        if k.startswith(self.state_prefixes)
                     )
                 return value
         if "Lambda" in node or "FuncDef" in node:
@@ -631,6 +711,12 @@ class TypeScriptPathFlow:
             value = self.expression(file, expression, env)
             if "ArrayAccess" in target:
                 receiver = self.expression(file, target["ArrayAccess"][0], env)
+                if receiver.key in self.arrays:
+                    marker = "#array:" + receiver.key
+                    env[marker] = combine([env.get(marker, receiver), value])
+                    self.invalidated_objects.add(receiver.key)
+                    self.warning(file, target, "computed array assignment")
+                    return value
                 self.invalidated_objects.add(receiver.key)
                 self.warning(file, target, "computed member assignment")
             if "DotAccess" in target:
@@ -761,13 +847,21 @@ class TypeScriptPathFlow:
         )
         symbol = self.callables.get(callable_value.key)
         operator = callee.get("Special", [{}])[0]
+        logical_returns: list[tuple[Value, dict[str, Value]]] | None = None
         if isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
             local = env.copy()
             args = []
+            logical_returns = []
             truth = operator["Op"] == "And"
-            for item in arguments[1]:
+            for index, item in enumerate(arguments[1]):
                 value = self.call_value(file, item.get("Arg", item), local)
                 args.append(value)
+                if index == len(arguments[1]) - 1:
+                    logical_returns.append((value, local.copy()))
+                elif self.condition(value)[int(not truth)] is not None:
+                    terminal = local.copy()
+                    self.guard(value, terminal, not truth)
+                    logical_returns.append((value, terminal))
                 if self.condition(value)[int(truth)] is None:
                     break
                 self.guard(value, local, truth)
@@ -786,7 +880,11 @@ class TypeScriptPathFlow:
             self.registered(file, node, args)
             return Value()
         location = source_range(node, file)
-        result = combine(args + ([receiver] if receiver.sources else []))
+        result = combine(
+            [value for value, _ in logical_returns]
+            if logical_returns is not None
+            else args + ([receiver] if receiver.sources else [])
+        )
         result = replace(
             result,
             key=_key(file.relative_path, str(location), name, result.key),
@@ -794,6 +892,13 @@ class TypeScriptPathFlow:
             resolved=False,
             locations=result.locations | {(file.relative_path, location.start_line)},
         )
+        if logical_returns is not None:
+            tainted_returns = [(v, state) for v, state in logical_returns if v.sources]
+            if tainted_returns and all(
+                state.get("#guard:lexical:" + v.key, Value()).contained
+                for v, state in tainted_returns
+            ):
+                env["#guard:lexical:" + result.key] = Value(contained=True)
         if result.sources:
             self.origins[result.key] = frozenset().union(
                 *(
@@ -802,6 +907,89 @@ class TypeScriptPathFlow:
                     if value.sources
                 )
             )
+        if (
+            isinstance(operator, dict)
+            and operator.get("ConcatString") == "InterpolatedConcat"
+            and args
+            and not result.sources
+        ):
+            prefix = self.string_prefixes.get(args[0].key)
+            if prefix is not None:
+                self.string_prefixes[result.key] = prefix
+        if (
+            external == "path.join"
+            and len(args) >= 4
+            and [self.string_literals.get(v.key) for v in args[-4:-1]]
+            == ["@mobilenext", "mobilecli", "bin"]
+            and self.string_prefixes.get(args[-1].key, "").startswith("mobilecli-")
+            and not result.sources
+        ):
+            self.mobilecli_paths.add(result.key)
+        if (
+            external
+            in {
+                "child_process.spawn",
+                "child_process.spawnSync",
+                "child_process.execFile",
+                "child_process.execFileSync",
+            }
+            and len(args) >= 2
+            and args[0].key in self.mobilecli_paths
+            and not args[0].sources
+        ):
+            variants = self.array_items(args[1], env)
+            if variants is None:
+                self.warning(file, node, "unresolved recording argument ordering")
+            for items in variants or ():
+                if (
+                    not items
+                    or self.string_literals.get(items[0].key) != "screenrecord"
+                ):
+                    continue
+                index = 1
+                output = None
+                seen_flags: set[str] = set()
+                while index < len(items):
+                    flag = self.string_literals.get(items[index].key)
+                    if flag in seen_flags:
+                        self.warning(file, node, "repeated recording option unresolved")
+                        break
+                    if flag is not None:
+                        seen_flags.add(flag)
+                    if flag == "--silent":
+                        index += 1
+                    elif flag in {
+                        "--device",
+                        "--output",
+                        "--time-limit",
+                    } and index + 1 < len(items):
+                        if flag == "--output":
+                            output = items[index + 1]
+                        index += 2
+                    else:
+                        self.warning(file, node, "unresolved recording option position")
+                        break
+                else:
+                    if output is not None:
+                        self.path_sink(
+                            file,
+                            node,
+                            env,
+                            output,
+                            name,
+                            cli_output="mobilecli screenrecord --output",
+                        )
+            return result
+        if receiver.key in self.arrays:
+            variants = self.array_items(receiver, env)
+            method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+            if variants is not None and method == "push":
+                env["#array:" + receiver.key] = self.array_state(
+                    tuple((*items, *args) for items in variants)
+                )
+                return Value()
+            if variants is not None and method == "slice" and not args:
+                return self.array_value(file, node, variants, env)
         if external in {
             "fs.realpath",
             "fs.realpathSync",
@@ -1015,42 +1203,7 @@ class TypeScriptPathFlow:
             }
             and args
         ):
-            value = args[0]
-            if self.rule_id == "SENT-012" and value.sources and not value.contained:
-                origins = self.origins.get(value.key, frozenset({value.key}))
-                prefix_locations = {
-                    location
-                    for fact, (checked, location) in self.initial_prefixes.items()
-                    if origins <= checked and env.get(fact, Value()).contained
-                }
-                self.state.matches.append(
-                    StaticMatch(
-                        rule_id="SENT-012",
-                        path=file.relative_path,
-                        range=location,
-                        snippet=self.program.text(file, node),
-                        match_kinds=("path-flow",),
-                        captures={
-                            "sink_name": name,
-                            **(
-                                {"containment_gap": "physical"}
-                                if env.get(
-                                    f"#guard:lexical:{value.key}", Value()
-                                ).contained
-                                else {"containment_gap": "after-prefix"}
-                                if prefix_locations
-                                else {}
-                            ),
-                            "flow_locations": json.dumps(
-                                sorted(
-                                    value.locations
-                                    | prefix_locations
-                                    | {(file.relative_path, location.start_line)}
-                                )
-                            ),
-                        },
-                    )
-                )
+            self.path_sink(file, node, env, args[0], name)
             return result
         if symbol and symbol.function:
             self.call_sites.append(TypeScriptSymbol(file, node))
@@ -1060,7 +1213,7 @@ class TypeScriptPathFlow:
                     **{
                         key: value
                         for key, value in env.items()
-                        if key.startswith(("#guard:", "#instance:"))
+                        if key.startswith(("#guard:", *self.state_prefixes))
                     },
                 }
                 if callable_value.key not in self.lexical_this:
@@ -1075,7 +1228,9 @@ class TypeScriptPathFlow:
                     captured,
                 )
                 env.update(
-                    (k, v) for k, v in captured.items() if k.startswith("#instance:")
+                    (k, v)
+                    for k, v in captured.items()
+                    if k.startswith(self.state_prefixes)
                 )
                 self.apply_facts(self.function_effects, env)
                 return value
@@ -1108,7 +1263,9 @@ class TypeScriptPathFlow:
                     captured.pop("this", None)
                 value = self.function(callback, [receiver, Value(), receiver], captured)
                 env.update(
-                    (k, v) for k, v in captured.items() if k.startswith("#instance:")
+                    (k, v)
+                    for k, v in captured.items()
+                    if k.startswith(self.state_prefixes)
                 )
                 method = name_of(callee["DotAccess"][2])
                 if method == "some":
@@ -1143,6 +1300,7 @@ class TypeScriptPathFlow:
                     value.key in self.objects
                     or value.key in self.instances
                     or value.key in self.classes
+                    or value.key in self.arrays
                 ):
                     self.invalidated_objects.add(value.key)
                 if value.key in self.sdk_instances:
@@ -1157,6 +1315,52 @@ class TypeScriptPathFlow:
         ):
             self.warning(file, node, f"unresolved call to {name}")
         return result
+
+    def path_sink(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        env: dict[str, Value],
+        value: Value,
+        name: str,
+        *,
+        cli_output: str = "",
+    ) -> None:
+        location = source_range(node, file)
+        if self.rule_id == "SENT-012" and value.sources and not value.contained:
+            origins = self.origins.get(value.key, frozenset({value.key}))
+            prefix_locations = {
+                location
+                for fact, (checked, location) in self.initial_prefixes.items()
+                if origins <= checked and env.get(fact, Value()).contained
+            }
+            self.state.matches.append(
+                StaticMatch(
+                    rule_id="SENT-012",
+                    path=file.relative_path,
+                    range=location,
+                    snippet=self.program.text(file, node),
+                    match_kinds=("path-flow",),
+                    captures={
+                        "sink_name": name,
+                        **({"cli_output": cli_output} if cli_output else {}),
+                        **(
+                            {"containment_gap": "physical"}
+                            if env.get(f"#guard:lexical:{value.key}", Value()).contained
+                            else {"containment_gap": "after-prefix"}
+                            if prefix_locations
+                            else {}
+                        ),
+                        "flow_locations": json.dumps(
+                            sorted(
+                                value.locations
+                                | prefix_locations
+                                | {(file.relative_path, location.start_line)}
+                            )
+                        ),
+                    },
+                )
+            )
 
     def registered(
         self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
@@ -1183,6 +1387,9 @@ class TypeScriptPathFlow:
 
     def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
         self.apply_facts(self.condition(value)[int(truth)], env)
+        conditional = env.get("#conditional:" + value.key)
+        if conditional is not None and value.key not in self.invalidated_objects:
+            self.apply_facts(self.condition(conditional)[int(truth)], env)
 
     def apply_facts(self, facts: Facts, env: dict[str, Value]) -> None:
         for fact in facts or ():

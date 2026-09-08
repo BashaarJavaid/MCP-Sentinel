@@ -452,7 +452,9 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
             for argument in arguments[1]:
                 value = self.call_value(file, argument.get("Arg", argument), env)
                 values.append(value)
-                if value.credential_present:
+                if value.credential_present or (
+                    operator["Op"] == "Or" and self.condition(value)[0] is None
+                ):
                     break
             result = combine(values)
             if any(v.sources and not v.credential_present for v in values[:-1]) and any(

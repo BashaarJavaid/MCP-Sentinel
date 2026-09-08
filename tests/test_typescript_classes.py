@@ -185,10 +185,12 @@ def test_imported_class_receiver_and_replacement(
     ],
 )
 @pytest.mark.parametrize(
-    "expression",
+    ("expression", "count"),
     [
-        "new Writer().write(args.value)",
-        "['http:', 'https:'].includes(new Writer().write(args.value))",
+        ("new Writer().write(args.value)", 1),
+        ("['http:', 'https:'].includes(new Writer().write(args.value))", 1),
+        ("false && new Writer().write(args.value)", 0),
+        ("true || new Writer().write(args.value)", 0),
     ],
 )
 def test_rule_delegation_does_not_repeat_callee_or_argument_effects(
@@ -196,6 +198,7 @@ def test_rule_delegation_does_not_repeat_callee_or_argument_effects(
     monkeypatch: pytest.MonkeyPatch,
     flow_type: type[TypeScriptPathFlow],
     expression: str,
+    count: int,
 ) -> None:
     source = (
         'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
@@ -224,4 +227,4 @@ def test_rule_delegation_does_not_repeat_callee_or_argument_effects(
 
     monkeypatch.setattr(flow, "call", call)
     analyze(program, state, flow=flow)
-    assert len(observed) == 1
+    assert len(observed) == count

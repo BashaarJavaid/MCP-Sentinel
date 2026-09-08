@@ -365,6 +365,21 @@ unknown receiver mutation remain explicit limitations. Computed writes, deletion
 and escaped receivers invalidate inferred method behavior. This source support
 does not by itself establish an external executable's command or output semantics.
 
+Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
+`slice` copies and bounded branch alternatives through included helpers. The
+interpreter retains at most 32 layouts of 256 positions; larger layouts, computed
+updates and unknown escapes do not establish argument order. Git option checks
+consume the evaluated layouts, without re-evaluating their expressions.
+
+SENT-012 recognizes the `mobilecli screenrecord --output` contract at genuine
+Node child-process calls. Executable recognition requires the literal command or
+a source-selected, caller-independent `@mobilenext/mobilecli/bin/mobilecli-...`
+package path; arbitrary methods called `spawnCommand` do not establish it.
+Unknown/repeated options remain unresolved. Findings qualify the executable
+condition. Optional guards can protect the same value when a later short-circuit
+expression returns its truthy branch; unrelated and replaced values do not inherit
+that protection. Lexical containment still leaves physical symlink uncertainty.
+
 Workspace discovery reads root uv `members`/`exclude`, npm `workspaces`, and
 pnpm `packages` declarations without invoking their package managers. Expansion
 is confined to regular directories below the scan root, observes exclusions,

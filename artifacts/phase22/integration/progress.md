@@ -760,3 +760,35 @@ the selected flow argument and are retained as diagnostics, not evidence of no
 class support. Ordered argv and executable/output semantics are still required
 before claiming mobile recording detection. Other unmet families, final audits,
 measurements, evidence packaging and consolidated draft delivery remain open.
+
+
+### Ordered TypeScript arguments and mobile recording continuation
+
+After `9f0e777`, shared array state retains aliases, helper appends, branch layouts
+and independent slice copies. SENT-014 consumes evaluated values through both
+Node process and simple-git calls. Before-failing controls cover missed variable
+argv, computed writes through an alias, escaped arrays and short-circuit effects.
+The argument-state change initially lost normalized collection facts; the retained
+broad failure has 381 passes and one containment failure. Reusing the shared
+combination logic fixes it; the subsequent broad run passes 399 tests.
+Additional short-circuit checks reproduce three failures in rule overrides and
+pass after correcting evaluation order (287 affected passes). The later focused
+run passes 217 tests, with strict mypy, Ruff and formatting checks. An additional
+before-failing executable-array control prevents a container containing a command
+name from becoming an executable identity; its targeted rerun is retained.
+
+SENT-012 recognizes only the source-selected mobilecli screenrecord output
+contract at genuine Node child-process calls, with explicit executable
+qualification and unresolved option warnings. Array limits are 32 layouts of
+256 positions. Unknown/repeated options, computed mutation and escapes cannot
+establish ordering. The same-path optional-guard controls reproduce the fixed
+repository's conditional check followed by `output || temporaryPath`, preserving
+lexical protection without inventing physical containment. The real fixed trace
+now labels both screenshot and recording candidates as physical gaps, outside the
+frozen non-symlink-parent condition. The actual vulnerable trace reaches recording
+with and without the optional time-limit flag. These are source traces; no mobile
+target/toolchain was executed. The native five-input rerun is the next check.
+
+Commands and all failures remain expanded in the integration directory for the
+next numbered evidence seal. Current source is not final technical acceptance;
+other families, final audits, complete measurements and draft delivery remain open.

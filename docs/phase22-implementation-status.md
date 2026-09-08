@@ -203,3 +203,12 @@ regression passes and whole-project style/type checks. Exact source-specific
 results, original failures and remaining requirements are in the integration
 packet. Final repeated benchmarks, unresolved conditions, paid review, hosted
 verification and consolidated draft delivery remain unfinished.
+
+
+The subsequent TypeScript recording continuation preserves ordered argv and
+recognizes the source-selected mobilecli recording output contract at the actual
+Node process sink. Traces now reach both optional time-limit layouts in the exposed
+vulnerable and fixed repositories. The fixed recording candidate distinguishes
+its lexical boundary from physical symlink uncertainty. Source-specific native
+measurement, final repeated evaluation and remaining families still require
+verification; traces and synthetic controls alone do not pass those gates.

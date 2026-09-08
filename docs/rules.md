@@ -253,6 +253,17 @@ afterward. That initial check does not establish component, parent-fallback or
 symlink safety. While loops receive zero-or-one-iteration source interpretation;
 later loop-carried state is explicitly unresolved. No target loop is executed.
 
+The TypeScript interpreter also follows the documented
+[`mobilecli screenrecord --output` contract](https://github.com/mobile-next/mobilecli/blob/main/skills/mobilecli/SKILL.md)
+through ordered arguments and included class helpers to genuine Node process
+calls. It requires a literal `mobilecli` command or a caller-independent path in
+its named npm package with the binary prefix `mobilecli-`. Findings explicitly
+qualify this source-selected executable; operator overrides and a functioning
+device/toolchain require separate verification. An arbitrary executable or an
+unresolved or repeated option sequence does not establish this contract.
+A conditional output guard is retained only for the same truthy returned value.
+These are static source findings, not observed file writes or Node runtime support.
+
 ## SENT-013 { #sent-013 }
 
 ### Tool-description poisoning
@@ -309,6 +320,10 @@ commands; they do not exempt arbitrary programs. Git documents path separation i
 
 Python flows include local helpers, nested handlers, source-established registration
 wrappers, list append/extend/insert, copying, and selector-list construction.
+TypeScript Git and simple-git calls consume the evaluated ordered array, including
+aliases, helper appends, conditional appends and zero-argument slice copies.
+Arrays are bounded to 32 layouts of 256 positions; unknown escapes and computed
+updates retain visible uncertainty and cannot establish a safe terminator.
 Unsupported indexing and dynamic binding remain conservative. The rule does not
 establish that a fixed option's value is safe for every command-specific feature.
 

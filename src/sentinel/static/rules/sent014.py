@@ -438,51 +438,59 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
                 key=_key(file.relative_path, str(source_range(node, file))),
                 repository_object=True,
             )
-        argv = None
+        argv: tuple[tuple[Value, ...], ...] | None = None
         command = None
+        process_call = external in {
+            f"child_process.{method}"
+            for method in ("execFile", "execFileSync", "spawn", "spawnSync")
+        }
+        args = (
+            [self.call_value(file, argument, env) for argument in argument_nodes]
+            if process_call or receiver.repository_object
+            else []
+        )
         if (
-            external
-            in {
-                f"child_process.{method}"
-                for method in ("execFile", "execFileSync", "spawn", "spawnSync")
-            }
-            and len(argument_nodes) >= 2
+            process_call
+            and len(args) >= 2
+            and self.string_literals.get(args[0].key) in {"git", "/usr/bin/git"}
         ):
-            executable = self.program.literal(TypeScriptSymbol(file, argument_nodes[0]))
-            if isinstance(executable, str) and executable in {"git", "/usr/bin/git"}:
-                container = argument_nodes[1].get("Container")
-                if container:
-                    argv = container[1][1]
-                    command = (
-                        self.program.literal(TypeScriptSymbol(file, argv[0]))
-                        if argv
-                        else None
-                    )
-                    argv = argv[1:]
+            argv = self.array_items(args[1], env)
+            if argv is None:
+                self.warning(file, node, "unresolved process argument ordering")
+                state = env.get("#array:" + args[1].key, args[1])
+                argv = ((Value(), replace(state, option_safe=False)),)
         elif receiver.repository_object:
             command = name.rsplit(".", 1)[-1]
-            argv = argument_nodes
-            if len(argv) == 1 and "Container" in argv[0]:
-                argv = argv[0]["Container"][1][1]
-            if command == "raw" and argv:
-                command = self.program.literal(TypeScriptSymbol(file, argv[0]))
-                argv = argv[1:]
+            argv = self.array_items(args[0], env) if len(args) == 1 else None
+            if argv is None and len(args) == 1 and args[0].key in self.arrays:
+                self.warning(file, node, "unresolved Git argument ordering")
+                state = env.get("#array:" + args[0].key, args[0])
+                unknown = replace(state, option_safe=False)
+                argv = ((Value(), unknown),) if command == "raw" else ((unknown,),)
+            elif argv is None:
+                argv = (tuple(args),)
         if argv is not None:
             unsafe = []
-            terminated = False
-            for argument in argv:
-                literal = self.program.literal(TypeScriptSymbol(file, argument))
-                if command in {
-                    "diff",
-                    "show",
-                    "log",
-                    "checkout",
-                    "rev-parse",
-                } and literal in {"--", "--end-of-options"}:
-                    terminated = True
-                value = self.call_value(file, argument, env)
-                if value.sources and not value.option_safe and not terminated:
-                    unsafe.append(value)
+            for items in argv:
+                selected_command = command
+                if command is None or command == "raw":
+                    selected_command = (
+                        self.string_literals.get(items[0].key) if items else None
+                    )
+                    items = items[1:]
+                terminated = False
+                for value in items:
+                    literal = self.string_literals.get(value.key)
+                    if selected_command in {
+                        "diff",
+                        "show",
+                        "log",
+                        "checkout",
+                        "rev-parse",
+                    } and literal in {"--", "--end-of-options"}:
+                        terminated = True
+                    if value.sources and not value.option_safe and not terminated:
+                        unsafe.append(value)
             if unsafe:
                 location = source_range(node, file)
                 locations = frozenset().union(*(v.locations for v in unsafe))
