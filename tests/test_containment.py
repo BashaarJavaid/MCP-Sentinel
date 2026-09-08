@@ -52,6 +52,32 @@ def test_repeated_helper_limit_reports_each_source_reason_once() -> None:
     assert "server.py:1" in state.warnings[0].message
 
 
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("open('/srv/fixed' if True else path)", 0),
+        ("open('/srv/fixed' if False else path)", 1),
+        ("open('/srv/fixed' if enabled else path)", 1),
+        ("open(path) if False else None", 0),
+    ],
+)
+def test_conditional_expression_only_visits_possible_branch(
+    expression: str, expected: int
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "@mcp.tool()\ndef read(path, enabled):\n    return "
+                + expression
+                + "\n"
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
+
+
 def test_configured_launch_globals_keep_transport_specific_path_evidence() -> None:
     source = (
         "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"

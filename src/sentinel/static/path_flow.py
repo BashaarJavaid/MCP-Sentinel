@@ -992,9 +992,12 @@ class PathFlow:
                     break
             return combine(values)
         if isinstance(node, ast.IfExp):
-            self.expression(symbol, node.test, env)
+            conditional_value = self.expression(symbol, node.test, env)
+            known = self.truth_value(conditional_value, env)
             branches = []
             for expression, truth in ((node.body, True), (node.orelse, False)):
+                if known is not None and known is not truth:
+                    continue
                 local = env.copy()
                 self.guard(symbol, node.test, local, truth)
                 self.narrow(symbol, node.test, local, truth)
