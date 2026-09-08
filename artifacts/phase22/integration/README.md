@@ -210,3 +210,22 @@ verify it with `evidence-v9.json`. Its exact packaging script is retained in
 `diagnostics-v9.tar.gz`. All earlier seals and coverage databases remain unchanged.
 The 331-test focused result does not replace final full-suite or benchmark gates;
 auth still exceeds the deadline and the TypeScript class implementation is open.
+
+Batch 10 retains 385 added/changed files through `2066ca7`, including Python
+branch/field corrections, all intermediate failures, the immutable `34220b7`
+four-input authentication measurement and its condition adjudication, TypeScript
+class/receiver controls and the actual mobile spawn trace. All four auth inputs
+complete, with two vulnerable condition hits and zero fixed-condition alerts;
+eight fixed nondefault candidates remain explicitly qualified. This is exposed
+source adjudication, not final repeated, held-out, reviewed or runtime evidence.
+
+Every member was read back against its SHA-256. The archive contains 50,599,629
+raw bytes in 1,941,930 compressed bytes; SHA-256:
+`d5e418d9b4ac1ef0a3a4cf63673481936336794cbe9f8e3b7ef1a83f9dab3997`.
+After verifying batch 9, extract `evidence-v10.tar.gz` and verify it against
+`evidence-v10.json` before applying any later batch. The exact packaging script
+is retained in `diagnostics-v10.tar.gz`. Earlier seals, the original handoff
+recovery packet and all detached checkouts/coverage databases remain preserved.
+The first 366-test TypeScript run overlapped formatting; the packet verifies
+identical before/after ASTs for all changed scanner/test files. Mobile recording
+output/command semantics and the rest of the authorized scope remain unfinished.
