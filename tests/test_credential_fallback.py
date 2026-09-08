@@ -731,3 +731,38 @@ def test_context_state_does_not_leak_between_handler_entries() -> None:
     flow = PathFlow(index, RuleRunState(), float("inf"))
     flow.function(first, {})
     assert flow.function(second, {}).key == "'default'"
+
+
+@pytest.mark.parametrize("reject_missing", [False, True])
+@pytest.mark.parametrize("attach", [False, True])
+def test_base_http_context_token_requires_attached_enforced_authentication(
+    tmp_path: Path, reject_missing: bool, attach: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastmcp import FastMCP\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.middleware.base import BaseHTTPMiddleware\n"
+        "from contextvars import ContextVar\nimport requests, os\n"
+        "token = ContextVar('token', default=None)\n"
+        "class Guard(BaseHTTPMiddleware):\n"
+        "    async def dispatch(self, request, call_next):\n"
+        "        credential = request.headers.get('Authorization')\n"
+        + ("        if not credential: return None\n" if reject_missing else "")
+        + "        token.set(credential)\n"
+        "        return await call_next(request)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        + ("mcp = App('test')\n" if attach else "mcp = FastMCP('test')\n")
+        + "@mcp.tool()\ndef accounts():\n"
+        "    credential = token.get() or os.getenv('OPERATOR_TOKEN')\n"
+        "    return requests.get('https://api.example.com', "
+        "params={'access_token': credential})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == (1 if attach and not reject_missing else 0)

@@ -309,6 +309,11 @@ def test_registered_asgi_middleware_state_reaches_its_tool(
         ("return", "    requests.get(url)\n    get_http_request()\n", 1),
         ("await self.app(scope, receive, send)", "    get_http_request()\n", 1),
         (
+            "await unknown(lambda: self.app(scope, receive, send))",
+            "    get_http_request()\n",
+            1,
+        ),
+        (
             "await unknown(self.app, scope, receive, send)",
             "    get_http_request()\n",
             1,
@@ -1197,3 +1202,57 @@ def test_python_composed_url_authority(
     state = RuleRunState()
     analyze_python(index, state, flow=URLFlow(index, state, time.monotonic() + 10))
     assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        (
+            "request.state.url = request.headers.get('X-URL')\n"
+            "return await call_next(request)",
+            1,
+        ),
+        (
+            "request.state.url = 'https://images.example.com/fixed'\n"
+            "return await call_next(request)",
+            0,
+        ),
+        ("return None", 0),
+        ("call_next = unknown\nreturn await call_next(request)", 1),
+        ("return await unknown(call_next, request)", 1),
+    ],
+)
+@pytest.mark.parametrize("custom_call", [False, True])
+@pytest.mark.parametrize(
+    "replacement", ["", "Guard.dispatch = unknown", "unknown(Guard)"]
+)
+def test_base_http_dispatch_continuation_and_replacement(
+    tmp_path: Path, body: str, expected: int, custom_call: bool, replacement: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.middleware.base import BaseHTTPMiddleware\n"
+        "import requests\n"
+        "class Guard(BaseHTTPMiddleware):\n"
+        "    async def dispatch(self, request, call_next):\n        "
+        + body.replace("\n", "\n        ")
+        + "\n"
+        + (
+            "    async def __call__(self, scope, receive, send):\n"
+            "        return await unknown(scope, receive, send)\n"
+            if custom_call
+            else ""
+        )
+        + replacement
+        + "\n"
+        + "class App(FastMCP):\n"
+        "    def http_app(self, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "mcp=App('test')\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (1 if custom_call or replacement else expected)

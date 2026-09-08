@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 from typing import TYPE_CHECKING
 
-from sentinel.static.ast_utils import qualified_name
+from sentinel.static.ast_utils import qualified_name, scope_nodes
 from sentinel.static.discovery import Function, Symbol, ToolBinding
 from sentinel.static.execution import check_deadline
 from sentinel.static.lifespan import tool_servers
@@ -23,6 +23,8 @@ class HTTPContext:
         self.layers: dict[str, tuple[Value, dict[str, Value], Symbol]] = {}
         self.sequences: dict[str, tuple[Value, ...]] = {}
         self.applications: dict[str, tuple[Value, ...]] = {}
+        self.base_requests: set[ast.Call] = set()
+        self.base_next_calls: set[ast.Call] = set()
         self.continuation: ast.FunctionDef | None = None
         self.states: list[dict[str, Value]] = []
         self.preparing = False
@@ -77,6 +79,8 @@ class HTTPContext:
         if not self.preparing:
             return None
         flow = self.flow
+        if node in self.base_requests:
+            return self.request(args[0], env)
         if (
             external == "starlette.middleware.Middleware"
             and flow.program.external(symbol, node.func) == external
@@ -147,6 +151,9 @@ class HTTPContext:
     ) -> None:
         if not self.preparing or self.continuation is None:
             return
+        if node in self.base_next_calls:
+            self.incomplete = True
+            return
         pending = list(values)
         seen: set[str] = set()
         while pending:
@@ -167,8 +174,130 @@ class HTTPContext:
                 for key in self.flow.members.get(value.key, {}).values()
                 if key in env
             )
+            pending.extend(self.flow.closures.get(value.key, {}).values())
             if value.key in self.flow.bound_receivers:
                 pending.append(self.flow.bound_receivers[value.key])
+
+    def base_http_layer(self, factory: Value, next_value: Value) -> Value | None:
+        """Lower the genuine BaseHTTPMiddleware pre-continuation dispatch contract."""
+        flow = self.flow
+        owner = flow.callables.get(factory.key)
+        if owner is None or not isinstance(owner.node, ast.ClassDef):
+            return None
+        order = flow.program.method_order(owner)
+        if order is None or order[-1] != "starlette.middleware.base.BaseHTTPMiddleware":
+            return None
+        classes = {parent.node for parent in order if isinstance(parent, Symbol)}
+        for file in flow.program.files:
+            for node in ast.walk(file.tree):
+                check_deadline(flow.deadline)
+                values = (
+                    [node.value]
+                    if isinstance(node, ast.Attribute)
+                    and isinstance(node.ctx, (ast.Store, ast.Del))
+                    else [*node.args, *(kw.value for kw in node.keywords)]
+                    if isinstance(node, ast.Call)
+                    else []
+                )
+                context = Symbol(file, "middleware mutation", node)
+                if (
+                    isinstance(node, ast.Call)
+                    and flow.program.external(context, node.func)
+                    == "starlette.middleware.Middleware"
+                ):
+                    continue
+                if any(
+                    resolved is not None and resolved.node in classes
+                    for value in values
+                    for resolved in [
+                        flow.program.resolve_in(context, qualified_name(value) or "")
+                    ]
+                ):
+                    flow.unresolved(
+                        context, node, "replaced or escaped HTTP middleware"
+                    )
+                    return None
+        hooks = {
+            "__init__",
+            "__new__",
+            "__call__",
+            "__getattr__",
+            "__getattribute__",
+            "__setattr__",
+            "dispatch_func",
+        }
+        for parent in order[:-1]:
+            if not isinstance(parent, Symbol) or not isinstance(
+                parent.node, ast.ClassDef
+            ):
+                return None
+            if parent.node.decorator_list or any(
+                (isinstance(part, Function) and part.name in hooks)
+                or (
+                    isinstance(part, ast.Name)
+                    and isinstance(part.ctx, ast.Store)
+                    and part.id in hooks
+                )
+                for part in scope_nodes(parent.node)
+            ):
+                return None
+        dispatch = flow.program.instance_method(owner, "dispatch")
+        if (
+            dispatch is None
+            or not isinstance(dispatch.node, Function)
+            or dispatch.node.decorator_list
+        ):
+            return None
+        parameters = dispatch.node.args
+        if (
+            len(parameters.args) != 3
+            or parameters.posonlyargs
+            or parameters.vararg
+            or parameters.kwarg
+            or parameters.kwonlyargs
+        ):
+            return None
+        instance = Value(
+            key=_key("base-http-instance", factory.key, next_value.key),
+            instance=(owner.file.relative_path, owner.name),
+        )
+        method = Value(key=_key(instance.key, "dispatch"))
+        flow.record_keys.add(instance.key)
+        flow.callables[method.key] = dispatch
+        flow.bound_receivers[method.key] = instance
+        # This adapter is scanner-owned syntax, never imported or executed target code.
+        wrapper = ast.parse(
+            "async def base_http(scope, receive, send):\n"
+            "    request = source_request(scope)\n"
+            "    async def call_next(request):\n"
+            "        return await next_layer(scope, receive, send)\n"
+            "    return await dispatch(request, call_next)\n"
+        ).body[0]
+        assert isinstance(wrapper, ast.AsyncFunctionDef)
+        flow.program.parents.update(
+            (child, parent)
+            for parent in ast.walk(wrapper)
+            for child in ast.iter_child_nodes(parent)
+        )
+        for part in ast.walk(wrapper):
+            if (
+                isinstance(part, ast.Call)
+                and isinstance(part.func, ast.Name)
+                and part.func.id == "source_request"
+            ):
+                self.base_requests.add(part)
+        self.base_next_calls.update(
+            part
+            for part in ast.walk(dispatch.node)
+            if isinstance(part, ast.Call)
+            and isinstance(part.func, ast.Name)
+            and part.func.id == parameters.args[2].arg
+        )
+        value = Value(key=_key(instance.key, "asgi-adapter"))
+        flow.callables[value.key] = Symbol(dispatch.file, "base_http", wrapper)
+        flow.closures[value.key] = {"dispatch": method, "next_layer": next_value}
+        self.next_keys.add(value.key)
+        return value
 
     def application_method(self, root: Symbol) -> tuple[Symbol, Symbol] | None:
         check_deadline(self.flow.deadline)
@@ -305,6 +434,12 @@ class HTTPContext:
                 if "#member:unknown:" + layer.key in env:
                     return None
                 factory, options, registration = self.layers[layer.key]
+                adapted = (
+                    self.base_http_layer(factory, next_value) if not options else None
+                )
+                if adapted is not None:
+                    next_value = adapted
+                    continue
                 env.update({"#http-factory": factory, "#http-next": next_value})
                 names = {
                     f"#http-option:{name}": value for name, value in options.items()

@@ -421,8 +421,13 @@ forwarding and unresolved middleware sequences do not establish protection.
 An uninvoked source helper is not evidence that an application was mutated.
 The separate path without an HTTP request retains stdio findings and exception
 fallbacks; HTTP middleware cannot remove an earlier reachable stdio sink.
-Dynamic provider patching, BaseHTTPMiddleware dispatch and general external
-middleware behavior remain unsupported by this connection.
+Genuine Starlette `BaseHTTPMiddleware` subclasses can supply a source-defined
+`dispatch(self, request, call_next)` through the same attached middleware sequence.
+The scanner interprets state before `call_next` and explicit refusal; it does not
+execute the framework or assume downstream task changes propagate back upstream.
+Custom construction/call/attribute hooks, replaced or escaped middleware classes,
+and unknown continuation forwarding cannot establish protection. Dynamic provider
+patching and general external middleware behavior remain unsupported.
 Known-field builtin `setattr` on the established Starlette state wrapper updates
 that state without escaping the assigned service object. Unknown fields, replaced
 setters and arbitrary object setters do not establish this contract.
