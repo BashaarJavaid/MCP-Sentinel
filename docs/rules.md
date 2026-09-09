@@ -335,6 +335,10 @@ Arrays are bounded to 32 layouts of 256 positions; unknown escapes and computed
 updates retain visible uncertainty and cannot establish a safe terminator.
 Unsupported indexing and dynamic binding remain conservative. The rule does not
 establish that a fixed option's value is safe for every command-specific feature.
+The current Git terminator model covers `diff`, `show`, `log`, `checkout` and
+`rev-parse`. It retains a known false alarm for `git add --`, whose separator is
+defined by the [Git add reference](https://git-scm.com/docs/git-add), and conservative
+candidates for date/commit filter values; these require separate source review.
 
 ```python
 # Vulnerable: caller text can become additional dbt options.
