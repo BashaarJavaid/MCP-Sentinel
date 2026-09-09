@@ -42,8 +42,11 @@ verification evidence; the unperformed full reviewed comparison is deferred, not
 passed. See `artifacts/phase22/completion-scope-v1/decision.json`. Phase 21 remains
 incomplete. Author-run evidence does not establish external validation. Resume
 pilots when feasible; Phase 24 adoption and Phase 15 launch gates remain unchanged.
-The known replacement detection gap and final technical acceptance remain for
-user disposition after the audit.
+After the completed audit, the user authorized bounded offline investigation and
+a fix for the replacement detection gap. The five replacement cases are now
+exposed regressions; their original frozen measurements remain unchanged. See
+`artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
+Final technical acceptance remains pending.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.

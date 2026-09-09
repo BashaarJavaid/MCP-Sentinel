@@ -372,6 +372,13 @@ executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
 shares the existing 120-second static deadline, and malformed source remains a
 target error. This extension introduces no parser dependency or language target.
 
+Factory registration follows `registerTool` and the legacy
+`tool(name, schema, handler)` / `tool(name, description, schema, handler)` forms
+when the existing Zod reader recognizes the schema. These callbacks retain their
+captured source helpers. Other legacy layouts remain unresolved, including
+annotation overloads and unknown schemas. Computed names remain unresolved;
+following a callback does not establish the binding of an injected runtime service.
+
 Included plain TypeScript classes retain instance/static method receivers,
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an

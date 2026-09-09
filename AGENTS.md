@@ -103,8 +103,11 @@ prerequisite and deferred the full paid benchmark for cost; see
 `artifacts/phase22/completion-scope-v1/decision.json`. Assess current technical
 completion using deterministic/replay, isolated runtime and technical checks,
 without claiming full reviewed accuracy or external validation. The known
-replacement detection gap and final technical acceptance await user disposition;
-do not tune that gap before returning the completed audit to the user.
+replacement detection gap was returned after the completed audit; the user then
+authorized bounded offline investigation and a fix. The five replacement cases
+are now exposed regressions; preserve their first frozen results. See
+`artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
+Final technical acceptance remains pending; further paid calls need approval.
 Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
 unchanged; see `ROADMAP.md` §1 for the scope exception.
 

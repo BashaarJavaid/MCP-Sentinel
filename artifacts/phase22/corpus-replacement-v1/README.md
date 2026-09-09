@@ -1,10 +1,16 @@
-# Approved replacement SSRF holdout
+# Approved replacement SSRF corpus
+
+After the completed audit, the user authorized bounded offline investigation and
+a fix. `exposure-and-fix-authorization.json` records the five cases becoming
+**exposed regressions**. The [follow-up](../../../docs/phase22-ssrf-follow-up.md)
+distinguishes the registration correction from the remaining measured gap.
+The proposal and first-measurement narrative below describe their earlier states.
 
 The user approved the recommended freeze. The additive `authorization.json`
 binds this exact manifest, five input IDs and only `rules`/`semgrep` treatments.
 The original preparation packet remains unchanged as a historical proposal.
 Evaluation is complete and recorded in `results-summary.json`; no additional
-paid calls are approved. The detector implementation remains frozen at the revision below.
+paid calls are approved. The detector implementation for those first measurements was frozen at the revision below.
 
 This proposal replaces the five exposed auth-fetch inputs in a separately
 versioned 50-input manifest. The other 45 input records are exactly

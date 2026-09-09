@@ -6,6 +6,10 @@ external pilots as a Phase 22 completion prerequisite. Neither is counted as
 passed. The versioned decision is
 `artifacts/phase22/completion-scope-v1/decision.json`; Phase 21 remains deferred.
 
+The user subsequently authorized the bounded offline
+[replacement SSRF follow-up](phase22-ssrf-follow-up.md). Those five inputs are now
+exposed regressions; their original frozen measurements remain unchanged.
+
 The [execution correction record](phase22-execution.md) describes the implemented
 first increment. The complete [independent corpus proposal](phase22-corpus-review.md)
 was approved by the user's subsequent “continue” instruction. The exact manifest

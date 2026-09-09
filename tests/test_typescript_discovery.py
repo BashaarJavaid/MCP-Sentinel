@@ -221,3 +221,93 @@ def test_factory_reads_metadata_after_configuration_helper(tmp_path: Path) -> No
     schema = tools[0].schema
     assert schema is not None
     assert program.text(schema.file, schema.node) == "{path:z.string()}"
+
+
+@pytest.mark.parametrize("computed_name", [False, True])
+@pytest.mark.parametrize(
+    "registration",
+    [
+        'registerTool(name,{inputSchema:schema,description:"Fetch"},handler)',
+        'tool(name,"Fetch",schema,handler)',
+        "tool(name,schema,handler)",
+    ],
+)
+@pytest.mark.parametrize("safe", [False, True])
+def test_factory_tool_overloads_preserve_closure_and_metadata(
+    tmp_path: Path, computed_name: bool, registration: str, safe: bool
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+    from sentinel.static.typescript_path_flow import analyze
+
+    name = "process.env.TOOL_NAME" if computed_name else '"fetch"'
+    destination = '"https://example.com/"' if safe else "url"
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {z} from "zod";\n'
+        "function attach(server, requester) {\n"
+        f" const name={name};\n"
+        " const schema={url:z.string()};\n"
+        " const handler=({url})=>requester(url);\n"
+        f" server.{registration};\n"
+        "}\n"
+        "export function create() {\n"
+        ' const server=new McpServer({name:"test",version:"1"});\n'
+        f" const requester=(url)=>fetch({destination});\n"
+        " attach(server,requester); return server;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    file = TypeScriptSourceFile(path, path.name, source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 20)
+    bindings = program.tools()
+    assert len(bindings) == 1
+    assert bindings[0].name == (None if computed_name else "fetch")
+    assert bindings[0].handler is not None
+    assert bindings[0].schema is not None
+    if '"Fetch"' in registration:
+        assert program.literal(bindings[0].description) == "Fetch"
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state), entries=bindings)
+    assert len(state.matches) == (0 if safe else 1)
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        "",
+        '"Fetch",',
+        "{readOnlyHint:true},",
+        '"Fetch",{readOnlyHint:true},',
+        "unknownSchema,",
+        '"Fetch",{url:z.string()},{readOnlyHint:true},',
+    ],
+)
+def test_factory_legacy_ambiguous_arguments_stay_unresolved(
+    tmp_path: Path, metadata: str
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {z} from "zod";\n'
+        "function attach(server) {\n"
+        f' server.tool("fetch",{metadata}({{url}})=>fetch(url));\n'
+        "}\n"
+        "export function create() {\n"
+        ' const server=new McpServer({name:"test",version:"1"});\n'
+        " attach(server); return server;\n}\n"
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 20)
+    assert not program.tools()
+    factory = program.resolve(file, "create")
+    assert factory is not None
+    state = RuleRunState()
+    TypeScriptURLFlow(program, state).function(factory, [])
+    assert not state.matches
+    assert any(
+        "registration arguments" in warning.message
+        or "ambiguous legacy tool metadata" in warning.message
+        for warning in state.warnings
+    )

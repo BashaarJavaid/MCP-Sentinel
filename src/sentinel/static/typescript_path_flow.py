@@ -10,6 +10,7 @@ from dataclasses import replace
 from typing import Any
 
 from sentinel.report.model import ReportWarning
+from sentinel.static import typescript as ts
 from sentinel.static.execution import check_deadline
 from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
@@ -1101,8 +1102,39 @@ class TypeScriptPathFlow:
         if (
             receiver.key in self.sdk_instances
             and receiver.key not in self.invalidated_objects
-            and name.rsplit(".", 1)[-1] == "registerTool"
+            and name.rsplit(".", 1)[-1] in {"registerTool", "tool"}
         ):
+            if name.endswith(".tool"):
+                # ponytail: follow schema-bearing legacy overloads only; other
+                # layouts need SDK argument disambiguation before expansion.
+                if len(args) not in {3, 4}:
+                    self.warning(file, node, "unsupported registration arguments")
+                    return Value()
+                schema_node = arguments[1][-2].get("Arg", {})
+                schema = self.program.resolve_node(
+                    file, schema_node
+                ) or TypeScriptSymbol(file, schema_node)
+                if (
+                    ts._zod_object_schema(
+                        self.program.text(schema.file, schema.node),
+                        ts._constant_expressions(schema.file.source),
+                    )
+                    is None
+                ):
+                    self.warning(file, node, "ambiguous legacy tool metadata")
+                    return Value()
+                fields = {"inputSchema": args[-2]}
+                if len(args) == 4:
+                    fields["description"] = args[1]
+                config = self.record_state(
+                    _key(
+                        "legacy-tool",
+                        file.relative_path,
+                        str(self.program.source_range(node, file)),
+                    ),
+                    fields,
+                )
+                args = [args[0], config, args[-1]]
             self.registered(file, node, args, env)
             return Value()
         location = self.program.source_range(node, file)
