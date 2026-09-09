@@ -13,7 +13,7 @@ from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
 from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
-from sentinel.static.path_flow import Value, _key, combine
+from sentinel.static.path_flow import UNKNOWN_VALUE, Value, _key, combine
 from sentinel.static.typescript_discovery import (
     TypeScriptBinding,
     TypeScriptProgram,
@@ -102,7 +102,7 @@ class TypeScriptPathFlow:
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         for name in set().union(*(branch.keys() for branch in branches)):
-            values = [branch.get(name, Value()) for branch in branches]
+            values = [branch.get(name, UNKNOWN_VALUE) for branch in branches]
             env[name] = (
                 Value(contained=all(value.contained for value in values))
                 if name.startswith("#guard:")
@@ -114,6 +114,9 @@ class TypeScriptPathFlow:
 
     def combined(self, values: list[Value], key: str = "") -> Value:
         result = combine(values, key)
+        if values and all(value is result or value == result for value in values):
+            # The same identity already carries these metadata facts (or defaults).
+            return result
         if values and all(value.key in self.array_states for value in values):
             result = self.array_state(
                 tuple(items for v in values for items in self.array_states[v.key])
@@ -135,7 +138,7 @@ class TypeScriptPathFlow:
             fields = set.union(*(set(self.objects[v.key]) for v in values))
             self.objects[result.key] = {
                 name: self.combined(
-                    [self.objects[v.key].get(name, Value()) for v in values]
+                    [self.objects[v.key].get(name, UNKNOWN_VALUE) for v in values]
                 )
                 for name in fields
             }
