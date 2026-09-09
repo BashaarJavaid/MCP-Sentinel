@@ -3,6 +3,7 @@
 import pytest
 
 from scripts import generate_phase5_artifacts as artifacts
+from scripts.generate_gpt_static_ablation import _cases
 from sentinel.dynamic.prober import _Observation
 from tests.test_dynamic_reporting import _result
 
@@ -10,7 +11,7 @@ from tests.test_dynamic_reporting import _result
 def test_ablation_retains_unstarted_campaign_attempts(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    case = artifacts._cases()[0]
+    case = next(case for case in _cases() if case["id"] == "sent002_raw_eval")
     tool = case["tool"]
     dynamic = _result(
         (
