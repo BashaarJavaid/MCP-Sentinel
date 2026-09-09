@@ -49,6 +49,11 @@ UNKNOWN_VALUE = Value()
 
 
 def combine(values: list[Value], key: str = "") -> Value:
+    return _combine(tuple(values), key)
+
+
+@lru_cache(maxsize=4096)
+def _combine(values: tuple[Value, ...], key: str) -> Value:
     if values:
         first = values[0]
         if all(value is first or value == first for value in values[1:]) and (
