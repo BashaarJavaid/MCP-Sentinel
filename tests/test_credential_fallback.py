@@ -11,6 +11,7 @@ from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
 
+@pytest.mark.parametrize("repeated_selection", [False, True])
 @pytest.mark.parametrize(
     ("guard", "expected", "conditional"),
     [
@@ -24,7 +25,11 @@ from tests.conftest import NOW, make_target
     ],
 )
 def test_credential_read_before_later_caller_and_operator_guards(
-    tmp_path: Path, guard: str, expected: int, conditional: bool
+    tmp_path: Path,
+    guard: str,
+    expected: int,
+    conditional: bool,
+    repeated_selection: bool,
 ) -> None:
     root = make_target(tmp_path / "target", target_yaml="")
     (root / "server.py").write_text(
@@ -37,7 +42,8 @@ def test_credential_read_before_later_caller_and_operator_guards(
         "    owner=os.getenv('OWNER')\n"
         "    token=request.headers.get('Authorization')\n"
         "    if token: return Service(token=token)\n"
-        f"    {guard or 'pass'}\n"
+        + ("    owner=owner\n    owner=owner\n" if repeated_selection else "")
+        + f"    {guard or 'pass'}\n"
         "    return Service(token=owner)\n"
         "def main(): mcp.run(transport='streamable-http')\n",
         encoding="utf-8",

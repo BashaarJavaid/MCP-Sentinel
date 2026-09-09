@@ -2465,3 +2465,96 @@ merge optimization is not covered by that hosted pass. The fresh `10103ad`
 proposal has not been evaluated or approved; a new final-detector checkpoint is
 required after the remaining implementation/timing work stabilizes. No paid call
 or fresh-source tuning occurred.
+
+## 2026-09-09 — current merge candidate focused results and retained evidence
+
+At immutable `e87b7c9012179178c16ee88072d9851c1d30adaa`, all seven inputs that
+failed the prior full historical batch complete in the bounded focused native
+run: Mobile vulnerable 83.494s, vulnerable mutation 84.222s, fixed 88.958s,
+fixed mutation 86.154s, locale control 85.879s; Atlassian authentication mutation
+86.007s and download-path control 101.732s. Native and end-to-end durations remain
+below 120s. This is diagnostic evidence, not the two-whole-batch gate. The first
+entire batch is running; a sequential queue starts the second only if the entire
+first completion/timing/scoring gate passes, then runs the full local suite.
+
+`v5-mobile-source-deltas/packet.json` binds every changed finding/provenance,
+coverage entry and warning for all five Mobile inputs to exact source bytes.
+Candidate identities and named-condition judgments remain unchanged (2/2
+vulnerable hits, no matching negative alerts). Added provenance identifies the
+actual SSE/stdio startup branches; it is not one observed runtime sequence.
+Repeated registration contexts do not represent additional distinct tools.
+The first 21 comparable completed reports also match `10103ad` findings,
+coverage and warnings exactly; the full final comparison is still pending.
+
+`v5-prior-hosted-audit/packet.json` completes verification of the retained
+`10103ad` hosted artifacts: all 12 quality suites report 2,114 passed/36 skipped,
+89.62–89.65% branch coverage. Both distributions match the exact Git blobs at
+that earlier source, including schemas, fixtures and approved captures. Their
+hashes match the already verified local builds. This does not claim a hosted
+pass for `e87b7c9`.
+
+`v5-comparator-compatible-reuse/packet.json` revalidates all 100 retained
+original/exposed comparator inputs, raw outputs, engine/configuration and actual
+harness compatibility at `e87b7c9`. No fresh-v2 input is evaluated. The exact
+approved Git image and unchanged runtime components also verify, and all 13
+current catalog/campaign configurations equal the retained executions. The first
+catalog helper rejected in-progress documentation edits with its whole-worktree
+cleanliness assertion; its dependent reuse check consequently lacked an output.
+Both failures are retained. A versioned helper verifies all implementation,
+test, script, dependency and workflow inputs are clean while allowing the tracked
+documentation edits, then completes the same production catalog construction.
+`v5-git-runtime-reuse-source-bound-check` is the successful compatibility record;
+no new Git campaign or environment adoption is claimed.
+
+The resource snapshot in `v5-historical-midrun-resources-packet.json` records
+active production workers and shared-desktop activity. It does not establish
+causation for timing changes or hardware isolation. No unrelated process was
+stopped. Current owning documents now distinguish this candidate, historical
+passes/failures, superseded fresh proposal, and outstanding final gates. No
+fresh approval, paid call, technical acceptance, merge or release is inferred.
+
+The first entire `e87b7c9` historical batch finishes **43 completed / 2
+incomplete**, with all 20 vulnerable conditions detected and zero matching alerts
+on 23 completed negative inputs. The full required denominator remains 25
+negative inputs. The fixed-upload original and mutation time out natively at
+120.196s and 120.141s. The fixed-authentication mutation completes native analysis
+in 116.753s but takes 123.156s end to end. All three fail the unchanged gate.
+The download-path control completes in 118.755s. No second whole batch starts;
+the dependent quality queue exits on its gate assertion without running tests.
+
+`v5-historical-first-assessment/packet.json` compares all 43 available reports
+against the corresponding retained current/earlier or same-source focused
+observations. Entire ordered reports match except documented volatile fields;
+no warning-order difference is discarded. The Mobile delta record provides the
+separate source-bound explanation of its changed startup provenance and coverage.
+Missing timeout reports remain missing. Named-condition scoring's unmatched keys
+are not a new security-validity judgment; the original 70-warning unadjudicated
+backlog remains distinct.
+
+One bounded profile of the actual fixed-authentication mutation is now running
+after the completed batch, at the original deadline. It records parent work,
+production worker-stage time and passive counts of credential dataclass copies
+that request no value changes. The scanner-owned shim always returns the original
+replacement result. This instrumented measurement is diagnostic, not another
+normal timing attempt or a gate pass. No source change, full retry, paid call or
+fresh-corpus evaluation is implied.
+
+The bounded native diagnostic confirms the credential worker is the critical
+path: SENT-016 consumes 115.890s wall / 108.679s CPU before the unchanged deadline;
+SENT-015 consumes 97.123s / 90.201s, SENT-012 80.548s / 74.425s and SENT-014
+6.520s / 5.740s. Parent CPU is only 1.619s; most parent wall time waits for
+production workers. This instrumented attempt is incomplete at 120.172s and
+remains diagnostic. Credential conditioning requests 467,644 dataclass copies,
+of which 396,057 (84.7%) make no field change. Passive counters, worker source,
+individual clocks and the full parent profile are retained.
+
+The next correction skips only redundant copies when the existing value already
+contains every current absence/opt-in fact and source location. Current branch
+markers are still read on every call; there is no guard-value cache, new worker
+policy or changed deadline. Newly observed sources, locations, fallback status or
+operator settings still produce a new value. Three additional repeated-read
+variants of the existing late caller/operator guard test pass before the change.
+Afterward, all **781** credential, Python-state, SSRF and worker regressions,
+strict mypy, lint and format checks pass. The upcoming six-case native comparison
+will measure throughput and full-report equivalence; no native speedup or final
+gate pass is inferred from these unit checks.
