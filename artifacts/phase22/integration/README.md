@@ -448,3 +448,17 @@ remain recorded; neither started a suite. The corrected immutable checkout is
 `/private/tmp/mcp-phase22-verify-v2-parent-evidence`. Fresh holdout remains
 unopened; Meta's fixed-condition decision, paid review, hosted verification,
 human acceptance and deferred external pilot gates remain open.
+
+
+### Completed benchmark evidence in batch 26
+
+Extract and verify `evidence-v26.tar.gz` after batches 1–25 using the same
+per-member procedure. Batch 26 contains 1,255 added/changed completed files
+(391,561,198 raw bytes), SHA-256
+`4e4521bc7d05d4e65054b117b6faa1334c69ff7cb95096e6ee882e3742b02ce6`.
+It retains the dcb965f historical/full-suite gates, development and first frozen
+held-out measurements, all pinned comparator scopes and source assessments,
+plus coordinate failures/corrections and exact offline smoke requests. All
+earlier results and failures remain. Active 6e68331 and coordinate queue records
+are excluded until complete. This archive is evidence preservation, not full
+Phase 22 acceptance, reviewed evaluation or hosted verification.

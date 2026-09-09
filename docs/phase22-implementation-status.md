@@ -333,3 +333,78 @@ remain preserved. The immutable checkout is
 is prepared with the unchanged 120-second budget. The fresh holdout is still
 unopened. Meta's fixed-condition decision, paid review, hosted verification,
 human acceptance and deferred external pilot gates remain separate and open.
+
+
+### Immutable historical and full-suite gates at dcb965f
+
+Both historical deterministic runs complete 45/45 under the unchanged 120-second
+static deadline, with identical stable reports. The source-condition assessment
+records 20/20 exposed vulnerable conditions and zero named fixed/safe alerts.
+All 1,487 new unrelated instances have source assessments; the 70 original
+unrelated instances retain their unadjudicated decisions. The three Excel parent
+warnings remain visible with the established remote filename-check qualification
+and separate parent-policy uncertainty. Their earlier failed score is preserved.
+These are exposed, correlated cases and implementation-agent judgments, not fresh
+accuracy, model retention, runtime proof or independent human acceptance.
+
+At the same immutable source, the full suite passes 2,007 tests with 36 Docker
+skips and 89.47% branch coverage in 1,213.21 seconds. The exact detached checkout,
+scanner import, empty final source diff, log and coverage database are retained in
+`v2-full-suite-dcb965f`. The separate actual Docker suite and installed-package
+checks are queued. The three compatibility/workspace/consumer source audits are
+bound to current file hashes and explicit delta reviews; all 13 approved Git
+campaign/catalog configurations match retained execution evidence and the approved
+linux/arm64 image identity was rechecked. Their 312 observations and 728 untested
+attempts establish bounded incomplete coverage, not a defense.
+
+The 25-input development run has started. Fresh held-out evaluation and all three
+pinned comparator scopes follow sequentially; held-out source remains outside
+implementation tuning. The Meta fixed-label decision, paid evaluation, hosted
+matrix, consolidated draft, human acceptance and deferred external pilot gate
+remain outstanding. Current results after batch 25 are expanded local evidence,
+not yet covered by the next numbered seal.
+
+
+### First held-out evaluation and source-coordinate correction
+
+At immutable `dcb965f`, all 25 development inputs complete. Source assessment
+finds all ten vulnerable conditions; the unchanged Meta labels yield two disputed
+fixed-condition alerts, pending the explicit configuration/label decision. All
+554 unmatched development warning instances have source assessments with explicit
+uncertainties. No model calls or target execution were used for adjudication.
+
+The first frozen held-out run completes 10/25 inputs, with ten unsupported and
+five incomplete. None of the four completed vulnerable variants has a named
+condition detection; six other vulnerable variants are unavailable, not completed
+misses. The failures retain their exact reasons: unsupported dependency layout,
+a supported file over 1 MiB, and strict YAML rejection of CloudFormation !Sub.
+No scope limit, source, label or prerequisite was relaxed. The pinned comparator completes 45/45 historical and 25/25 development inputs.
+Held-out completion is 20/25; all five Solver inputs retain parser errors despite
+zero process exit codes. All three named-condition assessments record zero matches;
+generic sink audits remain separate from evidence of the frozen failed guard.
+
+The holdout's ten unrelated SENT-003 warnings expose incorrect TypeScript source
+coordinates. `v2-heldout-first-assessment-dcb965f/` retains the complete score,
+unrelated assessments and an exposure record for all five auth-fetch inputs,
+written before implementation changes. Subsequent auth-fetch results are exposed
+regressions; a separately approved replacement corpus is required before claiming
+new fresh performance for that slot. Other holdout misses/support failures are
+retained evaluation results and have not been used for detector tuning.
+
+`b163d7c` fixes the shared legacy tool-finding coordinate calculation from retained
+original source; handler locations no longer start at registration metadata.
+Permission findings without an operation use the registration. Sixteen failing
+inline/named/Unicode/LF/CRLF controls are retained and now pass, as do lint and
+whole-project typing. The broader immutable check passes 300 tests and fails two:
+one test expected the old incorrect end column and is corrected in `6e68331`;
+the unchanged TypeScript smoke replay test requires a compatible capture. Its
+exact replacement request is retained offline; no capture was fabricated or
+rebound. The current full suite and two historical runs use immutable `6e68331`. The three old
+quality/installed/request-preparation queues were stopped before starting checks;
+the active immutable comparator sequence was preserved. No paid calls, pushes,
+new draft, publication, merge or outreach have occurred. Batch 26 seals 1,255 completed post-v25 files, including the dcb965f full suite,
+both historical runs, development/first-held-out measurements, comparator results
+and source assessments. Its archive SHA-256 is
+`4e4521bc7d05d4e65054b117b6faa1334c69ff7cb95096e6ee882e3742b02ce6`.
+Every member was read back and hashed; active 6e68331 and coordinate queue records
+remain outside this seal. No current-source full-suite pass is claimed.

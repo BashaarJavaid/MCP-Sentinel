@@ -1847,3 +1847,95 @@ remain recorded; neither started a suite. The corrected immutable checkout is
 `/private/tmp/mcp-phase22-verify-v2-parent-evidence`. Fresh holdout remains
 unopened; Meta's fixed-condition decision, paid review, hosted verification,
 human acceptance and deferred external pilot gates remain open.
+
+
+### Immutable historical and full-suite gates at dcb965f
+
+Both historical deterministic runs complete 45/45 under the unchanged 120-second
+static deadline, with identical stable reports. The source-condition assessment
+records 20/20 exposed vulnerable conditions and zero named fixed/safe alerts.
+All 1,487 new unrelated instances have source assessments; the 70 original
+unrelated instances retain their unadjudicated decisions. The three Excel parent
+warnings remain visible with the established remote filename-check qualification
+and separate parent-policy uncertainty. Their earlier failed score is preserved.
+These are exposed, correlated cases and implementation-agent judgments, not fresh
+accuracy, model retention, runtime proof or independent human acceptance.
+
+At the same immutable source, the full suite passes 2,007 tests with 36 Docker
+skips and 89.47% branch coverage in 1,213.21 seconds. The exact detached checkout,
+scanner import, empty final source diff, log and coverage database are retained in
+`v2-full-suite-dcb965f`. The separate actual Docker suite and installed-package
+checks are queued. The three compatibility/workspace/consumer source audits are
+bound to current file hashes and explicit delta reviews; all 13 approved Git
+campaign/catalog configurations match retained execution evidence and the approved
+linux/arm64 image identity was rechecked. Their 312 observations and 728 untested
+attempts establish bounded incomplete coverage, not a defense.
+
+The 25-input development run has started. Fresh held-out evaluation and all three
+pinned comparator scopes follow sequentially; held-out source remains outside
+implementation tuning. The Meta fixed-label decision, paid evaluation, hosted
+matrix, consolidated draft, human acceptance and deferred external pilot gate
+remain outstanding. Current results after batch 25 are expanded local evidence,
+not yet covered by the next numbered seal.
+
+
+### First held-out evaluation and source-coordinate correction
+
+At immutable `dcb965f`, all 25 development inputs complete. Source assessment
+finds all ten vulnerable conditions; the unchanged Meta labels yield two disputed
+fixed-condition alerts, pending the explicit configuration/label decision. All
+554 unmatched development warning instances have source assessments with explicit
+uncertainties. No model calls or target execution were used for adjudication.
+
+The first frozen held-out run completes 10/25 inputs, with ten unsupported and
+five incomplete. None of the four completed vulnerable variants has a named
+condition detection; six other vulnerable variants are unavailable, not completed
+misses. The failures retain their exact reasons: unsupported dependency layout,
+a supported file over 1 MiB, and strict YAML rejection of CloudFormation !Sub.
+No scope limit, source, label or prerequisite was relaxed. The separate pinned
+historical comparator completes 45/45 at dcb965f; its other scopes continue.
+
+The holdout's ten unrelated SENT-003 warnings expose incorrect TypeScript source
+coordinates. `v2-heldout-first-assessment-dcb965f/` retains the complete score,
+unrelated assessments and an exposure record for all five auth-fetch inputs,
+written before implementation changes. Subsequent auth-fetch results are exposed
+regressions; a separately approved replacement corpus is required before claiming
+new fresh performance for that slot. Other holdout misses/support failures are
+retained evaluation results and have not been used for detector tuning.
+
+`b163d7c` fixes the shared legacy tool-finding coordinate calculation from retained
+original source; handler locations no longer start at registration metadata.
+Permission findings without an operation use the registration. Sixteen failing
+inline/named/Unicode/LF/CRLF controls are retained and now pass, as do lint and
+whole-project typing. Broader immutable verification is queued. The three old
+quality/installed/request-preparation queues were stopped before starting checks;
+the active immutable comparator sequence was preserved. No paid calls, pushes,
+new draft, publication, merge or outreach have occurred. Batch 25 remains the
+latest seal; all later expanded evidence awaits the next verified archive.
+
+
+### Coordinate verification and completed comparator scopes
+
+`6e68331` corrects the durable direct-sink test to assert the actual original-source
+slice, following production coordinate correction `b163d7c`. The shared check at
+b163d7c records 300 passed and two failed. The corrected assertion passes; the
+unchanged TypeScript smoke replay test remains a real failed gate because its
+exact request fingerprint changed. The offline replacement request
+`b6f0b465a1d2cb7fb4bbbd1b886e4f1a62ba2d3371c766390e07a63130c0293f`
+reserves 95520 microUSD under the existing conservative accounting, with no model
+call. It is a prepared request, not a complete paid approval packet or approval.
+
+Pinned comparator results at dcb965f are complete as measurements: historical
+45/45, development 25/25, held-out 20/25. The five Solver inputs retain parser
+errors and incomplete status despite successful process exits. All three frozen
+condition assessments record zero matches; 271 historical unrelated candidates
+retain accepted original judgments, and 220 development plus 856 held-out warning
+instances have source-condition assessments. Generic process/file audits are not
+evidence of the named failed guard. No overall precision or superiority is claimed.
+
+Batch 26 retains 1255 completed files, 391561198 raw bytes and 14263669 compressed
+bytes, SHA-256 `4e4521bc7d05d4e65054b117b6faa1334c69ff7cb95096e6ee882e3742b02ce6`.
+Every member was read back against its source hash. Current 6e68331 and coordinate
+queue outputs are excluded until they complete; diagnostic drivers are retained.
+All earlier seals, failed/stopped commands, source changes and temporary worktrees
+remain preserved. No paid calls, push, new draft, merge, release or outreach yet.
