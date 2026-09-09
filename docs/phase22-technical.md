@@ -96,6 +96,11 @@ The frozen-corpus runner supports source-only rules, offline request preparation
 (`prepare-live`), checked replay and the pinned local Semgrep comparator. Preparation
 uses a recording reviewer and replay uses checked cassettes; neither makes live
 model calls. Phase 22 replay reads its separate `artifacts/phase22/captures` ledger.
+The separately approved replacement manifest is supplied through an explicit
+`phase22_approval` file. The runner validates the exact manifest hash, unchanged
+metadata and selected input records, and enforces the approval's five-input and
+`rules`/`semgrep` limits. Results retain both manifest and authorization hashes.
+The original approval remains the default; it cannot authorize replacement inputs.
 New paid capture still requires the exact bounded approval packet after offline
 gates. The source-only corpus runner rejects dynamic treatments; the separately
 approved Git runtime environment retains its own verification path.

@@ -155,3 +155,22 @@ prepare a replacement holdout before claiming fresh performance.
 
 **No scan accuracy, paid evaluation, runtime execution, external validation,
 or Phase 22 pilot acceptance is established by this packet.**
+
+## Approved replacement freeze and Meta erratum
+
+The original proposal and approval remain unchanged. The user separately approved
+`artifacts/phase22/corpus-replacement-v1/manifest.json`, SHA-256
+`159278d40a7d6fe2faa1c240a26f51009b37cdca30c862d5e9df1d66a6fed0da`,
+for source-only deterministic and pinned comparator evaluation of its five
+open-webSearch replacements. The other 45 records are unchanged. This is not a
+fresh entire holdout; prior exposure and original measurements remain visible.
+The additive authorization restricts input IDs and treatments. No target execution,
+new detector tuning or paid model evaluation is approved by this freeze.
+
+The user also approved `artifacts/phase22/meta-fixed-label-erratum-v1/packet.json`:
+retain the frozen Meta condition and all original labels/results, with an erratum
+for the alternate SSE-response configuration. The two affected fixed cases remain
+visible as source counterexamples. The valid fixed/safe denominator is 13 with
+zero condition false alarms; two erratum cases are reported separately. Original
+raw scoring still shows two alerts among 15 nominal fixed/safe cases. This is not
+runtime confirmation, a newly enlarged vulnerable denominator or human validation.

@@ -76,6 +76,50 @@ def test_phase22_measurement_rejects_unapproved_changes(tmp_path: Path) -> None:
     assert not (tmp_path / "runtime").exists()
 
 
+def test_replacement_approval_binds_exact_subset_and_treatments(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import phase20_measurements as measurements
+    from scripts.phase20_corpus import digest
+
+    approval = ROOT / "artifacts/phase22/corpus-replacement-v1/authorization.json"
+    replacement = frozen(approval_path=approval)
+    decision = json.loads(approval.read_text())["corpus"]
+    selected = [i for i in replacement.inputs if i.id in decision["input_ids"]]
+    subset = replacement.model_copy(update={"inputs": selected})
+    monkeypatch.setattr(measurements, "verify_rules", lambda root: None)
+    monkeypatch.setattr(
+        measurements,
+        "run_comparator",
+        lambda *args: {"state": "completed", "exit_code": 0, "finding_count": 0},
+    )
+    result = measurements.measure(
+        subset,
+        "semgrep",
+        tmp_path / "valid",
+        rules_dir=tmp_path,
+        phase22_approval=approval,
+    )
+    assert result["manifest_sha256"] == decision["sha256"]
+    assert result["authorization_sha256"] == digest(approval.read_bytes())
+    assert len(result["outcomes"]) == 5
+    assert all(row["state"] == "completed" for row in result["outcomes"])
+    for manifest, treatment in [(replacement, "rules"), (subset, "prepare-live")]:
+        with pytest.raises(ValueError, match="authorized"):
+            measurements.measure(
+                manifest, treatment, tmp_path / "denied", phase22_approval=approval
+            )
+        assert not (tmp_path / "denied").exists()
+    with pytest.raises(ValueError, match="authorized inputs"):
+        measurements.measure(subset, "rules", tmp_path / "original-approval")
+    changed = json.loads(approval.read_text())
+    changed["corpus"]["sha256"] = "0" * 64
+    wrong = tmp_path / "wrong-approval.json"
+    wrong.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="matching freeze approval"):
+        frozen(approval_path=wrong)
+
+
 @pytest.mark.parametrize("treatment", ["prepare-live", "replay", "semgrep"])
 def test_phase22_offline_treatments_keep_separate_capture_evidence(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, treatment: str

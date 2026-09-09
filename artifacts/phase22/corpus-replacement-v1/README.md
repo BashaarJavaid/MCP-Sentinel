@@ -1,4 +1,10 @@
-# Proposed replacement SSRF holdout
+# Approved replacement SSRF holdout
+
+The user approved the recommended freeze. The additive `authorization.json`
+binds this exact manifest, five input IDs and only `rules`/`semgrep` treatments.
+The original preparation packet remains unchanged as a historical proposal.
+Evaluation results will be recorded separately; no additional paid calls are
+approved. The detector implementation remains frozen at the revision below.
 
 This proposal replaces the five exposed auth-fetch inputs in a separately
 versioned 50-input manifest. The other 45 input records are exactly
@@ -36,10 +42,10 @@ evaluation has run against these inputs. Upstream tests were read as corroborati
 source expectations and were not executed. Independent human acceptance remains
 separate. An independent agent review can be added if authorized.
 
-Explicit approval of this exact manifest is required before evaluation, under
+Explicit approval of this exact manifest was recorded before evaluation, under
 the handoff's replacement-holdout freeze process and the project's corpus-freeze
-checkpoint. Approval would permit source-only deterministic and pinned comparator
-evaluation of the five replacements. It would not approve paid calls, target
+checkpoint. Approval permits source-only deterministic and pinned comparator
+evaluation of the five replacements. It does not approve paid calls, target
 execution, label changes, new detector tuning or a claim that Phase 22 is complete.
 
 Reproduce validation from the integration checkout without executing target code:
