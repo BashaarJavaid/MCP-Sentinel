@@ -5,6 +5,17 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
+The latest immutable full milestone is `7071a26`: 1,959 passed, 36 skipped,
+89.41% branch coverage, with passing quality, build, audit and installed distribution
+checks. Linux network-none wheel isolation and installed onboarding/baseline checks
+also pass after preserving and correcting their harness/workflow failures. The pinned
+comparator completed 40/45 historical and 25/25 development inputs; rule timeouts
+remain incomplete. `734aa8c` subsequently corrects exception-path credential
+conditions exposed by actual-source review; 383 affected tests, strict types and
+source-specific qualification traces pass. Final historical repeats, fresh holdout,
+reviewed evaluation, hosted verification and the pending Meta label/configuration
+decision remain separate gates. Evidence batch 23 retains these results.
+
 At `2837d59`, bounded static workers complete all five Meta development inputs
 within the unchanged 120-second deadline (59.5–68.1 seconds). The two Mobile
 originals preserve exact native findings, coverage and ordered warnings against
@@ -14,7 +25,7 @@ impersonation, lexical shadowing and Annotated lifespan binding, with 196 focuse
 and 388 HTTP-related regression passes. All 13 approved Git runtime campaigns
 were remeasured at `394bb8a`: 24/80 attempts tested per input, exit 3, clean cleanup;
 312 observations without a violation and 728 untested attempts establish no defense.
-The latest full immutable milestone is `5f6bb9a`: 1,910 passed, 36 skipped,
+The earlier full immutable milestone is `5f6bb9a`: 1,910 passed, 36 skipped,
 89.25% branch coverage. All 36 Docker controls and installed distributions pass
 at that source. Its historical first run completes 42/45 with three retained
 timeouts under competing verification. Session credentials and aiohttp origin
@@ -81,7 +92,7 @@ SENT-015 caller URL/destination flow (`d3fcf79`), fixed JSON argument positions
 suite passed 71 tests with loopback permission; the first SSRF affected suite
 passed 201 tests. The dbt five-input measurement at `355f0f7` completed with two
 vulnerable selector hits and zero fixed/control selector alerts. Its 13 unrelated
-candidates are separately classified in `artifacts/phase22/integration/dbt-adjudication.json`.
+candidates are separately classified in `artifacts/phase22/integration/v2-recovered-early-adjudications/dbt-adjudication.json`.
 Five codegen candidates were false positives; their correction is in `dbb2464`.
 Eight other candidates remain uncertain after implementation-agent source review.
 These correlated development inputs do not establish held-out accuracy.

@@ -1,11 +1,29 @@
-# Integration evidence, batches 1–22
+# Integration evidence, batches 1–23
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `fd9320b`. **It is not final technical acceptance.**
+through source commit `734aa8c`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 23 retains 923 added/changed files through `734aa8c`, including the
+immutable `7071a26` full suite (1,959 passed, 36 skipped, 89.41% branch coverage),
+quality/build/audit and installed distributions, successful installed onboarding
+and baseline controls, and Linux network-none isolation. The pinned comparator
+completed 40/45 historical inputs and 25/25 development inputs; five historical
+rule timeouts remain incomplete. All failures and stopped commands are retained.
+The auth qualification regression discovered during source review is corrected
+at `734aa8c`, with 383 affected passes, final prefix controls, strict typing and
+restored source-specific qualifications. Final historical repeats, fresh holdout,
+reviewed evaluation, hosted matrix and external acceptance remain open.
+
+All 149,332,686 raw bytes were read back against their hashes. The archive is
+5,570,931 bytes; SHA-256:
+`ac3d5b820a33f616b55c9bc3f201a5202e8fee64cedcba263f372e1b9770d9a0`.
+Apply `evidence-v23.tar.gz` after batch 22 and verify `evidence-v23.json`.
+All included commands finished before sealing; the queued historical sequence
+was terminated before it scanned an input. Earlier seals and worktrees remain.
+
 Batch 22 retains 340 added/changed files through fd9320b: full quality
 and installed distributions at 5f6bb9a, all 36 Docker controls, the incomplete
 42/45 historical run, uncaptured demo dynamic review, session credential corrections

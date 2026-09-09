@@ -1725,3 +1725,67 @@ back against its hash. Archive size: 5,141,177 bytes; SHA-256
 `evidence-v22.json`. All included checks finished before sealing. Final candidate
 benchmarks and paid/hosted/external gates remain open.
 
+## Post-batch-22 source and verification
+
+`7071a26` fixes optional Basic Auth branches that incorrectly hid a caller's
+Authorization header, including the existing Jira Forms request. The immutable
+full suite passes 1,959 tests with 36 skips and 89.41% branch coverage. Its quality,
+strict documentation, schema, audit, build and installed wheel/sdist/pipx/uv checks
+pass. This suite predates the later exception-path correction.
+
+`9083a89` corrects the Linux isolation harness to reject active non-loopback
+interfaces and IPv4/IPv6 routes while accepting inactive kernel fallback tunnels.
+The earlier denied/failed runs remain retained. All 12 source-only installed-wheel
+isolation scans pass in the network-none container. `97e2cc5` adds the clean fixture's
+known legitimate baselines after generated dynamic initialization in CI. The initial
+installed scan correctly exited 3 for invalid calculator baseline arguments; the
+corrected onboarding exits 0, and initial/unchanged/changed baseline checks exit
+1/0/1 with valid native reports. Hosted matrix verification remains pending.
+
+`v2-git-runtime-compatibility-7071a26/packet.json` verifies identical catalogs,
+fallback campaigns and sandbox settings for all 13 retained Git inputs, plus
+unchanged runtime/report components through 7071a26. It reuses the actual
+394bb8a campaigns without relabeling their exit 3 or untested remainder. The later
+734aa8c shared-flow change still requires final catalog compatibility binding.
+
+The comparator runs retain Semgrep's actual rule timeouts despite process exit 0;
+40/45 historical and 25/25 development inputs completed. Fresh holdout was not read.
+`v2-pricing-configuration-audit.json` records official pricing and actual reviewer
+settings only; it is not a paid approval packet and contains no new model calls.
+
+Two original command wrappers overwrote their own structured adjudication filenames.
+Those originals remain unchanged. The retained source and commands reconstruct the
+historical packets under `v2-recovered-early-adjudications/`; these are old-source
+adjudications, not current measurements. The eight isolated Git option-value parser
+observations in `v2-git-option-value-parser/` executed only synthetic Git commands
+inside the approved image; failed payload attempts are not defense proof.
+
+Actual-source review found that prepared HTTP state erased the fixed Atlassian
+operator-default qualification. The queued final benchmark sequence was stopped
+before scanning an input. `734aa8c` preserves a proven getter/constant-local prefix
+at exception entry and keeps differing absent-caller paths separate until credential
+sinks, without combining unrelated credential-selection branches. Prefix controls
+cover earlier unknown calls, later writes, catch-handler changes and nonlocal
+mutation; only genuine prepared request records establish that prefix. Initial
+failures, intermediate approaches, 383 affected passes, strict 146-file typing,
+style/docs and final focused controls are retained. The actual source trace restores
+the four service-construction qualifications; two separate Forms/users request
+candidates remain to be adjudicated. This is not final condition acceptance.
+
+Batch 23 retains 923 added/changed files through `734aa8c`, including the
+immutable `7071a26` full suite (1,959 passed, 36 skipped, 89.41% branch coverage),
+quality/build/audit and installed distributions, successful installed onboarding
+and baseline controls, and Linux network-none isolation. The pinned comparator
+completed 40/45 historical inputs and 25/25 development inputs; five historical
+rule timeouts remain incomplete. All failures and stopped commands are retained.
+The auth qualification regression discovered during source review is corrected
+at `734aa8c`, with 383 affected passes, final prefix controls, strict typing and
+restored source-specific qualifications. Final historical repeats, fresh holdout,
+reviewed evaluation, hosted matrix and external acceptance remain open.
+
+All 149,332,686 raw bytes were read back against their hashes. The archive is
+5,570,931 bytes; SHA-256:
+`ac3d5b820a33f616b55c9bc3f201a5202e8fee64cedcba263f372e1b9770d9a0`.
+Apply `evidence-v23.tar.gz` after batch 22 and verify `evidence-v23.json`.
+All included commands finished before sealing; the queued historical sequence
+was terminated before it scanned an input. Earlier seals and worktrees remain.
