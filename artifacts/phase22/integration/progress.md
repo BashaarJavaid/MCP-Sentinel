@@ -2120,3 +2120,33 @@ have not yet established a passing matrix for the capture update. Replacement
 freeze and Meta condition/erratum decisions remain pending; no evaluation or
 label amendment was performed. Full reviewed benchmarks, human acceptance and
 external pilot gates remain incomplete.
+
+
+### Approved replacement evaluation and Meta erratum
+
+The recommended decisions are now explicitly approved. The separately authorized
+five open-webSearch replacements complete 5/5 for both native rules and pinned
+Semgrep 1.176.0 at runner `052379c`, with detector implementation unchanged from
+`6e68331`. Both treatments detect 0/2 vulnerable variants and report zero named
+condition alerts on the three fixed/safe inputs. Native repeat completes 5/5 with
+identical stable reports. All 70 native and 33 comparator unrelated warnings have
+source-bound scope assessments; their separate risk is not validated. Every native
+input retains 13 recognized HTTP surfaces and seven unresolved surfaces, including
+six computed MCP tool names. No fresh whole-holdout or full-handler-coverage claim
+is made. No detector tuning, target execution or additional paid call occurred.
+
+The approved Meta erratum preserves the original condition, labels and raw scores.
+Two nominal fixed cases (four matched finding instances) remain visible as source
+counterexamples for the alternate response configuration. The adjusted clean-case
+gate has 13 valid fixed/safe inputs and zero condition false alarms, with two
+erratum cases reported separately. Original raw scoring still shows two alerts
+among 15 nominal fixed/safe cases. The ten vulnerable detections and their original
+denominator remain unchanged; no runtime confirmation is claimed.
+
+The bounded runner amendment passes 21 affected tests, lint/format, project-wide
+strict typing and strict docs. It rejects mismatched approvals, replacement inputs
+under the original approval, expanded input selection and unapproved treatments.
+The capture-update hosted Docker job passes, including onboarding, baseline and
+native/SARIF validation. The full OS/Python quality matrix remains in progress.
+Further paid-reviewed benchmark runs require new explicit approval. Human
+verification and deferred external pilots remain unmet; Phase 22 is incomplete.

@@ -3,8 +3,8 @@
 The user approved the recommended freeze. The additive `authorization.json`
 binds this exact manifest, five input IDs and only `rules`/`semgrep` treatments.
 The original preparation packet remains unchanged as a historical proposal.
-Evaluation results will be recorded separately; no additional paid calls are
-approved. The detector implementation remains frozen at the revision below.
+Evaluation is complete and recorded in `results-summary.json`; no additional
+paid calls are approved. The detector implementation remains frozen at the revision below.
 
 This proposal replaces the five exposed auth-fetch inputs in a separately
 versioned 50-input manifest. The other 45 input records are exactly
@@ -57,3 +57,26 @@ PYTHONPATH=src:. /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -c 
 The 28 expanded inspection copies under `review-source/` remain local.
 `review-source-inventory.json` verifies each against the corresponding complete
 upstream archive, which is the canonical reproducible source.
+
+## Measured results
+
+At committed runner revision `052379c`, using detector code unchanged from
+`6e68331`, both Sentinel and pinned Semgrep 1.176.0 complete all five inputs.
+**Both miss the named vulnerability in both vulnerable variants (0/2 detected).**
+Neither reports the named condition on the two fixed variants or safe control.
+Sentinel's repeat completes all five with identical stable reports and outcomes.
+
+Sentinel retains 70 authentication warnings outside the named SSRF condition;
+Semgrep retains 33 unrelated logging/TLS warnings. Every instance has a source hash,
+location, excerpt and separate scope assessment. Their separate risk is unvalidated;
+they are not automatically false positives. Each native scan reports 13 recognized
+HTTP surfaces and seven unresolved surfaces, including six computed MCP tool names.
+Completion therefore does not establish full MCP handler coverage or a defense.
+
+These five correlated replacement cases are reported separately. The original
+manifest, 45 unchanged records and original held-out results remain unchanged.
+No detector tuning followed curation or this evaluation. No target code or live
+model ran. Full reports, raw comparator output, commands, identities, assessments
+and repeat evidence are retained in integration batch 30; verify its manifest on
+extraction. These measurements do not establish overall precision, competitor
+superiority, independent human acceptance or Phase 22 completion.

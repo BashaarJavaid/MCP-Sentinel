@@ -1222,6 +1222,14 @@ Docker demo now pass locally; all 20 attempts and 14 reviews complete. Updated
 hosted verification remains pending. Benchmark paid review, replacement freeze,
 Meta amendment, human acceptance and pilot gates are unchanged and incomplete.
 
+The replacement freeze and Meta erratum are now approved. Both offline treatments
+complete all five replacements but detect neither vulnerable variant; native
+repeat is stable. Unresolved registrations and all unrelated warnings remain
+visible. The Meta erratum separates two affected fixed cases from 13 valid clean
+controls without rewriting the original labels, conditions or raw results. No
+new paid evaluation or detector tuning occurred. Full reviewed benchmarking,
+human acceptance and external pilot requirements remain incomplete.
+
 ### Objective
 
 Address measured missed vulnerabilities and real repository incompatibilities

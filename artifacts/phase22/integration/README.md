@@ -1,4 +1,23 @@
-# Integration evidence, batches 1–29
+# Integration evidence, batches 1–30
+
+Batch 30 retains the approved replacement evaluation and Meta erratum evidence.
+Both native and pinned comparator scans complete 5/5 replacements, detecting 0/2
+vulnerable variants and no named condition on the three fixed/safe inputs. Native
+repeat is stable. All 70 native and 33 comparator unrelated warnings have source
+assessments; six computed MCP tool names remain unresolved. No detector tuning,
+target execution or additional paid calls occurred.
+
+The Meta erratum is separately tracked under `../meta-fixed-label-erratum-v1/`.
+It preserves original labels/raw scores and distinguishes two affected fixed
+cases from 13 valid clean controls with zero named condition false alarms.
+The bounded approval runner passes 21 tests, lint/format, strict typing and docs.
+Hosted capture-update Docker/docs pass; its full matrix is still in progress.
+The new runner revision will receive its own normal PR checks.
+
+Batch 30 seals 125 completed files with verified SHA-256 readback.
+Archive SHA-256: `71aa1f75cddc27b05bcd6778c98f1b0fd23c6ca97f024b0e34e10090c7bca0ae`.
+Apply `evidence-v30.tar.gz` after batch 29 and verify `evidence-v30.json`.
+All older seals, failures, worktrees, proposals and source identities remain.
 
 Batch 29 adds the approved smoke/demo capture verification: both requests accepted
 for $0.071799 total under the $0.400100 cap, unchanged TypeScript regression PASS,
