@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sentinel.config import LoadedConfiguration
 from sentinel.finding import Finding, Impact, OwaspCategory, SourceRange
@@ -103,6 +103,7 @@ class StaticContext:
     configuration: LoadedConfiguration
     files: StaticFileSet
     deadline: float = float("inf")
+    typescript_trees: dict[str, dict[str, Any]] | None = None
 
     @cached_property
     def python_program(self) -> PythonProgram:
@@ -131,6 +132,7 @@ class StaticContext:
         return TypeScriptProgram(
             self.files.typescript_files,
             deadline=self.deadline,
+            trees=self.typescript_trees,
             modules=TypeScriptModules(
                 self.configuration.scan_root,
                 self.files.config_files,

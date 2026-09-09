@@ -566,6 +566,14 @@ analysis and reuses each event's sink list across paths. Functions without a
 supported sink cannot produce this rule's finding; source and coverage inventory
 are retained. The 120-second scan deadline and detector selection are unchanged.
 
+For at least 128 KiB of collected Python/TypeScript source on a multicore host,
+two or more selected SENT-012/014/015/016 traversals run in at most four isolated
+Python workers. They share the original deadline and scanner-owned parsed source
+snapshot; the parent retains finding, suppression and coverage assembly. Workers
+rebuild identity-based indexes from parsed trees and never import target code.
+Failure or interruption terminates and reaps every started worker. Smaller scans
+and single-rule selections retain serial traversal.
+
 Static traversal recognizes YAML with template delimiters below a chart's
 `templates/` directory when a non-symlink `Chart.yaml` exists inside the scan
 root. Original bytes still reach text/secret checks. Each such file emits

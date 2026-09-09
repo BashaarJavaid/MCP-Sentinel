@@ -55,6 +55,7 @@ from sentinel.static.rules import (
 from sentinel.static.semgrep_adapter import run_semgrep
 from sentinel.static.suppression import apply_inline_suppressions
 from sentinel.static.traversal import collect_static_files
+from sentinel.static.workers import run_flow_rules
 
 STATIC_TIMEOUT_SECONDS = 120
 
@@ -102,9 +103,13 @@ def run_static_scan(
         configuration.scan_root,
         deadline=scan_deadline,
     )
+    parallel_states = run_flow_rules(context, selected)
+    states.update(parallel_states)
 
     for rule_id in selected:
         _enforce_timeout(scan_deadline)
+        if rule_id in parallel_states:
+            continue
         state = states[rule_id]
         if rule_id in {"SENT-012", "SENT-013", "SENT-014", "SENT-015", "SENT-016"}:
             _AST_DETECTORS[rule_id](context, state)

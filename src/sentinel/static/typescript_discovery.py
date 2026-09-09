@@ -78,6 +78,7 @@ class TypeScriptProgram:
         *,
         deadline: float,
         modules: TypeScriptModules | None = None,
+        trees: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         self.files = {file.relative_path: file for file in files}
         self.deadline = deadline
@@ -91,7 +92,11 @@ class TypeScriptProgram:
         ] = OrderedDict()
         self.warnings: list[ReportWarning] = modules.warnings if modules else []
         for file in files:
-            tree = parse_typescript(file, deadline=deadline)
+            tree = (
+                parse_typescript(file, deadline=deadline)
+                if trees is None
+                else trees[file.relative_path]
+            )
             self.trees[file.relative_path] = tree
             bindings: dict[str, list[dict[str, Any]]] = defaultdict(list)
             exports: set[str] = set()
