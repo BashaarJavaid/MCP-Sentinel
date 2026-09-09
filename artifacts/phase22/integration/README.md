@@ -1,11 +1,22 @@
-# Integration evidence, batches 1–18
+# Integration evidence, batches 1–19
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `029f686`. **It is not final technical acceptance.**
+through source commit `c75e876`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 19 retains 358 added/changed files through c75e876: equivalent/binary
+state checks, the 32/45 historical diagnostic and all 13 timeouts, Meta 0/5 at
+65ba622, corrected unsupported-schema campaign completion, consumer/artifact
+and installed-distribution audits, Git Path-presence counterexamples, shallow
+record serialization and every intermediate failure. All 69,092,685 raw bytes
+were read back against their member hashes; the archive is 3,323,497 bytes,
+SHA-256 `264172df072d0fa7e649b8ade8a0cdb4f57d1de75c9fb2b87cd713af34a27021`.
+Apply `evidence-v19.tar.gz` after batch 18 and verify `evidence-v19.json` before
+later packets. All included commands had finished before sealing. Final native
+completion, condition adjudication, full quality/hosted gates and the Meta label
+decision remain open; prior evidence and historical artifacts are preserved.
 Batch 18 retains 307 added/changed files: crowded source contexts, TypeScript
 record/client and factory metadata flow, checked Python shell APIs, offline corpus
 treatments, the 941-test source-flow and 79-test native/campaign audits, exact-state

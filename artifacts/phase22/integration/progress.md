@@ -1496,3 +1496,37 @@ The checks preserve packaged schemas/resources, TypeScript scans and Python/TS
 rules-only scans with empty/dummy credentials. This local smoke is not a Linux
 network-namespace isolation or hosted OS matrix result. The additional 104 core
 containment regressions pass (1.23 s).
+
+
+The full 4f2f81c historical diagnostic finishes 32/45 completed, with 13 static
+timeouts: three Atlassian auth inputs, four upload inputs, all four mobile pairs,
+and the Atlassian download/mobile locale controls. The run overlaps development
+checks and the 65ba622 Meta batch; all raw native successes and incomplete
+outcomes remain. It is not either required final repeat. The Git repository fixed
+candidate exposed a separate presence-state regression: the validator returns a
+contained Path, but its inherited possibly-missing flag prevents propagation.
+The first trace used the monorepo root; the corrected driver verifies frozen
+bytes and applies the declared scan root, reproducing the same lost guard.
+
+`0bc77f8` clears missing/None flags after successful Path construction. Two guarded
+counterexamples fail before correction; unguarded and local-pathlib controls pass.
+All 110 containment/artifact tests pass (7.26 s), with strict mypy checking 144
+files. The newly added artifact test's private re-export typing failure is
+corrected in `a7cf338`, with both records retained. `c75e876` serializes immutable
+TypeScript Value fields shallowly. Across 2000 records/9000 field values, before
+and after identities match SHA-256
+`858c9c281a9d1e2f41e7a808facb9de405f23edb637f3ebff5d57f31a75bd880`.
+The microbenchmark's actual serialization changes from 0.7786 s to 0.3102 s;
+this overlapped diagnostic does not establish native throughput. All 305 affected
+regressions pass (364.87 s; 470 deselected), and lint/format/types pass. Final
+native Git conditions and isolated Meta/large-family completion remain open.
+All running checks above finish before evidence sealing. Fresh holdout source
+and frozen labels remain untouched; no paid, publishing or outreach action occurs.
+
+
+Evidence batch 19 is sealed through c75e876: 358 added/changed files, 69,092,685
+raw bytes and 3,323,497 compressed bytes; archive SHA-256
+`264172df072d0fa7e649b8ade8a0cdb4f57d1de75c9fb2b87cd713af34a27021`.
+Every member was read back and verified. Earlier 18 batches, coverage databases,
+worktrees and recovery packets remain unchanged. Subsequent isolated native and
+full-source checks will be retained separately.
