@@ -5,7 +5,8 @@ from __future__ import annotations
 import copy
 import json
 from collections.abc import Sequence
-from dataclasses import asdict, replace
+from dataclasses import fields as dataclass_fields
+from dataclasses import replace
 from typing import Any
 
 from sentinel.report.model import ReportWarning
@@ -572,12 +573,19 @@ class TypeScriptPathFlow:
         )
 
     def record_state(self, root: str, fields: dict[str, Value]) -> Value:
+        attributes = dataclass_fields(Value)
         value = combine(
             list(fields.values()),
             _key(
                 root,
                 json.dumps(
-                    {name: asdict(field) for name, field in fields.items()},
+                    {
+                        name: {
+                            attribute.name: getattr(field, attribute.name)
+                            for attribute in attributes
+                        }
+                        for name, field in fields.items()
+                    },
                     sort_keys=True,
                     default=sorted,
                 ),
