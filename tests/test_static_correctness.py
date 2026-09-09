@@ -1406,7 +1406,7 @@ def test_direct_sink_in_unsupported_control_flow_stays_visible(
     assert any(w.code == "static_flow_unresolved" for w in result.warnings)
 
 
-def test_typescript_direct_member_sink_keeps_historical_location(
+def test_typescript_direct_member_sink_keeps_source_snippet(
     tmp_path: Path,
 ) -> None:
     result = _scan(
@@ -1424,7 +1424,11 @@ def test_typescript_direct_member_sink_keeps_historical_location(
     expected = "runInContext(value);"
     assert finding.evidence.model_dump()["snippet"] == expected
     assert isinstance(finding.location, FileLocation)
-    assert finding.location.range.end_column == len(expected) + 1
+    source = (tmp_path / "target" / finding.location.path).read_text(encoding="utf-8")
+    location = finding.location.range
+    line = source.splitlines()[location.start_line - 1]
+    assert line[location.start_column - 1 : location.end_column - 1] == expected
+    assert location.start_line == location.end_line
 
 
 @pytest.mark.parametrize("language", LANGUAGES)

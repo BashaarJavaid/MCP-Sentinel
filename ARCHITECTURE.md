@@ -353,6 +353,9 @@ Legacy TypeScript tool findings also derive their ranges and snippets from the
 retained original source. Handler offsets are relative to the actual callback
 body, including named callbacks, rather than the registration's metadata lines.
 Permission findings without a concrete operation use the registration location.
+Correcting a location can change its deduplication/baseline key and review request
+fingerprint. Historical reports and captures retain their original identities;
+only exact compatible requests may reuse a capture.
 
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
