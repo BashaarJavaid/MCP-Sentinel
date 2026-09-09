@@ -56,10 +56,17 @@ def combine(values: list[Value], key: str = "") -> Value:
 def _combine(values: tuple[Value, ...], key: str) -> Value:
     if values:
         first = values[0]
-        if all(value is first or value == first for value in values[1:]) and (
-            first.sources
-            or not (first.contained or first.option_safe or first.url_checks)
-        ):
+        if all(value is first or value == first for value in values[1:]):
+            if not first.sources and (
+                first.contained or first.option_safe or first.url_checks
+            ):
+                return replace(
+                    first,
+                    key=key or first.key,
+                    contained=False,
+                    option_safe=False,
+                    url_checks=frozenset(),
+                )
             return replace(first, key=key) if key and key != first.key else first
     present = [value for value in values if value.key not in {"None", "#missing"}]
     if present and len(present) != len(values):
@@ -1132,6 +1139,8 @@ class PathFlow:
                 )
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        if branches and all(branch == branches[0] for branch in branches[1:]):
+            branches = branches[:1]
         if len(branches) == 1:
             # Most helper exits have one surviving branch. Avoid re-combining
             # every unchanged member, preserving the same protection semantics.
@@ -1162,9 +1171,12 @@ class PathFlow:
                     or not (value.contained or value.option_safe or value.url_checks)
                 )
                 and (
-                    second.get(name, default) is value
+                    (other := second.get(name, default)) is value or other == value
                     if second is not None
-                    else all(branch.get(name, default) is value for branch in rest)
+                    else all(
+                        (other := branch.get(name, default)) is value or other == value
+                        for branch in rest
+                    )
                 )
             ):
                 env[name] = value
