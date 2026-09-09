@@ -1187,8 +1187,11 @@ These limits remain recorded, without a new accuracy threshold or scope relaxati
 
 That evaluation exposed incorrect legacy TypeScript finding coordinates. The five
 auth-fetch cases were marked exposed before correction `b163d7c`; `6e68331` also
-corrects a test that expected the old end column. New immutable verification is
-in progress. The unchanged TypeScript smoke replay test needs a compatible capture;
+corrects a test that expected the old end column. Its two historical runs complete
+45/45 with stable reports identical to dcb965f. Its full suite records 2021 passed,
+two failed, 36 skipped and 89.49% branch coverage. Commit d7184d3 corrects only a
+stale dry-run cost expectation, with both targeted tests passing. The raw suite
+remains failed. The unchanged TypeScript smoke replay test needs a compatible capture;
 its exact request is prepared offline, and paid authorization remains required.
 Pinned Semgrep completes 45/45 historical, 25/25 development and 20/25 held-out
 inputs; the five Solver inputs retain parser errors. All three named-condition

@@ -55,7 +55,14 @@ commits, durable tests, identities, outcomes, failures and limitations to each r
 
 ## Requirement-to-evidence audit (continuation; no overall acceptance claim)
 
-The current historical gate passes at `6e6833198989e06bd8c369abab0ee1a9d3db1ef8`: 45/45 inputs complete twice, and all stable reports are also identical to dcb965f. `v2-historical-gate-6e68331/packet.json` binds the existing condition and per-instance unrelated assessments by exact report hashes. The latest completed full-suite pass remains dcb965f; the current full suite is running with the unchanged TypeScript smoke capture dependency visible.
+The current historical gate passes at `6e6833198989e06bd8c369abab0ee1a9d3db1ef8`: 45/45 inputs complete twice, and all stable reports are also identical to dcb965f. `v2-historical-gate-6e68331/packet.json` binds the existing condition and per-instance unrelated assessments by exact report hashes. The latest completed full-suite pass remains dcb965f. The 6e68331 full suite finished with 2021 passed, two failed, 36 skipped and 89.49% branch coverage. A stale cost expectation is corrected in d7184d3 with both targeted tests passing; the unchanged TypeScript smoke capture dependency remains. The raw suite is still failed.
+
+`v2-requirement-execution-map-6e68331/packet.json` maps all 86 rows below to
+exact source/test hashes and actual JUnit executions. It preserves this owner's
+historical status text and records the separate d7184d3 correction; test-file
+passes do not automatically establish a requirement's condition, runtime,
+reviewed, hosted or human acceptance gate. Later evidence supplements the
+source-specific records below without erasing failures.
 `v2-historical-gate-dcb965f/packet.json` binds 45/45 completed twice,
 identical stable reports, 20/20 exposed vulnerable conditions and zero named
 fixed/safe alerts. `v2-full-suite-dcb965f` passes 2007 tests with 36 Docker

@@ -1979,3 +1979,33 @@ No paid calls, push, new draft, merge, release or outreach have occurred.
 Current completed post-v26 records await the next seal; active logs remain
 outside all sealed archives. Strict current docs pass in
 `v2-docs-current-gates-0367078`.
+
+### Full-suite accounting and authorized continuation at d7184d3
+
+The immutable 6e68331 full suite finished: 2021 passed, two failed, 36 skipped,
+89.49% branch coverage, 1201.74 seconds. Original JUnit SHA-256 is
+`341a4cf7d8ab429ee693a3356c40e6356222718ca72b76e502979ce28b8cf637`.
+The raw failed result and stopped downstream queues remain unchanged.
+
+`v2-phase12-budget-delta-6e68331/packet.json` reconstructs the exact old/new
+TypeScript requests: correct source coordinates add one serialized byte, priced
+at four microUSD by the existing legacy Phase 12 calculation. Its combined
+Python/TypeScript reservation changes from 130736 to 130740 microUSD, within the
+unchanged 140000 cap. Commit `d7184d3877c864cf1a48491864d820252a2f98b1` changes
+only the stale expected test string. Both tests pass in
+`v2-phase12-budget-expectation-corrected`; the tracked patch is preserved.
+No scanner, request, calculation, cap or transport changed.
+
+`v2-cost-correction-continuation-d7184d3.json` verifies the exact single test
+change and scanner/scripts byte identity to 6e68331. The unchanged TypeScript
+smoke replay failure still needs its already-prepared compatible capture. This
+is a targeted correction following a failed full suite, not a new full-suite
+pass. Native development/original held-out repeats resume at immutable 6e68331;
+quality/build/install/Docker/demo checks queue behind them at immutable d7184d3.
+All original queue failures and earlier checkpoints remain retained.
+
+`v2-requirement-execution-map-6e68331/packet.json` maps all 86 obligations to
+source/test hashes and actual full-suite test executions, including both raw
+failures and the separate targeted correction. File-level passes are not inferred
+requirement acceptance. These completed records await the next numbered seal.
+No paid calls, push, new draft, merge, release or outreach have occurred.

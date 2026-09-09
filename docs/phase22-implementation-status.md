@@ -423,8 +423,15 @@ The current compatibility/workspace/consumer source bindings, all 13 approved Gi
 catalog/campaign/sandbox comparisons, and pinned comparator harness/corpus
 bindings pass. Git execution remains 312 tested observations, 728 untested and
 no demonstrated violation; no new runtime execution is inferred from reuse.
-The current full suite is running and original Phase 22 repeats are queued; the
-known TypeScript smoke capture dependency is still an open check.
+The immutable 6e68331 full suite finished with 2021 passed, two failed and 36
+skipped, at 89.49% branch coverage. One failure was a stale Phase 12 dry-run
+cost expectation: the corrected TypeScript source coordinates add one serialized
+request byte, changing the existing calculation from $0.130736 to $0.130740.
+Commit d7184d3 changes only that test literal; both capture dry-run tests pass.
+Scanner code, requests, caps and calculation are unchanged. The other failure,
+the unchanged TypeScript smoke replay test, still needs a compatible capture.
+The raw full suite remains failed. Original Phase 22 repeats are running, with
+delivery checks queued against the immutable d7184d3 checkout.
 
 A separate replacement corpus proposal is committed under
 `artifacts/phase22/corpus-replacement-v1/`. It replaces only the five exposed
