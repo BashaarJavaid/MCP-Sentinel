@@ -398,7 +398,9 @@ request. Requests and aiohttp inherit authentication for request `auth=None`;
 httpx disables it. Request mappings override matching defaults, with case-insensitive
 header names. Httpx header/parameter setters copy mappings; requests assignments
 retain aliases. Known Basic Auth fields retain credential provenance and override
-Authorization headers. Custom authentication hooks remain unresolved.
+Authorization headers. Aiohttp default auth also respects a known base origin;
+combined auth and Authorization headers are disclosed as an invalid request.
+Custom authentication hooks remain unresolved.
 
 SENT-015 also tracks the current base URL on genuine Atlassian Jira/Confluence
 clients at supported REST requests and Jira `myself()`. A constructor alone is

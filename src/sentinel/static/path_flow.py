@@ -2067,6 +2067,10 @@ class PathFlow:
                 env[self.member_key(value, auth_field)] = keywords.get(
                     "auth", Value(key="None")
                 )
+                if resolved == "aiohttp.ClientSession":
+                    env[self.member_key(value, "_base_url")] = keywords.get(
+                        "base_url", args[0] if args else Value(key="None")
+                    )
                 for field in ("headers", "params"):
                     if field == "params" and resolved == "aiohttp.ClientSession":
                         continue

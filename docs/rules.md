@@ -440,7 +440,9 @@ Request overrides follow each supported library's authentication and mapping
 precedence. Header names are case-insensitive, while query keys retain their case.
 Httpx constructor/setter mappings are copied; requests member assignments retain
 aliases. Known Basic Auth fields are tracked, including requests field mutation;
-custom authentication hooks remain unresolved. Receiver factories are evaluated
+aiohttp default auth follows a known base origin, and conflicting auth/header
+arguments are disclosed as invalid. Custom authentication hooks remain unresolved.
+Receiver factories are evaluated
 once per call, and positional argument effects precede credential keyword values.
 It distinguishes caller-token rejection from checks of unrelated values and
 values replaced after validation. Dictionary member writes, copies and helper

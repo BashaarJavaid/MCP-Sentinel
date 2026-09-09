@@ -6,6 +6,7 @@ import ast
 import json
 from dataclasses import replace
 from typing import Any
+from urllib.parse import urljoin, urlsplit
 
 from sentinel.static.ast_utils import (
     match_from_node,
@@ -334,8 +335,9 @@ class CredentialFlow(PathFlow):
                 )
             }
         ):
-            for argument in node.args:
-                self.expression(symbol, argument, env)
+            arguments = [
+                self.expression(symbol, argument, env) for argument in node.args
+            ]
             keywords = {
                 keyword.arg: self.expression(symbol, keyword.value, env)
                 for keyword in node.keywords
@@ -366,6 +368,48 @@ class CredentialFlow(PathFlow):
                         else "auth",
                         env,
                     )
+                    if library == "aiohttp.ClientSession":
+                        base = member_label(self.member(receiver, "_base_url", env))
+                        index = 1 if method == "request" else 0
+                        url = member_label(
+                            keywords.get(
+                                "url",
+                                arguments[index]
+                                if len(arguments) > index
+                                else UNKNOWN_VALUE,
+                            )
+                        )
+                        if (base is None or isinstance(base, str)) and isinstance(
+                            url, str
+                        ):
+                            try:
+                                origin, destination = (
+                                    urlsplit(base or ""),
+                                    urlsplit(urljoin(base or "", url)),
+                                )
+                                if destination.username is not None or (
+                                    base is not None
+                                    and (
+                                        origin.scheme,
+                                        origin.hostname,
+                                        origin.port
+                                        or (443 if origin.scheme == "https" else 80),
+                                    )
+                                    != (
+                                        destination.scheme,
+                                        destination.hostname,
+                                        destination.port
+                                        or (
+                                            443 if destination.scheme == "https" else 80
+                                        ),
+                                    )
+                                ):
+                                    auth = Value(key="None")
+                            except ValueError:
+                                self.unresolved(
+                                    symbol, node, "invalid aiohttp request URL"
+                                )
+                                return UNKNOWN_VALUE
                 if auth is not None:
                     if auth.key in self.basic_auth_fields:
                         credentials.append(
@@ -393,6 +437,19 @@ class CredentialFlow(PathFlow):
                             ).items()
                             if isinstance(name, str) and marker in env
                         )
+                    if (
+                        field == "headers"
+                        and library == "aiohttp.ClientSession"
+                        and auth is not None
+                        and auth.key != "None"
+                        and "authorization" in values
+                    ):
+                        self.unresolved(
+                            symbol,
+                            node,
+                            "aiohttp rejects combined auth and Authorization header",
+                        )
+                        return UNKNOWN_VALUE
                     if (
                         field == "headers"
                         and auth is not None
