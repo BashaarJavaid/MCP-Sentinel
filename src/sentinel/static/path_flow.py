@@ -2343,7 +2343,9 @@ class PathFlow:
                 self.common_paths[result.key] = path_values
             return result
         if resolved == "pathlib.Path" and name.split(".")[0] not in env:
-            return replace(result, path_object=True)
+            return replace(
+                result, path_object=True, maybe_missing=False, maybe_none=False
+            )
         if resolved in {"str", "os.fspath"} and name.split(".")[0] not in env:
             return replace(result, path_object=False)
         if method in {"expanduser", "absolute"} and receiver.path_object:

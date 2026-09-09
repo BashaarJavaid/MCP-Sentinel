@@ -405,6 +405,51 @@ def test_optional_operator_root_does_not_become_a_caller_bypass(
     assert bool(state.matches) == caller_boundary
 
 
+@pytest.mark.parametrize("lookup", ["arguments['path']", "arguments.get('path')"])
+@pytest.mark.parametrize("guarded", [False, True])
+def test_constructed_path_keeps_helper_protection_for_optional_input(
+    lookup: str, guarded: bool
+) -> None:
+    source = (
+        "from pathlib import Path\n"
+        "def validate(path):\n"
+        "    path.resolve().relative_to(Path('/srv/data').resolve())\n"
+        "@mcp.tool()\ndef read(arguments: dict):\n"
+        f"    path = Path({lookup})\n"
+        + ("    validate(path)\n" if guarded else "")
+        + "    return open(path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert bool(state.matches) is not guarded
+
+
+def test_local_pathlib_constructor_does_not_establish_containment() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "pathlib.py": (
+                    "class Path:\n"
+                    "    def __init__(self, path): self.path = path\n"
+                    "    def resolve(self): return self\n"
+                    "    def relative_to(self, root): return self\n"
+                    "    def __fspath__(self): return self.path\n"
+                ),
+                "server.py": (
+                    "from pathlib import Path\n"
+                    "@mcp.tool()\ndef read(path):\n"
+                    "    p = Path(path).resolve()\n"
+                    "    p.relative_to(Path('/srv/data'))\n"
+                    "    return open(p)\n"
+                ),
+            }
+        ),
+        state,
+    )
+    assert state.matches
+
+
 def test_checking_unknown_transformation_does_not_validate_original_value() -> None:
     state = RuleRunState()
     analyze(
