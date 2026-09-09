@@ -48,6 +48,7 @@ class CredentialFlow(PathFlow):
         self.evaluated: dict[ast.AST, Value] = {}
         self.environment_text: dict[str, tuple[str, str]] = {}
         self.operator_predicates: dict[str, tuple[str, bool]] = {}
+        self.basic_auth_fields: dict[str, tuple[str, ...]] = {}
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         if not bindings.get("#credential:http", UNKNOWN_VALUE).contained and any(
@@ -227,6 +228,58 @@ class CredentialFlow(PathFlow):
 
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         external = self.external(symbol, node.func, env)
+        if (
+            external
+            in {"httpx.BasicAuth", "requests.auth.HTTPBasicAuth", "aiohttp.BasicAuth"}
+            and self.program.external(symbol, node.func) == external
+        ):
+            fields: tuple[str, ...] = (
+                ("login", "password")
+                if external == "aiohttp.BasicAuth"
+                else ("username", "password")
+            )
+            arguments = [self.expression(symbol, arg, env) for arg in node.args]
+            keywords = {
+                keyword.arg: self.expression(symbol, keyword.value, env)
+                for keyword in node.keywords
+            }
+            value = combine(
+                [*arguments, *keywords.values()],
+                _key(
+                    external,
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                ),
+            )
+            required = fields[:1] if external == "aiohttp.BasicAuth" else fields
+            if (
+                len(arguments) <= 2
+                and not any(isinstance(arg, ast.Starred) for arg in node.args)
+                and all(
+                    name in fields
+                    or (name == "encoding" and external == "aiohttp.BasicAuth")
+                    for name in keywords
+                )
+                and not any(field in keywords for field in fields[: len(arguments)])
+                and all(
+                    index < len(arguments) or field in keywords
+                    for index, field in enumerate(required)
+                )
+            ):
+                self.record_keys.add(value.key)
+                for index, field in enumerate(fields):
+                    env[self.member_key(value, field)] = (
+                        arguments[index]
+                        if index < len(arguments)
+                        else keywords.get(field, UNKNOWN_VALUE)
+                    )
+                if external == "httpx.BasicAuth":
+                    fields = ("_auth_header",)
+                    env[self.member_key(value, fields[0])] = value
+                self.basic_auth_fields[value.key] = fields
+            return value
         service_client = external in {"atlassian.Jira", "atlassian.Confluence"} and (
             self.program.external(symbol, node.func) == external
         )
@@ -283,26 +336,84 @@ class CredentialFlow(PathFlow):
         ):
             for argument in node.args:
                 self.expression(symbol, argument, env)
-            credentials = []
-            for keyword in node.keywords:
-                value = self.expression(symbol, keyword.value, env)
-                if (service_client and keyword.arg in {"token", "password"}) or (
-                    not service_client and keyword.arg == "auth"
+            keywords = {
+                keyword.arg: self.expression(symbol, keyword.value, env)
+                for keyword in node.keywords
+            }
+            credentials: list[Value] = []
+            if service_client:
+                credentials.extend(
+                    keywords[field]
+                    for field in ("token", "password")
+                    if field in keywords
+                )
+            else:
+                library = (
+                    self.http_clients.get(receiver.key) if client_request else None
+                )
+                auth = keywords.get("auth")
+                if library and (
+                    auth is None
+                    or (
+                        auth.key == "None"
+                        and library in {"requests.Session", "aiohttp.ClientSession"}
+                    )
                 ):
-                    credentials.append(value)
-                elif not service_client and keyword.arg in {
-                    "headers",
-                    "params",
-                    "data",
-                    "json",
-                }:
+                    auth = self.member(
+                        receiver,
+                        "_default_auth"
+                        if library == "aiohttp.ClientSession"
+                        else "auth",
+                        env,
+                    )
+                if auth is not None:
+                    if auth.key in self.basic_auth_fields:
+                        credentials.append(
+                            combine(
+                                [
+                                    self.member(auth, name, env)
+                                    for name in self.basic_auth_fields[auth.key]
+                                ]
+                            )
+                        )
+                    else:
+                        credentials.append(auth)
+                for field in ("headers", "params", "data", "json"):
+                    values: dict[str, Value] = {}
+                    mappings = []
+                    if library and field in {"headers", "params"}:
+                        mappings.append(self.member(receiver, field, env))
+                    if field in keywords:
+                        mappings.append(keywords[field])
+                    for mapping in mappings:
+                        values.update(
+                            (name.lower() if field == "headers" else name, env[marker])
+                            for name, marker in self.members.get(
+                                mapping.key, {}
+                            ).items()
+                            if isinstance(name, str) and marker in env
+                        )
+                    if (
+                        field == "headers"
+                        and auth is not None
+                        and (
+                            (
+                                auth.key in self.basic_auth_fields
+                                and "#member:unknown:" + auth.key not in env
+                            )
+                            or (
+                                self.sequence_keys.get(auth.key) is False
+                                and len(self.sequence_elements(auth, env) or ()) == 2
+                                and library != "aiohttp.ClientSession"
+                            )
+                        )
+                    ):
+                        values.pop("authorization", None)
                     credentials.extend(
-                        env[marker]
-                        for field, marker in self.members.get(value.key, {}).items()
-                        if isinstance(field, str)
-                        and field.lower()
+                        value
+                        for name, value in values.items()
+                        if name.lower()
                         in {"authorization", "x-api-key", "access_token", "api_key"}
-                        and marker in env
                     )
             absent = combine(
                 [

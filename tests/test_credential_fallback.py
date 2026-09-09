@@ -856,7 +856,8 @@ def test_sdk_unset_request_context_can_select_operator_credentials(
         + f"    mcp.run(transport={transport!r})\n"
         "@mcp.tool()\ndef accounts():\n"
         "    selected=token.get() or os.getenv('OPERATOR_TOKEN')\n"
-        "    return requests.get('https://api.example.com',params={'access_token':selected})\n",
+        "    return requests.get('https://api.example.com',params"
+        "={'access_token':selected})\n",
         encoding="utf-8",
     )
     config = load_configuration(
@@ -884,7 +885,8 @@ def test_sdk_branch_evidence_survives_finding_merge(tmp_path: Path) -> None:
         "    setup(mcp)\n    mcp.run(transport='streamable-http')\n"
         "@mcp.tool()\ndef accounts():\n"
         "    selected=token.get() or os.getenv('OPERATOR_TOKEN')\n"
-        "    return requests.get('https://api.example.com',params={'access_token':selected})\n",
+        "    return requests.get('https://api.example.com',params"
+        "={'access_token':selected})\n",
         encoding="utf-8",
     )
     config = load_configuration(
@@ -1122,6 +1124,268 @@ def test_typescript_mixed_mcp_http_factory(tmp_path: Path, protected: bool) -> N
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == (not protected)
+
+
+@pytest.mark.parametrize(
+    ("setup", "options", "expected"),
+    [
+        ("client=requests.Session(); client.auth=('service', token)", "", 1),
+        ("client=requests.Session(); client.auth=('service', token)", ", auth=None", 1),
+        (
+            "client=requests.Session(); client.auth=('service', token)",
+            ", auth=('service', 'fixed')",
+            0,
+        ),
+        ("client=httpx.Client(auth=('service', token))", "", 1),
+        (
+            "client=httpx.Client(headers={'Authorization': token})",
+            ", auth=('service', 'fixed')",
+            0,
+        ),
+        (
+            "client=requests.Session(); client.headers={'Authorization': token}",
+            ", auth=requests.auth.HTTPBasicAuth('service', 'fixed')",
+            0,
+        ),
+        ("client=httpx.Client(auth=('service', token)); client.auth=None", "", 0),
+        (
+            "client=httpx.Client(auth=('service', token)); "
+            "client.get=lambda *args: None",
+            "",
+            0,
+        ),
+        ("client=httpx.AsyncClient(auth=('service', token))", ", auth=None", 0),
+        ("client=httpx.Client(headers={'Authorization': token})", "", 1),
+        (
+            "client=httpx.Client(headers={'Authorization': token})",
+            ", headers={'authorization': 'fixed'}",
+            0,
+        ),
+        (
+            "client=httpx.Client(headers={'Authorization': token})",
+            ", headers={'X-Other': 'fixed'}",
+            1,
+        ),
+        ("client=requests.Session(); client.headers={'Authorization': token}", "", 1),
+        (
+            "client=requests.Session(); "
+            "client.headers.update({'Authorization': token})",
+            "",
+            1,
+        ),
+        ("client=requests.Session(); client.params={'access_token': token}", "", 1),
+        ("client=httpx.Client(params={'access_token': token})", "", 1),
+        (
+            "client=httpx.Client(headers={'Authorization': token}); "
+            "client.headers['authorization']='fixed'; "
+            "client.headers['Authorization']=token",
+            "",
+            1,
+        ),
+        (
+            "client=httpx.Client(); "
+            "client.headers={'Authorization': token}; "
+            "client.headers['authorization']='fixed'; "
+            "client.headers['Authorization']=token",
+            "",
+            1,
+        ),
+        ("client=aiohttp.ClientSession(headers={'Authorization': token})", "", 1),
+        (
+            "headers={'Authorization': token}; "
+            "client=httpx.Client(headers=headers); "
+            "headers['Authorization']='fixed'",
+            "",
+            1,
+        ),
+        (
+            "headers={'Authorization': token}; "
+            "client=httpx.Client(); "
+            "client.headers=headers; "
+            "headers['Authorization']='fixed'",
+            "",
+            1,
+        ),
+        (
+            "headers={'Authorization': 'fixed'}; "
+            "client=httpx.Client(); "
+            "client.headers=headers; "
+            "headers['Authorization']=token",
+            "",
+            0,
+        ),
+        (
+            "headers={'Authorization': token}; "
+            "client=requests.Session(); "
+            "client.headers=headers; "
+            "headers['Authorization']='fixed'",
+            "",
+            0,
+        ),
+        (
+            "client=httpx.Client(headers={'Authorization': token}); "
+            "client.headers['authorization']='fixed'",
+            "",
+            0,
+        ),
+        (
+            "client=httpx.Client(headers={'authorization': token}); "
+            "client.headers.update({'Authorization': 'fixed'})",
+            "",
+            0,
+        ),
+        (
+            "client=requests.Session(); "
+            "client.headers['Authorization']=token; "
+            "client.headers['authorization']='fixed'",
+            "",
+            0,
+        ),
+        (
+            "client=httpx.Client(params={'access_token': token})",
+            ", params={'access_token': 'fixed'}",
+            0,
+        ),
+        (
+            "client=httpx.Client(params={'access_token': token})",
+            ", params={'ACCESS_TOKEN': 'fixed'}",
+            1,
+        ),
+        (
+            "client=requests.Session(); client.headers['Authorization']=token",
+            ", headers={'authorization': None}",
+            0,
+        ),
+        ("client=httpx.Client(auth=httpx.BasicAuth('service', token))", "", 1),
+        (
+            "client=requests.Session(); "
+            "client.auth=requests.auth.HTTPBasicAuth('service', token)",
+            "",
+            1,
+        ),
+        (
+            "client=aiohttp.ClientSession(auth=aiohttp.BasicAuth('service', token))",
+            ", auth=None",
+            1,
+        ),
+    ],
+)
+def test_session_defaults_reach_the_actual_request(
+    tmp_path: Path, setup: str, options: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    await_call = "await " if "AsyncClient" in setup or "aiohttp" in setup else ""
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\n"
+        "import os, requests, httpx, aiohttp\napp=FastAPI()\n"
+        "@app.get('/data')\nasync def fetch(request: Request):\n"
+        "    token=request.headers.get('Authorization') or os.getenv('TOKEN')\n"
+        f"    {setup}\n"
+        f"    return {await_call}client.get('https://api.example.com'{options})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == expected
+    if findings:
+        assert isinstance(findings[0].evidence, StaticEvidence)
+        assert findings[0].evidence.range.start_line == 8
+
+
+@pytest.mark.parametrize(
+    ("boundary", "body", "expected"),
+    [
+        (
+            "http",
+            "token=request.headers.get('Authorization') or "
+            "os.getenv('TOKEN')\n"
+            "    client=httpx.Client(auth=('service', token))\n"
+            "    return 'constructed'",
+            0,
+        ),
+        (
+            "stdio",
+            "token=os.getenv('TOKEN')\n"
+            "    client=httpx.Client(auth=('service', token))\n"
+            "    return client.get('https://api.example.com')",
+            0,
+        ),
+        (
+            "http",
+            "token=request.headers.get('Authorization')\n"
+            "    if not token: raise ValueError('missing')\n"
+            "    client=httpx.Client(auth=('service', token or "
+            "os.getenv('TOKEN')))\n"
+            "    return client.get('https://api.example.com')",
+            0,
+        ),
+        (
+            "http",
+            "token=request.headers.get('Authorization') or "
+            "os.getenv('TOKEN')\n"
+            "    client=httpx.Client()\n"
+            "    attach(client, token)\n"
+            "    return client.get('https://api.example.com')",
+            1,
+        ),
+        (
+            "http",
+            "token=request.headers.get('Authorization') or "
+            "os.getenv('TOKEN')\n"
+            "    client=httpx.Client(auth=('service', token))\n"
+            "    external.replace(client)\n"
+            "    return client.get('https://api.example.com')",
+            0,
+        ),
+        (
+            "http",
+            "token=request.headers.get('Authorization') or "
+            "os.getenv('TOKEN')\n"
+            "    auth=requests.auth.HTTPBasicAuth('service', token)\n"
+            "    auth.password='fixed'\n"
+            "    client=requests.Session()\n"
+            "    client.auth=auth\n"
+            "    return client.get('https://api.example.com')",
+            0,
+        ),
+        (
+            "http",
+            "token=request.headers.get('Authorization') or "
+            "os.getenv('TOKEN')\n"
+            "    auth=requests.auth.HTTPBasicAuth('service', 'fixed')\n"
+            "    auth.password=token\n"
+            "    client=requests.Session()\n"
+            "    client.auth=auth\n"
+            "    return client.get('https://api.example.com')",
+            1,
+        ),
+    ],
+)
+def test_session_credentials_require_a_supported_http_request(
+    tmp_path: Path, boundary: str, body: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    entry = (
+        "app=FastAPI()\n@app.get('/data')\ndef fetch(request: Request):\n"
+        if boundary == "http"
+        else "mcp=FastMCP('service')\n@mcp.tool()\ndef fetch():\n"
+    )
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nfrom mcp.server.fastmcp import FastMCP\n"
+        "import os, requests, httpx, external\n"
+        "def attach(client, token):\n    client.headers['Authorization']=token\n"
+        + entry
+        + "    "
+        + body
+        + "\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == expected
 
 
 @pytest.mark.parametrize("protected", [False, True])

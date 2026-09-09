@@ -1096,3 +1096,39 @@ def test_decorator_factory_keeps_each_returned_closure_separate() -> None:
     analyze(index, state)
     assert len(state.matches) == 1
     assert state.matches[0].range.start_line == 17
+
+
+@pytest.mark.parametrize("protected", [False, True])
+@pytest.mark.parametrize("dispatch", ["if", "match"])
+def test_python_low_level_dispatch_reaches_imported_guard_and_sink(
+    protected: bool, dispatch: str
+) -> None:
+    branch = (
+        "    if name == 'read':\n        return read(arguments['path'])\n"
+        if dispatch == "if"
+        else "    match name:\n        case 'read':\n            return "
+        "read(arguments['path'])\n"
+    )
+    validation = (
+        "    target.relative_to(root)\n"
+        if protected
+        else "    root.relative_to(root)\n"
+    )
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from mcp.server import Server\nfrom handler import read\n"
+                "server=Server('test')\n@server.call_tool()\n"
+                "async def dispatch(name, arguments):\n" + branch,
+                "handler.py": "from pathlib import Path\ndef read(value):\n"
+                "    root=Path('/srv/data').resolve()\n    target=(root/va"
+                "lue).resolve()\n" + validation + "    return target.read_text()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == (not protected)
+    if state.matches:
+        assert state.matches[0].path == "handler.py"
+        assert state.matches[0].range.start_line == 6

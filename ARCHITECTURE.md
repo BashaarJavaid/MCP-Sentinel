@@ -392,8 +392,13 @@ Python HTTP client identity is shared by URL and credential flow for the existin
 httpx, requests and aiohttp client constructors. Ordinary member state tracks
 replacement and escape; an unknown receiver cannot establish a request method.
 Receiver evaluation is scoped to one call across rule delegation, and credential
-requests evaluate positional effects before reading keyword values. Client-level
-authentication defaults are not yet a supported credential source.
+requests evaluate positional effects before reading keyword values. Credential flow
+includes session authentication, headers and supported query defaults at the actual
+request. Requests and aiohttp inherit authentication for request `auth=None`;
+httpx disables it. Request mappings override matching defaults, with case-insensitive
+header names. Httpx header/parameter setters copy mappings; requests assignments
+retain aliases. Known Basic Auth fields retain credential provenance and override
+Authorization headers. Custom authentication hooks remain unresolved.
 
 SENT-015 also tracks the current base URL on genuine Atlassian Jira/Confluence
 clients at supported REST requests and Jira `myself()`. A constructor alone is

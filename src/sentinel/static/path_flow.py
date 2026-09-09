@@ -185,6 +185,7 @@ class PathFlow:
             for file in program.files
         }
         self.mapping_keys: set[str] = set()
+        self.header_mappings: set[str] = set()
         self.optional_mappings: dict[str, Value] = {}
         self.record_keys: set[str] = set()
         self.sequence_keys: dict[str, bool] = {}
@@ -904,6 +905,8 @@ class PathFlow:
         return False
 
     def member_key(self, value: Value, member: object) -> str:
+        if value.key in self.header_mappings and isinstance(member, str):
+            member = member.lower()
         if value.key in self.http_context.state_owners:
             return self.member_key(self.http_context.state_owners[value.key], member)
         if value.key in self.optional_mappings:
@@ -1153,6 +1156,24 @@ class PathFlow:
                     self.update_mapping(receiver, value, env)
         elif isinstance(target, ast.Attribute):
             receiver = self.bound_value(target.value, env)
+            if self.http_clients.get(receiver.key) in {
+                "httpx.Client",
+                "httpx.AsyncClient",
+            } and target.attr in {"headers", "params"}:
+                mapping = Value(
+                    key=_key(
+                        receiver.key,
+                        target.attr,
+                        str(target.lineno),
+                        str(target.col_offset),
+                        *self.call_sites,
+                    )
+                )
+                self.mapping_keys.add(mapping.key)
+                if target.attr == "headers":
+                    self.header_mappings.add(mapping.key)
+                self.update_mapping(mapping, value, env)
+                value = mapping
             if receiver.instance is not None and (
                 target.attr.startswith("__")
                 or self.instance_member(receiver, target.attr) is not None
@@ -2034,6 +2055,30 @@ class PathFlow:
                     self.http_clients[session.key] = "requests.Session"
                     self.record_keys.add(session.key)
                 env[self.member_key(value, "_session")] = session
+            else:
+                if resolved == "requests.Session" and (args or keywords):
+                    self.unresolved(
+                        symbol, node, "unsupported Session constructor arguments"
+                    )
+                    return UNKNOWN_VALUE
+                auth_field = (
+                    "_default_auth" if resolved == "aiohttp.ClientSession" else "auth"
+                )
+                env[self.member_key(value, auth_field)] = keywords.get(
+                    "auth", Value(key="None")
+                )
+                for field in ("headers", "params"):
+                    if field == "params" and resolved == "aiohttp.ClientSession":
+                        continue
+                    mapping = Value(key=_key(value.key, field))
+                    self.mapping_keys.add(mapping.key)
+                    if field == "headers":
+                        self.header_mappings.add(mapping.key)
+                        # Library-provided ordinary headers are not an empty mapping.
+                        env["#member:unknown:" + mapping.key] = UNKNOWN_VALUE
+                    if field in keywords:
+                        self.update_mapping(mapping, keywords[field], env)
+                    env[self.member_key(value, field)] = mapping
             return value
         if (
             resolved == "dataclasses.replace"

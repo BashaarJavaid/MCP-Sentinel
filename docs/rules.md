@@ -434,9 +434,14 @@ and username arguments alone are not treated as credential use. Explicit request
 credentials are also recognized on source-established `httpx.Client`,
 `httpx.AsyncClient`, `requests.Session` and `aiohttp.ClientSession` receivers.
 URL and credential checks share that identity; method replacement and unknown
-escape invalidate it. Constructor-level session authentication defaults still
-require additional flow support. Receiver factories are evaluated once per call,
-and positional argument effects precede credential keyword values.
+escape invalidate it. Session authentication, header and supported query defaults
+flow to the actual request; constructing a session alone is not a credential sink.
+Request overrides follow each supported library's authentication and mapping
+precedence. Header names are case-insensitive, while query keys retain their case.
+Httpx constructor/setter mappings are copied; requests member assignments retain
+aliases. Known Basic Auth fields are tracked, including requests field mutation;
+custom authentication hooks remain unresolved. Receiver factories are evaluated
+once per call, and positional argument effects precede credential keyword values.
 It distinguishes caller-token rejection from checks of unrelated values and
 values replaced after validation. Dictionary member writes, copies and helper
 mutations retain the relevant credential selection. A local stdio tool's use of
