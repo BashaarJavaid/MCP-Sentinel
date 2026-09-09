@@ -349,6 +349,11 @@ and are rejected before analysis unless `--static-only` or `--rules-only` is sel
 orchestrator owns one dedicated Semgrep catalog-discovery pass and reuses that
 catalog for GPT review.
 
+Legacy TypeScript tool findings also derive their ranges and snippets from the
+retained original source. Handler offsets are relative to the actual callback
+body, including named callbacks, rather than the registration's metadata lines.
+Permission findings without a concrete operation use the registration location.
+
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
 Python path flow retains the distinction between a contained requested path and
