@@ -1,11 +1,20 @@
-# Integration evidence, batches 1–21
+# Integration evidence, batches 1–22
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `5f6bb9a`. **It is not final technical acceptance.**
+through source commit `fd9320b`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 22 retains 340 added/changed files through fd9320b: full quality
+and installed distributions at 5f6bb9a, all 36 Docker controls, the incomplete
+42/45 historical run, uncaptured demo dynamic review, session credential corrections
+and exact Python/TypeScript retained-request equivalence. Every member was read
+back against its hash. Archive size: 5,141,177 bytes; SHA-256
+`6fabd73b363f7a3de18b12e05f9fc161b6530210d7608261f68ce0e51c6ba127`. Apply `evidence-v22.tar.gz` after batch 21 and verify
+`evidence-v22.json`. All included checks finished before sealing. Final candidate
+benchmarks and paid/hosted/external gates remain open.
+
 Batch 21 retains 194 added/changed files through 5f6bb9a: approved Git campaigns
 and native consumers, bounded production static workers, complete Meta development
 inputs, exact Mobile native serial/worker equivalence, wheel smoke extension and

@@ -1674,3 +1674,54 @@ bytes, SHA-256 `e80849c1c12f75590c844d72d6fb0daf0fc74bb2358efa8ea0922ee8e1709136
 Every member was read back against its hash. After sealing, the complete historical
 45-input run began on the separate immutable 5f6bb9a checkout; no result is assumed.
 All final repeat, held-out, quality/hosted, paid, draft and external gates remain.
+
+
+## Session credentials and completed verification through fd9320b
+
+Immutable 5f6bb9a full coverage passes: 1,910 tests, 36 skipped, 89.25% branch
+coverage in 1,760.96 seconds. Its schemas, notices, artifacts, lock/export, audit,
+build and installed pip/sdist/pipx/uv checks pass; strict docs pass at c589a73.
+The historical first run completes 42/45 inputs. Both fixed upload inputs and
+the vulnerable Mobile mutation exceed 120 seconds while other verification
+was running. The harness exits 1; this is not a qualifying repeat.
+
+All 36 Docker controls pass at 5f6bb9a in 158.99 seconds. The preceding vulnerable
+reference failure remains, followed by a traced passing retry with all 20 attempts
+observed. The corrected replay demo runs all 20 attempts but exits 3 because
+dynamic review needs capture b826810055334d200c918b50ba4d78b12046244ccc02bfa06b83db0b1f928e39.
+No model calls occurred. The first `python -m sentinel.cli` invocation was a no-op
+and is not demo evidence. Capture replacement belongs in the paid checkpoint.
+
+cfeee22 follows session auth, headers and query defaults to actual requests,
+including mapping copies, aliases, overrides, case-insensitive headers and known
+Basic Auth fields. No-request, stdio, enforced guard, helper mutation, replaced
+method and escaped-client controls are retained. Initial ten missing detections,
+two setter-copy errors and two auth-precedence errors were reproduced before
+correction. A wrong test line assertion, style/type failures and diagnostic strict
+JSON validation error remain. The expanded shared suite passes 831 tests; strict
+types/style and 39 final session checks pass. Four Python low-level if/match
+dispatch controls verify imported caller/guard/sink behavior, not only discovery.
+
+fd9320b additionally models aiohttp's known base-origin restriction and rejects
+combined auth/Authorization requests. Two counterexamples failed before correction;
+42 focused session checks, whole-project strict types and lint pass afterward.
+Aiohttp was not installed in the locked scanner environment; its 3.14.3 official
+source documentation was inspected at https://docs.aiohttp.org/en/stable/_modules/aiohttp/client.html.
+Requests 2.34.2 and httpx 0.28.1 semantics were checked against installed source.
+These are source-flow controls, not target runtime execution.
+
+Exact preparation from retained native findings reproduces both request fingerprints
+and normalized request bytes on one Python Git and one TypeScript filesystem input
+at 5f6bb9a (two batches each). This permits reuse of validated findings for current
+request preparation without claiming reviewed evaluation or compatible old captures
+before the current candidate contexts are rebuilt.
+
+Batch 22 retains 340 added/changed files through fd9320b: full quality
+and installed distributions at 5f6bb9a, all 36 Docker controls, the incomplete
+42/45 historical run, uncaptured demo dynamic review, session credential corrections
+and exact Python/TypeScript retained-request equivalence. Every member was read
+back against its hash. Archive size: 5,141,177 bytes; SHA-256
+`6fabd73b363f7a3de18b12e05f9fc161b6530210d7608261f68ce0e51c6ba127`. Apply `evidence-v22.tar.gz` after batch 21 and verify
+`evidence-v22.json`. All included checks finished before sealing. Final candidate
+benchmarks and paid/hosted/external gates remain open.
+

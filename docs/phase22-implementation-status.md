@@ -14,9 +14,14 @@ impersonation, lexical shadowing and Annotated lifespan binding, with 196 focuse
 and 388 HTTP-related regression passes. All 13 approved Git runtime campaigns
 were remeasured at `394bb8a`: 24/80 attempts tested per input, exit 3, clean cleanup;
 312 observations without a violation and 728 untested attempts establish no defense.
-The latest full immutable milestone is `3e1faac`: 1,882 passed, 36 skipped,
-89.27% branch coverage. Later changes still need final integrated verification.
-Integration evidence batch 21 preserves commands, failures and exact identities.
+The latest full immutable milestone is `5f6bb9a`: 1,910 passed, 36 skipped,
+89.25% branch coverage. All 36 Docker controls and installed distributions pass
+at that source. Its historical first run completes 42/45 with three retained
+timeouts under competing verification. Session credentials and aiohttp origin
+constraints through `fd9320b` pass 831 shared and 42 final focused regressions
+plus strict types/style; final integrated measurements remain pending. The replay
+demo needs an approved new dynamic-review capture and exits 3. Integration batch
+22 preserves these commands, failures and identities.
 
 The earlier full fixed-source milestone, `f2ea709`, passed 1,775 tests with 36 skips
 and 89.11% branch coverage. Later TypeScript middleware work at `0491f32` passed
