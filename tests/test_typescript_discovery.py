@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from sentinel.static.model import TypeScriptSourceFile
+from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
@@ -311,3 +311,107 @@ def test_factory_legacy_ambiguous_arguments_stay_unresolved(
         or "ambiguous legacy tool metadata" in warning.message
         for warning in state.warnings
     )
+
+
+@pytest.mark.parametrize(
+    "method",
+    [
+        "execute: async (url)=>fetcher(url)",
+        "async execute(url) { return fetcher(url); }",
+    ],
+)
+@pytest.mark.parametrize("reverse", [False, True])
+def test_object_service_allocations_keep_distinct_captured_fetchers(
+    tmp_path: Path, method: str, reverse: bool
+) -> None:
+    declarations = [
+        "const unsafe=service((url)=>fetch(url));",
+        'const safe=service((url)=>fetch("https://example.com/"));',
+    ]
+    if reverse:
+        declarations.reverse()
+    state = _object_url_flow(
+        tmp_path,
+        f"function service(fetcher) {{ return {{{method}}}; }}\n"
+        + "\n".join(declarations)
+        + "\nunsafe.execute(url); safe.execute(url);",
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("access", [".execute", '["execute"]'])
+@pytest.mark.parametrize(
+    ("method", "expected"),
+    [
+        ("execute() { return fetch(this.url); }", 0),
+        ("execute: ()=>fetch(this.url)", 1),
+    ],
+)
+def test_object_method_receiver_and_arrow_lexical_this(
+    tmp_path: Path, access: str, method: str, expected: int
+) -> None:
+    state = _object_url_flow(
+        tmp_path,
+        "const owner={url, make() { return {"
+        f'url:"https://example.com/", {method}'
+        "}; }};\n"
+        f"const service=owner.make(); return service{access}();",
+    )
+    assert len(state.matches) == expected
+
+
+def test_object_accessors_stay_unresolved(tmp_path: Path) -> None:
+    state = _object_url_flow(
+        tmp_path,
+        "const service={get execute() { return (url)=>fetch(url); }};\n"
+        "return service.execute(url);",
+    )
+    assert not state.matches
+    assert any("object member" in w.message for w in state.warnings)
+
+
+@pytest.mark.parametrize(
+    ("call", "expected"),
+    [
+        ("return service.execute();", 1),
+        ("const execute=service.execute; return execute();", 0),
+        (
+            'const other={url:"https://example.com/",execute:service.execute};'
+            " return other.execute();",
+            0,
+        ),
+        ("service.execute=(value)=>fetch(value); return service.execute(url);", 1),
+        (
+            'service.execute=()=>fetch("https://example.com/");'
+            " return service.execute();",
+            0,
+        ),
+        ("unknown(service); return service.execute();", 0),
+    ],
+)
+def test_object_method_binding_replacement_and_escape(
+    tmp_path: Path, call: str, expected: int
+) -> None:
+    state = _object_url_flow(
+        tmp_path,
+        "const service={url, execute(){return fetch(this.url);}};\n" + call,
+    )
+    assert len(state.matches) == expected
+
+
+def _object_url_flow(tmp_path: Path, body: str) -> RuleRunState:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+    from sentinel.static.typescript_path_flow import analyze
+
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {z} from "zod";\n'
+        'const server=new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("fetch",{inputSchema:{url:z.string()}},'
+        "async ({url})=>{\n" + body + "\n});\n"
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    return state

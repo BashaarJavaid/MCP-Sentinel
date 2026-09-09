@@ -379,6 +379,12 @@ captured source helpers. Other legacy layouts remain unresolved, including
 annotation overloads and unknown schemas. Computed names remain unresolved;
 following a callback does not establish the binding of an injected runtime service.
 
+Plain object methods, async methods and arrow properties retain captured helpers
+in distinct source call contexts. Dot calls and literal-key object calls bind an
+ordinary method's receiver; arrows retain lexical `this`, and extracted ordinary
+methods acquire no receiver. Existing record replacement and escape handling
+applies to these methods. Accessors remain explicitly unresolved.
+
 Included plain TypeScript classes retain instance/static method receivers,
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an

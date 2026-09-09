@@ -799,11 +799,20 @@ class TypeScriptPathFlow:
                 return value
         if "Lambda" in node or "FuncDef" in node:
             value = Value(
-                key=_key(file.relative_path, str(self.program.source_range(node, file)))
+                key=_key(
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                    *(
+                        site.file.relative_path
+                        + str(self.program.source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
+                )
             )
             self.callables[value.key] = TypeScriptSymbol(file, node)
             self.closures[value.key] = env
-            if (node.get("Lambda") or {}).get("fkind", [None])[0] == "Arrow":
+            function_node = node.get("Lambda") or node.get("FuncDef") or {}
+            if function_node.get("fkind", [None])[0] == "Arrow":
                 self.lexical_this.add(value.key)
             return value
         if "Assign" in node:
@@ -858,6 +867,7 @@ class TypeScriptPathFlow:
         if "ArrayAccess" in node:
             receiver, index = node["ArrayAccess"]
             parent = self.expression(file, receiver, env)
+            self.receivers[id(node)] = parent
             index_value = self.expression(file, index[1], env)
             member = self.string_literals.get(index_value.key)
             if parent.key in self.record_roots and member is not None:
@@ -913,11 +923,25 @@ class TypeScriptPathFlow:
             return value
         if "Record" in node:
             fields: dict[str, Value] = {}
+            plain_record = True
             for field in node["Record"][1]:
                 definition = field.get("F", {}).get("DefStmt")
                 if definition:
                     field_name = name_of(definition[0]["name"])
-                    if field_name:
+                    if field_name and "FuncDef" in definition[1]:
+                        if any(
+                            attr.get("KeywordAttr", [None])[0] != "Async"
+                            for attr in definition[0].get("attrs", [])
+                        ):
+                            fields[field_name] = UNKNOWN_VALUE
+                            plain_record = False
+                            self.warning(file, field, "unsupported object member")
+                        else:
+                            fields[field_name] = self.expression(
+                                file, definition[1], env
+                            )
+                    elif field_name:
+                        plain_record &= "FieldDefColon" in definition[1]
                         fields[field_name] = self.expression(
                             file,
                             (
@@ -939,10 +963,7 @@ class TypeScriptPathFlow:
                 ),
             )
             self.objects[value.key] = fields
-            if len(fields) == len(node["Record"][1]) and all(
-                "FieldDefColon" in field.get("F", {}).get("DefStmt", [{}, {}])[1]
-                for field in node["Record"][1]
-            ):
+            if plain_record and len(fields) == len(node["Record"][1]):
                 self.record_roots[value.key] = value.key
                 env["#record:" + value.key] = value
             return value
@@ -987,7 +1008,7 @@ class TypeScriptPathFlow:
         )
         receiver = (
             self.receivers.get(id(callee), Value())
-            if "DotAccess" in callee
+            if "DotAccess" in callee or "ArrayAccess" in callee
             else Value()
         )
         symbol = self.callables.get(callable_value.key)
@@ -1476,8 +1497,10 @@ class TypeScriptPathFlow:
                 }
                 if callable_value.key not in self.lexical_this:
                     captured.pop("this", None)
-                if "DotAccess" in callee and (
-                    receiver.key in self.instances or receiver.key in self.classes
+                if callable_value.key not in self.lexical_this and (
+                    receiver.key in self.instances
+                    or receiver.key in self.classes
+                    or receiver.key in self.objects
                 ):
                     captured["this"] = receiver
                 value = self.function(
