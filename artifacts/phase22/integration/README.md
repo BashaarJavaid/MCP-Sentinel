@@ -1,4 +1,43 @@
-# Integration evidence, batches 1–31
+# Integration evidence, batches 1–32
+
+Batch 32 retains the bounded TypeScript follow-up at `68bdf83`. All 29 hosted
+jobs pass; each of 12 full suites records 2,057 passed, 36 skipped and
+89.50–89.53% branch coverage. Both approved captures replay with exact request
+identities and no new paid calls. Canonical package source members match the
+current implementation; installed-wheel, Docker, isolation and docs checks pass.
+The complete CI/docs archives and 225 uploaded artifact files are retained.
+
+The exposed SSRF replacements remain 0/2 vulnerable detections, with no named
+alerts on three fixed/safe cases. All 70 unrelated findings are unchanged.
+Historical batches complete 44/45, 45/45 and 41/45; five timeouts and one extra
+native-completed wall-time overrun remain. Every historical input has at least
+two identical completed observations under 120 seconds, but the handoff's
+requirement for two complete whole batches **has not passed**. The complete pass
+retains 20 vulnerable detections and zero named fixed/safe alerts. Development
+completes 25/25 with unchanged findings and the approved Meta erratum. Original
+held-out results retain 10 completed, 10 unsupported and 5 incomplete inputs.
+Mastra's changed logger diagnostics have source-bound explanations; findings
+and recognized surface counts are unchanged.
+
+The 86-requirement audit checks 97 mapped files, 14 completed command records
+and all 31 prior archive identities. Failures, the earlier local coverage
+checkpoint, source traces and corrected evidence-script errors remain preserved.
+The [scope proposal](../completion-scope-v1/follow-up-proposal.json) and
+[fresh replacement freeze](../corpus-replacement-v2/README.md) require user
+decisions. Neither is approved; the five fresh cases have not been evaluated.
+Paid benchmark review and external pilots remain user-deferred/nonblocking.
+Phase 22 is not marked complete.
+
+Batch 32 seals **1,139 files**, 530,447,230 raw bytes and 21,551,082 compressed
+bytes. Archive SHA-256:
+`de862c63dbb10c8c3d27a1ceee93538f015808c6b4ba47fbb307eb7001c9eed4`.
+Apply `evidence-v32.tar.gz` after batch 31 and verify `evidence-v32.json`.
+The proposals and owning documents are separately tracked in Git. This final
+update changes documentation/evidence only and uses `[skip ci]`; the measured
+passing CI source is `68bdf83`, with identical implementation/package inputs.
+The main worktree remains clean at `4cd5759`; this integration is delivered
+through the existing draft PR #37. Earlier batches below remain historical records.
+
 
 Batch31 retains the green technical audit at ee9721f: all29 hosted jobs pass,
 including12 full suites with2024 passed/36 skipped and89.46–89.49% branch coverage.

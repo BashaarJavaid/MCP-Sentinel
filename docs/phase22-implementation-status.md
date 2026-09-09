@@ -1,24 +1,54 @@
 # Phase 22 implementation status
 
-**All current technical verification gates passed at `ee9721f`.** All 29 hosted
-CI jobs pass; each of 12 quality suites reports 2024 passed, 36 skipped and
-89.46–89.49% branch coverage. Wheel/install, Docker/onboarding/baseline, network
-isolation and strict documentation checks pass. The 86-requirement audit verifies
-retained source/command/evidence identities, including all 30 prior archive hashes.
+**Bounded SSRF follow-up implemented at `68bdf83`; hosted verification passes.**
+The user approved offline investigation after the completed `ee9721f` audit.
+The shared TypeScript flow now follows supported schema-bearing legacy tool
+registrations, retains object methods, separates factory captures and preserves
+ordinary versus lexical `this`. The shared regression selection passes 933 tests.
+All 29 hosted jobs pass; each of 12 full suites records 2,057 passed, 36 skipped
+and 89.50–89.53% branch coverage. Installed-wheel, Docker replay, isolation,
+documentation and capture reuse pass. See the
+[follow-up and remaining boundary](phase22-ssrf-follow-up.md).
 
-The user deferred the full 396-request paid comparison and removed external pilots
-as a Phase 22 completion prerequisite. Neither is claimed passed. Current technical
-completion uses deterministic, recorded-review and isolated runtime evidence;
-see `artifacts/phase22/completion-scope-v1/decision.json`. Phase 21 and later
-adoption/launch evidence remain separate. No additional paid calls were made.
+All five exposed open-webSearch cases complete twice with identical reports.
+Both vulnerable variants remain missed, with zero named-condition alerts on the
+three fixed/safe cases. All 70 unrelated findings are unchanged. Coverage retains
+13 recognized HTTP surfaces, one unresolved HTTP surface and 26 unresolved tool
+registration contexts; contexts are not distinct tool counts. The source startup
+and optional service-binding chain remains unresolved. No detection gain or
+runtime confirmation is claimed for these cases.
 
-The remaining decision is the known replacement SSRF/computed-registration gap
-and final user technical acceptance. It has not been changed or silently accepted:
-both vulnerable replacement variants were missed and six MCP tool registrations
-remain unresolved. No additional failing technical gate was found. Phase 22 is
-not yet marked complete. The [approved contract](phase22-technical.md) reflects
-this revised scope. Earlier source-specific records below preserve their original
-failures and pending gates; the current audit supersedes their current-status claims.
+Historical batches complete 44/45, 45/45 and 41/45 inputs. All 45 inputs have at
+least two matching completed observations with total wall time at most 120 seconds;
+all completed reports match the prior stable results. Five timeouts and one extra
+native-completed report taking 123.8 seconds remain preserved. The handoff's
+requirement for two whole completed batches **has not passed**. The proposed
+casewise acceptance and residual-SSRF disposition are explicitly unapproved in
+`artifacts/phase22/completion-scope-v1/follow-up-proposal.json`.
+
+All 25 development inputs complete with unchanged findings: ten vulnerable
+condition detections and the two preserved Meta fixed-label errata. The valid
+negative denominator remains 13 with zero matching alerts; the original raw
+labels and scores remain unchanged. The original held-out run retains ten
+completed, ten unsupported and five incomplete inputs, with zero detections among
+four completed vulnerable variants. Mastra's only report change is the movement
+of unresolved logger calls into the now-recognized method bodies; its findings
+and recognized surface counts are unchanged.
+
+The separate `artifacts/phase22/corpus-replacement-v2/` proposal contains five
+fresh fetch-mcp inputs and 45 unchanged records. Source/hash/lineage validation
+passes. The detector froze before curation; no scanner or comparator evaluation
+has run. The handoff requires explicit approval of this exact replacement
+manifest before benchmarking cases prepared after an exposed case informed a fix.
+
+The user deferred the 396-request paid comparison and removed external pilots
+as a Phase 22 completion prerequisite. Neither is claimed passed. Phase 21 and
+later adoption/launch evidence remain separate. No additional paid calls were
+made. Final technical acceptance and disposition of the residual limitation
+remain pending; Phase 22 is not marked complete. Earlier source-specific records
+below preserve their original failures and pending gates. The previous `ee9721f`
+engineering audit passed all 29 hosted jobs; that is not a hosted pass for the
+later implementation.
 
 The first historical run at `8bcaded` completes 45/45 inputs and source
 adjudication detects all 20 vulnerable input conditions. Its conservative scoring

@@ -2174,3 +2174,75 @@ Phase21 stays incomplete and later adoption/launch gates remain unchanged. The
 known replacement SSRF/computed-registration gap is reserved for user discussion
 after this audit; no detector changes or additional paid calls occurred. Phase22
 is not yet marked complete, pending that disposition and final technical acceptance.
+
+
+### Bounded SSRF follow-up at 68bdf83
+
+User-approved offline investigation found shared TypeScript roots: schema-bearing
+legacy SDK tool registrations were ignored by the factory flow, object methods
+were discarded, and returned functions could overwrite captured bindings. The
+bounded corrections retain supported registrations/methods, separate source call
+contexts and preserve ordinary versus lexical `this`, including literal-key calls.
+Unsupported schemas, accessors, computed names and unresolved service dependencies
+remain explicit. The durable reproduction failures and all corrected runs remain.
+The shared regression selection passes 933 tests; the final 80 discovery/class
+controls and strict types/style pass. The earlier 2,042-test full local milestone
+and raw coverage stay bound to 4f46dc6, before the later object-method changes.
+
+All 29 hosted jobs pass at 68bdf83 (CI34380163487, docs34380163510). Every one of
+12 full suites has 2,057 passed/36 skipped and89.50–89.53% branch coverage. Complete
+CI/docs archives contain484/12 verified members;225 uploaded artifact files remain.
+The canonical wheel's153 and sdist's166 source members match current source,
+fixtures, schemas and approved captures. Installed-wheel, Docker replay, isolation
+and public pre-commit gates pass. Both original approved captures replay with exact
+production request identities. No new paid call occurred.
+
+All five exposed open-webSearch cases complete twice with stable reports, still
+missing both vulnerable variants and producing no named alerts on three fixed/safe
+inputs. All70 authentication findings equal the first measurement; their source
+assessments and the unchanged comparator's33 warnings remain separate. Each scan
+has13 recognized HTTP surfaces, one unresolved HTTP surface and26 unresolved tool
+registration contexts; those are not26 distinct tools. The assisted source trace
+resolves the service method but stops at the optional fetcher. Native startup and
+service binding remain unresolved; this is not a measured detection gain or runtime
+proof. No upstream target was executed on the host.
+
+Full historical batches complete44/45,45/45 and41/45. The first times out on the
+fixed upload mutation; the third times out on the fixed authentication mutation,
+vulnerable upload mutation, fixed upload original and download-path control. The
+strict repeat comparison and third complete-batch assertion fail honestly. Across
+all135 attempts,130 native reports complete and match the prior stable reports;
+129 have total recorded wall time at most120 seconds. Every input has at least two
+matching completed observations under that limit. The additional native-completed
+fixed authentication original at123.764 seconds is excluded from that count. All failures
+and host resource observations remain; no causal or isolated-throughput claim is
+made. The complete pass retains20 vulnerable condition hits and zero named alerts
+on25 fixed/safe inputs. The two-whole-completed-batch gate has NOT passed.
+
+All25 development inputs complete, retaining10 vulnerable detections, the two Meta
+errata and554 unmatched source-assessed findings. Valid negative controls remain
+13 with zero condition alerts; raw labels still retain two alerts among15 nominal
+negatives. The original held-out run retains10 completed/10 unsupported/5 incomplete
+inputs and0/4 completed vulnerable detections. Canonical findings equal the prior
+runs. Each Mastra input removes80 unresolved logger calls and adds10 unresolved
+operations inside the now-followed methods; all other canonical report fields are
+unchanged. Existing condition, coordinate and unmatched-warning assessments remain
+bound by exact hashes. An evidence-script scan-root prefix error was corrected;
+its failed attempt is preserved without changing scanner code.
+
+The fresh fetch-mcp proposal in corpus-replacement-v2 contains five new cases and
+45 unchanged records, complete MIT-licensed archives and reversible helper renames.
+It validates after retaining the initial missing/incorrect license metadata errors.
+The dependency archive's registry integrity and pinned private-ip3.0.2 identity are
+verified; no target/dependency execution or scanner evaluation occurred. Its exact
+manifest needs explicit freeze approval before native/comparator evaluation. The
+proposal uses the existing120-second native and300-second comparator limits; an
+initial draft's incorrect comparator limit is preserved and corrected.
+
+The separate completion-scope-v1/follow-up-proposal.json recommends accepting the
+residual SSRF boundary and casewise historical repeatability while retaining the
+observed timing failures. It is unapproved; the original gate remains failed.
+Paid396-request review and external pilots remain user-deferred/nonblocking. Final
+technical acceptance is pending; Phase22 is not marked complete. Main worktree
+remains clean at4cd5759; implementation is committed/pushed on the integration
+branch, with evidence delivery kept in the same consolidated draft PR37.

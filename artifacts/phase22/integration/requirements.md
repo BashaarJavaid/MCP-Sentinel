@@ -1,13 +1,21 @@
 # Consolidated Phase 22 requirement checklist
 
 
-Current audit at `ee9721f`: all 29 CI jobs and strict documentation pass. The
-full 396-request paid comparison is user-deferred; external pilots are explicitly
-removed as a Phase22 completion prerequisite. Both remain unperformed, not passed.
-All 86 entries are reconciled in `v2-scope-audit-ee9721f/packet.json`; the known
-replacement detection gap and final user technical acceptance await disposition.
-Earlier source-specific paragraphs preserve historical results and are not current
-claims. No detector change or paid call is part of this audit.
+Current follow-up source is `68bdf83`: supported legacy TypeScript registrations,
+object methods, captured service identities and receiver binding are corrected.
+The 933-test shared selection passes. All five exposed replacements complete twice
+with stable findings, still missing both vulnerable conditions. A fresh five-case
+proposal is prepared in `../corpus-replacement-v2/`; it requires explicit freeze
+approval before evaluation. All 29 hosted jobs pass at `68bdf83`, including 12 suites with 2,057 passed / 36 skipped.
+Historical batches complete 44/45, 45/45 and 41/45. All 45 inputs have two matching
+completed observations under 120 seconds, but the two-complete-batch gate remains
+failed. The casewise alternative and residual-SSRF disposition are proposed, not
+approved, in `../completion-scope-v1/follow-up-proposal.json`. All 25 original development inputs complete with unchanged findings and the
+approved Meta erratum. Original held-out results retain 10 completed, 10
+unsupported and 5 incomplete inputs. The 396 paid calls and external pilots
+remain user-deferred/nonblocking, without being counted as passed. No additional
+paid call occurred. The previous 86-row audit at ee9721f remains historical evidence;
+final technical acceptance and the residual SSRF limitation remain open.
 
 Source at start: `68fa702`, clean `phase22/integration` worktree.
 Authorization: `../authorization.json`; frozen corpus and Git environment approved.

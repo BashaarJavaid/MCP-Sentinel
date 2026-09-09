@@ -46,6 +46,9 @@ After the completed audit, the user authorized bounded offline investigation and
 a fix for the replacement detection gap. The five replacement cases are now
 exposed regressions; their original frozen measurements remain unchanged. See
 `artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
+The bounded corrections and remaining SSRF/timing limitations are recorded in
+`docs/phase22-ssrf-follow-up.md`. The follow-up scope proposal and new replacement
+freeze are pending decisions; neither is an approved gate change or completion.
 Final technical acceptance remains pending.
 
 Historical submission and release records are consolidated in
