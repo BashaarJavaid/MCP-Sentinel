@@ -1443,3 +1443,56 @@ All 239 execution/correctness/corpus/review checks pass in 231.55 s; mypy checks
 verifies current SDK factory metadata after configuration helpers (5 discovery
 checks pass). No paid calls, holdout tuning, label changes, pushes or publication
 occurred. The full authorized technical scope and external checkpoints remain open.
+
+
+`4f2f81c` avoids recombining equivalent states. Its selected Meta SENT-016 result
+matches the prior full findings, warnings, coverage and completion after the
+established volatile-field normalization (SHA-256
+`bfcb898ab84b44ad15c89dd26522c32c4f0a35159d88918a0f13d715d5ce8345`).
+The first raw comparison failed on generated IDs/timing; original and corrected
+comparison drivers are preserved. The cached all-rule fixed scan still times out
+at 120073 ms; the separately uncached diagnostic timed out at 120202 ms.
+
+`3ff455e` combines two abstract values directly. All 262144 exhaustive prior
+cases plus 25000 seeded mixed-state cases match the prior implementation; all
+942 affected regressions pass (242.54 s). The initial local type-variable name
+collision is corrected and strict mypy/lint/format pass. The immutable 65ba622
+five-input Meta run completes 0/5, at 120048/120044/120043/120051/120055 ms, with
+fixed first. It overlaps a full historical diagnostic on immutable 4f2f81c, so it
+is a completion result, not an isolated throughput comparison. Neither the
+120-second deadline nor detector scope has changed.
+
+The consumer audit found unsupported runtime schemas/local references could be
+skipped while campaign enumeration remained complete. Five original misses are
+retained. `65ba622` returns enumeration status with recovered attempts and keeps
+the campaign incomplete on unsupported schemas. Seven schema controls include a
+supported empty object and a supported property retained before a missing local
+reference. All 158 campaign/argument/native/migration regressions pass (11.08 s).
+`7371692` records actual campaign completion and full dynamic summary in newly
+generated ablation cases, replacing an unconditional four-probes-executed claim.
+The original absent-field regression is retained; 50 artifact/report checks pass
+(4.34 s), using checked replay and a synthetic runtime result, with no live calls.
+Historical generated artifacts remain unchanged.
+
+`v2-consumer-audit-7371692/packet.json` links 18 exact source files and seven
+passing check records. Native and SARIF use canonical ordered outcomes; console
+lookup uses attempt IDs; legacy rule-keyed GPT priorities and four-probe migration
+are distinguished from runtime scheduling. Full-source native/Docker/hosted
+acceptance remains open. All 94 Action/configuration/workspace checks pass
+(26.16 s), including repository campaign settings reaching orchestration.
+Schema consistency, notices, offline retained-artifact validation, strict docs,
+locked runtime requirement export, the dependency advisory audit (no known
+vulnerabilities) and wheel/sdist build pass. Installed wheel checks are in progress;
+the new module-location assertion correctly rejects a source-tree import in the
+negative control. No paid calls, label changes, fresh-holdout inspection, push,
+publication or outreach occurred. Evidence batch 19 is not yet sealed.
+
+
+The installed distribution checks finish successfully: pip wheel, pip sdist,
+pipx and uv, using temporary environments with PYTHONPATH removed and model
+credentials withheld. Each installed module must resolve under its environment's
+sys.prefix; the intentional source-import negative control fails that assertion.
+The checks preserve packaged schemas/resources, TypeScript scans and Python/TS
+rules-only scans with empty/dummy credentials. This local smoke is not a Linux
+network-namespace isolation or hosted OS matrix result. The additional 104 core
+containment regressions pass (1.23 s).

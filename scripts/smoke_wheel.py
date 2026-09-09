@@ -394,8 +394,11 @@ def _run(
 
 _IDENTITY_CHECK = """
 from importlib import metadata
+from pathlib import Path
+import sys
 import sentinel
 
+assert Path(sentinel.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
 distribution = metadata.distribution("portunusmcp-sentinel")
 assert sentinel.__version__ == "1.3.0"
 assert distribution.version == "1.3.0"
