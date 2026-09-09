@@ -14,7 +14,6 @@ from sentinel.static.execution import check_deadline
 from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
 from sentinel.static.path_flow import Value, _key, combine
-from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import (
     TypeScriptBinding,
     TypeScriptProgram,
@@ -186,8 +185,11 @@ class TypeScriptPathFlow:
             key=_key(
                 "array",
                 file.relative_path,
-                str(source_range(node, file)),
-                *(str(source_range(call.node, call.file)) for call in self.call_sites),
+                str(self.program.source_range(node, file)),
+                *(
+                    str(self.program.source_range(call.node, call.file))
+                    for call in self.call_sites
+                ),
             ),
         )
         self.arrays.add(value.key)
@@ -196,7 +198,7 @@ class TypeScriptPathFlow:
         return value
 
     def warning(self, file: TypeScriptSourceFile, node: Any, reason: str) -> None:
-        location = source_range(node, file)
+        location = self.program.source_range(node, file)
         warning = ReportWarning(
             code="static_flow_unresolved",
             message=(
@@ -215,7 +217,7 @@ class TypeScriptPathFlow:
     ) -> Value:
         check_deadline(self.program.deadline)
         function = symbol.function
-        location = source_range(symbol.node, symbol.file)
+        location = self.program.source_range(symbol.node, symbol.file)
         identity = (
             symbol.file.relative_path,
             location.start_line,
@@ -341,7 +343,12 @@ class TypeScriptPathFlow:
                 value = replace(
                     value,
                     locations=value.locations
-                    | {(file.relative_path, source_range(node, file).start_line)},
+                    | {
+                        (
+                            file.relative_path,
+                            self.program.source_range(node, file).start_line,
+                        )
+                    },
                 )
             facts = self.enforced(env)
             result = replace(
@@ -687,7 +694,11 @@ class TypeScriptPathFlow:
             symbol = TypeScriptSymbol(file, node)
             members = self.class_members(symbol)
             value = Value(
-                key=_key("class", file.relative_path, str(source_range(node, file)))
+                key=_key(
+                    "class",
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                )
             )
             if members is None:
                 self.warning(
@@ -734,7 +745,9 @@ class TypeScriptPathFlow:
                 "@modelcontextprotocol/sdk/server/mcp.js.McpServer"
             ):
                 result = Value(
-                    key=_key(file.relative_path, str(source_range(node, file)))
+                    key=_key(
+                        file.relative_path, str(self.program.source_range(node, file))
+                    )
                 )
                 self.sdk_instances.add(result.key)
                 return result
@@ -749,9 +762,9 @@ class TypeScriptPathFlow:
                     key=_key(
                         "instance",
                         file.relative_path,
-                        str(source_range(node, file)),
+                        str(self.program.source_range(node, file)),
                         *(
-                            str(source_range(call.node, call.file))
+                            str(self.program.source_range(call.node, call.file))
                             for call in self.call_sites
                         ),
                     )
@@ -781,7 +794,9 @@ class TypeScriptPathFlow:
                     )
                 return value
         if "Lambda" in node or "FuncDef" in node:
-            value = Value(key=_key(file.relative_path, str(source_range(node, file))))
+            value = Value(
+                key=_key(file.relative_path, str(self.program.source_range(node, file)))
+            )
             self.callables[value.key] = TypeScriptSymbol(file, node)
             self.closures[value.key] = env
             if (node.get("Lambda") or {}).get("fkind", [None])[0] == "Arrow":
@@ -911,10 +926,10 @@ class TypeScriptPathFlow:
                 list(fields.values()),
                 _key(
                     file.relative_path,
-                    str(source_range(node, file)),
+                    str(self.program.source_range(node, file)),
                     *(v.key for v in fields.values()),
                     *(
-                        str(source_range(site.node, site.file))
+                        str(self.program.source_range(site.node, site.file))
                         for site in self.call_sites
                     ),
                 ),
@@ -1010,9 +1025,9 @@ class TypeScriptPathFlow:
             instance = Value(
                 key=_key(
                     file.relative_path,
-                    str(source_range(node, file)),
+                    str(self.program.source_range(node, file)),
                     *(
-                        str(source_range(site.node, site.file))
+                        str(self.program.source_range(site.node, site.file))
                         for site in self.call_sites
                     ),
                 )
@@ -1087,7 +1102,7 @@ class TypeScriptPathFlow:
         ):
             self.registered(file, node, args, env)
             return Value()
-        location = source_range(node, file)
+        location = self.program.source_range(node, file)
         result = combine(
             [value for value, _ in logical_returns]
             if logical_returns is not None
@@ -1535,7 +1550,7 @@ class TypeScriptPathFlow:
         *,
         cli_output: str = "",
     ) -> None:
-        location = source_range(node, file)
+        location = self.program.source_range(node, file)
         if self.rule_id == "SENT-012" and value.sources and not value.contained:
             origins = self.origins.get(value.key, frozenset({value.key}))
             prefix_locations = {
@@ -1588,13 +1603,16 @@ class TypeScriptPathFlow:
             self.warning(file, node, "unresolved registered callback")
             return
         origin = self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node)
-        location = source_range(origin.node, origin.file)
+        location = self.program.source_range(origin.node, origin.file)
         self.state.visit(origin.file.relative_path, location)
         caller = Value(
             sources=frozenset({"tool:arguments"}),
             key=_key(origin.file.relative_path, str(location), args[0].key),
             locations=frozenset(
-                (site.file.relative_path, source_range(site.node, site.file).start_line)
+                (
+                    site.file.relative_path,
+                    self.program.source_range(site.node, site.file).start_line,
+                )
                 for site in [*self.call_sites, TypeScriptSymbol(file, node)]
             ),
         )
@@ -1676,7 +1694,7 @@ class TypeScriptPathFlow:
         )
         for file, node, args in routes:
             fork = copy.deepcopy(self, memo.copy())
-            location = source_range(node, file)
+            location = self.program.source_range(node, file)
             self.state.visit(file.relative_path, location)
             caller = Value(
                 sources=frozenset({"http:request"}),
@@ -1726,7 +1744,7 @@ class TypeScriptPathFlow:
             | {
                 (
                     handler.file.relative_path,
-                    source_range(handler.node, handler.file).start_line,
+                    self.program.source_range(handler.node, handler.file).start_line,
                 )
             },
         )
@@ -1822,7 +1840,7 @@ def analyze(
                 else:
                     flow.function(initializer, [])
             continue
-        location = source_range(tool.registration.node, tool.registration.file)
+        location = program.source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)
         handler = tool.handler
         if handler is None or handler.function is None:
@@ -1833,7 +1851,7 @@ def analyze(
             )
             continue
         state.visit(
-            handler.file.relative_path, source_range(handler.node, handler.file)
+            handler.file.relative_path, program.source_range(handler.node, handler.file)
         )
         args = [
             Value(

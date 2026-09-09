@@ -27,7 +27,6 @@ from sentinel.static.path_flow import (
     member_label,
 )
 from sentinel.static.rules.sent012 import analyze
-from sentinel.static.semgrep_ast import source_range
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
 from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
@@ -804,7 +803,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         if request and argument_nodes:
             url = self.call_value(file, argument_nodes[0], env)
             if url.sources and not restricted(url.url_checks):
-                location = source_range(node, file)
+                location = self.program.source_range(node, file)
                 self.state.matches.append(
                     StaticMatch(
                         rule_id=self.rule_id,

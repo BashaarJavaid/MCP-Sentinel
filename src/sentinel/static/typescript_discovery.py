@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import posixpath
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 
+from sentinel.finding import SourceRange
 from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import TypeScriptSourceFile
@@ -85,6 +86,9 @@ class TypeScriptProgram:
         self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}
         self.exports: dict[str, set[str]] = {}
         self.class_attributes: dict[int, list[dict[str, Any]]] = {}
+        self.source_ranges: OrderedDict[
+            tuple[int, int], tuple[Any, TypeScriptSourceFile, SourceRange]
+        ] = OrderedDict()
         self.warnings: list[ReportWarning] = modules.warnings if modules else []
         for file in files:
             tree = parse_typescript(file, deadline=deadline)
@@ -343,9 +347,20 @@ class TypeScriptProgram:
             + wrapped
         )
 
-    @staticmethod
-    def text(file: TypeScriptSourceFile, node: Any) -> str:
-        location = source_range(node, file)
+    def source_range(self, node: Any, file: TypeScriptSourceFile) -> SourceRange:
+        # Source syntax stays immutable within a program. Retain both objects so
+        # identity reuse cannot confuse a synthetic node or another source snapshot.
+        key = (id(node), id(file))
+        if key not in self.source_ranges:
+            self.source_ranges[key] = (node, file, source_range(node, file))
+            # ponytail: bound retained locations; evicted nodes are revalidated.
+            if len(self.source_ranges) > 4096:
+                self.source_ranges.popitem(last=False)
+        self.source_ranges.move_to_end(key)
+        return self.source_ranges[key][2]
+
+    def text(self, file: TypeScriptSourceFile, node: Any) -> str:
+        location = self.source_range(node, file)
         lines = file.source.splitlines(keepends=True)
         start = (
             sum(map(len, lines[: location.start_line - 1])) + location.start_column - 1

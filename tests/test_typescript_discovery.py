@@ -72,6 +72,32 @@ def test_http_rule_entry_does_not_repeat_registered_mcp_callback(
     assert len(tool_state.matches) == 1
 
 
+def test_reused_locations_stay_bound_to_original_node_and_source(
+    tmp_path: Path,
+) -> None:
+    import copy
+
+    from sentinel.errors import InfrastructureError
+    from sentinel.static.semgrep_ast import tokens
+
+    source = 'export function read() { return "π"; }\n'
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    node = program.trees[file.relative_path]["Pr"][0]
+    original = program.source_range(node, file)
+    assert program.source_range(node, file) == original
+    replaced = TypeScriptSourceFile(
+        file.path, file.relative_path, source.replace("π", "x")
+    )
+    with pytest.raises(InfrastructureError, match="supplied source"):
+        program.source_range(node, replaced)
+    changed = copy.deepcopy(node)
+    next(tokens(changed))["bytepos"] += 1
+    with pytest.raises(InfrastructureError, match="supplied source"):
+        program.source_range(changed, file)
+    assert program.source_range(node, file) == original
+
+
 def test_imported_reexported_handler_and_schema(tmp_path: Path) -> None:
     sources = {
         "server.ts": 'import { load, schema } from "./barrel.js";\n'

@@ -18,7 +18,6 @@ from sentinel.static.model import (
 )
 from sentinel.static.path_flow import PathFlow, Value, _key, combine
 from sentinel.static.rules.sent012 import analyze
-from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
@@ -434,7 +433,9 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
         )
         if external in {"simple-git", "simple-git.simpleGit", "simple-git.default"}:
             return Value(
-                key=_key(file.relative_path, str(source_range(node, file))),
+                key=_key(
+                    file.relative_path, str(self.program.source_range(node, file))
+                ),
                 repository_object=True,
             )
         argv: tuple[tuple[Value, ...], ...] | None = None
@@ -491,7 +492,7 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
                     if value.sources and not value.option_safe and not terminated:
                         unsafe.append(value)
             if unsafe:
-                location = source_range(node, file)
+                location = self.program.source_range(node, file)
                 locations = frozenset().union(*(v.locations for v in unsafe))
                 self.state.matches.append(
                     StaticMatch(

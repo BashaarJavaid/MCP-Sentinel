@@ -28,7 +28,6 @@ from sentinel.static.path_flow import (
     member_label,
 )
 from sentinel.static.rules.sent012 import analyze
-from sentinel.static.semgrep_ast import source_range
 from sentinel.static.typescript_discovery import name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
@@ -441,7 +440,12 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                 key=_key(file.relative_path, name),
                 operator_credential=True,
                 locations=frozenset(
-                    {(file.relative_path, source_range(node, file).start_line)}
+                    {
+                        (
+                            file.relative_path,
+                            self.program.source_range(node, file).start_line,
+                        )
+                    }
                 ),
             )
         result = super().expression(file, node, env)
@@ -538,7 +542,7 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
             if crossing.credential_fallback and any(
                 source.startswith("http:") for source in crossing.sources
             ):
-                location = source_range(node, file)
+                location = self.program.source_range(node, file)
                 self.state.matches.append(
                     StaticMatch(
                         self.rule_id,
