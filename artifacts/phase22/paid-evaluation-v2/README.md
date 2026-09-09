@@ -1,12 +1,22 @@
-# Proposed Phase 22 paid evaluation — explicit approval pending
+# Phase 22 paid evaluation — smoke/demo subset approved
 
-The exact proposed ceiling is **398 new requests / $66.321920**. No paid calls
-have been made. The [packet](packet.json) SHA-256 is
+The full proposed ceiling is **398 new requests / $66.321920**. Only the
+two-request smoke/demo subset was approved and executed; benchmark review remains
+unapproved. The original proposal below is retained for its exact request contract. The [packet](packet.json) SHA-256 is
 `9fbe33de0f3dda4ccaa2e3a058d96d6c43d0cb7518eeb72547c1c30cf78ef3c1`.
 The lossless [request archive](requests.tar.gz) retains every exact production request,
 candidate and source context, including reused requests. Its hash, all request
 fingerprints, normalized request hashes, input identities and individual token/
 dollar reservations are in the packet.
+
+
+The approved TypeScript smoke and Docker demo requests both succeeded without
+retries. Their recorded costs are $0.016947 and $0.054852, **$0.071799 total**.
+Exact request hashes, accepted capture hashes and usage remain in
+`captures/static/ledger.json` and `captures/runtime/ledger.json`. Both captures
+pass the existing production replay parser with accepted-ledger validation.
+The packaged additions preserve every historical capture and manifest entry.
+No benchmark review, replacement evaluation or Meta amendment was performed.
 
 | Purpose | New requests | Reserved ceiling |
 | --- | ---: | ---: |
@@ -41,13 +51,16 @@ are exposed regressions. The separately proposed replacement five are **excluded
 from this packet and require their own freeze decision before evaluation. The
 Meta fixed-label decision and independent human/pilot acceptance remain separate.
 
-All independent local quality, package, real Docker, installed onboarding,
-baseline, pre-commit and network-isolation checks pass. The raw 6e68331 full suite
+Before this subset capture, independent local quality, package, real Docker,
+installed onboarding, baseline, pre-commit and network-isolation checks passed. The raw 6e68331 full suite
 retains two failures: the stale cost expectation has a passing targeted correction
-at d7184d3, while the unchanged TypeScript replay test needs the request above.
-The actual demo completes all 20 planned runtime attempts and validates native
-JSON/SARIF, but exits 3 because its seven dynamic findings lack the named capture.
-Preparing this packet does not turn either result into a passing full gate.
+at d7184d3. The TypeScript replay and Docker demo failures from that source
+remain preserved. With the two new captures, the unchanged TypeScript regression
+passes and the actual Docker demo exits 0: 20/20 attempts, all seven static and
+seven dynamic findings reviewed, and valid JSON/SARIF.
+
+The earlier demo exited 3 for missing dynamic review; that raw result is retained.
+The successful local replays do not relabel earlier failed hosted runs as passed.
 
 The [capture driver](phase22-v2-paid-capture-driver.py) defaults to an explicit
 `check` command and reuses the existing `scripts.phase20_review.capture_batches`.
@@ -70,8 +83,8 @@ tar -xzf artifacts/phase22/paid-evaluation-v2/requests.tar.gz \
 ```
 
 Execution requires a separate approval file naming this exact packet hash, the
-user decision, unique selected fingerprints and request/dollar ceilings. No such
-approval file has been created. Static and runtime stage ceilings partition the
+user decision, unique selected fingerprints and request/dollar ceilings. The separate [smoke/demo approval](approval-smoke-demo.json) authorizes exactly
+two fingerprints and a $0.400100 ceiling; it does not approve the full packet. Static and runtime stage ceilings partition the
 approved total. Each request is reserved durably before send; stop on the first
 failure, missing usage, usage above its reservation, or unaffordable request.
 Uncertain charges stay reserved. A failed static stage prevents runtime capture;

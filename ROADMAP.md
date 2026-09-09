@@ -1216,6 +1216,12 @@ reviewed evaluation, the replacement freeze, Meta decision, human acceptance
 and the deferred pilot-dependent gate. Evidence-only bookkeeping preserves the
 measured source and avoids duplicate CI; it does not establish merge readiness.
 
+The subsequently approved two-request smoke/demo capture subset succeeded for
+$0.071799 against its $0.400100 cap. The unchanged TypeScript replay and actual
+Docker demo now pass locally; all 20 attempts and 14 reviews complete. Updated
+hosted verification remains pending. Benchmark paid review, replacement freeze,
+Meta amendment, human acceptance and pilot gates are unchanged and incomplete.
+
 ### Objective
 
 Address measured missed vulnerabilities and real repository incompatibilities

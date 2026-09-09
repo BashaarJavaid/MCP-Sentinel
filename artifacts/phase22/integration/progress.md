@@ -2096,3 +2096,27 @@ Evidence batch 28 seals 397 completed files (8,615,381 raw bytes), with every
 member read back and archive SHA-256
 `fdd0ce31c17f9f1a99181e8cf6edf5cb1cbf66d413c8dbc495ab795156ed4480`.
 All 27 prior seals and their original failures remain preserved.
+
+
+### Approved smoke and demo captures
+
+The user approved only two exact requests from the existing paid packet, capped
+at $0.400100. Both succeeded without retries: TypeScript $0.016947, dynamic demo
+$0.054852, total **$0.071799**. The separate approval, accepted capture ledgers,
+exact request hashes and raw responses are retained in
+`artifacts/phase22/paid-evaluation-v2/`. All benchmark paid review remains unapproved.
+
+Both captures pass exact production replay with accepted-ledger validation.
+The unchanged TypeScript smoke regression now passes. The actual Docker demo
+exits 0 with all 20 attempts tested and all seven static/seven dynamic candidates
+reviewed; native JSON and SARIF validate. New captures are additive in the
+TypeScript and active `phase17` packaged sets. All older files and manifest
+entries remain. The initial replay using the legacy demo directory and build
+environment failures are preserved; corrected active-directory replay and uv
+wheel/sdist builds pass. Both distributions contain the exact capture bytes.
+
+Previous hosted failures at 1e7c16a remain historical evidence. New hosted checks
+have not yet established a passing matrix for the capture update. Replacement
+freeze and Meta condition/erratum decisions remain pending; no evaluation or
+label amendment was performed. Full reviewed benchmarks, human acceptance and
+external pilot gates remain incomplete.

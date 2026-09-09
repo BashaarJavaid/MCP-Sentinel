@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–28
+# Integration evidence, batches 1–29
+
+Batch 29 adds the approved smoke/demo capture verification: both requests accepted
+for $0.071799 total under the $0.400100 cap, unchanged TypeScript regression PASS,
+and actual Docker replay PASS with 20/20 attempts and 14 reviewed candidates.
+Wheel/sdist capture bytes and strict documentation pass. Earlier failed replay
+and build attempts remain. Approval, exact captures and ledgers are tracked in
+`../paid-evaluation-v2/`. No benchmark paid review or replacement evaluation ran.
+
+Batch 29 seals 52 completed files with verified member readback.
+Archive SHA-256: `73bab180d174747dbe3d2fbd1d1ca9cf0e9da132a02169341c01780e40f7ee18`.
+Apply `evidence-v29.tar.gz` after batch 28 and verify `evidence-v29.json`.
+All preceding hosted results refer to their named source; hosted verification
+for the new captures is pending. Meta and replacement decisions remain open.
 
 These batches preserve implementation, failures and source-specific measurements.
 Batch 28 adds completed draft delivery and the hosted matrix at `1e7c16a` to
