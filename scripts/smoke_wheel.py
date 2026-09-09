@@ -338,16 +338,26 @@ def _check_rules_only_scans(executable_dir: Path) -> None:
     fixtures = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
     with tempfile.TemporaryDirectory(prefix="sentinel-offline-smoke-") as raw:
         temporary = Path(raw)
-        for fixture in (
-            "clean_server",
-            "vulnerable_server",
-            "typescript_clean_server",
-            "typescript_vulnerable_server",
+        for fixture, large in (
+            ("clean_server", False),
+            ("vulnerable_server", False),
+            ("typescript_clean_server", False),
+            ("typescript_vulnerable_server", False),
+            ("vulnerable_server", True),
+            ("typescript_vulnerable_server", True),
         ):
-            target = temporary / fixture
+            label = fixture + ("-large" if large else "")
+            target = temporary / label
             shutil.copytree(fixtures / fixture, target)
             (target / "sentinel.target.yaml").unlink(missing_ok=True)
             (target / "sentinel.permissions.yaml").unlink(missing_ok=True)
+            if large:
+                typescript = fixture.startswith("typescript")
+                source = target / ("server.ts" if typescript else "server.py")
+                # Exercise installed flow workers on multicore CI without adding
+                # executable fixture behavior or changing existing source locations.
+                with source.open("a", encoding="utf-8") as stream:
+                    stream.write("\n" + ("//" if typescript else "#") + "x" * 131072)
             for key in ("", "dummy-not-a-real-key"):
                 output = temporary / "report.json"
                 environment = {
@@ -379,8 +389,7 @@ def _check_rules_only_scans(executable_dir: Path) -> None:
                 assert report["dynamic_analysis"] is None
                 assert all(finding["review"] is None for finding in report["findings"])
                 print(
-                    f"rules-only {fixture}, key={bool(key)}: "
-                    f"exit {completed.returncode}"
+                    f"rules-only {label}, key={bool(key)}: exit {completed.returncode}"
                 )
 
 
