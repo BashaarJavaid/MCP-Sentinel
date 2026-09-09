@@ -3,8 +3,41 @@
 import time
 from pathlib import Path
 
+import pytest
+
 from sentinel.static.model import TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
+
+
+@pytest.mark.parametrize("invoke", [False, True])
+def test_http_discovery_distinguishes_registered_and_called_tool(
+    tmp_path: Path, invoke: bool
+) -> None:
+    from sentinel.static.http_discovery import typescript_handlers
+
+    source = (
+        'import express from "express";\n'
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        "export function create() {\n"
+        " const app=express();\n"
+        ' const server=new McpServer({name:"test",version:"1"});\n'
+        ' function attach() { app.post("/startup", (req,res)=>req.body); }\n'
+        ' function tool() { app.post("/called", (req,res)=>req.body); }\n'
+        " attach();\n"
+        ' server.registerTool("tool", {inputSchema:{}}, tool);\n'
+        + (" tool();\n" if invoke else "")
+        + " return app;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    file = TypeScriptSourceFile(path, path.name, source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    routes = typescript_handlers(program)
+    assert {route.name for route in routes} == (
+        {"/startup", "/called"} if invoke else {"/startup"}
+    )
+    assert all(route.handler is not None for route in routes)
+    assert [tool.name for tool in program.tools()] == ["tool"]
 
 
 def test_imported_reexported_handler_and_schema(tmp_path: Path) -> None:
