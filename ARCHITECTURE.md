@@ -351,6 +351,12 @@ catalog for GPT review.
 
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
 
+Python path flow retains the distinction between a contained requested path and
+its derived parent directory. Parent access remains a candidate; report assembly
+preserves the original check by launch transport only when every observed
+alternative for that transport establishes it. Replacement, further path
+transformation and unknown returned values invalidate the qualification.
+
 Phase 22 extends TypeScript discovery using the installed, pinned Semgrep core's
 generic syntax tree and original token locations. The adapter performs source
 parsing only; it never loads a target module, invokes Node, renders templates or

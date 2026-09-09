@@ -41,6 +41,8 @@ class Value:
     maybe_missing: bool = False
     maybe_none: bool = False
     operator_opt_in: frozenset[str] = frozenset()
+    # Evidence about the original path, never protection for its parent.
+    checked_path_parent: bool = False
 
     def __deepcopy__(self, memo: dict[int, object]) -> Value:
         return self
@@ -59,12 +61,16 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
         first = values[0]
         if all(value is first or value == first for value in values[1:]):
             if not first.sources and (
-                first.contained or first.option_safe or first.url_checks
+                first.contained
+                or first.checked_path_parent
+                or first.option_safe
+                or first.url_checks
             ):
                 return replace(
                     first,
                     key=key or first.key,
                     contained=False,
+                    checked_path_parent=False,
                     option_safe=False,
                     url_checks=frozenset(),
                 )
@@ -117,6 +123,9 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
             else right.operator_opt_in
             if right.operator_credential
             else frozenset(),
+            has_sources
+            and (not left.sources or left.checked_path_parent)
+            and (not right.sources or right.checked_path_parent),
         )
     tainted = [v for v in values if v.sources]
     operators = [v for v in values if v.operator_credential]
@@ -144,6 +153,7 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
         frozenset.intersection(*(v.operator_opt_in for v in operators))
         if operators
         else frozenset(),
+        bool(tainted) and all(v.checked_path_parent for v in tainted),
     )
 
 
@@ -368,6 +378,11 @@ class PathFlow:
                 captures={
                     **match.captures,
                     "launch_transports": json.dumps([transport]),
+                    **(
+                        {"checked_parent_transports": json.dumps([transport])}
+                        if match.captures.get("containment_gap") == "checked-parent"
+                        else {}
+                    ),
                     "flow_locations": json.dumps(locations),
                     **(
                         {"launch_branches": json.dumps(sorted(branches))}
@@ -1061,6 +1076,7 @@ class PathFlow:
                 else value,
                 key=_key(value.key, repr(member)),
                 contained=False,
+                checked_path_parent=False,
                 option_safe=False,
                 url_checks=frozenset(),
                 credential_present=False,
@@ -1235,11 +1251,15 @@ class PathFlow:
                 if name.startswith("#path:"):
                     env[name] = Value(contained=value.contained)
                 elif not value.sources and (
-                    value.contained or value.option_safe or value.url_checks
+                    value.contained
+                    or value.checked_path_parent
+                    or value.option_safe
+                    or value.url_checks
                 ):
                     env[name] = replace(
                         value,
                         contained=False,
+                        checked_path_parent=False,
                         option_safe=False,
                         url_checks=frozenset(),
                     )
@@ -1254,7 +1274,12 @@ class PathFlow:
                 not name.startswith("#path:")
                 and (
                     value.sources
-                    or not (value.contained or value.option_safe or value.url_checks)
+                    or not (
+                        value.contained
+                        or value.checked_path_parent
+                        or value.option_safe
+                        or value.url_checks
+                    )
                 )
                 and (
                     (other := second.get(name, default)) is value or other == value
@@ -1803,6 +1828,7 @@ class PathFlow:
                 value,
                 key=value.key + "[" + ast.dump(node.slice) + "]",
                 contained=False,
+                checked_path_parent=False,
                 option_safe=False,
                 url_checks=frozenset(),
                 credential_present=False,
@@ -1849,6 +1875,9 @@ class PathFlow:
                 value,
                 key=value.key + "." + node.attr,
                 contained=False,
+                checked_path_parent=(
+                    node.attr == "parent" and value.path_object and value.contained
+                ),
                 instance=None,
                 option_safe=False,
                 url_checks=frozenset(),
@@ -1862,6 +1891,7 @@ class PathFlow:
                 path_object=left.path_object,
                 resolved=False,
                 contained=False,
+                checked_path_parent=False,
             )
         if isinstance(node, (ast.Lambda, ast.FunctionDef, ast.AsyncFunctionDef)):
             return UNKNOWN_VALUE
@@ -1874,6 +1904,7 @@ class PathFlow:
                 result,
                 key=_key(type(node).__name__, ast.dump(node), result.key),
                 contained=False,
+                checked_path_parent=False,
                 resolved=False,
             )
             if isinstance(node, (ast.BinOp, ast.JoinedStr))
@@ -2434,6 +2465,7 @@ class PathFlow:
                 if method == "expanduser"
                 else receiver.key,
                 contained=False,
+                checked_path_parent=False,
             )
         if method == "relative_to" and isinstance(node.func, ast.Attribute):
             self.protect(symbol, node, env)
@@ -2514,6 +2546,11 @@ class PathFlow:
                         match,
                         captures={
                             "sink_name": name,
+                            **(
+                                {"containment_gap": "checked-parent"}
+                                if sink.checked_path_parent
+                                else {}
+                            ),
                             "flow_locations": json.dumps(
                                 sorted(
                                     sink.locations
@@ -2568,6 +2605,7 @@ class PathFlow:
                 + (ast.dump(node.args[0]) if node.args else "?")
                 + "]",
                 contained=False,
+                checked_path_parent=False,
             )
         if (
             resolved in {"setattr", "builtins.setattr"}
@@ -3042,6 +3080,7 @@ class PathFlow:
             changed = replace(
                 combine(values),
                 contained=False,
+                checked_path_parent=False,
                 option_safe=False,
                 url_checks=frozenset(),
                 credential_present=False,
@@ -3054,6 +3093,7 @@ class PathFlow:
                         env[marker] = replace(
                             combine([env[marker], changed]),
                             contained=False,
+                            checked_path_parent=False,
                             option_safe=False,
                             url_checks=frozenset(),
                             credential_present=False,
@@ -3077,6 +3117,7 @@ class PathFlow:
                 result.key,
             ),
             contained=False,
+            checked_path_parent=False,
             path_object=False,
             repository_object=False,
             instance=None,

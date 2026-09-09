@@ -14,6 +14,81 @@ from tests.conftest import NOW, make_target
 from tests.test_python_discovery import program
 
 
+@pytest.mark.parametrize(
+    ("change", "qualified"),
+    [
+        ("", True),
+        ("parent = returned(parent)", True),
+        ("parent = parent if enabled else Path(other)", False),
+        ("parent = parent.parent", False),
+        ("parent = parent / other", False),
+        ("parent = unknown(parent)", False),
+        ("parent = Path(other)", False),
+    ],
+)
+def test_checked_parent_remains_a_visible_containment_gap(
+    change: str, qualified: bool
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from pathlib import Path\n"
+                    "def returned(value): return value\n"
+                    "@mcp.tool()\ndef create(path, other, enabled):\n"
+                    "    p = Path(path).resolve()\n"
+                    "    p.relative_to(Path('/srv/data').resolve())\n"
+                    "    parent = p.parent\n"
+                    + (f"    {change}\n" if change else "")
+                    + "    return open(parent)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("containment_gap") == "checked-parent"
+    ) is qualified
+
+
+def test_checked_parent_transport_qualification_survives_native_deduplication() -> None:
+    from sentinel.static.engine import _deduplicate, _finding_from_match
+
+    source = (
+        "import os\nfrom pathlib import Path\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n"
+        "def checked(path):\n"
+        "    if ROOT is None: return path\n"
+        "    root = os.path.realpath(ROOT)\n"
+        "    p = os.path.realpath(os.path.join(root, path))\n"
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n"
+        "    return p\n"
+        "@mcp.tool()\ndef create(path):\n"
+        "    Path(checked(path)).parent.mkdir(parents=True, exist_ok=True)\n"
+        "def http():\n    global ROOT\n    ROOT = '/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n"
+        "def stdio():\n    mcp.run(transport='stdio')\n"
+    )
+    for extra, expected in (
+        ("", ["streamable-http"]),
+        ("def unguarded_http():\n    mcp.run(transport='streamable-http')\n", []),
+    ):
+        state = RuleRunState()
+        analyze(program({"server.py": source + extra}), state)
+        matches = _deduplicate(state.matches)
+        assert len(matches) == 1
+        assert json.loads(matches[0].captures["checked_parent_transports"]) == expected
+        assert "containment_gap" not in matches[0].captures
+        finding = _finding_from_match(matches[0], uuid4(), NOW)
+        assert ("the requested path passed containment" in finding.description) is bool(
+            expected
+        )
+        assert finding.status.value == "needs_review"
+
+
 @pytest.mark.parametrize("callback", ["read_global", "lambda: open(state['path'])"])
 def test_helper_keeps_mutated_global_and_closure_state(callback: str) -> None:
     state = RuleRunState()

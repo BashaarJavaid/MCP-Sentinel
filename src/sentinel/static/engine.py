@@ -290,6 +290,30 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             groups[key] = match
             continue
         captures = {**match.captures, **existing.captures}
+        if "checked_parent_transports" in captures:
+            left_transports = set(
+                json.loads(existing.captures.get("launch_transports", "[]"))
+            )
+            right_transports = set(
+                json.loads(match.captures.get("launch_transports", "[]"))
+            )
+            left_checked = set(
+                json.loads(existing.captures.get("checked_parent_transports", "[]"))
+            )
+            right_checked = set(
+                json.loads(match.captures.get("checked_parent_transports", "[]"))
+            )
+            captures["checked_parent_transports"] = json.dumps(
+                sorted(
+                    (
+                        (left_checked - right_transports)
+                        | (right_checked - left_transports)
+                        | (left_checked & right_checked)
+                    )
+                    if left_transports and right_transports
+                    else set()
+                )
+            )
         if match.captures.get("containment_gap") != existing.captures.get(
             "containment_gap"
         ):
@@ -393,7 +417,18 @@ def _finding_from_match(
             "filesystem paths derived afterward still lack complete containment "
             "guarantees."
             if match.captures.get("containment_gap") == "after-prefix"
+            else "The requested path passed a containment check; this operation "
+            "uses its parent directory, whose containment remains unresolved."
+            if match.captures.get("containment_gap") == "checked-parent"
             else definition.description
+        )
+        + (
+            " For source-declared transports "
+            + ", ".join(json.loads(match.captures["checked_parent_transports"]))
+            + ", the requested path passed containment; the remaining candidate "
+            "concerns its parent directory."
+            if json.loads(match.captures.get("checked_parent_transports", "[]"))
+            else ""
         )
         + (
             " With the source-selected mobilecli executable, the recording "

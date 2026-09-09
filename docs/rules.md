@@ -253,6 +253,11 @@ their preceding module-global assignments, retaining the analyzed transports in
 findings. Replaced or unresolved launch methods retain unconfigured analysis.
 Source-bound openpyxl workbook loads and saves are filesystem sinks; unknown or
 replaced workbook receivers do not establish that API identity.
+Python parent-directory findings retain an enforced check on the original path
+without claiming that its parent is contained. When launch modes differ, the
+finding names the transports on which that original check was established. An
+unguarded alternative in the same transport removes that qualification; the
+parent-directory candidate remains visible for review.
 
 TypeScript boolean status fields can carry enforced helper-return conditions.
 Discarding the field, replacing it, or letting its record escape to an unknown
