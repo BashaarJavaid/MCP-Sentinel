@@ -893,6 +893,83 @@ def test_typescript_request_boundary(tmp_path: Path, body: str, expected: int) -
 
 
 @pytest.mark.parametrize(
+    ("normalize", "enforcement", "expected"),
+    [
+        (True, "if (!allowed(url)) throw new Error();", 0),
+        (False, "if (!allowed(url)) throw new Error();", 1),
+        (True, "allowed(url);", 1),
+        (True, "if (!allowed(other)) throw new Error();", 1),
+        (True, "if (!allowed(url)) console.log('rejected');", 1),
+        (True, "if (!allowed(url)) throw new Error(); url=other;", 1),
+    ],
+)
+@pytest.mark.parametrize("catch", [False, True])
+@pytest.mark.parametrize("fallible", [False, True])
+def test_typescript_literal_ip_guard_requires_normalization_and_enforcement(
+    tmp_path: Path,
+    normalize: bool,
+    enforcement: str,
+    expected: int,
+    catch: bool,
+    fallible: bool,
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    classify = "return ipaddr.parse(host).range() !== 'unicast';"
+    if fallible:
+        classify = "unknown(); " + classify
+        if catch:
+            expected = 1
+    if catch:
+        classify = "try { " + classify + " } catch { return false; }"
+    host = "strip(hostname.trim().toLowerCase())" if normalize else "hostname"
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {isIP} from "node:net"; import ipaddr from "ipaddr.js";\n'
+        'const server=new McpServer({name:"test",version:"1"});\n'
+        "function strip(host) { return host.startsWith('[') && host.endsWith(']')"
+        " ? host.slice(1,-1) : host; }\n"
+        f"function denied(hostname) {{ const host={host};\n"
+        " if (isIP(host) === 0) return false;\n"
+        f" {classify}\n}}\n"
+        "function allowed(url) { const parsed=new URL(url);\n"
+        " if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') "
+        "return false;\n"
+        " return !denied(parsed.hostname);\n}\n"
+        'server.registerTool("fetch",{inputSchema:{}},({url,other})=>{\n'
+        f" {enforcement} return fetch(url);\n}});\n"
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    [
+        ("", 0),
+        ("parsed.hostname=other;", 1),
+        ("parsed.toString=()=>other;", 1),
+        # An unknown replacement cannot establish the returned URL's origin.
+        ("parsed.toString=unknown;", 0),
+    ],
+)
+def test_typescript_checked_url_serialization_rejects_mutation(
+    tmp_path: Path, mutation: str, expected: int
+) -> None:
+    test_typescript_request_boundary(
+        tmp_path,
+        'const parsed=new URL(url); if (parsed.protocol!=="https:" || '
+        'parsed.hostname!=="example.com") throw new Error(); '
+        + mutation
+        + " return fetch(parsed.toString());",
+        expected,
+    )
+
+
+@pytest.mark.parametrize(
     ("validation", "expected"),
     [
         ("error = validate(url)\n    if error: raise ValueError(error)", 0),

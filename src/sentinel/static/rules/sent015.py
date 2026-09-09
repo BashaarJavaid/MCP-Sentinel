@@ -690,6 +690,64 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         self.url_parts: dict[str, tuple[str, str]] = {}
+        self.ip_arguments: dict[str, str] = {}
+
+    def statement(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        env: dict[str, Value],
+        returned: list[Value],
+    ) -> bool:
+        if "Try" in node:
+            _, body, _, otherwise, final = node["Try"]
+            statements = body.get("Block", [None, []])[1]
+            if not otherwise and not final and len(statements) == 1:
+                returned_node = statements[0].get("Return", [None, None])[1]
+                comparison = (returned_node or {}).get("some", {}).get("Call")
+                if comparison and len(comparison[1][1]) == 2:
+                    left, right = [a.get("Arg", {}) for a in comparison[1][1]]
+                    range_call = left.get("Call", [{}, [None, []]])
+                    access = range_call[0].get("DotAccess", [{}, None, {}])
+                    parse_call = access[0].get("Call")
+                    name = name_of(parse_call[0]) if parse_call else None
+                    binding = (
+                        self.program.resolve(file, name)
+                        if name and name.split(".")[0] not in env
+                        else None
+                    )
+                    if (
+                        parse_call
+                        and len(parse_call[1][1]) == 1
+                        and name_of(access[2]) == "range"
+                        and not range_call[1][1]
+                        and comparison[0].get("Special", [{}])[0].get("Op")
+                        in {"PhysEq", "NotPhysEq", "Eq", "NotEq"}
+                        and "L" in right
+                        and binding
+                        and binding.external
+                        in {"ipaddr.js.parse", "ipaddr.js.default.parse"}
+                    ):
+                        argument = env.get(
+                            name_of(parse_call[1][1][0].get("Arg", {})) or "",
+                            UNKNOWN_VALUE,
+                        )
+                        if env.get(
+                            "#guard:ip-valid:" + argument.key, UNKNOWN_VALUE
+                        ).contained:
+                            # net.isIP established a valid literal; this pure
+                            # parse/range comparison cannot enter its catch arm.
+                            return super().statement(file, body, env, returned)
+        return super().statement(file, node, env, returned)
+
+    def combined(self, values: list[Value], key: str = "") -> Value:
+        result = super().combined(values, key)
+        parts = {self.url_parts.get(value.key) for value in values}
+        if len(parts) == 1 and None not in parts:
+            part = parts.pop()
+            assert part is not None
+            self.url_parts[result.key] = part
+        return result
 
     def expression(
         self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
@@ -712,14 +770,26 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 )
             ) and len(arguments[1]) == 1:
                 argument = self.expression(file, arguments[1][0].get("Arg", {}), env)
-                result = replace(argument, key=_key("parsed-url", argument.key))
-                self.url_parts[result.key] = (argument.key, "parsed")
+                origin, part = self.url_parts.get(argument.key, (argument.key, ""))
+                origin = origin if part == "parsed" else argument.key
+                result = replace(argument, key=_key("parsed-url", origin))
+                self.url_parts[result.key] = (origin, "parsed")
                 return result
         result = super().expression(file, node, env)
+        origin, part = self.url_parts.get(result.key, (result.key, ""))
+        if (
+            part == "hostname"
+            and env.get(f"#guard:unbracketed:{origin}", UNKNOWN_VALUE).contained
+        ):
+            result = replace(result, key=_key(result.key, "unbracketed"))
+            self.url_parts[result.key] = (origin, "hostname-unbracketed")
         checks = frozenset(
             check
             for check in ("scheme", "host")
-            if env.get(f"#guard:url:{result.key}:{check}", UNKNOWN_VALUE).contained
+            if env.get(
+                f"#guard:url:{origin if part == 'parsed' else result.key}:{check}",
+                UNKNOWN_VALUE,
+            ).contained
         )
         return replace(result, url_checks=result.url_checks | checks)
 
@@ -763,6 +833,63 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         )
         external = (symbol.external or "").removeprefix("node:") if symbol else ""
         argument_nodes = [item.get("Arg", item) for item in arguments[1]]
+        receiver = self.receivers.get(id(callee), UNKNOWN_VALUE)
+        origin, part = self.url_parts.get(receiver.key, ("", ""))
+        method = name_of(callee.get("DotAccess", [{}, None, {}])[2])
+        if part == "parsed" and method in {"toString", "toJSON"} and not argument_nodes:
+            if receiver.key in self.invalidated_objects:
+                self.warning(file, node, "URL object was mutated or escaped")
+                return replace(
+                    receiver,
+                    key=_key("changed-url", receiver.key),
+                    url_checks=frozenset(),
+                )
+            return replace(receiver, key=origin)
+        if part in {"hostname", "hostname-unbracketed"}:
+            if method in {"trim", "toLowerCase"} and not argument_nodes:
+                return receiver
+            bracket_literals = [
+                self.program.literal(TypeScriptSymbol(file, arg))
+                for arg in argument_nodes
+            ]
+            if (method, bracket_literals) in (
+                ("startsWith", ["["]),
+                ("endsWith", ["]"]),
+            ):
+                result = replace(receiver, key=_key(receiver.key, str(method)))
+                # A parsed URL hostname has either paired IPv6 brackets or none.
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:unbracketed:{origin}"}),
+                    frozenset({f"#guard:bracketed:{origin}"}),
+                )
+                return result
+            if (
+                method == "slice"
+                and [self.program.text(file, arg) for arg in argument_nodes]
+                == ["1", "-1"]
+                and env.get(f"#guard:bracketed:{origin}", UNKNOWN_VALUE).contained
+            ):
+                result = replace(receiver, key=_key(receiver.key, "unbracketed"))
+                self.url_parts[result.key] = (origin, "hostname-unbracketed")
+                return result
+        if (
+            external in {"net.isIP", "ipaddr.js.parse", "ipaddr.js.default.parse"}
+            and len(argument_nodes) == 1
+        ):
+            value = self.call_value(file, argument_nodes[0], env)
+            origin, part = self.url_parts.get(value.key, ("", ""))
+            if part == "hostname-unbracketed":
+                result = replace(value, key=_key(external, value.key))
+                self.url_parts[result.key] = (
+                    origin,
+                    "ip-version" if external == "net.isIP" else "ip-address",
+                )
+                self.ip_arguments[result.key] = value.key
+                return result
+        if part == "ip-address" and method == "range" and not argument_nodes:
+            result = replace(receiver, key=_key(receiver.key, "range"))
+            self.url_parts[result.key] = (origin, "ip-range")
+            return result
         is_fetch = (
             name == "fetch"
             and "fetch" not in env
@@ -849,11 +976,23 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                     TypeScriptSymbol(file, argument_nodes[1 - index])
                 )
                 facts = self.restriction(value, literals)
+                origin, part = self.url_parts.get(value.key, ("", ""))
+                if (part == "ip-range" and literals == "unicast") or (
+                    part == "ip-version"
+                    and "L" in argument_nodes[1 - index]
+                    and self.program.text(file, argument_nodes[1 - index]) == "0"
+                ):
+                    facts = frozenset({f"#guard:url:{origin}:host"})
                 if facts:
+                    opposite = (
+                        frozenset({"#guard:ip-valid:" + self.ip_arguments[value.key]})
+                        if part == "ip-version" and value.key in self.ip_arguments
+                        else frozenset()
+                    )
                     self.conditions[result.key] = (
-                        (frozenset(), facts)
+                        (opposite, facts)
                         if operator["Op"] in {"PhysEq", "Eq"}
-                        else (facts, frozenset())
+                        else (facts, opposite)
                     )
         if (
             "DotAccess" in callee

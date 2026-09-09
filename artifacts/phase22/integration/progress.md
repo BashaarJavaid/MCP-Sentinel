@@ -33,6 +33,28 @@ merge or release was performed. Phase 22 remains incomplete.
 
 ## Historical progress
 
+### Source URL guard checkpoint after 4a4c2d3
+
+The new guard reproductions distinguish paired bracket removal and actual
+`net.isIP`/`ipaddr.js` bindings from an unnormalized hostname. Ignored/unrelated
+checks, a branch that merely logs rejection, replaced URLs, additional fallible
+work inside a permissive catch, and mutated URL serialization remain controls.
+The initial serialization test incorrectly required a caller-origin finding for
+an unknown replacement function; its failure is retained. The corrected control
+distinguishes a known replacement returning caller data from an unresolved origin.
+The actual stale protection after hostname mutation was reproduced and corrected.
+
+All 28 targeted controls pass. The complete SSRF/discovery/class selection passes
+360 tests; project-wide strict mypy and focused style pass after retained failures.
+`v4-source-guard-packet.json` binds diagnostics to the exact exposed source trees:
+the vulnerable helper's successful return establishes only the HTTP(S) scheme;
+the fixed helper additionally establishes the literal-host classification. These
+are source diagnostics using an abstract caller value, not native measurements or
+runtime proof. Native repeated measurements remain the separate required gate.
+
+All original evidence, the unapproved fresh proposal and paid deferrals remain.
+This checkpoint does not close Phase 22 or authorize a fresh evaluation.
+
 The worktree was clean on `phase22/integration` at `68fa702` before changes.
 The root checkout was not used for implementation. Existing draft PRs and Phase
 20 evidence have not been modified, merged or published. No paid calls occurred.

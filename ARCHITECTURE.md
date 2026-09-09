@@ -396,6 +396,15 @@ A callable missing on another source branch remains an explicit coverage warning
 This bounded source interpretation does not execute startup or establish a runtime
 configuration, complete dispatch coverage or target safety.
 
+SENT-015 tracks the actual parsed URL through hostname normalization and URL
+serialization. For literal-address checks, paired IPv6 bracket removal must precede
+the genuine `node:net.isIP` / `ipaddr.js.parse(...).range()` classification. An
+enforced unicast-only predicate can protect that URL; ignored results, unrelated
+values and non-rejecting branches cannot. A preceding valid-IP check makes only
+the pure parse/range comparison's catch arm unreachable; additional fallible work
+keeps the catch path. Mutated or escaped URL objects lose serialization protection.
+This does not establish DNS, redirect, proxy or runtime protection.
+
 Included plain TypeScript classes retain instance/static method receivers,
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an
