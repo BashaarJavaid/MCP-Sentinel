@@ -1,5 +1,38 @@
 # Integration progress — not technical acceptance
 
+## Final continuation: startup and default dependency checkpoint
+
+The user-authorized final continuation starts at `c2d1577`. The only initial
+untracked file is `docs/phase22-final-agent-prompt.md`; it is preserved. Main and
+all recorded worktrees remain unchanged. Draft PR #37 retains the expected head
+and PR #36 base. `v4-baseline-packet.json` verifies all 32 archive hashes and all
+1,139 batch-32 members, with no missing/conflicting expanded evidence. The locked
+Python 3.12.13 environment imports this integration source; Semgrep is 1.176.0.
+
+Durable reproductions expose lost nullish/default callable identities, startup
+runtime bindings, `satisfies` operands and conditional service state after an
+earlier call. Their failures and corrected runs are retained under `v4-*`.
+The shared selection passes 943 tests; the final discovery/class selection passes
+106 tests, with project-wide strict mypy and focused Ruff passing after retained
+type/style failures. These are checkpoint checks, not final quality acceptance.
+
+Preliminary native scans on their recorded patches complete the original exposed
+vulnerable case in 54.415 seconds and fixed case in 58.842 seconds. The vulnerable
+report now contains source-grounded SENT-015 at the initial web `axios.head` and
+`axios.get`; the fixed report has no matching web alert. Seven new vulnerable and
+one new fixed unrelated-or-condition candidates still need complete adjudication.
+The fixed request wrapper and IP predicate retain unresolved diagnostics; absence
+of a fixed alert alone is not evidence of guard recognition or runtime defense.
+The first native diagnostic still missed the condition and is preserved.
+
+URL guard verification, all repeated final measurements, timing optimization,
+fresh freeze approval/evaluation, complete final technical/hosted checks, evidence
+sealing/delivery and final human acceptance remain outstanding. No fresh replacement
+source was inspected, no paid call or target execution occurred, and no push,
+merge or release was performed. Phase 22 remains incomplete.
+
+## Historical progress
+
 The worktree was clean on `phase22/integration` at `68fa702` before changes.
 The root checkout was not used for implementation. Existing draft PRs and Phase
 20 evidence have not been modified, merged or published. No paid calls occurred.

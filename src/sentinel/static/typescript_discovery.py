@@ -408,6 +408,15 @@ class TypeScriptProgram:
         seen: frozenset[tuple[str, str]] = frozenset(),
     ) -> TypeScriptSymbol | None:
         check_deadline(self.deadline)
+        if "Await" in node:
+            return self.resolve_node(file, node["Await"][1], rest, seen)
+        call = node.get("Call")
+        if call and name_of(call[0]) == "import" and len(call[1][1]) == 1:
+            module = self.literal(TypeScriptSymbol(file, call[1][1][0].get("Arg", {})))
+            if module is None or not module.startswith("."):
+                self.unresolved(file, "nonliteral or external dynamic import")
+                return None
+            return self.resolve_node(file, {"import": (module, "")}, rest, seen)
         if "import" in node:
             module, imported = node["import"]
             target = ".".join(part for part in (imported, rest) if part)
@@ -463,10 +472,12 @@ class TypeScriptProgram:
                     return None
                 included_paths.update(matches)
             included = [self.files[path] for path in sorted(included_paths)]
-            if (
-                len(included) != 1
-                or target.split(".")[0] not in self.exports[included[0].relative_path]
-            ):
+            if len(included) != 1:
+                self.unresolved(file, module + ":" + target)
+                return None
+            if not target:
+                return TypeScriptSymbol(file, node)
+            if target.split(".")[0] not in self.exports[included[0].relative_path]:
                 self.unresolved(file, module + ":" + target)
                 return None
             return self.resolve(included[0], target, seen)

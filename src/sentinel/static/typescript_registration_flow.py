@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from sentinel.static.execution import check_deadline
 from sentinel.static.http_discovery import TypeScriptHTTPBinding
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.path_flow import Value
@@ -11,6 +12,7 @@ from sentinel.static.typescript_discovery import (
     TypeScriptBinding,
     TypeScriptProgram,
     TypeScriptSymbol,
+    name_of,
     walk,
 )
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
@@ -59,6 +61,55 @@ class RegistrationFlow(TypeScriptPathFlow):
 
 def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
     found = []
+    functions = {
+        id(declarations[0]): TypeScriptSymbol(program.files[path], declarations[0])
+        for path, bindings in program.bindings.items()
+        for declarations in bindings.values()
+        if len(declarations) == 1
+        and TypeScriptSymbol(program.files[path], declarations[0]).function is not None
+    }
+    calls: dict[int, set[int]] = {}
+    roots: list[TypeScriptSymbol] = []
+    for identity, symbol in functions.items():
+        check_deadline(program.deadline)
+        calls[identity] = {
+            id(target.node)
+            for node in walk(symbol.node)
+            if "Call" in node
+            and (name_of(node["Call"][0]) or "").split(".")[0]
+            in program.bindings[symbol.file.relative_path]
+            for target in [program.resolve_node(symbol.file, node["Call"][0])]
+            if target and target.function
+        }
+    for path, tree in program.trees.items():
+        for statement in tree["Pr"]:
+            if "ExprStmt" not in statement:
+                continue
+            for node in walk(statement):
+                call = node.get("Call")
+                if not call or call[1][1]:
+                    continue
+                name = name_of(call[0])
+                if not name or name not in program.bindings[path]:
+                    continue
+                resolved = program.resolve(program.files[path], name)
+                if (
+                    resolved
+                    and resolved.function
+                    and not resolved.function["fparams"][1]
+                ):
+                    roots.append(resolved)
+    reachable: dict[int, set[int]] = {}
+    for root in roots:
+        pending = [id(root.node)]
+        seen: set[int] = set()
+        while pending:
+            check_deadline(program.deadline)
+            identity = pending.pop()
+            if identity not in seen:
+                seen.add(identity)
+                pending.extend(calls.get(identity, ()))
+        reachable[id(root.node)] = seen
     for path, bindings in program.bindings.items():
         file = program.files[path]
         for declarations in bindings.values():
@@ -81,14 +132,18 @@ def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
                 for constructor in constructors
             ):
                 continue
-            flow = RegistrationFlow(program, factory)
-            flow.function(factory, [])
-            found.extend(flow.found)
-            program.warnings.extend(
-                warning
-                for warning in flow.state.warnings
-                if warning not in program.warnings
-            )
+            initializers = [
+                root for root in roots if id(factory.node) in reachable[id(root.node)]
+            ] or [factory]
+            for initializer in initializers:
+                flow = RegistrationFlow(program, initializer)
+                flow.function(initializer, [])
+                found.extend(flow.found)
+                program.warnings.extend(
+                    warning
+                    for warning in flow.state.warnings
+                    if warning not in program.warnings
+                )
     return tuple(found)
 
 

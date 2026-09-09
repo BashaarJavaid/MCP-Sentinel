@@ -360,6 +360,97 @@ def test_object_method_receiver_and_arrow_lexical_this(
     assert len(state.matches) == expected
 
 
+@pytest.mark.parametrize(
+    ("options", "change", "expected"),
+    [
+        ("", "", 1),
+        ("undefined", "", 1),
+        ("{fetcher:null}", "", 1),
+        ('{fetcher:(url)=>fetch("https://example.com/")}', "", 0),
+        ("{fetcher:(url)=>fetch(url)}", "", 1),
+        ("{fetcher:false}", "", 0),
+        ("unknownOptions", "", 0),
+        ("{}", "options.fetcher=unknown;", 0),
+        ("{}", "unknown(options);", 0),
+        ("({} satisfies Options)", "", 1),
+    ],
+)
+def test_default_service_fetcher_preserves_actual_dependency(
+    tmp_path: Path, options: str, change: str, expected: int
+) -> None:
+    state = _object_url_flow(
+        tmp_path,
+        "function defaultFetch(value) { return fetch(value); }\n"
+        "function service(options={}) {\n"
+        f" {change}\n"
+        " const fetcher=options.fetcher ?? defaultFetch;\n"
+        " return {async execute(value) { return fetcher(value); }};\n"
+        "}\n"
+        f"const selected=service({options}); selected.execute(url);",
+    )
+    assert len(state.matches) == expected
+    if "unknown" in options + change or options == "{fetcher:false}":
+        assert any("unresolved call to fetcher" in w.message for w in state.warnings)
+
+
+@pytest.mark.parametrize("safe", [False, True])
+@pytest.mark.parametrize("dynamic", [False, True])
+@pytest.mark.parametrize("optional", [False, True])
+@pytest.mark.parametrize("before", [False, True])
+def test_source_startup_binds_injected_runtime(
+    tmp_path: Path, safe: bool, dynamic: bool, optional: bool, before: bool
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+    from sentinel.static.typescript_path_flow import analyze
+
+    destination = '"https://example.com/"' if safe else "url"
+    sources = {
+        "runtime.ts": (
+            "export function runtime() { return {services:{fetchWeb:{"
+            f"execute(url) {{return fetch({destination});}}"
+            "}}}; }"
+        ),
+        "server.ts": (
+            'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+            'import {z} from "zod";\n'
+            + ('import {runtime} from "./runtime.js";\n' if not dynamic else "")
+            + "function create(runtime) {\n"
+            ' const server=new McpServer({name:"test",version:"1"});\n'
+            ' server.tool("fetch",{url:z.string()},'
+            "({url})=>runtime.services.fetchWeb.execute(url));\n"
+            " return server;\n}\n"
+            "async function start() {\n"
+            + (' const {runtime}=await import("./runtime.js");\n' if dynamic else "")
+            + (
+                " const selected=flag ? runtime() : "
+                "({services:{}} satisfies Runtime);\n"
+                if optional
+                else " const selected=runtime();\n"
+            )
+            + (
+                " if (anotherFlag) selected.services.fetchWeb.execute("
+                '"https://example.com/");\n'
+                if before
+                else ""
+            )
+            + " return create(selected);\n}\n"
+            "start();\n"
+        ),
+    }
+    files = tuple(
+        TypeScriptSourceFile(tmp_path / name, name, source)
+        for name, source in sources.items()
+    )
+    program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert len(state.matches) == (0 if safe else 1)
+    assert not any(
+        "unresolved call to runtime.services.fetchWeb.execute" in w.message
+        for w in state.warnings
+    )
+
+
 def test_object_accessors_stay_unresolved(tmp_path: Path) -> None:
     state = _object_url_flow(
         tmp_path,

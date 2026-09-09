@@ -385,6 +385,17 @@ ordinary method's receiver; arrows retain lexical `this`, and extracted ordinary
 methods acquire no receiver. Existing record replacement and escape handling
 applies to these methods. Accessors remain explicitly unresolved.
 
+Source-invoked parameterless TypeScript startup functions can supply factory
+dependencies through included helpers and literal local dynamic imports. Resolution
+uses the existing module/export and repository boundaries; computed and external
+dynamic imports remain unresolved. Known nullish defaults retain their selected
+callable, including explicit `undefined` defaults. Unknown or replaced dependencies
+do not establish a callable. `satisfies` preserves its runtime operand, and
+conditional record allocations retain their member state across later calls.
+A callable missing on another source branch remains an explicit coverage warning.
+This bounded source interpretation does not execute startup or establish a runtime
+configuration, complete dispatch coverage or target safety.
+
 Included plain TypeScript classes retain instance/static method receivers,
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an

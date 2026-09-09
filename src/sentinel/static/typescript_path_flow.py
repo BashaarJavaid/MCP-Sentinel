@@ -95,6 +95,7 @@ class TypeScriptPathFlow:
         self.arrays: set[str] = set()
         self.array_states: dict[str, tuple[tuple[Value, ...], ...]] = {}
         self.string_literals: dict[str, str] = {}
+        self.nonnull_literals: set[str] = set()
         self.mobilecli_paths: set[str] = set()
         self.string_prefixes: dict[str, str] = {}
 
@@ -103,7 +104,13 @@ class TypeScriptPathFlow:
 
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         for name in set().union(*(branch.keys() for branch in branches)):
-            values = [branch.get(name, UNKNOWN_VALUE) for branch in branches]
+            root = name.removeprefix("#record:")
+            initial = (
+                Value(key=root)
+                if name.startswith("#record:") and root in self.objects
+                else UNKNOWN_VALUE
+            )
+            values = [branch.get(name, initial) for branch in branches]
             env[name] = (
                 Value(contained=all(value.contained for value in values))
                 if name.startswith("#guard:")
@@ -114,6 +121,9 @@ class TypeScriptPathFlow:
         return self.conditions.get(value.key, (frozenset(), frozenset()))
 
     def combined(self, values: list[Value], key: str = "") -> Value:
+        present = [v for v in values if v.key != "#ts:undefined"]
+        if present and len(present) != len(values):
+            return replace(self.combined(present, key), maybe_missing=True)
         result = combine(values, key)
         if values and all(value is result or value == result for value in values):
             # The same identity already carries these metadata facts (or defaults).
@@ -139,7 +149,10 @@ class TypeScriptPathFlow:
             fields = set.union(*(set(self.objects[v.key]) for v in values))
             self.objects[result.key] = {
                 name: self.combined(
-                    [self.objects[v.key].get(name, UNKNOWN_VALUE) for v in values]
+                    [
+                        self.objects[v.key].get(name, Value(key="#ts:undefined"))
+                        for v in values
+                    ]
                 )
                 for name in fields
             }
@@ -241,7 +254,9 @@ class TypeScriptPathFlow:
                 value = args[index] if index < len(args) else Value()
                 if "Param" in parameter:
                     param = parameter["Param"]
-                    if index >= len(args) and param.get("pdefault"):
+                    if (
+                        index >= len(args) or value.key == "#ts:undefined"
+                    ) and param.get("pdefault"):
                         value = self.expression(
                             symbol.file, param["pdefault"]["some"], env
                         )
@@ -612,9 +627,24 @@ class TypeScriptPathFlow:
         return self.objects.get(current.key, {})
 
     def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
-        field = self.object_fields(value, env).get(
-            name, replace(value, key=_key(value.key, name), contained=False)
+        fields = self.object_fields(value, env)
+        namespace = self.callables.get(value.key)
+        if namespace and "import" in namespace.node:
+            symbol = self.program.resolve_node(namespace.file, namespace.node, name)
+            if symbol:
+                result = Value(key=_key(value.key, name))
+                if symbol.function or symbol.external or "import" in symbol.node:
+                    self.callables[result.key] = symbol
+                    return result
+                return self.expression(symbol.file, symbol.node, env)
+        field = fields.get(
+            name,
+            Value(key="#ts:undefined")
+            if value.key in self.record_roots and name not in fields
+            else replace(value, key=_key(value.key, name), contained=False),
         )
+        if value.maybe_missing:
+            field = replace(field, maybe_missing=True)
         return (
             replace(
                 field,
@@ -637,7 +667,12 @@ class TypeScriptPathFlow:
         if not isinstance(node, dict):
             return Value()
         if "L" in node:
+            if "Undefined" in node["L"] or "Null" in node["L"]:
+                return Value(
+                    key="#ts:undefined" if "Undefined" in node["L"] else "#ts:null"
+                )
             result = Value(key=json.dumps(node["L"], sort_keys=True))
+            self.nonnull_literals.add(result.key)
             literal = self.program.literal(TypeScriptSymbol(file, node))
             if isinstance(literal, str):
                 self.string_literals[result.key] = literal
@@ -716,6 +751,8 @@ class TypeScriptPathFlow:
             return self.expression(file, node["Await"][1], env)
         if "Cast" in node:
             return self.expression(file, node["Cast"][2], env)
+        if node.get("OtherExpr", [[None]])[0][0] == "Satisfies":
+            return self.expression(file, node["OtherExpr"][1][0]["E"], env)
         if "Container" in node:
             items = tuple(
                 self.expression(file, item, env) for item in node["Container"][1][1]
@@ -727,12 +764,15 @@ class TypeScriptPathFlow:
             test, left, right = node["Conditional"]
             condition = self.expression(file, test, env)
             values = []
+            branches = []
             for branch, truth in ((left, True), (right, False)):
                 if self.condition(condition)[int(truth)] is None:
                     continue
                 local = env.copy()
                 self.guard(condition, local, truth)
                 values.append(self.expression(file, branch, local))
+                branches.append(local)
+            self.merge(env, branches)
             return self.combined(values)
         if "Call" in node:
             previous = self.call_values
@@ -990,6 +1030,14 @@ class TypeScriptPathFlow:
         self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
     ) -> Value:
         callee, arguments = node["Call"]
+        if name_of(callee) == "import":
+            symbol = self.program.resolve_node(file, node)
+            result = Value(
+                key=_key(file.relative_path, str(self.program.source_range(node, file)))
+            )
+            if symbol:
+                self.callables[result.key] = symbol
+            return result
         if (
             callee.get("OtherExpr", [[None]])[0][0] == "Delete"
             and len(arguments[1]) == 1
@@ -1013,6 +1061,27 @@ class TypeScriptPathFlow:
         )
         symbol = self.callables.get(callable_value.key)
         operator = callee.get("Special", [{}])[0]
+        if isinstance(operator, dict) and operator.get("Op") == "Nullish":
+            left, right = [item.get("Arg", item) for item in arguments[1]]
+            value = self.call_value(file, left, env)
+            if value.key in {"#ts:undefined", "#ts:null"}:
+                return self.call_value(file, right, env)
+            if (
+                (
+                    value.key in self.callables
+                    or value.key in self.objects
+                    or value.key in self.arrays
+                    or value.key in self.classes
+                    or value.key in self.instances
+                    or value.key in self.string_literals
+                    or value.key in self.nonnull_literals
+                )
+                and not value.maybe_missing
+                and value.key not in self.invalidated_objects
+            ):
+                return value
+            # Unknown dependencies cannot establish either callable identity.
+            return self.combined([value, self.call_value(file, right, env)])
         logical_returns: list[tuple[Value, dict[str, Value]]] | None = None
         if isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
             local = env.copy()
@@ -1485,6 +1554,8 @@ class TypeScriptPathFlow:
             self.path_sink(file, node, env, args[0], name)
             return result
         if symbol and symbol.function:
+            if callable_value.maybe_missing:
+                self.warning(file, node, "callable is absent on another source branch")
             self.call_sites.append(TypeScriptSymbol(file, node))
             try:
                 captured = {
