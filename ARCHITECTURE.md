@@ -398,7 +398,7 @@ request. Requests and aiohttp inherit authentication for request `auth=None`;
 httpx disables it. Request mappings override matching defaults, with case-insensitive
 header names. Httpx header/parameter setters copy mappings; requests assignments
 retain aliases. Known Basic Auth fields retain credential provenance and override
-Authorization headers. Aiohttp default auth also respects a known base origin;
+Authorization headers only when that authentication is definitely selected. Aiohttp default auth also respects a known base origin;
 combined auth and Authorization headers are disclosed as an invalid request.
 Custom authentication hooks remain unresolved.
 

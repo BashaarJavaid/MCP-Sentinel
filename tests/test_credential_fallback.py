@@ -1149,6 +1149,27 @@ def test_typescript_mixed_mcp_http_factory(tmp_path: Path, protected: bool) -> N
         ),
         ("client=httpx.Client(auth=('service', token)); client.auth=None", "", 0),
         (
+            "auth=httpx.BasicAuth('service', 'fixed') "
+            "if request.query_params.get('basic') else None; "
+            "client=httpx.Client(headers={'Authorization': token}, auth=auth)",
+            "",
+            1,
+        ),
+        (
+            "auth=('service', 'fixed') "
+            "if request.query_params.get('basic') else None; "
+            "client=httpx.Client(headers={'Authorization': token}, auth=auth)",
+            "",
+            1,
+        ),
+        (
+            "auth=aiohttp.BasicAuth('service', 'fixed') "
+            "if request.query_params.get('basic') else None; "
+            "client=aiohttp.ClientSession(headers={'Authorization': token}, auth=auth)",
+            "",
+            1,
+        ),
+        (
             "client=httpx.Client(auth=('service', token)); "
             "client.get=lambda *args: None",
             "",

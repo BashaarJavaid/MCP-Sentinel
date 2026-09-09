@@ -280,6 +280,7 @@ class CredentialFlow(PathFlow):
                     fields = ("_auth_header",)
                     env[self.member_key(value, fields[0])] = value
                 self.basic_auth_fields[value.key] = fields
+                return replace(value, maybe_none=False, maybe_missing=False)
             return value
         service_client = external in {"atlassian.Jira", "atlassian.Confluence"} and (
             self.program.external(symbol, node.func) == external
@@ -442,6 +443,9 @@ class CredentialFlow(PathFlow):
                         and library == "aiohttp.ClientSession"
                         and auth is not None
                         and auth.key != "None"
+                        and not auth.maybe_none
+                        and not auth.maybe_missing
+                        and auth.key in self.basic_auth_fields
                         and "authorization" in values
                     ):
                         self.unresolved(
@@ -453,6 +457,8 @@ class CredentialFlow(PathFlow):
                     if (
                         field == "headers"
                         and auth is not None
+                        and not auth.maybe_none
+                        and not auth.maybe_missing
                         and (
                             (
                                 auth.key in self.basic_auth_fields
