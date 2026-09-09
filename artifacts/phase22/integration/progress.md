@@ -1939,3 +1939,43 @@ Every member was read back against its source hash. Current 6e68331 and coordina
 queue outputs are excluded until they complete; diagnostic drivers are retained.
 All earlier seals, failed/stopped commands, source changes and temporary worktrees
 remain preserved. No paid calls, push, new draft, merge, release or outreach yet.
+
+
+### Current historical gate and replacement freeze proposal
+
+At immutable `6e6833198989e06bd8c369abab0ee1a9d3db1ef8`, both historical runs
+complete 45/45 with identical stable reports. Every stable report also equals
+dcb965f, after raw-report hash and stable-hash verification. The retained
+20/20 exposed vulnerable condition hits, zero named fixed/safe alerts, all
+1487 unrelated assessments and the original 70 unadjudicated instances apply
+through `v2-historical-gate-6e68331/packet.json`. First/second input wall totals
+are 1464369/1387513 ms; maximum input wall durations are 112983/107209 ms.
+No full suite, native corpus or comparator workload overlapped the pair;
+lightweight documentation/source/corpus review and archival operations did.
+These are local observations, not controlled throughput measurements.
+
+Three source audits, 13 Git catalog/campaign/sandbox comparisons and the pinned
+comparator/corpus bindings pass at 6e68331. Actual retained Git execution remains
+incomplete, with 312 tested observations and 728 untested attempts; no defense
+is inferred. The 2059-item full suite is running; current original Phase 22
+repeats, delivery checks and exact native request preparation are queued.
+No full-suite pass is claimed while its known smoke-capture dependency is open.
+
+The implementation agent prepared `corpus-replacement-v1` after scanner code
+froze at 6e68331, because independent-agent authorization has not arrived.
+It contains complete pinned open-webSearch 2.1.6/2.1.7 archives, Apache-2.0
+licenses, two reversible predicate-renaming mutations and one public IPv4
+classification control. Existing 50-input corpus validation passes; 45 old
+records are exactly unchanged. Advisory/source exposure is disclosed, no
+detector changed, and no scanner/comparator/model/target evaluation ran.
+The explicit freeze request names manifest
+`159278d40a7d6fe2faa1c240a26f51009b37cdca30c862d5e9df1d66a6fed0da`.
+Only the replacement five would be a new evaluation; the original holdout
+results are not reset. The separate Meta decision remains pending.
+The proposal is committed in `0367078`; its 28 local inspection copies are
+byte-identical to their canonical archive members and inventoried for recovery.
+
+No paid calls, push, new draft, merge, release or outreach have occurred.
+Current completed post-v26 records await the next seal; active logs remain
+outside all sealed archives. Strict current docs pass in
+`v2-docs-current-gates-0367078`.

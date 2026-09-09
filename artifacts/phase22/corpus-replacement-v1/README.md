@@ -41,3 +41,13 @@ the handoff's replacement-holdout freeze process and the project's corpus-freeze
 checkpoint. Approval would permit source-only deterministic and pinned comparator
 evaluation of the five replacements. It would not approve paid calls, target
 execution, label changes, new detector tuning or a claim that Phase 22 is complete.
+
+Reproduce validation from the integration checkout without executing target code:
+
+```sh
+PYTHONPATH=src:. /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -c "from pathlib import Path; from scripts.phase22_corpus import validate; m = validate(Path('artifacts/phase22/corpus-replacement-v1/manifest.json')); print(len(m.inputs))"
+```
+
+The 28 expanded inspection copies under `review-source/` remain local.
+`review-source-inventory.json` verifies each against the corresponding complete
+upstream archive, which is the canonical reproducible source.

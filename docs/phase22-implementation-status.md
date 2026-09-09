@@ -408,3 +408,32 @@ and source assessments. Its archive SHA-256 is
 `4e4521bc7d05d4e65054b117b6faa1334c69ff7cb95096e6ee882e3742b02ce6`.
 Every member was read back and hashed; active 6e68331 and coordinate queue records
 remain outside this seal. No current-source full-suite pass is claimed.
+
+
+### Corrected historical gate and replacement proposal at 6e68331
+
+Both immutable historical runs complete 45/45 under the unchanged 120-second
+deadline. All stable reports also match dcb965f, preserving all 20 exposed
+vulnerable detections, zero named fixed/safe alerts, 1487 unrelated source
+assessments and the original 70 unadjudicated instances. The gate packet verifies
+actual raw report hashes and recomputed stable hashes before reusing those
+assessments. This is historical exposed-condition evidence, not fresh accuracy.
+
+The current compatibility/workspace/consumer source bindings, all 13 approved Git
+catalog/campaign/sandbox comparisons, and pinned comparator harness/corpus
+bindings pass. Git execution remains 312 tested observations, 728 untested and
+no demonstrated violation; no new runtime execution is inferred from reuse.
+The current full suite is running and original Phase 22 repeats are queued; the
+known TypeScript smoke capture dependency is still an open check.
+
+A separate replacement corpus proposal is committed under
+`artifacts/phase22/corpus-replacement-v1/`. It replaces only the five exposed
+auth-fetch inputs with an upstream open-webSearch pair, paired predicate-renaming
+mutations and a public-literal control. All 45 other input records and all original
+source/results remain unchanged. The complete source archives and Apache-2.0
+licenses are retained. Existing corpus validation passes. Manifest SHA-256
+`159278d40a7d6fe2faa1c240a26f51009b37cdca30c862d5e9df1d66a6fed0da`
+awaits explicit user freeze approval. The implementation agent read advisory
+excerpts and source only after code froze at 6e68331; no detector changed and no
+scanner/model/comparator/target evaluation ran on these inputs. This does not
+reset the original held-out evaluation or create a fresh 25-input measurement.
