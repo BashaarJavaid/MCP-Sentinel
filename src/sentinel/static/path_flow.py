@@ -972,21 +972,27 @@ class PathFlow:
                 maybe_missing=True,
             )
         key = self.member_key(value, member)
-        fallback = replace(
-            env.get("#member:unknown:" + value.key, UNKNOWN_VALUE)
-            if value.key in self.mapping_keys or value.key in self.record_keys
-            else value,
-            key=_key(value.key, repr(member)),
-            contained=False,
-            option_safe=False,
-            url_checks=frozenset(),
-            credential_present=False,
-            maybe_missing=True,
-        )
-        if value.key in self.mapping_keys and "#member:unknown:" + value.key not in env:
-            fallback = Value(key="#missing", maybe_missing=True)
-        result = env.get(key, fallback)
-        self.member_defaults.setdefault(key, fallback)
+        if key in env and key in self.member_defaults:
+            result = env[key]
+        else:
+            fallback = replace(
+                env.get("#member:unknown:" + value.key, UNKNOWN_VALUE)
+                if value.key in self.mapping_keys or value.key in self.record_keys
+                else value,
+                key=_key(value.key, repr(member)),
+                contained=False,
+                option_safe=False,
+                url_checks=frozenset(),
+                credential_present=False,
+                maybe_missing=True,
+            )
+            if (
+                value.key in self.mapping_keys
+                and "#member:unknown:" + value.key not in env
+            ):
+                fallback = Value(key="#missing", maybe_missing=True)
+            result = env.get(key, fallback)
+            self.member_defaults.setdefault(key, fallback)
         if (
             key in self.required_members
             and value.instance is not None
