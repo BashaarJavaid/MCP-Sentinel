@@ -858,6 +858,71 @@ class HTTPContext:
             self.decisions[node] = True
         return self.decisions[node]
 
+    def exception_state(
+        self, symbol: Symbol, node: ast.Try, env: dict[str, Value]
+    ) -> dict[str, Value]:
+        state = env.copy()
+        request = env.get("#http:request")
+        first = node.body[0]
+        if (
+            request is None
+            or request.key not in self.flow.record_keys
+            or request.maybe_none
+            or request.maybe_missing
+            or env.get("#http:no-request", UNKNOWN_VALUE).key == "True"
+            or not isinstance(first, (ast.Assign, ast.AnnAssign))
+            or not isinstance(first.value, ast.Call)
+            or first.value.args
+            or first.value.keywords
+            or (qualified_name(first.value.func) or "").split(".")[0] in env
+            or self.flow.program.external(symbol, first.value.func)
+            != "fastmcp.server.dependencies.get_http_request"
+        ):
+            return state
+        targets = first.targets if isinstance(first, ast.Assign) else [first.target]
+        if not all(isinstance(target, ast.Name) for target in targets):
+            return state
+        # The genuine getter cannot fail for absent context on this prepared
+        # HTTP path. Keep following constant assignments before the first
+        # operation that can raise; later writes invalidate that prefix fact.
+        prefix: dict[str, Value] = {}
+        remaining = node.body[1:]
+        for index, statement in enumerate(node.body[1:], 1):
+            if not isinstance(statement, (ast.Assign, ast.AnnAssign)) or not isinstance(
+                statement.value, ast.Constant
+            ):
+                break
+            targets = (
+                statement.targets
+                if isinstance(statement, ast.Assign)
+                else [statement.target]
+            )
+            if not all(isinstance(target, ast.Name) for target in targets):
+                break
+            for target in targets:
+                assert isinstance(target, ast.Name)
+                prefix[target.id] = Value(key=repr(statement.value.value))
+            remaining = node.body[index + 1 :]
+        changed = {
+            part.id
+            for statement in remaining
+            for part in ast.walk(statement)
+            if isinstance(part, ast.Name) and isinstance(part.ctx, (ast.Store, ast.Del))
+        }
+        changed.update(
+            name
+            for part in ast.walk(symbol.node)
+            if isinstance(part, (ast.Nonlocal, ast.Global))
+            for name in part.names
+        )
+        state.update(
+            {
+                name: UNKNOWN_VALUE if name in changed else value
+                for name, value in prefix.items()
+            }
+        )
+        return state
+
     def prepare(self, tool: ToolBinding) -> list[dict[str, Value]] | None:
         flow = self.flow
         roots = tool_servers(flow.program, tool)

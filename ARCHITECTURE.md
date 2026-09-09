@@ -452,6 +452,12 @@ forwarding and unresolved middleware sequences do not establish protection.
 An uninvoked source helper is not evidence that an application was mutated.
 The separate path without an HTTP request retains stdio findings and exception
 fallbacks; HTTP middleware cannot remove an earlier reachable stdio sink.
+On a prepared HTTP path, a genuine request getter followed by constant local
+assignments preserves those assignments at exception entry. Earlier unknown
+operations, setter targets, later writes and nonlocal/global mutation cannot
+establish that prefix state. SENT-016 keeps different caller-absence conditions
+separate through the remaining statements of a try/except without `finally`,
+within the existing deadline. General exception side effects remain unsupported.
 Genuine Starlette `BaseHTTPMiddleware` subclasses can supply a source-defined
 `dispatch(self, request, call_next)` through the same attached middleware sequence.
 The scanner interprets state before `call_next` and explicit refusal; it does not

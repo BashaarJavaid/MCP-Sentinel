@@ -617,7 +617,7 @@ class PathFlow:
         env: dict[str, Value],
         returned: list[Value],
     ) -> bool:
-        for node in body:
+        for index, node in enumerate(body):
             if env.get("#http:stop", UNKNOWN_VALUE).key == "True":
                 return False
             check_deadline(self.deadline)
@@ -775,10 +775,35 @@ class PathFlow:
                     branches.append(success)
                 final_states.append(success)
                 for handler in node.handlers if startup is not True else []:
-                    failure = env.copy()
+                    failure = self.http_context.exception_state(symbol, node, env)
                     if self.statements(symbol, handler.body, failure, returned):
                         branches.append(failure)
                     final_states.append(failure)
+                if (
+                    self.rule_id == "SENT-016"
+                    and not node.finalbody
+                    and len(
+                        {
+                            frozenset(
+                                key
+                                for key, value in branch.items()
+                                if key.startswith(("#absent:", "#credential:excluded:"))
+                                and value.contained
+                            )
+                            for branch in branches
+                        }
+                    )
+                    > 1
+                ):
+                    # Keep absent-caller and operator-selection conditions on
+                    # the same path until the actual credential sink.
+                    continuing = [
+                        branch
+                        for branch in branches
+                        if self.statements(symbol, body[index + 1 :], branch, returned)
+                    ]
+                    self.merge(env, continuing)
+                    return bool(continuing)
                 self.merge(env, branches or final_states)
                 if not self.statements(symbol, node.finalbody, env, returned):
                     return False

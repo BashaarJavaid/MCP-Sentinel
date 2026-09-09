@@ -386,8 +386,9 @@ def test_absent_http_credential_selects_separate_operator_client(
 
 
 @pytest.mark.parametrize("refuse_http", [False, True])
+@pytest.mark.parametrize("transport", [None, "streamable-http", "stdio"])
 def test_sdk_auth_mode_fallback_preserves_successful_http_context(
-    tmp_path: Path, refuse_http: bool
+    tmp_path: Path, refuse_http: bool, transport: str | None
 ) -> None:
     root = make_target(tmp_path / "target", target_yaml="")
     (root / "server.py").write_text(
@@ -407,14 +408,15 @@ def test_sdk_auth_mode_fallback_preserves_successful_http_context(
             if refuse_http
             else ""
         )
-        + "    return operator_client()\n",
+        + "    return operator_client()\n"
+        + (f"def main(): mcp.run(transport={transport!r})\n" if transport else ""),
         encoding="utf-8",
     )
     config = load_configuration(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert len(run_static_scan(config, uuid4(), timestamp=NOW).findings) == (
-        not refuse_http
+        not refuse_http and transport != "stdio"
     )
 
 
@@ -1482,3 +1484,72 @@ def test_typescript_mutated_client_configuration(
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == (not protected)
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "handler", "conditional"),
+    [
+        ("", "unknown()", "pass", True),
+        ("unknown()\n        ", "unknown()", "pass", False),
+        ("", "in_http=False\n        unknown()", "pass", False),
+        ("", "unknown()", "in_http=False", False),
+        ("", "clear()\n        unknown()", "pass", False),
+    ],
+)
+def test_prepared_http_fallback_keeps_exception_prefix_conditions(
+    tmp_path: Path, before: str, after: str, handler: str, conditional: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from atlassian import Jira as Service\nimport os\nmcp=FastMCP('test')\n"
+        "def opted_in(): return os.getenv('ALLOW_FALLBACK', '').lower() in ('true',)\n"
+        "@mcp.tool()\ndef fetch():\n    in_http=False\n"
+        + (
+            "    def clear():\n        nonlocal in_http\n        in_http=False\n"
+            if "clear()" in after
+            else ""
+        )
+        + "    request=get_http_request()\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if token: return Service(token=token)\n"
+        "    try:\n        " + before + "request=get_http_request()\n"
+        "        in_http=True\n        " + after + "\n"
+        "        token=request.headers.get('Authorization')\n"
+        "        if token: return Service(token=token)\n"
+        "    except RuntimeError:\n        " + handler + "\n"
+        "    if in_http and not opted_in(): raise ValueError('refuse fallback')\n"
+        "    return Service(token=os.getenv('OWNER'))\n"
+        "def main(): mcp.run(transport='streamable-http')\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+    assert (
+        "declared default for ALLOW_FALLBACK" in findings[0].description
+    ) is conditional
+
+
+def test_exception_paths_do_not_cross_credential_selection_branches(
+    tmp_path: Path,
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nimport os, requests\napp=FastAPI()\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if not token:\n        credential='anonymous'\n"
+        "    else:\n        credential=os.getenv('OWNER')\n"
+        "    try:\n        unknown()\n    except RuntimeError:\n        pass\n"
+        "    return requests.get('https://api.example.com', "
+        "headers={'Authorization': credential})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    assert not run_static_scan(config, uuid4(), timestamp=NOW).findings

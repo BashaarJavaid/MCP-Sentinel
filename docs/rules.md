@@ -452,8 +452,12 @@ its owner's credentials alone does not establish an HTTP caller boundary.
 The integration also follows negative caller-authentication branches into a
 separately constructed operator client, including helper calls. A successfully
 acquired SDK HTTP context retains its branch state separately from the getter's
-non-HTTP alternative. Exception-prefix state within the `try` body remains a
-bounded-flow limitation. Enforced environment comparisons can annotate a
+non-HTTP alternative. For a prepared HTTP request, constant local assignments
+immediately after the genuine getter survive exception entry unless later writes
+or nonlocal/global mutation invalidate them. Different caller-absence conditions
+remain separate through a try/except's continuation when it has no `finally`.
+General exception side effects remain a bounded-flow limitation.
+Enforced environment comparisons can annotate a
 fallback with the setting whose declared default would reject that path. The
 candidate remains visible: the effective environment and intended authorization
 policy still require review. Ignored checks, optional helper returns, replaced
