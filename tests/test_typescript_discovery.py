@@ -96,6 +96,9 @@ def test_reused_locations_stay_bound_to_original_node_and_source(
     with pytest.raises(InfrastructureError, match="supplied source"):
         program.source_range(changed, file)
     assert program.source_range(node, file) == original
+    program.deadline = 0
+    with pytest.raises(InfrastructureError, match="timeout"):
+        program.source_range(node, file)
 
 
 def test_imported_reexported_handler_and_schema(tmp_path: Path) -> None:

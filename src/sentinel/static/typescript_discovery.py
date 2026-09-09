@@ -348,6 +348,7 @@ class TypeScriptProgram:
         )
 
     def source_range(self, node: Any, file: TypeScriptSourceFile) -> SourceRange:
+        check_deadline(self.deadline)
         # Source syntax stays immutable within a program. Retain both objects so
         # identity reuse cannot confuse a synthetic node or another source snapshot.
         key = (id(node), id(file))
