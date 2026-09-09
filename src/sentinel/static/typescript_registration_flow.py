@@ -34,12 +34,16 @@ class RegistrationFlow(TypeScriptPathFlow):
         return result
 
     def registered(
-        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        args: list[Value],
+        env: dict[str, Value],
     ) -> None:
         if len(args) != 3:
             self.program.unresolved(file, "factory registration arguments")
             return
-        config = self.objects.get(args[1].key, {})
+        config = self.object_fields(args[1], env)
         self.found.append(
             TypeScriptBinding(
                 self.program.literal(self.values.get(args[0].key)),

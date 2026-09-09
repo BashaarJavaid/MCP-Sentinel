@@ -724,8 +724,8 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         )
         return replace(result, url_checks=result.url_checks | checks)
 
-    def member(self, value: Value, name: str) -> Value:
-        result = replace(super().member(value, name), url_checks=frozenset())
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        result = replace(super().member(value, name, env), url_checks=frozenset())
         origin, part = self.url_parts.get(value.key, ("", ""))
         if part == "parsed" and value.key not in self.invalidated_objects:
             self.url_parts[result.key] = (origin, name)

@@ -99,6 +99,6 @@ def test_typed_destructuring_keeps_runtime_member_identity(tmp_path: Path) -> No
     env: dict[str, Value] = {}
     flow.pattern(handler.function["fparams"][1][0]["ParamPattern"], argument, env)
     assert set(env) == {"ref", "alias"}
-    assert env["ref"] == flow.member(argument, "ref")
-    assert env["alias"] == flow.member(argument, "other")
+    assert env["ref"] == flow.member(argument, "ref", env)
+    assert env["alias"] == flow.member(argument, "other", env)
     assert env["ref"].key != env["alias"].key

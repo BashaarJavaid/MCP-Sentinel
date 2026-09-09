@@ -457,14 +457,14 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
             )
         return result
 
-    def member(self, value: Value, name: str) -> Value:
-        if (
-            name in self.objects.get(value.key, {})
-            and value.key not in self.invalidated_objects
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        if name in self.object_fields(value, env) and not (
+            {value.key, self.record_roots.get(value.key, value.key)}
+            & self.invalidated_objects
         ):
-            return self.objects[value.key][name]
+            return self.object_fields(value, env)[name]
         return replace(
-            super().member(value, name),
+            super().member(value, name, env),
             credential_present=False,
             credential_fallback=False,
         )
@@ -526,8 +526,8 @@ class TypeScriptCredentialFlow(TypeScriptPathFlow):
                 self.call_value(file, argument.get("Arg", argument), env)
                 for argument in arguments[1]
             ]
-            options = self.objects.get(args[1].key, {}) if len(args) > 1 else {}
-            headers = self.objects.get(options.get("headers", UNKNOWN_VALUE).key, {})
+            options = self.object_fields(args[1], env) if len(args) > 1 else {}
+            headers = self.object_fields(options.get("headers", UNKNOWN_VALUE), env)
             credentials = [
                 value
                 for field, value in headers.items()

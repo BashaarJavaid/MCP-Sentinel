@@ -416,8 +416,8 @@ class TypeScriptOptionFlow(TypeScriptPathFlow):
             if f"#guard:option:{current.key}" in facts:
                 env[name] = replace(current, option_safe=True)
 
-    def member(self, value: Value, name: str) -> Value:
-        return replace(super().member(value, name), option_safe=False)
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        return replace(super().member(value, name, env), option_safe=False)
 
     def call(
         self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]

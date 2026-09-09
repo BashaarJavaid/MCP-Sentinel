@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 import json
 from collections.abc import Sequence
-from dataclasses import replace
+from dataclasses import asdict, replace
 from typing import Any
 
 from sentinel.report.model import ReportWarning
@@ -40,7 +40,13 @@ def common_facts(values: Sequence[Facts]) -> Facts:
 
 class TypeScriptPathFlow:
     rule_id = "SENT-012"
-    state_prefixes = ("#instance:", "#array:", "#conditional:", "#http-middleware:")
+    state_prefixes = (
+        "#instance:",
+        "#array:",
+        "#record:",
+        "#conditional:",
+        "#http-middleware:",
+    )
 
     def __init__(self, program: TypeScriptProgram, state: RuleRunState) -> None:
         self.program, self.state = program, state
@@ -48,6 +54,7 @@ class TypeScriptPathFlow:
         self.globals: dict[tuple[str, str], Value] = {}
         self.relative: dict[str, tuple[Value, Value, str]] = {}
         self.objects: dict[str, dict[str, Value]] = {}
+        self.record_roots: dict[str, str] = {}
         self.conditions: dict[str, tuple[Facts, Facts]] = {}
         self.callables: dict[str, TypeScriptSymbol] = {}
         self.invalidated_objects: set[str] = set()
@@ -124,9 +131,11 @@ class TypeScriptPathFlow:
             value.key in self.objects and value.key not in self.invalidated_objects
             for value in values
         ):
-            fields = set.intersection(*(set(self.objects[v.key]) for v in values))
+            fields = set.union(*(set(self.objects[v.key]) for v in values))
             self.objects[result.key] = {
-                name: self.combined([self.objects[v.key][name] for v in values])
+                name: self.combined(
+                    [self.objects[v.key].get(name, Value()) for v in values]
+                )
                 for name in fields
             }
         if values and all(self.canonical(value) for value in values):
@@ -293,7 +302,7 @@ class TypeScriptPathFlow:
                         definition[1].get("FieldDefColon", {}).get("vinit") or {}
                     ).get("some")
                     if name and child:
-                        self.pattern(child, self.member(value, name), env)
+                        self.pattern(child, self.member(value, name, env), env)
         else:
             for key, child in node.items():
                 if key not in {"token", "pinfo"} and not key.startswith("id_"):
@@ -333,11 +342,10 @@ class TypeScriptPathFlow:
                     | {(file.relative_path, source_range(node, file).start_line)},
                 )
             facts = self.enforced(env)
-            self.normal_exits[-1].append(env.copy())
             result = replace(
                 value,
                 key=_key(value.key, "return", *sorted(facts))
-                if value.key in self.conditions or value.key in self.objects
+                if facts and (value.key in self.conditions or value.key in self.objects)
                 else value.key,
             )
             if value.key in self.conditions:
@@ -347,9 +355,13 @@ class TypeScriptPathFlow:
                     true | facts if true is not None else None,
                 )
             if value.key in self.objects:
-                fields = self.objects[value.key].copy()
+                fields = self.object_fields(value, env).copy()
                 for name, field in fields.items():
-                    if field.key in self.conditions:
+                    if (
+                        facts
+                        and field.key in self.conditions
+                        and field.key not in self.objects
+                    ):
                         guarded = replace(field, key=_key(field.key, *sorted(facts)))
                         false, true = self.condition(field)
                         self.conditions[guarded.key] = (
@@ -357,7 +369,19 @@ class TypeScriptPathFlow:
                             true | facts if true is not None else None,
                         )
                         fields[name] = guarded
-                self.objects[result.key] = fields
+                if value.key in self.record_roots:
+                    root = self.record_roots[value.key]
+                    snapshot = self.record_state(root, fields)
+                    previous = result
+                    result = replace(result, key=_key(result.key, snapshot.key))
+                    if previous.key in self.conditions:
+                        self.conditions[result.key] = self.conditions[previous.key]
+                    self.objects[result.key] = fields
+                    self.record_roots[result.key] = root
+                    env["#record:" + root] = snapshot
+                else:
+                    self.objects[result.key] = fields
+            self.normal_exits[-1].append(env.copy())
             returned.append(result)
             return False
         elif "Throw" in node:
@@ -542,8 +566,33 @@ class TypeScriptPathFlow:
                 )
                 env[self.instance_marker(value, name)] = initialized
 
-    def member(self, value: Value, name: str) -> Value:
-        field = self.objects.get(value.key, {}).get(
+    def invalidate(self, value: Value) -> None:
+        self.invalidated_objects.update(
+            (value.key, self.record_roots.get(value.key, value.key))
+        )
+
+    def record_state(self, root: str, fields: dict[str, Value]) -> Value:
+        value = combine(
+            list(fields.values()),
+            _key(
+                root,
+                json.dumps(
+                    {name: asdict(field) for name, field in fields.items()},
+                    sort_keys=True,
+                    default=sorted,
+                ),
+            ),
+        )
+        self.objects[value.key] = fields
+        return value
+
+    def object_fields(self, value: Value, env: dict[str, Value]) -> dict[str, Value]:
+        root = self.record_roots.get(value.key, value.key)
+        current = env.get("#record:" + root, value)
+        return self.objects.get(current.key, {})
+
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        field = self.object_fields(value, env).get(
             name, replace(value, key=_key(value.key, name), contained=False)
         )
         return (
@@ -554,7 +603,8 @@ class TypeScriptPathFlow:
                 url_checks=frozenset(),
                 credential_present=False,
             )
-            if value.key in self.invalidated_objects
+            if {value.key, self.record_roots.get(value.key, value.key)}
+            & self.invalidated_objects
             else field
         )
 
@@ -731,19 +781,37 @@ class TypeScriptPathFlow:
         if "Assign" in node:
             target, _, expression = node["Assign"]
             value = self.expression(file, expression, env)
-            if "ArrayAccess" in target:
-                receiver = self.expression(file, target["ArrayAccess"][0], env)
-                if receiver.key in self.arrays:
-                    marker = "#array:" + receiver.key
-                    env[marker] = combine([env.get(marker, receiver), value])
-                    self.invalidated_objects.add(receiver.key)
-                    self.warning(file, target, "computed array assignment")
+            access = target.get("DotAccess", target.get("ArrayAccess"))
+            if access:
+                receiver = self.expression(file, access[0], env)
+                assigned_field = (
+                    name_of(access[2])
+                    if "DotAccess" in target
+                    else self.string_literals.get(
+                        self.expression(file, access[1][1], env).key
+                    )
+                )
+                if (
+                    receiver.key in self.record_roots
+                    and assigned_field != "__proto__"
+                    and assigned_field
+                ):
+                    root = self.record_roots[receiver.key]
+                    updated = {
+                        **self.object_fields(receiver, env),
+                        assigned_field: value,
+                    }
+                    env["#record:" + root] = self.record_state(root, updated)
                     return value
-                self.invalidated_objects.add(receiver.key)
-                self.warning(file, target, "computed member assignment")
-            if "DotAccess" in target:
-                receiver = self.expression(file, target["DotAccess"][0], env)
-                assigned_field = name_of(target["DotAccess"][2])
+                if "ArrayAccess" in target or assigned_field == "__proto__":
+                    if receiver.key in self.arrays:
+                        marker = "#array:" + receiver.key
+                        env[marker] = combine([env.get(marker, receiver), value])
+                    self.invalidate(receiver)
+                    self.warning(
+                        file, target, "computed or prototype member assignment"
+                    )
+                    return value
                 if "http:request" in receiver.sources and assigned_field:
                     env[self.instance_marker(receiver, assigned_field)] = value
                     return value
@@ -756,9 +824,17 @@ class TypeScriptPathFlow:
                     if "FuncDef" not in definition:
                         env[self.instance_marker(receiver, assigned_field)] = value
                         return value
-                self.invalidated_objects.add(receiver.key)
+                self.invalidate(receiver)
             self.pattern(target, value, env)
             return value
+        if "ArrayAccess" in node:
+            receiver, index = node["ArrayAccess"]
+            parent = self.expression(file, receiver, env)
+            index_value = self.expression(file, index[1], env)
+            member = self.string_literals.get(index_value.key)
+            if parent.key in self.record_roots and member is not None:
+                return self.member(parent, member, env)
+            return combine([parent, index_value])
         if "DotAccess" in node:
             full_name = name_of(node)
             if full_name in env:
@@ -793,7 +869,7 @@ class TypeScriptPathFlow:
                         symbol.file, member_definition
                     )
                 return value
-            value = self.member(parent, member)
+            value = self.member(parent, member, env)
             binding = self.callables.get(parent.key)
             if parent.key not in self.invalidated_objects:
                 if binding and binding.external:
@@ -828,9 +904,19 @@ class TypeScriptPathFlow:
                     file.relative_path,
                     str(source_range(node, file)),
                     *(v.key for v in fields.values()),
+                    *(
+                        str(source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
                 ),
             )
             self.objects[value.key] = fields
+            if len(fields) == len(node["Record"][1]) and all(
+                "FieldDefColon" in field.get("F", {}).get("DefStmt", [{}, {}])[1]
+                for field in node["Record"][1]
+            ):
+                self.record_roots[value.key] = value.key
+                env["#record:" + value.key] = value
             return value
         return combine(
             [
@@ -865,7 +951,7 @@ class TypeScriptPathFlow:
                 receiver = self.expression(file, access[0], env)
                 if "ArrayAccess" in target:
                     self.expression(file, access[1][1], env)
-                self.invalidated_objects.add(receiver.key)
+                self.invalidate(receiver)
                 self.warning(file, node, "member deletion invalidates receiver")
                 return Value()
         callable_value = (
@@ -990,7 +1076,7 @@ class TypeScriptPathFlow:
             and receiver.key not in self.invalidated_objects
             and name.rsplit(".", 1)[-1] == "registerTool"
         ):
-            self.registered(file, node, args)
+            self.registered(file, node, args, env)
             return Value()
         location = source_range(node, file)
         result = combine(
@@ -1408,7 +1494,7 @@ class TypeScriptPathFlow:
                 if value.key in seen:
                     continue
                 seen.add(value.key)
-                pending.extend(self.objects.get(value.key, {}).values())
+                pending.extend(self.object_fields(value, env).values())
                 if (
                     value.key in self.objects
                     or value.key in self.instances
@@ -1416,9 +1502,9 @@ class TypeScriptPathFlow:
                     or value.key in self.arrays
                     or "http:request" in value.sources
                 ):
-                    self.invalidated_objects.add(value.key)
+                    self.invalidate(value)
                 if value.key in self.sdk_instances:
-                    self.invalidated_objects.add(value.key)
+                    self.invalidate(value)
                     self.warning(
                         file, node, "SDK instance escapes to an unresolved call"
                     )
@@ -1477,7 +1563,11 @@ class TypeScriptPathFlow:
             )
 
     def registered(
-        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        args: list[Value],
+        env: dict[str, Value],
     ) -> None:
         if len(args) != 3:
             self.warning(file, node, "unsupported registration arguments")
@@ -1611,7 +1701,7 @@ class TypeScriptPathFlow:
             self.warning(
                 origin.file, origin.node, "unresolved HTTP middleware/callback"
             )
-            self.invalidated_objects.add(request.key)
+            self.invalidate(request)
             env = {}
         else:
             return Value()

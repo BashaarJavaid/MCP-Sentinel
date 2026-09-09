@@ -1122,3 +1122,61 @@ def test_typescript_mixed_mcp_http_factory(tmp_path: Path, protected: bool) -> N
     )
     report = run_static_scan(config, uuid4(), timestamp=NOW)
     assert len(report.findings) == (not protected)
+
+
+@pytest.mark.parametrize("protected", [False, True])
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        "const headers={}; headers.Authorization=token; const options={headers};",
+        "const headers={}; const alias=headers; alias.Authorization=token; "
+        "const options={headers};",
+        "const headers={}; identity(headers).Authorization=token; "
+        "const options={headers};",
+        "const headers={}; assign(headers,token); const options={headers};",
+        "const options={}; options.headers={Authorization:token};",
+        "const headers={Authorization:token}; const options=identity({headers});",
+        "const headers={}; if(req.headers.other) headers.Authorization=token; "
+        "const options={headers};",
+        "const headers={}; const options={headers}; "
+        "if(req.headers.other) identity(headers).Authorization=token;",
+        "const headers={}; const options={headers}; "
+        "if(req.headers.other) assign(headers,token); else identity(headers);",
+        "function make() {return {};} const headers=make(); const other=make(); "
+        "headers.Authorization=token; other.Authorization='fixed'; "
+        "const options={headers};",
+        'const headers={}; headers["Authorization"]=token; const options={headers};',
+        "const holder={}; holder.headers={}; holder.headers.Authorization=token; "
+        'const options={headers:holder["headers"]};',
+    ],
+)
+def test_typescript_mutated_client_configuration(
+    tmp_path: Path, protected: bool, configuration: str
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"express":"4.0.0","@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express";\n'
+        "const app=express();\n"
+        "function identity(value) { return value; }\n"
+        "function assign(headers,token) { headers.Authorization=token; }\n"
+        'app.get("/accounts", (req,res)=>{\n'
+        + (
+            " if (!req.headers.authorization) return res.sendStatus(401);\n"
+            if protected
+            else ""
+        )
+        + " const token=req.headers.authorization || process.env.OPERATOR_TOKEN;\n"
+        + configuration
+        + '\n return fetch("https://api.example.com", options);\n});\n',
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    report = run_static_scan(config, uuid4(), timestamp=NOW)
+    assert len(report.findings) == (not protected)
