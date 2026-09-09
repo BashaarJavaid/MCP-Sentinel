@@ -462,3 +462,8 @@ plus coordinate failures/corrections and exact offline smoke requests. All
 earlier results and failures remain. Active 6e68331 and coordinate queue records
 are excluded until complete. This archive is evidence preservation, not full
 Phase 22 acceptance, reviewed evaluation or hosted verification.
+
+`evidence-v26-scope.json` clarifies the inherited manifest source label: dcb965f
+is the completed benchmark/full-suite source; later coordinate diagnostics keep
+their own recorded revisions and patches. The sealed archive and manifest hashes
+are unchanged.
