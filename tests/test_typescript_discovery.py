@@ -9,6 +9,47 @@ from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
+@pytest.mark.parametrize("has_sources", [False, True])
+@pytest.mark.parametrize("branch_count", [1, 2])
+def test_unchanged_branch_values_keep_only_source_bound_protection(
+    has_sources: bool, branch_count: int
+) -> None:
+    from dataclasses import replace
+
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    flow = TypeScriptURLFlow(
+        TypeScriptProgram((), deadline=time.monotonic() + 15), RuleRunState()
+    )
+    value = Value(
+        key="input",
+        sources=frozenset({"caller"}) if has_sources else frozenset(),
+        locations=frozenset({("server.ts", 10)}),
+        contained=True,
+        checked_path_parent=True,
+        option_safe=True,
+        url_checks=frozenset({"scheme", "host"}),
+        operator_credential=True,
+        operator_opt_in=frozenset({"explicit-selection"}),
+    )
+    flow.url_parts[value.key] = ("original-url", "hostname")
+    env: dict[str, Value] = {}
+    flow.merge(
+        env,
+        [{"selected": value, "#guard:allowed": value} for _ in range(branch_count)],
+    )
+    assert env["selected"] == replace(
+        value,
+        contained=has_sources,
+        checked_path_parent=has_sources,
+        option_safe=has_sources,
+        url_checks=value.url_checks if has_sources else frozenset(),
+    )
+    assert env["#guard:allowed"] == Value(contained=True)
+    assert flow.url_parts[value.key] == ("original-url", "hostname")
+
+
 @pytest.mark.parametrize("invoke", [False, True])
 def test_http_discovery_distinguishes_registered_and_called_tool(
     tmp_path: Path, invoke: bool

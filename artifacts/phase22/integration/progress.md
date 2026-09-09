@@ -2355,3 +2355,113 @@ Paid396-request review and external pilots remain user-deferred/nonblocking. Fin
 technical acceptance is pending; Phase22 is not marked complete. Main worktree
 remains clean at4cd5759; implementation is committed/pushed on the integration
 branch, with evidence delivery kept in the same consolidated draft PR37.
+
+## 2026-09-09 — final local suite, compatible evidence and batched code delivery
+
+Immutable implementation `10103ad4eeaac18c5316594c47603c0d631735e0` passes the
+complete local suite: **2,114 passed, 36 expected Docker skips, 89.63% branch
+coverage**, 1,336.78 seconds. `v4-final-full-suite` retains JUnit, full coverage,
+command/environment/source identities and the complete log. Ruff/format, strict
+mypy, lock, generated schemas, notices, offline artifacts and dependency audit
+pass. Local wheel/sdist builds and pip/pipx/uv installation checks pass; 153 wheel
+and 166 sdist source/package members match current bytes. Corrected diagnostic
+script failures are retained alongside their successful replacements.
+
+Actual current production replay accepts all four static demo batches, the
+approved runtime batch and the TypeScript smoke request with exact fingerprints,
+request hashes, checked ledgers and packaged bytes. The controlled Docker demo
+completes 20/20 attempts and native/SARIF validation. No paid call occurs. The
+original two accepted calls remain $0.071799 total; their approval is spent.
+
+All 13 current Git catalog/campaign/configuration rows match the approved image
+and retained execution evidence. Current runtime/report/configuration source
+bindings are byte-identical to the retained runtime implementation. The exact
+approved image is present; all 13 prior runtime hashes, clean cleanup records and
+counts verify: 1,040 planned/eligible, 312 started/tested, 728 remaining, all exit
+3. This reuses incomplete runtime evidence and does not imply a demonstrated
+security defense. The first catalog diagnostic accidentally reused its command
+metadata filename as a data output; those overwritten raw row bytes are not
+claimed retained. The corrected independently named output is authoritative.
+
+`v4-comparator-compatible-reuse/packet.json` binds all 100 retained original and
+exposed comparator inputs, outputs, Semgrep 1.176.0 configuration and actual
+harness. Only approval-path/subset enforcement and authorization metadata changed
+since the older harness; the entire materialization/execution loop and comparator
+functions are identical. No new comparator run is claimed. Five original Solver
+parser failures remain incomplete. `v4-current-source-test-bindings/packet.json`
+binds all 86 requirement rows, 100 mapped files and actual local test executions;
+this is not a substitute for the separate condition, runtime or acceptance gates.
+
+The versioned fresh checkpoint is
+`../corpus-replacement-v2/checkpoint-10103ad.json`. Its original manifest,
+archives, mutations and provenance hashes verify and 45 unchanged records match.
+Preparation only read proposal metadata and hashed archives/review records; fresh
+target source was not opened for tuning or evaluated. Prior curation exposure is
+disclosed. Explicit approval was requested for that exact detector/manifest and
+the two native plus one comparator five-input passes. Approval remains pending;
+no evaluation is inferred from the request or elapsed time.
+
+The four implementation commits were pushed together to existing DRAFT PR #37,
+retaining base `phase22/description-poisoning` and exact parent
+`8b6b0ddf1d6f6cf5a8da3ab9421471865b801455`. `v4-draft-code-delivery` retains the
+original and updated descriptions and remote identities. CI was not suppressed.
+Current CI is run **34404177793**, documentation **34404177809**, both at
+`10103ad`; their final logs/artifacts must still be retained. Documentation,
+canonical distributions, installed Docker replay and network isolation have
+already passed; remaining platform jobs are in progress.
+
+The first final historical batch is running sequentially at the original
+120-second deadline without overlapping agent-owned tests/builds/scans/profiles.
+It has recorded a timeout on `atlassian-auth-vulnerable-mutation` at 120.139
+seconds. The entire-batch gate is therefore failed even if its remaining inputs
+complete. The run will finish and be retained; no second batch or pooled-success
+substitute is started. No shared-host causal explanation is inferred from the
+failure. Final technical acceptance, remaining measurements and evidence sealing
+are still outstanding; Phase 22 is not complete.
+
+## 2026-09-09 — failed complete batch and measured TypeScript merge correction
+
+The entire `10103ad` historical first batch finishes **38 completed / 7
+incomplete**. All five Mobile inputs time out, along with the Atlassian vulnerable
+authentication mutation and download-path safe control. The 38 completed reports
+contain 17/17 completed vulnerable-condition hits and zero matching alerts on 21
+completed negatives; the full required denominator remains 20 vulnerable inputs
+and 45 total inputs. Seven native timeouts at 120.033–120.139 seconds remain
+failed, without fabricated reports. No second complete batch is started and no
+successes are pooled. The prior Mobile observations were roughly 34–39 seconds,
+so their new failures require investigation beyond the existing Python index.
+
+`v4-mobile-native-rule-clocks` records actual current SENT-012/014/015/016
+traversals at about 8–9 seconds each before the native scan remains incomplete.
+Its diagnostic helper then fails while requesting pstats for a disabled profiler;
+the command failure, raw rule clocks and measurement are retained. The corrected
+full native profile in `v4-mobile-native-profile-10103ad` instruments the
+TypeScript adapters as well. SENT-002 spends 115.4 profiled seconds before the
+unchanged deadline stops analysis. Shared TypeScript merge work consumes 85.9
+profiled seconds, with 13.1 million combination calls and 23.8 million immutable
+value hashes. Profiled timings are diagnostic, not normal throughput or a gate.
+
+The current Python credential component and scanner-owned repeated-work counter
+complete the authentication mutation in 116.8 profiled seconds. The marker index
+has reduced `conditioned_credential` to 12.5 cumulative seconds. The counter also
+records 4,040,083 environment items traversed with an empty invalidation set;
+this is not the dominant measured cost, so no speculative invalidation/cache or
+worker change is made. Raw profiles, state, command/source snapshots and all
+instrumentation are retained.
+
+The next minimal correction reuses the existing Python flow's unchanged-value
+merge pattern in the shared TypeScript flow. It preserves record defaults and
+only bypasses combination when all branch values are unchanged and no source-free
+safety normalization is required. Guard markers and source-free protection claims
+retain the original path; the sole URL metadata override only repeats the same
+mapping for identical keys. Four explicit guard/provenance contract controls pass
+before the optimization. After it, **1,092 affected tests**, strict mypy and
+style/format pass. Native behavior/timing and the complete final gate remain
+unverified at this new patch; cache sizes, worker policy and deadlines are unchanged.
+
+All 29 hosted jobs and documentation have passed for `10103ad`, and their full
+logs/artifacts are being retained as evidence for that earlier candidate. The new
+merge optimization is not covered by that hosted pass. The fresh `10103ad`
+proposal has not been evaluated or approved; a new final-detector checkpoint is
+required after the remaining implementation/timing work stabilizes. No paid call
+or fresh-source tuning occurred.
