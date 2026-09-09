@@ -2059,3 +2059,40 @@ artifacts. All previous seals and worktrees remain. The copied paid executor's
 README command validates without reading an API key. Main remains clean at
 4cd5759. The consolidated draft and hosted matrix are the remaining independent
 delivery work; paid, Meta, replacement and external decisions are pending.
+
+### Delivered draft and completed hosted execution at 1e7c16a
+
+Single consolidated DRAFT: https://github.com/BashaarJavaid/MCP-Sentinel/pull/37,
+base phase22/description-poisoning (PR36), exact parent 8b6b0ddf1d6f6cf5a8da3ab9421471865b801455.
+The normal push and draft creation passed; head 1e7c16a8ef92916c2f429d903b7decd7bff03c2b
+and GitHub test-merge a638bff47bef4412a6f8b4ce207a20a899ab6d37 have identical trees.
+
+CI 34348251747 completed all 29 jobs. Twelve wheel jobs pass. All twelve quality
+suites finish with 2022 passed, one unchanged TypeScript capture failure, 36
+skipped and 89.48-89.51% branch coverage. No additional platform failure was found.
+Hosted isolation and strict documentation pass. Hosted Docker tests 20/20 attempts
+and exits 3 for b826810055334d200c918b50ba4d78b12046244ccc02bfa06b83db0b1f928e39;
+its later installed steps are skipped, with local passing counterparts preserved.
+Each pinned historical Phase20 reproduction retains 32 completed/13 incomplete
+inputs; a successful reproduction is not a 45-input completion claim.
+
+Hosted wheel SHA a7338898d7e24c2cf19a65aa11d9e48c01eeb8b5ba75d36cd3b5811cc24172d0
+and sdist SHA 22759159598d51c66d99f3cdc9c551dea5808ecd5384e8fc8ef76fdfd291a682
+match local distributions byte-for-byte. All downloaded members were read back.
+Complete CI/docs log archives retain 419/12 checked members. The initial gh run
+log request deferred until overall completion; the successful direct-job log
+requests and the original failure remain. The final Windows suite took 2402.72
+seconds and still has only the known capture failure; no job was canceled.
+
+`v2-hosted-matrix-34348251747` and `v2-final-technical-disposition-1e7c16a` bind
+all actual outcomes and 86 dispositions. Independent implementation, local gates,
+draft delivery and hosted execution are finished. Paid/Meta/replacement decisions
+are still pending; no new paid calls, merge, release or outreach occurred. Final
+evidence-only bookkeeping uses [skip ci] without changing workflows or measured
+implementation; required checks on that head may remain pending, never passed.
+The measured run's failures remain explicit. Human/pilot acceptance remains unmet.
+
+Evidence batch 28 seals 397 completed files (8,615,381 raw bytes), with every
+member read back and archive SHA-256
+`fdd0ce31c17f9f1a99181e8cf6edf5cb1cbf66d413c8dbc495ab795156ed4480`.
+All 27 prior seals and their original failures remain preserved.

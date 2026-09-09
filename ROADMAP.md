@@ -1207,8 +1207,14 @@ with 20 historical requests reused; explicit approval is pending. It excludes
 the separately proposed replacement corpus, whose freeze also remains pending.
 The 86-requirement local acceptance index retains these distinctions. Evidence
 batch 27 preserves the completed local work with verified readback. Consolidated
-draft and hosted matrix remain next, followed by approved
-reviewed evaluation, human acceptance and the deferred pilot-dependent gate.
+draft PR #37 is delivered against PR #36, and hosted execution is complete at
+1e7c16a. All 12 wheel jobs, hosted isolation and docs pass. All 12 full quality
+suites record 2022 passed, one unchanged capture failure and 36 skipped; the
+Docker demo fails only its missing dynamic review. No additional platform
+regression was found. These failed gates remain approval-dependent, alongside
+reviewed evaluation, the replacement freeze, Meta decision, human acceptance
+and the deferred pilot-dependent gate. Evidence-only bookkeeping preserves the
+measured source and avoids duplicate CI; it does not establish merge readiness.
 
 ### Objective
 

@@ -1,9 +1,9 @@
-# Integration evidence, batches 1–27
+# Integration evidence, batches 1–28
 
 These batches preserve implementation, failures and source-specific measurements.
-Batch 27 retains completed `6e68331` native verification and `d7184d3` local
-quality/package/Docker checks, including the raw failed full suite and
-capture-dependent demo. **This is not final technical acceptance.**
+Batch 28 adds completed draft delivery and the hosted matrix at `1e7c16a` to
+batch 27’s `6e68331` native verification and `d7184d3` local checks. Raw failed
+suites and capture-dependent demos remain preserved. **This is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
@@ -16,7 +16,7 @@ All included commands finished before sealing; all previous seals and failures
 remain. The exact paid packet/request bundle and replacement-corpus proposal
 are separately tracked in Git under `artifacts/phase22/`.
 
-The current `v2-local-acceptance-index-d7184d3/packet.json` maps all 86 local
+The pre-delivery `v2-local-acceptance-index-d7184d3/packet.json` maps all 86 local
 dispositions to source/test/report hashes and 24 completed command records.
 Historical native verification completes 45/45 twice, development 25/25, and
 the original held-out repeat retains 10 completed/10 unsupported/5 incomplete.
@@ -29,8 +29,30 @@ and validates reports but exits 3 for missing dynamic review.
 The validated [paid proposal](../paid-evaluation-v2/README.md) requests explicit
 approval for at most 398 new requests / $66.321920, with 20 historical requests
 reused. No paid calls occurred. The Meta decision, replacement freeze, reviewed
-evaluation, consolidated draft/hosted verification and human/pilot gates remain
-separate. The local index predates draft delivery and does not claim it occurred.
+evaluation and human/pilot gates remain pending. Draft PR #37 is delivered against
+PR #36, exact parent `8b6b0dd`. The final hosted disposition is retained in
+`v2-final-technical-disposition-1e7c16a/packet.json` for all 86 obligations.
+
+All 29 CI jobs finished: 12/12 wheel jobs pass; all 12 quality suites report
+2022 passed, one TypeScript capture failure and 36 skipped (89.48–89.51% branch).
+Hosted isolation and strict docs pass. The Docker demo completes 20/20 attempts
+and fails its missing dynamic review. Later steps skipped after these failures
+remain distinguished from passing local counterparts. Both pinned Phase 20
+reproductions retain their historical 32-completed/13-incomplete states.
+Canonical hosted binaries match the locally verified builds byte for byte.
+The measured source stays `1e7c16a`; evidence-only bookkeeping uses `[skip ci]`
+and does not satisfy required checks or establish merge readiness.
+
+
+Batch 28 contains 397 completed added/changed files, 8,615,381 raw bytes and
+2,857,199 compressed bytes. Every member was read back against its SHA-256.
+Archive SHA-256:
+`fdd0ce31c17f9f1a99181e8cf6edf5cb1cbf66d413c8dbc495ab795156ed4480`.
+Apply `evidence-v28.tar.gz` after batch 27 and verify `evidence-v28.json`.
+This retains draft delivery, all completed hosted outcomes, 419/12 full CI/docs
+log members, canonical distributions, historical reproductions, the final
+86-requirement disposition and strict documentation verification. All previous
+seals, raw failures and worktrees remain. No paid evaluation was performed.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
 Batch 23 retains 923 added/changed files through `734aa8c`, including the

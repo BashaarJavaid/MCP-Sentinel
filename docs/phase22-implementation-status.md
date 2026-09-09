@@ -494,3 +494,46 @@ verified member readback and archive SHA-256
 `83bfc17cdf1b267332f4e11685bf1467eb2ee7eeee1d6bf4320063f0c802721f`.
 The separate exact paid packet and replacement proposal are tracked directly.
 The local acceptance index predates this seal and the remaining draft/hosted work.
+
+### Consolidated draft and completed hosted matrix
+
+[Draft PR #37](https://github.com/BashaarJavaid/MCP-Sentinel/pull/37) is delivered
+against `phase22/description-poisoning`, exact PR #36 parent
+`8b6b0ddf1d6f6cf5a8da3ab9421471865b801455`. The measured head is
+`1e7c16a8ef92916c2f429d903b7decd7bff03c2b`; GitHub test-merge `a638bff` has the
+identical tree. Existing drafts, implementation, worktrees and evidence remain.
+
+All 29 jobs in [CI run 34348251747](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34348251747)
+have completed. All 12 wheel jobs pass across Linux/macOS/Windows and Python
+3.10–3.13. Each of the 12 full quality suites reports 2022 passed, one unchanged
+TypeScript capture failure and 36 skipped, with 89.48–89.51% branch coverage.
+No additional platform regression was found; the suites are still failed.
+Later quality steps after pytest are skipped on GitHub, with their passing local
+counterparts retained. Hosted network isolation and strict documentation pass.
+The hosted wheel and source distribution are byte-identical to local d7184d3.
+
+The hosted Docker demo tests all 20 attempts but fails the exact missing dynamic
+capture named in the paid packet. Its later onboarding/baseline/validation steps
+are skipped; the equivalent local installed workflows passed. Both hosted Phase20
+jobs reproduce their pinned historical scanner's 32 completed/13 incomplete
+inputs. They do not replace current Phase22 detector measurements.
+
+`v2-hosted-matrix-34348251747/packet.json` records all job outcomes and individual
+quality logs. Complete CI/documentation log archives contain 419/12 verified
+members. Canonical binaries and both historical reproduction trees are retained.
+`v2-final-technical-disposition-1e7c16a/packet.json` reconciles all 86 obligations.
+Evidence-only final bookkeeping preserves measured implementation bytes and uses
+`[skip ci]` to avoid duplicate CI as directed. GitHub can leave required checks
+pending on that bookkeeping head; this is not a passing gate or merge readiness.
+See [GitHub's skip behavior](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs).
+
+Independent implementation, local verification, draft delivery and hosted
+execution are finished. Paid-reviewed evaluation and capture-dependent checks,
+replacement evaluation after explicit freeze, the Meta label/configuration
+decision, human technical acceptance and deferred external pilots remain pending.
+No new paid calls have been made, and Phase22 remains incomplete.
+
+Evidence batch 28 seals 397 completed files (8,615,381 raw bytes), with every
+member read back and archive SHA-256
+`fdd0ce31c17f9f1a99181e8cf6edf5cb1cbf66d413c8dbc495ab795156ed4480`.
+All 27 prior seals and their original failures remain preserved.
