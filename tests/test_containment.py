@@ -569,6 +569,72 @@ def test_similarly_named_context_is_still_caller_controlled() -> None:
     assert len(state.matches) == 1
 
 
+@pytest.mark.parametrize("annotation", ["Context", "Annotated[Context, 'injected']"])
+def test_local_sdk_context_import_is_still_caller_controlled(annotation: str) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from mcp.server.fastmcp import Context\n"
+                    "from typing import Annotated\n"
+                    f"@mcp.tool()\ndef read(ctx: {annotation}):\n"
+                    "    return open(ctx.path)\n"
+                ),
+                "mcp/server/fastmcp.py": "class Context: pass\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+def test_unresolved_relative_context_import_is_not_an_external_sdk() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "pkg/server.py": (
+                    "from .mcp.server.fastmcp import Context\n"
+                    "@mcp.tool()\ndef read(ctx: Context):\n"
+                    "    return open(ctx.path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("annotation", ["Context", "Annotated[Context, 'injected']"])
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "def configure(Context):\n",
+        "def configure():\n    Context = str\n",
+        "def configure():\n    class Context: pass\n",
+        "def configure():\n    from local_types import Context\n",
+    ],
+)
+def test_nested_context_binding_cannot_borrow_global_sdk_import(
+    annotation: str, scope: str
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from fastmcp import Context\n"
+                "from typing import Annotated\n"
+                + scope
+                + f"    @mcp.tool()\n    def read(ctx: {annotation}):\n"
+                "        return open(ctx.path)\n"
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
 @pytest.mark.parametrize("guarded", [False, True])
 def test_factory_returned_method_tracks_cross_file_guard(guarded: bool) -> None:
     validation = (

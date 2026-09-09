@@ -42,45 +42,19 @@ class ToolBinding:
     region: ast.AST
     registration_decorator: ast.AST | None = None
 
-    @cached_property
-    def caller_parameters(self) -> tuple[ast.arg, ...]:
+    def caller_parameters(self, program: PythonProgram) -> tuple[ast.arg, ...]:
         assert isinstance(self.handler.node, Function)
-        aliases = import_aliases(self.handler.file)
-        for node in scope_nodes(self.handler.file.tree):
-            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
-                aliases.pop(node.id, None)
-            elif isinstance(node, (Function, ast.ClassDef)):
-                aliases.pop(node.name, None)
         parameters = self.handler.node.args
-        caller = []
-        for parameter in (
-            *parameters.posonlyargs,
-            *parameters.args,
-            *parameters.kwonlyargs,
-        ):
-            annotation = parameter.annotation
-            if isinstance(annotation, ast.Subscript) and resolve_name(
-                qualified_name(annotation.value) or "", aliases
-            ) in {"typing.Annotated", "typing_extensions.Annotated"}:
-                annotation = (
-                    annotation.slice.elts[0]
-                    if isinstance(annotation.slice, ast.Tuple) and annotation.slice.elts
-                    else None
-                )
-            annotation_name = (
-                (qualified_name(annotation) or "") if annotation is not None else ""
+        return tuple(
+            parameter
+            for parameter in (
+                *parameters.posonlyargs,
+                *parameters.args,
+                *parameters.kwonlyargs,
             )
-            injected = annotation_name.split(".")[0] in aliases and resolve_name(
-                annotation_name, aliases
-            ) in {
-                "mcp.server.fastmcp.Context",
-                "mcp.server.fastmcp.server.Context",
-                "fastmcp.Context",
-                "fastmcp.server.context.Context",
-            }
-            if parameter.arg not in {"self", "cls"} and not injected:
-                caller.append(parameter)
-        return tuple(caller)
+            if parameter.arg not in {"self", "cls"}
+            and not program.is_sdk_context(self.handler, parameter.annotation)
+        )
 
 
 class PythonProgram:
@@ -447,6 +421,39 @@ class PythonProgram:
                 )
         return None
 
+    def is_sdk_context(self, symbol: Symbol, annotation: ast.AST | None) -> bool:
+        """Only an unreplaced external SDK annotation establishes injection."""
+        from sentinel.static.http_discovery import shadowed
+
+        check_deadline(self.deadline)
+        if isinstance(annotation, ast.Subscript) and self.external(
+            symbol, annotation.value
+        ) in {"typing.Annotated", "typing_extensions.Annotated"}:
+            if shadowed(
+                self,
+                annotation.value,
+                (qualified_name(annotation.value) or "").split(".")[0],
+            ):
+                return False
+            annotation = (
+                annotation.slice.elts[0]
+                if isinstance(annotation.slice, ast.Tuple) and annotation.slice.elts
+                else None
+            )
+        return (
+            annotation is not None
+            and not shadowed(
+                self, annotation, (qualified_name(annotation) or "").split(".")[0]
+            )
+            and self.external(symbol, annotation)
+            in {
+                "mcp.server.fastmcp.Context",
+                "mcp.server.fastmcp.server.Context",
+                "fastmcp.Context",
+                "fastmcp.server.context.Context",
+            }
+        )
+
     def external(self, symbol: Symbol, node: ast.AST) -> str:
         name = qualified_name(node) or ""
         declarations = self.bindings[symbol.file.relative_path].get(
@@ -455,6 +462,8 @@ class PythonProgram:
         if len(declarations) != 1 or not isinstance(
             declarations[0], (ast.Import, ast.ImportFrom)
         ):
+            return ""
+        if isinstance(declarations[0], ast.ImportFrom) and declarations[0].level:
             return ""
         imported = resolve_name(name, import_aliases(symbol.file))
         if any(

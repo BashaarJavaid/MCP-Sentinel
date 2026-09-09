@@ -73,8 +73,9 @@ def test_unestablished_lifespan_remains_unresolved(change: str) -> None:
 
 @pytest.mark.parametrize("inspection", ["", "id(ctx)"])
 @pytest.mark.parametrize("optional", [False, True])
+@pytest.mark.parametrize("annotation", ["Context", "Annotated[Context, 'injected']"])
 def test_lifespan_value_reaches_only_registered_sdk_context(
-    inspection: str, optional: bool
+    inspection: str, optional: bool, annotation: str
 ) -> None:
     import time
 
@@ -96,6 +97,7 @@ def test_lifespan_value_reaches_only_registered_sdk_context(
         index = program(
             {
                 "app.py": "from fastmcp import FastMCP, Context\n"
+                "from typing import Annotated\n"
                 "from contextlib import asynccontextmanager\n"
                 "from dataclasses import dataclass\n"
                 "@dataclass\nclass Config:\n    token: str\n"
@@ -103,7 +105,7 @@ def test_lifespan_value_reaches_only_registered_sdk_context(
                 "@asynccontextmanager\nasync def startup(app):\n"
                 '    yield {"configuration": Config(token="operator-source")}\n'
                 f"server=FastMCP(lifespan={registration})\n"
-                "@server.tool()\ndef read(ctx: Context):\n"
+                f"@server.tool()\ndef read(ctx: {annotation}):\n"
                 f"    {inspection or 'pass'}\n"
                 '    config=ctx.request_context.lifespan_context.get("configuration")\n'
                 + ("    config=config if unknown else None\n" if optional else "")

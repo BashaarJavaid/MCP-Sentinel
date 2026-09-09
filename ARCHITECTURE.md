@@ -376,6 +376,11 @@ individual captured state. Only genuine default `functools.wraps(function)` is
 metadata-only; other unresolved decoration cannot establish callback behavior.
 The interpreter never imports or executes the decorated target on the host.
 
+Caller classification and lifespan binding share SDK `Context` annotation
+recognition, including genuine `typing.Annotated` wrappers. Replaced bindings,
+included modules impersonating SDK imports, and unresolved relative imports
+cannot establish injected context; their parameters retain caller provenance.
+
 Included decorators on nested function definitions use the same application path:
 factory expressions evaluate in source order, then apply in reverse order.
 Distinct closure allocations may call one another even when they share source;

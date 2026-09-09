@@ -50,7 +50,11 @@ def analyze(
                     }
                 ),
             )
-            for parameter in tool.caller_parameters
+            for parameter in (
+                tool.caller_parameters(program)
+                if isinstance(tool, ToolBinding)
+                else tool.caller_parameters
+            )
         }
         if isinstance(tool, ToolBinding):
             launches = for_tool(program, tool)

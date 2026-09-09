@@ -54,12 +54,20 @@ def shadowed(program: PythonProgram, node: ast.AST, name: str) -> bool:
             and (child in owner.decorator_list or child is owner.args)
         ):
             if owner not in program.scope_variables:
-                program.scope_variables[owner] = frozenset(
-                    part.arg if isinstance(part, ast.arg) else part.id
-                    for part in scope_nodes(owner)
-                    if isinstance(part, ast.arg)
-                    or (isinstance(part, ast.Name) and isinstance(part.ctx, ast.Store))
-                )
+                names = set()
+                for part in scope_nodes(owner):
+                    if isinstance(part, ast.arg):
+                        names.add(part.arg)
+                    elif isinstance(part, ast.Name) and isinstance(part.ctx, ast.Store):
+                        names.add(part.id)
+                    elif isinstance(part, (Function, ast.ClassDef)):
+                        names.add(part.name)
+                    elif isinstance(part, (ast.Import, ast.ImportFrom)):
+                        names.update(
+                            alias.asname or alias.name.split(".")[0]
+                            for alias in part.names
+                        )
+                program.scope_variables[owner] = frozenset(names)
             if name in program.scope_variables[owner]:
                 return True
         child, owner = owner, program.parents.get(owner)

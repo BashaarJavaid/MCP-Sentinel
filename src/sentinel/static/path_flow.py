@@ -403,14 +403,7 @@ class PathFlow:
                 *node.args.kwonlyargs,
             )
             if parameter.arg not in bindings
-            and parameter.annotation is not None
-            and self.program.external(tool.handler, parameter.annotation)
-            in {
-                "fastmcp.Context",
-                "fastmcp.server.context.Context",
-                "mcp.server.fastmcp.Context",
-                "mcp.server.fastmcp.server.Context",
-            }
+            and self.program.is_sdk_context(tool.handler, parameter.annotation)
         ]
         lifespan = tool_lifespan(self.program, tool) if contexts else None
         if lifespan is not None:
