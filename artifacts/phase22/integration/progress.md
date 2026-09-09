@@ -1530,3 +1530,96 @@ raw bytes and 3,323,497 compressed bytes; archive SHA-256
 Every member was read back and verified. Earlier 18 batches, coverage databases,
 worktrees and recovery packets remain unchanged. Subsequent isolated native and
 full-source checks will be retained separately.
+
+## Continued verification after evidence batch 19
+
+The c75e876 Git repository measurement completes all four inputs: both vulnerable
+conditions have one repository-selection candidate and both fixed conditions have
+none. The same six-input batch times out on both Mobile inputs (120138/120078 ms)
+and exits 1; its four successful Git results remain. An isolated Meta fixed scan,
+with no concurrent test/native process, also times out at 120063 ms. These results
+are in `v2-git-mobile-c75e876/` and `v2-meta-fixed-c75e876-isolated/`.
+
+The c75e876 Mobile SENT-012 profile completes two candidates in 81.19 s, including
+57.77 s in coverage inventory and 54.04 s in HTTP discovery. It reveals MCP
+callbacks being interpreted during HTTP startup discovery. `3b501c9` reproduces
+and fixes phantom routes from a deferred callback, retaining actual startup helper
+calls. Its 23 regressions pass; the two-input native Mobile rerun still times out
+(120037/120040 ms). `3e1faac` fixes the shared HTTP rule-entry path as well: HTTP
+entry flows do not invoke registered MCP tools, while those tools retain separate
+rule analysis. The reproduced raw-match regression and all 24 related tests pass,
+with strict mypy checking 144 files. The initial wrong test-property diagnostic is
+retained. The 3b501c9 native batch briefly overlaps small correction tests near its
+end; it is not isolated throughput evidence.
+
+The immutable 3e1faac full-suite milestone is running, collecting 1918 tests. The
+same source's selected Mobile profile completes two findings in 30.63 s; source
+location validation still takes 6.38 s. `fe6e3f2` adds bounded, per-program reuse
+of validated immutable TypeScript locations, retaining node and source identities
+and revalidating evicted/different objects. The original validating function remains
+unchanged. All 157 parser/discovery/containment/class/module tests and 155 selected
+TypeScript option/URL/credential checks pass. Strict mypy and corrected style pass;
+formatting failures and two wrong test-path attempts remain. The selected profile
+comparison is running; none of these overlapping diagnostics establishes native
+all-rule throughput or final benchmark acceptance.
+
+The compatibility audit reproduces unsupported exclusion globs being silently
+ignored in uv, npm and pnpm. `4114f59` discloses both inclusion and exclusion glob
+gaps, preserving potentially affected members and propagating incomplete expansion.
+All three original failures and 36 passing workspace/module/native regression tests
+are retained. Strict types/style pass. `v2-workspace-audit-4114f59/packet.json`
+records the R11–R17 source audit, 14 exact files and six check records, including
+previous Action/configuration checks. It distinguishes workspace membership from
+aggregate shared-source traversal. This correction postdates the running full suite.
+
+The 3e1faac Meta credential profile, overlapping the full suite, times out after
+287 entry-handler interpretations. A separate behavior-preserving diagnostic now
+counts unchanged immutable Value replacements on fe6e3f2. Meta's isolated all-rule
+completion and the pending frozen-label decision remain open. All fresh holdout
+source and frozen labels remain untouched. No paid calls, push, publication or
+outreach occurred. Post-batch-19 evidence is retained separately; batch 20 is not
+sealed while these checks are running.
+
+The immutable 3e1faac milestone finishes successfully: **1882 passed, 36 skipped,
+89.27% branch coverage**, 1519.11 s. Its coverage database is retained under
+`v2-full-suite-3e1faac/coverage.sqlite`; subsequent workspace/cache changes have
+focused checks and still require final integration verification. The expired
+location-cache regression fails before `394bb8a` adds a deadline check; 19 related
+parser/discovery/module tests then pass (12.91 s).
+
+Mobile's selected-rule before/after cache comparison is exact after excluding only
+finding IDs and the elapsed clock: normalized SHA-256
+`6b78ad46fba8491d87b0998e2b54b30aa19b5292510fabf7339ce26070822362`.
+Both raw results, profiles and comparison driver remain. The fe6e3f2 replacement
+counter completes the full Meta fixed SENT-016 interpretation with three findings
+in 74.42 s while overlapping tests; it changes no replacement behavior. Most
+replacements change fields, so the diagnostic does not justify broadly suppressing
+copies or altering flow semantics.
+
+With all other checks finished, both Mobile originals complete native all-rule
+scans at 394bb8a: vulnerable 88233 ms and fixed 90933 ms, five findings each.
+Native/SARIF validation passes. `v2-mobile-locations-394bb8a/condition-adjudication.json`
+verifies both vulnerable screenshot/recording hits and no fixed ordinary-parent
+condition alert. Every candidate's semantics, including evidence and provenance,
+match b51aee1 after excluding run identities/clocks. Fixed physical-symlink
+uncertainty and the unchanged unrelated backlog remain separate. Mutations,
+safe control and final 45-input repeats still need current-source measurement.
+
+The isolated Meta concurrency feasibility diagnostic runs four existing selected
+rule scans under one shared 120-second wall deadline. At 394bb8a all four finish
+in **53.03 s**: SENT-012 two findings, SENT-014 zero, SENT-015 four, SENT-016 three.
+Each worker performs its own parsing/inventory. This is a diagnostic, not a
+production parallel implementation or complete all-rule native result. It provides
+evidence for investigating bounded concurrent rule traversal while preserving
+source isolation, deadline/cleanup behavior and exact serial result equivalence.
+
+The approved Git image remains
+`sha256:420b998fc52bd814a2e937e780f9ddc0ede656f19e46ca0df02cf76242c1469a`,
+linux/arm64. New 13-input campaign and native-consumer drivers are prepared for
+394bb8a but have not run at this point. No paid calls, fresh-holdout tuning,
+frozen-label changes, push, publication or outreach occurred.
+
+Evidence batch 20 is sealed through 394bb8a: 226 files, 7,525,787 raw bytes,
+1,090,315 compressed bytes; SHA-256
+`275ceab22136b1e9e441120e0fe596ac61c2e0713fa8d84544f06c804b71dcd7`.
+Every member was read back and verified; prior 19 seals and coverage remain.

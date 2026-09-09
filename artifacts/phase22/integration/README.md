@@ -1,11 +1,22 @@
-# Integration evidence, batches 1–19
+# Integration evidence, batches 1–20
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `c75e876`. **It is not final technical acceptance.**
+through source commit `394bb8a`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 20 retains 226 added/changed files through 394bb8a: the 3e1faac full
+milestone (1882 passed, 36 skipped, 89.27% branch coverage), HTTP/MCP entry
+corrections, TypeScript location/deadline checks, workspace exclusion/source
+audit, completed Mobile originals and unchanged condition semantics, and Meta
+profiling plus the four-rule concurrency feasibility diagnostic. All 7,525,787
+raw bytes were read back against their member hashes; the archive is 1,090,315
+bytes, SHA-256 `275ceab22136b1e9e441120e0fe596ac61c2e0713fa8d84544f06c804b71dcd7`.
+Apply `evidence-v20.tar.gz` after batch 19 and verify `evidence-v20.json` before
+later packets. All commands had finished before sealing. The prepared new Git
+drivers have not run in this packet. No production parallel implementation,
+final benchmark acceptance or paid calls are claimed.
 Batch 19 retains 358 added/changed files through c75e876: equivalent/binary
 state checks, the 32/45 historical diagnostic and all 13 timeouts, Meta 0/5 at
 65ba622, corrected unsupported-schema campaign completion, consumer/artifact
