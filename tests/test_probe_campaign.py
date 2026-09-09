@@ -14,7 +14,7 @@ from mcp.types import ListToolsResult, Tool
 
 from sentinel.config import SandboxConfig
 from sentinel.dynamic import prober
-from sentinel.dynamic.sandbox import DockerSandbox
+from sentinel.dynamic.sandbox import DependencyImage, DockerSandbox
 from sentinel.errors import InfrastructureError
 from sentinel.llm.tools import ToolCatalog
 from sentinel.permissions import PermissionsManifest
@@ -39,7 +39,8 @@ def tools() -> tuple[Tool, ...]:
 
 def test_enumeration_rounds_cover_later_tools_and_all_mutations() -> None:
     campaign, _ = prober.build_probe_campaign((), ToolCatalog(tools=(), warnings=()))
-    attempts = prober.enumerate_attempts(tools(), POLICY, campaign)
+    attempts, complete = prober.enumerate_attempts(tools(), POLICY, campaign)
+    assert complete
     assert len({item.attempt_id for item in attempts}) == len(attempts)
     assert Counter(item.target_tool for item in attempts)["z_vulnerable"] == 8
     actual = [
@@ -58,9 +59,10 @@ def test_enumeration_rounds_cover_later_tools_and_all_mutations() -> None:
         for tool in tools()
     )
     assert [
-        item.attempt_id for item in prober.enumerate_attempts(changed, POLICY, campaign)
+        item.attempt_id
+        for item in prober.enumerate_attempts(changed, POLICY, campaign)[0]
     ] == [item.attempt_id for item in attempts]
-    assert prober.enumerate_attempts((), POLICY, campaign) == ()
+    assert prober.enumerate_attempts((), POLICY, campaign) == ((), True)
 
 
 class CampaignSandbox(SyntheticSandbox):
@@ -143,6 +145,75 @@ def test_campaign_budgets_and_honest_discovery(case: str) -> None:
             assert campaign.budget_exhausted
 
 
+@pytest.mark.parametrize(
+    "schema, supported",
+    [
+        ({"type": "object", "properties": {}, "additionalProperties": False}, True),
+        ({"$schema": "https://example.invalid/dialect", "type": "object"}, False),
+        ({"$ref": "https://example.invalid/schema"}, False),
+        ({"type": "object", "properties": []}, False),
+        ({"$ref": "#/$defs/missing"}, False),
+        (
+            {"type": "object", "properties": {"value": {"$ref": "#/$defs/missing"}}},
+            False,
+        ),
+        (
+            {
+                "type": "object",
+                "properties": {
+                    "aaa": {"type": "string"},
+                    "zzz": {"$ref": "#/$defs/missing"},
+                },
+            },
+            False,
+        ),
+    ],
+)
+def test_unsupported_schema_cannot_establish_complete_campaign(
+    monkeypatch: pytest.MonkeyPatch, schema: dict[str, Any], supported: bool
+) -> None:
+    async def run_one(
+        sandbox: Any,
+        image: str,
+        binding: prober.ProbeBinding,
+        manifest: Any,
+        state: Any,
+    ) -> prober._Observation:
+        return prober._Observation(
+            binding.probe_id,
+            binding.target_tool or "",
+            binding.field,
+            {},
+            {},
+            (),
+            False,
+        )
+
+    monkeypatch.setattr(prober, "_run_one", run_one)
+    sandbox = CampaignSandbox()
+    sandbox.tool = Tool(name="process", inputSchema=schema)
+    campaign, _ = prober.build_probe_campaign((), ToolCatalog(tools=(), warnings=()))
+    observed = asyncio.run(
+        prober._run_campaign(
+            cast(DockerSandbox, sandbox), "synthetic", campaign, POLICY
+        )
+    )
+    assert observed and all(item.status == "tested" for item in observed)
+    assert campaign.enumeration_complete is supported
+    assert bool(campaign.failure) is not supported
+    assert bool(campaign.discovery[0].tools[0].unresolved) is not supported
+    assert sandbox.cleaned == sandbox.sessions
+    result = prober.DynamicScanResult(
+        (), (), DependencyImage("synthetic", "synthetic", True), campaign, observed
+    )
+    assert result.complete is supported
+    assert result.summary.coverage is not None
+    assert result.summary.coverage.campaign is not None
+    assert result.summary.coverage.campaign.enumeration_complete is supported
+    if "aaa" in schema.get("properties", {}):
+        assert any(item.field == "aaa" for item in observed)
+
+
 def test_nested_mutation_targets_only_the_selected_member() -> None:
     tool = Tool(
         name="nested",
@@ -217,8 +288,8 @@ def test_priorities_only_reorder_each_tools_choices() -> None:
         None,
         False,
     )
-    reordered = prober.enumerate_attempts(tools(), POLICY, campaign)
-    ordinary = prober.enumerate_attempts(
+    reordered, _ = prober.enumerate_attempts(tools(), POLICY, campaign)
+    ordinary, _ = prober.enumerate_attempts(
         tools(), POLICY, prober.ProbeCampaign(prober.DEFAULT_ORDER, (), None, True)
     )
     assert {item.attempt_id for item in reordered} == {

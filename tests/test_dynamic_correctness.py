@@ -171,7 +171,7 @@ def test_unconstrained_nested_field_is_not_malformed_input() -> None:
             (tool,),
             manifest,
             prober.ProbeCampaign(prober.DEFAULT_ORDER, (), None, True),
-        )
+        )[0]
         if item.probe_id == "SENT-011"
     )
     arguments, _ = _probe_arguments(binding, (tool,))

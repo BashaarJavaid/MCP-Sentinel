@@ -353,10 +353,11 @@ def enumerate_attempts(
     priorities: ProbeCampaign,
     *,
     deadline: float = float("inf"),
-) -> tuple[ProbeBinding, ...]:
+) -> tuple[tuple[ProbeBinding, ...], bool]:
     """One choice per tool per round, rotating rules and fields within each tool."""
     hints = {(item.probe_id, item.target_tool): item for item in priorities.bindings}
     queues: dict[str, list[ProbeBinding]] = {}
+    complete = True
     for tool in sorted(tools, key=lambda item: item.name):
         if time.monotonic() >= deadline:
             raise TimeoutError("campaign deadline exhausted during enumeration")
@@ -420,7 +421,7 @@ def enumerate_attempts(
             fields(tool.inputSchema, (), frozenset())
         except UnsupportedSchema:
             # The discovery snapshot retains the unsupported schema and reason.
-            pass
+            complete = False
         for rule, choices in by_rule.items():
             hint = hints.get((rule, tool.name))
             if hint:
@@ -441,12 +442,13 @@ def enumerate_attempts(
         queues[OUT_OF_SCOPE_CANARY] = [
             ProbeBinding("SENT-008", OUT_OF_SCOPE_CANARY, None, None)
         ]
-    return tuple(
+    attempts = tuple(
         choices[index]
         for index in range(max(map(len, queues.values()), default=0))
         for choices in queues.values()
         if index < len(choices)
     )
+    return attempts, complete
 
 
 async def _run_campaign(
@@ -477,15 +479,18 @@ async def _run_campaign(
         ) as probe:
             tools = await _list_tools(probe, discovery, "discovery")
         campaign.discovery = tuple(discovery.discovery)
-        campaign.bindings = enumerate_attempts(
+        campaign.bindings, schemas_complete = enumerate_attempts(
             tools, manifest, priorities, deadline=deadline
         )
-        campaign.enumeration_complete = all(
+        campaign.enumeration_complete = schemas_complete and all(
             snapshot.more_pages is False and snapshot.tool_total is not None
             for snapshot in campaign.discovery
         )
         if not campaign.enumeration_complete:
-            campaign.failure = "runtime discovery is incomplete; observed tools only"
+            campaign.failure = (
+                "runtime discovery or schema enumeration is incomplete; "
+                "supported observed attempts only"
+            )
     except (
         InfrastructureError,
         TimeoutError,

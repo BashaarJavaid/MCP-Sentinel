@@ -1485,6 +1485,9 @@ required-field omissions. Listed ungranted tools receive SENT-008 attempts; a
 nonempty entirely granted catalog receives the existing unknown-name control.
 Empty discovery creates no attempts. Pagination, unsupported schemas and
 unresolved field space remain explicit in discovery records.
+An unsupported schema or unresolved local reference also leaves campaign
+enumeration incomplete, while retaining attempts recovered from supported
+properties. Completing those attempts cannot establish complete analysis.
 
 Rounds select one attempt per tool, rotating eligible rules and fields within
 each tool. Valid candidate-bound GPT priorities reorder choices within each

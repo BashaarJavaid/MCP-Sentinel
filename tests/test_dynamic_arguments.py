@@ -190,7 +190,7 @@ def test_runtime_binding_supports_union_types_and_required_fields(
     manifest = PermissionsManifest.model_validate(
         {"version": 1, "tools": {"process": {}}}
     )
-    attempts = enumerate_attempts(
+    attempts, _ = enumerate_attempts(
         (tool,), manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
     )
     binding = next(item for item in attempts if item.probe_id == "SENT-011")

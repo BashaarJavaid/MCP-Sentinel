@@ -217,7 +217,7 @@ def test_runtime_binding_uses_ungranted_tool_and_schema_fallback() -> None:
         ),
     )
 
-    attempts = enumerate_attempts(
+    attempts, _ = enumerate_attempts(
         tools, manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
     )
     scope = next(item for item in attempts if item.probe_id == "SENT-008")
@@ -253,7 +253,7 @@ def test_malformed_binding_targets_constrained_envelope_not_unconstrained_field(
         item
         for item in enumerate_attempts(
             (tool,), manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
-        )
+        )[0]
         if item.probe_id == "SENT-011"
     )
     arguments, evidence = _probe_arguments(binding, (tool,))
