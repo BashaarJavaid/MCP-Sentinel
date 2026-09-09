@@ -520,6 +520,8 @@ share one aggregate static deadline. Dynamic scans still select one Python
 package. The integrated native 1.7.0 report records each declared member's actual
 coverage; member file counts and inaccessible members also appear as explicit
 warnings. Missing declared members make an aggregate incomplete.
+Unsupported inclusion or exclusion glob syntax also makes expansion incomplete;
+unrecognized exclusions leave potentially affected members visible.
 Local TypeScript package names resolve only from declared members (or the single
 package root), through included source exports. Source aliases use local JSONC
 compiler options and bounded local `extends` chains, retaining the declaring

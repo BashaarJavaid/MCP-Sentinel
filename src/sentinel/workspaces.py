@@ -171,16 +171,23 @@ def discover_workspace(root: Path) -> WorkspaceLayout | None:
     members = {"."}
     issues: set[WorkspaceIssue] = set()
     for source, patterns, manifest in declarations:
+        unsupported = {
+            pattern
+            for pattern in patterns
+            if any(
+                token in pattern for token in ("{", "}", "@(", "+(", "!(", "?(", "*(")
+            )
+        }
+        issues.update(
+            WorkspaceIssue(
+                pattern.removeprefix("!"), f"{source}: unsupported workspace glob"
+            )
+            for pattern in unsupported
+        )
+        patterns = tuple(pattern for pattern in patterns if pattern not in unsupported)
         positive = [pattern for pattern in patterns if not pattern.startswith("!")]
         negative = [pattern[1:] for pattern in patterns if pattern.startswith("!")]
         for pattern in positive:
-            if any(
-                token in pattern for token in ("{", "}", "@(", "+(", "!(", "?(", "*(")
-            ):
-                issues.add(
-                    WorkspaceIssue(pattern, f"{source}: unsupported workspace glob")
-                )
-                continue
             matched = [path for path in directories if _matches(path, pattern)]
             if not matched:
                 issues.add(
