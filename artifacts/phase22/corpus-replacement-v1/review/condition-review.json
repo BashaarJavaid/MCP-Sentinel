@@ -1,0 +1,50 @@
+{
+  "reviewer": "Implementation agent; source curation after scanner implementation froze at 6e68331. Independent human acceptance is pending.",
+  "source_exposure": "Advisory excerpts and these two repository snapshots were inspected after the code freeze. No scanner result was observed and no detector or source-analysis implementation was changed.",
+  "condition": "fetchWebContent must reject a caller-supplied IPv4-mapped IPv6 loopback HTTP URL after WHATWG URL parsing, before its initial outbound request",
+  "prerequisites": [
+    "No-argument MCP server launch with the default full in-process runtime, default fetchWebContent name and no dependency-injected service replacement.",
+    "The caller supplies http://[::ffff:127.0.0.1]/ with valid ordinary options; no operator-configured proxy is selected.",
+    "Score the initial literal-address request only; DNS rebinding, redirects, browser/cookie fallback and successful response retrieval are not prerequisites or claims."
+  ],
+  "flow": "src/index.ts creates the SDK server and invokes setupTools. No arguments select createOpenWebSearchRuntime, whose default service binds the web re-export to fetchWebContent. The registered URL passes through validatePublicWebUrl/isPublicHttpUrl at the schema and service, then the same parsed hostname is checked at the request sink. The vulnerable helper sends bracketed literals to isIP unchanged, bypassing its IP branch; the fixed helper strips brackets and rejects non-unicast classification, with an enforced initial check before the checked request helper.",
+  "fixed_scope": "The fixed source and upstream asserted regression vectors support the narrow initial mapped-loopback label. Broader redirect/DNS/browser changes are retained, not independently validated or scored here.",
+  "safe_scope": "The fixed upstream URL cases assert acceptance of ordinary public IPv4 http://8.8.8.8/resource; the case concerns the predicate, not actual service availability.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v1/mutations/vulnerable-predicate-rename.tar.gz",
+        "sha256": "46a940c44d515a063df7bc2fc266c42c9e356b0a2536f2dd5d3f03a606073aaa"
+      },
+      "changed_paths": [
+        "src/test/test-url-safety.ts",
+        "src/utils/urlSafety.ts"
+      ],
+      "changed_identifier_occurrences": 5,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "f00129811916d8d721192d2e28b406dd599e1cb7c4b3490db627d654a5992f24",
+      "mutated_tree_sha256": "f7f50d5c3e731056c497eba5b04e5a8ab6b20087c3a46de93182c9c96a6d455f"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v1/mutations/fixed-predicate-rename.tar.gz",
+        "sha256": "fc6a3d7800aec745dd2790167f63949d91ab10e9654dadb4aa947e6ed63b8982"
+      },
+      "changed_paths": [
+        "src/test/test-url-safety.ts",
+        "src/utils/httpRequest.ts",
+        "src/utils/urlSafety.ts"
+      ],
+      "changed_identifier_occurrences": 8,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "1e6cfbcb60410b71d24ede68d0d9a76458100d98d3c6e7e8e15801582b26d6b9",
+      "mutated_tree_sha256": "a4f9096bfa2ad0fdfb10ce9008838f331afec285ea4dfc278555c6b59320867d"
+    }
+  ],
+  "runtime_confirmed": false,
+  "upstream_tests_executed": false,
+  "scanner_evaluation": false,
+  "model_calls": 0
+}

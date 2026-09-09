@@ -1,7 +1,10 @@
-# Integration evidence, batches 1–23
+# Integration evidence, batches 1–26
 
-This packet preserves intermediate implementation, failures and measurements
-through source commit `734aa8c`. **It is not final technical acceptance.**
+These batches preserve implementation, failures and source-specific measurements.
+Batch 26 includes the completed `dcb965f` measurements and later coordinate
+diagnostics; its source-scope addendum distinguishes their identities. Active
+`6e68331` verification remains outside that seal. **This is not final technical
+acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
