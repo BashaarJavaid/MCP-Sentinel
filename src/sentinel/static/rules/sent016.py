@@ -51,7 +51,8 @@ class CredentialFlow(PathFlow):
         self.operator_predicates: dict[str, tuple[str, bool]] = {}
         self.basic_auth_fields: dict[str, tuple[str, ...]] = {}
         # Index names only; guard values always come from the current branch.
-        self.credential_markers: set[str] = set()
+        self.absent_markers: set[str] = set()
+        self.opt_in_markers: set[str] = set()
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         if not bindings.get("#credential:http", UNKNOWN_VALUE).contained and any(
@@ -66,14 +67,12 @@ class CredentialFlow(PathFlow):
         return super().function(symbol, bindings)
 
     def conditioned_credential(self, value: Value, env: dict[str, Value]) -> Value:
-        if not value.operator_credential or not self.credential_markers:
+        if not value.operator_credential:
             return value
-        conditions = {name: env[name] for name in self.credential_markers & env.keys()}
         absent = [
             current
-            for name, current in conditions.items()
-            if name.startswith(("#absent:", "#credential:excluded:"))
-            and current.contained
+            for name in self.absent_markers & env.keys()
+            if (current := env[name]).contained
             and any(source.startswith("http:") for source in current.sources)
         ]
         if absent:
@@ -87,8 +86,8 @@ class CredentialFlow(PathFlow):
             )
         settings = {
             name.removeprefix("#credential:opt-in:"): current
-            for name, current in conditions.items()
-            if name.startswith("#credential:opt-in:") and current.contained
+            for name in self.opt_in_markers & env.keys()
+            if (current := env[name]).contained
         }
         if settings:
             value = replace(
@@ -152,7 +151,7 @@ class CredentialFlow(PathFlow):
         super().merge(env, branches)
         if http:
             env["#credential:http"] = Value(contained=True)
-        for name in self.credential_markers & env.keys():
+        for name in (self.absent_markers | self.opt_in_markers) & env.keys():
             first = branches[0].get(name, empty) if branches else empty
             if all(branch.get(name, empty) is first for branch in branches[1:]):
                 env[name] = first
@@ -195,7 +194,7 @@ class CredentialFlow(PathFlow):
         predicate = self.operator_predicates.get(value.key)
         if predicate is not None and truth != predicate[1]:
             marker = "#credential:opt-in:" + predicate[0]
-            self.credential_markers.add(marker)
+            self.opt_in_markers.add(marker)
             env[marker] = Value(
                 contained=True,
                 locations=value.locations
@@ -204,7 +203,7 @@ class CredentialFlow(PathFlow):
         if not isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
             if not truth and http_input:
                 marker = "#credential:excluded:" + value.key
-                self.credential_markers.add(marker)
+                self.absent_markers.add(marker)
                 env[marker] = replace(
                     value,
                     contained=True,
@@ -215,7 +214,7 @@ class CredentialFlow(PathFlow):
         if http_input:
             if not truth:
                 marker = "#absent:" + value.key
-                self.credential_markers.add(marker)
+                self.absent_markers.add(marker)
                 env[marker] = replace(
                     value,
                     contained=True,

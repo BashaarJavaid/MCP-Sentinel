@@ -19,6 +19,13 @@ new late-guard controls pass before the change; the affected credential/state/
 worker selection passes 524 tests afterward. Strict mypy and lint pass.
 Native before/after report equivalence and timing improvement remain to measure.
 
+The first indexed profile at `c131492` also reaches the 120-second profiling
+deadline, after 67 rather than 62 tool groups; it is not a native timing pass.
+`conditioned_credential` still spends 31.944 seconds classifying marker names.
+Separate absence and opt-in name indexes remove that remaining classification
+while preserving current-branch fact lookups. All 401 credential regressions,
+strict mypy, lint and formatting pass. Both incomplete profiles remain retained.
+
 ## Native exposed SSRF gate at c233521
 
 Both five-input production rules-only batches complete on immutable `c233521`.
