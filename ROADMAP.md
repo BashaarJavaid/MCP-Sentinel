@@ -1175,6 +1175,28 @@ final migration/campaign verification, paid evaluation and consolidated draft
 delivery remain authorized technical work. Human acceptance and the deferred
 external pilot gate remain separately unmet.
 
+The later `dcb965f` integration supersedes those incomplete technical measurements:
+all 45 historical inputs complete twice under the unchanged 120-second deadline,
+with identical stable reports, all 20 exposed vulnerable conditions detected and
+zero named fixed/safe alerts. The full suite at that source passes 2,007 tests,
+36 skipped, with 89.47% branch coverage. All 25 frozen development inputs complete;
+two Meta fixed-condition labels remain disputed and require an explicit decision.
+The first frozen held-out evaluation completes only 10/25 inputs and detects none
+of four completed vulnerable variants; six vulnerable variants are unavailable.
+These limits remain recorded, without a new accuracy threshold or scope relaxation.
+
+That evaluation exposed incorrect legacy TypeScript finding coordinates. The five
+auth-fetch cases were marked exposed before correction `b163d7c`; `6e68331` also
+corrects a test that expected the old end column. New immutable verification is
+in progress. The unchanged TypeScript smoke replay test needs a compatible capture;
+its exact request is prepared offline, and paid authorization remains required.
+Pinned Semgrep completes 45/45 historical, 25/25 development and 20/25 held-out
+inputs; the five Solver inputs retain parser errors. All three named-condition
+assessments report zero matches; unrelated warnings and uncertainty remain visible.
+Evidence batch 26 preserves the completed measurements, source assessments and
+failures. Final-source checks, reviewed evaluation, consolidated draft and hosted
+matrix remain open, as do human acceptance and the deferred pilot-dependent gate.
+
 ### Objective
 
 Address measured missed vulnerabilities and real repository incompatibilities
