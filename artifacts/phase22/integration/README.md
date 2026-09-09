@@ -1,11 +1,20 @@
-# Integration evidence, batches 1–20
+# Integration evidence, batches 1–21
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `394bb8a`. **It is not final technical acceptance.**
+through source commit `5f6bb9a`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 21 retains 194 added/changed files through 5f6bb9a: approved Git campaigns
+and native consumers, bounded production static workers, complete Meta development
+inputs, exact Mobile native serial/worker equivalence, wheel smoke extension and
+SDK context binding corrections. All 29,216,392 raw bytes were read back against
+member hashes; the archive is 1,149,566 bytes, SHA-256
+`e80849c1c12f75590c844d72d6fb0daf0fc74bb2358efa8ea0922ee8e1709136`.
+Apply `evidence-v21.tar.gz` after batch 20 and verify `evidence-v21.json`. All
+included checks finished before sealing. The later complete historical benchmark
+run is outside this seal. The Meta frozen-label decision and final gates remain open.
 Batch 20 retains 226 added/changed files through 394bb8a: the 3e1faac full
 milestone (1882 passed, 36 skipped, 89.27% branch coverage), HTTP/MCP entry
 corrections, TypeScript location/deadline checks, workspace exclusion/source

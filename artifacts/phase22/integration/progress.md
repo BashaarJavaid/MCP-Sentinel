@@ -1623,3 +1623,54 @@ Evidence batch 20 is sealed through 394bb8a: 226 files, 7,525,787 raw bytes,
 1,090,315 compressed bytes; SHA-256
 `275ceab22136b1e9e441120e0fe596ac61c2e0713fa8d84544f06c804b71dcd7`.
 Every member was read back and verified; prior 19 seals and coverage remain.
+
+
+## Production workers and context audit through 5f6bb9a
+
+`2837d59` adds at most four source-flow workers for large multicore scans, using
+private parsed snapshots and the original shared 120-second deadline. Parent
+TypeScript parsing avoids worker subprocess descendants; workers rebuild indexes
+that depend on node identity. Isolated Python cannot import the target from its
+CWD/PYTHONPATH. Nine durable Python/TypeScript equivalence and process lifecycle
+checks pass, including crash, timeout, invalid result, startup failure, interruption
+and snapshot-write failure. Initial mypy/style/snapshot failures and corrections
+remain. Corrected strict typing checks all 146 files successfully.
+
+All five frozen Meta development inputs complete at immutable 2837d59 in
+59,533 / 64,965 / 67,404 / 68,111 / 67,123 ms (vulnerable, its mutation, fixed,
+its mutation, safe). This establishes native completion, not the disputed fixed
+condition's acceptance. The versioned label/condition decision remains pending;
+no label or prerequisite was changed and the fresh holdout remains unopened.
+
+Mobile originals complete at the same worker source in 85,259 / 87,709 ms.
+`v2-worker-native-equivalence/comparison.json` proves exact stable native findings,
+evidence, completion, stages and coverage against serial 394bb8a, plus all 680/704
+ordered warnings. These runs overlap brief binding checks (and the second the
+start of broader regressions), so they are not isolated throughput measurements.
+`9fbb8b8` extends installed/offline wheel smoke inputs above the worker threshold.
+All 12 source-checkout CLI cases pass with absent/dummy model keys. Actual installed
+and Linux-isolated smoke remain separate final checks.
+
+The R09 source audit reproduced two local SDK impersonation misses, one unresolved
+relative SDK import miss, eight lexical-shadowing misses and four omitted genuine
+Annotated lifespan flows. `5f6bb9a` shares source-bound annotation recognition
+between caller provenance and lifespan injection. Relative imports cannot establish
+external SDK identity, and the existing lexical shadow index now includes classes,
+functions and imports. The initial shared correction passes 918 regressions;
+the final shadow correction passes 196 focused and 388 HTTP/context checks,
+plus strict types/style. No target is imported or executed.
+
+The approved Git SDK image was reverified and all 13 current 394bb8a runtime
+campaigns executed. Each enumerates 80 eligible attempts and tests 24; 56 remain
+untested and every scan exits 3 with clean container cleanup. In total, 312 tested
+attempts show no violation and 728 remain untested; zero findings are not proof
+of defense. The real orchestrator report validates as native 1.7.0 and SARIF 2.1.0,
+retains the same incomplete campaign in console output and exits 3. It explicitly
+uses degraded, unreviewed candidates and makes zero model calls. Historical SDK
+configuration and earlier runtime measurements remain unchanged.
+
+Evidence batch 21 retains 194 files, 29,216,392 raw bytes, 1,149,566 compressed
+bytes, SHA-256 `e80849c1c12f75590c844d72d6fb0daf0fc74bb2358efa8ea0922ee8e1709136`.
+Every member was read back against its hash. After sealing, the complete historical
+45-input run began on the separate immutable 5f6bb9a checkout; no result is assumed.
+All final repeat, held-out, quality/hosted, paid, draft and external gates remain.

@@ -5,7 +5,20 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
-The latest full fixed-source milestone, `f2ea709`, passed 1,775 tests with 36 skips
+At `2837d59`, bounded static workers complete all five Meta development inputs
+within the unchanged 120-second deadline (59.5–68.1 seconds). The two Mobile
+originals preserve exact native findings, coverage and ordered warnings against
+the serial engine. Meta's frozen fixed-configuration decision remains pending;
+completion does not settle that condition. `5f6bb9a` corrects SDK context
+impersonation, lexical shadowing and Annotated lifespan binding, with 196 focused
+and 388 HTTP-related regression passes. All 13 approved Git runtime campaigns
+were remeasured at `394bb8a`: 24/80 attempts tested per input, exit 3, clean cleanup;
+312 observations without a violation and 728 untested attempts establish no defense.
+The latest full immutable milestone is `3e1faac`: 1,882 passed, 36 skipped,
+89.27% branch coverage. Later changes still need final integrated verification.
+Integration evidence batch 21 preserves commands, failures and exact identities.
+
+The earlier full fixed-source milestone, `f2ea709`, passed 1,775 tests with 36 skips
 and 89.11% branch coverage. Later TypeScript middleware work at `0491f32` passed
 292 affected tests; helper-source evidence at `c6234a0` passed 49 context/review
 tests. These later edits still require final integrated verification. The first
