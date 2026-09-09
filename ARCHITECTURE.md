@@ -92,7 +92,7 @@ flowchart TD
     BATCH1 --> GPT1[GPT semantic review]
     GPT1 --> PRIORITY[Order dynamic probes]
     PRIORITY --> DOCKER[Docker sandbox]
-    DOCKER --> PROBES[Run all four probes]
+    DOCKER --> PROBES[Discover and run bounded probe attempts]
     PROBES --> DF[Dynamic candidate Findings]
     DF --> BATCH2[Batch related dynamic candidates]
     BATCH2 --> GPT2[GPT semantic review]
@@ -115,7 +115,8 @@ The normal order is:
 3. Run both static engines.
 4. Batch related static candidates by tool or file and review them with GPT.
 5. Use the validated GPT probe plan only to reorder and safely parameterize, never skip, the dynamic probes.
-6. Run all four dynamic probes in fresh ephemeral containers.
+6. Discover supported attempts under the four dynamic rules and run them in
+   fresh ephemeral containers within the configured campaign budgets.
 7. Batch related dynamic candidates and review them with GPT.
 8. Deduplicate root causes and merge provenance.
 9. Render reports, validate SARIF, and apply the exit-code policy.
@@ -516,9 +517,9 @@ and reports missing, inaccessible or unsupported declarations. Root Sentinel
 configuration governs aggregate scans; nested configurations are disclosed and
 apply only when a member is scanned individually. Python and TypeScript source
 share one aggregate static deadline. Dynamic scans still select one Python
-package. Report 1.7.0 will record each declared member's actual coverage.
-Until that schema migration, member file counts and inaccessible members appear
-as explicit warnings. Missing declared members make an aggregate incomplete.
+package. The integrated native 1.7.0 report records each declared member's actual
+coverage; member file counts and inaccessible members also appear as explicit
+warnings. Missing declared members make an aggregate incomplete.
 Local TypeScript package names resolve only from declared members (or the single
 package root), through included source exports. Source aliases use local JSONC
 compiler options and bounded local `extends` chains, retaining the declaring
@@ -780,7 +781,8 @@ Probe planning makes GPT operationally consequential without granting it arbitra
 2. GPT grounds its judgment in supplied evidence references.
 3. GPT orders all four fixed probe IDs and binds safe template fields to the relevant target tool schema.
 4. Sentinel validates the plan independently.
-5. The Docker prober executes every required template under the existing sandbox limits.
+5. The Docker prober enumerates supported attempts and executes them under the
+   campaign limits, recording every unstarted remainder.
 6. Dynamic evidence is merged back into the deterministic finding.
 
 An invalid plan does not remove or skip probes. Sentinel falls back to the fixed default order, records the plan validation failure, and preserves the original candidate for review.
@@ -956,7 +958,10 @@ image so state cannot persist between sessions.
 | `SENT-010` | Send shell, SQL, or template-injection strings. | Treat them as inert data. | Observe a canary side effect such as a Sentinel scratch file. | `ASI05:2026` | Critical |
 | `SENT-011` | Omit a required field or send the wrong type. | Reject with a validation error. | Process without error. | `ASI02:2026` | Low |
 
-The validated GPT probe plan may reorder and bind approved inert template values for these probes. Sentinel independently validates the target tool, field names, values, and probe set; all four probes run even when the plan is absent or invalid.
+The validated GPT probe plan may reorder approved inert template choices for
+these probes. Sentinel independently validates the target tool, field names,
+values, and probe set. An absent or invalid plan uses the default ordering;
+runtime schemas determine supported attempts, and budgets bound execution.
 
 ### Phase 17 accepted contract (complete)
 

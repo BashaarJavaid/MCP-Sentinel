@@ -20,6 +20,17 @@ The independent report/campaign audit passes 79 tests. These are additional
 integration checks; they do not close the full benchmark, holdout, Docker or
 external acceptance gates.
 
+The equivalent-state and binary-combination changes (`4f2f81c`, `3ff455e`)
+each pass 942 affected regressions. The binary implementation matches the prior
+combination semantics across 287,144 differential cases. The all-rule fixed Meta
+scan at `4f2f81c` still times out at 120,073 ms; performance acceptance remains
+open. `65ba622` corrects campaign completion when a runtime schema or local
+reference cannot be enumerated, retaining supported attempts and explicit gaps.
+Its 158 campaign, argument, native report and migration checks pass, with strict
+types and lint. Schema consistency, notices and offline retained-artifact checks
+pass at that source. These checks use no paid model calls or target execution
+outside controlled Docker; synthetic campaign tests are not runtime proof.
+
 Earlier `4dfd24c` passed 1,215 tests with 36 skips and 88.27% branch coverage.
 Subsequent Python branch/record corrections passed 425
 affected regressions. At fixed source `34220b7`, all four exposed Atlassian
