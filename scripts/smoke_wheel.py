@@ -66,15 +66,26 @@ def main() -> int:
 
     if args.command == "offline":
         interfaces = Path("/proc/net/dev").read_text().splitlines()[2:]
-        assert {line.split(":")[0].strip() for line in interfaces} <= {"lo"}
+        active_interfaces = {
+            name
+            for line in interfaces
+            if (name := line.split(":")[0].strip())
+            and int(Path(f"/sys/class/net/{name}/flags").read_text(), 16) & 1
+        }
+        assert active_interfaces <= {"lo"}, active_interfaces
         route_interfaces = {
             line.split()[0]
             for line in Path("/proc/net/route").read_text().splitlines()
             if line.strip()
         } - {"Iface"}
+        route_interfaces.update(
+            line.split()[-1]
+            for line in Path("/proc/net/ipv6_route").read_text().splitlines()
+            if line.strip()
+        )
         assert route_interfaces <= {"lo"}, route_interfaces
         print(
-            "Namespace verified: no external interfaces or routes "
+            "Namespace verified: no active external interfaces or IPv4/IPv6 routes "
             f"({sorted(route_interfaces)})"
         )
         _check_rules_only_scans(args.executable_dir)
