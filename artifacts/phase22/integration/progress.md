@@ -1343,3 +1343,103 @@ complete match/warning/visit state remains byte-identical with SHA-256
 These diagnostic profile timings do not establish an isolated native speedup;
 new native measurements remain necessary. All default values remain immutable,
 and no rule/deadline/source exclusion was introduced.
+
+### Post-v17 verification and context/hash corrections
+
+At immutable `59e9fc5`, the original Meta vulnerable input completes in 119908 ms
+with 49 findings; native JSON/SARIF validate. Its four remaining development
+inputs all time out: vulnerable mutation 120050 ms, fixed 120071 ms, fixed mutation
+120043 ms and safe 120041 ms. These four ran without concurrent tests/profiles.
+The harness returns zero but only 1/5 inputs completed across the two directories.
+The complete family/condition and repeated final-source gates remain open.
+`v2-defaults-regressions-59e9fc5` passes 513 credential, TypeScript, inventory and
+context regressions in 182.58 s on that immutable checkout.
+
+The real Meta POST candidate has 279 flow anchors. Its old context used 160 source
+lines but omitted the credential-selection file. `b3b2318` distributes oversized
+anchor selection across source files without increasing the total source budget;
+all omitted anchors remain explicit. The new counterexample fails before the fix.
+All 50 context/review tests pass, with strict types/lint. Before/after native-context
+artifacts show auth.py:446 now included for the POST candidate, while the GET and
+duplication context hashes remain unchanged; every context stays at 160 source
+lines, and the POST still discloses 119 omitted anchors. This is request construction
+only, with no model calls; compatible capture selection remains a final gate.
+
+The bounded pure identity-hash cache prototype records 48382 hits and 2178 misses
+(maximum 4096 entries), preserving complete helper analysis state SHA-256
+`c1f8504c6ef4068eebd2b6901a90b209673bf06c420def4f6128666879c0bdd7`.
+`6a3a4a2` applies the standard-library cache with no hash/identity algorithm change.
+All 906 affected source-flow, credential, URL, command, TypeScript, inventory and
+context tests pass in 158.10 s; strict mypy and lint pass. All five Meta development
+inputs are being measured on immutable 6a3a4a2; no native outcome is assumed.
+
+Read-only GitHub metadata confirms PR #36 remains an open draft at delivered
+parent `phase22/description-poisoning`, head
+`8b6b0ddf1d6f6cf5a8da3ab9421471865b801455`; it is an ancestor of integration.
+No PR currently exists with head `phase22/integration`. Recheck at final delivery.
+No push, draft creation, hosted jobs, paid calls, merge, publication or outreach
+has occurred. Frozen labels and fresh holdout source remain untouched; the Meta
+fixed-label decision is still pending. Authorized independent work remains open.
+
+The immutable `6a3a4a2` Meta run completes two of five inputs: vulnerable 116315 ms
+and vulnerable mutation 119602 ms, 49 findings each. Fixed, fixed mutation and safe
+control time out at 120048, 120170 and 120056 ms. The 16384-entry cache experiment
+is a separately captured diagnostic, not a committed scanner or acceptance result.
+The fixed-source timing diagnostic retains all three rule costs and clone counts;
+no rule was disabled and the deadline remains 120 seconds.
+
+`v2-native-campaign-audit-6a3a4a2` passes 79 report, native migration, baseline,
+campaign and repeated-proof tests in 9.54 s. This does not replace final Docker,
+full-suite, consumer or benchmark gates. The in-progress TypeScript record change
+has durable original misses, intermediate signature/type failures and a 781-pass,
+four-failure broader run retained. Its returned-guard corrections subsequently
+pass the affected guards; a distinct-helper-allocation counterexample is reproduced
+and corrected. Final integrated source-flow verification remains pending.
+
+`be6349d` preserves TypeScript plain-record aliases, field updates (including literal
+string indexes), helper returns, branch alternatives and distinct helper allocation
+sites. Fetch and source factory registration read current record fields. Unknown
+mutation/prototype assignment invalidate protection. The original six client misses,
+three branch misses, returned-guard regressions, allocation and bracket-access misses
+and all intermediate signature/type/harness failures are retained. All 24 new client
+cases pass. Combined with `ab0e13c`'s skipped discarded Python member defaults,
+`v2-record-and-member-shared-corrected` passes 941 tests in 225.63 s. Strict mypy
+checks 143 files and lint passes. The initial misspelled phase19 test-path command
+ran no tests and remains explicitly failed.
+
+Before/after member-default profiles preserve full RuleRunState SHA-256
+`c1f8504c6ef4068eebd2b6901a90b209673bf06c420def4f6128666879c0bdd7`, reducing
+value allocations from 53993 to 52129. The pure combine-cache prototype preserves
+that same state, records 42795 hits/2392 misses (bounded to 4096), and reduces
+allocations to 35744. Profile timings overlapped development checks and are not
+isolated throughput claims. The actual cache change is under regression verification.
+The larger identity-hash-cache prototype (16384) still times out on Meta fixed
+at 120055 ms and was not adopted. Frozen labels/holdout source remain unchanged.
+
+`d5e02e9` applies the bounded pure-combination cache; all 941 affected regressions
+pass again (224.50 s), with types/lint. Its immutable five-input Meta run completes
+0/5: fixed 120071 ms, vulnerable 120056, vulnerable mutation 120054, fixed mutation
+120061 and safe 120057. The fixed input ran first; subsequent inputs overlapped
+small development checks, so these are completion outcomes, not isolated throughput
+comparisons. No deadline or detector was weakened. The full fixed-source SENT-016
+CPU profile completed interpretation but its first driver failed report construction
+on an invalid test UUID; all timing data and that failure are preserved. The corrected
+uncached profile completes three SENT-016 findings and records full static-result
+SHA-256 `70981a591a2c90eab76a1059d8321a39007cb89bbff3a0d6d6ef5adee70c6629`.
+It is a selected-rule diagnostic, not the all-rule native condition gate. Of 107940
+branch merges, 9094 have two identical states; full-state merging is a major measured
+cost. No broader cache-performance or family-completion claim follows.
+
+`50310e1` adds the two checked subprocess APIs to existing named Python helper
+interpretation. Four original caller/shell misses fail before correction; literal,
+rebound and no-shell controls pass. `b55a087` permits frozen Phase 22 offline request
+preparation, checked replay and pinned local Semgrep comparison, retaining strict
+source-only treatment/manifest checks and a separate Phase 22 capture ledger.
+Tests forbid constructing a live transport. The original treatment rejection,
+a missing dependency in the generated unit target, and its zero-candidate shell
+miss are all retained (unit fixture output is labeled, not benchmark evidence).
+All 239 execution/correctness/corpus/review checks pass in 231.55 s; mypy checks
+143 files, Ruff passes and all 149 formatted files pass. `029f686` additionally
+verifies current SDK factory metadata after configuration helpers (5 discovery
+checks pass). No paid calls, holdout tuning, label changes, pushes or publication
+occurred. The full authorized technical scope and external checkpoints remain open.

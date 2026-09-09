@@ -47,6 +47,9 @@ directives that match no finding emit `inline_suppression_unused`.
 - Remediation: use explicit parsers and fixed command allowlists
 
 Helper findings point to the tool's call site and identify the known sink.
+Python helper flow also recognizes imported `subprocess.check_call` and
+`subprocess.check_output` with literal `shell=True`; fixed commands, locally
+rebound callees and calls without an established shell do not match those sinks.
 TypeScript shell calls also use shared SDK registration and source bindings to
 follow imported helpers, low-level request dispatch and command reassignment.
 These findings cite the external sink with cross-file source evidence. `exec`
@@ -462,7 +465,11 @@ global `fetch`, `node-fetch`, and
 `undici.fetch` credential headers. It tracks `process.env` fallback selected by
 `||`, `??`, or an enforced absent-token branch, and checks the actual caller
 value when rejection returns or throws. Rebound application, environment and
-request bindings remain unresolved. Python follows genuine `ContextVar` allocation,
+request bindings remain unresolved. Plain request configurations retain header
+updates through aliases, included helpers, named fields and literal string indexes.
+Branch merges retain possible credential flow without treating an absent field
+as an enforced guard. Unknown mutation and prototype replacement invalidate
+protection. Python follows genuine `ContextVar` allocation,
 defaults and request-local `get`/`set`/matching single-use `reset` through included
 helpers, including token clearing and separate request state. These operations
 follow the [Python context variable contract](https://docs.python.org/3/library/contextvars.html).

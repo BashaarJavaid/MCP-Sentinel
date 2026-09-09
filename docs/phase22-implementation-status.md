@@ -12,6 +12,14 @@ tests. These later edits still require final integrated verification. The first
 Meta vulnerable input at `f2ea709` completed in 119,405 ms with 49 findings;
 the five-input condition gate and a frozen fixed-label decision remain open.
 
+At `6a3a4a2`, two of five Meta inputs complete: vulnerable in 116,315 ms and its
+mutation in 119,602 ms, with 49 findings each. The fixed pair and safe control time
+out. Later TypeScript client-record work (`be6349d`) and discarded Python member
+allocation reduction (`ab0e13c`) pass 941 affected regressions and strict types/lint.
+The independent report/campaign audit passes 79 tests. These are additional
+integration checks; they do not close the full benchmark, holdout, Docker or
+external acceptance gates.
+
 Earlier `4dfd24c` passed 1,215 tests with 36 skips and 88.27% branch coverage.
 Subsequent Python branch/record corrections passed 425
 affected regressions. At fixed source `34220b7`, all four exposed Atlassian

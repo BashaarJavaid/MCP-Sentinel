@@ -416,8 +416,13 @@ calls; returning or throwing before that call prevents continuation. Each route
 starts independently from initialized source state. Literal mount prefixes must
 match the route boundary; unknown paths or callbacks cannot establish protection.
 Replaced methods, unknown application escape, error middleware, `next(error/route)`,
-nested routers and chains beyond 32 continuations remain unresolved. Request-client
-configurations still need separate interpretation.
+nested routers and chains beyond 32 continuations remain unresolved. Plain source
+record configurations retain aliases, named and literal-indexed field updates,
+helper returns and branch state. Outbound fetch headers and factory registration
+metadata consume the current record state. Distinct helper call sites retain
+separate allocation identities; unknown mutation or prototype replacement cannot
+establish protection. This is bounded source interpretation, not general JavaScript
+object, accessor or proxy execution.
 
 Repeated genuine FastMCP HTTP request getters share one request/state identity
 within an analyzed tool entry, including across included helpers. Replacing a
@@ -1509,7 +1514,9 @@ remaining eligible count and totals must agree with records. Workspace members
 have unique paths, observed file counts and inventory-matched surface counts;
 unavailable counts remain null. Native JSON validation enforces these relational
 constraints in addition to the packaged JSON Schema. SARIF remains 2.1.0.
-Legacy 1.3–1.6 reports become explicit legacy attempts with unknown mutation,
-eligibility, started counts and campaign totals; original findings, nullable
-reviews and suppressions remain unchanged. Repeated attempts at a shared finding
+Versions 1.3/1.4 keep their unavailable dynamic summaries and typed proof null.
+Versions 1.5/1.6 retain fixed-probe outcomes as explicit legacy attempts with unknown
+mutation, eligibility, started counts and campaign totals. Original Finding
+identities, nullable reviews and suppressions are preserved; later historical
+schemas retain their recorded proof. Repeated attempts at a shared finding
 retain every proof in provenance and candidate-bound review context.

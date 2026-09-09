@@ -55,6 +55,16 @@ commits, durable tests, identities, outcomes, failures and limitations to each r
 
 ## Requirement-to-evidence audit (continuation; no final gate claims)
 
+Additional audit through `029f686`: `be6349d`/`ab0e13c` and `d5e02e9` each pass
+941 affected regressions; `b3b2318` verifies crowded 160-line context selection.
+The 79-test native/campaign/baseline audit supports R45–R60 without replacing their
+final Docker/consumer gates. `b55a087` adds offline preparation, checked replay and
+comparator treatment support for R44/R65–R68; capture uses separate Phase 22 evidence
+and remains paid-approval gated. R35 remains open: the latest d5e02e9 all-rule Meta
+run completes 0/5, while the selected-rule fixed-source profile completes three
+candidates and is not a family gate. The frozen fixed-label decision remains pending.
+Commands, failures and precise limits are retained in progress and batch 18.
+
 Scope remains the full continuation request. Each row below is required; `open`
 means implementation, condition measurement, or final-source evidence remains.
 Named tests are regression locations, not proof of independent condition gates.

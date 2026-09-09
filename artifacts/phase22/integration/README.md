@@ -1,11 +1,22 @@
-# Integration evidence, batches 1–17
+# Integration evidence, batches 1–18
 
 This packet preserves intermediate implementation, failures and measurements
-through source commit `59e9fc5`. **It is not final technical acceptance.**
+through source commit `029f686`. **It is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
+Batch 18 retains 307 added/changed files: crowded source contexts, TypeScript
+record/client and factory metadata flow, checked Python shell APIs, offline corpus
+treatments, the 941-test source-flow and 79-test native/campaign audits, exact-state
+profiles, and all newer Meta attempts. Meta completes 1/5 at 59e9fc5, 2/5 at
+6a3a4a2 and 0/5 at d5e02e9. Selected-rule profiles are not all-rule condition gates.
+All 13,585,250 raw bytes were read back against their member hashes; the archive is
+984,124 bytes, SHA-256
+`19d45e5aa661860a908b0edfc25ec93fe315193d50510cfc77fe82bf59ce1286`.
+Apply `evidence-v18.tar.gz` after batch 17 and verify `evidence-v18.json` before
+applying any later packet. All included commands had finished before sealing;
+all prior archives and the pending Meta fixed-label decision are preserved.
 Batch 17 retains 233 added/changed files: grouped startup and its command-precheck
 correction; the f2ea709 full milestone (1,775 passed, 36 skipped, 89.11% branch
 coverage); Express middleware, module/factory and inventory controls; returned-helper

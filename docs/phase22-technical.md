@@ -92,6 +92,14 @@ inside the existing 160-line total, validate references against supplied blocks,
 retain redaction and disclose omissions. Invalidate changed request/cache identities;
 reuse captures only after request compatibility verification.
 
+The frozen-corpus runner supports source-only rules, offline request preparation
+(`prepare-live`), checked replay and the pinned local Semgrep comparator. Preparation
+uses a recording reviewer and replay uses checked cassettes; neither makes live
+model calls. Phase 22 replay reads its separate `artifacts/phase22/captures` ledger.
+New paid capture still requires the exact bounded approval packet after offline
+gates. The source-only corpus runner rejects dynamic treatments; the separately
+approved Git runtime environment retains its own verification path.
+
 Expand only SENT-008 through SENT-011. Enumerate supported probe/tool/argument/
 mutation combinations and schedule deterministic round-robin coverage with GPT
 priorities inside that schedule. Defaults: 24 attempts or 120 seconds, whichever
