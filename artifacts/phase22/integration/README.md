@@ -1,12 +1,36 @@
-# Integration evidence, batches 1–26
+# Integration evidence, batches 1–27
 
 These batches preserve implementation, failures and source-specific measurements.
-Batch 26 includes the completed `dcb965f` measurements and later coordinate
-diagnostics; its source-scope addendum distinguishes their identities. Active
-`6e68331` verification remains outside that seal. **This is not final technical
-acceptance.**
+Batch 27 retains completed `6e68331` native verification and `d7184d3` local
+quality/package/Docker checks, including the raw failed full suite and
+capture-dependent demo. **This is not final technical acceptance.**
 [requirements.md](requirements.md) lists the complete outstanding contract;
 [progress.md](progress.md) explains source-specific results and limitations.
+
+Batch 27 contains 680 added/changed files, 403,378,236 raw bytes and 15,105,086
+compressed bytes. Every member was read back against its original SHA-256.
+Archive SHA-256:
+`83bfc17cdf1b267332f4e11685bf1467eb2ee7eeee1d6bf4320063f0c802721f`.
+Apply `evidence-v27.tar.gz` after batch 26 and verify `evidence-v27.json`.
+All included commands finished before sealing; all previous seals and failures
+remain. The exact paid packet/request bundle and replacement-corpus proposal
+are separately tracked in Git under `artifacts/phase22/`.
+
+The current `v2-local-acceptance-index-d7184d3/packet.json` maps all 86 local
+dispositions to source/test/report hashes and 24 completed command records.
+Historical native verification completes 45/45 twice, development 25/25, and
+the original held-out repeat retains 10 completed/10 unsupported/5 incomplete.
+All independent local quality/install/isolation/Docker/onboarding/baseline and
+pre-commit gates pass. The raw full suite is still failed; its stale cost
+expectation has a passing targeted correction, while the unchanged TypeScript
+replay test needs a compatible capture. The actual demo tests 20/20 attempts
+and validates reports but exits 3 for missing dynamic review.
+
+The validated [paid proposal](../paid-evaluation-v2/README.md) requests explicit
+approval for at most 398 new requests / $66.321920, with 20 historical requests
+reused. No paid calls occurred. The Meta decision, replacement freeze, reviewed
+evaluation, consolidated draft/hosted verification and human/pilot gates remain
+separate. The local index predates draft delivery and does not claim it occurred.
 
 The first batch covers `536bb69`; subsequent numbered batches extend it.
 Batch 23 retains 923 added/changed files through `734aa8c`, including the

@@ -2009,3 +2009,53 @@ source/test hashes and actual full-suite test executions, including both raw
 failures and the separate targeted correction. File-level passes are not inferred
 requirement acceptance. These completed records await the next numbered seal.
 No paid calls, push, new draft, merge, release or outreach have occurred.
+
+### Completed local delivery checks and exact paid proposal
+
+Current native repeats finish at 6e68331: development 25/25 with 574 findings,
+all stable-identical to dcb965f; original held-out 10 completed, ten unsupported,
+five incomplete. `v2-phase22-coordinate-regression-bindings-6e68331/packet.json`
+verifies all report hashes and the only ten changed finding ranges against exact
+auth-fetch source bytes. Existing condition/unrelated judgments apply, with the
+Meta decision and original held-out exposure preserved.
+
+All 18 independent checks in `v2-budget-delivery-checks-results.json` pass at
+immutable d7184d3. Its remaining entry is the actual demo, exit 3 for the missing
+dynamic capture. The 36 Docker tests pass in 148.37 seconds. All distribution
+installers, 12 Linux network-none rules-only cases and installed onboarding plus
+baseline controls pass. `v2-budget-postchecks-results.json` records five more
+passes: public pre-commit, both offline smoke plans, coordinate binding and exact
+benchmark capture selection. Earlier stopped queues and raw failures are intact.
+
+The demo tests 20/20 planned/eligible attempts with no unstarted remainder;
+seven static findings replay through four historical captures. Seven dynamic
+findings retain host evidence and remain unreviewed. Both native JSON and SARIF
+validate. No replay capture or runtime proof is fabricated.
+
+All 95 original inputs retain their support/completion states in exact offline
+request preparation: 323 distinct historical, 87 development and two original
+held-out requests. Across 412 benchmark requests, 16 have compatible accepted
+ledger captures and 396 are missing. Adding the TypeScript smoke and actual demo
+requests yields the explicit **398-request / $66.321920** paid proposal, with 20
+historical requests reused. Packet SHA-256:
+`9fbe33de0f3dda4ccaa2e3a058d96d6c43d0cb7518eeb72547c1c30cf78ef3c1`.
+The user approval request is pending. The executor and packet validate offline;
+nine fake-transport checks verify approval/request/budget rejection paths.
+All original and formatted executor versions are preserved with hash-verified
+recovery; no synthetic self-test decision is user authorization.
+
+`v2-local-acceptance-index-d7184d3/packet.json` binds all 86 local dispositions,
+24 completed command records/logs and the source/corpus/report/request evidence.
+This index precedes authorized draft/hosted delivery and does not claim those
+steps ran. All completed records await seal 27. The separate replacement freeze,
+Meta fixed-label and paid questions are pending; no new paid calls, push, draft,
+merge, release or outreach have occurred yet.
+
+Batch 27 is now sealed: 680 files, 403378236 raw bytes, 15105086 compressed bytes,
+SHA-256 `83bfc17cdf1b267332f4e11685bf1467eb2ee7eeee1d6bf4320063f0c802721f`.
+Every member was read back and matched; all included commands had completed.
+The paid packet/request bundle and replacement proposal remain separate tracked
+artifacts. All previous seals and worktrees remain. The copied paid executor's
+README command validates without reading an API key. Main remains clean at
+4cd5759. The consolidated draft and hosted matrix are the remaining independent
+delivery work; paid, Meta, replacement and external decisions are pending.

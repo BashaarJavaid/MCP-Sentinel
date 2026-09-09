@@ -444,3 +444,53 @@ awaits explicit user freeze approval. The implementation agent read advisory
 excerpts and source only after code froze at 6e68331; no detector changed and no
 scanner/model/comparator/target evaluation ran on these inputs. This does not
 reset the original held-out evaluation or create a fresh 25-input measurement.
+
+### Completed independent local checks and paid checkpoint at d7184d3
+
+The corrected scanner's 25 development reports are all stable-identical to
+dcb965f: 574 findings, ten vulnerable condition detections and the same two
+disputed Meta fixed-label alerts. All 554 unmatched instances retain their
+source assessments. Original held-out completion remains 10/25, with ten
+unsupported and five incomplete inputs. Five completed reports are unchanged;
+the other five differ only in ten source-coordinate corrections, verified
+against original source bytes and bound to the earlier unrelated judgments.
+No new detection or fresh held-out accuracy is claimed.
+
+At immutable d7184d3, Ruff/format, strict typing, generated schemas, notices,
+offline judge artifacts, strict docs, lock checks, dependency audit, wheel/sdist
+builds, pip/pipx/uv installation, public pre-commit and both offline smoke plans
+pass. All 36 real Docker tests pass. All 12 installed Linux rules-only cases pass
+with networking disabled. Installed onboarding and the initial/unchanged/changed
+baseline workflow pass, with validated native reports and expected exits 1/0/1
+for the baseline sequence. These checks preserve the main locked environment.
+
+The actual demo completes all 20 eligible runtime attempts with zero remainder.
+Four packaged historical captures review seven static findings. Seven dynamic
+findings retain their proof but lack a compatible capture, so the demo exits 3;
+its native JSON and SARIF both validate. That failure and the raw full-suite
+failure remain visible.
+
+Exact native request preparation covers all 95 original inputs with unavailable
+states preserved. It produces 412 distinct benchmark requests: 16 pass accepted
+ledger/request/semantic replay checks and 396 need new captures. The concrete
+`artifacts/phase22/paid-evaluation-v2/packet.json` additionally includes the
+TypeScript smoke and actual demo requests, for **398 new requests / $66.321920**,
+with 20 historical requests reused. The packet and default validation-only
+executor pass offline checks; no paid call has been made. The explicit approval
+request names SHA-256
+`9fbe33de0f3dda4ccaa2e3a058d96d6c43d0cb7518eeb72547c1c30cf78ef3c1`.
+It excludes the pending replacement corpus. Source/configuration/environment,
+per-request token/dollar ceilings and stop-on-first-failure policy are retained.
+
+`v2-local-acceptance-index-d7184d3/packet.json` records the current local
+disposition of all 86 requirements and hashes 24 completed verification commands.
+Grouped regression results are separate from source conditions, reviewed
+retention, hosted execution and human acceptance. Evidence sealing, the authorized
+single consolidated draft and hosted matrix are next. Meta/replacement/paid
+approvals and the deferred external pilot remain separate; Phase 22 is incomplete.
+
+Evidence batch 27 now preserves 680 completed files, 403,378,236 raw bytes, with
+verified member readback and archive SHA-256
+`83bfc17cdf1b267332f4e11685bf1467eb2ee7eeee1d6bf4320063f0c802721f`.
+The separate exact paid packet and replacement proposal are tracked directly.
+The local acceptance index predates this seal and the remaining draft/hosted work.

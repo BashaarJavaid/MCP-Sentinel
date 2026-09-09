@@ -1196,9 +1196,19 @@ its exact request is prepared offline, and paid authorization remains required.
 Pinned Semgrep completes 45/45 historical, 25/25 development and 20/25 held-out
 inputs; the five Solver inputs retain parser errors. All three named-condition
 assessments report zero matches; unrelated warnings and uncertainty remain visible.
-Evidence batch 26 preserves the completed measurements, source assessments and
-failures. Final-source checks, reviewed evaluation, consolidated draft and hosted
-matrix remain open, as do human acceptance and the deferred pilot-dependent gate.
+Evidence batch 26 preserves the earlier completed measurements, source assessments
+and failures. Current independent local quality, distribution/install, 36 real
+Docker, installed onboarding/baseline, pre-commit and 12 Linux network-isolation
+checks pass at d7184d3. All 25 current development reports are stable-identical;
+the held-out repeat retains its limits and only ten corrected coordinates.
+The actual demo completes 20/20 runtime attempts but exits 3 for missing dynamic
+review. The exact paid packet proposes 398 new requests, at most $66.321920,
+with 20 historical requests reused; explicit approval is pending. It excludes
+the separately proposed replacement corpus, whose freeze also remains pending.
+The 86-requirement local acceptance index retains these distinctions. Evidence
+batch 27 preserves the completed local work with verified readback. Consolidated
+draft and hosted matrix remain next, followed by approved
+reviewed evaluation, human acceptance and the deferred pilot-dependent gate.
 
 ### Objective
 
