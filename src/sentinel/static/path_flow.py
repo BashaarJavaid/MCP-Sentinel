@@ -75,6 +75,41 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
             maybe_none=any(value.maybe_none or value.key == "None" for value in values),
             maybe_missing=any(value.maybe_missing for value in values),
         )
+    if len(values) == 2:
+        left, right = values
+        has_sources = bool(left.sources or right.sources)
+        return Value(
+            left.sources | right.sources,
+            key
+            or (
+                left.key
+                if left.key == right.key
+                else _key("merge", *sorted((left.key, right.key)))
+            ),
+            left.resolved and right.resolved,
+            has_sources
+            and (not left.sources or left.contained)
+            and (not right.sources or right.contained),
+            left.locations | right.locations,
+            left.path_object and right.path_object,
+            left.repository_object and right.repository_object,
+            left.instance if left.instance == right.instance else None,
+            has_sources
+            and (not left.sources or left.option_safe)
+            and (not right.sources or right.option_safe),
+            left.url_checks & right.url_checks
+            if left.sources and right.sources
+            else left.url_checks
+            if left.sources
+            else right.url_checks
+            if right.sources
+            else frozenset(),
+            left.operator_credential or right.operator_credential,
+            left.credential_fallback or right.credential_fallback,
+            left.credential_present and right.credential_present,
+            left.maybe_missing or right.maybe_missing,
+            left.maybe_none or right.maybe_none,
+        )
     tainted = [v for v in values if v.sources]
     keys = sorted({v.key for v in values})
     return Value(
