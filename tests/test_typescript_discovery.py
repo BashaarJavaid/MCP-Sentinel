@@ -102,3 +102,28 @@ def test_typed_destructuring_keeps_runtime_member_identity(tmp_path: Path) -> No
     assert env["ref"] == flow.member(argument, "ref", env)
     assert env["alias"] == flow.member(argument, "other", env)
     assert env["ref"].key != env["alias"].key
+
+
+def test_factory_reads_metadata_after_configuration_helper(tmp_path: Path) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {z} from "zod";\n'
+        "function configure(config) {\n"
+        " config.inputSchema={path:z.string()};\n"
+        ' config.description="List a directory";\n}\n'
+        "export function create() {\n"
+        ' const server=new McpServer({name:"test",version:"1"});\n'
+        " const config={}; configure(config);\n"
+        ' server.registerTool("list",config,(args)=>args.path);\n'
+        " return server;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    file = TypeScriptSourceFile(path, path.name, source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    tools = program.tools()
+    assert len(tools) == 1 and tools[0].name == "list"
+    assert program.literal(tools[0].description) == "List a directory"
+    schema = tools[0].schema
+    assert schema is not None
+    assert program.text(schema.file, schema.node) == "{path:z.string()}"
