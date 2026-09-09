@@ -157,8 +157,8 @@ def measure(
     rules_dir: Path | None = None,
 ) -> dict[str, Any]:
     if isinstance(manifest, Phase22Manifest):
-        if treatment != "rules":
-            raise ValueError("Phase 22 measurement currently supports rules-only")
+        if treatment not in {"rules", "prepare-live", "replay", "semgrep"}:
+            raise ValueError("Phase 22 corpus measurement requires a source-only tier")
         approved = frozen_phase22()
         inputs = {item.id: item for item in approved.inputs}
         if (
@@ -207,6 +207,11 @@ def measure(
         if replay["scanner"]["source_sha256"] != scanner_identity()["source_sha256"]:
             raise ValueError("static replay scanner drift")
     destination.mkdir(parents=True)
+    captures = (
+        ROOT / "artifacts/phase22/captures"
+        if isinstance(manifest, Phase22Manifest)
+        else ARTIFACTS / "captures"
+    )
     result: dict[str, Any] = {
         "version": 1,
         "treatment": treatment,
@@ -360,7 +365,7 @@ def measure(
                         completed_at=datetime.now(timezone.utc),
                         allow_degraded=False,
                         review_mode="replay",
-                        transport=CheckedCassettes(ARTIFACTS / "captures"),
+                        transport=CheckedCassettes(captures),
                     )
                 native = json.loads(render_json(outcome.report))
                 sarif = json.loads(render_sarif(outcome.report))
