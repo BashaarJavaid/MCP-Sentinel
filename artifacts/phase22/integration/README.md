@@ -1,4 +1,26 @@
-# Integration evidence, batches 1–30
+# Integration evidence, batches 1–31
+
+Batch31 retains the green technical audit at ee9721f: all29 hosted jobs pass,
+including12 full suites with2024 passed/36 skipped and89.46–89.49% branch coverage.
+All12 wheel jobs, Docker/onboarding/baseline/validation, isolation and docs pass.
+The complete CI/docs archives contain484/12 verified members;225 uploaded artifact
+files and byte-identical canonical distributions are retained. All86 requirements,
+historical reference/command identities and all30 prior archive hashes were audited.
+No additional failing technical gate was found.
+
+The user deferred the full396-request paid benchmark and removed external pilots
+as a Phase22 completion prerequisite. Neither is counted as passed. See the
+separately tracked `../completion-scope-v1/decision.json`. Known replacement misses
+and unresolved registrations await user disposition; no detector change or paid
+call occurred. Phase22 is not yet marked complete. Later adoption/launch gates
+remain unchanged.
+
+Batch31 seals 248 completed files with verified member readback.
+Archive SHA-256: `17ab6a3dad8003809372d745754b0400dd6635263d9e4107b607a962795d8493`.
+Apply `evidence-v31.tar.gz` after batch30 and verify `evidence-v31.json`.
+This documentation/evidence-only delivery uses `[skip ci]`; green hosted checks
+belong to ee9721f, whose implementation bytes remain unchanged. A skipped head is
+not a new hosted pass. All prior evidence, failures and worktrees remain.
 
 Batch 30 retains the approved replacement evaluation and Meta erratum evidence.
 Both native and pinned comparator scans complete 5/5 replacements, detecting 0/2

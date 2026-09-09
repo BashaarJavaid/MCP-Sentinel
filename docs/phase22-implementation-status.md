@@ -1,9 +1,24 @@
 # Phase 22 implementation status
 
-**The requested full technical plan is not complete.** This record distinguishes
-verified increments from remaining implementation and acceptance work. Phase 21
-recruitment remains deferred, and the external pilot gate remains unmet. The
-[approved contract](phase22-technical.md) continues to govern scope.
+**All current technical verification gates passed at `ee9721f`.** All 29 hosted
+CI jobs pass; each of 12 quality suites reports 2024 passed, 36 skipped and
+89.46–89.49% branch coverage. Wheel/install, Docker/onboarding/baseline, network
+isolation and strict documentation checks pass. The 86-requirement audit verifies
+retained source/command/evidence identities, including all 30 prior archive hashes.
+
+The user deferred the full 396-request paid comparison and removed external pilots
+as a Phase 22 completion prerequisite. Neither is claimed passed. Current technical
+completion uses deterministic, recorded-review and isolated runtime evidence;
+see `artifacts/phase22/completion-scope-v1/decision.json`. Phase 21 and later
+adoption/launch evidence remain separate. No additional paid calls were made.
+
+The remaining decision is the known replacement SSRF/computed-registration gap
+and final user technical acceptance. It has not been changed or silently accepted:
+both vulnerable replacement variants were missed and six MCP tool registrations
+remain unresolved. No additional failing technical gate was found. Phase 22 is
+not yet marked complete. The [approved contract](phase22-technical.md) reflects
+this revised scope. Earlier source-specific records below preserve their original
+failures and pending gates; the current audit supersedes their current-status claims.
 
 The first historical run at `8bcaded` completes 45/45 inputs and source
 adjudication detects all 20 vulnerable input conditions. Its conservative scoring
@@ -186,7 +201,7 @@ and `evidence-v3.json` and their checksummed archives.
 | Unrelated findings and competitor measurement | `shared-containment/finding-delta.json` compares 45 inputs; unchanged historical backlog remains unadjudicated | Adjudicate any later new/changed unrelated findings. Rerun the pinned comparable Semgrep measurements; Snyk/Cisco performance remains unmeasured. |
 | Git runtime and paid reviewed comparison | Authorized `mcp==1.29.0` environment and earlier startup/discovery proof retained | Integrate campaign evidence; after offline gates pass, prepare exact paid requests/model/capture reuse/token/dollar ceilings and obtain approval. Reviewed completion/retention for all 45 inputs remains pending. |
 | Final quality and technical acceptance packet | Increment-level Ruff, format, mypy, schemas, pytest, audit, notices, docs and CI evidence retained | Run all required checks and final repeated measurements on the complete integrated implementation; collect campaign/wheel/Action/isolation/OS evidence and requirement-level technical acceptance. |
-| External acceptance | No external maintainer outcomes added | Five external workflows and ranked blockers remain required; technical checks cannot complete Phase 22's pilot-dependent gate. |
+| External acceptance | No external maintainer outcomes added | External workflows remain deferred under Phase21; the user has removed pilots as a Phase22 completion prerequisite. No external validation is claimed. |
 
 ## Evidence handling
 

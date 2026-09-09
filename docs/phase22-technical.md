@@ -1,8 +1,10 @@
 # Phase 22 technical expansion
 
-Status: implementation in progress; technical acceptance and external pilot
-acceptance are pending. This is the user-approved target contract, not a claim
-that every capability below is implemented. Phase 21 recruitment remains deferred.
+Status: technical checks passed; known detection-gap disposition and final user
+acceptance remain pending. The user deferred the full paid benchmark and removed
+external pilots as a Phase 22 completion prerequisite. Neither is counted as
+passed. The versioned decision is
+`artifacts/phase22/completion-scope-v1/decision.json`; Phase 21 remains deferred.
 
 The [execution correction record](phase22-execution.md) describes the implemented
 first increment. The complete [independent corpus proposal](phase22-corpus-review.md)
@@ -29,11 +31,15 @@ controls and paired structural mutations. Approval binds exact revisions,
 licenses, conditions and repository split. Keep holdout source out of tuning;
 exposing a case requires relabeling it and replacement holdout evidence.
 
-Both static tiers must complete all 45 historical inputs, detect all 20 vulnerable
-conditions, and produce no condition-matched alerts on fixed/safe inputs. GPT
-must retain correct candidates; count `needs_review`. Report fresh holdout results
-separately without an invented accuracy threshold. Keep unrelated warnings
-explicitly unadjudicated unless reviewed. Repeat deterministic measurements.
+The deterministic tier must complete all 45 historical inputs, detect all 20
+vulnerable conditions and produce no condition-matched fixed/safe alerts; these
+measurements pass twice. The original requirement for the reviewed tier to match
+that completion and retain correct candidates is explicitly deferred for cost,
+not passed. Accepted captures verify recorded review compatibility only. Any
+future reviewed comparison must count `needs_review`, suppressions and abstentions.
+Report holdout results separately without an invented accuracy threshold. Keep
+unrelated warnings explicitly unadjudicated unless reviewed. Repeat deterministic
+measurements. Pilots are no longer a Phase 22 completion prerequisite.
 
 ## Rule contracts
 

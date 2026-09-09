@@ -98,10 +98,15 @@ areas; see `docs/phase22-technical.md`. Corpus freeze, the tested Git SDK
 environment and paid evaluation retain their explicit approval checkpoints.
 Defer pilot-driven
 compatibility prioritization until participant feedback is available. Phase 21
-remains incomplete; Phase 22 cannot pass its full gate without pilot evidence.
-Author-run scans and benchmark improvements do not replace external validation.
-Resume Phase 21 when recruitment becomes feasible. Later dependencies and
-adoption/launch gates remain unchanged; see `ROADMAP.md` §1 for the exception.
+remains incomplete. The user subsequently removed pilots as a Phase 22 completion
+prerequisite and deferred the full paid benchmark for cost; see
+`artifacts/phase22/completion-scope-v1/decision.json`. Assess current technical
+completion using deterministic/replay, isolated runtime and technical checks,
+without claiming full reviewed accuracy or external validation. The known
+replacement detection gap and final technical acceptance await user disposition;
+do not tune that gap before returning the completed audit to the user.
+Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
+unchanged; see `ROADMAP.md` §1 for the scope exception.
 
 - [x] Phase 0 — repo scaffold, incomplete `sentinel scan`, valid report shells and schemas
 - [x] Phase 1 — hybrid static engine, `SENT-001`–`SENT-007`, paired fixtures
@@ -125,7 +130,7 @@ adoption/launch gates remain unchanged; see `ROADMAP.md` §1 for the exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (benchmark-driven technical work next; pilot-dependent completion pending)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (technical checks passed; detection-gap disposition and final acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

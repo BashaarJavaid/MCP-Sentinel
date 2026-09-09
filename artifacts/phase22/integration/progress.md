@@ -2150,3 +2150,27 @@ The capture-update hosted Docker job passes, including onboarding, baseline and
 native/SARIF validation. The full OS/Python quality matrix remains in progress.
 Further paid-reviewed benchmark runs require new explicit approval. Human
 verification and deferred external pilots remain unmet; Phase 22 is incomplete.
+
+### Completed technical audit and revised completion scope
+
+Verified all29 CI jobs passed at ee9721f;12 full suites each2024 passed/36 skipped,
+89.46–89.49% branch coverage. Hosted Docker now passes all demo/onboarding/baseline/
+report steps. All12 wheel jobs, isolation and strict docs pass.484 CI and12 docs log
+members and225 uploaded artifact files were retained/read back; canonical binaries
+match the locally verified capture builds exactly. Pinned historical reproductions
+retain32 completed/13 incomplete cases; they are not current scanner measurements.
+
+Audited all86 requirements against unchanged detector files, historical reference
+and command hashes, current hosted results, approved replacement measurements and
+Meta erratum. All30 previous archive hashes match. No additional failing technical
+gate was found. An initial audit assertion named the historical cost test file
+incorrectly; its exact one-literal diff was inspected and the corrected audit
+passed. Both records remain; no source/test code changed during this audit.
+
+The user deferred396 paid calls for cost and removed external pilots as a Phase22
+completion prerequisite. Current completion relies on deterministic/replay/runtime
+and engineering evidence; neither deferred measurement is counted as passed.
+Phase21 stays incomplete and later adoption/launch gates remain unchanged. The
+known replacement SSRF/computed-registration gap is reserved for user discussion
+after this audit; no detector changes or additional paid calls occurred. Phase22
+is not yet marked complete, pending that disposition and final technical acceptance.

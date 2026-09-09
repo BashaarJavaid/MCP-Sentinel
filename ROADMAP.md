@@ -17,7 +17,7 @@ benchmark-driven technical improvements; Phase 21 recruitment is deferred.**
 Required execution order:
 **16 → 17 → 18 → 19 → 20 → 21 → 22 → 23 → 24 → 15**. Each required phase begins
 after its predecessor's verification gate passes, except for the explicitly
-authorized Phase 22 technical work below. Phase 15 retains existing
+authorized Phase 22 scope and sequencing exception below. Phase 15 retains existing
 publication artifacts but cannot close on distribution evidence alone. Phase
 14 remains deferred and optional. Phases 25 and 26 are separate conditional
 extensions after Phase 24; neither blocks launch, and deterministic sequence
@@ -35,11 +35,15 @@ technical contract and implementation status are in
 [`docs/phase22-technical.md`](docs/phase22-technical.md). Corpus freeze, the exact
 tested Git SDK environment, and paid requests require separate concrete packets
 and user approval. Pilot-driven prioritization waits for participant feedback.
-Phase 21 remains incomplete, and Phase 22 cannot pass its full verification gate
-until the required pilot evidence is available. Author-run scans and benchmark
-improvements do not substitute for external validation. Resume Phase 21 when
-recruitment becomes feasible; all later dependencies and adoption/launch gates
-remain unchanged.
+The user subsequently removed external maintainer pilots as a Phase 22 completion
+prerequisite and deferred the full paid benchmark for cost. Current Phase 22
+completion uses deterministic, recorded-review, isolated runtime and technical
+verification evidence; the unperformed full reviewed comparison is deferred, not
+passed. See `artifacts/phase22/completion-scope-v1/decision.json`. Phase 21 remains
+incomplete. Author-run evidence does not establish external validation. Resume
+pilots when feasible; Phase 24 adoption and Phase 15 launch gates remain unchanged.
+The known replacement detection gap and final technical acceptance remain for
+user disposition after the audit.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.
@@ -1136,10 +1140,10 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Status: technical work in progress; full verification gate pending.** Uses Phase 20's
-benchmark. The sequencing exception in §1 permits bounded technical work before
-Phase 21 completes; pilot-dependent work and full completion still depend on
-Phase 21. The expanded technical scope is user-authorized. Begin with
+**Status: technical checks passed; detection-gap disposition and final technical
+acceptance pending.** Uses Phase 20's benchmark. The revised scope in §1 permits
+Phase 22 completion without Phase 21 pilots or the deferred full paid benchmark.
+Neither deferred measurement is claimed passed. The expanded technical scope is user-authorized. Begin with
 path-containment detection and complete all ten benchmark families, verified
 against independent vulnerable/fixed cases and safe controls.
 
@@ -1246,8 +1250,8 @@ while keeping the supported boundary explicit.
 - Implement the five authorized compatibility areas in §1, including imported
   handlers/schemas, aliases and statically bound helpers/methods, cross-file
   flows, low-level registration/dispatch and declared uv/npm/pnpm workspaces.
-  Pilot-driven prioritization and the pilot compatibility acceptance gate remain
-  pending external feedback; technical completion cannot satisfy that gate.
+  Pilot-driven prioritization remains deferred; it is no longer a Phase 22
+  completion prerequisite under the user-approved scope revision.
 - Add the approved SENT-012–SENT-016 catalog and correct SENT-002 Kubernetes
   execution detection. Correct Helm parsing, measured static repeated work and
   Git startup under the separately approved environment. Follow the detailed
@@ -1266,9 +1270,10 @@ while keeping the supported boundary explicit.
   documented limits, and stable canonical findings with justified OWASP mapping.
 - A multi-tool fixture with a safe alphabetically first tool and a vulnerable
   later tool is tested correctly; budget exhaustion discloses untested surface.
-- A previously blocked pilot repository completes meaningful analysis after the
-  selected compatibility fix. Publish before/after benchmark and completion
-  results, reviewing new false alarms and incorrect suppressions explicitly.
+- Publish before/after independent benchmark and completion results, retaining
+  misses, false alarms, unsupported inputs and known coverage limits. The former
+  blocked-pilot before/after requirement is deferred from Phase 22 by the user;
+  external validation must not be inferred from these benchmark results.
 - Existing supported fixtures and migrated reports remain valid. Unimplemented
   compatibility requests stay documented rather than silently counted as covered.
 
