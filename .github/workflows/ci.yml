@@ -235,6 +235,17 @@ jobs:
           rm "${{ runner.temp }}/onboarding-target/sentinel.permissions.yaml"
           cd "${{ runner.temp }}/onboarding-target"
           sentinel init --dynamic
+          # The fixture needs semantically valid inputs beyond its JSON schema.
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import yaml
+          target = Path("sentinel.target.yaml")
+          configuration = yaml.safe_load(target.read_text())
+          reference = Path(os.environ["GITHUB_WORKSPACE"]) / "tests/fixtures/clean_server/sentinel.target.yaml"
+          configuration["probe_baselines"] = yaml.safe_load(reference.read_text())["probe_baselines"]
+          target.write_text(yaml.safe_dump(configuration, sort_keys=False))
+          PY
           sentinel scan .
 
       - name: Exercise installed-wheel full baseline workflow

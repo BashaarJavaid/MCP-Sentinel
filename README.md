@@ -65,6 +65,9 @@ For Python runtime scaffolding, run `sentinel init --dynamic`, then
 and validates an existing permissions file. Dynamic scans require Docker,
 model credentials, source-context transmission, and model cost; dependency
 installation also needs network access. TypeScript does not support `--dynamic`.
+If generated arguments cannot complete a legitimate tool call, add known valid
+[`probe_baselines`](docs/configuration.md#dynamic-outcomes-and-valid-examples) to
+`sentinel.target.yaml`; an unsuccessful baseline leaves analysis incomplete.
 
 Exit `0` and exit `1` both mean the scan completed: `0` means no finding reached
 the configured threshold, while `1` means at least one did. Exit `2` is a target

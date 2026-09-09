@@ -123,6 +123,12 @@ and incidental logs do not invalidate otherwise identical proof.
 
 Provide complete legitimate argument objects in `sentinel.target.yaml`:
 
+`sentinel init --dynamic` leaves these examples empty. Generated schema-valid
+arguments may still be invalid for the application: a calculator can accept
+strings while requiring a valid expression. Supply known valid examples when
+baseline calls fail; Sentinel reports incomplete analysis rather than treating
+those failed baselines as defenses.
+
 ```yaml
 probe_baselines:
   reader:
