@@ -98,17 +98,6 @@ class HTTPRegistrationFlow(TypeScriptPathFlow):
         self.factory = factory
         self.found: list[TypeScriptHTTPBinding] = []
 
-    def registered(
-        self,
-        file: TypeScriptSourceFile,
-        node: dict[str, Any],
-        args: list[Value],
-        env: dict[str, Value],
-    ) -> None:
-        # MCP registration does not invoke its callback during HTTP startup.
-        # Tool discovery and rule analysis handle these callbacks separately.
-        pass
-
     def http_registered(
         self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
     ) -> None:

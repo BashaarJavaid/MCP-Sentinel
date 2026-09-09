@@ -77,6 +77,7 @@ class TypeScriptPathFlow:
             str, tuple[TypeScriptSymbol, tuple[Value, ...], Value, Value]
         ] = {}
         self.http_depth = 0
+        self.http_entry = False
         self.call_sites: list[TypeScriptSymbol] = []
         self.normal_exits: list[list[dict[str, Value]]] = []
         self.function_effects: Facts = frozenset()
@@ -1577,6 +1578,8 @@ class TypeScriptPathFlow:
         args: list[Value],
         env: dict[str, Value],
     ) -> None:
+        if self.http_entry:
+            return
         if len(args) != 3:
             self.warning(file, node, "unsupported registration arguments")
             return
@@ -1624,6 +1627,9 @@ class TypeScriptPathFlow:
         self.http_routes.append((file, node, args))
 
     def http_initialize(self, initializer: TypeScriptSymbol) -> None:
+        # Each HTTP entry gets a separate flow. MCP registration does not invoke
+        # its callback here; analyze() handles tool entries in their own flow.
+        self.http_entry = True
         start = len(self.http_routes)
         if initializer.function is not None:
             self.function(initializer, [])

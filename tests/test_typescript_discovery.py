@@ -40,6 +40,38 @@ def test_http_discovery_distinguishes_registered_and_called_tool(
     assert [tool.name for tool in program.tools()] == ["tool"]
 
 
+def test_http_rule_entry_does_not_repeat_registered_mcp_callback(
+    tmp_path: Path,
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+
+    source = (
+        'import express from "express";\n'
+        'import fs from "node:fs/promises";\n'
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        "export function create() {\n"
+        " const app=express();\n"
+        ' const server=new McpServer({name:"test",version:"1"});\n'
+        ' server.registerTool("read", {inputSchema:{}}, '
+        "(args)=>fs.readFile(args.path));\n"
+        ' app.post("/health", (req,res)=>res.send("ok"));\n'
+        " return app;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    file = TypeScriptSourceFile(path, path.name, source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    factory = program.resolve(file, "create")
+    assert factory is not None
+    http_state = RuleRunState()
+    TypeScriptPathFlow(program, http_state).http_initialize(factory)
+    assert not http_state.matches
+    tool_state = RuleRunState()
+    analyze(program, tool_state)
+    assert len(tool_state.matches) == 1
+
+
 def test_imported_reexported_handler_and_schema(tmp_path: Path) -> None:
     sources = {
         "server.ts": 'import { load, schema } from "./barrel.js";\n'
