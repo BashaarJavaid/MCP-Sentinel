@@ -50,6 +50,8 @@ class CredentialFlow(PathFlow):
         self.environment_text: dict[str, tuple[str, str]] = {}
         self.operator_predicates: dict[str, tuple[str, bool]] = {}
         self.basic_auth_fields: dict[str, tuple[str, ...]] = {}
+        # Index names only; guard values always come from the current branch.
+        self.credential_markers: set[str] = set()
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         if not bindings.get("#credential:http", UNKNOWN_VALUE).contained and any(
@@ -64,11 +66,12 @@ class CredentialFlow(PathFlow):
         return super().function(symbol, bindings)
 
     def conditioned_credential(self, value: Value, env: dict[str, Value]) -> Value:
-        if not value.operator_credential:
+        if not value.operator_credential or not self.credential_markers:
             return value
+        conditions = {name: env[name] for name in self.credential_markers & env.keys()}
         absent = [
             current
-            for name, current in env.items()
+            for name, current in conditions.items()
             if name.startswith(("#absent:", "#credential:excluded:"))
             and current.contained
             and any(source.startswith("http:") for source in current.sources)
@@ -84,7 +87,7 @@ class CredentialFlow(PathFlow):
             )
         settings = {
             name.removeprefix("#credential:opt-in:"): current
-            for name, current in env.items()
+            for name, current in conditions.items()
             if name.startswith("#credential:opt-in:") and current.contained
         }
         if settings:
@@ -149,21 +152,16 @@ class CredentialFlow(PathFlow):
         super().merge(env, branches)
         if http:
             env["#credential:http"] = Value(contained=True)
-        for name in env:
-            if name.startswith(
-                ("#absent:", "#credential:excluded:", "#credential:opt-in:")
-            ):
-                first = branches[0].get(name, empty) if branches else empty
-                if all(branch.get(name, empty) is first for branch in branches[1:]):
-                    env[name] = first
-                    continue
-                env[name] = (
-                    replace(
-                        combine([branch[name] for branch in branches]), contained=True
-                    )
-                    if all(branch.get(name, empty).contained for branch in branches)
-                    else empty
-                )
+        for name in self.credential_markers & env.keys():
+            first = branches[0].get(name, empty) if branches else empty
+            if all(branch.get(name, empty) is first for branch in branches[1:]):
+                env[name] = first
+                continue
+            env[name] = (
+                replace(combine([branch[name] for branch in branches]), contained=True)
+                if all(branch.get(name, empty).contained for branch in branches)
+                else empty
+            )
 
     def guard(
         self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
@@ -196,14 +194,18 @@ class CredentialFlow(PathFlow):
         http_input = any(source.startswith("http:") for source in value.sources)
         predicate = self.operator_predicates.get(value.key)
         if predicate is not None and truth != predicate[1]:
-            env["#credential:opt-in:" + predicate[0]] = Value(
+            marker = "#credential:opt-in:" + predicate[0]
+            self.credential_markers.add(marker)
+            env[marker] = Value(
                 contained=True,
                 locations=value.locations
                 | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
             )
         if not isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
             if not truth and http_input:
-                env["#credential:excluded:" + value.key] = replace(
+                marker = "#credential:excluded:" + value.key
+                self.credential_markers.add(marker)
+                env[marker] = replace(
                     value,
                     contained=True,
                     locations=value.locations
@@ -212,7 +214,9 @@ class CredentialFlow(PathFlow):
             return
         if http_input:
             if not truth:
-                env["#absent:" + value.key] = replace(
+                marker = "#absent:" + value.key
+                self.credential_markers.add(marker)
+                env[marker] = replace(
                     value,
                     contained=True,
                     locations=value.locations

@@ -1,5 +1,52 @@
 # Integration progress — not technical acceptance
 
+## Measured credential traversal optimization
+
+The controlled `c233521` baseline completes all six previously slow Atlassian
+inputs in 92.941–112.641 seconds. Native static time is 87.680–106.750 seconds;
+worker-inclusive CPU is 177.149–219.482 seconds. Resource snapshots retain CPU,
+memory/swap, disk, load and process observations. No other agent-owned scan,
+build, test or profile ran concurrently. Other desktop activity remains visible;
+the observations do not prove the cause of earlier timing failures.
+
+The SENT-015 production component profile completes in 86.240 seconds with
+profiling enabled. The SENT-016 profile reaches the unchanged 120-second limit
+and remains explicitly incomplete. Its partial profile attributes 39.893 seconds
+to 931,927 `conditioned_credential` calls repeatedly filtering local bindings.
+The targeted change indexes only guard-marker names and reads facts from each
+current branch. It adds no worker, cache-size or deadline increase. All three
+new late-guard controls pass before the change; the affected credential/state/
+worker selection passes 524 tests afterward. Strict mypy and lint pass.
+Native before/after report equivalence and timing improvement remain to measure.
+
+## Native exposed SSRF gate at c233521
+
+Both five-input production rules-only batches complete on immutable `c233521`.
+Each detects both correlated vulnerable variants and has zero condition-matched
+alerts on the two fixed variants and public-IP control. End-to-end times range
+from 55.450 to 64.049 seconds, within the unchanged 120-second limit. No supplied
+runtime binding, paid review or target execution is used. The original frozen
+0/2 results remain unchanged; these are exposed regressions, not fresh accuracy.
+
+`v4-exposed-ssrf-assessment/packet.json` binds every finding and coverage change
+to retained source. All 70 canonical authentication findings are unchanged.
+Seventeen additional SSRF instances comprise four named initial web requests
+across the correlated variants and thirteen outside-condition CSDN, Juejin or
+cookie-retry warnings. Their separate security validity remains unvalidated.
+Each report retains 13 recognized and 87 unresolved contexts (previously 13/27):
+startup reaches additional CLI/test dispatch paths, not 60 new distinct tools.
+Every added/removed warning and coverage record is retained and source-bound.
+Both passes match findings, coverage, warnings, summary and nonvolatile metadata.
+
+The fixed predicate source diagnostic recognizes the enforced literal-host check;
+its injected `axiosRequestImpl` still has unresolved replacement paths. Native
+silence is not claimed as proof of DNS, redirect or runtime protection. Compatible
+pinned comparator measurements remain explicitly reused, with harness/input
+identities checked. Final timing, full measurements/quality/hosted checks, fresh
+freeze approval/evaluation, evidence delivery and human acceptance remain open.
+The authorized controlled timing baseline now measures six previously slow
+Atlassian inputs sequentially with resource snapshots and child-inclusive CPU.
+
 ## Final continuation: startup and default dependency checkpoint
 
 The user-authorized final continuation starts at `c2d1577`. The only initial

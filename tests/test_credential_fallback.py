@@ -12,6 +12,48 @@ from tests.conftest import NOW, make_target
 
 
 @pytest.mark.parametrize(
+    ("guard", "expected", "conditional"),
+    [
+        ("", 1, False),
+        (
+            "if not opted_in(): raise ValueError('refuse fallback')",
+            1,
+            True,
+        ),
+        ("raise ValueError('missing caller credential')", 0, False),
+    ],
+)
+def test_credential_read_before_later_caller_and_operator_guards(
+    tmp_path: Path, guard: str, expected: int, conditional: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from atlassian import Jira as Service\nimport os\nmcp=FastMCP('test')\n"
+        "def opted_in(): return os.getenv('ALLOW_FALLBACK', '').lower() in ('true',)\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    request=get_http_request()\n"
+        "    owner=os.getenv('OWNER')\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if token: return Service(token=token)\n"
+        f"    {guard or 'pass'}\n"
+        "    return Service(token=owner)\n"
+        "def main(): mcp.run(transport='streamable-http')\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == expected
+    if findings:
+        assert (
+            "declared default for ALLOW_FALLBACK" in findings[0].description
+        ) is conditional
+
+
+@pytest.mark.parametrize(
     "selection",
     [
         "token = token || process.env.OPERATOR_TOKEN;",
