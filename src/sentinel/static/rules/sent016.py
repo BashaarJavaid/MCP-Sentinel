@@ -75,14 +75,7 @@ class CredentialFlow(PathFlow):
             if (current := env[name]).contained
             and any(source.startswith("http:") for source in current.sources)
         ]
-        if absent and (
-            not value.credential_fallback
-            or any(
-                not current.sources <= value.sources
-                or not current.locations <= value.locations
-                for current in absent
-            )
-        ):
+        if absent:
             value = replace(
                 value,
                 sources=value.sources
@@ -96,13 +89,7 @@ class CredentialFlow(PathFlow):
             for name in self.opt_in_markers & env.keys()
             if (current := env[name]).contained
         }
-        if settings and (
-            not settings.keys() <= value.operator_opt_in
-            or any(
-                not current.locations <= value.locations
-                for current in settings.values()
-            )
-        ):
+        if settings:
             value = replace(
                 value,
                 operator_opt_in=value.operator_opt_in | frozenset(settings),

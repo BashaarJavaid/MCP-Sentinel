@@ -2558,3 +2558,21 @@ Afterward, all **781** credential, Python-state, SSRF and worker regressions,
 strict mypy, lint and format checks pass. The upcoming six-case native comparison
 will measure throughput and full-report equivalence; no native speedup or final
 gate pass is inferred from these unit checks.
+
+The `3cbc329` copy-skipping experiment fails its bounded six-case native check:
+only two complete (upload fixed mutation 91.740s and authentication fixed mutation
+113.980s), both slower than their retained controlled observations. The vulnerable
+upload mutation, upload fixed original, download-path control and authentication
+fixed original all time out at 120.158–120.379s. The final comparison helper also
+fails because it assumes a report exists for every input; raw six-case outcomes,
+resource/CPU records and the missing reports remain preserved. This does not
+establish a native improvement despite the profile's repeated-copy count.
+
+The copy-skipping optimization is therefore removed, preserving its commit,
+regression tests, diagnostics and failed measurements. Every implementation byte
+under `src/` is restored exactly to `e87b7c9`. The additional repeated-read guard
+controls remain. No further local full historical retries are authorized by
+success pooling: the strict timing gate remains unmet. A concrete bounded runner
+option will be prepared for the genuine execution decision required by final
+prompt §4. Other final quality, measurement, evidence and delivery work remains
+authorized; fresh freeze and human acceptance are still separate checkpoints.
