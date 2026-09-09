@@ -5,6 +5,22 @@ verified increments from remaining implementation and acceptance work. Phase 21
 recruitment remains deferred, and the external pilot gate remains unmet. The
 [approved contract](phase22-technical.md) continues to govern scope.
 
+The first historical run at `8bcaded` completes 45/45 inputs and source
+adjudication detects all 20 vulnerable input conditions. Its conservative scoring
+also records three Excel fixed/control false alarms: a parent-directory warning
+lost the distinction from the already checked requested filename. That failed
+gate is preserved. The second run completes 43/45, with timeouts on the fixed
+Atlassian upload mutation and vulnerable Mobile original; all 43 completed
+reports match their first-run stable content. Repeatability has not passed.
+A separate ledger assesses all 1,484 new unrelated instances,
+including explicit uncertainty, and preserves the 70 original unadjudicated
+instances unchanged. These counts do not establish overall precision or
+independent human acceptance. `6be3344` retains original-path checks on visible parent
+access, and `dcb965f` reuses immutable TypeScript merge values. Together they pass
+996 shared regressions, strict typing, style/format and strict docs; native
+remeasurement and final verification remain required. Evidence batch 25 preserves
+the commands, failures, source identities and ledger.
+
 The latest immutable full milestone is `7071a26`: 1,959 passed, 36 skipped,
 89.41% branch coverage, with passing quality, build, audit and installed distribution
 checks. Linux network-none wheel isolation and installed onboarding/baseline checks

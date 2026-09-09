@@ -413,3 +413,38 @@ remain preserved. The immutable checkout is
 is prepared with the unchanged 120-second budget. The fresh holdout is still
 unopened. Meta's fixed-condition decision, paid review, hosted verification,
 human acceptance and deferred external pilot gates remain separate and open.
+
+
+### Historical scoring and parent evidence through dcb965f
+
+At immutable `8bcaded`, the first historical run completes 45/45 and source
+adjudication detects all 20 vulnerable conditions. Three Excel fixed/control
+parent-directory findings are conservatively scored as false alarms because
+reported transport evidence did not retain the check on the requested filename.
+The second run completes 43/45: the fixed Atlassian upload mutation and vulnerable
+Mobile original time out at the unchanged 120-second deadline. All 43 completed
+stable reports match the first run. These failures remain preserved; repeatability
+and the zero-condition-false-alarm gate have not passed at that source.
+
+`v2-historical-unrelated-ledger-8bcaded/packet.json` records all 1,484 new unrelated
+instances, including explicit framework, parser and policy uncertainties. The
+70 historical unrelated instances keep their original unadjudicated decisions.
+The three Excel warnings stay in the condition score, not this unrelated ledger.
+These are correlated warning occurrences and implementation-agent assessments,
+not independent human acceptance or a measure of overall precision.
+
+`6be3344` preserves original-path checks on visible, unresolved parent access,
+including per-transport qualification that requires every observed alternative.
+`dcb965f` reuses immutable TypeScript merge values and their existing metadata;
+the retained Mobile profile covers byte-identical TypeScript source before this
+change. Together they pass 996 shared regressions, strict 146-file typing,
+lint/format and strict docs. Original counterexample and ledger-script failures
+remain. Native remeasurement and final verification remain required.
+
+Batch 25 retains 396 completed new/changed files (323,987,859 raw bytes), with
+archive SHA-256 `e9df7b19f3a5e92da4f2674bea990a61dc10f42c7424d7351e9dde4dc02015b4`.
+Every member was read back and hashed. Both stopped full-suite waiting queues
+remain recorded; neither started a suite. The corrected immutable checkout is
+`/private/tmp/mcp-phase22-verify-v2-parent-evidence`. Fresh holdout remains
+unopened; Meta's fixed-condition decision, paid review, hosted verification,
+human acceptance and deferred external pilot gates remain open.
