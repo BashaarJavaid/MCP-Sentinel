@@ -390,3 +390,26 @@ After verifying batch 13, extract `evidence-v14.tar.gz` and verify against
 The active `continuation-upload-native-18e` command and `upload-native-18e/`
 directory are excluded until finished. Earlier seals, original recovery, detached
 checkouts and coverage databases remain unchanged.
+
+
+### Prepared-client qualification correction at 8bcaded
+
+`8bcaded` preserves the caller-absence selection and required operator setting
+through helper returns, prepared configuration and stored credential fields.
+It reuses shared Atlassian client/session construction without evaluating arguments
+twice and follows source-defined `get` methods. Original failures remain retained.
+The shared controls passed 995 tests before the final sink-only correction; the
+final credential/HTTP run passed 407 tests, with strict typing, style/format and
+docs passing. The full fixed-source SENT-016 diagnostic completed and all six
+visible candidates now retain the `ALLOW_GLOBAL_CRED_FALLBACK` default qualifier,
+including the two downstream request findings. This is source evidence, not
+runtime proof or the final all-rule condition gate.
+
+Batch 24 retains 235 completed new/changed files (23,442,399 raw bytes); archive
+SHA-256 `efd494495167c814cb4af3706a6e5c30d9d06f86967b8efc7e3c8143067b3a25`.
+Every member was read back and hashed. All previous seals, failures and worktrees
+remain preserved. The immutable checkout is
+`/private/tmp/mcp-phase22-verify-v2-prepared-clients`; its historical repeat pair
+is prepared with the unchanged 120-second budget. The fresh holdout is still
+unopened. Meta's fixed-condition decision, paid review, hosted verification,
+human acceptance and deferred external pilot gates remain separate and open.
