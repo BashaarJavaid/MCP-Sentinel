@@ -1553,3 +1553,174 @@ def test_exception_paths_do_not_cross_credential_selection_branches(
         root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
     )
     assert not run_static_scan(config, uuid4(), timestamp=NOW).findings
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("unguarded_alternative", [False, True])
+def test_returned_client_retains_operator_selection_condition(
+    tmp_path: Path, guarded: bool, unguarded_alternative: bool
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\nimport os, requests\napp=FastAPI()\n"
+        "class Client:\n"
+        "    def __init__(self, token): self.token=token\n"
+        "    def get(self):\n"
+        "        return requests.get('https://api.example.com', "
+        "headers={'Authorization': self.token})\n"
+        "def select(request):\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if token: return Client(token)\n"
+        + (
+            "    if request.headers.get('Other'): return Client(os.getenv('OTHER'))\n"
+            if unguarded_alternative
+            else ""
+        )
+        + (
+            "    if os.getenv('ALLOW_FALLBACK', '').lower() not in ('true',):\n"
+            "        raise ValueError('refuse fallback')\n"
+            if guarded
+            else ""
+        )
+        + "    return Client(os.getenv('OWNER'))\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    client=select(request)\n    return client.get()\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+    assert ("declared default for ALLOW_FALLBACK" in findings[0].description) is (
+        guarded and not unguarded_alternative
+    )
+
+
+@pytest.mark.parametrize("client", ["Jira", "Confluence"])
+def test_service_session_identity_is_shared_with_credential_flow(
+    tmp_path: Path, client: str
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from fastapi import FastAPI, Request\n"
+        f"from atlassian import {client}\n"
+        "import os\napp=FastAPI()\n"
+        "@app.get('/data')\ndef fetch(request: Request):\n"
+        "    token=request.headers.get('Authorization') or os.getenv('OWNER')\n"
+        f"    service={client}(url='https://api.example.com')\n"
+        "    return service._session.get(request.query_params.get('url'), "
+        "headers={'Authorization': token})\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root,
+        environ={},
+        static_only=True,
+        cli_overrides={"rules": ["SENT-015", "SENT-016"]},
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert {finding.rule_id for finding in findings} == {"SENT-015", "SENT-016"}
+    assert len(findings) == 2
+
+
+@pytest.mark.parametrize("client", ["Jira", "Confluence"])
+def test_service_constructor_arguments_are_evaluated_once(
+    monkeypatch: pytest.MonkeyPatch, client: str
+) -> None:
+    import time
+
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent012 import analyze
+    from sentinel.static.rules.sent016 import CredentialFlow
+    from tests.test_python_discovery import program
+
+    calls = []
+    original = CredentialFlow.function
+
+    def traced(
+        self: CredentialFlow, symbol: Symbol, bindings: dict[str, Value]
+    ) -> Value:
+        if symbol.name == "prepare":
+            calls.append(symbol)
+        return original(self, symbol, bindings)
+
+    monkeypatch.setattr(CredentialFlow, "function", traced)
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            f"from atlassian import {client}\n"
+            "mcp=FastMCP('test')\n"
+            "def prepare(value): return value\n"
+            "@mcp.tool()\ndef fetch(token: str):\n"
+            f"    return {client}(prepare('https://api.example.com'), "
+            "token=prepare(token))\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state, flow=CredentialFlow(index, state, time.monotonic() + 20))
+    assert len(calls) == 2
+
+
+@pytest.mark.parametrize("extra_absence", [False, True])
+@pytest.mark.parametrize("mutated", [False, True])
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("unguarded_alternative", [False, True])
+def test_returned_client_retains_preexisting_config_selection(
+    tmp_path: Path,
+    guarded: bool,
+    unguarded_alternative: bool,
+    mutated: bool,
+    extra_absence: bool,
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from mcp.server.fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "import os, requests\nmcp=FastMCP('test')\n"
+        "class Config:\n    def __init__(self, token): self.token=token\n"
+        "class Client:\n    def __init__(self, config): self.config=config\n"
+        "    def get(self):\n"
+        "        return requests.get('https://api.example.com', "
+        "headers={'Authorization': self.config.token})\n"
+        "def main():\n    global OWNER, OTHER\n"
+        "    OWNER=Config(os.getenv('OWNER'))\n"
+        "    OTHER=Config(os.getenv('OTHER'))\n"
+        "    mcp.run(transport='streamable-http')\n"
+        "def select(request):\n"
+        "    token=request.headers.get('Authorization')\n"
+        "    if token: return Client(Config(token))\n"
+        + (
+            "    if request.headers.get('Other'): return Client(OTHER)\n"
+            if unguarded_alternative
+            else ""
+        )
+        + (
+            "    if os.getenv('ALLOW_FALLBACK', '').lower() not in ('true',):\n"
+            "        raise ValueError('refuse fallback')\n"
+            if guarded
+            else ""
+        )
+        + "    return Client(OWNER)\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    client=select(get_http_request())\n"
+        + ("    unknown(client.config)\n" if mutated else "")
+        + (
+            "    other=get_http_request().headers.get('Other') or os.getenv('OTHER')\n"
+            "    if other: return None\n"
+            if extra_absence
+            else ""
+        )
+        + "    return client.get()\n",
+        encoding="utf-8",
+    )
+    config = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-016"]}
+    )
+    findings = run_static_scan(config, uuid4(), timestamp=NOW).findings
+    assert len(findings) == 1
+    assert ("declared default for ALLOW_FALLBACK" in findings[0].description) is (
+        guarded and not unguarded_alternative and not mutated
+    )

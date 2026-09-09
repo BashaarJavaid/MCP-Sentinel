@@ -462,8 +462,12 @@ fallback with the setting whose declared default would reject that path. The
 candidate remains visible: the effective environment and intended authorization
 policy still require review. Ignored checks, optional helper returns, replaced
 predicates and a shared sink with an unqualified path do not establish that
-qualification. Enforced literal allowlists retain possible string choices across
-helpers. Known assigned fields remain present even when their values are unknown;
+qualification. Returned clients and credential fields retain the conditions under
+which operator credentials were selected. An unguarded operator alternative removes
+the qualification; unknown mutation cannot preserve it. This includes selecting
+configuration initialized at startup; unrelated absence checks do not erase the
+selected credential’s condition. Enforced literal allowlists retain possible
+string choices across helpers. Known assigned fields remain present even when their values are unknown;
 repeated lifespan analysis does not make declared dataclass fields optional.
 The exposed Atlassian authentication pair and its helper-renaming mutations
 completed at `34220b7`, with two vulnerable condition hits and no fixed-condition

@@ -1132,3 +1132,27 @@ def test_python_low_level_dispatch_reaches_imported_guard_and_sink(
     if state.matches:
         assert state.matches[0].path == "handler.py"
         assert state.matches[0].range.start_line == 6
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_source_get_method_uses_its_body(guarded: bool) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from pathlib import Path\n"
+                "class Reader:\n"
+                "    def __init__(self, path): self.path=path\n"
+                "    def get(self):\n        target=Path(self.path).resolve()\n"
+                + (
+                    "        target.relative_to(Path('/srv/data').resolve())\n"
+                    if guarded
+                    else ""
+                )
+                + "        return target.read_text()\n"
+                "@mcp.tool()\ndef read(path): return Reader(path).get()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == (not guarded)

@@ -401,6 +401,16 @@ retain aliases. Known Basic Auth fields retain credential provenance and overrid
 Authorization headers only when that authentication is definitely selected. Aiohttp default auth also respects a known base origin;
 combined auth and Authorization headers are disclosed as an invalid request.
 Custom authentication hooks remain unresolved.
+Credential values retain the absent-caller selection and required operator opt-in
+through helper arguments, returned clients and stored fields. Combining values
+keeps an opt-in only when every contributing operator credential requires it;
+caller-owned alternatives do not erase it. Unknown mutation clears this value
+qualification. Source-defined `get` methods follow their included bodies rather
+than the mapping lookup path. Credential checks at Atlassian constructors reuse
+shared client/session construction and its already evaluated arguments. Startup
+configuration retains the condition on the selected object when its credential
+fields are later read. Absence markers add caller evidence without contributing
+a second credential alternative.
 
 SENT-015 also tracks the current base URL on genuine Atlassian Jira/Confluence
 clients at supported REST requests and Jira `myself()`. A constructor alone is

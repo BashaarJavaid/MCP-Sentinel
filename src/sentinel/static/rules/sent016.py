@@ -58,7 +58,59 @@ class CredentialFlow(PathFlow):
             for source in value.sources
         ):
             bindings["#credential:http"] = Value(contained=True)
+        for name, value in bindings.items():
+            if value.operator_credential:
+                bindings[name] = self.conditioned_credential(value, bindings)
         return super().function(symbol, bindings)
+
+    def conditioned_credential(self, value: Value, env: dict[str, Value]) -> Value:
+        if not value.operator_credential:
+            return value
+        absent = [
+            current
+            for name, current in env.items()
+            if name.startswith(("#absent:", "#credential:excluded:"))
+            and current.contained
+            and any(source.startswith("http:") for source in current.sources)
+        ]
+        if absent:
+            value = replace(
+                value,
+                sources=value.sources
+                | frozenset().union(*(item.sources for item in absent)),
+                locations=value.locations
+                | frozenset().union(*(item.locations for item in absent)),
+                credential_fallback=True,
+            )
+        settings = {
+            name.removeprefix("#credential:opt-in:"): current
+            for name, current in env.items()
+            if name.startswith("#credential:opt-in:") and current.contained
+        }
+        if settings:
+            value = replace(
+                value,
+                operator_opt_in=value.operator_opt_in | frozenset(settings),
+                locations=value.locations
+                | frozenset().union(
+                    *(current.locations for current in settings.values())
+                ),
+            )
+        return value
+
+    def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
+        result = super().member(value, member, env)
+        if (
+            result.operator_credential
+            and value.operator_opt_in
+            and "#member:unknown:" + value.key not in env
+        ):
+            result = replace(
+                result,
+                operator_opt_in=result.operator_opt_in | value.operator_opt_in,
+                locations=result.locations | value.locations,
+            )
+        return result
 
     def external(self, symbol: Symbol, node: ast.AST, env: dict[str, Value]) -> str:
         name = qualified_name(node) or ""
@@ -178,7 +230,7 @@ class CredentialFlow(PathFlow):
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
     ) -> Value:
-        result = self._expression(symbol, node, env)
+        result = self.conditioned_credential(self._expression(symbol, node, env), env)
         if node is not None:
             self.evaluated[node] = result
         if isinstance(node, ast.Compare) and len(node.ops) == 1:
@@ -336,11 +388,21 @@ class CredentialFlow(PathFlow):
                 )
             }
         ):
+            # Shared construction retains the client/session identity and evaluates
+            # arguments once. Reuse those values for the credential sink check.
+            constructed = super().call(symbol, node, env) if service_client else None
             arguments = [
-                self.expression(symbol, argument, env) for argument in node.args
+                self.evaluated.get(argument, UNKNOWN_VALUE)
+                if service_client
+                else self.expression(symbol, argument, env)
+                for argument in node.args
             ]
             keywords = {
-                keyword.arg: self.expression(symbol, keyword.value, env)
+                keyword.arg: (
+                    self.evaluated.get(keyword.value, UNKNOWN_VALUE)
+                    if service_client
+                    else self.expression(symbol, keyword.value, env)
+                )
                 for keyword in node.keywords
             }
             credentials: list[Value] = []
@@ -478,23 +540,11 @@ class CredentialFlow(PathFlow):
                         if name.lower()
                         in {"authorization", "x-api-key", "access_token", "api_key"}
                     )
-            absent = combine(
-                [
-                    value
-                    for key, value in env.items()
-                    if key.startswith(("#absent:", "#credential:excluded:"))
-                    and value.contained
-                ]
-            )
+            conditioned = [
+                self.conditioned_credential(value, env) for value in credentials
+            ]
             crossing = combine(
-                [
-                    replace(combine([value, absent]), credential_fallback=True)
-                    if value.operator_credential and absent.sources
-                    else value
-                    for value in credentials
-                    if value.credential_fallback
-                    or (value.operator_credential and absent.sources)
-                ]
+                [value for value in conditioned if value.credential_fallback]
             )
             if crossing.credential_fallback and any(
                 source.startswith("http:") for source in crossing.sources
@@ -504,6 +554,7 @@ class CredentialFlow(PathFlow):
                     for key, value in env.items()
                     if key.startswith("#credential:opt-in:") and value.contained
                 }
+                setting_names = settings.keys() | crossing.operator_opt_in
                 locations = crossing.locations | frozenset().union(
                     *(value.locations for value in settings.values())
                 )
@@ -517,10 +568,10 @@ class CredentialFlow(PathFlow):
                             **(
                                 {
                                     "credential_operator_opt_in": json.dumps(
-                                        sorted(settings)
+                                        sorted(setting_names)
                                     )
                                 }
-                                if settings
+                                if setting_names
                                 else {}
                             ),
                             "flow_locations": json.dumps(
@@ -532,7 +583,7 @@ class CredentialFlow(PathFlow):
                         },
                     )
                 )
-            return UNKNOWN_VALUE
+            return constructed if constructed is not None else UNKNOWN_VALUE
         result = super().call(symbol, node, env)
         if (
             method == "get"

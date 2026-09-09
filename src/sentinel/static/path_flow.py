@@ -40,6 +40,7 @@ class Value:
     credential_present: bool = False
     maybe_missing: bool = False
     maybe_none: bool = False
+    operator_opt_in: frozenset[str] = frozenset()
 
     def __deepcopy__(self, memo: dict[int, object]) -> Value:
         return self
@@ -109,8 +110,16 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
             left.credential_present and right.credential_present,
             left.maybe_missing or right.maybe_missing,
             left.maybe_none or right.maybe_none,
+            left.operator_opt_in & right.operator_opt_in
+            if left.operator_credential and right.operator_credential
+            else left.operator_opt_in
+            if left.operator_credential
+            else right.operator_opt_in
+            if right.operator_credential
+            else frozenset(),
         )
     tainted = [v for v in values if v.sources]
+    operators = [v for v in values if v.operator_credential]
     keys = sorted({v.key for v in values})
     return Value(
         union(v.sources for v in values),
@@ -127,11 +136,14 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
         frozenset.intersection(*(v.url_checks for v in tainted))
         if tainted
         else frozenset(),
-        any(v.operator_credential for v in values),
+        bool(operators),
         any(v.credential_fallback for v in values),
         bool(values) and all(v.credential_present for v in values),
         any(v.maybe_missing for v in values),
         any(v.maybe_none for v in values),
+        frozenset.intersection(*(v.operator_opt_in for v in operators))
+        if operators
+        else frozenset(),
     )
 
 
@@ -2534,7 +2546,10 @@ class PathFlow:
             "remove",
         }:
             return UNKNOWN_VALUE
-        if method == "get" and (receiver.sources or receiver.key in self.mapping_keys):
+        if method == "get" and (
+            receiver.key in self.mapping_keys
+            or (receiver.sources and receiver.instance is None)
+        ):
             label = member_label(args[0]) if args else UNKNOWN_MEMBER
             if label is not UNKNOWN_MEMBER:
                 member = self.member(receiver, label, env)
@@ -3031,6 +3046,7 @@ class PathFlow:
                 url_checks=frozenset(),
                 credential_present=False,
                 instance=None,
+                operator_opt_in=frozenset(),
             )
             for owner in escaped:
                 for marker in self.members.get(owner, {}).values():
@@ -3042,6 +3058,7 @@ class PathFlow:
                             url_checks=frozenset(),
                             credential_present=False,
                             instance=None,
+                            operator_opt_in=frozenset(),
                             maybe_missing=True,
                         )
                 env["#member:unknown:" + owner] = changed
@@ -3066,4 +3083,5 @@ class PathFlow:
             option_safe=False,
             url_checks=frozenset(),
             credential_present=False,
+            operator_opt_in=frozenset(),
         )
