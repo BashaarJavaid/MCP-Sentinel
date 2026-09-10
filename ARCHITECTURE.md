@@ -1,5 +1,22 @@
 # PortunusMCP Sentinel Architecture
 
+## Bounded TypeScript URL guard evidence
+
+The TypeScript flow follows source-bound low-level `CallToolRequestSchema`
+handlers through factory-created `Server` instances and `McpServer.server`
+aliases, including the parser's optional else branch. Replaced or escaped
+receivers lose that binding.
+
+SENT-015 can qualify a broader SSRF candidate with narrow source-established
+literal loopback IPv4 rejection. Local hostname prefix checks and `net.isIP`
+comparisons preserve the actual URL identity. A default-only qualifier requires
+every normal guard exit either to enforce that check or to require an unshadowed,
+unmutated `process.env` option explicitly compared to `"true"`. Missing hardening
+options, unknown conditions, URL replacement and environment mutation cannot
+establish this protection. The scanner does not read the target environment or
+suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
+unestablished; this is source analysis, not runtime proof.
+
 ## 1. Purpose and status
 
 This document is the approved architecture baseline for PortunusMCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.

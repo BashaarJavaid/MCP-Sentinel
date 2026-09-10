@@ -1420,11 +1420,49 @@ def test_base_http_dispatch_continuation_and_replacement(
     assert len(findings) == (1 if custom_call or replacement else expected)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Local IPv4 prefix guards lack narrowly scoped URL facts",
+@pytest.mark.parametrize(
+    ("bypass", "scope"),
+    [
+        ("", "loopback-ipv4"),
+        ("if (enabled(process.env.ALLOW_PRIVATE)) return;", "loopback-ipv4-default"),
+        ("if (!enabled(process.env.HARDEN)) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE) || "
+            "!enabled(process.env.HARDEN)) return;",
+            None,
+        ),
+        ("if (enabled(unknown)) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE) && unknown) return;",
+            "loopback-ipv4-default",
+        ),
+        ("if (enabled(process.env.ALLOW_PRIVATE) || unknown) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE)) { unknown(); return; }",
+            "loopback-ipv4-default",
+        ),
+        ("url = new URL('https://example.com');", None),
+        ("unknown(url);", None),
+        (
+            "const process = unknown; if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+        ("unknown(process.env); if (enabled(process.env.ALLOW_PRIVATE)) return;", None),
+        (
+            "process.env.ALLOW_PRIVATE = unknown; "
+            "if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+        (
+            "process.on('event', () => {process.env.ALLOW_PRIVATE = 'true';}); "
+            "if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+    ],
 )
-def test_local_loopback_guard_requires_source_bound_scope(tmp_path: Path) -> None:
+def test_local_loopback_guard_requires_source_bound_scope(
+    tmp_path: Path, bypass: str, scope: str | None
+) -> None:
     from sentinel.static.rules.sent015 import TypeScriptURLFlow
 
     source = """import {Server} from "@modelcontextprotocol/sdk/server/index.js";
@@ -1436,7 +1474,9 @@ function privateAddress(host: string) {
  if (isIP(host) !== 4) return false;
  return host.startsWith("127.");
 }
+function enabled(value: string | undefined) { return value === "true"; }
 function guard(url: URL) {
+ BYPASS
  if (privateAddress(url.hostname)) throw new Error();
 }
 server.setRequestHandler(CallToolRequestSchema, async request => {
@@ -1445,6 +1485,7 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
  return (requestURL as typeof fetch)(url.toString());
 });
 """
+    source = source.replace("BYPASS", bypass)
     path = tmp_path / "server.ts"
     path.write_text(source)
     program = TypeScriptProgram(
@@ -1456,6 +1497,84 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
     # appropriate, but it must carry narrower source-grounded protection evidence.
     assert state.matches
     assert all(
-        match.captures.get("url_guard_scope") == "loopback-ipv4"
+        match.captures.get("url_guard_scope") == scope for match in state.matches
+    )
+
+
+@pytest.mark.parametrize("harden_required", [True, False])
+@pytest.mark.parametrize("redirect_loop", [False, True])
+def test_imported_configuration_and_local_loopback_guard(
+    tmp_path: Path, harden_required: bool, redirect_loop: bool
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    sources = {
+        "config.ts": """function enabled(value: string | undefined) {
+ return value === "true";
+}
+export function configuration() {
+ return {harden: enabled(process.env.HARDEN),
+         allowPrivate: enabled(process.env.ALLOW_PRIVATE)};
+}
+""",
+        "reader.ts": """import {configuration} from "./config.js";
+import {isIP} from "node:net";
+import {fetch as requestURL} from "undici";
+function privateAddress(host: string) {
+ if (isIP(host) !== 4) return false;
+ return host.startsWith("10.") || host.startsWith("127.") || unknown(host);
+}
+function guard(url: URL) {
+ const config = configuration();
+ if (BYPASSconfig.allowPrivate) return;
+ if (unknown(url.hostname) || privateAddress(url.hostname)) throw new Error();
+}
+export async function read(input: string) {
+ const url = new URL(input);
+ guard(url);
+ return (requestURL as typeof fetch)(url.toString());
+}
+""".replace("BYPASS", "!config.harden || " if harden_required else ""),
+        "server.ts": """
+import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";
+import {read} from "./reader.js";
+function create() {
+ const mcp = new McpServer({name: "test", version: "1"});
+ const server = mcp.server;
+ server.setRequestHandler(CallToolRequestSchema, async request => {
+  const {name, arguments: args} = request.params;
+  if (name === "search") return [];
+  else if (name === "read") return read(args.url);
+ });
+ return mcp;
+}
+async function main() { create(); }
+main().catch(console.error);
+""",
+    }
+    if redirect_loop:
+        sources["reader.ts"] = sources["reader.ts"].replace(
+            "return (requestURL as typeof fetch)(url.toString());",
+            "let current = url;\n"
+            "for (let count = 0; count <= 5; count++) {\n"
+            " const response = await (requestURL as typeof fetch)"
+            "(current.toString());\n"
+            " if (!unknown(response)) break;\n"
+            " const next = new URL(unknown(response), current);\n"
+            " guard(next);\n current = next;\n}\n",
+        )
+    files = []
+    for name, source in sources.items():
+        path = tmp_path / name
+        path.write_text(source)
+        files.append(TypeScriptSourceFile(path, name, source))
+    program = TypeScriptProgram(tuple(files), deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope")
+        == (None if harden_required else "loopback-ipv4-default")
         for match in state.matches
     )

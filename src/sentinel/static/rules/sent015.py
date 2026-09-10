@@ -691,6 +691,36 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         super().__init__(*args)
         self.url_parts: dict[str, tuple[str, str]] = {}
         self.ip_arguments: dict[str, str] = {}
+        self.process = Value(key=_key("node-process"))
+        self.environment = Value(key=_key("node-process-env"))
+        self.objects[self.process.key] = {"env": self.environment}
+        self.objects[self.environment.key] = {}
+        self.environment_values: set[str] = set()
+
+    def exit_facts(self, exits: list[dict[str, Value]]) -> frozenset[str] | None:
+        common = super().exit_facts(exits)
+        if common is None:
+            return None
+        facts = [self.enforced(exit) for exit in exits]
+        suffixes = (":loopback-ipv4", ":loopback-ipv4-default")
+        origins = {
+            fact.removesuffix(suffix)
+            for branch in facts
+            for fact in branch
+            for suffix in suffixes
+            if fact.startswith("#guard:url:") and fact.endswith(suffix)
+        }
+        for origin in origins:
+            if (
+                all(
+                    any(origin + suffix in branch for suffix in suffixes)
+                    or "#guard:url-operator-opt-in" in branch
+                    for branch in facts
+                )
+                and origin + suffixes[0] not in common
+            ):
+                common |= {origin + suffixes[1]}
+        return common
 
     def statement(
         self,
@@ -752,6 +782,13 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
     def expression(
         self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
     ) -> Value:
+        if (
+            isinstance(node, dict)
+            and name_of(node) == "process"
+            and "process" not in env
+            and "process" not in self.program.bindings[file.relative_path]
+        ):
+            return self.process
         if isinstance(node, dict) and "New" in node:
             _, type_, _, arguments = node["New"]
             constructor = type_.get("t", {}).get("TyExpr", {})
@@ -786,7 +823,13 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             self.url_parts[result.key] = (origin, "hostname-unbracketed")
         checks = frozenset(
             check
-            for check in ("scheme", "host", "literal-ipv4")
+            for check in (
+                "scheme",
+                "host",
+                "literal-ipv4",
+                "loopback-ipv4",
+                "loopback-ipv4-default",
+            )
             if env.get(
                 f"#guard:url:{origin if part == 'parsed' else result.key}:{check}",
                 UNKNOWN_VALUE,
@@ -796,6 +839,10 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
 
     def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
         result = replace(super().member(value, name, env), url_checks=frozenset())
+        if value.key == self.environment.key:
+            if {self.process.key, self.environment.key} & self.invalidated_objects:
+                return replace(result, key=_key("changed-environment", result.key))
+            self.environment_values.add(result.key)
         origin, part = self.url_parts.get(value.key, ("", ""))
         if part == "parsed" and value.key not in self.invalidated_objects:
             self.url_parts[result.key] = (origin, name)
@@ -859,6 +906,20 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 )
             return replace(receiver, key=origin)
         if part in {"hostname", "hostname-unbracketed"}:
+            if (
+                method == "startsWith"
+                and len(argument_nodes) == 1
+                and self.string_literals.get(
+                    self.call_value(file, argument_nodes[0], env).key
+                )
+                == "127."
+            ):
+                result = replace(receiver, key=_key(receiver.key, "loopback-prefix"))
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:url:{origin}:loopback-ipv4"}),
+                    frozenset(),
+                )
+                return result
             if method in {"trim", "toLowerCase"} and not argument_nodes:
                 return receiver
             bracket_literals = [
@@ -891,11 +952,17 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         ):
             value = self.call_value(file, argument_nodes[0], env)
             origin, part = self.url_parts.get(value.key, ("", ""))
-            if part == "hostname-unbracketed":
+            if part == "hostname-unbracketed" or (
+                part == "hostname" and external == "net.isIP"
+            ):
                 result = replace(value, key=_key(external, value.key))
                 self.url_parts[result.key] = (
                     origin,
-                    "ip-version" if external == "net.isIP" else "ip-address",
+                    "ip-version-bracketed"
+                    if part == "hostname"
+                    else "ip-version"
+                    if external == "net.isIP"
+                    else "ip-address",
                 )
                 self.ip_arguments[result.key] = value.key
                 return result
@@ -956,6 +1023,10 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                             **(
                                 {"url_guard_scope": "literal-ipv4"}
                                 if "literal-ipv4" in url.url_checks
+                                else {"url_guard_scope": "loopback-ipv4"}
+                                if "loopback-ipv4" in url.url_checks
+                                else {"url_guard_scope": "loopback-ipv4-default"}
+                                if "loopback-ipv4-default" in url.url_checks
                                 else {}
                             ),
                             "flow_locations": json.dumps(
@@ -994,7 +1065,24 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                     TypeScriptSymbol(file, argument_nodes[1 - index])
                 )
                 facts = self.restriction(value, literals)
+                if value.key in self.environment_values and literals == "true":
+                    opted_in = frozenset({"#guard:url-operator-opt-in"})
+                    self.conditions[result.key] = (
+                        (frozenset(), opted_in)
+                        if operator["Op"] in {"PhysEq", "Eq"}
+                        else (opted_in, frozenset())
+                    )
                 origin, part = self.url_parts.get(value.key, ("", ""))
+                if (
+                    part in {"ip-version", "ip-version-bracketed"}
+                    and self.program.text(file, argument_nodes[1 - index]) == "4"
+                ):
+                    excluded = frozenset({f"#guard:url:{origin}:loopback-ipv4"})
+                    self.conditions[result.key] = (
+                        (excluded, frozenset())
+                        if operator["Op"] in {"PhysEq", "Eq"}
+                        else (frozenset(), excluded)
+                    )
                 if (part == "ip-range" and literals == "unicast") or (
                     part == "ip-version"
                     and "L" in argument_nodes[1 - index]

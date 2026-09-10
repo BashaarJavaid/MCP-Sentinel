@@ -143,6 +143,9 @@ class TypeScriptPathFlow:
     def condition(self, value: Value) -> tuple[Facts, Facts]:
         return self.conditions.get(value.key, (frozenset(), frozenset()))
 
+    def exit_facts(self, exits: list[dict[str, Value]]) -> Facts:
+        return common_facts([self.enforced(exit) for exit in exits])
+
     def combined(self, values: list[Value], key: str = "") -> Value:
         present = [v for v in values if v.key != "#ts:undefined"]
         if present and len(present) != len(values):
@@ -295,9 +298,7 @@ class TypeScriptPathFlow:
             if self.statement(symbol.file, function["fbody"]["FBStmt"], env, returned):
                 exits.append(env.copy())
                 returned.append(Value())
-            self.function_effects = common_facts(
-                [self.enforced(exit) for exit in exits]
-            )
+            self.function_effects = self.exit_facts(exits)
             if captured is not None and exits:
                 members: dict[str, Value] = {}
                 self.merge(
