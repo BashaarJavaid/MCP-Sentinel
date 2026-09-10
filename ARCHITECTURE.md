@@ -17,6 +17,12 @@ establish this protection. The scanner does not read the target environment or
 suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
 unestablished; this is source analysis, not runtime proof.
 
+These bounded facts pass their focused controls, but the full exposed SearXNG
+source still loses the narrow qualifier and flags both fixed variants. Its
+correction gate remains unmet; the implementation does not establish complete
+source-default or redirect coverage. See the current Phase 22 status and audit.
+
+
 ## 1. Purpose and status
 
 This document is the approved architecture baseline for PortunusMCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.

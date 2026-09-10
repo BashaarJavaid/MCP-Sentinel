@@ -1,4 +1,64 @@
-# Integration evidence, batches 1–40 and closeout audit
+# Integration evidence, batches 1–41 and closeout audit
+
+## Current bounded follow-up at `6eb482c`
+
+Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
+`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
+One helper-context counter profile found no safely reusable result. No
+optimization, native timing comparison or further full Linux retry occurred;
+the retained timing failure remains authoritative.
+
+Shared TypeScript factory/else discovery and narrow loopback/default guard
+facts are implemented. The canonical finding/review contract is unchanged.
+All 18 focused guard controls pass, but the full SearXNG correction gate fails:
+both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
+fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
+retains a broad candidate, separately assessed outside its exact public-input
+condition. That distinction does not waive the two fixed false alerts. The
+new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
+are consumed; original frozen native/comparator 0/2 results are preserved.
+
+The earlier draft guard-contract stop was premature: existing URL evidence can
+represent these narrow facts within the approved correction. Its correction is
+recorded in `v12-scope-interpretation-correction.json`. The actual remaining
+boundary is loss of that qualification in the complete source flow, not a
+request for another ordinary editing approval. The exact cause is not established
+by the native report; no callback or unknown effect is assumed harmless.
+
+See `v12-searxng-assessment/packet.json` and the prepared, unapproved
+`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
+retry, new fresh freeze/evaluation or paid calls require their separate approval.
+Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
+the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
+
+Final-source verification at `6eb482c`: the local full suite and all 12 hosted
+quality suites each pass **2,169 tests with 36 skips and no expected failures**.
+Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
+All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
+Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
+dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
+artifacts pass. Both approved production review requests were regenerated and
+replayed without paid calls. The approved Git environment and 13 incomplete
+campaigns retain exact compatibility; no complete Git coverage is claimed.
+Intermediate local socket failures and hosted dependency-download failures remain
+preserved with their actual source; they are not relabeled as successful runs.
+
+Fetch-mcp and open-webSearch each pass both five-input native regression batches:
+2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
+ordered repeats match except recorded volatile fields; retained findings and
+all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
+remain a separate failed correction gate. There is no final whole-corpus timing
+pass, new fresh-source evaluation or final human acceptance.
+
+The **89-row** current audit records **69 passed,
+2 user-deferred and
+18 unresolved** requirements. See
+`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
+`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
+
+
+## Historical v10 checkpoint
 
 **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
 incomplete.** Both exposed SSRF families complete five inputs twice, detect both
@@ -68,12 +128,27 @@ No full benchmark retry, deadline waiver or runner change occurred. Further
 execution decisions and final human acceptance remain separate; Phase 22 stays
 incomplete while the timing gate is unmet.
 
-Current closeout: `v10-closeout-audit/packet.json` preserves all 88 requirements:
+Historical v10 closeout: `v10-closeout-audit/packet.json` preserves all 88 requirements:
 **71 passed, two user-deferred and 15 unresolved**. The prior v9 audit is
 unchanged. Fresh measurement completion does not accept the actual 0/2 detection
 result. Linux diagnostics and the reverted local experiment remain separate
 from failed whole development/historical timing gates. Both v10 follow-up
 proposals are prepared and unapproved; no automatic dispatch is authorized.
+
+## Evidence archives
+
+Batch 41 is sealed: **1,002 files**, 103,057,714 raw bytes and
+10,920,410 compressed bytes, SHA-256
+`ac47a7684f21db98175ddf5fe909e7a18eef1a5399b10c20431230d597032c91`.
+Every member was read back and all 40 previous archive hashes reverified after
+measurement, check and collector writers stopped. Restore after batches 1–40
+into separate staging; validate the archive and each member against
+`evidence-v41.json` before copying. Existing destinations must match identical
+bytes or their prior numbered-manifest hashes; stop on unexpected conflicts.
+Current source/test/hosted proofs, approved bounded follow-ups, one counter profile, exposed regression runs,
+source assessments and the failed SearXNG fixed discrimination and unapproved next diagnostic/run budget are retained.
+Final documentation/delivery bindings are also retained directly in Git. This
+seal is evidence delivery, not a timing pass or final technical acceptance.
 
 Batch 40 is sealed: **794 files**, 66,259,015 raw bytes and
 10,545,389 compressed bytes, SHA-256

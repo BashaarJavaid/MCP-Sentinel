@@ -1,5 +1,17 @@
 # Fresh SSRF replacement proposal v3
 
+These five cases became exposed regressions through the user's “go ahead”,
+recorded in `../integration/v11-follow-up-authorization.json` and normalized in
+`exposure-and-fix-authorization-v1.json`. All first frozen results remain unchanged.
+At `6eb482c`, both five-input native batches finish and identify both vulnerable
+paths, but both fixed variants retain the same unqualified SSRF candidate.
+The correction gate fails; narrow guard evidence from unit controls does not
+survive this complete source flow. All ten authorized final observations are
+consumed. See `../integration/v12-searxng-assessment/packet.json` and the prepared,
+unapproved `../integration/v12-next-searxng-proposal.json`. No new fresh evaluation
+or final acceptance is implied by this exposed-source work.
+
+
 The user approved the exact `7555a9d` freeze and bounded evaluation with
 “start with 1 and 2.” See `authorization-7555a9d.json`. The two native
 five-input runs and one comparator run are complete, with both tiers missing

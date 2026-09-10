@@ -78,7 +78,22 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 
 ## Current phase
 
-Latest continuation: the user said “start with 1 and 2.” The exact approved
+Latest bounded follow-up: both v10 proposals were approved with “go ahead”.
+Candidate `6eb482c` adds shared factory/else discovery and narrow loopback/default
+URL guard facts. One helper-context profile found no safely reusable result;
+no optimization or further full timing retry occurred. Both five-input exposed
+SearXNG native batches complete and detect both vulnerable variants, but both
+fixed variants retain unqualified SSRF alerts; the correction gate fails.
+All ten authorized SearXNG observations are consumed. Original frozen misses,
+failed attempts and exposed regression evidence remain preserved. The earlier
+premature guard-contract checkpoint was corrected in
+`v12-scope-interpretation-correction.json`; the real next checkpoint is an
+additional bounded SearXNG diagnostic/final-run budget in the unapproved
+`v12-next-searxng-proposal.json`. Timing, fresh current-source evaluation and final
+human acceptance remain unmet/separately gated. No paid call is authorized.
+The next paragraph is the historical v10 checkpoint.
+
+Historical v10 continuation: the user said “start with 1 and 2.” The exact approved
 SearXNG at 7555a9d evaluation is complete: 5/5 inputs twice native and once Semgrep,
 but both tiers miss both vulnerable variants. No source tuning occurred; preserve
 all first frozen results. Its MCP tool surface is missed, and all unrelated
@@ -120,26 +135,30 @@ replacement detection gap was returned after the completed audit; the user then
 authorized bounded offline investigation and a fix. The five replacement cases
 are now exposed regressions; preserve their first frozen results. See
 `artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
-Both exposed SSRF families now pass their final native repeat gates at `7555a9d`:
-5/5 complete per run, 2/2 vulnerable condition matches and zero matching negative
-alerts. Original misses, raw residual findings and source assessments remain
-preserved. The finite performance investigation retained per-flow pure guard
-snapshot reuse; focused gains do not establish the full timing gate. The separately
-authorized final Linux run 34435283462 completes 15/25: all ten Meta inputs time
-out, and both historical batches are skipped. Local development completes 22/25;
-original held-out results remain 10 completed/10 unsupported/5 incomplete and
-0/4 completed-vulnerable hits. All 15 completed Linux reports match current local
-reports except recorded volatile fields. All 29 normal jobs and docs pass at
-`bbb5fbc`; scanner/package bytes equal 7555a9d with one added guard regression.
-Each of 12 hosted suites passes 2,141 tests with 36 skips and 89.63–89.66% branch
-coverage; local coverage is 89.64%. Current source-compatible capture/runtime
-and package evidence is bound under v10; `05309f9` checks are also retained.
-The fresh SearXNG evaluation and one Linux diagnostic authority are consumed.
-The fresh miss and timing failures remain visible and unaccepted. Further full
-retry, runner change, gate exception and paid calls require explicit approval;
-final acceptance cannot be requested while timing is unmet. The two prepared
-v10 follow-up proposals are unapproved. All earlier implementation, source,
-measurements, failures, worktrees and sealed evidence remain preserved.
+Both existing exposed SSRF families pass their final native repeat gates at
+`6eb482c`: 5/5 complete per run, 2/2 vulnerable matches and zero matching negative
+alerts. Original misses and source assessments remain preserved. The SearXNG
+source now reaches an SSRF candidate but flags both fixed variants, so its
+correction gate fails. Its ten authorized observations are consumed.
+
+The retained full Linux result at `7555a9d` completes 15/25: all ten Meta inputs
+time out and both historical batches are skipped. Earlier local development
+22/25 and original held-out 10 completed/10 unsupported/5 incomplete with 0/4
+completed-vulnerable hits retain their measured source. No current-source full
+benchmark or fresh generalization result is claimed. One newly approved
+helper-context profile established no safe reuse; no optimization or full retry
+was attempted.
+
+All 29 normal jobs and docs pass at `6eb482c`; the local full suite and 12 hosted
+quality suites each pass 2,169 tests with 36 skips and no expected failures. Local
+branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
+Both approved production requests are regenerated/replayed and Git runtime
+compatibility is verified without additional paid calls. Intermediate failures
+remain preserved. See the 89-row v12 closeout audit and evidence index. The v10
+proposals were approved; only the new v12 diagnostic/run proposal is unapproved.
+Further SearXNG observations, full timing retry, fresh freeze/evaluation, paid
+calls and final human acceptance retain separate checkpoints. Phase 22 remains
+incomplete, with timing and fixed discrimination unmet.
 Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
 unchanged; see `ROADMAP.md` §1 for the scope exception.
 
@@ -165,7 +184,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final Linux timing fails; fresh evaluation misses; timing and acceptance pending; paid benchmark/pilots deferred)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (existing exposed SSRF gates pass; SearXNG fixed discrimination and timing fail; acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

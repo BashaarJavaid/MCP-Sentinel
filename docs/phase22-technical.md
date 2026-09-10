@@ -1,5 +1,65 @@
 # Phase 22 technical expansion
 
+## Current bounded follow-up at `6eb482c`
+
+Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
+`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
+One helper-context counter profile found no safely reusable result. No
+optimization, native timing comparison or further full Linux retry occurred;
+the retained timing failure remains authoritative.
+
+Shared TypeScript factory/else discovery and narrow loopback/default guard
+facts are implemented. The canonical finding/review contract is unchanged.
+All 18 focused guard controls pass, but the full SearXNG correction gate fails:
+both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
+fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
+retains a broad candidate, separately assessed outside its exact public-input
+condition. That distinction does not waive the two fixed false alerts. The
+new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
+are consumed; original frozen native/comparator 0/2 results are preserved.
+
+The earlier draft guard-contract stop was premature: existing URL evidence can
+represent these narrow facts within the approved correction. Its correction is
+recorded in `v12-scope-interpretation-correction.json`. The actual remaining
+boundary is loss of that qualification in the complete source flow, not a
+request for another ordinary editing approval. The exact cause is not established
+by the native report; no callback or unknown effect is assumed harmless.
+
+See `v12-searxng-assessment/packet.json` and the prepared, unapproved
+`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
+retry, new fresh freeze/evaluation or paid calls require their separate approval.
+Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
+the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
+
+Final-source verification at `6eb482c`: the local full suite and all 12 hosted
+quality suites each pass **2,169 tests with 36 skips and no expected failures**.
+Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
+All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
+Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
+dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
+artifacts pass. Both approved production review requests were regenerated and
+replayed without paid calls. The approved Git environment and 13 incomplete
+campaigns retain exact compatibility; no complete Git coverage is claimed.
+Intermediate local socket failures and hosted dependency-download failures remain
+preserved with their actual source; they are not relabeled as successful runs.
+
+Fetch-mcp and open-webSearch each pass both five-input native regression batches:
+2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
+ordered repeats match except recorded volatile fields; retained findings and
+all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
+remain a separate failed correction gate. There is no final whole-corpus timing
+pass, new fresh-source evaluation or final human acceptance.
+
+The **89-row** current audit records **69 passed,
+2 user-deferred and
+18 unresolved** requirements. See
+`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
+`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
+
+
+## Historical v10 checkpoint
+
 **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
 incomplete.** Both exposed SSRF families complete five inputs twice, detect both
 correlated vulnerable variants and have zero matching fixed/control alerts.

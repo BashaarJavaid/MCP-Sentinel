@@ -2924,3 +2924,48 @@ Current source/test/hosted proofs, approved evaluation and diagnostic results,
 reverted experiment, source assessments and unapproved follow-ups are retained.
 Final documentation/delivery bindings are also retained directly in Git. This
 seal is evidence delivery, not a timing pass or final technical acceptance.
+
+### Approved bounded follow-ups at `6eb482c`
+
+Final-source verification at `6eb482c`: the local full suite and all 12 hosted
+quality suites each pass **2,169 tests with 36 skips and no expected failures**.
+Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
+All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
+Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
+dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
+artifacts pass. Both approved production review requests were regenerated and
+replayed without paid calls. The approved Git environment and 13 incomplete
+campaigns retain exact compatibility; no complete Git coverage is claimed.
+Intermediate local socket failures and hosted dependency-download failures remain
+preserved with their actual source; they are not relabeled as successful runs.
+
+Fetch-mcp and open-webSearch each pass both five-input native regression batches:
+2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
+ordered repeats match except recorded volatile fields; retained findings and
+all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
+remain a separate failed correction gate. There is no final whole-corpus timing
+pass, new fresh-source evaluation or final human acceptance.
+
+The **89-row** current audit records **69 passed,
+2 user-deferred and
+18 unresolved** requirements. See
+`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
+`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
+
+Both v10 proposals were approved with “go ahead”. One counter profile found no safely reusable helper result and no optimization was attempted. Shared factory/else discovery and narrow guard evidence were added. Native SearXNG results still alert both fixed variants; all ten authorized observations are consumed. The next diagnostic/final-run budget is prepared but unapproved. No additional paid model calls, full timing retry or fresh evaluation occurred. All intermediate failures and the corrected premature guard-contract interpretation are retained.
+
+### Evidence batch 41
+
+Batch 41 is sealed: **1,002 files**, 103,057,714 raw bytes and
+10,920,410 compressed bytes, SHA-256
+`ac47a7684f21db98175ddf5fe909e7a18eef1a5399b10c20431230d597032c91`.
+Every member was read back and all 40 previous archive hashes reverified after
+measurement, check and collector writers stopped. Restore after batches 1–40
+into separate staging; validate the archive and each member against
+`evidence-v41.json` before copying. Existing destinations must match identical
+bytes or their prior numbered-manifest hashes; stop on unexpected conflicts.
+Current source/test/hosted proofs, approved bounded follow-ups, one counter profile, exposed regression runs,
+source assessments and the failed SearXNG fixed discrimination and unapproved next diagnostic/run budget are retained.
+Final documentation/delivery bindings are also retained directly in Git. This
+seal is evidence delivery, not a timing pass or final technical acceptance.
