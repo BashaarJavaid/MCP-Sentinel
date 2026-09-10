@@ -229,7 +229,7 @@ def inventory(
         }
         decorators = {
             dec: node
-            for node in ast.walk(file.tree)
+            for node in file.nodes
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
             for dec in node.decorator_list
         }
@@ -251,7 +251,7 @@ def inventory(
                     "nested or unsupported handler form",
                     unsupported=True,
                 )
-        for node in ast.walk(file.tree):
+        for node in file.nodes:
             check_deadline(context.deadline)
             if node in covered:
                 continue

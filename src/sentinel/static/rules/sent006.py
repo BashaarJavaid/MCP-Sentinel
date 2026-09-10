@@ -82,7 +82,7 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
             if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef))
             and method.name == "authenticate"
         }
-        for application in ast.walk(file.tree):
+        for application in file.nodes:
             if (
                 not isinstance(application, ast.Call)
                 or resolve_name(qualified_name(application.func) or "", imports)

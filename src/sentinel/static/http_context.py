@@ -443,7 +443,7 @@ class HTTPContext:
             if isinstance(part, Function)
         }
         for file in flow.program.files:
-            for node in ast.walk(file.tree):
+            for node in file.nodes:
                 check_deadline(flow.deadline)
                 values = (
                     [node.value]
@@ -534,7 +534,7 @@ class HTTPContext:
         from sentinel.static.launches import instance as server_instance
 
         for file in flow.program.files:
-            for node in ast.walk(file.tree):
+            for node in file.nodes:
                 check_deadline(flow.deadline)
                 mutation = (
                     isinstance(node, ast.Attribute)
@@ -607,7 +607,7 @@ class HTTPContext:
             for file in flow.program.files:
                 if file.relative_path not in reachable_files:
                     continue
-                for node in ast.walk(file.tree):
+                for node in file.nodes:
                     check_deadline(flow.deadline)
                     values = (
                         [node.value]

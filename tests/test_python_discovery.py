@@ -18,6 +18,27 @@ def program(sources: dict[str, str]) -> PythonProgram:
     )
 
 
+def test_source_indexes_preserve_order_and_snapshot_identity() -> None:
+    source = (
+        "class Service:\n    async def read(self, path):\n        return open(path)\n"
+    )
+    first = ParsedPythonFile(Path("server.py"), "server.py", source, ast.parse(source))
+    second = ParsedPythonFile(Path("server.py"), "server.py", source, ast.parse(source))
+    expected = tuple(ast.walk(first.tree))
+    assert first.nodes == expected
+    assert first.nodes is first.nodes
+    assert list(first.parents.items()) == list(
+        {
+            child: parent
+            for parent in expected
+            for child in ast.iter_child_nodes(parent)
+        }.items()
+    )
+    assert first.parents is first.parents
+    assert first.nodes[0] is not second.nodes[0]
+    assert PythonProgram((first,)).parents == first.parents
+
+
 def test_imported_alias_reexport_and_bound_method() -> None:
     index = program(
         {

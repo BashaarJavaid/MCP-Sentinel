@@ -39,7 +39,7 @@ def launches(program: PythonProgram) -> tuple[Launch, ...]:
     found = []
     replaced: set[ast.AST] = set()
     for file in program.files:
-        for node in ast.walk(file.tree):
+        for node in file.nodes:
             check_deadline(program.deadline)
             receivers = (
                 [node.value]
@@ -59,7 +59,7 @@ def launches(program: PythonProgram) -> tuple[Launch, ...]:
                 if value is not None:
                     replaced.add(value.node)
     for file in program.files:
-        for call in ast.walk(file.tree):
+        for call in file.nodes:
             check_deadline(program.deadline)
             if not (
                 isinstance(call, ast.Call)

@@ -58,7 +58,7 @@ class OptionFlow(PathFlow):
             if file.relative_path not in reachable:
                 continue
             aliases = self.aliases[file.relative_path]
-            for node in ast.walk(file.tree):
+            for node in file.nodes:
                 check_deadline(self.deadline)
                 if isinstance(node, ast.Attribute) and node.attr == "git":
                     return True

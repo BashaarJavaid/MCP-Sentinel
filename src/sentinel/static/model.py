@@ -56,6 +56,19 @@ class ParsedPythonFile:
     source: str
     tree: ast.Module
 
+    @cached_property
+    def nodes(self) -> tuple[ast.AST, ...]:
+        # Source syntax is immutable; reuse the same breadth-first walk per file.
+        return tuple(ast.walk(self.tree))
+
+    @cached_property
+    def parents(self) -> dict[ast.AST, ast.AST]:
+        return {
+            child: parent
+            for parent in self.nodes
+            for child in ast.iter_child_nodes(parent)
+        }
+
 
 @dataclass(frozen=True)
 class TypeScriptSourceFile:
