@@ -78,6 +78,15 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 
 ## Current phase
 
+Latest continuation: the user said “start with 1 and 2.” This approves the
+prepared SearXNG7555a9d fresh evaluation (two native five-input runs and one
+Semgrep run) and one standard Linux diagnostic job (four native runs and two
+worker profiles on the two named exposed Meta inputs,120seconds/input,30-minute
+job ceiling). Their separate authorization records preserve exact packet hashes.
+Both are in progress; no paid call, full benchmark retry, gate exception or final
+technical acceptance is inferred. Earlier pending-approval descriptions below
+are the preceding closeout snapshot.
+
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
 **Phases 16–20 are complete and accepted. Phase 20's independent benchmark
 was accepted with its recorded detection and execution limitations. Phase 21

@@ -1,5 +1,10 @@
 # Fresh SSRF replacement proposal v3
 
+The user approved the exact `7555a9d` freeze and bounded evaluation with
+“start with 1 and 2.” See `authorization-7555a9d.json`. The two native
+five-input runs and one comparator run are now executing; zero paid calls or
+target execution. Original proposal/checkpoint bytes remain unchanged.
+
 **Prepared; explicit approval is required before any Sentinel or comparator run.**
 Scanner `7555a9d3b472516ea880bd0ba8fbd25e89699453` was frozen before source
 curation and is preserved in a detached checkout. The implementation agent also

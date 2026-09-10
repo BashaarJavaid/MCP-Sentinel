@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       phase22_historical:
-        description: Run only the approved Phase 22 development batch and historical pair
+        description: Run only the separately approved Phase 22 diagnostic measurements
         type: boolean
         default: false
   workflow_call:
@@ -318,10 +318,10 @@ jobs:
           if-no-files-found: error
 
   phase22-historical-final:
-    name: Approved Phase 22 development and historical checks
+    name: Approved Phase 22 Linux diagnostics
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 30
     env:
       OPENAI_API_KEY: ""
       PYTHONPATH: src:.
@@ -331,7 +331,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Preserve the exact approval and gate files
-        run: cp -R artifacts/phase22/integration/v9-native-runner-approved-v1 "${{ runner.temp }}/phase22-approval"
+        run: cp -R artifacts/phase22/integration/v9-linux-diagnostic-proposal-v1 "${{ runner.temp }}/phase22-approval"
       - name: Check out the immutable detector and existing harness
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
@@ -347,43 +347,12 @@ jobs:
           version: 0.8.22
       - name: Install locked development dependencies
         run: uv sync --frozen --extra dev --python 3.12
-      - name: Record the execution environment
-        env:
-          MEASUREMENT_ROOT: ${{ runner.temp }}/phase22-final-historical
-        run: |
-          uv run python - <<'PYCODE'
-          import importlib.metadata,json,os,platform,subprocess,sys
-          from pathlib import Path
-          from scripts.phase20_measurements import scanner_identity
-          root=Path(os.environ['MEASUREMENT_ROOT']);root.mkdir()
-          record={'source':scanner_identity(),'python':sys.version,'platform':platform.platform(),'cpu_count':os.cpu_count(),'loadavg':os.getloadavg(),'meminfo':Path('/proc/meminfo').read_text(),'semgrep':importlib.metadata.version('semgrep'),'packages':sorted(f"{d.metadata['Name']}=={d.version}" for d in importlib.metadata.distributions()),'workflow_run':os.environ['GITHUB_RUN_ID']}
-          (root/'environment.json').write_text(json.dumps(record,indent=2)+'\n')
-          PYCODE
-      - name: Entire original development batch and gate
-        env:
-          DEVELOPMENT_OUTPUT: ${{ runner.temp }}/phase22-final-historical/development
-        run: |
-          uv run python - <<'PYCODE'
-          import os
-          from pathlib import Path
-          from scripts.phase22_corpus import frozen
-          from scripts.phase20_measurements import measure
-          manifest=frozen();selected=[i for i in manifest.inputs if i.split=='development'];assert len(selected)==25
-          measure(manifest.model_copy(update={'inputs':selected}),'rules',Path(os.environ['DEVELOPMENT_OUTPUT']))
-          PYCODE
-          uv run python "${{ runner.temp }}/phase22-approval/development-gate.py" "$DEVELOPMENT_OUTPUT" "${{ runner.temp }}/phase22-approval"
-      - name: First entire native historical batch and gate
-        run: |
-          uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase22-final-historical/first"
-          uv run python "${{ runner.temp }}/phase22-approval/gate.py" "${{ runner.temp }}/phase22-final-historical/first" "${{ runner.temp }}/phase22-approval"
-      - name: Second entire native historical batch and gate
-        run: |
-          uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase22-final-historical/second" --compare-to "${{ runner.temp }}/phase22-final-historical/first"
-          uv run python "${{ runner.temp }}/phase22-approval/gate.py" "${{ runner.temp }}/phase22-final-historical/second" "${{ runner.temp }}/phase22-approval"
+      - name: Four native runs and two worker profiles under unchanged deadlines
+        run: uv run python "${{ runner.temp }}/phase22-approval/runner.py" "${{ runner.temp }}/phase22-approval" "${{ runner.temp }}/phase22-linux-diagnostic"
       - name: Retain every result, including failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: phase22-final-historical
-          path: ${{ runner.temp }}/phase22-final-historical
+          name: phase22-linux-diagnostic
+          path: ${{ runner.temp }}/phase22-linux-diagnostic
           if-no-files-found: error

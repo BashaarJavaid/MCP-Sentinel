@@ -1,4 +1,9 @@
-# Unapproved Linux diagnostic option
+# Linux diagnostic option: approved for one execution
+
+The user approved this exact bounded execution with “start with 1 and 2.”
+See `authorization.json`. The original proposal/hash bindings remain unchanged.
+The optional workflow is installed for one dispatch; no full retry or final
+technical acceptance is authorized. The original proposal description follows.
 
 This proposal follows failed final run 34435283462. It does not retry the full
 benchmark or waive its gate. Scanner7555a9d remains frozen.
