@@ -77,12 +77,11 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
             return replace(first, key=key) if key and key != first.key else first
     present = [value for value in values if value.key not in {"None", "#missing"}]
     if present and len(present) != len(values):
-        result = combine(present, key)
-        maybe_none = any(value.maybe_none or value.key == "None" for value in values)
-        maybe_missing = any(value.maybe_missing for value in values)
-        if result.maybe_none == maybe_none and result.maybe_missing == maybe_missing:
-            return result
-        return replace(result, maybe_none=maybe_none, maybe_missing=maybe_missing)
+        return replace(
+            combine(present, key),
+            maybe_none=any(value.maybe_none or value.key == "None" for value in values),
+            maybe_missing=any(value.maybe_missing for value in values),
+        )
     if len(values) == 2:
         left, right = values
         has_sources = bool(left.sources or right.sources)
@@ -1019,13 +1018,12 @@ class PathFlow:
                     pending.append(unknown)
             else:
                 leaves.append(current)
-        sources = union(item.sources for item in leaves)
-        locations = value.locations | frozenset().union(
-            *(item.locations for item in leaves)
+        return replace(
+            value,
+            sources=union(item.sources for item in leaves),
+            locations=value.locations
+            | frozenset().union(*(item.locations for item in leaves)),
         )
-        if value.sources == sources and value.locations == locations:
-            return value
-        return replace(value, sources=sources, locations=locations)
 
     def update_mapping(
         self, destination: Value, source: Value, env: dict[str, Value]
@@ -1096,9 +1094,9 @@ class PathFlow:
             and value.instance is not None
             and "#member:unknown:" + value.key not in env
         ):
-            maybe_missing = value.maybe_missing or value.maybe_none
-            if result.maybe_missing != maybe_missing:
-                return replace(result, maybe_missing=maybe_missing)
+            return replace(
+                result, maybe_missing=value.maybe_missing or value.maybe_none
+            )
         return result
 
     def with_default(
@@ -1978,11 +1976,7 @@ class PathFlow:
             if keyword.arg is not None:
                 if keyword.arg in keywords:
                     keywords[None] = value
-                keywords[keyword.arg] = (
-                    replace(value, maybe_missing=False)
-                    if value.maybe_missing
-                    else value
-                )
+                keywords[keyword.arg] = replace(value, maybe_missing=False)
             elif (
                 value.key in self.mapping_keys
                 and "#member:unknown:" + value.key not in env

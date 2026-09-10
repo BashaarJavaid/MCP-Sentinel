@@ -106,27 +106,16 @@ class CredentialFlow(PathFlow):
             facts = cached[2]
         if not facts.credential_fallback and not facts.operator_opt_in:
             return value
-        sources = (
-            value.sources | facts.sources
-            if facts.credential_fallback
-            else value.sources
-        )
-        locations = value.locations | facts.locations
-        fallback = value.credential_fallback or facts.credential_fallback
-        opt_in = value.operator_opt_in | facts.operator_opt_in
-        if (
-            value.sources == sources
-            and value.locations == locations
-            and value.credential_fallback == fallback
-            and value.operator_opt_in == opt_in
-        ):
-            return value
         return replace(
             value,
-            sources=sources,
-            locations=locations,
-            credential_fallback=fallback,
-            operator_opt_in=opt_in,
+            sources=value.sources | facts.sources
+            if facts.credential_fallback
+            else value.sources,
+            locations=value.locations | facts.locations,
+            credential_fallback=value.credential_fallback or facts.credential_fallback,
+            operator_opt_in=value.operator_opt_in | facts.operator_opt_in
+            if facts.operator_opt_in
+            else value.operator_opt_in,
         )
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:

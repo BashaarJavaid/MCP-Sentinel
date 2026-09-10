@@ -334,7 +334,7 @@ class URLFlow(PathFlow):
                 result = replace(receiver, maybe_none=True)
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
-        if result.url_checks and isinstance(node, (ast.BinOp, ast.JoinedStr)):
+        if isinstance(node, (ast.BinOp, ast.JoinedStr)):
             result = replace(result, url_checks=frozenset())
         if isinstance(node, ast.FormattedValue) and (
             node.conversion != -1 or node.format_spec is not None
@@ -640,13 +640,8 @@ class URLFlow(PathFlow):
             return UNKNOWN_VALUE
         result = super().call(symbol, node, env)
         helper = self.program.resolve_in(symbol, name)
-        if (
-            result.url_checks
-            and not helper
-            and not (
-                method == "get"
-                and (receiver.sources or receiver.key in self.mapping_keys)
-            )
+        if not helper and not (
+            method == "get" and (receiver.sources or receiver.key in self.mapping_keys)
         ):
             result = replace(result, url_checks=frozenset())
         return result
