@@ -1,6 +1,23 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v16 source-bound audit
+## Current v17 source-bound audit
+
+All 89 original rows are mapped in `v17-closeout-audit/packet.json`:
+**70 passed, 2 explicitly user-deferred, 17 unresolved**. Five v17 execution
+requirements pass. All 22 additional rows retain **21 passed and 1 unresolved**
+(the historical v14 performance-retention requirement). This diagnostic executed
+at `127763c`; unchanged engineering inputs retain actual verification at `592a9cd`.
+No timing pass, fresh result, scope waiver or human acceptance is inferred.
+
+| ID | Requirement | Disposition |
+| --- | --- | --- |
+| V17-AUTH | Exact one-profile approval and source/input bindings | **passed** |
+| V17-DIAG | Bounded CPU sampling with unchanged methods, valid accounting and report | **passed** |
+| V17-STOP | Stop after one attempted input without inferring an optimization or gate pass | **passed** |
+| V17-REUSE | Verify unchanged source and preserve actual engineering/runtime evidence | **passed** |
+| V17-DELIVERY | Seal and deliver completed scope while retaining unmet timing and acceptance | **passed** |
+
+## Historical v16 source-bound audit
 
 All 89 original rows are mapped in `v16-closeout-audit/packet.json`:
 **70 passed, 2 explicitly user-deferred, 17 unresolved**. The five v16 execution
