@@ -9,6 +9,82 @@ from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
+@pytest.mark.parametrize("use_else", [False, True])
+@pytest.mark.parametrize(
+    "change",
+    [
+        "",
+        "server = unknown;",
+        "mcp.server = unknown;",
+        "unknown(mcp);",
+        "unknown(server);",
+    ],
+)
+def test_factory_low_level_server_alias_and_stdio_dispatch(
+    tmp_path: Path, use_else: bool, change: str
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+    from sentinel.static.typescript_path_flow import analyze
+
+    source = """import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import {CallToolRequestSchema, ListToolsRequestSchema}
+ from "@modelcontextprotocol/sdk/types.js";
+import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
+import {fetch as requestURL} from "undici";
+function valid(args: unknown): args is {url: string} {
+ if (typeof args !== "object" || args === null || !("url" in args)
+     || typeof (args as {url: string}).url !== "string") return false;
+ return true;
+}
+function create() {
+ const mcp = new McpServer({name: "test", version: "1"});
+ CHANGE
+ let server = mcp.server;
+ SERVER_CHANGE
+ server.setRequestHandler(ListToolsRequestSchema, async () => ({tools: []}));
+ server.setRequestHandler(CallToolRequestSchema, async request => {
+  const {name, arguments: args} = request.params;
+  if (name === "other") return "other";
+  else if (name === "read") {
+   if (!valid(args)) throw new Error();
+   return (requestURL as typeof fetch)(args.url);
+  }
+ });
+ return mcp;
+}
+async function main() {
+ BODY
+}
+main().catch(console.error);
+""".replace(
+        "BODY",
+        (
+            'if (process.env.HTTP_PORT) { console.log("http"); } else '
+            if use_else
+            else ""
+        )
+        + "{ const mcp = create(); await mcp.connect(new StdioServerTransport()); }",
+    )
+    source = source.replace(" CHANGE", " " + change if "mcp" in change else "").replace(
+        "SERVER_CHANGE", change if "mcp" not in change else ""
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    tools = program.tools()
+    if change:
+        assert not tools
+        return
+    assert len(tools) == 1
+    assert tools[0].handler is not None and tools[0].factory is not None
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert len(state.matches) == 1
+    assert "requestURL" in state.matches[0].snippet
+
+
 @pytest.mark.parametrize("has_sources", [False, True])
 @pytest.mark.parametrize("branch_count", [1, 2])
 def test_unchanged_branch_values_keep_only_source_bound_protection(

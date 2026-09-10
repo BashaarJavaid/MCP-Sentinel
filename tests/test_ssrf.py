@@ -1418,3 +1418,44 @@ def test_base_http_dispatch_continuation_and_replacement(
         "    return requests.get(get_http_request().state.url)\n",
     )
     assert len(findings) == (1 if custom_call or replacement else expected)
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="Local IPv4 prefix guards lack narrowly scoped URL facts",
+)
+def test_local_loopback_guard_requires_source_bound_scope(tmp_path: Path) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = """import {Server} from "@modelcontextprotocol/sdk/server/index.js";
+import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";
+import {isIP} from "node:net";
+import {fetch as requestURL} from "undici";
+const server = new Server({name: "test", version: "1"});
+function privateAddress(host: string) {
+ if (isIP(host) !== 4) return false;
+ return host.startsWith("127.");
+}
+function guard(url: URL) {
+ if (privateAddress(url.hostname)) throw new Error();
+}
+server.setRequestHandler(CallToolRequestSchema, async request => {
+ const url = new URL(request.params.arguments.url);
+ guard(url);
+ return (requestURL as typeof fetch)(url.toString());
+});
+"""
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    # The guard rejects literal loopback only. Keeping a broad SSRF candidate is
+    # appropriate, but it must carry narrower source-grounded protection evidence.
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope") == "loopback-ipv4"
+        for match in state.matches
+    )

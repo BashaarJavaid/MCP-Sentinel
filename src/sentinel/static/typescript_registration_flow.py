@@ -128,7 +128,10 @@ def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
             if not any(
                 constructor
                 and constructor.external
-                == "@modelcontextprotocol/sdk/server/mcp.js.McpServer"
+                in {
+                    "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    "@modelcontextprotocol/sdk/server/index.js.Server",
+                }
                 for constructor in constructors
             ):
                 continue

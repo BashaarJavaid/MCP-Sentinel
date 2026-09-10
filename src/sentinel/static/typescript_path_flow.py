@@ -65,7 +65,7 @@ class TypeScriptPathFlow:
         self.parents: dict[str, Value] = {}
         self.closures: dict[str, dict[str, Value]] = {}
         self.root_directories: dict[str, Value] = {}
-        self.sdk_instances: set[str] = set()
+        self.sdk_instances: dict[str, str] = {}
         self.http_instances: set[str] = set()
         self.http_sequences: dict[
             str, tuple[tuple[str | None, tuple[Value, ...]], ...]
@@ -440,6 +440,7 @@ class TypeScriptPathFlow:
             return False
         elif "If" in node:
             _, condition, left, right = node["If"]
+            right = right.get("some") if right else None
             test = condition.get("Cond", condition)
             value = self.expression(file, test, env)
             branches = []
@@ -854,15 +855,22 @@ class TypeScriptPathFlow:
             constructor = node["New"][1].get("t", {}).get("TyExpr", {})
             class_value = self.expression(file, constructor, env)
             binding = self.callables.get(class_value.key)
-            if binding and binding.external == (
-                "@modelcontextprotocol/sdk/server/mcp.js.McpServer"
-            ):
+            if binding and binding.external in {
+                "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                "@modelcontextprotocol/sdk/server/index.js.Server",
+            }:
                 result = Value(
                     key=_key(
                         file.relative_path, str(self.program.source_range(node, file))
                     )
                 )
-                self.sdk_instances.add(result.key)
+                self.sdk_instances[result.key] = binding.external
+                if binding.external.endswith(".McpServer"):
+                    server = Value(key=_key(result.key, "server"))
+                    self.sdk_instances[server.key] = (
+                        "@modelcontextprotocol/sdk/server/index.js.Server"
+                    )
+                    self.objects[result.key] = {"server": server}
                 return result
             if (
                 class_value.key in self.classes
@@ -1263,8 +1271,24 @@ class TypeScriptPathFlow:
         if (
             receiver.key in self.sdk_instances
             and receiver.key not in self.invalidated_objects
-            and name.rsplit(".", 1)[-1] in {"registerTool", "tool"}
+            and name.rsplit(".", 1)[-1] in {"registerTool", "tool", "setRequestHandler"}
         ):
+            if name.endswith(".setRequestHandler"):
+                schema = self.callables.get(args[0].key) if args else None
+                if (
+                    self.sdk_instances[receiver.key].endswith(".Server")
+                    and len(args) == 2
+                    and schema
+                    and schema.external
+                    == "@modelcontextprotocol/sdk/types.js.CallToolRequestSchema"
+                ):
+                    self.registered(
+                        file, node, [UNKNOWN_VALUE, UNKNOWN_VALUE, args[1]], env
+                    )
+                return Value()
+            if not self.sdk_instances[receiver.key].endswith(".McpServer"):
+                self.warning(file, node, "unsupported low-level SDK registration")
+                return Value()
             if name.endswith(".tool"):
                 # ponytail: follow schema-bearing legacy overloads only; other
                 # layouts need SDK argument disambiguation before expansion.
