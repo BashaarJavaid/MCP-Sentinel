@@ -11,6 +11,45 @@ from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
 
+def test_credential_guard_facts_follow_current_branch_and_mutations() -> None:
+    from dataclasses import replace
+
+    from sentinel.static.discovery import PythonProgram
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent016 import CredentialFlow
+
+    flow = CredentialFlow(PythonProgram(()), RuleRunState(), float("inf"))
+    owner = Value(key="owner", operator_credential=True)
+    marker, option = "#absent:caller", "#credential:opt-in:ALLOW_FALLBACK"
+    flow.absent_markers.add(marker)
+    flow.opt_in_markers.add(option)
+    first = Value(
+        sources=frozenset({"http:first"}),
+        locations=frozenset({("server.py", 10)}),
+        contained=True,
+    )
+    env = {marker: first, option: Value(contained=True)}
+    for _ in range(2):
+        selected = flow.conditioned_credential(owner, env)
+        assert selected.credential_fallback and selected.sources == first.sources
+        assert selected.operator_opt_in == frozenset({"ALLOW_FALLBACK"})
+        assert selected.locations == first.locations
+    second = replace(
+        first,
+        sources=frozenset({"http:second"}),
+        locations=frozenset({("other.py", 20)}),
+    )
+    env[marker] = second
+    env[option] = Value()
+    selected = flow.conditioned_credential(owner, env)
+    assert selected.sources == second.sources and selected.locations == second.locations
+    assert selected.credential_fallback and not selected.operator_opt_in
+    assert flow.conditioned_credential(owner, {}) == owner
+    env[marker] = replace(second, sources=frozenset({"caller"}))
+    assert flow.conditioned_credential(owner, env) == owner
+
+
 @pytest.mark.parametrize("repeated_selection", [False, True])
 @pytest.mark.parametrize(
     ("guard", "expected", "conditional"),

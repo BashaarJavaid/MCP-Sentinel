@@ -1,0 +1,53 @@
+{
+  "source": {
+    "revision": "4f61434cf098d40cb803492c9d908ddde142d077",
+    "source_sha256": "a7f14aac07392cfbfb7d32bb21905595f047312d1bc8b01a9a07fb761bfd4e69",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "rows": [
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "baseline_wall_ms": 62878,
+      "after_wall_ms": [
+        66597,
+        73846
+      ],
+      "median_change_percent": 11.678965615954695
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "baseline_wall_ms": 65390,
+      "after_wall_ms": [
+        69000,
+        72424
+      ],
+      "median_change_percent": 8.138859152775657
+    },
+    {
+      "input_id": "atlassian-auth-fixed-mutation",
+      "baseline_wall_ms": 96458,
+      "after_wall_ms": [
+        100190,
+        93441
+      ],
+      "median_change_percent": 0.3706276306786327
+    },
+    {
+      "input_id": "atlassian-upload-fixed",
+      "baseline_wall_ms": 119815,
+      "after_wall_ms": [
+        98169,
+        94566
+      ],
+      "median_change_percent": -19.569753369778407
+    }
+  ],
+  "baseline_child_cpu_seconds": 699.8934899999999,
+  "after_child_cpu_seconds_per_repetition": 723.8352669999999,
+  "baseline_parent_cpu_seconds": 33.859395,
+  "after_parent_cpu_seconds_per_repetition": 24.8183295,
+  "baseline_maximum_child_rss_bytes": 641826816,
+  "after_maximum_child_rss_bytes": 649953280,
+  "decision": "Revert the AST-cache optimization: no consistent improvement across selected slow inputs. Preserve all completed native reports, measurements, profiles, source commit and test evidence. Snapshot-index-only test is reverted with the removed API; existing security/context regressions remain.",
+  "limits": "Shared desktop; one baseline and two after observations per input. This does not establish isolated causal performance or the full timing gate."
+}

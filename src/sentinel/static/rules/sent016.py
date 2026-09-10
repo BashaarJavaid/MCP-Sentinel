@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import json
 from dataclasses import replace
+from functools import lru_cache
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
@@ -32,6 +33,28 @@ from sentinel.static.rules.sent012 import analyze
 from sentinel.static.typescript_discovery import name_of
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
+
+
+@lru_cache(maxsize=1)
+def _credential_guard_facts(
+    absent_values: tuple[Value, ...], settings: tuple[tuple[str, Value], ...]
+) -> Value:
+    # Reuse only identical immutable guard values, never a mutable branch/env.
+    absent = [
+        value
+        for value in absent_values
+        if value.contained
+        and any(source.startswith("http:") for source in value.sources)
+    ]
+    selected = {name: value for name, value in settings if value.contained}
+    return Value(
+        sources=frozenset().union(*(value.sources for value in absent)),
+        locations=frozenset().union(
+            *(value.locations for value in (*absent, *selected.values()))
+        ),
+        credential_fallback=bool(absent),
+        operator_opt_in=frozenset(selected),
+    )
 
 
 class CredentialFlow(PathFlow):
@@ -69,36 +92,22 @@ class CredentialFlow(PathFlow):
     def conditioned_credential(self, value: Value, env: dict[str, Value]) -> Value:
         if not value.operator_credential:
             return value
-        absent = [
-            current
-            for name in self.absent_markers & env.keys()
-            if (current := env[name]).contained
-            and any(source.startswith("http:") for source in current.sources)
-        ]
-        if absent:
-            value = replace(
-                value,
-                sources=value.sources
-                | frozenset().union(*(item.sources for item in absent)),
-                locations=value.locations
-                | frozenset().union(*(item.locations for item in absent)),
-                credential_fallback=True,
-            )
-        settings = {
-            name.removeprefix("#credential:opt-in:"): current
-            for name in self.opt_in_markers & env.keys()
-            if (current := env[name]).contained
-        }
-        if settings:
-            value = replace(
-                value,
-                operator_opt_in=value.operator_opt_in | frozenset(settings),
-                locations=value.locations
-                | frozenset().union(
-                    *(current.locations for current in settings.values())
-                ),
-            )
-        return value
+        facts = _credential_guard_facts(
+            tuple(env[name] for name in self.absent_markers & env.keys()),
+            tuple(
+                (name.removeprefix("#credential:opt-in:"), env[name])
+                for name in self.opt_in_markers & env.keys()
+            ),
+        )
+        if not facts.credential_fallback and not facts.operator_opt_in:
+            return value
+        return replace(
+            value,
+            sources=value.sources | facts.sources,
+            locations=value.locations | facts.locations,
+            credential_fallback=value.credential_fallback or facts.credential_fallback,
+            operator_opt_in=value.operator_opt_in | facts.operator_opt_in,
+        )
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
         result = super().member(value, member, env)
