@@ -1,6 +1,24 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v15 source-bound audit
+## Current v16 source-bound audit
+
+All 89 original rows are mapped in `v16-closeout-audit/packet.json`:
+**70 passed, 2 explicitly user-deferred, 17 unresolved**. The five v16 execution
+requirements pass, including enforcing the failed predicate; the predicate itself
+remains failed. All 17 additional rows retain **16 passed and 1 unresolved**
+(the historical v14 performance-retention requirement). Engineering executions
+remain at `592a9cd`; this single diagnostic is at `46b8786` on identical code.
+No timing pass, fresh result or human acceptance is inferred.
+
+| ID | Requirement | Disposition |
+| --- | --- | --- |
+| V16-AUTH | Exact conditional-experiment approval and source/input bindings | **passed** |
+| V16-DIAG | One bounded diagnostic with validated original semantics and report | **passed** |
+| V16-STOP | Enforce the prospective predicate and close unused maxima when it fails | **passed** |
+| V16-REUSE | Verify unchanged source and preserve actual engineering/runtime evidence | **passed** |
+| V16-DELIVERY | Seal and deliver the completed scope without claiming Phase22 acceptance | **passed** |
+
+## Historical v15 source-bound audit
 
 All 89 original rows remain mapped in `v15-closeout-audit/packet.json`:
 **70 passed, 2 explicitly user-deferred, 17 unresolved**. The five new v15 scope
