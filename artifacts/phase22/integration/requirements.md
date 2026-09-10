@@ -1,6 +1,25 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v17 source-bound audit
+## Current v18 source-bound audit
+
+All 89 original rows are mapped in `v18-closeout-audit/packet.json`:
+**70 passed, 2 explicitly user-deferred, 17 unresolved**. Six v18 execution
+requirements pass, including applying the failed throughput premise correctly.
+The throughput premise itself failed. All 28 added rows retain **27 passed and
+1 unresolved** (the historical v14 retention requirement). Fresh normal hosted
+CI verifies `0b71a29`; compatible local checks remain at `592a9cd`.
+No scanner timing pass, fresh result, scope waiver or human acceptance is inferred.
+
+| ID | Requirement | Disposition |
+| --- | --- | --- |
+| V18-AUTH | Exact Stage0 approval and immutable implementation bindings | **passed** |
+| V18-CHECK | Readiness, checksum, timeout, cleanup and decision implementation controls | **passed** |
+| V18-DISPATCH | One bounded synthetic Linux dispatch with retained observations | **passed** |
+| V18-STOP | Apply the failed throughput premise without inferring scanner improvement | **passed** |
+| V18-VERIFY | Verify changed workflow with fresh hosted CI and unchanged scanner compatibility | **passed** |
+| V18-DELIVERY | Seal and deliver all completed scope while retaining unmet Phase22 gates | **passed** |
+
+## Historical v17 source-bound audit
 
 All 89 original rows are mapped in `v17-closeout-audit/packet.json`:
 **70 passed, 2 explicitly user-deferred, 17 unresolved**. Five v17 execution
