@@ -3002,26 +3002,23 @@ class PathFlow:
                     return self.aggregate(initialized, env)
                 # Propagate facts about actual values, not internal control markers.
                 # Markers can share an empty key with unrelated unknown values.
-                protected: set[str] = set()
-                option_checked: set[str] = set()
+                bound_values = [
+                    value
+                    for name, value in bindings.items()
+                    if value.key
+                    and not value.maybe_missing
+                    and not value.maybe_none
+                    and (
+                        not name.startswith("#")
+                        or name.startswith(("#member:", "#global-value:"))
+                    )
+                ]
+                protected = {value.key for value in bound_values if value.contained}
+                option_checked = {
+                    value.key for value in bound_values if value.option_safe
+                }
                 url_checked: dict[str, Value] = {}
-                for name, value in bindings.items():
-                    if not (value.contained or value.option_safe or value.url_checks):
-                        continue
-                    if (
-                        not value.key
-                        or value.maybe_missing
-                        or value.maybe_none
-                        or (
-                            name.startswith("#")
-                            and not name.startswith(("#member:", "#global-value:"))
-                        )
-                    ):
-                        continue
-                    if value.contained:
-                        protected.add(value.key)
-                    if value.option_safe:
-                        option_checked.add(value.key)
+                for value in bound_values:
                     if value.url_checks:
                         previous = url_checked.get(value.key)
                         url_checked[value.key] = (
