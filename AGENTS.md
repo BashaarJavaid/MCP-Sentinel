@@ -107,8 +107,13 @@ their original measured revision. SearXNG's broader URL candidates and unresolve
 MCP dispatch remain visible. Original misses and source assessments are preserved.
 
 The candidate's 1,034 affected tests, semantic before/after check, lint, format and
-strict mypy pass. Final local/hosted verification including the retained new test
-is pending; earlier full-suite and hosted results retain their actual sources.
+source-only mypy pass. Initial hosted verification at `12748e4` failed all 12
+quality jobs because full mypy also checks tests and found a missing annotation
+in the new test helper. The annotation is corrected; configured strict mypy now
+passes all 146 files and the retained control passes. The superseded local suite
+was explicitly interrupted after 365 passing tests and is preserved as incomplete.
+Final local/hosted verification on the corrected test is pending; earlier results
+retain their actual sources. No detector source or measured report changed.
 The prior 89-row audit remains 70 passed, two explicitly user-deferred and
 17 unresolved, pending its current verification bindings.
 

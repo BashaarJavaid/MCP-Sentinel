@@ -966,6 +966,7 @@ def test_helper_guard_facts_preserve_filters_and_aliases(
     import ast
     from dataclasses import replace
 
+    from sentinel.static.discovery import Symbol
     from sentinel.static.path_flow import Value
 
     index = program(
@@ -1015,7 +1016,7 @@ def test_helper_guard_facts_preserve_filters_and_aliases(
         "none": Value(key="none", option_safe=True, maybe_none=True),
     }
 
-    def checked_helper(symbol, bindings):
+    def checked_helper(symbol: Symbol, bindings: dict[str, Value]) -> Value:
         assert symbol.name == "guard"
         bindings.update(facts)
         return Value()

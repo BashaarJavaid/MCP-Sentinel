@@ -8,7 +8,10 @@ interrupted. The two remaining native observations and all 30 conditional SSRF
 runs were cancelled. Scanner bytes equal measured `2ac39aa`; the new semantic test
 is retained. Timing, fresh evaluation and final acceptance remain unmet. The
 89-row dispositions remain 70 passed, two deferred and 17 unresolved; current
-local/hosted test bindings are being completed. See `v14-performance-disposition.json`.
+local/hosted test bindings are being completed. Initial hosted full mypy caught
+a missing test-helper annotation; it is corrected and all 146 configured files
+now pass. The superseded local run is interrupted after 365 passing tests. See
+`v14-performance-disposition.json` and `v14-annotation-correction.json`.
 
 
 ## Historical v13 89-row audit at `2ac39aa`
