@@ -44,6 +44,41 @@ mcp = FastMCP("test")
             "if (privateIP(new URL(url).hostname)) throw new Error(); url = other;",
             False,
         ),
+        (
+            "const parsed = new URL(url); parsed.hostname = 'example.com'; "
+            "if (privateIP(parsed.hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const parsed = new URL(url); unknown(parsed); "
+            "if (privateIP(parsed.hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const privateIP = () => false; "
+            "if (privateIP(new URL(url).hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const URL = custom; "
+            "if (privateIP(new URL(url).hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const isPrivate = privateIP; const destination = new URL(url); "
+            "if (isPrivate(destination.hostname)) return 'blocked';",
+            True,
+        ),
+        (
+            "const parsed = new URL(url); const destination = parsed.hostname; "
+            "if (privateIP(destination)) throw new Error();",
+            True,
+        ),
+        (
+            "const parsed = new URL(url); const destination = parsed.hostname; "
+            "unknown(parsed); if (privateIP(destination)) throw new Error();",
+            True,
+        ),
     ],
 )
 def test_typescript_private_ip_guard_has_only_literal_ipv4_scope(
@@ -859,6 +894,12 @@ def test_literal_ip_validation_loop(tmp_path: Path, mutation: str) -> None:
         ('return fetch("https://images.example.com/" + url);', 0),
         ('return fetch("https://images.example.com" + url);', 1),
         ('return fetch("http://127.0.0.1/" + url);', 1),
+        (
+            'const u = new URL(url); unknown(u); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error(); '
+            "return fetch(url);",
+            1,
+        ),
         (
             'const u = new URL(url); if (u.protocol !== "https:" || u'
             '.hostname !== "images.example.com") throw new Error(); r'

@@ -774,6 +774,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 origin = origin if part == "parsed" else argument.key
                 result = replace(argument, key=_key("parsed-url", origin))
                 self.url_parts[result.key] = (origin, "parsed")
+                self.objects.setdefault(result.key, {})
                 return result
         result = super().expression(file, node, env)
         origin, part = self.url_parts.get(result.key, (result.key, ""))
