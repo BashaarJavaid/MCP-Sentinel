@@ -130,7 +130,7 @@ def handlers(program: PythonProgram) -> tuple[HTTPBinding, ...]:
                 "starlette.applications.Starlette",
             }
         }
-        for node in file.nodes:
+        for node in ast.walk(file.tree):
             check_deadline(program.deadline)
             if isinstance(node, Function):
                 for decorator in node.decorator_list:

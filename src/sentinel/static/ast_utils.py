@@ -36,7 +36,11 @@ def decorator_call(node: ast.AST) -> tuple[str | None, ast.Call | None]:
 
 def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
     regions: list[ToolRegion] = []
-    parents = file.parents
+    parents = {
+        child: parent
+        for parent in ast.walk(file.tree)
+        for child in ast.iter_child_nodes(parent)
+    }
     constants = {
         f"{parent.name}.{target.id}": value
         for parent in file.tree.body
@@ -47,7 +51,7 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
         for target in statement.targets
         if isinstance(target, ast.Name)
     }
-    for node in file.nodes:
+    for node in ast.walk(file.tree):
         if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
         if isinstance(parents.get(node), ast.ClassDef):

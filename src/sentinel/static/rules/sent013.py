@@ -134,7 +134,7 @@ def python_descriptions(
                     yield file, node.value
     for file in context.files.python_files:
         imports = import_aliases(file)
-        for node in file.nodes:
+        for node in ast.walk(file.tree):
             if (
                 isinstance(node, ast.Call)
                 and resolve_name(qualified_name(node.func) or "", imports)

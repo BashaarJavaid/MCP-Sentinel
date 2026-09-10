@@ -25,7 +25,7 @@ class RegistrationFlow:
         if self.calls is None:
             self.calls = defaultdict(list)
             for file in self.program.files:
-                for node in file.nodes:
+                for node in ast.walk(file.tree):
                     if isinstance(node, ast.Call):
                         name = qualified_name(node.func)
                         if name:

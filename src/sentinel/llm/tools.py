@@ -137,7 +137,7 @@ def _tools_in_file(
     parsed: ParsedPythonFile, models: dict[str, dict[str, JsonValue]]
 ) -> tuple[ToolMetadata, ...]:
     found: list[ToolMetadata] = []
-    for node in parsed.nodes:
+    for node in ast.walk(parsed.tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and any(
             _is_tool_decorator(item) for item in node.decorator_list
         ):

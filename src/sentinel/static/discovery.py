@@ -89,7 +89,10 @@ class PythonProgram:
         self._resolved: dict[tuple[str, str, bool], Symbol | None] = {}
         self._resolved_in: dict[tuple[ast.AST, str, str], Symbol | None] = {}
         self.parents = {
-            child: parent for file in files for child, parent in file.parents.items()
+            child: parent
+            for file in files
+            for parent in ast.walk(file.tree)
+            for child in ast.iter_child_nodes(parent)
         }
         self.source_functions = frozenset(
             node for node in self.parents if isinstance(node, Function)
@@ -482,7 +485,7 @@ class PythonProgram:
                 continue
             reached.add(path)
             file = files[path]
-            for node in file.nodes:
+            for node in ast.walk(file.tree):
                 check_deadline(self.deadline)
                 if isinstance(node, ast.Import):
                     names = [alias.name for alias in node.names]
@@ -715,7 +718,7 @@ class PythonProgram:
                     )
                 )
             parents = self.parents
-            for node in file.nodes:
+            for node in ast.walk(file.tree):
                 if not isinstance(node, ast.Call):
                     continue
                 method = qualified_name(node.func) or ""
