@@ -107,10 +107,14 @@ replacement detection gap was returned after the completed audit; the user then
 authorized bounded offline investigation and a fix. The five replacement cases
 are now exposed regressions; preserve their first frozen results. See
 `artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
-The exposed SSRF condition now passes its native regression pair; final-source
-timing, measurement and hosted verification remain pending. The fresh replacement
-freeze and final technical acceptance require explicit approval; further paid
-calls also need approval.
+The exposed SSRF condition passes its native regression pair. The exact fresh
+freeze and bounded Linux execution were explicitly approved and completed. Fresh
+native/comparator measurements each miss both correlated vulnerable variants;
+Linux development completes 17/25 with eight timeouts and correctly skips both
+historical batches. Hosted engineering checks pass at `88a559e` with scanner bytes
+unchanged from `62987a6`. The timing gate remains unmet; see the v8 closeout audit
+and unapproved next-performance proposal under artifacts/phase22/integration.
+Final technical acceptance and further paid calls still require explicit approval.
 Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
 unchanged; see `ROADMAP.md` §1 for the scope exception.
 
@@ -136,7 +140,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (exposed SSRF gap corrected; final verification and acceptance pending; paid benchmark/pilots deferred)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (exposed SSRF corrected; fresh evaluation completed with misses; timing gate unmet and acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

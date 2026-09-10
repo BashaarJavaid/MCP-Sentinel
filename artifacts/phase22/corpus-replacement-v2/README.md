@@ -1,14 +1,26 @@
-# Fresh SSRF replacement proposal v2
+# Fresh SSRF replacement evaluation v2
 
-**Current checkpoint: `62987a6`; explicit freeze approval is pending.**
-[The exact current packet](checkpoint-62987a6.json) preserves manifest
-`a587427f0c40cbff512f00c8024e454a11255e34a13c10f9d8748bbc4aa9bae2`
-and binds the stabilized detector, harness, archive hashes and bounded offline
-evaluation. No fresh scanner/comparator evaluation or paid call has occurred.
-The prior `10103ad` checkpoint was superseded before approval/evaluation; its
-packet and status record remain unchanged. Curation exposure is disclosed in
-every checkpoint. The separate historical execution decision and final human
-technical acceptance are not included in freeze approval.
+**Approved and evaluated at frozen scanner `62987a6`.** The user approved
+[the exact checkpoint](checkpoint-62987a6.json) with “go ahead with these two”; the
+[separate authorization](authorization-62987a6.json) binds manifest
+`a587427f0c40cbff512f00c8024e454a11255e34a13c10f9d8748bbc4aa9bae2`.
+Original proposals and superseded checkpoints remain unchanged.
+
+All five inputs complete in both native runs and the pinned Semgrep 1.176.0 run.
+Both tools miss both correlated vulnerable variants and have zero condition-matched
+alerts on the two fixed variants and public-IP control. Native reports are equal
+in their entirety except documented volatile fields; maximum wall times are
+5.771s and 5.075s. Semgrep's maximum is 16.374s. Its 50 unrelated JQuery alerts
+match calls to the local Fetcher.html method and have source-bound false-positive
+assessments. See [the complete assessment](../integration/v8-fresh-assessment/packet.json).
+
+Native coverage retains one unresolved low-level tool handler per input and
+unresolved schema/class/method flows. Zero findings therefore do not establish
+protection. Curation exposure remains disclosed; this is a separately frozen
+measurement, not independent human or unseen-source review. Target source was read after
+the native runs only to assess results. No detector tuning, target execution or paid
+model call occurred. No fresh accuracy threshold is invented. Final human Phase 22
+technical acceptance remains a separate checkpoint.
 
 ## Original preparation record
 

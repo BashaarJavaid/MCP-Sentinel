@@ -49,9 +49,10 @@ exposed regressions; their original frozen measurements remain unchanged. See
 The SSRF correction and final timing verification are recorded in
 `docs/phase22-ssrf-follow-up.md`. The earlier residual-SSRF and casewise timing
 waivers were never approved; the current continuation requires the original
-complete-batch gate. The versioned fresh replacement freeze and final technical
-acceptance remain explicit approval checkpoints. Neither is inferred from
-engineering checks or permission to continue work.
+complete-batch gate. The exact fresh replacement freeze and bounded Linux execution were subsequently
+approved and executed; their results are retained separately. Final technical
+acceptance remains an explicit checkpoint, never inferred from engineering checks
+or permission to continue work.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.
@@ -1148,20 +1149,52 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Status: exposed SSRF gap corrected; final verification and technical acceptance
-pending at `62987a6` (detector bytes equal `e87b7c9`).** Uses Phase 20's benchmark. The revised scope in §1 permits
-Phase 22 completion without Phase 21 pilots or the deferred full paid benchmark.
-Neither deferred measurement is claimed passed. The expanded technical scope is user-authorized. Begin with
-path-containment detection and complete all ten benchmark families, verified
-against independent vulnerable/fixed cases and safe controls.
+**Current scanner: `62987a6`; workflow delivery: `88a559e`. Phase 22 remains
+incomplete pending execution reliability and final human technical acceptance.** The user approved both the revised Linux execution and exact
+fresh-corpus checkpoint with “go ahead with these two”. Their separate decision
+records preserve the exact proposal/manifest hashes and stopping conditions.
 
-Current source passes both exposed SSRF runs (2/2 vulnerable variants, zero
-matching fixed/control alerts), local quality/package/Docker checks and all 29
-hosted jobs. The whole historical attempt remains 43/45 with deadline failures;
-development is 24/25 after a new Meta fixed-mutation timeout. The revised bounded
-Linux execution proposal and exact fresh freeze/evaluation require explicit
-decisions. Final technical acceptance is not yet requested. See the current
-[implementation status](docs/phase22-implementation-status.md).
+Linux development fails its gate: 17/25 inputs complete and eight time out;
+maximum end-to-end time is 120.043s. Eight of ten vulnerable inputs complete and
+are detected. Nine of thirteen valid negatives complete with zero matching alerts.
+Both raw Meta erratum inputs are incomplete, so the raw negative denominator is
+nine completed out of fifteen. Both historical batches are skipped after this failure.
+
+The Linux run is 34421737148. No retry, pooling or deadline waiver occurred.
+Earlier local historical 43/45 and development 24/25 failures remain preserved.
+Seven Linux timeouts are new versus that local development run; one persists.
+All 17 completed Linux reports match the prior entire ordered reports except
+documented volatile fields. The next bounded Meta performance proposal is
+prepared in `v8-next-performance-proposal.json` and remains unapproved.
+The approved Meta erratum remains separate from raw scores and execution status.
+
+The fresh fetch-mcp evaluation completes all five inputs twice natively and once
+with Semgrep 1.176.0. Both tiers miss both correlated vulnerable variants and
+have zero condition-matched alerts on the three fixed/safe inputs. Native reports
+match in full except documented volatile fields; maximum wall times are 5.771s
+and 5.075s (Semgrep: 16.374s). Native dispatch/schema/class flows remain unresolved.
+All 50 unrelated Semgrep JQuery alerts have source-bound false-positive
+assessments. No detector tuning or fresh accuracy threshold is introduced;
+curation exposure remains disclosed.
+
+The exposed open-webSearch regression remains 2/2 detections in both final runs,
+with zero matching negative alerts. Its original 0/2 results are unchanged.
+Original held-out evidence remains 10 completed/10 unsupported/5 incomplete,
+with zero detections among four completed vulnerable variants. The original
+historical 70-warning unadjudicated backlog remains distinct from source-assessed
+exposed-regression warnings. Native full-report comparisons and all new finding/
+coverage assessments are retained in the v8 evidence.
+
+All 29 normal CI jobs pass at workflow delivery `88a559e`, with the optional benchmark job skipped in ordinary CI; documentation also passes. The 12 quality suites each report 2,121 passed and 36 skipped, with 89.63–89.65% branch coverage. Complete logs/artifacts and source-verified distributions are retained.
+
+The full paid benchmark and external pilots remain explicitly user-deferred,
+not passed. No additional paid model calls or target execution occurred in these
+two evaluations. Compatible capture/Docker/Git evidence remains bound to the
+unchanged scanner. Final human acceptance is separate; Phase 21, Phase 24 and
+Phase 15 gates remain unchanged. No merge, release, outreach or next phase.
+
+See [the implementation status](docs/phase22-implementation-status.md) and the
+current `artifacts/phase22/integration/v8-closeout-audit/packet.json`.
 
 ### Retained implementation checkpoints
 
