@@ -7,7 +7,6 @@ import copy
 import ipaddress
 import json
 from dataclasses import replace
-from functools import lru_cache
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -71,7 +70,6 @@ def public_host(host: str) -> bool:
     return address.is_global and not address.is_multicast
 
 
-@lru_cache(maxsize=128)
 def fixed_destination(prefix: str) -> bool:
     try:
         parsed = urlsplit(prefix)

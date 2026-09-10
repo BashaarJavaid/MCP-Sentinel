@@ -1,0 +1,14 @@
+{
+  "profile_source": "7292abbc48fa376658e0ce9b2d56b83e37ac3e87",
+  "profile_counters_sha256": "3875aa142ced7466bb452034f3eb93f0db3cd4716efb430357b8a3f5ab9c5349",
+  "credential_cache": {
+    "hits": 576684,
+    "misses": 23378,
+    "maxsize": 1,
+    "currsize": 1
+  },
+  "hit_fraction": 0.9610406924617789,
+  "change": "Retain one immutable guard-value snapshot and its pure aggregate per CredentialFlow. Compare tuples directly, avoiding repeated full Value hashing on the observed hit-heavy path. Remove the literal cache. Avoid allocating replacement source/opt-in sets when that kind of guard contributes no fact.",
+  "scope": "No helper execution or mutable environment is cached; current guard contents are read on every lookup. Existing branch/global/closure/HTTP preparation copies and deadline/cleanup behavior remain intact.",
+  "verification": "846 focused security regressions, lint/format and strict typing passed; four bounded native repeat measurements follow on an immutable candidate. No timing-gate pass claimed yet."
+}

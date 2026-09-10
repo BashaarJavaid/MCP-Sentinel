@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import json
 from dataclasses import replace
-from functools import lru_cache
 from typing import Any
 from urllib.parse import urljoin, urlsplit
 
@@ -35,7 +34,6 @@ from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 
 
-@lru_cache(maxsize=1)
 def _credential_guard_facts(
     absent_values: tuple[Value, ...], settings: tuple[tuple[str, Value], ...]
 ) -> Value:
@@ -76,6 +74,9 @@ class CredentialFlow(PathFlow):
         # Index names only; guard values always come from the current branch.
         self.absent_markers: set[str] = set()
         self.opt_in_markers: set[str] = set()
+        self.credential_guard_cache: (
+            tuple[tuple[Value, ...], tuple[tuple[str, Value], ...], Value] | None
+        ) = None
 
     def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
         if not bindings.get("#credential:http", UNKNOWN_VALUE).contained and any(
@@ -92,21 +93,29 @@ class CredentialFlow(PathFlow):
     def conditioned_credential(self, value: Value, env: dict[str, Value]) -> Value:
         if not value.operator_credential:
             return value
-        facts = _credential_guard_facts(
-            tuple(env[name] for name in self.absent_markers & env.keys()),
-            tuple(
-                (name.removeprefix("#credential:opt-in:"), env[name])
-                for name in self.opt_in_markers & env.keys()
-            ),
+        absent_values = tuple(env[name] for name in self.absent_markers & env.keys())
+        settings = tuple(
+            (name.removeprefix("#credential:opt-in:"), env[name])
+            for name in self.opt_in_markers & env.keys()
         )
+        cached = self.credential_guard_cache
+        if cached is None or cached[0] != absent_values or cached[1] != settings:
+            facts = _credential_guard_facts(absent_values, settings)
+            self.credential_guard_cache = (absent_values, settings, facts)
+        else:
+            facts = cached[2]
         if not facts.credential_fallback and not facts.operator_opt_in:
             return value
         return replace(
             value,
-            sources=value.sources | facts.sources,
+            sources=value.sources | facts.sources
+            if facts.credential_fallback
+            else value.sources,
             locations=value.locations | facts.locations,
             credential_fallback=value.credential_fallback or facts.credential_fallback,
-            operator_opt_in=value.operator_opt_in | facts.operator_opt_in,
+            operator_opt_in=value.operator_opt_in | facts.operator_opt_in
+            if facts.operator_opt_in
+            else value.operator_opt_in,
         )
 
     def member(self, value: Value, member: object, env: dict[str, Value]) -> Value:
