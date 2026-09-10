@@ -239,6 +239,45 @@ def test_typed_destructuring_keeps_runtime_member_identity(tmp_path: Path) -> No
     assert env["ref"].key != env["alias"].key
 
 
+@pytest.mark.parametrize(
+    ("schema", "expected"),
+    [
+        ("z.object({url:z.string().url()})", True),
+        ("z.object({url:z.string().transform(x => 'fixed')})", False),
+        ("fake.object({url:z.string()})", False),
+    ],
+)
+def test_source_bound_zod_parse_retains_field_flow(
+    tmp_path: Path, schema: str, expected: bool
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import Value
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+
+    sources = {
+        "schema.ts": 'import {z} from "zod"; export const schema = ' + schema + ";",
+        "server.ts": 'import {schema as input} from "./schema.js"; '
+        "function run(args) { return input.parse(args).url; }",
+    }
+    files = []
+    for name, source in sources.items():
+        path = tmp_path / name
+        path.write_text(source)
+        files.append(TypeScriptSourceFile(path, name, source))
+    program = TypeScriptProgram(tuple(files), deadline=time.monotonic() + 15)
+    state = RuleRunState()
+    flow = TypeScriptPathFlow(program, state)
+    argument = Value(sources=frozenset({"caller"}), key="argument")
+    handler = program.resolve(files[1], "run")
+    assert handler is not None
+    result = flow.function(handler, [argument])
+    assert result.sources == argument.sources
+    assert (result.key == flow.member(argument, "url", {}).key) == expected
+    assert (
+        any("input.parse" in warning.message for warning in state.warnings) != expected
+    )
+
+
 def test_factory_reads_metadata_after_configuration_helper(tmp_path: Path) -> None:
     source = (
         'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'

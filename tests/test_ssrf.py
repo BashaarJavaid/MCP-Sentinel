@@ -31,6 +31,50 @@ from urllib.parse import urlparse
 mcp = FastMCP("test")
 """
 
+
+@pytest.mark.parametrize(
+    ("guard", "protected"),
+    [
+        ("if (privateIP(url)) throw new Error();", False),
+        ("if (privateIP(new URL(url).hostname)) throw new Error();", True),
+        ("privateIP(new URL(url).hostname);", False),
+        ("if (privateIP(new URL(other).hostname)) throw new Error();", False),
+        ("if (privateIP(new URL(url).hostname)) console.log('blocked');", False),
+        (
+            "if (privateIP(new URL(url).hostname)) throw new Error(); url = other;",
+            False,
+        ),
+    ],
+)
+def test_typescript_private_ip_guard_has_only_literal_ipv4_scope(
+    tmp_path: Path, guard: str, protected: bool
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = (
+        'import {Server} from "@modelcontextprotocol/sdk/server/index.js";\n'
+        'import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";\n'
+        'import privateIP from "private-ip";\n'
+        'const server = new Server({name:"test",version:"1"});\n'
+        "server.setRequestHandler(CallToolRequestSchema, async request => {\n"
+        "let {url, other} = request.params.arguments;\n"
+        + guard
+        + "\nreturn fetch(url);\n});\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    # IPv4 rejection cannot establish scheme, IPv6, DNS or redirect protection.
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("url_guard_scope") == "literal-ipv4"
+    ) == protected
+
+
 CHECK = """parsed = urlparse(url)
     if parsed.scheme not in ("https", "http"):
         raise ValueError()

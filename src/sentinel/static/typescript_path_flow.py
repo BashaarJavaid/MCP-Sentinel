@@ -98,6 +98,7 @@ class TypeScriptPathFlow:
         self.nonnull_literals: set[str] = set()
         self.mobilecli_paths: set[str] = set()
         self.string_prefixes: dict[str, str] = {}
+        self.zod_schemas: dict[str, tuple[str, dict[str, Value], Value | None]] = {}
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -564,7 +565,15 @@ class TypeScriptPathFlow:
             if (
                 name is None
                 or any(
-                    a not in {"Static", "Public", "Private", "Protected", "Readonly"}
+                    a
+                    not in {
+                        "Static",
+                        "Public",
+                        "Private",
+                        "Protected",
+                        "Readonly",
+                        "Async",
+                    }
                     for a in attributes
                 )
                 or not (body.keys() & {"FuncDef", "VarDef"})
@@ -679,6 +688,44 @@ class TypeScriptPathFlow:
             & self.invalidated_objects
             else field
         )
+
+    def parsed_schema(
+        self, schema: Value, value: Value, env: dict[str, Value], depth: int = 0
+    ) -> Value:
+        if depth >= 64 or schema.key in self.invalidated_objects:
+            return replace(
+                value,
+                key=_key("unresolved-parse", value.key),
+                contained=False,
+                url_checks=frozenset(),
+            )
+        kind, fields, default = self.zod_schemas[schema.key]
+        if default is not None:
+            value = (
+                default
+                if value.key == "#ts:undefined"
+                else self.combined([value, default])
+                if value.sources or value.maybe_missing
+                else value
+            )
+        if kind == "object" or (kind == "record" and value.key in self.record_roots):
+            parsed = (
+                {
+                    name: self.parsed_schema(
+                        field, self.member(value, name, env), env, depth + 1
+                    )
+                    for name, field in fields.items()
+                }
+                if kind == "object"
+                else self.object_fields(value, env).copy()
+            )
+            result = self.record_state(_key("zod-parse", schema.key, value.key), parsed)
+            self.record_roots[result.key] = result.key
+            env["#record:" + result.key] = result
+            return result
+        # Validation does not sanitize scalar caller input. Records retain taint;
+        # their dynamic keys are not inferred from the schema.
+        return value
 
     def expression(
         self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
@@ -943,6 +990,8 @@ class TypeScriptPathFlow:
             parent = self.expression(file, receiver, env)
             self.receivers[id(node)] = parent
             member = name_of(field) or "?"
+            if parent.key in self.zod_schemas:
+                return Value(key=_key(parent.key, member))
             if "http:request" in parent.sources:
                 if parent.key in self.invalidated_objects:
                     parent = replace(parent, key=_key("invalidated", parent.key))
@@ -1262,6 +1311,69 @@ class TypeScriptPathFlow:
             resolved=False,
             locations=result.locations | {(file.relative_path, location.start_line)},
         )
+        method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+        if external in {
+            f"{namespace}.{kind}"
+            for namespace in ("zod.z", "zod.default", "zod")
+            for kind in ("string", "number", "boolean", "object", "record")
+        }:
+            kind = external.rsplit(".", 1)[1]
+            fields = (
+                self.object_fields(args[0], env) if args and kind == "object" else {}
+            )
+            if (
+                (kind in {"string", "number", "boolean"} and not args)
+                or (
+                    kind == "object"
+                    and len(args) == 1
+                    and args[0].key in self.record_roots
+                    and args[0].key not in self.invalidated_objects
+                    and all(
+                        v.key in self.zod_schemas
+                        and v.key not in self.invalidated_objects
+                        for v in fields.values()
+                    )
+                )
+                or (
+                    kind == "record"
+                    and len(args) in {1, 2}
+                    and all(
+                        v.key in self.zod_schemas
+                        and v.key not in self.invalidated_objects
+                        for v in args
+                    )
+                )
+            ):
+                self.zod_schemas[result.key] = (kind, fields.copy(), None)
+                return result
+        if (
+            receiver.key in self.zod_schemas
+            and receiver.key not in self.invalidated_objects
+        ):
+            kind, fields, default = self.zod_schemas[receiver.key]
+            if (
+                (method == "optional" and not args)
+                or (method == "url" and kind == "string" and not args)
+                or (method == "int" and kind == "number" and not args)
+                or (
+                    method in {"min", "max"}
+                    and kind in {"number", "string"}
+                    and len(args) == 1
+                )
+                or (
+                    method == "default"
+                    and len(args) == 1
+                    and args[0].key not in self.callables
+                )
+            ):
+                self.zod_schemas[result.key] = (
+                    kind,
+                    fields,
+                    args[0] if method == "default" else default,
+                )
+                return result
+            if method == "parse" and len(args) == 1:
+                return self.parsed_schema(receiver, args[0], env)
         if logical_returns is not None:
             tainted_returns = [(v, state) for v, state in logical_returns if v.sources]
             if tainted_returns and all(
@@ -1675,6 +1787,7 @@ class TypeScriptPathFlow:
                     or value.key in self.instances
                     or value.key in self.classes
                     or value.key in self.arrays
+                    or value.key in self.zod_schemas
                     or "http:request" in value.sources
                 ):
                     self.invalidate(value)

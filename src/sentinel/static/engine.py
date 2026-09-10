@@ -318,6 +318,10 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             "containment_gap"
         ):
             captures.pop("containment_gap", None)
+        if match.captures.get("url_guard_scope") != existing.captures.get(
+            "url_guard_scope"
+        ):
+            captures.pop("url_guard_scope", None)
         if match.captures.get("credential_operator_opt_in") != existing.captures.get(
             "credential_operator_opt_in"
         ):
@@ -420,6 +424,12 @@ def _finding_from_match(
             else "The requested path passed a containment check; this operation "
             "uses its parent directory, whose containment remains unresolved."
             if match.captures.get("containment_gap") == "checked-parent"
+            else "The source rejects private literal IPv4 destinations for this "
+            "caller URL before the request. Complete scheme and destination "
+            "restrictions remain unestablished; this candidate does not allege "
+            "an initial literal IPv4 loopback bypass. DNS, redirects and broader "
+            "IPv6 protection are not established by that address check."
+            if match.captures.get("url_guard_scope") == "literal-ipv4"
             else definition.description
         )
         + (

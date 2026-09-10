@@ -36,6 +36,13 @@ from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
             1,
         ),
         (
+            "private static async save({path}: {path: string}) { "
+            "return fs.writeFileSync(path, 'data'); } "
+            "static async write(p) { return this.save({path: p}); }",
+            "Writer.write(args.path)",
+            1,
+        ),
+        (
             "write(p) { return fs.writeFileSync('/srv/fixed', 'data'); }",
             "writer.write(args.path)",
             0,

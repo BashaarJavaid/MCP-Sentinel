@@ -785,7 +785,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             self.url_parts[result.key] = (origin, "hostname-unbracketed")
         checks = frozenset(
             check
-            for check in ("scheme", "host")
+            for check in ("scheme", "host", "literal-ipv4")
             if env.get(
                 f"#guard:url:{origin if part == 'parsed' else result.key}:{check}",
                 UNKNOWN_VALUE,
@@ -836,6 +836,18 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         receiver = self.receivers.get(id(callee), UNKNOWN_VALUE)
         origin, part = self.url_parts.get(receiver.key, ("", ""))
         method = name_of(callee.get("DotAccess", [{}, None, {}])[2])
+        if external == "private-ip.default" and len(argument_nodes) == 1:
+            value = self.call_value(file, argument_nodes[0], env)
+            address_origin, address_part = self.url_parts.get(value.key, ("", ""))
+            if address_part in {"hostname", "hostname-unbracketed"}:
+                result = replace(value, key=_key(external, value.key))
+                # private-ip classifies addresses, not whole URLs. Its false
+                # result also admits names and unsupported IPv6 spellings.
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:url:{address_origin}:literal-ipv4"}),
+                    frozenset(),
+                )
+                return result
         if part == "parsed" and method in {"toString", "toJSON"} and not argument_nodes:
             if receiver.key in self.invalidated_objects:
                 self.warning(file, node, "URL object was mutated or escaped")
@@ -940,6 +952,11 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                         match_kinds=("url-flow",),
                         captures={
                             "sink_name": name,
+                            **(
+                                {"url_guard_scope": "literal-ipv4"}
+                                if "literal-ipv4" in url.url_checks
+                                else {}
+                            ),
                             "flow_locations": json.dumps(
                                 sorted(
                                     url.locations

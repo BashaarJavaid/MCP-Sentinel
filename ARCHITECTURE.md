@@ -406,6 +406,16 @@ keeps the catch path. Mutated or escaped URL objects lose serialization protecti
 This does not establish DNS, redirect, proxy or runtime protection.
 
 Included plain TypeScript classes retain instance/static method receivers,
+including async methods and private static helpers. Supported source-bound Zod
+object/scalar/record schemas preserve caller field flow through `parse`; validation
+does not sanitize a URL. Arbitrary parse methods and transforming schemas remain
+unresolved. An enforced genuine `private-ip` check on the parsed hostname records
+only literal IPv4 rejection. SENT-015 retains a separately worded residual
+candidate when complete URL restrictions are unestablished; it does not attribute
+an initial IPv4 loopback bypass to that guarded path. A whole-URL argument, ignored
+result, unrelated value or subsequent replacement establishes no such guard.
+
+Included plain TypeScript classes retain
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an
 implicit receiver. Callees and arguments are evaluated once per call, including
