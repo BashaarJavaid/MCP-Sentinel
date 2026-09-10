@@ -1,5 +1,16 @@
 # Fresh SSRF replacement evaluation v2
 
+**Current classification: exposed regression.** The later user-authorized
+[exposure-and-fix decision](exposure-and-fix-authorization-v1.json) preserves the
+original approval and frozen misses below. At scanner `7555a9d`, both five-input
+native runs complete, detect both vulnerable initial-IPv4 conditions and have
+zero matching fixed/control alerts. Fixed/control reports retain scoped residual
+SSRF uncertainty; this is not zero raw findings or fresh accuracy evidence.
+See [current implementation status](../../../docs/phase22-implementation-status.md)
+and the source assessments retained in integration evidence batch 38.
+
+## Original frozen evaluation at `62987a6`
+
 **Approved and evaluated at frozen scanner `62987a6`.** The user approved
 [the exact checkpoint](checkpoint-62987a6.json) with “go ahead with these two”; the
 [separate authorization](authorization-62987a6.json) binds manifest

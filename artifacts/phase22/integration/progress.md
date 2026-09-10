@@ -2840,3 +2840,38 @@ Every member was read back and matched; all archives 1–37 were reverified.
 Restore in numeric order using the retained conflict/hash checks. No prior seal
 was replaced. Hosted verification and the single authorized Linux sequence are
 subsequent evidence. Fresh-v3 evaluation is still awaiting explicit approval.
+
+## Final continuation result at scanner7555a9d / deliverya4766a9
+
+Both exposed SSRF repeat gates pass: each family completes5/5 twice, detects2/2
+correlated vulnerable conditions and has zero matching fixed/control alerts.
+The fetch-mcp fixed/control reports retain scoped SSRF uncertainty; original
+misses, source exposure and every diagnostic assessment remain preserved.
+
+The authorized final Linux run34435283462 fails:15/25 completed and all ten Meta
+inputs timeout at120seconds. Both historical batches are correctly skipped.
+Six of ten vulnerable inputs are detected and9/13 valid negatives complete
+without matching alerts. Both raw Meta erratum negatives are incomplete, so9/15
+raw negatives complete. The two vulnerable operator variants newly time out
+versus prior Linux17/25. All15 completed reports equal current local entire
+ordered reports except recorded volatile fields; no unresolved report delta.
+The local22/25 development and original held-out10completed/10unsupported/
+5incomplete with0/4 completed-vulnerable hits remain separate results.
+
+All29 normal CI jobs and documentation pass at a4766a9 with scanner/test/package
+bytes equal7555a9d. Full logs/artifacts, all12 quality suites and source-verified
+wheel/sdist contents are retained. Current production replay revalidates both
+approved captures without paid calls and completes20/20 Docker attempts with14
+findings. Approved Git evidence stays13 incomplete campaigns:312tested and
+728remaining, with matching source/catalog/configuration/environment and cleanup.
+
+The SearXNG fresh-v3 checkpoint remains prepared and approval-pending; no
+new-source scanner/comparator run or tuning occurred. The separate unapproved
+Linux diagnostic proposal includes exact workflow/runner drafts and bounds:
+four native input runs, two worker-profile runs,120seconds each,30-minute job.
+No full retry, paid runner, gate exception or detector change is included.
+
+The current88-row audit preserves all86 original requirements and addsR87/R88.
+Phase22 remains incomplete, with no final human acceptance requested. Paid
+benchmark and pilots are user-deferred; Phase21 incomplete and Phase24/15
+unchanged. No new model charge, merge, release, outreach or next phase.

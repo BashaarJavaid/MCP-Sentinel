@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "status": "prepared_not_approved_not_installed_not_dispatched",
+  "scanner": {
+    "revision": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+    "source_sha256": "b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "basis_sha256": "94202ae283d81e60c654168b6262769b0d9d64cccfe9f2adaa88f770ccd7e342",
+  "input_ids": [
+    "meta-image-ssrf-vulnerable",
+    "meta-operator-fallback-fixed-mutation"
+  ],
+  "maximum_native_input_runs": 4,
+  "maximum_profiled_input_runs": 2,
+  "deadline_seconds_per_input": 120,
+  "job_ceiling_minutes": 30,
+  "model_calls": 0,
+  "target_execution": false,
+  "full_benchmark_retry": false,
+  "source_tuning": false,
+  "files_sha256": {
+    "ci.patch": "49c0988df837ed8faa21a62796ed1c363c554ea4111d40f13910f14862848949",
+    "ci.yml.proposed": "90b200285fb81d3cefd811370f2e22b835da7d3887cfcb8a500aa5684d50b6a8",
+    "runner.py": "7a79236589f62a050fdf45d595cca40f44f69acfbb534ce4d3421608b788a334",
+    "worker-profile.py": "70f63bfe3a53e99468128907a596ff87cfefc0eb8db1c9206c395bd0f8e33f6c"
+  },
+  "approval_requirement": "An actual explicit user decision must be recorded in authorization.json with this packet SHA-256 before installation/dispatch. No authorization record is fabricated. Existing CI job infra is reused; all29 normal jobs remain structurally identical.",
+  "verification": [
+    "Both Python drafts parse without importing or executing target code.",
+    "Proposed YAML parses; normal jobs exactly equal the current workflow.",
+    "Existing measure()/frozen() infrastructure retains120-second native and end-to-end enforcement.",
+    "The runner verifies exact proposal/scanner/lock/assets and explicit approval before any measurement.",
+    "No proposal asset has been executed as a scanner or installed as a workflow."
+  ]
+}

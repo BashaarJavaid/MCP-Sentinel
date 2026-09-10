@@ -111,17 +111,24 @@ Both exposed SSRF families now pass their final native repeat gates at `7555a9d`
 5/5 complete per run, 2/2 vulnerable condition matches and zero matching negative
 alerts. Original misses, raw residual findings and source assessments remain
 preserved. The finite performance investigation retained per-flow pure guard
-snapshot reuse; focused gains do not establish the full timing gate. The current
-continuation authorizes one new final Linux development25 → historical45 →
-historical45 sequence with unchanged 120-second native/end-to-end deadlines and
-conditional stopping. Local development completes 22/25 with three Meta timeouts;
+snapshot reuse; focused gains do not establish the full timing gate. The separately
+authorized final Linux run 34435283462 completes 15/25: all ten Meta inputs time
+out, and both historical batches are skipped. Local development completes 22/25;
 original held-out results remain 10 completed/10 unsupported/5 incomplete and
-0/4 completed-vulnerable hits. Final Linux, hosted and fresh gates are in progress.
-The scanner froze before curating the next independent source pair. Its exact
-fresh manifest/evaluation and final technical acceptance require explicit approval;
-no additional paid calls are approved. See the current implementation status and
-v9 evidence under artifacts/phase22/integration. Prior v8 source/checks/failures
-remain historical evidence rather than current passes.
+0/4 completed-vulnerable hits. All 15 completed Linux reports match current local
+reports except recorded volatile fields. All 29 normal hosted jobs and docs pass
+at `a4766a9`, with scanner/test/package bytes equal to `7555a9d`. Each of 12 hosted
+quality suites passes 2,140 tests with 36 skips and 89.63–89.66% branch coverage;
+local branch coverage is 89.64%. Complete logs and source-verified distributions
+are retained in the v9 hosted packet.
+The next fresh SearXNG proposal was curated after scanner7555a9d froze. Exact
+manifest/evaluation approval is pending; no new-source evaluation or tuning has
+occurred. The final Linux authorization is consumed. The unapproved diagnostic
+proposal in `v9-next-execution-proposal.json` and final technical acceptance are
+separate decisions; no further full retry, runner change, gate exception or paid
+call is authorized. Final acceptance cannot be requested while timing is unmet.
+See current implementation status and v9 evidence under artifacts/phase22/integration.
+All prior source/checks/failures remain historical evidence.
 Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
 unchanged; see `ROADMAP.md` §1 for the scope exception.
 
@@ -147,7 +154,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final timing/hosted/fresh gates in progress and acceptance pending; paid benchmark/pilots deferred)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final Linux timing fails; fresh approval and acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

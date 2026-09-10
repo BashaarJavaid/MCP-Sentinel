@@ -1152,27 +1152,51 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Current scanner: `7555a9d`; Phase 22 remains incomplete.** The authorized
-continuation corrected the exposed fetch-mcp flow and retained a measured Python
-credential-flow optimization. Both exposed SSRF families complete 5/5 inputs
-twice, detect both correlated vulnerable variants, and have zero condition-matched
-fixed/control alerts. These are exposed regressions; all original misses remain.
-The final original-corpus, Linux timing, hosted and fresh-evaluation gates are
-still being completed. Final human acceptance has not been requested or granted.
+**Current scanner: `7555a9d`; workflow delivery: `a4766a9`. Phase 22 remains
+incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+correlated vulnerable variants and have zero matching fixed/control alerts.
+Their original frozen misses and source-assessed residual uncertainty remain.
+The final Linux sequence failed: **15/25 completed, ten Meta timeouts**, with
+both historical batches correctly skipped. No retry or timing waiver occurred.
+Final human technical acceptance is unavailable while this gate is unmet.
 
-The current native source SHA-256 is
+Linux run [34435283462](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34435283462)
+detects six of ten vulnerable inputs; nine of thirteen valid negatives complete
+with zero matching alerts. Both raw Meta erratum negatives are incomplete,
+leaving nine of fifteen raw negatives completed. The two vulnerable operator
+variants newly time out compared with the prior Linux run. All 15 completed
+reports equal current local entire ordered reports except recorded volatile
+fields. See `v9-linux-assessment/packet.json` and `v9-linux-execution-delta.json`.
+
+The next fresh SearXNG proposal is frozen against scanner `7555a9d` and manifest
+`275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd`.
+Its narrow condition is default initial-request rejection of caller loopback IPv4;
+curation by the implementation agent occurred after the scanner freeze and is
+disclosed. Explicit evaluation approval is pending; it has not been scanned or
+used for tuning. The proposed two native five-input runs and one pinned Semgrep
+five-input run use no models or target execution.
+
+The current source SHA-256 is
 `b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c`.
-The continuation separately authorizes one new Linux sequence of 25 development
-inputs followed conditionally by two entire 45-input historical batches, keeping
-both 120-second deadlines. The previously failed run is preserved. New fresh
-sources are curated only after the scanner freeze, with exact manifest/evaluation
-approval required before any new-source scan. No additional paid calls are
-approved. Pilots and the full paid benchmark remain deferred; Phase 21 is
-incomplete and Phase 24/15 gates are unchanged.
+All 29 normal CI jobs and documentation pass at `a4766a9`, with scanner/test/
+package inputs identical to `7555a9d`. Every hosted quality suite reports 2,140
+passed and 36 skipped; branch coverage is 89.63–89.66%. All 153 wheel and 166
+sdist source/schema/fixture/capture members match Git blobs. Complete logs and
+283 uploaded files are retained in `v9-hosted-a4766a9/packet.json`; detailed
+verification is in `v9-current-hosted-audit/packet.json`. Local coverage is 89.64%.
+The pinned historical reproduction jobs each retain 32 completed/13 incomplete
+on their original scanner, not the current integration timing gate. No additional
+paid call occurred. Pilots and the full paid benchmark remain user-deferred;
+Phase 21 is incomplete and Phase 24/15 gates are unchanged.
 
-See [implementation status](docs/phase22-implementation-status.md) for current evidence.
+Further execution needs a decision after the failed final sequence. The unapproved
+`v9-next-execution-proposal.json` proposes one diagnostic-only standard Linux job:
+two already exposed Meta inputs, two native repeats and one worker profile each,
+120 seconds per input and a 30-minute job ceiling. It permits no detector edit,
+fresh evaluation, full benchmark retry or gate exception. Alternatively, further
+performance work can remain deferred with Phase 22 incomplete.
 
-### Historical v8 checkpoint at scanner `62987a6`
+## Historical v8 checkpoint at scanner `62987a6`
 
 **Current scanner: `62987a6`; workflow delivery: `88a559e`. Phase 22 remains
 incomplete pending execution reliability and final human technical acceptance.** The user approved both the revised Linux execution and exact

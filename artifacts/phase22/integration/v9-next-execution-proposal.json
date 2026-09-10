@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "status": "prepared_pending_genuine_execution_decision",
+  "approved": false,
+  "basis": "Detection/timing continuation sections2 and4 require a genuine decision after the newly authorized final Linux sequence fails. That sequence is consumed.",
+  "scanner": {
+    "revision": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+    "source_sha256": "b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "linux_result_sha256": "aa4e39e7720d03914d7081d9ba1c2277fd61f806a22428a1170db4fa9880556b",
+  "recommended_option": "One diagnostic-only job on the same standard ubuntu-latest runner and immutable7555a9d scanner, using existing bounded native and worker-profile infrastructure. No detector edit or full benchmark retry in this option.",
+  "input_ids": [
+    "meta-image-ssrf-vulnerable",
+    "meta-operator-fallback-fixed-mutation"
+  ],
+  "native_repeats_per_input": 2,
+  "profiled_runs_per_input": 1,
+  "maximum_native_input_runs": 4,
+  "maximum_profiled_input_runs": 2,
+  "deadline_seconds_per_input": 120,
+  "nominal_input_budget_seconds": 720,
+  "job_ceiling_minutes": 30,
+  "purpose": "Measure actual current Linux worker cost before selecting another implementation change; distinguish repeated traversal/merge/allocation from startup and waiting, with unprofiled native repetitions kept separate.",
+  "execution_requirements": [
+    "Bind the reviewed diagnostic workflow to7555a9d, existing source/harness/lock/config/input hashes and this exact user decision before one dispatch.",
+    "Run serially, retain complete reports and failures, worker-inclusive CPU/profiles/resource observations and exact runner environment. Preserve native and end-to-end deadlines and static target no-execution.",
+    "Compare entire ordered native reports to retained current reports except documented volatile fields; preserve missing reports and assess any delta.",
+    "Stop after these six input runs regardless of outcomes. Report the measured hotspot and a separate concrete implementation/final-verification proposal; no automatic retry."
+  ],
+  "profile_basis": [
+    {
+      "path": "v9-performance-profile-corrected/packet.json",
+      "sha256": "63c08b2868c90e8e4420bb1126959cfac70e64fd5584663309ee18585988c6a0",
+      "scanner": "68e1162f41dd70bc7193c3b327e1bdecd2be1bf9",
+      "assessment": "Corrected continuous local profiles show large shared expression/call/merge/Value-allocation work in SENT015/016. Profiled inputs time out; these are diagnostics, not native timing successes."
+    },
+    {
+      "path": "v9-iteration3-disposition.json",
+      "sha256": "88cfc78b6ab9ff6250a077395fcc435a3ec332508203c0878275a9a7fa8bf660",
+      "assessment": "7555a9d guard snapshot improves two focused local inputs, with unchanged full ordered reports; final whole-batch gate still fails."
+    }
+  ],
+  "paid_model_calls": 0,
+  "paid_runner_procurement": false,
+  "target_execution": false,
+  "source_tuning": false,
+  "fresh_corpus_evaluation": false,
+  "full_benchmark_retry": false,
+  "deadline_exception": false,
+  "new_git_environment": false,
+  "alternative": "Keep Phase22 incomplete with delivered corrections and all evidence; defer further performance work. This does not waive the timing gate or grant final acceptance.",
+  "separate_checkpoints": [
+    "The already prepared SearXNG fresh freeze/evaluation approval remains independent.",
+    "Any later detector correction requires new final-source verification and appropriate fresh exposure/freeze treatment.",
+    "Any further whole-batch sequence remains separately gated.",
+    "Final human Phase22 acceptance is unavailable while technical gates are unmet."
+  ]
+}
