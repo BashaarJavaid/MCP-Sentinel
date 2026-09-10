@@ -958,3 +958,77 @@ def test_oversized_list_cannot_hide_a_tainted_last_element() -> None:
     state = RuleRunState()
     analyze(index, state)
     assert state.matches
+
+
+def test_helper_guard_facts_preserve_filters_and_aliases(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ast
+    from dataclasses import replace
+
+    from sentinel.static.path_flow import Value
+
+    index = program(
+        {
+            "server.py": (
+                "def guard(value): return value\ndef caller(path): return guard(path)\n"
+            )
+        }
+    )
+    caller = index.resolve(index.files[0], "caller")
+    assert caller is not None
+    call = next(node for node in ast.walk(caller.node) if isinstance(node, ast.Call))
+    flow = PathFlow(index, RuleRunState(), float("inf"))
+    current = Value(
+        key="shared",
+        sources=frozenset({"caller"}),
+        locations=frozenset({("server.py", 1)}),
+    )
+    env = {"path": current, "alias": current, "global": Value(key="global")}
+    env.update({key: Value(key=key) for key in ("blocked", "missing", "none", "")})
+    before = env.copy()
+    facts = {
+        "guarded": Value(
+            key="shared",
+            contained=True,
+            url_checks=frozenset({"scheme"}),
+            locations=frozenset({("server.py", 10)}),
+        ),
+        "#member:url": Value(
+            key="shared",
+            option_safe=True,
+            url_checks=frozenset({"private-ip"}),
+            locations=frozenset({("server.py", 20)}),
+        ),
+        "#global-value:server.py:setting": Value(key="global", option_safe=True),
+        "factless": Value(key="shared", locations=frozenset({("server.py", 99)})),
+        "empty-key": Value(
+            contained=True, option_safe=True, url_checks=frozenset({"private-ip"})
+        ),
+        "#control": Value(
+            key="blocked",
+            contained=True,
+            option_safe=True,
+            url_checks=frozenset({"private-ip"}),
+        ),
+        "missing": Value(key="missing", contained=True, maybe_missing=True),
+        "none": Value(key="none", option_safe=True, maybe_none=True),
+    }
+
+    def checked_helper(symbol, bindings):
+        assert symbol.name == "guard"
+        bindings.update(facts)
+        return Value()
+
+    monkeypatch.setattr(flow, "function", checked_helper)
+    flow.call(caller, call, env)
+    guarded = replace(
+        current,
+        contained=True,
+        option_safe=True,
+        url_checks=frozenset({"scheme", "private-ip"}),
+        locations=current.locations | {("server.py", 10), ("server.py", 20)},
+    )
+    assert env["path"] == env["alias"] == guarded
+    assert env["global"] == replace(before["global"], option_safe=True)
+    assert all(env[key] == before[key] for key in ("blocked", "missing", "none", ""))
