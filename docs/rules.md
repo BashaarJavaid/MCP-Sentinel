@@ -409,6 +409,12 @@ redirect-policy verification are not established by these checks. Ambiguous
 bindings and unsupported wrappers remain disclosed rather than treated as proof
 of protection. A finding is a static candidate, not an observed network request.
 
+The frozen SearXNG evaluation misses both vulnerable variants at `7555a9d`.
+Its MCP tool surface is not recognized, so completed scans of the optional HTTP
+routes do not establish coverage of the ordinary stdio URL reader. See
+[the current assessment](phase22-implementation-status.md) for this unaccepted
+limitation and the preserved first results.
+
 ```python
 # Caller input reaches the server's network capability.
 return requests.get(url)

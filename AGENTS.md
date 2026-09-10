@@ -78,14 +78,18 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 
 ## Current phase
 
-Latest continuation: the user said “start with 1 and 2.” This approves the
-prepared SearXNG7555a9d fresh evaluation (two native five-input runs and one
-Semgrep run) and one standard Linux diagnostic job (four native runs and two
-worker profiles on the two named exposed Meta inputs,120seconds/input,30-minute
-job ceiling). Their separate authorization records preserve exact packet hashes.
-Both are in progress; no paid call, full benchmark retry, gate exception or final
-technical acceptance is inferred. Earlier pending-approval descriptions below
-are the preceding closeout snapshot.
+Latest continuation: the user said “start with 1 and 2.” The exact approved
+SearXNG at 7555a9d evaluation is complete: 5/5 inputs twice native and once Semgrep,
+but both tiers miss both vulnerable variants. No source tuning occurred; preserve
+all first frozen results. Its MCP tool surface is missed, and all unrelated
+findings/diagnostics have source assessments. A source-informed exposure/fix
+proposal is prepared but unapproved. The single approved Linux diagnostic
+34446017571 completes its job but all four native and two profiled inputs time
+out. CPU-bound shared traversal/merge work remains. One finite local duplicate-
+merge experiment preserved reports but showed small, inconsistent gains; it was
+reverted, retaining the guard regression. Scanner bytes still equal 7555a9d.
+See v10 assessments/disposition under artifacts/phase22/integration. No paid call,
+full benchmark retry, gate exception or final technical acceptance is inferred.
 
 See `ROADMAP.md` for the authoritative dependency order and verification gates.
 **Phases 16–20 are complete and accepted. Phase 20's independent benchmark
@@ -125,19 +129,17 @@ authorized final Linux run 34435283462 completes 15/25: all ten Meta inputs time
 out, and both historical batches are skipped. Local development completes 22/25;
 original held-out results remain 10 completed/10 unsupported/5 incomplete and
 0/4 completed-vulnerable hits. All 15 completed Linux reports match current local
-reports except recorded volatile fields. All 29 normal hosted jobs and docs pass
-at `a4766a9`, with scanner/test/package bytes equal to `7555a9d`. Each of 12 hosted
-quality suites passes 2,140 tests with 36 skips and 89.63–89.66% branch coverage;
-local branch coverage is 89.64%. Complete logs and source-verified distributions
-are retained in the v9 hosted packet.
-The next fresh SearXNG proposal was curated after scanner7555a9d froze. Exact
-manifest/evaluation approval is pending; no new-source evaluation or tuning has
-occurred. The final Linux authorization is consumed. The unapproved diagnostic
-proposal in `v9-next-execution-proposal.json` and final technical acceptance are
-separate decisions; no further full retry, runner change, gate exception or paid
-call is authorized. Final acceptance cannot be requested while timing is unmet.
-See current implementation status and v9 evidence under artifacts/phase22/integration.
-All prior source/checks/failures remain historical evidence.
+reports except recorded volatile fields. All 29 normal jobs and docs pass at
+`bbb5fbc`; scanner/package bytes equal 7555a9d with one added guard regression.
+Each of 12 hosted suites passes 2,141 tests with 36 skips and 89.63–89.66% branch
+coverage; local coverage is 89.64%. Current source-compatible capture/runtime
+and package evidence is bound under v10; `05309f9` checks are also retained.
+The fresh SearXNG evaluation and one Linux diagnostic authority are consumed.
+The fresh miss and timing failures remain visible and unaccepted. Further full
+retry, runner change, gate exception and paid calls require explicit approval;
+final acceptance cannot be requested while timing is unmet. The two prepared
+v10 follow-up proposals are unapproved. All earlier implementation, source,
+measurements, failures, worktrees and sealed evidence remain preserved.
 Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
 unchanged; see `ROADMAP.md` §1 for the scope exception.
 
@@ -163,7 +165,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final Linux timing fails; fresh approval and acceptance pending; paid benchmark/pilots deferred)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final Linux timing fails; fresh evaluation misses; timing and acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

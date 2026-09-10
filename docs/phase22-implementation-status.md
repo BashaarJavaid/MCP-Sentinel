@@ -1,6 +1,6 @@
 # Phase 22 implementation status
 
-**Current scanner: `7555a9d`; workflow delivery: `a4766a9`. Phase 22 remains
+**Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
 incomplete.** Both exposed SSRF families complete five inputs twice, detect both
 correlated vulnerable variants and have zero matching fixed/control alerts.
 Their original frozen misses and source-assessed residual uncertainty remain.
@@ -16,33 +16,57 @@ variants newly time out compared with the prior Linux run. All 15 completed
 reports equal current local entire ordered reports except recorded volatile
 fields. See `v9-linux-assessment/packet.json` and `v9-linux-execution-delta.json`.
 
-The next fresh SearXNG proposal is frozen against scanner `7555a9d` and manifest
-`275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd`.
-Its narrow condition is default initial-request rejection of caller loopback IPv4;
-curation by the implementation agent occurred after the scanner freeze and is
-disclosed. Explicit evaluation approval is pending; it has not been scanned or
-used for tuning. The proposed two native five-input runs and one pinned Semgrep
-five-input run use no models or target execution.
+The user approved the exact frozen SearXNG evaluation with “start with 1 and 2.”
+All five inputs complete twice natively and once with pinned Semgrep: **both tiers
+miss both correlated vulnerable variants**, with zero matching fixed/control
+alerts. Maximum wall times are 11.311s/14.926s native and 20.219s comparator.
+Entire ordered native reports match except recorded volatile fields; JSON/SARIF
+validate. The implementation agent's source exposure after freeze is disclosed.
+No new paid call, target execution, retry, source tuning or replacement occurred.
+
+Native coverage recognizes four optional HTTP routes but misses the MCP tool
+surface and its ordinary stdio factory/dispatch path. The complete URL flow also
+includes structural argument validation, source defaults and casted undici fetch.
+Every unrelated finding and diagnostic has a source assessment. This is a
+substantive fresh detection limitation, not protection or human acceptance.
+See `v9-fresh-assessment/packet.json` and `v10-fresh-review.md`; the separate
+`v10-searxng-exposure-fix-proposal.json` is prepared but unapproved. Original
+frozen results and manifest `275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd`
+remain unchanged.
 
 The current source SHA-256 is
 `b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c`.
-All 29 normal CI jobs and documentation pass at `a4766a9`, with scanner/test/
-package inputs identical to `7555a9d`. Every hosted quality suite reports 2,140
-passed and 36 skipped; branch coverage is 89.63–89.66%. All 153 wheel and 166
-sdist source/schema/fixture/capture members match Git blobs. Complete logs and
-283 uploaded files are retained in `v9-hosted-a4766a9/packet.json`; detailed
-verification is in `v9-current-hosted-audit/packet.json`. Local coverage is 89.64%.
-The pinned historical reproduction jobs each retain 32 completed/13 incomplete
-on their original scanner, not the current integration timing gate. No additional
-paid call occurred. Pilots and the full paid benchmark remain user-deferred;
-Phase 21 is incomplete and Phase 24/15 gates are unchanged.
+All 29 normal CI jobs and documentation pass at `bbb5fbc`. Scanner and package
+bytes equal `7555a9d`; the sole test change adds a branch-guard invariant. Each of
+12 hosted quality suites reports 2,141 passed and 36 skipped, with 89.63–89.66%
+branch coverage. All 153 wheel and 166 sdist source/schema/fixture/capture members
+match Git blobs. Full logs and 225 uploaded files are retained in
+`v10-hosted-bbb5fbc/packet.json`; verification is in
+`v10-final-hosted-audit/packet.json`. The local suite passes 2,141 tests with
+36 skips and 89.64% branch coverage. The preceding `05309f9` hosted run also
+passes and is retained separately. Pinned historical reproductions retain their
+original scanner and do not replace the current timing gate. Exact unchanged
+source/harness/input/capture compatibility is in `v10-source-compatibility.json`.
+No additional paid call occurred. Pilots and the full paid benchmark remain
+user-deferred; Phase 21 is incomplete and Phase 24/15 gates are unchanged.
 
-Further execution needs a decision after the failed final sequence. The unapproved
-`v9-next-execution-proposal.json` proposes one diagnostic-only standard Linux job:
-two already exposed Meta inputs, two native repeats and one worker profile each,
-120 seconds per input and a 30-minute job ceiling. It permits no detector edit,
-fresh evaluation, full benchmark retry or gate exception. Alternatively, further
-performance work can remain deferred with Phase 22 incomplete.
+The separately approved Linux diagnostic ran once as
+[34446017571](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34446017571):
+all four native observations and both profiles time out at 120 seconds. The job's
+successful diagnostic completion is not a native timing pass. Worker profiles
+show CPU-bound call/expression traversal, merging and Value allocation across
+SENT-012/015/016. Missing reports remain missing; see
+`v10-linux-diagnostic-assessment/packet.json` and `v10-linux-review.md`.
+
+One bounded local experiment used eight native observations and one count profile
+on the two exposed Meta inputs. Removing duplicate immutable merge inputs
+preserved all ordered reports, but median wall gains of 2.29%/1.84% and CPU gains
+of 2.43%/1.40% were small relative to variability, with a first operator regression.
+The optimization was reverted; the useful branch-guard invariant test remains.
+Scanner bytes still equal `7555a9d`. See `v10-local-performance-disposition.json`.
+No full benchmark retry, deadline waiver or runner change occurred. Further
+execution decisions and final human acceptance remain separate; Phase 22 stays
+incomplete while the timing gate is unmet.
 
 The final local development measurement completes 22/25. Meta operator-fallback
 fixed, fixed-mutation and safe inputs time out at 120.041s, 120.084s and 120.091s.
@@ -55,7 +79,7 @@ All report changes have source assessments. The failed final Linux sequence is
 retained separately; no local or hosted retry is inferred.
 See `v9-final-corpus-assessment/packet.json` and `v9-linux-assessment/packet.json`.
 
-The final local suite passes 2,140 tests with 36 Docker skips and 89.64% branch
+The current local suite passes 2,141 tests with 36 Docker skips and 89.64% branch
 coverage. Strict docs and final hosted checks have their own delivery records.
 
 The fetch-mcp correction follows genuine imported schema field flow and async
@@ -79,10 +103,10 @@ are not a whole-corpus timing pass; see `v9-iteration3-disposition.json`.
 
 Earlier corrected worker profiles locate substantial cost in shared expression/
 call traversal, branch merging and Value allocation across SENT-012/015/016.
-They predate scanner7555a9d and are diagnostic evidence, not current Linux timing
-measurements. The final Linux job records native timeouts and environment but
-no worker profiles. The prepared diagnostic option measures the actual current
-Linux cost before selecting another change; it remains unapproved.
+They predate scanner7555a9d and remain historical diagnostic evidence. The final
+whole-batch Linux job has no profiles; the later separately approved v10 diagnostic
+now records current partial worker profiles. Those profiles and the reverted
+local merge experiment are described above; neither passes the timing gate.
 
 Current production request construction accepts the two existing captures and
 six replay batches without new model calls. The controlled Docker demo completes
@@ -91,7 +115,7 @@ and 19 runtime components match retained approved-environment evidence: 1,040
 planned, 312 tested and 728 remaining, all 13 campaigns incomplete with exit 3.
 Wheel/sdist bytes match current source and pip/pipx/uv installation smoke passes.
 See `v9-compatible-evidence-binding/packet.json` and the `v9-final-*` check records.
-Current hosted checks name delivery `a4766a9`; all prior checks remain bound to
+Current hosted checks name delivery `bbb5fbc`; all prior checks remain bound to
 their original source and are not relabeled.
 
 ## Historical v8 checkpoint at scanner `62987a6`

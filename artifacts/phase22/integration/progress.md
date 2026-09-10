@@ -2875,3 +2875,52 @@ The current88-row audit preserves all86 original requirements and addsR87/R88.
 Phase22 remains incomplete, with no final human acceptance requested. Paid
 benchmark and pilots are user-deferred; Phase21 incomplete and Phase24/15
 unchanged. No new model charge, merge, release, outreach or next phase.
+
+## Approved fresh evaluation and Linux diagnostic: v10
+
+The user's “start with 1 and 2.” approved the exact frozen SearXNG evaluation and
+one six-input-run Linux diagnostic. Both authorities are consumed. All 15 fresh
+runs complete: native twice 5/5 and Semgrep once 5/5; both tiers miss both correlated
+vulnerable variants, with zero matching fixed/control alerts. Whole ordered
+native reports match except volatile fields; native JSON/SARIF validate. Native
+coverage omits the MCP tool surface; source assessments retain every unrelated
+finding/diagnostic and the original historical warning backlog separately.
+
+Linux run 34446017571 ends its diagnostic job successfully but all 4 native inputs
+and 2 profiles time out at 120 seconds. Three workers spend substantial CPU on shared
+call/expression traversal, merging and allocation. Missing reports remain missing.
+No full 25→45→45 retry occurred; the prior 15/25 timing failure still governs.
+
+One finite local experiment used 8 native observations and 1 counter profile.
+Repeated immutable merge operands were common, but removing them produced only
+2.29%/1.84% median wall gains, 2.43%/1.40% CPU gains and a first operator regression.
+Full ordered reports matched. The optimization was reverted; the branch-guard
+invariant remains and scanner bytes still equal 7555a9d. No second attempt occurred.
+
+All 29 normal jobs/docs pass at 05309f9 and at the regression delivery bbb5fbc. Logs,
+artifacts and actual wheel/sdist source bytes are verified. The local suite and
+all 12 current hosted suites pass 2,141/36. Exact product/harness/fixture/capture
+compatibility preserves earlier exposed SSRF gates, capture/runtime evidence,
+original held-out limits and the failed timing sequence without relabeling them.
+
+Both v10 follow-up proposals are unapproved: further bounded offline traversal
+investigation and SearXNG exposure/fix. Original frozen misses, seals, worktrees,
+failed commands and experiments remain preserved. No additional paid call,
+runner change, gate waiver, final acceptance, merge, release, outreach or next
+phase. Phase 22 remains incomplete; pilots/paid benchmark stay user-deferred and
+Phase 21/24/15 gates remain unchanged.
+
+### Evidence batch 40
+
+Batch 40 is sealed: **794 files**, 66,259,015 raw bytes and
+10,545,389 compressed bytes, SHA-256
+`a65cfd1dd40d21ef1d02b22386dda21790018a1da7c2558433319d9f342a2cd0`.
+Every member was read back and all 39 previous archive hashes reverified after
+measurement, check and collector writers stopped. Restore after batches 1–39
+into separate staging; validate the archive and each member against
+`evidence-v40.json` before copying. Existing destinations must match identical
+bytes or their prior numbered-manifest hashes; stop on unexpected conflicts.
+Current source/test/hosted proofs, approved evaluation and diagnostic results,
+reverted experiment, source assessments and unapproved follow-ups are retained.
+Final documentation/delivery bindings are also retained directly in Git. This
+seal is evidence delivery, not a timing pass or final technical acceptance.

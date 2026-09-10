@@ -416,6 +416,12 @@ an initial IPv4 loopback bypass to that guarded path. A whole-URL argument, igno
 result, unrelated value, unknown URL-object escape or subsequent replacement
 establishes no such guard.
 
+The frozen SearXNG evaluation at `7555a9d` misses both vulnerable variants: its
+ordinary stdio factory and aliased low-level server dispatch produce no recognized
+MCP tool surface. Recognized optional HTTP routes do not cover that tool path.
+The source assessments and unaccepted limitation are recorded in
+`docs/phase22-implementation-status.md`; completed analysis is not protection.
+
 Included plain TypeScript classes retain
 constructor fields and branch-local field updates through helper calls. Arrow
 functions retain lexical `this`; ordinary extracted functions do not acquire an

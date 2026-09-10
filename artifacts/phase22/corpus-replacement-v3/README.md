@@ -2,8 +2,11 @@
 
 The user approved the exact `7555a9d` freeze and bounded evaluation with
 “start with 1 and 2.” See `authorization-7555a9d.json`. The two native
-five-input runs and one comparator run are now executing; zero paid calls or
-target execution. Original proposal/checkpoint bytes remain unchanged.
+five-input runs and one comparator run are complete, with both tiers missing
+both correlated vulnerable variants. Maximum wall times are 11.311s/14.926s
+native and 20.219s comparator. There were zero paid calls or target execution.
+See `../integration/v10-fresh-review.md` and the source-bound assessment.
+Original proposal/checkpoint bytes remain unchanged.
 
 **Prepared; explicit approval is required before any Sentinel or comparator run.**
 Scanner `7555a9d3b472516ea880bd0ba8fbd25e89699453` was frozen before source
