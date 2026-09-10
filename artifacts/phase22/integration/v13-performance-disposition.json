@@ -1,0 +1,124 @@
+{
+  "recorded_at": "2026-09-10T16:55:30.027192+00:00",
+  "proposal_sha256": "b497b672289e2dfc890fdb82857c8172003a89bd8cc2dea896cd697136e5e864",
+  "authorization_sha256": "46cee05886a3b795ffd590f0dfbfbf99897de2c21b68527228909f85b3b8526b",
+  "comparison_sha256": "754d4a14afe54ec075e2980202e8659e99379007aa94a3604984d09725962289",
+  "baseline": "523320f19fa4cf4eed56c5366470b22ba70e0243",
+  "candidate": "de2a02f51295518ca34449210e5ce9a7fc3eb78d",
+  "optimization_attempts": 1,
+  "counter_profiles": 2,
+  "native_observations": 12,
+  "remaining_budget": 0,
+  "whole_ordered_reports_equal": true,
+  "native_observations_completed_within_deadlines": 12,
+  "timing_comparison": [
+    {
+      "input_id": "atlassian-upload-fixed",
+      "baseline": {
+        "input_id": "atlassian-upload-fixed",
+        "stage": "baseline",
+        "wall_duration_ms": [
+          117958,
+          106890
+        ],
+        "median_wall_ms": 112424.0,
+        "child_cpu_seconds": [
+          199.172172,
+          195.838559
+        ],
+        "median_child_cpu_seconds": 197.50536549999998
+      },
+      "candidate": {
+        "input_id": "atlassian-upload-fixed",
+        "stage": "candidate",
+        "wall_duration_ms": [
+          88540,
+          98759
+        ],
+        "median_wall_ms": 93649.5,
+        "child_cpu_seconds": [
+          154.6045,
+          182.562914
+        ],
+        "median_child_cpu_seconds": 168.583707
+      },
+      "median_wall_change_percent": -16.69972603714509,
+      "median_child_cpu_change_percent": -14.64347990080299
+    },
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "baseline": {
+        "input_id": "meta-image-ssrf-vulnerable",
+        "stage": "baseline",
+        "wall_duration_ms": [
+          68002,
+          83633
+        ],
+        "median_wall_ms": 75817.5,
+        "child_cpu_seconds": [
+          168.73178,
+          200.57219800000001
+        ],
+        "median_child_cpu_seconds": 184.65198900000001
+      },
+      "candidate": {
+        "input_id": "meta-image-ssrf-vulnerable",
+        "stage": "candidate",
+        "wall_duration_ms": [
+          70886,
+          72640
+        ],
+        "median_wall_ms": 71763.0,
+        "child_cpu_seconds": [
+          179.863741,
+          183.388066
+        ],
+        "median_child_cpu_seconds": 181.6259035
+      },
+      "median_wall_change_percent": -5.347709961420522,
+      "median_child_cpu_change_percent": -1.6388047138772066
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "baseline": {
+        "input_id": "meta-operator-fallback-fixed-mutation",
+        "stage": "baseline",
+        "wall_duration_ms": [
+          69916,
+          79398
+        ],
+        "median_wall_ms": 74657.0,
+        "child_cpu_seconds": [
+          175.124044,
+          193.416555
+        ],
+        "median_child_cpu_seconds": 184.2702995
+      },
+      "candidate": {
+        "input_id": "meta-operator-fallback-fixed-mutation",
+        "stage": "candidate",
+        "wall_duration_ms": [
+          84933,
+          71217
+        ],
+        "median_wall_ms": 78075.0,
+        "child_cpu_seconds": [
+          194.318304,
+          179.041902
+        ],
+        "median_child_cpu_seconds": 186.680103
+      },
+      "median_wall_change_percent": 4.578271294051461,
+      "median_child_cpu_change_percent": 1.3077546986892452
+    }
+  ],
+  "retention_gate_passed": false,
+  "decision": "Revert all three performance product-file changes; retain the semantic regression and committed attempt/evidence. Improvement was not demonstrated across the named inputs: Meta operator median wall and child CPU increased despite the Atlassian improvement. No second optimization attempt or timing retry is authorized.",
+  "profile_limits": "The image counter profile timed out at120.049s; operator counter scan completed but end-to-end120.409s exceeds the cap. Both remain recorded failed deadline observations; no retry.",
+  "limits": "Two samples per source/input on a shared macOS desktop, native worker selection unchanged; variation and all timings/CPU retained. No Linux improvement or whole-corpus claim.",
+  "full_linux_retry_authorized": false,
+  "existing_full_linux_gate": "Retained7555a9d sequence34435283462 completes15/25; ten Meta timeouts, historical45+45 skipped. Still failed.",
+  "new_paid_calls": 0,
+  "target_execution": false,
+  "final_acceptance": false
+}

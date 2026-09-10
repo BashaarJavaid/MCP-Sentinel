@@ -1,5 +1,18 @@
 # Fresh SSRF replacement proposal v3
 
+## Current exposed correction at `2ac39aa`
+
+Both five-input native batches pass: 2/2 vulnerable matches and zero matching
+fixed/control alerts per batch, within 120 seconds. The fixed source retains
+its native default-loopback qualifier; broader URL candidates and unresolved
+dispatch remain visible. All ordered repeats and native schemas validate.
+See `../integration/v13-searxng-assessment/packet.json`. The current continuation
+authorized one fixed trace and these ten final observations; the optional
+vulnerable trace was unnecessary. Original freezes, misses and exposure
+receipts remain unchanged. This is not fresh evidence or Phase 22 acceptance.
+
+## Historical v12 result
+
 These five cases became exposed regressions through the user's “go ahead”,
 recorded in `../integration/v11-follow-up-authorization.json` and normalized in
 `exposure-and-fix-authorization-v1.json`. All first frozen results remain unchanged.

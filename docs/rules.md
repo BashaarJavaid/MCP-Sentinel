@@ -37,10 +37,14 @@ establish this protection. The scanner does not read the target environment or
 suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
 unestablished; this is source analysis, not runtime proof.
 
-These bounded facts pass their focused controls, but the full exposed SearXNG
-source still loses the narrow qualifier and flags both fixed variants. Its
-correction gate remains unmet; the implementation does not establish complete
-source-default or redirect coverage. See the current Phase 22 status and audit.
+At `2ac39aa`, the full exposed SearXNG source retains this qualifier on both
+fixed variants. Receiver invalidations stay local to mutually exclusive `if`
+arms and are conservatively unioned at their join; unknown effects in an HTTP
+branch no longer contaminate its stdio alternative. Both five-input native
+batches detect both vulnerable variants with zero matching fixed/control alerts.
+Broader candidates and unresolved dispatch remain visible. The earlier `6eb482c`
+fixed false alerts are preserved; neither result establishes complete redirect
+coverage or runtime protection. See the current Phase 22 status and audit.
 
 
 ## SENT-001 { #sent-001 }
@@ -432,11 +436,12 @@ redirect-policy verification are not established by these checks. Ambiguous
 bindings and unsupported wrappers remain disclosed rather than treated as proof
 of protection. A finding is a static candidate, not an observed network request.
 
-The frozen SearXNG evaluation misses both vulnerable variants at `7555a9d`.
-Its MCP tool surface is not recognized, so completed scans of the optional HTTP
-routes do not establish coverage of the ordinary stdio URL reader. See
-[the current assessment](phase22-implementation-status.md) for this unaccepted
-limitation and the preserved first results.
+The frozen SearXNG evaluation missed both vulnerable variants at `7555a9d`.
+Its MCP tool surface was not recognized, so completed scans of the optional HTTP
+routes did not establish coverage of the ordinary stdio URL reader. The exposed
+correction at `2ac39aa` now passes the narrow detection gate while retaining
+unresolved dispatch coverage. See [the current assessment](phase22-implementation-status.md)
+for the preserved first results and remaining limitations.
 
 ```python
 # Caller input reaches the server's network capability.

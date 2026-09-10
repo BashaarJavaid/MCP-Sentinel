@@ -416,6 +416,12 @@ callable, including explicit `undefined` defaults. Unknown or replaced dependenc
 do not establish a callable. `satisfies` preserves its runtime operand, and
 conditional record allocations retain their member state across later calls.
 A callable missing on another source branch remains an explicit coverage warning.
+Receiver invalidations from mutually exclusive TypeScript `if` arms are evaluated
+from the same incoming invalidation state and conservatively unioned at the join.
+An unknown effect in one transport branch does not establish an effect in its
+alternative; unknown callbacks, replacement and subsequent join effects remain
+conservative. This preserves source-bound default URL guard evidence through
+ordinary stdio startup without exempting `process` calls.
 This bounded source interpretation does not execute startup or establish a runtime
 configuration, complete dispatch coverage or target safety.
 

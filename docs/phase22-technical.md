@@ -1,6 +1,57 @@
 # Phase 22 technical expansion
 
-## Current bounded follow-up at `6eb482c`
+## Current continuation at `2ac39aa`
+
+Phase 22 remains incomplete. At scanner `2ac39aa` (source bytes equal the
+SearXNG correction `523320f`), all three exposed SSRF families pass their native
+repeat gates. Each family completes five inputs twice, detects both correlated
+vulnerable variants and has zero condition-matched fixed/control alerts.
+SearXNG takes at most 12.821s per input, fetch-mcp 5.104s and open-webSearch
+65.265s. Complete ordered repeats agree except recorded volatile fields;
+JSON/SARIF and source assessments pass.
+
+The shared correction keeps TypeScript receiver invalidation local to mutually
+exclusive `if` arms, then conservatively unions possible invalidations at the
+join. An HTTP-arm unknown `process` effect no longer contaminates ordinary
+stdio startup. No callback or unknown function is exempted. SearXNG's fixed
+sources now retain the native default-loopback qualification; their broader
+URL candidates and unresolved MCP dispatch remain visible. Its 23 unmatched
+scorer keys per batch (20 prior HTTP candidates and three qualified negative-source
+URL candidates) are all separately source-assessed. Original frozen native and
+comparator 0/2 results remain unchanged; these are exposed regressions, not fresh
+generalization or runtime proof.
+
+The separately approved immutable-Value experiment used one optimization attempt,
+two counter profiles and all 12 native observations. Ordered native reports all
+match, but Meta operator median wall time increased 4.58% and child CPU 1.31%.
+Atlassian improved 16.70% in median wall time; Meta image improved 5.35% in wall
+but only 1.64% in CPU. These mixed results fail the retention rule. The
+optimization at `de2a02f` is reverted in `2ac39aa`; the test, original commit,
+profiles, deadline failures and all results are retained. No full Linux retry
+occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+timeouts and both historical batches skipped.
+
+Final-source local verification passes: **2,182 tests, 36 skips and no expected
+failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+schemas, notices and offline artifacts pass. Both approved production requests
+are regenerated and checked-replayed through the owned Docker demo with zero
+new calls. Hosted verification for this source is pending; the older `6eb482c`
+hosted passes below retain their historical source.
+See integration `v13-searxng-assessment/packet.json`,
+`v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+`v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+31 of its maximum 32 executions: one fixed trace and 30 final observations;
+the optional vulnerable trace was not needed. Both approved scopes have reached
+their stopping conditions. The separate `v13-next-performance-proposal.json`
+is prepared but unapproved; it does not reopen either budget.
+
+Timing, a post-stabilization fresh freeze/evaluation and final human acceptance
+remain unmet/separately gated. No final acceptance is requested. There were zero
+new paid calls. Pilots and the full paid benchmark remain user-deferred; Phase 21
+is incomplete and Phase 24/15 gates are unchanged. No merge, release, outreach or
+next phase is authorized.
+
+## Historical v12 follow-up at `6eb482c`
 
 Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
 `v11-follow-up-authorization.json` preserves their exact hashes and bounds.

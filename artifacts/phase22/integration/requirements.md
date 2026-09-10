@@ -1,12 +1,22 @@
 # Consolidated Phase 22 requirement checklist
 
-Current tested scanner is `6eb482c`. All 86 original requirements, R87/R88 and
+## Current continuation at `2ac39aa`
+
+All three exposed SSRF families pass their five-input native repeat gates.
+The Value-reconstruction performance experiment is reverted after mixed
+wall/CPU results. Timing, fresh evaluation and human acceptance remain unmet.
+All 89 IDs and prior dispositions are preserved below; the final v13 audit
+will bind each row to the completed local and hosted checks. Local verification
+passes 2,182 tests with 36 skips and no expected failures. Hosted verification
+is pending; prior hosted results are not relabeled as current.
+
+Historical v12 tested scanner is `6eb482c`. All 86 original requirements, R87/R88 and
 new exposed SearXNG requirement R89 are retained. Both existing SSRF families
 pass their final exposed repeat gates; SearXNG completes but fails fixed
 discrimination. Timing and fresh current-source evaluation remain unmet.
 Phase 22 is incomplete. No final acceptance or paid call is inferred.
 
-## Current 89-row audit
+## Historical v12 89-row audit
 
 **69 passed, 2 user-deferred,
 18 unresolved.** Exact current executed tests,
