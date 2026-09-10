@@ -1,4 +1,69 @@
-# Integration evidence, batches 1–32
+# Integration evidence, batches 1–36 and closeout audit
+
+Current candidate is `62987a6`; implementation bytes equal `e87b7c9`. The
+final exposed SSRF measurements at `62987a6` pass 2/2 vulnerable variants twice,
+with no matching fixed/control alerts and unchanged ordered reports except
+documented volatile fields. The `e87b7c9` historical attempt completes 43/45 inputs but
+retains two native timeouts and one end-to-end overrun. A subsequent copy-skipping
+experiment completes only 2/6 and is reverted; its code, tests and failures remain
+in history. The strict two-whole-batch gate is not passed.
+
+The [revised bounded Linux runner proposal](v7-native-runner-proposal-v3/packet.json)
+awaits the explicit execution decision required by final prompt §4. Its preflight
+verifies exact source/workflow compatibility and accepts/rejects retained known
+passing/failing historical and development batches. It supersedes v2 after
+development completes 24/25 with a new Meta fixed-mutation timeout at 120.063s.
+Original held-out states remain 10 completed/10 unsupported/5 incomplete.
+No workflow has been applied or dispatched. The restored
+source passes 2,121 tests / 36 skips with 89.64% branch coverage, local quality,
+package and current Docker replay checks. Draft PR #37 points to `62987a6`;
+all 29 jobs in CI 34416723981 and docs 34416723960 pass. See
+[progress](progress.md) and the [86-row checklist](requirements.md).
+
+Batch 33 seals the completed local continuation and prior `10103ad` hosted
+evidence: **1,565 files**, 622,679,966 raw bytes, 28,760,427 compressed bytes;
+SHA-256 `cdc56f134bbb3b50fbf924e32f8dcf79034b13476b77acf5e62453d6ea137fd5`.
+All members were read back and all 32 prior archive hashes reverified. Current
+`62987a6` hosted jobs were excluded while running and are retained in batch 34.
+Batches 1–32 remain unchanged. The records below preserve historical claims for
+their named sources.
+
+Batch 34 adds the completed current hosted collection, package/source audit,
+strict owning-docs build and delivery-input proof: **327 files**, 11,810,249 raw
+bytes, 4,657,887 compressed bytes; SHA-256
+`e2176fbd5a193a06d24ca7149a3b12aae01a7f7201174476108a117a8a00bb92`.
+Every member and prior archive hash is verified. The current
+[86-row closeout audit](v7-closeout-audit/packet.json) records 76 passed,
+2 user-deferred and 8 unresolved rows. Batch 35 retains that audit and the
+reviewable final draft body: **7 files**, 564,639 raw bytes, 348,844 compressed
+bytes; SHA-256
+`4eb3e95a1349b835277dd62874b1965fe6cd8ba35378fd0634d6d08a8cee8e06`.
+Every member and prior archive hash is verified. No final technical acceptance
+is inferred. The documentation/evidence delivery preserves tested `62987a6`
+implementation/package inputs and uses `[skip ci]`; it does not claim another
+hosted pass for the later documentation commit.
+
+Batch 36 retains the final owning-document status binding and successful strict
+docs recheck: **8 files**, 850,006 raw bytes, 470,337 compressed bytes; SHA-256
+`7553fa95b69c442df618805937cb0faec3cba1ef3bead947656023c583697c7a`.
+It changes no audit disposition or tested package input. The
+[final documentation binding](v7-closeout-audit/final-documentation-binding.json)
+records the final owning-document hashes; every member and prior seal is verified.
+The superseded fresh `10103ad` proposal and current `checkpoint-62987a6.json`
+remain unapproved and unevaluated. No new
+paid call occurred. Exact fresh freeze/evaluation
+and human technical acceptance remain separate. Phase 22 is incomplete.
+
+Restore batch 33 after batches 1–32, using `evidence-v33.json` for archive and
+member verification, then apply batches 34–36 using their respective manifests.
+For an existing checkout, extract each batch into a separate
+empty staging directory first; verify all members before copying. At an existing
+destination, require either identical bytes or the exact prior numbered-manifest
+hash before applying a recorded newer version. Stop on any other conflict.
+The `diagnostics-v33.tar.gz` member retains the task's temporary Python harnesses;
+their actual source/command identities and failures remain in the command records.
+
+## Retained batch history
 
 Batch 32 retains the bounded TypeScript follow-up at `68bdf83`. All 29 hosted
 jobs pass; each of 12 full suites records 2,057 passed, 36 skipped and

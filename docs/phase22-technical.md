@@ -1,7 +1,8 @@
 # Phase 22 technical expansion
 
-Status: technical checks passed; known detection-gap disposition and final user
-acceptance remain pending. The user deferred the full paid benchmark and removed
+Status: the exposed SSRF gap is corrected and final local/hosted checks pass at
+`62987a6` (detector bytes equal `e87b7c9`). Execution reliability, fresh evaluation
+and human acceptance remain unresolved. The user deferred the full paid benchmark and removed
 external pilots as a Phase 22 completion prerequisite. Neither is counted as
 passed. The versioned decision is
 `artifacts/phase22/completion-scope-v1/decision.json`; Phase 21 remains deferred.
@@ -36,8 +37,10 @@ licenses, conditions and repository split. Keep holdout source out of tuning;
 exposing a case requires relabeling it and replacement holdout evidence.
 
 The deterministic tier must complete all 45 historical inputs, detect all 20
-vulnerable conditions and produce no condition-matched fixed/safe alerts; these
-measurements pass twice. The original requirement for the reviewed tier to match
+vulnerable conditions and produce no condition-matched fixed/safe alerts in two
+entire batches under the unchanged 120-second native and end-to-end input limit.
+Earlier complete measurements are historical evidence; the final implementation
+must pass this gate without pooling successes from failed batches. The original requirement for the reviewed tier to match
 that completion and retain correct candidates is explicitly deferred for cost,
 not passed. Accepted captures verify recorded review compatibility only. Any
 future reviewed comparison must count `needs_review`, suppressions and abstentions.

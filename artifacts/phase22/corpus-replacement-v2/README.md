@@ -1,5 +1,17 @@
 # Fresh SSRF replacement proposal v2
 
+**Current checkpoint: `62987a6`; explicit freeze approval is pending.**
+[The exact current packet](checkpoint-62987a6.json) preserves manifest
+`a587427f0c40cbff512f00c8024e454a11255e34a13c10f9d8748bbc4aa9bae2`
+and binds the stabilized detector, harness, archive hashes and bounded offline
+evaluation. No fresh scanner/comparator evaluation or paid call has occurred.
+The prior `10103ad` checkpoint was superseded before approval/evaluation; its
+packet and status record remain unchanged. Curation exposure is disclosed in
+every checkpoint. The separate historical execution decision and final human
+technical acceptance are not included in freeze approval.
+
+## Original preparation record
+
 **Prepared; explicit freeze approval required before evaluation.** The scanner
 is frozen at `68bdf83ca35670946c850595f3a2a11eadee2a4a`. No scanner, comparator,
 model, upstream test or target execution has been run on these five cases.
@@ -37,7 +49,7 @@ pinned Semgrep comparator on these five cases only. The existing limits are
 120 seconds per native input and 300 seconds per comparator input. Stop after those runs, score the exact condition, adjudicate unrelated
 warnings and report misses/unsupported/incomplete outcomes. No paid calls,
 target execution or subsequent detector tuning is included. See the
-[exact approval packet](packet.json) and [source review](review/condition-review.json).
+[original approval packet](packet.json) and [source review](review/condition-review.json).
 
 The retained pnpm lock predates some package-manifest dependency updates. Its
 `private-ip` 3.0.2 entry and integrity match the reviewed dependency archive;

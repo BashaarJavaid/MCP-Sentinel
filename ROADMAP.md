@@ -46,10 +46,12 @@ After the completed audit, the user authorized bounded offline investigation and
 a fix for the replacement detection gap. The five replacement cases are now
 exposed regressions; their original frozen measurements remain unchanged. See
 `artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
-The bounded corrections and remaining SSRF/timing limitations are recorded in
-`docs/phase22-ssrf-follow-up.md`. The follow-up scope proposal and new replacement
-freeze are pending decisions; neither is an approved gate change or completion.
-Final technical acceptance remains pending.
+The SSRF correction and final timing verification are recorded in
+`docs/phase22-ssrf-follow-up.md`. The earlier residual-SSRF and casewise timing
+waivers were never approved; the current continuation requires the original
+complete-batch gate. The versioned fresh replacement freeze and final technical
+acceptance remain explicit approval checkpoints. Neither is inferred from
+engineering checks or permission to continue work.
 
 Historical submission and release records are consolidated in
 `docs/hackathon.md`; this file remains the authoritative phase and gate map.
@@ -1146,12 +1148,25 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-**Status: technical checks passed; detection-gap disposition and final technical
-acceptance pending.** Uses Phase 20's benchmark. The revised scope in §1 permits
+**Status: exposed SSRF gap corrected; final verification and technical acceptance
+pending at `62987a6` (detector bytes equal `e87b7c9`).** Uses Phase 20's benchmark. The revised scope in §1 permits
 Phase 22 completion without Phase 21 pilots or the deferred full paid benchmark.
 Neither deferred measurement is claimed passed. The expanded technical scope is user-authorized. Begin with
 path-containment detection and complete all ten benchmark families, verified
 against independent vulnerable/fixed cases and safe controls.
+
+Current source passes both exposed SSRF runs (2/2 vulnerable variants, zero
+matching fixed/control alerts), local quality/package/Docker checks and all 29
+hosted jobs. The whole historical attempt remains 43/45 with deadline failures;
+development is 24/25 after a new Meta fixed-mutation timeout. The revised bounded
+Linux execution proposal and exact fresh freeze/evaluation require explicit
+decisions. Final technical acceptance is not yet requested. See the current
+[implementation status](docs/phase22-implementation-status.md).
+
+### Retained implementation checkpoints
+
+The following records describe their named historical sources. Later approvals
+and final-source verification supersede their old pending-work statements.
 
 The [execution correction increment](docs/phase22-execution.md) restores 45/45
 rules-only completion and records a 13/13 Git startup/discovery environment.

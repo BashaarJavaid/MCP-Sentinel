@@ -64,7 +64,9 @@ coverage, incomplete execution, and review cost are reported separately.
 
 The [Phase 22 technical contract](phase22-technical.md) records the authorized
 expansion and its pending evidence/approval gates. Phase 20 inputs are now exposed
-regression evidence; Phase 21 and Phase 22's pilot acceptance remain incomplete.
+regression evidence. The user deferred the full paid benchmark and removed pilots
+as a Phase 22 completion prerequisite. Final technical verification and human
+acceptance remain pending; Phase 21 and the later adoption/launch gates are unchanged.
 
 The complete field, state-transition, sandbox, configuration, and failure
 contracts live in the root [architecture

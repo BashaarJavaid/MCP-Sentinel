@@ -1,5 +1,57 @@
 # Phase 22 implementation status
 
+**Current candidate: `62987a6`; implementation bytes equal `e87b7c9`.**
+The exposed SSRF condition passes both final native five-input runs at `62987a6`:
+two correlated vulnerable variants detected, with no matching fixed/control
+alerts. Changed findings and coverage have source-bound assessments. Original
+misses remain preserved; this is exposed regression evidence, not fresh accuracy.
+Both entire ordered report sets match the prior source assessment except recorded
+volatile fields. Maximum per-input wall times are 75.042s and 71.837s.
+
+The first complete historical attempt at `e87b7c9` finishes 43/45 inputs. Both
+fixed-upload variants time out; the fixed-authentication mutation completes
+natively but takes 123.156 seconds end to end. All 20 vulnerable conditions are
+detected, with no matching alerts on the 23 completed negative inputs. The strict
+two-whole-batch gate remains failed. Focused successes are not pooled into a pass.
+
+A subsequent credential-copy experiment at `3cbc329` completes only two of six
+slow inputs and is reverted at `62987a6`; its raw results and added guard tests
+remain. A bounded Linux CI execution proposal is prepared and awaiting the
+explicit decision required by the final continuation prompt §4. It preserves
+the original deadline and conditions and permits at most two entire batches.
+The revised `v7-native-runner-proposal-v3` includes one original development
+batch after that local measurement completes 24/25: the Meta operator-fallback
+fixed mutation times out at 120.063 seconds. The approved label erratum does
+not make the missing execution a pass. All 10 vulnerable conditions are detected;
+13 valid negatives have zero matching alerts. Raw scoring retains one alert on
+14 completed negatives, with the second erratum input incomplete. No workflow
+change or dispatch occurred.
+
+Original held-out measurement retains 10 completed, 10 unsupported and 5
+incomplete inputs, with unchanged findings in completed reports. IntegSec's
+development diagnostic changes are source-bound to newly resolved literal
+imports; findings remain unchanged. Warning-order differences are retained.
+
+The restored candidate passes 2,121 tests with 36 skips and 89.64% branch coverage.
+Lint, formatting, strict typing, schemas, lock, notices, dependency audit, offline
+artifacts, strict docs and installed-wheel checks pass; local distributions match
+current source bytes. Current production capture replay completes the Docker
+demo's 20 attempts with 14 findings and zero remainder, without new paid calls.
+Draft PR #37 now points to `62987a6`; all 29 jobs in CI 34416723981 pass, as does
+documentation run 34416723960. All 12 hosted quality suites report 2,121 passed,
+36 skipped and 89.63–89.65% branch coverage. Complete logs and 225 artifact files
+are retained; both distributions match the exact source/schema/fixture/capture
+bytes. The earlier 29 hosted passes remain bound to `10103ad`.
+
+Remaining requirements include execution reliability, the exact fresh freeze
+and evaluation, and explicit human
+technical acceptance. The `10103ad` fresh checkpoint is superseded and unevaluated;
+`checkpoint-62987a6.json` is prepared and awaits explicit approval. The paid benchmark and
+pilots remain user-deferred, not passed. Phase 22 is incomplete; Phase 21 and the
+later adoption/launch gates are unchanged.
+
+## Historical source-specific records
+
 **Bounded SSRF follow-up implemented at `68bdf83`; hosted verification passes.**
 The user approved offline investigation after the completed `ee9721f` audit.
 The shared TypeScript flow now follows supported schema-bearing legacy tool

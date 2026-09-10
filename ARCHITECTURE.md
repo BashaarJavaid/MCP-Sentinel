@@ -1558,7 +1558,10 @@ metadata is recovered through the imported SDK request schema; this metadata
 recognition does not establish handler or runtime coverage. Dynamic descriptions
 are disclosed as unresolved. The existing selection, suppression, baseline and
 review pipeline applies. The integrated campaign migration below emits native
-1.7.0; the complete Phase 22 technical and external gates remain pending.
+1.7.0; final Phase 22 technical verification and human acceptance remain pending.
+The user-deferred full paid benchmark and external pilots are not Phase 22
+completion prerequisites. Phase 21 and the later adoption/launch gates remain
+unchanged; no external validation is inferred.
 
 ### Phase 22 integrated campaign/report contract (verification in progress)
 

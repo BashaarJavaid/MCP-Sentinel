@@ -46,7 +46,7 @@ condition-correct detection of all 20 exposed vulnerable inputs. The historical
 unadjudicated-warning backlog remains unadjudicated. No fresh holdout source was
 used for tuning, and no paid model calls were made.
 
-## Remaining technical work
+## Remaining technical work at this increment
 
 Shared discovery and containment still need the complete development-condition
 adjudications, including Atlassian factories and upload flows, filesystem custom
@@ -54,5 +54,8 @@ guards and Mastra security-failure fallback flags. SENT-013 through SENT-016 and
 the Kubernetes SENT-002 correction remain pending, as do candidate-bound review
 completion, bounded runtime campaigns and coordinated native 1.7.0 migration.
 The [approved technical contract](phase22-technical.md) remains the scope authority.
-Full Phase 22 acceptance also requires the external pilot evidence; Phase 21
-recruitment remains deferred.
+The original acceptance scope also required external pilot evidence. The user
+subsequently removed pilots as a Phase 22 completion prerequisite and deferred
+the full paid comparison. See the current
+[implementation status](phase22-implementation-status.md); Phase 21 recruitment
+and the later adoption/launch gates remain unchanged.

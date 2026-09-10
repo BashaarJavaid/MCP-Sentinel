@@ -2576,3 +2576,137 @@ success pooling: the strict timing gate remains unmet. A concrete bounded runner
 option will be prepared for the genuine execution decision required by final
 prompt §4. Other final quality, measurement, evidence and delivery work remains
 authorized; fresh freeze and human acceptance are still separate checkpoints.
+
+### Restored-source final verification (`62987a6`)
+
+The full suite passes **2,121 tests / 36 skipped**, with **89.64% branch
+coverage** in 1,499.87s. `v7-current-source-test-bindings/packet.json` binds all
+86 requirements to actual current source and test executions without substituting
+unit tests for benchmark, hosted, or human gates. Ruff/format, strict mypy,
+schemas, lock, notices, offline generated artifacts, dependency audit, strict
+docs, distributions and installed-wheel smoke checks pass. Both local distribution
+archives contain the actual current source/schema/fixture/capture bytes.
+
+`v7-production-capture-revalidation/packet.json` regenerates both approved
+production request fingerprints and hashes and replays them through the actual
+reviewer. The current Docker demo completes all 20 planned/eligible/started/tested
+attempts, with zero remainder, 14 findings and six accepted replay batches
+(including the separate TypeScript smoke). No new model call occurs; the original
+two accepted requests remain $0.071799 total. `v7-compatible-evidence-binding`
+binds unchanged comparator and approved Git runtime evidence to the restored
+source. Git's 312 tested / 728 remaining across 13 incomplete campaigns remain
+limitations; the successful fixture demo does not replace those outcomes.
+
+The exact bounded Linux proposal is `v7-native-runner-proposal-v2/packet.json`.
+Its source/CI/gate preflight passes, including acceptance of a retained complete
+batch and rejection of the actual failed batch. No workflow patch or dispatch
+has occurred; the execution decision remains pending. The fresh proposal is
+separately versioned in `../corpus-replacement-v2/checkpoint-62987a6.json` with
+unchanged manifest/archive hashes and disclosed curation exposure. Its explicit
+freeze decision is also pending; no fresh scanner/comparator evaluation occurred.
+
+Automatic approval review initially rejected preparation of the local measurement
+queue by interpreting its original held-out and exposed-v1 scopes as fresh-v2
+evaluation. Read-only checks proved the existing authorizations and distinct
+manifest identities. A queue explicitly checking those approved hashes and
+excluding replacement-v2 was then approved and started after quality checks
+finished. It runs only original development/held-out inputs and the exposed-v1
+five-input repeat pair, without overlapping owned heavy work. The initial
+rejection made no queue file or evaluation. No approval boundary was bypassed.
+
+Original development finishes **24 completed / 1 incomplete** on `62987a6`.
+`meta-operator-fallback-fixed-mutation` fails natively at 120.063s; its report is
+absent and not fabricated. This new execution regression remains separate from
+the approved Meta label erratum and earlier 25/25 measurements. Original held-out
+measurement retains **10 completed / 10 unsupported / 5 incomplete**; findings in
+completed reports are unchanged. Auth-fetch warning-order changes preserve the
+exact warning multiset and every other canonical field.
+
+`v7-development-source-deltas/packet.json` binds all changed IntegSec warnings
+and unresolved-flow entries to exact source bytes/lines and literal awaited
+imports. Newly reached handler bodies retain unsupported operations explicitly;
+findings, recognized surfaces and all other canonical fields are unchanged.
+Mastra differences are warning order only, with both ordered arrays preserved.
+The first assessment helper failed on a module-level binding warning without a
+line number; the corrected helper preserves that distinction and the original
+failure without inventing a location or security judgment.
+
+The revised `v7-native-runner-proposal-v3/packet.json` adds one original25-input
+development batch to the historical45-input pair, each subsequent batch requiring
+the preceding gate to pass. It permits at most115 input runs,230 minutes nominal
+input budget and a240-minute job ceiling, keeping native/end-to-end120s limits,
+exact condition identities and the approved raw Meta erratum. Preflight passes
+against known completed and actual failed historical/development batches. The
+unapproved v2 proposal is superseded by a separate status record; all old packets
+remain unchanged. The revised explicit decision is pending. No workflow patch,
+dispatch, fresh-v2 evaluation or paid call occurred.
+
+Both final exposed-v1 native passes complete all five inputs at `62987a6`, each
+detecting both correlated vulnerable variants with zero matching fixed/control
+alerts. Maximum wall times are 75.042s and 71.837s. The existing repeat verifier
+passes, and `v7-final-corpus-assessment/packet.json` additionally verifies entire
+ordered reports against the prior source-bound assessment except documented
+volatile fields. All current original/exposed source/finding/diagnostic changes
+are accounted for; the sole new execution regression is the development timeout.
+
+Development retains 10/10 vulnerable detections and zero matching alerts on13
+valid negatives. Raw scoring records one alert on14 completed negative inputs;
+one approved Meta erratum input completes and the other times out. Earlier raw
+two-alert results remain unchanged. Original held-out measurement still detects
+zero of four completed vulnerable variants (ten vulnerable inputs total).
+The separate `interpretation.json` explains these denominators and that scorer
+fields named `unadjudicated_findings` count unmatched condition keys, not new
+security-validity backlogs. All local native writers have finished. No fresh-v2
+evaluation or new paid call occurred.
+
+All 29 hosted jobs in CI34416723981 pass at `62987a6`; documentation run
+34416723960 also passes (PR deployment is correctly skipped). The12 full suites
+each report2,121 passed/36 skipped with89.63–89.65% branch coverage. Complete
+CI/docs logs retain484/12 members and225 uploaded artifact files. Both hosted
+distributions match all153 wheel and166 sdist mapped source/schema/fixture/capture
+members against exact Git blobs. Wheel SHA-256 is
+`1f121184e6b2e792d24d210ab9b21d0f54340e127ff350c41d6708089099d5f2`;
+sdist SHA-256 is
+`d3c5d90cad7f842d0863ce94711a11464e3b62af548989123bb2bf5421bc9cb6`.
+Pinned historical rules/replay reproduction jobs each retain32 completed/13
+incomplete outcomes on their historical scanner; they do not replace the current
+integration benchmark. `v7-current-hosted-audit/packet.json` binds these facts.
+
+Batch33 seals1,565 completed local/prior-hosted evidence files,622,679,966 raw
+bytes and28,760,427 compressed bytes, SHA-256
+`cdc56f134bbb3b50fbf924e32f8dcf79034b13476b77acf5e62453d6ea137fd5`.
+All members were read back and every prior archive hash reverified. The then-active
+current hosted jobs were explicitly excluded; their now-complete collection and
+audit will be appended in the next seal. Current implementation, test, workflow
+and packaged source inputs remain unchanged for the forthcoming documentation/
+evidence delivery, as verified by `v7-documentation-delivery-identity/packet.json`.
+
+Batch34 adds327 completed files (11,810,249 raw bytes;4,657,887 compressed),
+SHA-256 `e2176fbd5a193a06d24ca7149a3b12aae01a7f7201174476108a117a8a00bb92`.
+Every member and all prior archive hashes are verified. The strict reconciled
+owning-docs build passes. `v7-closeout-audit/packet.json` audits every requirement:
+76 passed,2 explicitly user-deferred,8 unresolved (R20,R35,R63–R66,R68,R84).
+The current requirement table now matches these source-bound dispositions;
+historical checklists/results remain preserved. The unresolved rows cover the
+historical/development execution failures, fresh evaluation/comparator and final
+human acceptance. No timing exception, fresh freeze, paid call or final acceptance
+is inferred. The audit and final delivery bookkeeping will be retained in batch35.
+
+Batch35 seals the86-row audit, its exact command/patch/harness and the reviewable
+final draft body:7 files,564,639 raw bytes,348,844 compressed bytes; SHA-256
+`4eb3e95a1349b835277dd62874b1965fe6cd8ba35378fd0634d6d08a8cee8e06`.
+Every member and all prior archive hashes are verified. The final owning-document/
+evidence delivery preserves the tested62987a6 code, test, workflow and package
+inputs and uses `[skip ci]`, without claiming a new hosted pass. Main remains
+clean at4cd5759 and the delivered parent remains8b6b0dd. The supplied final-agent
+prompt remains untracked and unchanged. Phase22 stays incomplete pending the
+revised bounded Linux decision, exact fresh freeze/evaluation and eventual human
+technical acceptance; no new paid call, merge, release or later phase occurred.
+
+The final remaining-work sentence was reconciled after sealing the audit. A
+successful strict-docs recheck and versioned final owning-document hash binding
+preserve that exact update without rewriting the earlier audit snapshot. Batch36
+retains8 files (850,006 raw bytes;470,337 compressed), SHA-256
+`7553fa95b69c442df618805937cb0faec3cba1ef3bead947656023c583697c7a`.
+Every member and prior archive hash is verified; all86 dispositions and tested
+implementation/package inputs remain unchanged.

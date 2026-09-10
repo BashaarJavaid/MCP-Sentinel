@@ -31,8 +31,10 @@ detection accuracy.
 The [approved technical contract](phase22-technical.md) governs SENT-012 through
 SENT-016. All five are implemented and included in default static selection on the
 integration branch. Implementation does not constitute technical sign-off: the
-independent condition measurements, fresh holdout, reviewed retention and human
-review remain separate gates in the [implementation status](phase22-implementation-status.md).
+condition measurements, fresh holdout and human review remain separate gates in
+the [implementation status](phase22-implementation-status.md). The full paid
+reviewed-retention comparison and external pilots are explicitly user-deferred;
+neither is counted as passed or required for Phase 22 technical completion.
 
 | Rule | Impact / initial severity | OWASP justification | Required false-positive controls | Review |
 | --- | --- | --- | --- | --- |

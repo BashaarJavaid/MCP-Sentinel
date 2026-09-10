@@ -1,5 +1,73 @@
 # Replacement SSRF follow-up
 
+## Current correction and verification
+
+The normal rules-only pipeline detects the exposed condition after the shared
+startup/default-dependency correction and source-bound literal-IP guard fix at
+`c233521`. Both final five-input passes at `62987a6` complete: two correlated vulnerable variants
+are detected, with zero condition-matched alerts on the two fixed variants and
+public-IP control. The original frozen 0/2 results remain unchanged. This is
+exposed regression evidence, not fresh holdout accuracy or runtime proof. The
+maximum wall times are 75.042s and 71.837s; entire ordered reports match the prior
+source assessment except documented volatile fields.
+
+The shared flow follows source-established local startup imports, conditional
+runtime construction and optional default fetchers. Unknown imports, injected
+or replaced dependencies, computed registrations and unsupported schemas remain
+explicitly unresolved. SENT-015 preserves the parsed URL/hostname relationship
+through supported normalization and requires enforcement of the actual IP
+classification result. Unrelated, ignored and non-rejecting checks remain
+positive controls; bracket normalization and valid source-bound classification
+are negative controls. DNS, redirects and production network behavior are outside
+the measured condition.
+
+The exposed assessment binds all changed findings and diagnostics to retained
+source. It preserves 70 unchanged authentication findings and separately assesses
+13 additional out-of-condition SSRF instances. Coverage reports 13 recognized
+surfaces and 87 unresolved contexts per input; these contexts are not distinct
+tool counts. The fixed request helper also retains an unresolved replaceable
+axios binding, so silence alone is not evidence of protection.
+
+The Python credential-flow optimization at `10103ad` retains branch values
+while indexing guard-marker names. Six slow historical cases produce identical
+full reports except documented run identities and clocks; aggregate wall time
+decreases 7.5% in the recorded shared-host comparison. Its full historical batch
+nevertheless completes only 38/45 inputs. The seven native timeouts are preserved.
+
+The `e87b7c9` TypeScript merge correction removes measured repeated combination
+of unchanged branch values while preserving guard and safety semantics. All
+1,092 affected tests pass. The seven previously timed-out inputs complete in a
+focused native run at 83.5–101.7 seconds, but the subsequent entire historical
+batch completes only 43/45. Two fixed-upload inputs time out; a completed
+fixed-authentication mutation exceeds the end-to-end limit at 123.156 seconds.
+All 20 vulnerable conditions are detected; zero matching alerts are observed on
+23 completed negatives. The strict two-whole-batch gate remains failed.
+
+A later credential-copy experiment at `3cbc329` completes only two of six slow
+inputs and is reverted at `62987a6`, retaining its raw failures and added guard
+controls. Current implementation bytes equal `e87b7c9`. A bounded Linux runner
+proposal awaits the genuine execution decision required by final prompt §4;
+its v3 revision includes the original development batch, which now completes
+24/25 after a Meta fixed-mutation timeout at 120.063 seconds. This is a new
+execution regression, separate from the approved Meta label erratum. Original
+held-out results remain 10 completed/10 unsupported/5 incomplete. Proposal
+preparation does not authorize execution or change the gate. Final-source exposed
+repeats now pass; execution reliability and human acceptance remain unresolved. The restored source passes
+2,121 local tests / 36 skips with 89.64% branch coverage and current package/Docker
+replay checks. Draft PR #37 now delivers `62987a6`; all 29 required hosted jobs
+and docs pass. All 29 earlier hosted passes remain bound to `10103ad`.
+
+The pending fresh proposal at
+`artifacts/phase22/corpus-replacement-v2/checkpoint-10103ad.json` is superseded
+for the new detector, as recorded in its versioned status file. No approval or
+fresh evaluation is claimed. The new `checkpoint-62987a6.json` is prepared and
+awaits explicit approval before evaluation. No new paid calls occurred. The earlier residual-SSRF and
+timing waiver proposals were never approved and do not satisfy the current gate.
+
+The sections below preserve the earlier implementation and measurement chronology.
+
+## Historical authorization and corrections
+
 The user authorized a bounded offline investigation and fix after the completed
 technical audit. The five open-webSearch replacements are exposed regression
 cases from that decision forward. The original manifest, first measurements,
@@ -34,7 +102,7 @@ covered; accessors stay explicitly unresolved. The shared regression selection
 passes 933 tests. Final source-bound benchmark and hosted checks are recorded
 separately in the integration evidence.
 
-## Remaining measured boundary
+## Historical unresolved boundary at 68bdf83
 
 The initial exposed-case diagnostic still produces no SENT-015 candidate for the
 named IPv4-mapped loopback condition. It reaches the MCP callbacks and reports
@@ -58,7 +126,7 @@ nonblocking under the user's revised completion scope, without being counted as
 passed. Final technical acceptance and disposition of the residual limitation
 remain with the user; Phase 22 is not marked complete by this correction.
 
-## Exposed-case remeasurement and fresh proposal
+## Historical exposed-case remeasurement and fresh proposal
 
 All five original replacements complete twice on `68bdf83`; stable reports and
 outcomes match. Both vulnerable variants remain misses, and no fixed/safe case
@@ -87,7 +155,7 @@ comparator, upstream test or target execution has run on these cases. Explicit
 freeze approval is required for the proposed offline evaluation; it includes no
 paid calls. The narrow source-backed labels do not claim complete SSRF protection.
 
-## Verification and proposed disposition
+## Historical verification and unapproved disposition
 
 All 29 hosted CI jobs pass at `68bdf83`: 12 full quality suites each report 2,057
 passed, 36 skipped and 89.50–89.53% branch coverage. The complete CI/docs logs and
