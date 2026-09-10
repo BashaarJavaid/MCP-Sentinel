@@ -1,6 +1,24 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current 89-row audit at `592a9cd`
+## Current v15 source-bound audit
+
+All 89 original rows remain mapped in `v15-closeout-audit/packet.json`:
+**70 passed, 2 explicitly user-deferred, 17 unresolved**. The five new v15 scope
+requirements pass. The seven v14 additions retain six passed and one unresolved
+performance-retention requirement: **11 passed and 1 unresolved** across all
+12 additional rows. Executed engineering results remain at `592a9cd`; the new
+single profile is measured at `77ea21f` on identical scanner bytes.
+No full timing pass, fresh result or human acceptance is inferred.
+
+| ID | Requirement | Disposition |
+| --- | --- | --- |
+| V15-AUTH | Exact single-profile approval and immutable bindings | **passed** |
+| V15-DIAG | One completed bounded diagnostic with original production logic | **passed** |
+| V15-SEMANTICS | Synthetic state checks, ordered report match and native/SARIF validation | **passed** |
+| V15-REUSE | Unchanged source and source-bound reuse of full engineering/runtime evidence | **passed** |
+| V15-DELIVERY | Closed scope, sealed evidence and consolidated draft delivery | **passed** |
+
+## Historical v14 89-row audit at `592a9cd`
 
 **70 passed, 2 explicitly user-deferred, 17 unresolved.** Current implementation,
 executed tests and evidence hashes are in `v14-closeout-audit/packet.json` and

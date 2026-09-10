@@ -1,0 +1,23 @@
+{
+  "recorded_at": "2026-09-10T20:11:32.311266+00:00",
+  "source": {
+    "revision": "77ea21fa1f8c52f1f1ab11eba4d1cc8f2c24c7ef",
+    "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "path_flow_sha256": "322aa43e4af1fbdc3ab30e2c1ff81037e146f0347c87f522e855153755a2524c",
+  "diagnostic_sha256": "9b18c0d8bef77a279a554c6d37791512f22ef17e58a26bafee9b88b439a33e6d",
+  "retained_partial_cprofile_review_sha256": "d0f1f40ff49ebfd7360d6b3359b53c17dee7d2f16c40f0ab2dfb9d048c6448ea",
+  "finding": "The completed merge profile locates the largest measured merge block in multi-branch value processing (17.830\u201321.302 instrumented CPU-seconds per active worker). About 19 million key visits must not be equated to exclusive combine time: that block includes lookups, equality, counters and nested combining. The retained partial Linux profile separately attributes 11.813 cumulative seconds to uncached _combine and 16.499 to combine; these overlap and have a different input/environment.",
+  "candidate_basis": "Each active worker makes roughly 0.92\u20130.96 million combine_instances calls from merge, averaging 3.69\u20133.77 operands. Counts do not establish how many generic uncached combinations contain exactly two distinct object identities. Measure that before changing code.",
+  "source_semantics": "The generic >2-operand path uses set unions, intersections and any/all reductions; its generated key uses sorted unique operand keys. After existing identical-value and missing/None handling, repeated references to the same immutable Value do not change those reductions. If precisely two distinct Value objects remain, the existing two-value branch computes the same fields and key. Keep original operand order for the pair, preserve explicit key overrides, and leave combine_instances alias side effects and the existing LRU cache in place.",
+  "risks": [
+    "An extra identity scan and recursive cache lookup can cost more than they save.",
+    "The generic path may rarely contain exactly two distinct references.",
+    "Cache eviction changes may affect overall performance even with equivalent values.",
+    "None/missing, source-free guard stripping, every Value field, explicit/generated keys and instance side state require semantic controls."
+  ],
+  "no_optimization_implemented": true,
+  "new_measurements": 0,
+  "new_paid_calls": 0
+}
