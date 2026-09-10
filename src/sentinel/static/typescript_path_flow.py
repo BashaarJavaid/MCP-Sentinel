@@ -446,14 +446,21 @@ class TypeScriptPathFlow:
             value = self.expression(file, test, env)
             branches = []
             conditional_facts: list[Facts] = [None, None]
+            initial_invalidated = self.invalidated_objects.copy()
+            invalidated = initial_invalidated.copy()
             for branch, truth in ((left, True), (right, False)):
                 if self.condition(value)[int(truth)] is None:
                     continue
+                # An escape in one arm cannot precede the mutually exclusive arm.
+                # Keep every possible escape conservative after the branches join.
+                self.invalidated_objects = initial_invalidated.copy()
                 local = env.copy()
                 self.guard(value, local, truth)
                 if branch is None or self.statement(file, branch, local, returned):
                     branches.append(local)
                     conditional_facts[int(truth)] = self.enforced(local)
+                invalidated.update(self.invalidated_objects)
+            self.invalidated_objects = invalidated
             if not branches:
                 return False
             self.merge(env, branches)

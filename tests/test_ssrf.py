@@ -1578,3 +1578,60 @@ main().catch(console.error);
         == (None if harden_required else "loopback-ipv4-default")
         for match in state.matches
     )
+
+
+@pytest.mark.parametrize(
+    "effect",
+    [
+        "process.exit(1);",
+        "unknown(process.env);",
+        "process.env.ALLOW_PRIVATE = unknown;",
+        "process.on('event', () => {process.env.ALLOW_PRIVATE = 'true';});",
+    ],
+)
+@pytest.mark.parametrize("placement", ["sibling", "before", "joined"])
+def test_environment_escape_is_local_to_exclusive_branch(
+    tmp_path: Path, effect: str, placement: str
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    handler = """
+ const url = new URL(request.params.arguments.url);
+ guard(url);
+ return fetch(url.toString());
+"""
+    register = (
+        "const server = new Server({name: 'test', version: '1'});\n"
+        "server.setRequestHandler(CallToolRequestSchema, async request => {"
+        + handler
+        + "});"
+    )
+    startup = (
+        f"if (unknown) {{ {effect} }} else {{ {register} }}"
+        if placement == "sibling"
+        else f"{effect} {register}"
+        if placement == "before"
+        else f"if (unknown) {{ {effect} }} {register}"
+    )
+    source = (
+        'import {Server} from "@modelcontextprotocol/sdk/server/index.js";\n'
+        'import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";\n'
+        "function guard(url: URL) {\n"
+        " if (process.env.ALLOW_PRIVATE === 'true') return;\n"
+        " if (url.hostname.startsWith('127.')) throw new Error();\n"
+        "}\n"
+        f"function main() {{ {startup} }}\nmain();\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope")
+        == ("loopback-ipv4-default" if placement == "sibling" else None)
+        for match in state.matches
+    )
