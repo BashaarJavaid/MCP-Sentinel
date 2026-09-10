@@ -1,0 +1,388 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index da23a33..f8681dc 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -107,12 +107,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+diff --git a/ROADMAP.md b/ROADMAP.md
+index 5a26468..31078b5 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -1183,12 +1183,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+diff --git a/artifacts/phase22/integration/README.md b/artifacts/phase22/integration/README.md
+index ad14443..f70d8c1 100644
+--- a/artifacts/phase22/integration/README.md
++++ b/artifacts/phase22/integration/README.md
+@@ -1,4 +1,4 @@
+-# Integration evidence, batches 1–41 and closeout audit
++# Integration evidence, batches 1–42 and closeout audit
+ 
+ ## Current continuation at `2ac39aa`
+ 
+@@ -31,12 +31,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+@@ -188,6 +193,25 @@ proposals are prepared and unapproved; no automatic dispatch is authorized.
+ 
+ ## Evidence archives
+ 
++Batch 42 is sealed: **791 files**, 127,451,625 raw bytes and
++7,933,120 compressed bytes, SHA-256
++`c1f7e5660af1b617fb6e0802d4ef73c9c2844ce51b963387997c04a527b62763`.
++Every member was read back and all 41 prior numbered archive hashes reverified
++after native/test/collector writers stopped. Restore after batches 1–41 into
++separate staging; validate the archive and each member against `evidence-v42.json`
++before copying. Existing destinations must match identical bytes or their prior
++numbered-manifest hashes; stop on unexpected conflicts.
++
++This batch preserves the passing three-family exposed gates, the one fixed
++trace, the attempted/reverted performance change and all 14 observations,
++current local/hosted checks, production replay and Git compatibility, full
++reports, failed attempts, commands and helper sources. Final audit, docs and
++delivery bindings are directly tracked after the seal, including
++`v13-closeout-audit/packet.json`, `v13-final-documentation-binding.json`,
++`v13-delivery-verification.json` and `v13-closeout-draft-body.md`.
++The archive is evidence delivery, not a timing pass or Phase 22 acceptance.
++
++
+ Batch 41 is sealed: **1,002 files**, 103,057,714 raw bytes and
+ 10,920,410 compressed bytes, SHA-256
+ `ac47a7684f21db98175ddf5fe909e7a18eef1a5399b10c20431230d597032c91`.
+diff --git a/artifacts/phase22/integration/progress.md b/artifacts/phase22/integration/progress.md
+index 6661f66..fe42be0 100644
+--- a/artifacts/phase22/integration/progress.md
++++ b/artifacts/phase22/integration/progress.md
+@@ -3001,12 +3001,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+@@ -3020,3 +3025,26 @@ remain unmet/separately gated. No final acceptance is requested. There were zero
+ new paid calls. Pilots and the full paid benchmark remain user-deferred; Phase 21
+ is incomplete and Phase 24/15 gates are unchanged. No merge, release, outreach or
+ next phase is authorized.
++
++### Evidence batch 42 and current audit
++
++Batch 42 is sealed: **791 files**, 127,451,625 raw bytes and
++7,933,120 compressed bytes, SHA-256
++`c1f7e5660af1b617fb6e0802d4ef73c9c2844ce51b963387997c04a527b62763`.
++Every member was read back and all 41 prior numbered archive hashes reverified
++after native/test/collector writers stopped. Restore after batches 1–41 into
++separate staging; validate the archive and each member against `evidence-v42.json`
++before copying. Existing destinations must match identical bytes or their prior
++numbered-manifest hashes; stop on unexpected conflicts.
++
++This batch preserves the passing three-family exposed gates, the one fixed
++trace, the attempted/reverted performance change and all 14 observations,
++current local/hosted checks, production replay and Git compatibility, full
++reports, failed attempts, commands and helper sources. Final audit, docs and
++delivery bindings are directly tracked after the seal, including
++`v13-closeout-audit/packet.json`, `v13-final-documentation-binding.json`,
++`v13-delivery-verification.json` and `v13-closeout-draft-body.md`.
++The archive is evidence delivery, not a timing pass or Phase 22 acceptance.
++
++The current audit records 70 passed, two explicitly user-deferred and 17
++unresolved requirements. Timing/fresh evaluation/final acceptance remain unmet.
+diff --git a/artifacts/phase22/integration/requirements.md b/artifacts/phase22/integration/requirements.md
+index 0276347..a09ab97 100644
+--- a/artifacts/phase22/integration/requirements.md
++++ b/artifacts/phase22/integration/requirements.md
+@@ -1,6 +1,107 @@
+ # Consolidated Phase 22 requirement checklist
+ 
+-## Current continuation at `2ac39aa`
++## Current 89-row audit at `2ac39aa`
++
++**70 passed, 2 explicitly user-deferred, 17 unresolved.** All IDs and prior
++evidence remain preserved. Exact implementation, executed tests, source hashes
++and evidence for every row are in `v13-closeout-audit/packet.json` and
++`v13-current-source-test-bindings/packet.json`. Hosted source `1be0650` has
++identical code/test/workflow/package inputs. The three exposed SSRF gates pass;
++timing, fresh evaluation and final human acceptance remain unmet.
++
++| ID | Requirement | Current disposition |
++| --- | --- | --- |
++| R01 | Correct dirty worktree and packet identities | **passed** |
++| R02 | Source-established constructors, fields, aliases and replacement invalidation | **passed** |
++| R03 | Read-only builtin dictionary inspection with shadowing controls | **passed** |
++| R04 | Reflection, unknown mutation, custom hooks and constructor/decorator ambiguity | **passed** |
++| R05 | Imported handlers and schemas | **passed** |
++| R06 | Aliases/re-exports, local imports and package exports | **passed** |
++| R07 | Statically bound helpers, factories, inherited/bound methods | **passed** |
++| R08 | Cross-file caller/guard/sink evidence and binding identity | **passed** |
++| R09 | Genuine SDK context vs caller/fake/rebound/local SDK | **passed** |
++| R10 | Low-level registration and dispatch | **passed** |
++| R11 | uv/npm/pnpm members and exclusions | **passed** |
++| R12 | TS aliases/inherited local compiler configuration, inaccessible parents | **passed** |
++| R13 | Aggregate root vs individual config, nested config disclosure | **passed** |
++| R14 | Per-member counts without shared-file duplication | **passed** |
++| R15 | Inaccessible/unsupported members, ambiguity/import/reflection/schema gaps | **passed** |
++| R16 | Repository escapes and symlinks; dynamic single Python package | **passed** |
++| R17 | Helm original bytes/text secrets and explicit YAML omission | **passed** |
++| R18 | Historical atlassian-auth condition | **unresolved** |
++| R19 | Historical atlassian-ssrf condition | **unresolved** |
++| R20 | Historical atlassian-upload condition | **unresolved** |
++| R21 | Historical excel-boundary condition | **unresolved** |
++| R22 | Historical filesystem-prefix condition | **unresolved** |
++| R23 | Historical git-arguments condition | **unresolved** |
++| R24 | Historical git-repository condition | **unresolved** |
++| R25 | Historical git-staging condition | **unresolved** |
++| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | **unresolved** |
++| R27 | Historical mobile-output condition | **unresolved** |
++| R28 | Mastra failure-return flags and unsafe directory fallback | **passed** |
++| R29 | Explicit description override, exfiltration, cross-tool redirection | **passed** |
++| R30 | Benign instructions and quoted warnings; parameter/low-level metadata | **passed** |
++| R31 | dbt selector options through nested factories/mutable argv | **passed** |
++| R32 | Git option positions, rejection, command-specific terminators, object APIs | **passed** |
++| R33 | Meta image caller URL request and scheme/private/loopback checks | **passed** |
++| R34 | Fixed public authority plus caller suffix; enforced actual return value | **passed** |
++| R35 | Meta ContextVar/HTTP authentication/operator fallback | **unresolved** |
++| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | **passed** |
++| R37 | Applicable Python and TypeScript positives/negatives for every new rule | **passed** |
++| R38 | Rule defaults, selection, inline suppression, baseline/severity identities | **passed** |
++| R39 | Canonical Finding, evidence/provenance/remediation/OWASP and limitations | **passed** |
++| R40 | Traversal/absolute/prefix/symlink and unrelated/discarded/replaced controls | **passed** |
++| R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | **passed** |
++| R42 | Candidate-bound 160 unique SOURCE lines across files | **passed** |
++| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | **passed** |
++| R44 | Unchanged request/cache compatibility and capture reuse | **passed** |
++| R45 | Nullable reviews/Finding identities and all runtime proof through review | **passed** |
++| R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | **passed** |
++| R47 | Fair rounds and rule/argument rotation; bounded GPT priorities | **passed** |
++| R48 | Stable attempt ID independent of scan/time/schema identity | **passed** |
++| R49 | 24 STARTED attempts / 120s; timing after image and before discovery | **passed** |
++| R50 | CLI > env > file > default positive settings; rules-only bypass; Action config | **passed** |
++| R51 | Fresh baseline/attack; invalid baseline prevents attack | **passed** |
++| R52 | Discovery/baseline/attack schema drift | **passed** |
++| R53 | Unsupported/inconclusive/startup/execution/interruption states; cleanup | **passed** |
++| R54 | Planned/unstarted records, no fabricated empty/incomplete coverage, exit 3 | **passed** |
++| R55 | Preserve every repeated observable proof through merge/review/output | **passed** |
++| R56 | Native 1.7 unique IDs and matching ordered binding/discovery/outcome references | **passed** |
++| R57 | Actual planned/eligible/started/tested totals and remainder/budget invariants | **passed** |
++| R58 | Legacy 1.3/1.4/1.5/1.6 reports/baselines, honest unknown coverage | **passed** |
++| R59 | Workspace structured coverage validates against inventory | **passed** |
++| R60 | Console/native/SARIF and every rule-keyed consumer | **passed** |
++| R61 | Packaged Finding/report schemas, SARIF 2.1.0 validation | **passed** |
++| R62 | Owning architecture/schema/rule/compatibility/config/onboarding/Action docs | **passed** |
++| R63 | Historical 45-input deterministic repeat pair, 120s deadline | **unresolved** |
++| R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | **unresolved** |
++| R65 | All five Phase 22 development pairs, paired mutations, controls | **unresolved** |
++| R66 | Fresh holdout outside tuning, separate results/no invented threshold | **unresolved** |
++| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | **passed** |
++| R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | **passed** |
++| R69 | Per-input statuses/support/completion denominators, repeated differences | **passed** |
++| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | **passed** |
++| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | **passed** |
++| R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | **passed** |
++| R73 | Docker/Action/rules-only network isolation and supported fixtures | **passed** |
++| R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | **passed** |
++| R75 | Concrete paid packet: actual config/model, exact cases/requests/purpose/reuse/replacements | **passed** |
++| R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | **passed** |
++| R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | **explicitly user-deferred** |
++| R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | **explicitly user-deferred** |
++| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | **passed** |
++| R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | **passed** |
++| R81 | Reviewable local commits on single integration branch; preserve old drafts | **passed** |
++| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | **passed** |
++| R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | **passed** |
++| R84 | Human technical acceptance and external pilot-dependent gate | **unresolved** |
++| R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | **passed** |
++| R86 | No paid calls, merge/release/outreach/source sharing without approval | **passed** |
++| R87 | Final fetch-mcp exposed correction: two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts, source-assessed deltas | **passed** |
++| R88 | Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments | **unresolved** |
++| R89 | Final exposed SearXNG correction: source-bound default loopback condition, two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts | **passed** |
++
++## Historical initial v13 delivery
+ 
+ All three exposed SSRF families pass their five-input native repeat gates.
+ The Value-reconstruction performance experiment is reverted after mixed
+diff --git a/docs/phase22-corpus-review.md b/docs/phase22-corpus-review.md
+index 18acb8b..7f397fd 100644
+--- a/docs/phase22-corpus-review.md
++++ b/docs/phase22-corpus-review.md
+@@ -1,5 +1,15 @@
+ # Phase 22 independent corpus freeze packet
+ 
++This page preserves the original proposal. The user subsequently authorized its
++corpus and tested Git environment in `artifacts/phase22/authorization.json`.
++Its first measurements and source limitations remain unchanged. The three later
++SSRF replacement families are now exposed regressions; all three pass their
++bounded native correction gates at `2ac39aa`. A new post-stabilization fresh
++freeze/evaluation remains separately gated. See the
++[current implementation status](phase22-implementation-status.md).
++
++## Historical proposal
++
+ **Status: prepared and independently source-reviewed; user freeze approval pending.**
+ The packet contains **ten independent vulnerable/fixed pairs, ten safe controls,
+ and 20 paired structural mutation inputs: 50 static inputs across nine repositories**.
+diff --git a/docs/phase22-implementation-status.md b/docs/phase22-implementation-status.md
+index a267903..3331a9d 100644
+--- a/docs/phase22-implementation-status.md
++++ b/docs/phase22-implementation-status.md
+@@ -31,12 +31,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+diff --git a/docs/phase22-ssrf-follow-up.md b/docs/phase22-ssrf-follow-up.md
+index 9ad791e..b652528 100644
+--- a/docs/phase22-ssrf-follow-up.md
++++ b/docs/phase22-ssrf-follow-up.md
+@@ -31,12 +31,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
+diff --git a/docs/phase22-technical.md b/docs/phase22-technical.md
+index 12c0ac4..264f9fa 100644
+--- a/docs/phase22-technical.md
++++ b/docs/phase22-technical.md
+@@ -31,12 +31,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
+ occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
+ timeouts and both historical batches skipped.
+ 
+-Final-source local verification passes: **2,182 tests, 36 skips and no expected
+-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
+-schemas, notices and offline artifacts pass. Both approved production requests
+-are regenerated and checked-replayed through the owned Docker demo with zero
+-new calls. Hosted verification for this source is pending; the older `6eb482c`
+-hosted passes below retain their historical source.
++Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
++and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
++is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
++code/test/workflow/package inputs equal measured `2ac39aa`
++([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
++wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
++notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
++and hook checks pass. Both approved production requests regenerate and replay
++without new paid calls. The exact approved Git image/runtime bindings match;
++its 13 campaigns remain incomplete (312 tested, 728 remaining).
+ See integration `v13-searxng-assessment/packet.json`,
+ `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
+ `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes

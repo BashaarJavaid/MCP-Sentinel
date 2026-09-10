@@ -1183,12 +1183,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
 occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
 timeouts and both historical batches skipped.
 
-Final-source local verification passes: **2,182 tests, 36 skips and no expected
-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
-schemas, notices and offline artifacts pass. Both approved production requests
-are regenerated and checked-replayed through the owned Docker demo with zero
-new calls. Hosted verification for this source is pending; the older `6eb482c`
-hosted passes below retain their historical source.
+Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
+and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
+is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
+code/test/workflow/package inputs equal measured `2ac39aa`
+([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
+wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
+notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
+and hook checks pass. Both approved production requests regenerate and replay
+without new paid calls. The exact approved Git image/runtime bindings match;
+its 13 campaigns remain incomplete (312 tested, 728 remaining).
 See integration `v13-searxng-assessment/packet.json`,
 `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
 `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes

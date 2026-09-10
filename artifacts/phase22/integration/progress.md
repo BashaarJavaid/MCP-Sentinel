@@ -3001,12 +3001,17 @@ profiles, deadline failures and all results are retained. No full Linux retry
 occurred. The retained `7555a9d` Linux result still completes 15/25, with ten Meta
 timeouts and both historical batches skipped.
 
-Final-source local verification passes: **2,182 tests, 36 skips and no expected
-failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock,
-schemas, notices and offline artifacts pass. Both approved production requests
-are regenerated and checked-replayed through the owned Docker demo with zero
-new calls. Hosted verification for this source is pending; the older `6eb482c`
-hosted passes below retain their historical source.
+Final-source local and all 12 hosted quality suites pass **2,182 tests, 36 skips
+and no expected failures**. Local branch coverage is **89.66%**; hosted coverage
+is **89.65–89.68%**. All 29 normal jobs and docs pass at `1be0650`, whose
+code/test/workflow/package inputs equal measured `2ac39aa`
+([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664451),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34509664440)). Actual
+wheel/sdist source members match Git. Ruff/format, strict mypy, lock, schemas,
+notices, offline artifacts, dependencies, wheel smoke, Docker replay, isolation
+and hook checks pass. Both approved production requests regenerate and replay
+without new paid calls. The exact approved Git image/runtime bindings match;
+its 13 campaigns remain incomplete (312 tested, 728 remaining).
 See integration `v13-searxng-assessment/packet.json`,
 `v13-exposed-assessment/packet.json`, `v13-performance-disposition.json` and
 `v13-performance-revert-receipt.json`. The current SearXNG receipt consumes
@@ -3020,3 +3025,26 @@ remain unmet/separately gated. No final acceptance is requested. There were zero
 new paid calls. Pilots and the full paid benchmark remain user-deferred; Phase 21
 is incomplete and Phase 24/15 gates are unchanged. No merge, release, outreach or
 next phase is authorized.
+
+### Evidence batch 42 and current audit
+
+Batch 42 is sealed: **791 files**, 127,451,625 raw bytes and
+7,933,120 compressed bytes, SHA-256
+`c1f7e5660af1b617fb6e0802d4ef73c9c2844ce51b963387997c04a527b62763`.
+Every member was read back and all 41 prior numbered archive hashes reverified
+after native/test/collector writers stopped. Restore after batches 1–41 into
+separate staging; validate the archive and each member against `evidence-v42.json`
+before copying. Existing destinations must match identical bytes or their prior
+numbered-manifest hashes; stop on unexpected conflicts.
+
+This batch preserves the passing three-family exposed gates, the one fixed
+trace, the attempted/reverted performance change and all 14 observations,
+current local/hosted checks, production replay and Git compatibility, full
+reports, failed attempts, commands and helper sources. Final audit, docs and
+delivery bindings are directly tracked after the seal, including
+`v13-closeout-audit/packet.json`, `v13-final-documentation-binding.json`,
+`v13-delivery-verification.json` and `v13-closeout-draft-body.md`.
+The archive is evidence delivery, not a timing pass or Phase 22 acceptance.
+
+The current audit records 70 passed, two explicitly user-deferred and 17
+unresolved requirements. Timing/fresh evaluation/final acceptance remain unmet.
