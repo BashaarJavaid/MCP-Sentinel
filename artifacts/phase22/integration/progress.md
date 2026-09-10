@@ -2757,3 +2757,86 @@ not passed. No additional paid model calls or target execution occurred in these
 two evaluations. Compatible capture/Docker/Git evidence remains bound to the
 unchanged scanner. Final human acceptance is separate; Phase 21, Phase 24 and
 Phase 15 gates remain unchanged. No merge, release, outreach or next phase.
+
+
+## V9 detection correction and finite timing investigation — scanner `7555a9d`
+
+**Current scanner: `7555a9d`; Phase 22 remains incomplete.** The authorized
+continuation corrected the exposed fetch-mcp flow and retained a measured Python
+credential-flow optimization. Both exposed SSRF families complete 5/5 inputs
+twice, detect both correlated vulnerable variants, and have zero condition-matched
+fixed/control alerts. These are exposed regressions; all original misses remain.
+The final original-corpus, Linux timing, hosted and fresh-evaluation gates are
+still being completed. Final human acceptance has not been requested or granted.
+
+The current native source SHA-256 is
+`b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c`.
+The continuation separately authorizes one new Linux sequence of 25 development
+inputs followed conditionally by two entire 45-input historical batches, keeping
+both 120-second deadlines. The previously failed run is preserved. New fresh
+sources are curated only after the scanner freeze, with exact manifest/evaluation
+approval required before any new-source scan. No additional paid calls are
+approved. Pilots and the full paid benchmark remain deferred; Phase 21 is
+incomplete and Phase 24/15 gates are unchanged.
+
+The fetch-mcp correction follows genuine imported schema field flow and async
+static class helpers. SENT-015 distinguishes an enforced `private-ip` check of
+the same URL hostname from checking the whole URL, an unrelated value, an ignored
+result or a URL object escaped to unknown code. It credits only the initial
+private-IPv4 restriction. Fixed/control reports still retain scoped uncertainty
+about schemes, DNS, redirects and broader IPv6; zero matching alerts does not
+mean zero raw findings or complete SSRF protection. All changed diagnostics and
+residual findings have source-bound assessments in
+`v9-fetchmcp-assessment-v2/packet.json`; the unchanged open-webSearch reports reuse
+their source judgments through `v9-openwebsearch-assessment/packet.json`.
+
+Three finite performance iterations are retained. An AST cache was reverted;
+a hash-based guard cache caused historical timeouts and was replaced. The final
+per-flow immutable guard snapshot reuses pure aggregate facts while reading the
+current branch environment. On two repeated slow inputs, full ordered reports
+match the baseline except recorded identities/clocks. Meta fixed-mutation wall
+times are 57.428s/63.351s and upload-fixed 87.987s/87.005s. These focused results
+are not a whole-corpus timing pass; see `v9-iteration3-disposition.json`.
+
+Current production request construction accepts the two existing captures and
+six replay batches without new model calls. The controlled Docker demo completes
+20/20 attempts with 14 findings. All 13 Git catalog/campaign/configuration rows
+and 19 runtime components match retained approved-environment evidence: 1,040
+planned, 312 tested and 728 remaining, all 13 campaigns incomplete with exit 3.
+Wheel/sdist bytes match current source and pip/pipx/uv installation smoke passes.
+See `v9-compatible-evidence-binding/packet.json` and the `v9-final-*` check records.
+Final hosted checks must name their actual tested delivery; the old `88a559e`
+checks do not establish a hosted pass for this implementation.
+
+
+### Final local measurements and Linux preflight
+
+The final local development measurement completes 22/25. Meta operator-fallback
+fixed, fixed-mutation and safe inputs time out at 120.041s, 120.084s and 120.091s.
+All ten vulnerable conditions are detected; 12/13 valid negatives complete with
+zero matching alerts. Both raw erratum negatives are incomplete, so this is
+12/15 completed raw negatives, not an improvement in false-alarm scoring.
+The original held-out result remains 10 completed/10 unsupported/5 incomplete,
+with zero detections among four completed vulnerable inputs out of ten total.
+All report changes have source assessments. The new standard Linux sequence
+remains the authorized final whole-batch verification; no local retry is inferred.
+See `v9-final-corpus-assessment/packet.json` and `v9-linux-preflight.json`.
+
+The final local suite passes 2,140 tests with 36 Docker skips and 89.64% branch
+coverage. Strict docs and final hosted checks have their own delivery records.
+
+The direct gate invocation initially lacked the repository root on PYTHONPATH;
+its import failure is retained. The corrected invocation uses `PYTHONPATH=src:.`,
+matching the unchanged hosted job environment, and records the actual failed
+completion/timing gate. No benchmark rerun was performed for that harness fix.
+
+
+### Evidence batch 38
+
+Sealed 747 files after every local writer stopped: 257,549,935 raw bytes,
+11,587,567 compressed bytes, SHA-256
+`95040f0cb196f39345d606a7ee6fbf5bc4e7294e985be62ce4a5801d8c4ef4d7`.
+Every member was read back and matched; all archives 1–37 were reverified.
+Restore in numeric order using the retained conflict/hash checks. No prior seal
+was replaced. Hosted verification and the single authorized Linux sequence are
+subsequent evidence. Fresh-v3 evaluation is still awaiting explicit approval.

@@ -1,5 +1,15 @@
 # Consolidated Phase 22 requirement checklist
 
+Current scanner is `7555a9d`; Phase 22 remains incomplete. All 86 original
+requirements remain required, supplemented by R87 (fetch-mcp correction) and
+R88 (the next fresh freeze/evaluation). The old v8 dispositions below remain
+historical until the current source-bound audit is complete. Both exposed SSRF
+repeat gates and the local 2,140-test suite pass; final original-corpus, Linux,
+hosted, fresh-evaluation and human-acceptance gates remain in progress. No new
+paid calls are approved. See [implementation status](../../../docs/phase22-implementation-status.md).
+
+## Historical v8 checkpoint at scanner `62987a6`
+
 **Current scanner: `62987a6`; workflow delivery: `88a559e`. Phase 22 remains
 incomplete pending execution reliability and final human technical acceptance.** The user approved both the revised Linux execution and exact
 fresh-corpus checkpoint with “go ahead with these two”. Their separate decision
@@ -159,7 +169,7 @@ Earlier sources and archives remain authoritative for their narrower claims.
 The continuation starts at `83c9985` plus tracked patch
 `9f533e8eb643e68a9cc5db0217b3db20a2d120d8789987635584037387cb86d6`.
 
-## Current 86-row closeout audit at `62987a6`
+## Historical 86-row closeout audit at `62987a6`
 
 The [source-bound audit](v8-closeout-audit/packet.json) records **78 passed, 2 user-deferred and 6 unresolved** requirements. Every row retains exact source/test bindings and hashed evidence references. Unresolved rows: R20, R35, R63, R64, R65, R84. Earlier audit/checklist statements remain historical.
 
@@ -251,3 +261,10 @@ The [source-bound audit](v8-closeout-audit/packet.json) records **78 passed, 2 u
 | R84 | Human technical acceptance and external pilot-dependent gate | User/maintainer evidence | unresolved — Both execution/freeze approvals are received; neither grants final human technical acceptance. Phase22 remains incomplete until every technical gate is satisfied and the user accepts the concrete final packet and limitations. Pilots and paid comparison stay explicitly deferred; Phase21/24/15 remain unchanged. |
 | R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | Shared existing trust boundaries | passed — Static source-only and Docker-only target boundaries preserved. No new paid call, fresh-v2 evaluation, unapproved runner dispatch, merge, release or outreach. Exposed-v1 regression reruns use existing explicit authorization. |
 | R86 | No paid calls, merge/release/outreach/source sharing without approval | Authorization record | passed — Static source-only and Docker-only target boundaries preserved. No new paid call, fresh-v2 evaluation, unapproved runner dispatch, merge, release or outreach. Exposed-v1 regression reruns use existing explicit authorization. |
+
+## Additional requirements from the authorized detection/timing continuation
+
+| ID | Required behavior / evidence | Implementation and regression owners | Evidence / outstanding gate |
+| --- | --- | --- | --- |
+| R87 | Final fetch-mcp exposed correction: two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts, source-assessed deltas | Shared TypeScript schema/async-class flow, SENT-015 and URL escape controls | passed — `v9-fetchmcp-assessment-v2/packet.json` binds both runs at `7555a9d`; all original frozen misses and residual uncertainty remain. |
+| R88 | Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments | Existing corpus/provenance/measurement infrastructure | unresolved — `../corpus-replacement-v3/checkpoint-7555a9d.json` is prepared and explicit user approval requested; no new-source evaluation or tuning has occurred. |

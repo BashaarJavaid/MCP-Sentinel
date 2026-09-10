@@ -386,6 +386,14 @@ supports enforced standard-library IP-address predicates and a statically nonemp
 literal-address validation loop. The exception path for nonliteral hostname
 resolution does not establish DNS safety.
 
+TypeScript caller fields also flow through supported genuine Zod schemas and
+async static class helpers. Schema parsing alone does not restrict destinations.
+An enforced imported `private-ip` predicate on the same parsed URL's hostname
+credits only literal IPv4 rejection. Checking the whole URL, ignoring the result,
+or escaping/replacing the URL object does not establish that guard. A guarded
+path can retain a residual finding for restrictions that remain unestablished;
+that finding does not claim the initial private-IPv4 request is permitted.
+
 Genuine Atlassian Jira/Confluence clients retain their current base URL at REST
 `get`, `post`, `put`, `patch`, `delete`, `request` and Jira `myself()` calls.
 Construction alone does not establish a request. The

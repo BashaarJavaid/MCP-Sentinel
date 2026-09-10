@@ -413,7 +413,8 @@ unresolved. An enforced genuine `private-ip` check on the parsed hostname record
 only literal IPv4 rejection. SENT-015 retains a separately worded residual
 candidate when complete URL restrictions are unestablished; it does not attribute
 an initial IPv4 loopback bypass to that guarded path. A whole-URL argument, ignored
-result, unrelated value or subsequent replacement establishes no such guard.
+result, unrelated value, unknown URL-object escape or subsequent replacement
+establishes no such guard.
 
 Included plain TypeScript classes retain
 constructor fields and branch-local field updates through helper calls. Arrow

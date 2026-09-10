@@ -1,4 +1,40 @@
-# Integration evidence, batches 1–37 and closeout audit
+# Integration evidence, batches 1–38 and closeout audit
+
+**Current scanner: `7555a9d`; Phase 22 remains incomplete.** The authorized
+continuation corrected the exposed fetch-mcp flow and retained a measured Python
+credential-flow optimization. Both exposed SSRF families complete 5/5 inputs
+twice, detect both correlated vulnerable variants, and have zero condition-matched
+fixed/control alerts. These are exposed regressions; all original misses remain.
+The final original-corpus, Linux timing, hosted and fresh-evaluation gates are
+still being completed. Final human acceptance has not been requested or granted.
+
+The current native source SHA-256 is
+`b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c`.
+The continuation separately authorizes one new Linux sequence of 25 development
+inputs followed conditionally by two entire 45-input historical batches, keeping
+both 120-second deadlines. The previously failed run is preserved. New fresh
+sources are curated only after the scanner freeze, with exact manifest/evaluation
+approval required before any new-source scan. No additional paid calls are
+approved. Pilots and the full paid benchmark remain deferred; Phase 21 is
+incomplete and Phase 24/15 gates are unchanged.
+
+Current assessments: `v9-fetchmcp-assessment-v2/packet.json`,
+`v9-openwebsearch-assessment/packet.json`, and
+`v9-compatible-evidence-binding/packet.json`. Batch 38 is sealed: **747 files**, 257,549,935 raw bytes and 11,587,567
+compressed bytes, SHA-256
+`95040f0cb196f39345d606a7ee6fbf5bc4e7294e985be62ce4a5801d8c4ef4d7`.
+Every member and all prior numbered archive hashes were verified. The v8 audit
+below is historical; current source/test bindings cover all 86 original rows plus
+R87/R88 in `v9-current-source-test-bindings/packet.json`.
+
+Restore batch 38 after batches 1–37 into separate staging, validating its archive
+and every member against `evidence-v38.json` before copying. An existing destination
+must match identical bytes or its prior numbered-manifest hash; stop on unexpected
+conflicts. The new corpus proposal and runnable Linux gate files are tracked
+separately. Linux/hosted outcomes will be appended after execution; this seal
+is not a timing pass or final technical acceptance.
+
+## Historical v8 closeout and preserved archive index
 
 Batch 37 retains **407 files**, 25,706,836 raw bytes and 4,530,755 compressed bytes;
 SHA-256 `93f938ce36d3b32e44601f2e8b183cd0f5adbea9e39f4fa4af53311050a713b6`. Every archived member was read back and matched,

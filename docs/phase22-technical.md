@@ -1,5 +1,27 @@
 # Phase 22 technical expansion
 
+**Current scanner: `7555a9d`; Phase 22 remains incomplete.** The authorized
+continuation corrected the exposed fetch-mcp flow and retained a measured Python
+credential-flow optimization. Both exposed SSRF families complete 5/5 inputs
+twice, detect both correlated vulnerable variants, and have zero condition-matched
+fixed/control alerts. These are exposed regressions; all original misses remain.
+The final original-corpus, Linux timing, hosted and fresh-evaluation gates are
+still being completed. Final human acceptance has not been requested or granted.
+
+The current native source SHA-256 is
+`b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c`.
+The continuation separately authorizes one new Linux sequence of 25 development
+inputs followed conditionally by two entire 45-input historical batches, keeping
+both 120-second deadlines. The previously failed run is preserved. New fresh
+sources are curated only after the scanner freeze, with exact manifest/evaluation
+approval required before any new-source scan. No additional paid calls are
+approved. Pilots and the full paid benchmark remain deferred; Phase 21 is
+incomplete and Phase 24/15 gates are unchanged.
+
+See [implementation status](phase22-implementation-status.md) for current evidence and limitations.
+
+## Historical v8 checkpoint at scanner `62987a6`
+
 **Current scanner: `62987a6`; workflow delivery: `88a559e`. Phase 22 remains
 incomplete pending execution reliability and final human technical acceptance.** The user approved both the revised Linux execution and exact
 fresh-corpus checkpoint with “go ahead with these two”. Their separate decision

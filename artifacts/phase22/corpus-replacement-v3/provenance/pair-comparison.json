@@ -1,0 +1,35 @@
+{
+  "vulnerable_revision": "3010d1e80ee21baa3d33fcbe0fe2bd5006f285e2",
+  "fixed_revision": "48e5ecdcb4166a60b94c252dbe74b0a318110ac4",
+  "direct_parent": true,
+  "changed_files": [
+    {
+      "path": "CONFIGURATION.md",
+      "vulnerable_sha256": "2e377be4d568930c8960ba4c27a7569ef6bc9aff3ed5f6889c0dd5703fdc7c18",
+      "fixed_sha256": "dd3cead189ef8b3f3ca1fe0233dbbbabd5e0176e04149f016a91300610f1b323"
+    },
+    {
+      "path": "__tests__/unit/url-reader.test.ts",
+      "vulnerable_sha256": "cf8d349bea4489fd9b9f2f8ed696b005e9b8047ee4a8d2894a7cce7ecfa651db",
+      "fixed_sha256": "20b0caf565e54a612894f922f8ba4a34d1a851ee6d71e0e44cdad4c7f57ec830"
+    },
+    {
+      "path": "src/resources.ts",
+      "vulnerable_sha256": "ed35eae1218f7422d1e36510cc3f9652f7c8d92bf4d6b3d22cd0afdfccfcc61b",
+      "fixed_sha256": "33336c0497ddd5f84e4cd5040572fc421fd867ae79acebf85d912879366d2e8d"
+    },
+    {
+      "path": "src/url-reader.ts",
+      "vulnerable_sha256": "505c355983a2350c89a74d739cc59288d0a89353b67fbb2ae4da53312b968384",
+      "fixed_sha256": "e4515104e0cdae58b2f2547b5fbb57ab4716c196422c234c27a8a019d0300a59"
+    }
+  ],
+  "full_diff": {
+    "path": "artifacts/phase22/corpus-replacement-v3/provenance/full-pair.diff",
+    "sha256": "71ee2c953185ac3a2c2ab36ec0ffd6fd8d972da2b5334016450d147f35a56de4"
+  },
+  "label_basis": "For 127.0.0.1, the vulnerable guard returns because harden is false. The fixed guard does not return when allowPrivateUrls is false; genuine node:net isIP classifies the parsed hostname as IPv4, its 127 prefix triggers a thrown source-defined policy error before fetch. The public 8.8.8.8 control does not meet the hostname/IPv4/IPv6 rejection branches.",
+  "other_changes": "Additional 0/8 and mapped-IPv6 checks, a manual redirect loop and its tests/docs are retained but are not measured by the narrow initial IPv4 condition. CLI and security-configuration bytes are identical across the pair.",
+  "projection": "None: all 52 regular files per snapshot, including MIT license, tests, scripts, lock and configuration, are retained. Upstream code is read only.",
+  "release_research": "Original 1.1.0/1.2.1 archives and metadata are retained. Upstream history identifies this direct pair, selected before any evaluation to avoid unrelated release and startup changes."
+}
