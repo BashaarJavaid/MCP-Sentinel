@@ -1,6 +1,17 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current 89-row audit at `2ac39aa`
+## Current v14 verification in progress
+
+The approved helper-fact experiment is reverted after its individual-observation
+ceiling failed. Eleven input attempts are retained: ten complete and one
+interrupted. The two remaining native observations and all 30 conditional SSRF
+runs were cancelled. Scanner bytes equal measured `2ac39aa`; the new semantic test
+is retained. Timing, fresh evaluation and final acceptance remain unmet. The
+89-row dispositions remain 70 passed, two deferred and 17 unresolved; current
+local/hosted test bindings are being completed. See `v14-performance-disposition.json`.
+
+
+## Historical v13 89-row audit at `2ac39aa`
 
 **70 passed, 2 explicitly user-deferred, 17 unresolved.** All IDs and prior
 evidence remain preserved. Exact implementation, executed tests, source hashes

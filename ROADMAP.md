@@ -1152,7 +1152,52 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-### Current continuation at `2ac39aa`
+### Current bounded follow-up at `a7d7de0`
+
+Phase 22 remains incomplete. The user's “go ahead” approved the exact helper-fact
+proposal in `v13-next-performance-proposal.json`; the new receipt is
+`v14-performance-authorization.json`. Its one counter profile completed and
+observed 3,402,980 empty-fact visits among 3,422,804 binding visits (99.42%).
+One ordered-pass optimization was attempted at `e57ce95` and reverted in
+`a7d7de0`. Scanner bytes again equal measured `2ac39aa` and delivered `424c443`.
+The new semantic regression is retained; no detector behavior change remains.
+
+The first operator candidate took 77.556s and 195.041848 child CPU-seconds,
+exceeding baseline maxima of 75.134s and 188.048785 CPU-seconds. That irrecoverably
+fails the prospectively approved per-observation retention rule. Four candidate
+attempts had started when the queue was stopped: three completed, and the active
+Atlassian repeat ended without a completion record. It is retained as interrupted,
+not completed or timed out. Two remaining performance observations were cancelled;
+the 30 conditional SSRF observations were never activated. Total usage is one
+completed counter profile and ten native attempts (nine complete, one interrupted).
+All ten completed ordered reports, including the profile, match their baselines.
+No complete candidate pair or median performance gain is claimed. The failed
+lint/format checks, queue termination, partial files and all original evidence
+remain preserved. See `v14-performance-disposition.json` and
+`v14-queue-stop-outcome.json` under integration evidence.
+
+All three exposed SSRF families retain their passing v13 gates at `2ac39aa`:
+five inputs twice per family, two vulnerable matches and zero matching negative
+alerts per batch. Current scanner/harness bytes are identical; these results keep
+their original measured revision. SearXNG's broader URL candidates and unresolved
+MCP dispatch remain visible. Original misses and source assessments are preserved.
+
+The candidate's 1,034 affected tests, semantic before/after check, lint, format and
+strict mypy pass. Final local/hosted verification including the retained new test
+is pending; earlier full-suite and hosted results retain their actual sources.
+The prior 89-row audit remains 70 passed, two explicitly user-deferred and
+17 unresolved, pending its current verification bindings.
+
+The retained full Linux gate still fails at `7555a9d`: 15/25 complete, ten Meta
+timeouts and both historical batches skipped. No further optimization, profile,
+native/comparator measurement, full Linux retry, runner/deadline waiver or fresh
+freeze/evaluation is authorized by unused maxima. A new concrete measurement
+scope requires separate approval. Timing, fresh evaluation and final human
+acceptance remain unmet; final acceptance is not requested. Zero paid calls.
+Pilots and the paid benchmark remain deferred; Phase 21 is incomplete and
+Phase 24/15 are unchanged. No merge, release, outreach or next phase.
+
+### Historical v13 continuation at `2ac39aa`
 
 Phase 22 remains incomplete. At scanner `2ac39aa` (source bytes equal the
 SearXNG correction `523320f`), all three exposed SSRF families pass their native
