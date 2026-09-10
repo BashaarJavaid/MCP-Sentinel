@@ -1,0 +1,65 @@
+{
+  "recorded_at": "2026-09-10T19:15:56.250714+00:00",
+  "source": "592a9cd016537d827589567bf9be310d4e757c75",
+  "path_flow_unchanged_from_retained_profile_source_7555a9d": true,
+  "path_flow_sha256": "322aa43e4af1fbdc3ab30e2c1ff81037e146f0347c87f522e855153755a2524c",
+  "retained_partial_profile": {
+    "path": "artifacts/phase22/integration/v10-hosted-05309f9/artifacts/linux/phase22-linux-diagnostic/profile-meta-image-ssrf-vulnerable-1-workers/SENT-015.prof",
+    "sha256": "0fa2d507a1c078bd0fb40af29463cf19cf9a0d8bff44203143423d5bdabed2e5",
+    "selected_costs": [
+      {
+        "function": [
+          "<string>",
+          2,
+          "__hash__"
+        ],
+        "primitive_calls": 1424847,
+        "calls": 1424847,
+        "exclusive_seconds": 0.9331481640000001,
+        "cumulative_seconds": 1.527832431
+      },
+      {
+        "function": [
+          "/home/runner/work/MCP-Sentinel/MCP-Sentinel/src/sentinel/static/path_flow.py",
+          58,
+          "_combine"
+        ],
+        "primitive_calls": 237493,
+        "calls": 252332,
+        "exclusive_seconds": 4.134868799,
+        "cumulative_seconds": 11.8129024
+      },
+      {
+        "function": [
+          "/home/runner/work/MCP-Sentinel/MCP-Sentinel/src/sentinel/static/path_flow.py",
+          1243,
+          "merge"
+        ],
+        "primitive_calls": 34958,
+        "calls": 34958,
+        "exclusive_seconds": 5.18414469,
+        "cumulative_seconds": 24.471925877
+      },
+      {
+        "function": [
+          "/home/runner/work/MCP-Sentinel/MCP-Sentinel/src/sentinel/static/path_flow.py",
+          54,
+          "combine"
+        ],
+        "primitive_calls": 458405,
+        "calls": 480982,
+        "exclusive_seconds": 2.9965537540000002,
+        "cumulative_seconds": 16.499059846
+      }
+    ]
+  },
+  "retained_combine_counts": {
+    "path": "artifacts/phase22/integration/v10-hosted-05309f9/artifacts/linux/phase22-linux-diagnostic/profile-meta-image-ssrf-vulnerable-1-workers/SENT-015-counts.json",
+    "sha256": "92403fe3afc71a241c46df298effdc2325a9224ffb2317e8d389948ca7d474de",
+    "total": 481093,
+    "single_value_without_key": 72777
+  },
+  "assessment": "The retained shared merge has34958 calls,5.184s exclusive and24.472s cumulative in this partial SENT-015 profile. Hashing is only1.528s cumulative; singleton combines are72777/481093 recorded calls. These do not justify guessing another hash/single-value shortcut as a material across-input improvement. Existing code already has whole-equal-branch, single-branch and per-value equality shortcuts. Counts do not yet separate their repeated branch widths, actual combining, normalization and subclass work. A single bounded merge diagnostic is the next proposed measurement, not another ungrounded optimization.",
+  "new_measurements": 0,
+  "new_paid_calls": 0
+}

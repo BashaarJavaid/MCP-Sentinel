@@ -1,6 +1,123 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v14 verification in progress
+## Current 89-row audit at `592a9cd`
+
+**70 passed, 2 explicitly user-deferred, 17 unresolved.** Current implementation,
+executed tests and evidence hashes are in `v14-closeout-audit/packet.json` and
+`v14-current-source-test-bindings/packet.json`. Scanner/harness bytes equal
+measured `2ac39aa`; original native reports retain that revision. All 29 normal
+jobs and docs pass on corrected `592a9cd`. Timing, fresh evaluation and human
+acceptance remain unmet.
+
+| ID | Requirement | Current disposition |
+| --- | --- | --- |
+| R01 | Correct dirty worktree and packet identities | **passed** |
+| R02 | Source-established constructors, fields, aliases and replacement invalidation | **passed** |
+| R03 | Read-only builtin dictionary inspection with shadowing controls | **passed** |
+| R04 | Reflection, unknown mutation, custom hooks and constructor/decorator ambiguity | **passed** |
+| R05 | Imported handlers and schemas | **passed** |
+| R06 | Aliases/re-exports, local imports and package exports | **passed** |
+| R07 | Statically bound helpers, factories, inherited/bound methods | **passed** |
+| R08 | Cross-file caller/guard/sink evidence and binding identity | **passed** |
+| R09 | Genuine SDK context vs caller/fake/rebound/local SDK | **passed** |
+| R10 | Low-level registration and dispatch | **passed** |
+| R11 | uv/npm/pnpm members and exclusions | **passed** |
+| R12 | TS aliases/inherited local compiler configuration, inaccessible parents | **passed** |
+| R13 | Aggregate root vs individual config, nested config disclosure | **passed** |
+| R14 | Per-member counts without shared-file duplication | **passed** |
+| R15 | Inaccessible/unsupported members, ambiguity/import/reflection/schema gaps | **passed** |
+| R16 | Repository escapes and symlinks; dynamic single Python package | **passed** |
+| R17 | Helm original bytes/text secrets and explicit YAML omission | **passed** |
+| R18 | Historical atlassian-auth condition | **unresolved** |
+| R19 | Historical atlassian-ssrf condition | **unresolved** |
+| R20 | Historical atlassian-upload condition | **unresolved** |
+| R21 | Historical excel-boundary condition | **unresolved** |
+| R22 | Historical filesystem-prefix condition | **unresolved** |
+| R23 | Historical git-arguments condition | **unresolved** |
+| R24 | Historical git-repository condition | **unresolved** |
+| R25 | Historical git-staging condition | **unresolved** |
+| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | **unresolved** |
+| R27 | Historical mobile-output condition | **unresolved** |
+| R28 | Mastra failure-return flags and unsafe directory fallback | **passed** |
+| R29 | Explicit description override, exfiltration, cross-tool redirection | **passed** |
+| R30 | Benign instructions and quoted warnings; parameter/low-level metadata | **passed** |
+| R31 | dbt selector options through nested factories/mutable argv | **passed** |
+| R32 | Git option positions, rejection, command-specific terminators, object APIs | **passed** |
+| R33 | Meta image caller URL request and scheme/private/loopback checks | **passed** |
+| R34 | Fixed public authority plus caller suffix; enforced actual return value | **passed** |
+| R35 | Meta ContextVar/HTTP authentication/operator fallback | **unresolved** |
+| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | **passed** |
+| R37 | Applicable Python and TypeScript positives/negatives for every new rule | **passed** |
+| R38 | Rule defaults, selection, inline suppression, baseline/severity identities | **passed** |
+| R39 | Canonical Finding, evidence/provenance/remediation/OWASP and limitations | **passed** |
+| R40 | Traversal/absolute/prefix/symlink and unrelated/discarded/replaced controls | **passed** |
+| R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | **passed** |
+| R42 | Candidate-bound 160 unique SOURCE lines across files | **passed** |
+| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | **passed** |
+| R44 | Unchanged request/cache compatibility and capture reuse | **passed** |
+| R45 | Nullable reviews/Finding identities and all runtime proof through review | **passed** |
+| R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | **passed** |
+| R47 | Fair rounds and rule/argument rotation; bounded GPT priorities | **passed** |
+| R48 | Stable attempt ID independent of scan/time/schema identity | **passed** |
+| R49 | 24 STARTED attempts / 120s; timing after image and before discovery | **passed** |
+| R50 | CLI > env > file > default positive settings; rules-only bypass; Action config | **passed** |
+| R51 | Fresh baseline/attack; invalid baseline prevents attack | **passed** |
+| R52 | Discovery/baseline/attack schema drift | **passed** |
+| R53 | Unsupported/inconclusive/startup/execution/interruption states; cleanup | **passed** |
+| R54 | Planned/unstarted records, no fabricated empty/incomplete coverage, exit 3 | **passed** |
+| R55 | Preserve every repeated observable proof through merge/review/output | **passed** |
+| R56 | Native 1.7 unique IDs and matching ordered binding/discovery/outcome references | **passed** |
+| R57 | Actual planned/eligible/started/tested totals and remainder/budget invariants | **passed** |
+| R58 | Legacy 1.3/1.4/1.5/1.6 reports/baselines, honest unknown coverage | **passed** |
+| R59 | Workspace structured coverage validates against inventory | **passed** |
+| R60 | Console/native/SARIF and every rule-keyed consumer | **passed** |
+| R61 | Packaged Finding/report schemas, SARIF 2.1.0 validation | **passed** |
+| R62 | Owning architecture/schema/rule/compatibility/config/onboarding/Action docs | **passed** |
+| R63 | Historical 45-input deterministic repeat pair, 120s deadline | **unresolved** |
+| R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | **unresolved** |
+| R65 | All five Phase 22 development pairs, paired mutations, controls | **unresolved** |
+| R66 | Fresh holdout outside tuning, separate results/no invented threshold | **unresolved** |
+| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | **passed** |
+| R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | **passed** |
+| R69 | Per-input statuses/support/completion denominators, repeated differences | **passed** |
+| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | **passed** |
+| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | **passed** |
+| R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | **passed** |
+| R73 | Docker/Action/rules-only network isolation and supported fixtures | **passed** |
+| R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | **passed** |
+| R75 | Concrete paid packet: actual config/model, exact cases/requests/purpose/reuse/replacements | **passed** |
+| R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | **passed** |
+| R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | **explicitly user-deferred** |
+| R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | **explicitly user-deferred** |
+| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | **passed** |
+| R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | **passed** |
+| R81 | Reviewable local commits on single integration branch; preserve old drafts | **passed** |
+| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | **passed** |
+| R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | **passed** |
+| R84 | Human technical acceptance and external pilot-dependent gate | **unresolved** |
+| R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | **passed** |
+| R86 | No paid calls, merge/release/outreach/source sharing without approval | **passed** |
+| R87 | Final fetch-mcp exposed correction: two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts, source-assessed deltas | **passed** |
+| R88 | Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments | **unresolved** |
+| R89 | Final exposed SearXNG correction: source-bound default loopback condition, two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts | **passed** |
+
+### Additional v14 scope requirements
+
+These supplement the original 89 IDs: **6 passed, 1 unresolved**. The failed
+retention condition remains failed despite correct execution of its stop/revert
+requirements.
+
+| ID | Requirement | Disposition |
+| --- | --- | --- |
+| V14-AUTH | Exact new approval and immutable source/input/budget bindings | **passed** |
+| V14-DIAG | One bounded diagnostic with prospective proceed condition | **passed** |
+| V14-OPT | One extraction-only attempt with durable before/after semantic checks | **passed** |
+| V14-RETENTION | At least5% paired median wall/CPU reduction on every input and no candidate above baseline maxima | **unresolved** |
+| V14-STOP | Revert and close unused budgets after failure; retain interrupted/unstarted accounting | **passed** |
+| V14-QUALITY | Final configured verification of retained test, with earlier failures preserved | **passed** |
+| V14-DELIVERY | Numbered evidence seal and consolidated draft delivery without phase acceptance | **passed** |
+
+## Historical v14 initial verification
 
 The approved helper-fact experiment is reverted after its individual-observation
 ceiling failed. Eleven input attempts are retained: ten complete and one

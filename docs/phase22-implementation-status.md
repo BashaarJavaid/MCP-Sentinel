@@ -1,6 +1,6 @@
 # Phase 22 implementation status
 
-## Current bounded follow-up at `a7d7de0`
+## Current verification at `592a9cd`
 
 Phase 22 remains incomplete. The user's “go ahead” approved the exact helper-fact
 proposal in `v13-next-performance-proposal.json`; the new receipt is
@@ -30,22 +30,35 @@ alerts per batch. Current scanner/harness bytes are identical; these results kee
 their original measured revision. SearXNG's broader URL candidates and unresolved
 MCP dispatch remain visible. Original misses and source assessments are preserved.
 
-The candidate's 1,034 affected tests, semantic before/after check, lint, format and
-source-only mypy pass. Initial hosted verification at `12748e4` failed all 12
-quality jobs because full mypy also checks tests and found a missing annotation
-in the new test helper. The annotation is corrected; configured strict mypy now
-passes all 146 files and the retained control passes. The superseded local suite
-was explicitly interrupted after 365 passing tests and is preserved as incomplete.
-Final local/hosted verification on the corrected test is pending; earlier results
-retain their actual sources. No detector source or measured report changed.
-The prior 89-row audit remains 70 passed, two explicitly user-deferred and
-17 unresolved, pending its current verification bindings.
+Final local and all 12 hosted quality suites pass **2,183 tests, 36 skips and
+no expected failures** at corrected `592a9cd`. Local branch coverage is
+**89.66%**; hosted coverage is **89.65–89.68%**. All 29 normal jobs and
+docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34518818910),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34518818938)).
+Wheel/sdist source members match actual Git blobs; all 12 wheel combinations,
+Docker replay, network isolation, dependencies and hooks pass. Configured strict
+mypy checks all 146 files; Ruff/format, lock, schemas, notices and offline
+artifacts pass. Both approved production requests regenerate and checked-replay
+without new paid calls. The approved Git runtime/image bindings match; its
+13 campaigns remain incomplete (312 tested, 728 remaining).
+
+The candidate's 1,034 affected tests and semantic before/after control passed.
+Initial `12748e4` CI failed all 12 quality jobs because its source-only local mypy
+check missed a required test-helper annotation. The annotation is corrected;
+initial failed/cancelled CI and the superseded local suite interrupted after
+365 passing tests are retained. Detector source and measurements are unchanged.
+The current 89-row audit records 70 passed, two explicitly user-deferred and
+17 unresolved, with current test/evidence bindings. Seven additional v14 scope
+requirements are mapped separately: six passed and the performance-retention
+requirement remains unresolved.
 
 The retained full Linux gate still fails at `7555a9d`: 15/25 complete, ten Meta
 timeouts and both historical batches skipped. No further optimization, profile,
 native/comparator measurement, full Linux retry, runner/deadline waiver or fresh
-freeze/evaluation is authorized by unused maxima. A new concrete measurement
-scope requires separate approval. Timing, fresh evaluation and final human
+freeze/evaluation is authorized by unused maxima. The prepared `v14-next-merge-diagnostic-proposal.json` requests only one
+120-second merge diagnostic on the named Meta input, with no optimization or
+additional native/comparator run; it is unapproved. A new measurement scope
+requires separate approval. Timing, fresh evaluation and final human
 acceptance remain unmet; final acceptance is not requested. Zero paid calls.
 Pilots and the paid benchmark remain deferred; Phase 21 is incomplete and
 Phase 24/15 are unchanged. No merge, release, outreach or next phase.
