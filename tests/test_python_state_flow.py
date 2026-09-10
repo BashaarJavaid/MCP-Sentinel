@@ -10,6 +10,54 @@ from sentinel.static.rules.sent012 import analyze
 from tests.test_python_discovery import program
 
 
+def test_repeated_values_preserve_distinct_branch_guards() -> None:
+    from dataclasses import replace
+
+    from sentinel.static.path_flow import Value, combine
+
+    guarded = Value(
+        sources=frozenset({"caller"}),
+        key="same-binding",
+        contained=True,
+        locations=frozenset({("server.py", 10)}),
+        option_safe=True,
+        url_checks=frozenset({"private-ip"}),
+        operator_credential=True,
+        credential_present=True,
+        operator_opt_in=frozenset({"enabled"}),
+        checked_path_parent=True,
+    )
+    unsafe = replace(
+        guarded,
+        contained=False,
+        locations=frozenset({("server.py", 20)}),
+        option_safe=False,
+        url_checks=frozenset(),
+        credential_fallback=True,
+        credential_present=False,
+        operator_opt_in=frozenset(),
+        checked_path_parent=False,
+    )
+    for key in ("", "explicit"):
+        for values in (
+            [guarded, unsafe],
+            [unsafe, guarded],
+            [guarded, Value(key="None", maybe_none=True)],
+            [guarded, Value(key="#missing", maybe_missing=True)],
+            [replace(guarded, sources=frozenset())],
+        ):
+            repeated = values + values + [values[0]]
+            original = tuple(repeated)
+            assert combine(repeated, key) == combine(values, key)
+            assert tuple(repeated) == original
+    merged = combine([guarded, unsafe, guarded])
+    assert not merged.contained and not merged.option_safe
+    assert not merged.url_checks and not merged.checked_path_parent
+    assert merged.credential_fallback and not merged.credential_present
+    assert not merged.operator_opt_in
+    assert merged.locations == guarded.locations | unsafe.locations
+
+
 def test_http_middleware_validation_tracks_reachable_mutation() -> None:
     from sentinel.errors import InfrastructureError
     from sentinel.static.path_flow import Value
