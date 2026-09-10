@@ -58,6 +58,43 @@ def test_repeated_values_preserve_distinct_branch_guards() -> None:
     assert merged.locations == guarded.locations | unsafe.locations
 
 
+def test_immutable_member_reads_follow_current_state() -> None:
+    from dataclasses import replace
+
+    from sentinel.static.discovery import PythonProgram
+    from sentinel.static.path_flow import Value
+
+    flow = PathFlow(PythonProgram(()), RuleRunState(), float("inf"))
+    owner = Value(key="owner", instance=("server.py", "State"))
+    member = flow.member_key(owner, "url")
+    flow.record_keys.add(owner.key)
+    flow.required_members.add(member)
+    flow.member_defaults[member] = Value(maybe_missing=True)
+    guarded = Value(
+        key="url",
+        sources=frozenset({"caller"}),
+        locations=frozenset({("server.py", 10)}),
+        contained=True,
+        url_checks=frozenset({"private-ip"}),
+    )
+    env = {member: guarded}
+    for current in (
+        guarded,
+        replace(guarded, url_checks=frozenset(), contained=False),
+        replace(guarded, locations=frozenset({("server.py", 20)})),
+    ):
+        env[member] = current
+        for _ in range(2):
+            assert flow.member(owner, "url", env) == current
+            assert flow.member(replace(owner, maybe_none=True), "url", env) == replace(
+                current, maybe_missing=True
+            )
+            assert flow.aggregate(owner, env) == replace(
+                owner, sources=current.sources, locations=current.locations
+            )
+    assert env[member] == current and guarded.contained
+
+
 def test_http_middleware_validation_tracks_reachable_mutation() -> None:
     from sentinel.errors import InfrastructureError
     from sentinel.static.path_flow import Value
