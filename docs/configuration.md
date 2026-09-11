@@ -189,7 +189,7 @@ const apiKey = "ghp_example"; // sentinel: ignore[SENT-005] reason=test fixture
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its line. Only `SENT-001`–`SENT-007` are supported. Suppressed findings remain
+its line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-016` are supported. Suppressed findings remain
 auditable in console, JSON, and SARIF. Invalid directives fail; unused valid
 directives warn.
 

@@ -653,9 +653,12 @@ exposing a case requires relabeling it and replacement holdout evidence.
 
 The deterministic tier must complete all 45 historical inputs, detect all 20
 vulnerable conditions and produce no condition-matched fixed/safe alerts in two
-entire batches under the unchanged 120-second native and end-to-end input limit.
-Earlier complete measurements are historical evidence; the final implementation
-must pass this gate without pooling successes from failed batches. The original requirement for the reviewed tier to match
+entire batches. The original 120-second hard limit is superseded prospectively
+by the explicitly approved 120-second target and uniform 300-second native and
+whole-input maximum; see [the timing policy](phase22-timeout-policy.md).
+Both whole historical batches now pass at `1f3f72f`; the complete 25-input
+development batch is reused only under the explicit scope amendment. Earlier
+failed measurements remain failed, and successes are not pooled across batches. The original requirement for the reviewed tier to match
 that completion and retain correct candidates is explicitly deferred for cost,
 not passed. Accepted captures verify recorded review compatibility only. Any
 future reviewed comparison must count `needs_review`, suppressions and abstentions.
@@ -707,9 +710,9 @@ render charts or execute target tooling during static analysis.
 
 Recognized Helm chart templates keep their original bytes for text/secret checks;
 disclose omission of structured YAML analysis. Ordinary YAML and Sentinel
-configuration remain strict. Profile the failing snapshots at the unchanged
-120-second deadline before removing repeated work; do not exclude relevant source
-or disable detectors. A separate Git benchmark environment needs an exact tested
+configuration remain strict. Historical profiling scopes are closed; any new
+profile or optimization experiment requires a separately approved bounded proposal.
+Do not exclude relevant source or disable detectors to satisfy the timing policy. A separate Git benchmark environment needs an exact tested
 SDK pin and dependency packet approved before adoption. Preserve original upstream
 source and Phase 20 environment; prove startup/discovery inside Docker.
 

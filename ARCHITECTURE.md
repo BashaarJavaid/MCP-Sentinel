@@ -17,10 +17,14 @@ establish this protection. The scanner does not read the target environment or
 suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
 unestablished; this is source analysis, not runtime proof.
 
-These bounded facts pass their focused controls, but the full exposed SearXNG
-source still loses the narrow qualifier and flags both fixed variants. Its
-correction gate remains unmet; the implementation does not establish complete
-source-default or redirect coverage. See the current Phase 22 status and audit.
+The earlier exposed SearXNG result lost this qualifier and flagged both fixed
+variants. The correction at `2ac39aa` passes two complete five-input native
+batches: both vulnerable conditions detected and no matching fixed/control
+alerts in either batch. Deadline-only scanner `1f3f72f` retains source-compatible
+reuse of that result; this is not a new measurement or fresh generalization.
+Broader URL candidates and unresolved MCP dispatch remain visible. These checks
+do not establish complete destination or redirect coverage; see the current
+Phase 22 status and audit.
 
 
 ## 1. Purpose and status
