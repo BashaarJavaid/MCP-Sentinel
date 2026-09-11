@@ -1,6 +1,13 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v21 full-sequence audit
+## Current v22 approved assessment-refresh audit
+
+All 89 original rows: **84 passed, two user-deferred, 3 unresolved**.
+See `v22-closeout-audit/packet.json` and `v22-refresh-disposition-corrected.json`. The original
+failed sequences remain historical; only the explicitly approved scoped gate is updated.
+Fresh replacement-v4 evaluation and final human acceptance remain separate.
+
+## Historical v21 full-sequence audit
 
 All 89 original rows are mapped in `v21-closeout-audit/packet.json`: **72 passed,
 2 explicitly user-deferred, 15 unresolved**. The 45 added rows include
