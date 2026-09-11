@@ -499,7 +499,7 @@ jobs:
       - name: Check out the immutable corrected scanner
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
-          ref: 6db3858f1368033642354ab5ebb53aef76315a16
+          ref: 4a2359d5b67719b1129c7a63eafc17e6d85cedf3
           path: .phase22-scanner
           persist-credentials: false
       - name: Set up Python
@@ -518,7 +518,7 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/.phase22-scanner/.venv/bin:/usr/local/bin:/usr/bin:/bin
         run: >-
-          .venv/bin/python -I ../artifacts/phase22/integration/v25-lighthouse-fix/evaluate-final.py run
+          .venv/bin/python -I ../artifacts/phase22/integration/v27-constructor-fix/evaluate.py run
           "${{ runner.temp }}/phase22-lighthouse-regression"
           "${{ runner.temp }}/phase22-lighthouse-deadline"
       - name: Retain every attempt, including failures

@@ -12,8 +12,12 @@ and saved SDK setter forwarding through source wrappers. It recognizes
 Lighthouse URL sinks and can retain a narrow initial link-local IPv4 rejection
 qualifier. Bounded prefix tables require known ordered arrays; indexed aliases,
 unknown mutation and unresolved control flow cannot establish protection.
+Constructor eligibility at `4a2359d` excludes returns owned by nested callbacks,
+functions and classes while retaining rejection of actual constructor return values.
+This correction follows the first exposed `6db3858` miss; full verification is pending.
+
 The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
-verification passes at `51fd2cb`; the exposed evaluation remains unapproved.
+verification passed at `51fd2cb`; its exposed evaluation failed on the first input.
 No corrected-source corpus result or generalization is claimed.
 
 SENT-015 can qualify a broader SSRF candidate with narrow source-established

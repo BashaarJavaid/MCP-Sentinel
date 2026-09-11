@@ -1,0 +1,40 @@
+{
+  "recorded_at": "2026-09-11T16:32:56.925506+00:00",
+  "existing_user_correction_instruction": "fix it.",
+  "latest_user_decision": "continue",
+  "authorization_interpretation": "The latest continue approved only the exact v25 evaluation. The pre-existing fix-it instruction continues to authorize the minimal root-cause source correction and ordinary synthetic/offline engineering within existing contracts. It does not authorize another corpus observation after the failed run stopped.",
+  "failed_regression": {
+    "run": 34621524649,
+    "scanner": "6db3858f1368033642354ab5ebb53aef76315a16",
+    "assessment_sha256": "c2bd8ddae1ecafd36a35920e3230281dcaa110d8ab8d96d718d6f3f74f12df9d",
+    "attempted_completed": 1,
+    "unstarted_closed": 9,
+    "remaining": 0
+  },
+  "root_cause": "Constructor return validation walks into nested callback/function/class scopes and treats their Return nodes as constructor returns. A normal concise onerror callback rejects the entire class. The shared walk now optionally stops at lexical scopes; constructor validation uses only its own body. Existing callers retain full traversal by default.",
+  "synthetic_before": {
+    "log": "../v26-lighthouse-regression/constructor-scope-complete-before.log",
+    "scanner": "6db3858f1368033642354ab5ebb53aef76315a16",
+    "passed": 76,
+    "failed": 5
+  },
+  "synthetic_after": {
+    "log": "../v26-lighthouse-regression/constructor-scope-complete-after.log",
+    "passed": 81,
+    "failed": 0
+  },
+  "affected": {
+    "receipt": "../v27-affected-corrected.json",
+    "passed": 315
+  },
+  "initial_check_corrections": [
+    "Initial shell search used an unmatched tests/test_source* glob; corrected to rg with explicit directories. No mutation or execution resulted.",
+    "Initial affected-test command named absent test_typescript_boundaries.py/http_surfaces.py/sent015.py files; it exited4 with no tests run. The corrected explicit existing file list passed315. Original receipt/log remain retained."
+  ],
+  "new_tests": 6,
+  "new_corpus_observations": 0,
+  "new_paid_calls": 0,
+  "target_execution": false,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}
