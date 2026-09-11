@@ -14,11 +14,13 @@ qualifier. Bounded prefix tables require known ordered arrays; indexed aliases,
 unknown mutation and unresolved control flow cannot establish protection.
 Constructor eligibility at `4a2359d` excludes returns owned by nested callbacks,
 functions and classes while retaining rejection of actual constructor return values.
-This correction follows the first exposed `6db3858` miss; full verification is pending.
+This correction follows the first exposed `6db3858` miss; engineering verification
+passes at `2998b79`. The next exposed regression is unapproved; no corrected-source
+corpus detection or generalization result is claimed.
 
 The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
 verification passed at `51fd2cb`; its exposed evaluation failed on the first input.
-No corrected-source corpus result or generalization is claimed.
+No successful Lighthouse regression or generalization result is claimed.
 
 SENT-015 can qualify a broader SSRF candidate with narrow source-established
 literal loopback IPv4 rejection. Local hostname prefix checks and `net.isIP`
