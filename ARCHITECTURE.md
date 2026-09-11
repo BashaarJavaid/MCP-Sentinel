@@ -21,7 +21,9 @@ three observations complete and seven unstarted observations close. The subseque
 `[::1]` hostname equality returns. Engineering verification passes at `439c3fe`;
 the approved Lighthouse repeat gate passes all ten observations at `f85a90f`
 (run 34648036083). This is not broad IPv6 protection. Earlier TypeScript compatibility
-now has a separate, unapproved 54-observation local proposal; final acceptance remains open.
+now passes the separately approved 54-observation local sequence at the same scanner.
+All current technical gates are ready for explicit human acceptance; Phase 22 remains
+incomplete until that decision and closeout delivery.
 
 The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
 verification passed at `51fd2cb`; its exposed evaluation failed on the first input.
