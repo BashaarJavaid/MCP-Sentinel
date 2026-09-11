@@ -1154,6 +1154,16 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ### Current Lighthouse correction under verification
 
+The final corrected scanner is **`6db3858`**. A source-review counterexample
+showed that two import names for the same SDK constructor must share prototype
+invalidation. Its new regression failed at `b830027` and passes after the shared
+identity correction. All **458 affected tests**, including **36 new cases**, pass.
+The earlier full local **2,229/36** result remains bound to `b830027`; final full
+local and hosted verification is running. The exact unapproved proposal is now
+`artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json`
+(SHA-256 `26ac27d01740faa0ac664a13963ef7a4d91f199818bba29d9a257d98f1f4206a`).
+It keeps the same ten observations and bounds; neither proposal has been executed.
+
 The user instructed **“fix it.”** after the replacement-v5 miss. The receipt is
 `artifacts/phase22/integration/v25-lighthouse-fix/authorization.json`.
 The source correction follows actual module class construction and saved SDK
@@ -1161,7 +1171,7 @@ setter forwarding, recognizes Lighthouse URL sinks, and retains a narrow
 link-local IPv4 rejection qualifier. Unknown mutations and unresolved control
 flow do not establish protection. The broader SSRF candidate remains visible.
 
-Synthetic verification passes **457 affected tests**, including 35 new cases.
+Synthetic verification passes **458 affected tests**, including 36 new cases.
 Ruff, formatting and strict mypy pass; the complete local suite and fresh hosted
 verification are pending. Product bytes now differ from immutable `1f3f72f`;
 prior engineering or corpus results are not a current-source verification claim.
