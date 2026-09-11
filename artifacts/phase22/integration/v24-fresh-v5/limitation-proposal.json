@@ -1,0 +1,59 @@
+{
+  "status": "proposed_not_accepted",
+  "recorded_at": "2026-09-11T13:53:29.425780+00:00",
+  "scope": "Phase 22 technical completion only; evidence iteration v24 is not Phase 24 work.",
+  "requested_decision": "Accept the source-assessed Lighthouse browser-mediated SSRF recognition miss as a documented Phase 22 limitation, without claiming a detection hit or changing the frozen scanner. This is separate from final Phase 22 human technical acceptance.",
+  "assessment": {
+    "path": "artifacts/phase22/integration/v24-fresh-v5/assessment.json",
+    "sha256": "8c9d6ddd078a8e6a1d68bda76cbcf3f61f9579acc680cea4fb1ab085f6344567"
+  },
+  "warning_assessment": {
+    "path": "artifacts/phase22/integration/v24-fresh-v5/warning-source-assessment.json",
+    "sha256": "c8a222db92ebf47bee61c0bb75e9fd7fadd7506d5e985379c0f001284781ca95"
+  },
+  "scanner": {
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add",
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4"
+  },
+  "workflow": "86cbdc96e73b08d76786933398bcb8d31c190905",
+  "run": 34605934302,
+  "measured_result": {
+    "native_batches": "Each whole five-input batch completes: 0/2 vulnerable hits, zero matching alerts on two fixed variants and one public control. All five entire ordered repeats match.",
+    "comparator": "All five complete with 0/2 vulnerable hits and zero matching fixed/control alerts, zero raw findings/errors. No superiority inference.",
+    "coverage": "All native reports have zero discovered surfaces, unknown total_possible_surfaces, and 19 vulnerable / 26 fixed/control binding warnings. Eleven selected rules evaluated, one absent-permissions rule skipped. Completed pipeline is not successful semantic detection.",
+    "timing": "All 15 whole-input observations under120seconds; native maximum10.437487454seconds, comparator maximum22.051833092seconds.",
+    "source_truth": "One novel repository and one narrow vulnerability with correlated variants, curated by implementation agent after immutable scanner freeze. Source-exposed, no independent human/unseen-source/runtime proof claim."
+  },
+  "product_limitation": "A completed rules-only scan can miss this real MCP browser-mediated SSRF condition and cannot distinguish the vulnerable/fixed/control inputs. Binding warnings and unknown coverage must remain prominent. Neither zero findings, passing timing/CI nor equal comparator misses establish safety or general detection accuracy.",
+  "source_explanation": "Source import Server is followed by Server.prototype.setRequestHandler reassignment. TypeScriptProgram records assignments against the module binding root as rebound (typescript_discovery.py:137-144), and resolve rejects nonunique bindings (385-402). The report retains unresolved Server/this.server/dispatch/startup warnings. Independently, SENT-015 recognized TypeScript request sinks (sent015.py:974-1013) omit Lighthouse and Chrome browser navigation. These source-defined recognition limits explain the observed miss; no counterfactual isolated scan or runtime proof was performed, so fixing only one is not claimed sufficient.",
+  "if_accepted": {
+    "R66_R88": "The approved fresh evaluation and source assessment can satisfy the remaining evaluation requirements with this explicitly accepted documented limitation. Actual 0/2 results and unknown coverage remain visible; no new generalization threshold or detected-hit claim.",
+    "R84": "Remains unresolved until the user separately accepts the final reconciled Phase22 technical packet.",
+    "implementation": "No scanner correction, sink addition, SDK-patch exemption, source relabeling/replacement or repeat observation.",
+    "follow_up": "Any correction requires a separately reviewed bounded exposure/regression/freeze scope; this decision authorizes no such work."
+  },
+  "if_declined": "Phase22 remains incomplete. Prepare the smallest concrete source-based correction/exposure proposal for a separate decision; do not run more measurements or tune under the exhausted budget.",
+  "retained_limits": [
+    "Original heldout10complete/10unsupported/5incomplete and0hits among4completed vulnerable of10total remain unchanged.",
+    "Historical timing whole25reused+45+45 and all three exposed SSRF families keep original passing source bindings; original failures and v4 novelty failure remain preserved.",
+    "Git13campaigns incomplete312/1040; no complete runtime coverage.",
+    "Full paid benchmark and pilots deferred; Phase21 incomplete; Phase24/15 unchanged."
+  ],
+  "budget": {
+    "dispatches_consumed": 1,
+    "native_observations": 10,
+    "comparator_observations": 5,
+    "completed": 15,
+    "unstarted": 0,
+    "remaining": 0,
+    "closed": true,
+    "retries": 0,
+    "profiles": 0,
+    "paid_calls": 0,
+    "target_execution": false
+  },
+  "paid_calls_authorized": 0,
+  "technical_acceptance": false,
+  "phase22_complete": false
+}
