@@ -12,6 +12,11 @@ The four approved Meta diagnostic observations at `1f3f72f` pass within the
 300-second maximum with ordered report equality. These are existing development
 inputs. Full 25 + 45 + 45 and a new fresh evaluation remain separately gated.
 
+The replacement-v4 source packet is prepared after freezing `1f3f72f`, with
+no detector/comparator execution. Its exact checkpoint and bounded proposal are
+in `artifacts/phase22/corpus-replacement-v4/`; explicit evaluation approval remains
+pending. All v1/v2/v3 original results and exposed regressions are preserved.
+
 ## Historical proposal
 
 **Status: prepared and independently source-reviewed; user freeze approval pending.**

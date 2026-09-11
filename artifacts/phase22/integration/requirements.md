@@ -1,6 +1,15 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v20 diagnostic audit
+## Current v21 full-sequence audit
+
+All 89 original rows are mapped in `v21-closeout-audit/packet.json`: **72 passed,
+2 explicitly user-deferred, 15 unresolved**. The 45 added rows include
+approval, supervision, complete-sequence measurement, source verification,
+fresh-proposal preparation and delivery. Historical failed attempts remain
+preserved and never reopen a consumed budget. Fresh evaluation and final human
+acceptance remain pending. No paid calls.
+
+## Historical v20 diagnostic audit
 
 All 89 original rows are mapped in `v20-closeout-audit/packet.json`: **70 passed,
 2 explicitly user-deferred, 17 unresolved**. All 39 added rows retain **38 passed,

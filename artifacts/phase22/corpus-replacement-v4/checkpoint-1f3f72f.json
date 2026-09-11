@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "status": "prepared_pending_explicit_user_freeze",
+  "recorded_at": "2026-09-11T02:54:51.815105+00:00",
+  "manifest": {
+    "path": "artifacts/phase22/corpus-replacement-v4/manifest.json",
+    "sha256": "966b8b0578832916c97018316fe890a428b63533242577b8b7cc6f636b59ca7b"
+  },
+  "proposal": {
+    "path": "artifacts/phase22/corpus-replacement-v4/packet.json",
+    "sha256": "9072642a4b8d780c0f77b721a7e363d63ee82f8484263cbd6878c55e80b2a6b5"
+  },
+  "pre_curation_freeze": {
+    "path": "artifacts/phase22/integration/v21-scanner-freeze-before-curation.json",
+    "sha256": "aeb7ad53be4aa308c7d3f658d0e988b848fc9df1f426aca9feb70caa4655f381"
+  },
+  "scanner_identity": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "immutable_checkout": "/private/tmp/mcp-phase22-frozen-1f3f72f",
+  "harness_and_lock_sha256": {
+    "uv.lock": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+    "scripts/phase20_corpus.py": "c475e4c958d4e8402e101ab06d39cc009fd2460c826d8ba0e946339ead8a8d6e",
+    "scripts/phase22_corpus.py": "b6287155af595c16ad50f5846824cdbe7430aead9a93d032113fb233e92b9c31",
+    "scripts/phase20_measurements.py": "37364932cd51d52caed4b95ede2246f48df1bcf40c734431997801af0cf915c2",
+    "scripts/phase20_scoring.py": "63672b5a7cb6afa1ab7288a1900d5b7cb348cdc9b887630b74f4f37612cd43ce",
+    "scripts/prepare_phase20_semgrep.py": "06392b8fdfcd8545df96c2d1a21d75ea07b953c7ca1d0c3b4e173d0cb82ec0b5",
+    "artifacts/phase20/semgrep-preparation.json": "795e5da795dc894838eec68c51363f3e7c91874f166eee3cd12065445c92f23f"
+  },
+  "configuration": {
+    "path": "artifacts/phase22/corpus-replacement-v4/configurations.json",
+    "sha256": "548efe12f406d9ec1a6cfe10243b16f51bbd88832219ece6ec1dc7867ca15355"
+  },
+  "new_input_ids": [
+    "authfetch-mapped-loopback-vulnerable",
+    "authfetch-mapped-loopback-vulnerable-mutation",
+    "authfetch-mapped-loopback-fixed",
+    "authfetch-mapped-loopback-fixed-mutation",
+    "authfetch-mapped-public-safe"
+  ],
+  "unchanged_input_records": 45,
+  "freeze_approved": false,
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "target_execution": false,
+  "model_calls": 0,
+  "source_exposure_disclosure": "Same implementation agent read and curated source after recording1f3f72f freeze. No new-source evaluation or detector change occurred. No independent human/unseen-source claim and no selection using detector outcomes.",
+  "proposed_evaluation": {
+    "input_count": 5,
+    "native_runs": 2,
+    "native_observations": 10,
+    "native_seconds_per_input": 300,
+    "whole_native_input_seconds": 300,
+    "normal_target_seconds": 120,
+    "comparator_runs": 1,
+    "comparator_observations": 5,
+    "comparator_seconds_per_input": 300,
+    "maximum_nominal_input_budget_seconds": 4500,
+    "comparator": "Existing Semgrep1.176.0 and unchanged prepared rules/configuration; source-only runs.",
+    "paid_calls": 0,
+    "retries": 0,
+    "profiles": 0,
+    "stop_condition": "Run only two ordered five-input native batches and one five-input Semgrep batch. Preserve every attempt, incomplete result and miss. An execution, identity, schema or cleanup failure closes the remaining measurement budget; detection misses/false alerts are outcomes to report, not permission to tune, retry, discard or replace cases. Complete all source assessments and whole ordered native repeat comparisons. No automatic correction or acceptance."
+  },
+  "approval_scope": {
+    "treatments": [
+      "rules",
+      "semgrep"
+    ],
+    "native_input_runs": 10,
+    "comparator_input_runs": 5,
+    "maximum_nominal_input_budget_seconds": 4500,
+    "paid_evaluation_approved": false,
+    "target_execution_approved": false,
+    "detector_tuning_approved": false
+  },
+  "remaining_checkpoint": "Approve exact freeze and bounded evaluation only after full Linux and engineering results are assessed. Final Phase22 technical acceptance remains separate."
+}
