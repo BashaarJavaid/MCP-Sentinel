@@ -19,7 +19,9 @@ correlated vulnerable variants, then fails qualification on the first fixed inpu
 three observations complete and seven unstarted observations close. The subsequent
 `f85a90f` correction preserves narrow IPv4 link-local exclusion on exact `::1` or
 `[::1]` hostname equality returns. Engineering verification passes at `439c3fe`;
-another corpus evaluation is unapproved. This is not broad IPv6 protection.
+the approved Lighthouse repeat gate passes all ten observations at `f85a90f`
+(run 34648036083). This is not broad IPv6 protection. Earlier TypeScript compatibility
+now has a separate, unapproved 54-observation local proposal; final acceptance remains open.
 
 The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
 verification passed at `51fd2cb`; its exposed evaluation failed on the first input.
