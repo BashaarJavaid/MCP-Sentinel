@@ -639,6 +639,13 @@ class TypeScriptPathFlow:
         self.invalidated_objects.update(
             (value.key, self.record_roots.get(value.key, value.key))
         )
+        symbol = self.callables.get(value.key)
+        if symbol and symbol.external in {
+            "@modelcontextprotocol/sdk/server/index.js.Server",
+            "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+        }:
+            # Separate import aliases still share the same mutable prototype.
+            self.invalidated_objects.add(symbol.external)
 
     def record_state(self, root: str, fields: dict[str, Value]) -> Value:
         attributes = dataclass_fields(Value)
@@ -698,6 +705,7 @@ class TypeScriptPathFlow:
             if prototype is not None:
                 if {
                     value.key,
+                    self.sdk_instances[value.key],
                     prototype.key,
                     self.record_roots.get(prototype.key, prototype.key),
                 } & self.invalidated_objects:
@@ -902,6 +910,7 @@ class TypeScriptPathFlow:
             if (
                 binding
                 and class_value.key not in self.invalidated_objects
+                and binding.external not in self.invalidated_objects
                 and binding.external
                 in {
                     "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
@@ -1066,6 +1075,7 @@ class TypeScriptPathFlow:
                     "@modelcontextprotocol/sdk/server/index.js.Server",
                 }
                 and parent.key not in self.invalidated_objects
+                and binding.external not in self.invalidated_objects
             ):
                 return self.sdk_prototype(binding.external, file, node, env)
             if parent.key in self.zod_schemas:
@@ -1355,6 +1365,7 @@ class TypeScriptPathFlow:
             original_sdk_call = self.sdk_instances.get(sdk_receiver.key) == sdk_class
         if (
             original_sdk_call
+            and sdk_class not in self.invalidated_objects
             and sdk_receiver.key not in self.invalidated_objects
             and sdk_method in {"registerTool", "tool", "setRequestHandler"}
         ):

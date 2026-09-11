@@ -85,6 +85,12 @@ def source_flow(tmp_path: Path, source: str) -> RuleRunState:
         ("unknown(Server.prototype);", "new App();", 0),
         ("unknown(Server);", "new App();", 0),
         (
+            'import {Server as Alias} from "@modelcontextprotocol/sdk/server/index.js";'
+            "unknown(Alias);",
+            "new App();",
+            0,
+        ),
+        (
             "const saved = Server.prototype.setRequestHandler; unknown(saved);"
             "Server.prototype.setRequestHandler = function(schema, handler) {"
             " return saved.call(this, schema, handler); };",
