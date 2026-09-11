@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-09-11T13:42:10.978392+00:00",
+  "user_decision": "approved",
+  "approved": true,
+  "approval_context": "Approval directly answers the exact replacement-v5 proposal and checkpoint question delivered with source-only checkpoint 579eb0e: 10 native + 5 Semgrep observations, one standard Linux job capped at 90 minutes, 120-second target / 300-second whole-input maximum, zero retries, profiles, target executions or paid calls.",
+  "delivery_at_approval": "579eb0ec731af5bef54bca4fe4e9ca81103aa856",
+  "proposal_path": "artifacts/phase22/corpus-replacement-v5/evaluation-proposal.json",
+  "proposal_sha256": "3b3013ae4a116804421bc8c028d8a1fe800fb288ae6637ce593c3d0bd30f19f6",
+  "checkpoint_sha256": "ae4d6c817446b4cf675ec2b1f74a99323e3e21de5a2b1545f29264e4513cf60e",
+  "scanner": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "bounds": {
+    "dispatches": 1,
+    "native_observations": 10,
+    "comparator_observations": 5,
+    "profiles": 0,
+    "retries": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "normal_target_seconds": 120,
+    "native_and_whole_input_maximum_seconds": 300,
+    "comparator_and_whole_input_maximum_seconds": 300,
+    "nominal_input_minutes": 75,
+    "cleanup_maximum_seconds_per_input": 15,
+    "job_limit_minutes": 90,
+    "internal_stop_minutes": 88,
+    "reserved_upload_minutes": 2
+  },
+  "corpus": {
+    "manifest": "artifacts/phase22/corpus-replacement-v5/manifest.json",
+    "sha256": "4990b75b3648a96fef8ee2f23ebd5bda6aae2bce1fef8e0db1b877ef34c09ae6",
+    "freeze_approved": true,
+    "input_ids": [
+      "lighthouse-linklocal-vulnerable",
+      "lighthouse-linklocal-vulnerable-mutation",
+      "lighthouse-linklocal-fixed",
+      "lighthouse-linklocal-fixed-mutation",
+      "lighthouse-public-safe"
+    ],
+    "treatments": [
+      "rules",
+      "semgrep"
+    ]
+  },
+  "batch_order": [
+    "rules-first",
+    "rules-repeat",
+    "semgrep-first"
+  ],
+  "exposure": "Preserve original/v1-v4 results and rejected v4 novelty. This novel Lighthouse repository contributes one correlated vulnerability, curated by the implementation agent after scanner freeze; no independent human or unseen-source claim.",
+  "stop": "One attempt per named input per batch. Any infrastructure, execution, timeout, identity, schema, cleanup or ordered-repeat failure closes unused budget. Detection misses and false alerts remain measured outcomes, do not abort remaining outcome collection, and never authorize tuning/retry/case replacement. End after15 observations even if all succeed. No automatic technical acceptance.",
+  "technical_acceptance": false,
+  "paid_calls_authorized": 0
+}
