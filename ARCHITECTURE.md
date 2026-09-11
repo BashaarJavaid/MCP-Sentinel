@@ -7,6 +7,14 @@ handlers through factory-created `Server` instances and `McpServer.server`
 aliases, including the parser's optional else branch. Replaced or escaped
 receivers lose that binding.
 
+The current correction also interprets actual module-level class construction
+and saved SDK setter forwarding through source wrappers. It recognizes
+Lighthouse URL sinks and can retain a narrow initial link-local IPv4 rejection
+qualifier. Bounded prefix tables require known ordered arrays; indexed aliases,
+unknown mutation and unresolved control flow cannot establish protection.
+The original Lighthouse miss remains measured at frozen `1f3f72f`. Correction
+verification is in progress; no new corpus result or generalization is claimed.
+
 SENT-015 can qualify a broader SSRF candidate with narrow source-established
 literal loopback IPv4 rejection. Local hostname prefix checks and `net.isIP`
 comparisons preserve the actual URL identity. A default-only qualifier requires

@@ -28,7 +28,7 @@ from sentinel.static.path_flow import (
 )
 from sentinel.static.rules.sent012 import analyze
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
-from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of
+from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of, walk
 from sentinel.static.typescript_path_flow import TypeScriptPathFlow
 from sentinel.static.typescript_path_flow import analyze as analyze_typescript
 
@@ -729,6 +729,51 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
         env: dict[str, Value],
         returned: list[Value],
     ) -> bool:
+        if "For" in node and "ForEach" in node["For"][1]:
+            _, header, body = node["For"]
+            pattern, _, iterable = header["ForEach"]
+            iteration = iterable.get("Call")
+            if (
+                iteration
+                and iteration[0].get("Special", [None])[0] == "ForOf"
+                and len(iteration[1][1]) == 1
+            ):
+                value = self.expression(file, iteration[1][1][0].get("Arg", {}), env)
+                variants = self.array_items(value, env)
+                if (
+                    variants is not None
+                    and len(variants) == 1
+                    and not any("Break" in n or "Continue" in n for n in walk(body))
+                ):
+                    initial = env.copy()
+                    # ponytail: at most 32 exact iterations; larger or ambiguous
+                    # loops stay unresolved. Re-read state after each iteration.
+                    for index in range(33):
+                        current = self.array_items(value, env)
+                        if (
+                            current is not None
+                            and len(current) == 1
+                            and index >= len(current[0])
+                        ):
+                            return True
+                        if current is None or len(current) != 1 or index == 32:
+                            self.warning(
+                                file, node, "URL policy loop bounds unresolved"
+                            )
+                            returned.append(UNKNOWN_VALUE)
+                            if self.normal_exits:
+                                self.normal_exits[-1].append(initial)
+                            return True
+                        self.pattern(pattern, current[0][index], env)
+                        if not self.statement(file, body, env, returned):
+                            return False
+                # Unknown iteration stays conservative, without evaluating its
+                # source expression or side effects a second time.
+                local = env.copy()
+                self.pattern(pattern, value, local)
+                self.statement(file, body, local, returned)
+                self.merge(env, [env.copy(), local])
+                return True
         if "Try" in node:
             _, body, _, otherwise, final = node["Try"]
             statements = body.get("Block", [None, []])[1]
@@ -829,6 +874,7 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 "literal-ipv4",
                 "loopback-ipv4",
                 "loopback-ipv4-default",
+                "linklocal-ipv4",
             )
             if env.get(
                 f"#guard:url:{origin if part == 'parsed' else result.key}:{check}",
@@ -906,20 +952,20 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 )
             return replace(receiver, key=origin)
         if part in {"hostname", "hostname-unbracketed"}:
-            if (
-                method == "startsWith"
-                and len(argument_nodes) == 1
-                and self.string_literals.get(
+            if method == "startsWith" and len(argument_nodes) == 1:
+                prefix = self.string_literals.get(
                     self.call_value(file, argument_nodes[0], env).key
                 )
-                == "127."
-            ):
-                result = replace(receiver, key=_key(receiver.key, "loopback-prefix"))
-                self.conditions[result.key] = (
-                    frozenset({f"#guard:url:{origin}:loopback-ipv4"}),
-                    frozenset(),
-                )
-                return result
+                if prefix in {"127.", "169.254."}:
+                    scope = "loopback-ipv4" if prefix == "127." else "linklocal-ipv4"
+                    result = replace(receiver, key=_key(receiver.key, scope))
+                    self.conditions[result.key] = (
+                        frozenset({f"#guard:url:{origin}:{scope}"}),
+                        frozenset({f"#guard:url:{origin}:linklocal-ipv4"})
+                        if prefix == "127."
+                        else frozenset(),
+                    )
+                    return result
             if method in {"trim", "toLowerCase"} and not argument_nodes:
                 return receiver
             bracket_literals = [
@@ -965,6 +1011,11 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                     else "ip-address",
                 )
                 self.ip_arguments[result.key] = value.key
+                if external == "net.isIP":
+                    self.conditions[result.key] = (
+                        frozenset({f"#guard:url:{origin}:linklocal-ipv4"}),
+                        frozenset(),
+                    )
                 return result
         if part == "ip-address" and method == "range" and not argument_nodes:
             result = replace(receiver, key=_key(receiver.key, "range"))
@@ -984,6 +1035,8 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 "undici.fetch",
                 "axios",
                 "axios.default",
+                "lighthouse",
+                "lighthouse.default",
             }
             or external
             in {
@@ -1027,6 +1080,8 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                                 if "loopback-ipv4" in url.url_checks
                                 else {"url_guard_scope": "loopback-ipv4-default"}
                                 if "loopback-ipv4-default" in url.url_checks
+                                else {"url_guard_scope": "linklocal-ipv4"}
+                                if "linklocal-ipv4" in url.url_checks
                                 else {}
                             ),
                             "flow_locations": json.dumps(
@@ -1040,6 +1095,19 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
                 )
             return UNKNOWN_VALUE
         result = super().call(file, node, env)
+        operation = callee.get("Special", [{}])[0]
+        if (
+            isinstance(operation, dict)
+            and operation.get("Op") in {"PhysEq", "NotPhysEq"}
+            and len(argument_nodes) == 2
+        ):
+            values = [self.call_value(file, arg, env) for arg in argument_nodes]
+            if all(v.key in {"#ts:null", "#ts:undefined"} for v in values):
+                equal = values[0].key == values[1].key
+                truth = equal if operation["Op"] == "PhysEq" else not equal
+                self.conditions[result.key] = (
+                    (None, frozenset()) if truth else (frozenset(), None)
+                )
         operator = callee.get("Special", [{}])[0]
         if (
             isinstance(operator, dict)

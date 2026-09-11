@@ -61,6 +61,18 @@ class RegistrationFlow(TypeScriptPathFlow):
 
 def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
     found = []
+    for path, tree in program.trees.items():
+        # Follow actual module construction of included classes. Merely declaring
+        # an unused class does not register a tool.
+        if not any("ClassDef" in node for node in walk(tree)):
+            continue
+        initializer = TypeScriptSymbol(program.files[path], tree)
+        flow = RegistrationFlow(program, initializer)
+        flow.initialize(initializer)
+        found.extend(flow.found)
+        program.warnings.extend(
+            w for w in flow.state.warnings if w not in program.warnings
+        )
     functions = {
         id(declarations[0]): TypeScriptSymbol(program.files[path], declarations[0])
         for path, bindings in program.bindings.items()

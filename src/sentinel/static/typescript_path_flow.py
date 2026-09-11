@@ -66,6 +66,7 @@ class TypeScriptPathFlow:
         self.closures: dict[str, dict[str, Value]] = {}
         self.root_directories: dict[str, Value] = {}
         self.sdk_instances: dict[str, str] = {}
+        self.sdk_prototypes: dict[str, Value] = {}
         self.http_instances: set[str] = set()
         self.http_sequences: dict[
             str, tuple[tuple[str | None, tuple[Value, ...]], ...]
@@ -375,7 +376,7 @@ class TypeScriptPathFlow:
                     file, (variable.get("vinit") or {}).get("some"), env
                 )
                 self.pattern(entity["name"], value, env)
-            elif "FuncDef" in definition:
+            elif "FuncDef" in definition or "ClassDef" in definition:
                 value = self.expression(file, definition, env)
                 self.pattern(entity["name"], value, env)
         elif "ExprStmt" in node:
@@ -666,7 +667,42 @@ class TypeScriptPathFlow:
         current = env.get("#record:" + root, value)
         return self.objects.get(current.key, {})
 
+    def sdk_prototype(
+        self,
+        external: str,
+        file: TypeScriptSourceFile,
+        node: Any,
+        env: dict[str, Value],
+    ) -> Value:
+        if external not in self.sdk_prototypes:
+            fields = {}
+            for name in ("setRequestHandler", "registerTool", "tool"):
+                method = Value(key=_key(external, "original", name))
+                self.callables[method.key] = TypeScriptSymbol(
+                    file, node, external + ".prototype." + name
+                )
+                fields[name] = method
+            prototype = self.record_state(_key(external, "prototype"), fields)
+            self.record_roots[prototype.key] = _key(external, "prototype")
+            self.sdk_prototypes[external] = prototype
+            env["#record:" + self.record_roots[prototype.key]] = prototype
+        return self.sdk_prototypes[external]
+
     def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        if value.key in self.sdk_instances and name in {
+            "setRequestHandler",
+            "registerTool",
+            "tool",
+        }:
+            prototype = self.sdk_prototypes.get(self.sdk_instances[value.key])
+            if prototype is not None:
+                if {
+                    value.key,
+                    prototype.key,
+                    self.record_roots.get(prototype.key, prototype.key),
+                } & self.invalidated_objects:
+                    return Value()
+                return self.object_fields(prototype, env).get(name, Value())
         fields = self.object_fields(value, env)
         namespace = self.callables.get(value.key)
         if namespace and "import" in namespace.node:
@@ -863,21 +899,30 @@ class TypeScriptPathFlow:
             constructor = node["New"][1].get("t", {}).get("TyExpr", {})
             class_value = self.expression(file, constructor, env)
             binding = self.callables.get(class_value.key)
-            if binding and binding.external in {
-                "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
-                "@modelcontextprotocol/sdk/server/index.js.Server",
-            }:
+            if (
+                binding
+                and class_value.key not in self.invalidated_objects
+                and binding.external
+                in {
+                    "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    "@modelcontextprotocol/sdk/server/index.js.Server",
+                }
+            ):
                 result = Value(
                     key=_key(
                         file.relative_path, str(self.program.source_range(node, file))
                     )
                 )
                 self.sdk_instances[result.key] = binding.external
+                self.objects[result.key] = {}
+                self.sdk_prototype(binding.external, file, node, env)
                 if binding.external.endswith(".McpServer"):
                     server = Value(key=_key(result.key, "server"))
                     self.sdk_instances[server.key] = (
                         "@modelcontextprotocol/sdk/server/index.js.Server"
                     )
+                    self.objects[server.key] = {}
+                    self.sdk_prototype(self.sdk_instances[server.key], file, node, env)
                     self.objects[result.key] = {"server": server}
                 return result
             if (
@@ -997,6 +1042,11 @@ class TypeScriptPathFlow:
             member = self.string_literals.get(index_value.key)
             if parent.key in self.record_roots and member is not None:
                 return self.member(parent, member, env)
+            if parent.key in self.arrays:
+                # ponytail: indexed aliases are unresolved; invalidate the array
+                # until element alias identity is supported, including later writes.
+                self.invalidate(parent)
+                self.warning(file, node, "indexed array alias unresolved")
             return combine([parent, index_value])
         if "DotAccess" in node:
             full_name = name_of(node)
@@ -1006,6 +1056,18 @@ class TypeScriptPathFlow:
             parent = self.expression(file, receiver, env)
             self.receivers[id(node)] = parent
             member = name_of(field) or "?"
+            binding = self.callables.get(parent.key)
+            if (
+                member == "prototype"
+                and binding
+                and binding.external
+                in {
+                    "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    "@modelcontextprotocol/sdk/server/index.js.Server",
+                }
+                and parent.key not in self.invalidated_objects
+            ):
+                return self.sdk_prototype(binding.external, file, node, env)
             if parent.key in self.zod_schemas:
                 return Value(key=_key(parent.key, member))
             if "http:request" in parent.sources:
@@ -1041,7 +1103,11 @@ class TypeScriptPathFlow:
                     self.callables[value.key] = TypeScriptSymbol(
                         file, node, binding.external + "." + member
                     )
-                elif full_name and full_name.split(".")[0] not in env:
+                elif (
+                    value.key not in self.callables
+                    and full_name
+                    and full_name.split(".")[0] not in env
+                ):
                     symbol = self.program.resolve(file, full_name)
                     if symbol and (symbol.function or symbol.external):
                         self.callables[value.key] = symbol
@@ -1276,22 +1342,33 @@ class TypeScriptPathFlow:
                     [args[0], *callbacks, *self.http_callbacks(args[1:], env)],
                 )
                 return receiver
+        sdk_receiver, sdk_args = receiver, args
+        sdk_class, _, sdk_method = external.partition(".prototype.")
+        original_sdk_call = self.sdk_instances.get(receiver.key) == sdk_class
         if (
-            receiver.key in self.sdk_instances
+            sdk_method == "setRequestHandler.call"
+            and args
             and receiver.key not in self.invalidated_objects
-            and name.rsplit(".", 1)[-1] in {"registerTool", "tool", "setRequestHandler"}
         ):
-            if name.endswith(".setRequestHandler"):
-                schema = self.callables.get(args[0].key) if args else None
+            sdk_receiver, sdk_args = args[0], args[1:]
+            sdk_method = "setRequestHandler"
+            original_sdk_call = self.sdk_instances.get(sdk_receiver.key) == sdk_class
+        if (
+            original_sdk_call
+            and sdk_receiver.key not in self.invalidated_objects
+            and sdk_method in {"registerTool", "tool", "setRequestHandler"}
+        ):
+            if sdk_method == "setRequestHandler":
+                schema = self.callables.get(sdk_args[0].key) if sdk_args else None
                 if (
-                    self.sdk_instances[receiver.key].endswith(".Server")
-                    and len(args) == 2
+                    self.sdk_instances[sdk_receiver.key].endswith(".Server")
+                    and len(sdk_args) == 2
                     and schema
                     and schema.external
                     == "@modelcontextprotocol/sdk/types.js.CallToolRequestSchema"
                 ):
                     self.registered(
-                        file, node, [UNKNOWN_VALUE, UNKNOWN_VALUE, args[1]], env
+                        file, node, [UNKNOWN_VALUE, UNKNOWN_VALUE, sdk_args[1]], env
                     )
                 return Value()
             if not self.sdk_instances[receiver.key].endswith(".McpServer"):
@@ -1823,7 +1900,15 @@ class TypeScriptPathFlow:
                     or "http:request" in value.sources
                 ):
                     self.invalidate(value)
-                if value.key in self.sdk_instances:
+                callable_symbol = self.callables.get(value.key)
+                if value.key in self.sdk_instances or (
+                    callable_symbol
+                    and (callable_symbol.external or "").partition(".prototype.")[0]
+                    in {
+                        "@modelcontextprotocol/sdk/server/index.js.Server",
+                        "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    }
+                ):
                     self.invalidate(value)
                     self.warning(
                         file, node, "SDK instance escapes to an unresolved call"
@@ -1940,15 +2025,25 @@ class TypeScriptPathFlow:
             return
         self.http_routes.append((file, node, args))
 
-    def http_initialize(self, initializer: TypeScriptSymbol) -> None:
-        # Each HTTP entry gets a separate flow. MCP registration does not invoke
-        # its callback here; analyze() handles tool entries in their own flow.
-        self.http_entry = True
-        start = len(self.http_routes)
+    def initialize(self, initializer: TypeScriptSymbol) -> None:
         if initializer.function is not None:
             self.function(initializer, [])
         else:
             env: dict[str, Value] = {}
+            for name, declarations in self.program.bindings[
+                initializer.file.relative_path
+            ].items():
+                imports = [d for d in declarations if "import" in d]
+                if len(imports) == 1 and all(
+                    "import" in d or "rebound" in d for d in declarations
+                ):
+                    symbol = self.program.resolve_node(initializer.file, imports[0])
+                    if symbol:
+                        value = Value(
+                            key=_key(initializer.file.relative_path, "import", name)
+                        )
+                        self.callables[value.key] = symbol
+                        env[name] = value
             for statement in initializer.node.get("Pr", []):
                 if statement.keys() & {
                     "DefStmt",
@@ -1974,6 +2069,13 @@ class TypeScriptPathFlow:
                     )
                     if not alive:
                         break
+
+    def http_initialize(self, initializer: TypeScriptSymbol) -> None:
+        # Each HTTP entry gets a separate flow. MCP registration does not invoke
+        # its callback here; analyze() handles tool entries in their own flow.
+        self.http_entry = True
+        start = len(self.http_routes)
+        self.initialize(initializer)
         routes = self.http_routes[start:]
         del self.http_routes[start:]
         if not routes:
@@ -2134,7 +2236,7 @@ def analyze(
                 if isinstance(tool, TypeScriptHTTPBinding):
                     type(flow)(program, state).http_initialize(initializer)
                 else:
-                    flow.function(initializer, [])
+                    flow.initialize(initializer)
             continue
         location = program.source_range(tool.registration.node, tool.registration.file)
         state.visit(tool.registration.file.relative_path, location)

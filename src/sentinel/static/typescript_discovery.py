@@ -443,6 +443,7 @@ class TypeScriptProgram:
                     "path/posix",
                     "path/win32",
                     "child_process",
+                    "net",
                 }:
                     target = rest
                 return TypeScriptSymbol(

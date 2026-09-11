@@ -27,6 +27,12 @@ handlers through factory-created `Server` instances and `McpServer.server`
 aliases, including the parser's optional else branch. Replaced or escaped
 receivers lose that binding.
 
+Module-level class construction and constructor registration also follow source
+order. SDK prototype wrappers retain the original setter only when the source
+forwards the actual schema, handler and SDK receiver through the saved method.
+Replaced callbacks, wrong receivers and escaped methods do not establish that
+registration. Unused classes do not create tool entries.
+
 SENT-015 can qualify a broader SSRF candidate with narrow source-established
 literal loopback IPv4 rejection. Local hostname prefix checks and `net.isIP`
 comparisons preserve the actual URL identity. A default-only qualifier requires
@@ -36,6 +42,13 @@ options, unknown conditions, URL replacement and environment mutation cannot
 establish this protection. The scanner does not read the target environment or
 suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
 unestablished; this is source analysis, not runtime proof.
+
+Lighthouse calls are recognized URL sinks. A literal `169.254.` hostname rejection
+can qualify a candidate as excluding initial link-local IPv4 destinations, while
+retaining the broader finding. Ordered prefix-table guards require a known array
+and at most 32 iterations. Indexed aliases, unknown mutations, unresolved loop
+control, swallowed failures and checks on another URL cannot establish this
+qualification. This does not imply loopback, DNS, redirect or IPv6 protection.
 
 At `2ac39aa`, the full exposed SearXNG source retains this qualifier on both
 fixed variants. Receiver invalidations stay local to mutually exclusive `if`

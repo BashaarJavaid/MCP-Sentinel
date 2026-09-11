@@ -447,6 +447,11 @@ def _finding_from_match(
             "options unset. Other destinations, schemes, DNS, redirects and IPv6 "
             "protection remain unestablished."
             if match.captures.get("url_guard_scope") == "loopback-ipv4-default"
+            else "The source rejects literal link-local IPv4 destinations for this "
+            "caller URL before the request. This candidate does not allege an "
+            "initial literal link-local bypass. Other destinations, DNS, redirects "
+            "and IPv6 protection remain unestablished."
+            if match.captures.get("url_guard_scope") == "linklocal-ipv4"
             else definition.description
         )
         + (
