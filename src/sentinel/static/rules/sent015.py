@@ -910,6 +910,8 @@ class TypeScriptURLFlow(TypeScriptPathFlow):
             else (
                 "host"
                 if part == "hostname" and all(public_host(v) for v in literals)
+                else "linklocal-ipv4"
+                if part == "hostname" and set(literals) <= {"::1", "[::1]"}
                 else ""
             )
         )

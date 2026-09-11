@@ -1,0 +1,93 @@
+{
+  "recorded_at": "2026-09-11T19:58:28.895248+00:00",
+  "run": 34641101185,
+  "workflow": "b53581dc16136b1b41920671f4c98b9889c4b0fd",
+  "scanner": {
+    "revision": "4a2359d5b67719b1129c7a63eafc17e6d85cedf3",
+    "source_sha256": "70af506beeb1e0b9832bff2e6beccc907b2a500ec3afc7ee1801b426f79bf987",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "condition_gate_passed": false,
+  "source_assessment_complete": true,
+  "budget": {
+    "dispatches_consumed": 1,
+    "native_attempted": 3,
+    "native_completed": 3,
+    "native_unstarted_closed": 7,
+    "remaining": 0,
+    "closed": true,
+    "retries": 0,
+    "comparators": 0,
+    "profiles": 0,
+    "paid_calls": 0,
+    "target_execution": false
+  },
+  "outcomes": [
+    {
+      "input_id": "lighthouse-linklocal-vulnerable",
+      "condition_passed": true,
+      "sink_candidates": 1,
+      "qualified_candidates": 0,
+      "whole_input_seconds": 14.805274551000025,
+      "native_seconds": 3.56,
+      "timing_class": "completed_within_target",
+      "warnings": 74,
+      "unresolved_flows": 45,
+      "surfaces": 2,
+      "report_sha256": "fc5e2b0c14ca069bac4bd7e157326322bdb5b43b4bf0a67e8ef2b166adaa939b"
+    },
+    {
+      "input_id": "lighthouse-linklocal-vulnerable-mutation",
+      "condition_passed": true,
+      "sink_candidates": 1,
+      "qualified_candidates": 0,
+      "whole_input_seconds": 12.49978175199999,
+      "native_seconds": 3.412,
+      "timing_class": "completed_within_target",
+      "warnings": 74,
+      "unresolved_flows": 45,
+      "surfaces": 2,
+      "report_sha256": "0446ac3d13dd720c99a41378e0aaee037cccbe9dd0f464548e2f8ae227dc3cc6"
+    },
+    {
+      "input_id": "lighthouse-linklocal-fixed",
+      "condition_passed": false,
+      "sink_candidates": 1,
+      "qualified_candidates": 0,
+      "whole_input_seconds": 13.350852029999942,
+      "native_seconds": 3.938,
+      "timing_class": "completed_within_target",
+      "warnings": 113,
+      "unresolved_flows": 74,
+      "surfaces": 2,
+      "report_sha256": "a530e8e116b25000ece091ad46e2e8dcc74776992099f0f2ae59346fd1eaffe6"
+    }
+  ],
+  "observed_vulnerable_condition_hits": 2,
+  "observed_vulnerable_inputs": 2,
+  "fixed_inputs_observed": 1,
+  "fixed_condition_failures": 1,
+  "control_inputs_observed": 0,
+  "ordered_repeats_observed": 0,
+  "complete_five_input_batches": 0,
+  "within_120_second_target": 3,
+  "extended_time": 0,
+  "cleanup_verified": true,
+  "source_assessment_counts": {
+    "finding": 3,
+    "warning": 261,
+    "unresolved_flow": 164,
+    "surface": 6
+  },
+  "product_implication": "Vulnerable detection is restored on both correlated variants, but fixed-source qualification fails. No complete discrimination/repeat gate or fresh generalization is claimed. All seven unstarted observations are closed. The existing fix-it instruction authorizes a minimal source correction and synthetic/engineering checks; another corpus run needs a new exact approval.",
+  "first_frozen_result": "Original1f3f72f remains15 complete and0/2 hits per native batch/comparator. Previous6db3858 stopped after one completed vulnerable miss; nine unstarted closed. Neither failure is replaced.",
+  "references_sha256": {
+    "validation.json": "f4830fdf92f8b383deb61710bf94ff94d14ea6386e23c7a5e793ca55bb7299aa",
+    "source-assessment.json": "c8c7e2fd2f3bdc628dc49d86849fec3391afdb0d21fdcf6276aac8b459c024e5",
+    "binding.json": "14961d382f3c2b880440f34e886dfaf2bab748a3b0c01673b660d052964e700f",
+    "dispatch-consumed.json": "51b997fb3bbdeed7424e7a37c96f0c332cc340a2df2594a49b9c9f1ab45db96b",
+    "hosted/packet.json": "c2fa942f7b1c0066143c8281efe26f27ca619836cdf3cc4b59788a2841b0b18e"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

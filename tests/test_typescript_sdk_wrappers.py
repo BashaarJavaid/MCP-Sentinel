@@ -282,3 +282,76 @@ server.setRequestHandler(CallToolRequestSchema, request => {
         (m.captures.get("url_guard_scope") == "linklocal-ipv4") == qualified
         for m in state.matches
     )
+
+
+@pytest.mark.parametrize(
+    ("allowed", "qualified"),
+    [("::1", True), ("[::1]", True), ("169.254.169.254", False)],
+)
+@pytest.mark.parametrize("compound", [False, True])
+def test_url_policy_loopback_helper_preserves_narrow_guard(
+    tmp_path: Path, allowed: str, qualified: bool, compound: bool
+) -> None:
+    setup = """
+import dns from 'node:dns/promises';
+const ranges = [
+ {prefix: '10.', mask: null},
+ {prefix: '172.', mask: ip => parseInt(ip.split('.')[1], 10) >= 16},
+ {prefix: '192.168.', mask: null},
+ {prefix: '169.254.', mask: null},
+];
+function blocked(host) {
+ for (const range of ranges) {
+  if (host.startsWith(range.prefix)) {
+   if (range.mask === null || range.mask(host)) return true;
+  }
+ }
+ return false;
+}
+"""
+    state = source_flow(
+        tmp_path,
+        """
+import {Server} from '@modelcontextprotocol/sdk/server/index.js';
+import {CallToolRequestSchema} from '@modelcontextprotocol/sdk/types.js';
+import lighthouse from 'lighthouse';
+import net from 'node:net';
+SETUP
+function loopback(host) {
+ if (host === 'ALLOWED') return true;
+ if (host.startsWith('127.')) return true;
+ return false;
+}
+async function check(url) {
+ let parsed;
+ try { parsed = new URL(url); } catch { throw Error(); }
+ if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw Error();
+ const host = parsed.hostname;
+ if (net.isIP(host)) {
+  if (loopback(host)) return;
+  if (BLOCKED) throw Error();
+  return;
+ }
+ DNS
+}
+const server = new Server({name:'unit',version:'1'});
+server.setRequestHandler(CallToolRequestSchema, async request => {
+ const url = request.params.arguments.url;
+ await check(url);
+ return lighthouse(url);
+});
+""".replace("ALLOWED", allowed)
+        .replace("SETUP", setup if compound else "")
+        .replace(
+            "BLOCKED", "blocked(host)" if compound else "host.startsWith('169.254.')"
+        )
+        .replace(
+            "DNS",
+            "try { await dns.resolve4(host); } catch { return; }" if compound else "",
+        ),
+    )
+    assert state.matches
+    assert all(
+        (m.captures.get("url_guard_scope") == "linklocal-ipv4") == qualified
+        for m in state.matches
+    )

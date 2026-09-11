@@ -1,0 +1,25 @@
+{
+  "failures": [
+    {
+      "stage": "source search",
+      "error": "Unmatched tests/test_typescript_url* shell glob; source-only reads continued. Replaced with rg --files/rg explicit directories."
+    },
+    {
+      "stage": "affected tests",
+      "receipt": "v28-affected.json",
+      "error": "Absent tests/test_url_containment.py; exit4, no tests executed. Existing test_ssrf.py selected using rg; v28-affected-corrected passes518."
+    },
+    {
+      "stage": "retained-source delta assessment",
+      "original_helper": "v28-lighthouse-regression/source-deltas-initial.py",
+      "error": "Initial allowed-pointer assertion omitted finding summary/review/rule-count deltas. Inspected actual retained differences and assessed all11 changed pointers; no report or exclusion changed."
+    },
+    {
+      "stage": "delta serialization",
+      "original_helper": "v28-lighthouse-regression/source-deltas-serialization-failure.py",
+      "error": "frozenset volatile exclusions not JSON serializable; changed serialization to sorted list. No result file existed before correction; no scans repeated."
+    }
+  ],
+  "new_paid_calls": 0,
+  "failed_corpus_attempts_erased": false
+}
