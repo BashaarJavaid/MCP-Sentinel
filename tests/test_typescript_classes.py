@@ -110,6 +110,37 @@ from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
             0,
         ),
         (
+            "constructor() { this.onerror = error => console.error(error); } "
+            "write(p) { return fs.writeFileSync(p, 'data'); }",
+            "writer.write(args.path)",
+            1,
+        ),
+        (
+            "constructor() { this.onerror = () => { return 'logged'; }; } "
+            "write(p) { return fs.writeFileSync(p, 'data'); }",
+            "writer.write(args.path)",
+            1,
+        ),
+        (
+            "constructor() { function callback() { return 'logged'; } } "
+            "write(p) { return fs.writeFileSync(p, 'data'); }",
+            "writer.write(args.path)",
+            1,
+        ),
+        (
+            "constructor() { class Other { value() { return 'value'; } } } "
+            "write(p) { return fs.writeFileSync(p, 'data'); }",
+            "writer.write(args.path)",
+            1,
+        ),
+        (
+            "constructor() { const callback = () => { return {}; }; "
+            "if (unknown()) return callback(); } "
+            "write(p) { return fs.writeFileSync(p, 'data'); }",
+            "writer.write(args.path)",
+            0,
+        ),
+        (
             "constructor() { unknown(this); } "
             "write(p) { return fs.writeFileSync(p, 'data'); }",
             "writer.write(args.path)",

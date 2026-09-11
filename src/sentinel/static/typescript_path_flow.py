@@ -596,7 +596,13 @@ class TypeScriptPathFlow:
                 name == "constructor"
                 and "FuncDef" in body
                 and (
-                    any(part.get("Return", [None, None])[1] for part in walk(body))
+                    any(
+                        part.get("Return", [None, None])[1]
+                        for part in walk(
+                            body["FuncDef"]["fbody"],
+                            stop_at=("Lambda", "FuncDef", "ClassDef"),
+                        )
+                    )
                     or any(
                         parameter.get("Param", {}).get("pattrs")
                         for parameter in body["FuncDef"]["fparams"][1]

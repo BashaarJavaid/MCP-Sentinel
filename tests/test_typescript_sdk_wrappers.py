@@ -136,6 +136,39 @@ def test_module_class_sdk_registration_and_forwarding(
         assert state.matches[0].captures["flow_locations"]
 
 
+def test_module_class_constructor_callbacks_keep_registered_handler(
+    tmp_path: Path,
+) -> None:
+    state = source_flow(
+        tmp_path,
+        """
+import {Server} from '@modelcontextprotocol/sdk/server/index.js';
+import {CallToolRequestSchema} from '@modelcontextprotocol/sdk/types.js';
+import lighthouse from 'lighthouse';
+class App {
+ private server: Server;
+ constructor() {
+  this.server = new Server({name: 'unit', version: '1'});
+  this.install();
+  this.server.onerror = error => console.error(error);
+  process.on('SIGINT', async () => {
+   await this.server.close();
+   process.exit(0);
+  });
+ }
+ private install() {
+  this.server.setRequestHandler(CallToolRequestSchema,
+   request => lighthouse(request.params.arguments.url));
+ }
+ async run() { await this.server.connect(transport); }
+}
+const app = new App();
+app.run().catch(console.error);
+""",
+    )
+    assert len(_deduplicate(state.matches)) == 1
+
+
 @pytest.mark.parametrize(
     ("guard", "before", "after", "expected"),
     [

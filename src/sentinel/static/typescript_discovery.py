@@ -16,12 +16,14 @@ from sentinel.static.semgrep_ast import parse_typescript, source_range
 from sentinel.static.typescript_modules import TypeScriptModules
 
 
-def walk(tree: Any) -> Iterator[dict[str, Any]]:
+def walk(tree: Any, *, stop_at: tuple[str, ...] = ()) -> Iterator[dict[str, Any]]:
     pending = [tree]
     while pending:
         node = pending.pop()
         if isinstance(node, dict):
             yield node
+            if stop_at and any(kind in node for kind in stop_at):
+                continue
             pending.extend(
                 v
                 for k, v in reversed(tuple(node.items()))
