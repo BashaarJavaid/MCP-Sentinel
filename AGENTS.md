@@ -78,6 +78,46 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
 
 ## Current phase
 
+## Current source-novelty correction
+
+Replacement-v4 **fails the independent-fresh-source checkpoint before execution**.
+Its vulnerable 21-file extracted tree is byte-identical to the original held-out
+`auth-fetch-mcp` tree. All fixed `src/` files are also identical; only package
+version/dependency metadata differs. Those earlier inputs already completed
+native and Semgrep evaluation on September 9. Different Git revisions and new
+helper renames do not establish fresh independent sources.
+
+The comparison and original report hashes are retained in
+`artifacts/phase22/integration/v23-freshness-assessment.json`. Earlier v4
+preparation/hash checks and proposals remain preserved; they did not check
+novelty against the original corpus. The prepared v4 runner was delivered for
+review but remains unapproved and undispatched. No new native/comparator
+observations, target execution or paid calls occurred; its proposed 15-run
+budget was never authorized.
+
+R66, R88 and R84 remain unresolved; the 89 original rows remain 84 passed and
+two user-deferred. Historical whole-batch timing and all three exposed SSRF
+regressions retain their passing source-bound evidence. Phase 22 remains
+incomplete. The user approved source-only recovery; the exact receipt is
+`artifacts/phase22/integration/v23-source-only-recovery-authorization.json`.
+Replacement-v5 is prepared in `artifacts/phase22/corpus-replacement-v5/`: one
+Lighthouse MCP source pair outside all prior repositories and 92 effective trees,
+with no matching source-file hashes. All 12 files per revision and MIT license
+are retained. The narrow condition is literal link-local rejection before Chrome
+launch through `run_audit`; two reversible predicate renames and a public control
+are correlated variants. Upstream intentionally permits loopback; DNS/redirects,
+IPv6, successful navigation and runtime exploit proof are outside these labels.
+The same agent curated after scanner `1f3f72f` froze; no independent human or
+unseen-source claim. The Git command-injection research candidate was rejected
+because it cannot fill the unchanged SENT-015 slot. The new exact evaluation
+proposal is **unapproved and unevaluated**: 10 native plus five Semgrep observations,
+one standard Linux 90-minute job, 120-second target/300-second whole-input maximum,
+zero retries, target executions or paid calls. No v4 or historical budget transfers.
+Final human technical acceptance has not been requested. Paid benchmark/pilots
+remain deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+
+### Historical v22 checkpoint
+
 The approved **98-observation assessment refresh passes** at
 scanner **`1f3f72f`**, final workflow **`61b19ae`**, run **34566835295**.
 It consumed **98/98** observations; **98** completed.
@@ -626,7 +666,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (all three exposed SSRF gates and approved historical repeats pass; fresh evaluation and acceptance pending; paid benchmark/pilots deferred)
+- [ ] Phase 22 — MCP coverage and compatibility expansion (all three exposed SSRF gates and approved historical repeats pass; replacement-v4 freshness failed; valid fresh evaluation and acceptance pending; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)

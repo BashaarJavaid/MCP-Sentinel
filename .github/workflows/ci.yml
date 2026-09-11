@@ -10,8 +10,8 @@ on:
         description: Run only the separately approved Phase 22 diagnostic measurements
         type: boolean
         default: false
-      phase22_fresh_v4:
-        description: Run only the separately approved replacement-v4 evaluation
+      phase22_fresh_v5:
+        description: Run only the separately approved replacement-v5 evaluation
         type: boolean
         default: false
   workflow_call:
@@ -25,7 +25,7 @@ concurrency:
 
 jobs:
   phase20-offline:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Phase 20 ${{ matrix.treatment }} verification
     runs-on: ubuntu-latest
     strategy:
@@ -68,7 +68,7 @@ jobs:
           path: ${{ runner.temp }}/phase20-${{ matrix.treatment }}
 
   quality:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Quality (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -142,7 +142,7 @@ jobs:
           uv run --python ${{ matrix.python-version }} pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/runtime-requirements.txt"
 
   build-wheel:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Build canonical distributions
     runs-on: ubuntu-latest
 
@@ -175,7 +175,7 @@ jobs:
           retention-days: 90
 
   distribution:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Wheel (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     needs: build-wheel
@@ -213,7 +213,7 @@ jobs:
         run: python scripts/smoke_wheel.py artifacts dist
 
   docker-demo:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Installed-wheel Docker replay
     runs-on: ubuntu-latest
     needs: build-wheel
@@ -288,7 +288,7 @@ jobs:
           python -m sentinel.report.validate_sarif "${{ runner.temp }}/sentinel-demo-results/report.sarif"
 
   rules-only-isolation:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v4 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
     name: Installed-wheel rules-only network isolation
     runs-on: ubuntu-latest
     needs: build-wheel
@@ -323,7 +323,7 @@ jobs:
 
   phase22-refresh-historical_first:
     name: Approved Phase 22 historical_first
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v4 && github.ref == 'refs/heads/phase22/integration' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && github.ref == 'refs/heads/phase22/integration' }}
     runs-on: ubuntu-latest
     timeout-minutes: 245
     steps:
@@ -368,7 +368,7 @@ jobs:
 
   phase22-refresh-historical_second:
     name: Approved Phase 22 historical_second
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v4 && github.ref == 'refs/heads/phase22/integration' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && github.ref == 'refs/heads/phase22/integration' }}
     needs: phase22-refresh-historical_first
     runs-on: ubuntu-latest
     timeout-minutes: 245
@@ -417,9 +417,9 @@ jobs:
           path: ${{ runner.temp }}/phase22-refresh-historical_second
           if-no-files-found: error
 
-  phase22-fresh-v4:
-    name: Approved Phase 22 replacement-v4 evaluation
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_fresh_v4 && !inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
+  phase22-fresh-v5:
+    name: Approved Phase 22 replacement-v5 evaluation
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_fresh_v5 && !inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -450,7 +450,7 @@ jobs:
         run: uv sync --frozen --extra dev --python 3.12
       - name: Stage only hash-bound corpus assets
         working-directory: .phase22-scanner
-        run: .venv/bin/python -I ../artifacts/phase22/integration/v23-fresh-v4/runner.py stage
+        run: .venv/bin/python -I ../artifacts/phase22/integration/v23-fresh-v5/runner.py stage
       - name: Prepare pinned comparator rules without scanning
         working-directory: .phase22-scanner
         run: |
@@ -466,14 +466,14 @@ jobs:
         env:
           PATH: ${{ github.workspace }}/.phase22-scanner/.venv/bin:/usr/local/bin:/usr/bin:/bin
         run: >-
-          .venv/bin/python -I ../artifacts/phase22/integration/v23-fresh-v4/runner.py run
-          "${{ runner.temp }}/phase22-fresh-v4"
+          .venv/bin/python -I ../artifacts/phase22/integration/v23-fresh-v5/runner.py run
+          "${{ runner.temp }}/phase22-fresh-v5"
           "${{ runner.temp }}/phase22-fresh-deadline"
           "${{ runner.temp }}/phase22-semgrep-rules"
       - name: Retain every attempt, including failures
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: phase22-fresh-v4
-          path: ${{ runner.temp }}/phase22-fresh-v4
+          name: phase22-fresh-v5
+          path: ${{ runner.temp }}/phase22-fresh-v5
           if-no-files-found: error

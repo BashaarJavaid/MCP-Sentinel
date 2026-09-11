@@ -1,6 +1,10 @@
 # Replacement-v4 execution preparation
 
-**Prepared; approval pending. No fresh observations or paid calls.** This is
+**Source novelty failed; do not approve or dispatch as fresh evaluation.**
+See [the source comparison](../v23-freshness-assessment.json) and
+[the source-only recovery proposal](recovery-proposal.json). The preparation
+below is retained history; its integrity checks did not establish freshness.
+No new observations or paid calls. This is
 version 23 of the Phase 22 integration evidence, not authorization for Phase 23.
 
 The unchanged [operational proposal](../../corpus-replacement-v4/evaluation-proposal.json)
