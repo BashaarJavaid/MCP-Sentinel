@@ -1,0 +1,2126 @@
+{
+  "scanner": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "assessments": [
+    {
+      "input_id": "git-staging-vulnerable",
+      "treatment": "rules",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "prerequisites": [
+        "A writable Git repository and a readable sibling file; files contains ../outside.txt"
+      ],
+      "tree_sha256": "ed0cadd89cb6126c5e3c7635feb79c5909c2fbd1b8865ab465fd356ea8111b05",
+      "report_sha256": "a472b44fc4680d6c4b71811f7f482c8179360ad4996eebf3e3c8916abd42ba0c",
+      "candidate_identity": "aa38833882b5a444f0adc2342bf5fba13d0d8696414ca990534a0263268b3253",
+      "matches": [
+        "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+      ],
+      "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "1d79442a887557146d4a3627decabd5c857439cb0977f65a9296231e3ea6d512"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/01-git-staging-vulnerable/git-staging-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-staging-vulnerable"
+      }
+    },
+    {
+      "input_id": "git-staging-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "prerequisites": [
+        "A writable Git repository and a readable sibling file; files contains ../outside.txt"
+      ],
+      "tree_sha256": "30bfefb564066c25702f9d25d0c4766aaf030fe84960fab0f9067b44dd32c51f",
+      "report_sha256": "3ba50d1bbbb93553a1b905eab0845dea54378d6b2130e2fddf8bd5f56c40e9bc",
+      "candidate_identity": "51857cdc3d87f47f9459334e843a9d4f01e729be4c1cac0a30364fa47622b4c4",
+      "matches": [
+        "7985f4da703b36f1451d5166a2cb5a211696179c8492ab2006f019d50922b8b8"
+      ],
+      "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "a5caa806d039c2d3d455289018305203c4ab7a78ff0fc7ce22f60799a2788568"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/02-git-staging-vulnerable-mutation/git-staging-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-staging-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "git-staging-fixed",
+      "treatment": "rules",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "prerequisites": [
+        "A writable Git repository and a readable sibling file; files contains ../outside.txt"
+      ],
+      "tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "report_sha256": "4944eb18a30397aab65fbfb1c27cb00f7eb9c7963dea377332b4482c24d5dec6",
+      "candidate_identity": "8739fdcad0d3399bcab4316f762348470b1530936bbdc4c161d7a5d7419be306",
+      "matches": [],
+      "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "f0348f0df7e46203310035420b20da673708844453d823628d35ae8683de8f3b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/03-git-staging-fixed/git-staging-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-staging-fixed"
+      }
+    },
+    {
+      "input_id": "git-staging-fixed-mutation",
+      "treatment": "rules",
+      "condition": "git_add rejects relative paths resolving outside its repository before staging",
+      "prerequisites": [
+        "A writable Git repository and a readable sibling file; files contains ../outside.txt"
+      ],
+      "tree_sha256": "2c4c8661813ef375664676a4422675153a5538d17fc5db407b964c1f05b624a1",
+      "report_sha256": "de77d7cf6d4ff4da5ab74f094fbff94f78910504c7d1e1f678b2b730cfab3b40",
+      "candidate_identity": "f16c338d8ff74f957739368b0b05e7d599d2fbe0a9dfc86c27d57847a76a41b8",
+      "matches": [],
+      "rationale": "Condition reviewed against retained source: caller files reach Repo.index.add without repository containment. The fixed git.add -- form avoids the unsafe staging API; argument renaming preserves this distinction.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "aecb2c85e81414557db06ccd65b6a05bb2ee742831ee2c1f1739a66504be9bbd"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/04-git-staging-fixed-mutation/git-staging-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-staging-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "git-arguments-vulnerable",
+      "treatment": "rules",
+      "condition": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "prerequisites": [
+        "An initialized repository with HEAD; a ref argument beginning with --output= or another option"
+      ],
+      "tree_sha256": "70afc45bbce2b3a12fe00a115f790d1754ca8749c17fdf15082c493974ef7f9e",
+      "report_sha256": "f0d4904ba9be4886e055d492cbebf2814c9bf165a56cb91b0d240b9f9978eb34",
+      "candidate_identity": "8348c7c611f89a222bd46341bb7278557ea710512c0f73714ea1f477c592ec77",
+      "matches": [
+        "168d6b86f1e67282e71f9e6d7c8dd708b2a167563573d0428c9170f7c24d52fa",
+        "d627ee89639ed97c72fb32fdd63f214a3450e22749fa770876d9d6f6af3719da"
+      ],
+      "rationale": "The named condition concerns diff/checkout reference positions: vulnerable source passes caller target/branch to Git options; fixed source rejects option-prefixed refs. Log date filters and branch commit filters are separate candidates, retained in the unrelated ledger. Renaming/wrapping mutations retain actual argument flow.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "bb25d629edc06187db43b0124ad9cf92cc2aad9368715fee6780589d7ed22b13"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/05-git-arguments-vulnerable/git-arguments-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-arguments-vulnerable"
+      }
+    },
+    {
+      "input_id": "git-arguments-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "prerequisites": [
+        "An initialized repository with HEAD; a ref argument beginning with --output= or another option"
+      ],
+      "tree_sha256": "401ec3007fccb4830807964206f399785b30a460854dd1bd54de05f79cc7372a",
+      "report_sha256": "73e485068c0f55cd5604a2ecbb7878af7f78a526d9d92b6733202d8bf8bc5b21",
+      "candidate_identity": "d5d12dc4b3070ca938a7f6df5552647dbe16769bc3bc64e0ffe0a9040fdbe1ef",
+      "matches": [
+        "3a2b82103f7c6bdb4c9435b28a05b59b8fa4142b7cf79480f4a5d0fc630fef2a",
+        "abe6f26ff3a8d0c6a8e5fa9f4710ab4cc3da5243f21d83465406ca068835bd69"
+      ],
+      "rationale": "The named condition concerns diff/checkout reference positions: vulnerable source passes caller target/branch to Git options; fixed source rejects option-prefixed refs. Log date filters and branch commit filters are separate candidates, retained in the unrelated ledger. Renaming/wrapping mutations retain actual argument flow.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "9389a73ba19683d4ca7b9673afb48132fe5ed4c9c286870baf72ae2889d21934"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/06-git-arguments-vulnerable-mutation/git-arguments-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-arguments-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "git-arguments-fixed",
+      "treatment": "rules",
+      "condition": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "prerequisites": [
+        "An initialized repository with HEAD; a ref argument beginning with --output= or another option"
+      ],
+      "tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "report_sha256": "049230a08e83e485210caca1758e387a3d49d1273a25d8fec793f375729f7d39",
+      "candidate_identity": "61f46311b9040f8a7475745820ea2d4e3c95b2a58777daa58c9f4eb63b3330d9",
+      "matches": [],
+      "rationale": "The named condition concerns diff/checkout reference positions: vulnerable source passes caller target/branch to Git options; fixed source rejects option-prefixed refs. Log date filters and branch commit filters are separate candidates, retained in the unrelated ledger. Renaming/wrapping mutations retain actual argument flow.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "18d5fafd738ebb4c1af770897a044ffa1f014887bcb723b5afaa05cad8f1870d"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/07-git-arguments-fixed/git-arguments-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-arguments-fixed"
+      }
+    },
+    {
+      "input_id": "git-arguments-fixed-mutation",
+      "treatment": "rules",
+      "condition": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "prerequisites": [
+        "An initialized repository with HEAD; a ref argument beginning with --output= or another option"
+      ],
+      "tree_sha256": "3b582ab5c012eb20f179992dcfd2fbb2cd19b1ed1449d7ddeba42278d3685434",
+      "report_sha256": "21e391d20f4dd5642f96aae0fe06918fbfe810288b880ffa09161116b864231e",
+      "candidate_identity": "aa77196f187e5328867ff076ec2b83237ccf1067b3e316516251387aea036c1c",
+      "matches": [],
+      "rationale": "The named condition concerns diff/checkout reference positions: vulnerable source passes caller target/branch to Git options; fixed source rejects option-prefixed refs. Log date filters and branch commit filters are separate candidates, retained in the unrelated ledger. Renaming/wrapping mutations retain actual argument flow.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "0c6a165f47fbf84f2fdcffbba1db48974ffaa9f5dbe28bc84fca2c3b56bdcdd5"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/08-git-arguments-fixed-mutation/git-arguments-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-arguments-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "git-repository-vulnerable",
+      "treatment": "rules",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "prerequisites": [
+        "A configured allowed repository and a separate initialized repository; explicit --repository flag"
+      ],
+      "tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "report_sha256": "365c0a9ae662c62eb4d8796cc6e90e788d39bfc21e147745d4e760b257cfa0c6",
+      "candidate_identity": "61f46311b9040f8a7475745820ea2d4e3c95b2a58777daa58c9f4eb63b3330d9",
+      "matches": [
+        "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+      ],
+      "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "18d5fafd738ebb4c1af770897a044ffa1f014887bcb723b5afaa05cad8f1870d"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/09-git-repository-vulnerable/git-repository-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-repository-vulnerable"
+      }
+    },
+    {
+      "input_id": "git-repository-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "prerequisites": [
+        "A configured allowed repository and a separate initialized repository; explicit --repository flag"
+      ],
+      "tree_sha256": "59da00247c71c5577f13be292ecaf55c379411aa06c0ce63d32e239300d328d0",
+      "report_sha256": "9d5e9b71f3d918bd35bdd8a7d5b542bfe88a2910697a92218734d228b585bf67",
+      "candidate_identity": "61f46311b9040f8a7475745820ea2d4e3c95b2a58777daa58c9f4eb63b3330d9",
+      "matches": [
+        "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46"
+      ],
+      "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "199f338f27cd765317a66805ab08a23686628f9541d1b4d34b3e7f9b98698b10"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/10-git-repository-vulnerable-mutation/git-repository-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-repository-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "git-repository-fixed",
+      "treatment": "rules",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "prerequisites": [
+        "A configured allowed repository and a separate initialized repository; explicit --repository flag"
+      ],
+      "tree_sha256": "8bf9d2dcac0d6018497abb1993444c192ce7f19e56b93e9395142634d707dfa9",
+      "report_sha256": "12a7823862a0edc30addf50b658fca386094e7ec218208ba59cc0100b5fa022a",
+      "candidate_identity": "301b6f123c91129e071ad50bcff01b0ff3c7fc230efd78c7aba0070c4ccfad78",
+      "matches": [],
+      "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "0c75fd0c19a14417e24cc98dde747c544517ed3d8f35774dc44f099694dfecd7"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/11-git-repository-fixed/git-repository-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-repository-fixed"
+      }
+    },
+    {
+      "input_id": "git-repository-fixed-mutation",
+      "treatment": "rules",
+      "condition": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "prerequisites": [
+        "A configured allowed repository and a separate initialized repository; explicit --repository flag"
+      ],
+      "tree_sha256": "f036930b1c636dfb237ea24b93b4c2a9e5edd0bc3a9e4946cb7690b92561743e",
+      "report_sha256": "f2a982b944a94ccaf4b60a6ddaa41a717d9e664b81681b1bdc11d291c55324e7",
+      "candidate_identity": "301b6f123c91129e071ad50bcff01b0ff3c7fc230efd78c7aba0070c4ccfad78",
+      "matches": [],
+      "rationale": "Condition reviewed against retained source: caller repo_path reaches git.Repo. The fixed validator resolves both paths and rejects relative_to failure for a configured operator repository; staging alerts are a separate condition and are not matched here.",
+      "prior_assessment": "containment-python/git-condition-adjudication-final.json",
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "9831d141c8e3ee2082090220d187a333f75246f95a0b3a047dea8427e29c667b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/12-git-repository-fixed-mutation/git-repository-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-repository-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "filesystem-prefix-vulnerable",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "prerequisites": [
+        "Configured allowed directory and a readable same-prefix sibling; ordinary non-symlink paths"
+      ],
+      "tree_sha256": "307f2d35e008734c4782cbdaf0ab650667a728c408360eff1d826ba4817bf447",
+      "report_sha256": "3d06d12f4c9312b4449ad8379990a71f466af3f34f00ee0d3973e5ac7af646bd",
+      "candidate_identity": "a9d870f5825e54642375e3af4d5e5251d0928af52b3a33fa40bb4367713c5716",
+      "matches": [
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3",
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f"
+      ],
+      "rationale": "Caller path reaches filesystem sinks after bare prefix checks in the path helper; a readable same-prefix sibling satisfies those checks. The mutation only renames that helper.",
+      "prior_assessment": "containment-conditions/filesystem-adjudications.json",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "sha256": "42f6394698ff225c4cc97587a2d0d9942e6f1b53a2af2b8c9ff307bfb5b80036"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/13-filesystem-prefix-vulnerable/filesystem-prefix-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "filesystem-prefix-vulnerable"
+      }
+    },
+    {
+      "input_id": "filesystem-prefix-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "prerequisites": [
+        "Configured allowed directory and a readable same-prefix sibling; ordinary non-symlink paths"
+      ],
+      "tree_sha256": "b255f0a88c7c19c8dfaf604a9a8d1559bf2c9b1392a1c2d0fe242ed149b184c7",
+      "report_sha256": "49fd7ed1bb1ba237e06516753b84c00537edb3c32ca8552efeb6303a001def21",
+      "candidate_identity": "a9d870f5825e54642375e3af4d5e5251d0928af52b3a33fa40bb4367713c5716",
+      "matches": [
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3",
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f"
+      ],
+      "rationale": "Caller path reaches filesystem sinks after bare prefix checks in the path helper; a readable same-prefix sibling satisfies those checks. The mutation only renames that helper.",
+      "prior_assessment": "containment-conditions/filesystem-adjudications.json",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "sha256": "88c452aa5ca21b404226b4675f722e5cd8e67dee3fbe707794fa219de7cb18c8"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/14-filesystem-prefix-vulnerable-mutation/filesystem-prefix-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "filesystem-prefix-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "prerequisites": [
+        "Configured allowed directory and a readable same-prefix sibling; ordinary non-symlink paths"
+      ],
+      "tree_sha256": "6b23d82db416509985c6219f5fc1b24c92483aa26924f75b462c1a26cf3bb4bb",
+      "report_sha256": "734267aaa8b8447b8ec72ba1f9749a63b73fc324541fc682b2370914dd378f0e",
+      "candidate_identity": "ec4cc4e263c72c9ffb918567451215ef4e95cf4ce198f7a62210365b206217cf",
+      "matches": [],
+      "rationale": "The caller path is resolved and checked by the enforced component-aware helper, including real-path and parent handling. Remaining candidates concern appended temporary-file suffixes after successful validation, not acceptance of the specified same-prefix sibling input.",
+      "prior_assessment": "containment-conditions/filesystem-adjudications.json",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "sha256": "bf476e9b722dd9c09e430024bf5853b15e0b7c0357a25b947d6a9a165819d2ba"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/15-filesystem-prefix-fixed/filesystem-prefix-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "filesystem-prefix-fixed"
+      }
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "prerequisites": [
+        "Configured allowed directory and a readable same-prefix sibling; ordinary non-symlink paths"
+      ],
+      "tree_sha256": "6d1b3f934320bee6f1e56adf38b26e3e429dfc84b86b8206ede9c0d4d23aedc1",
+      "report_sha256": "bd13271ece076c48b4f52173dbdde3d4a853027b79fefd5ca5ea0e07a9117dff",
+      "candidate_identity": "ec4cc4e263c72c9ffb918567451215ef4e95cf4ce198f7a62210365b206217cf",
+      "matches": [],
+      "rationale": "The caller path is resolved and checked by the enforced component-aware helper, including real-path and parent handling. Remaining candidates concern appended temporary-file suffixes after successful validation, not acceptance of the specified same-prefix sibling input.",
+      "prior_assessment": "containment-conditions/filesystem-adjudications.json",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "sha256": "89d1bacb7f29509bf035dfa597ee8dc10d78fd7bcb8363b09ea52f39b297bcba"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/16-filesystem-prefix-fixed-mutation/filesystem-prefix-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "filesystem-prefix-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-ssrf-vulnerable",
+      "treatment": "rules",
+      "condition": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "prerequisites": [
+        "HTTP/SSE; no Authorization header; paired X-Atlassian-*-Url and Personal-Token headers; literal 127.0.0.1; SSRF allowlist overrides unset"
+      ],
+      "tree_sha256": "7e9191fdeff8ad783ffbfb4c92b45096e8e530f83fee411561d7082af9a6ce0b",
+      "report_sha256": "f707f9ad22fa24b4081a28e0183493e15e1120b11c5bd3ce7194f388512e91a5",
+      "candidate_identity": "c415c742e5b6fbb5ceb2d68c0a673b7359539bd01202b4815b8de19f848cf88b",
+      "matches": [
+        "494068e03bcae3ddbb2a802288a7260f1cdfaf56ed310f847bd62010c370e1a0",
+        "b6574625c66f82bfa44db038138095227ad89d0ca3bc740895653d36aaf2c48c",
+        "cd2aa6af030f3c66aee9a60501f661a9f2ce5e50f8bf9db8320bec3118985a65"
+      ],
+      "rationale": "Source follows caller Jira URL through HTTP context, selected configuration and the real Jira client to myself() and permission-search requests. The vulnerable source has no enforced destination validation. The fixed configuration rejects failed validation before selecting this URL; returned fixed authority remains fixed through the permission-search suffix. These are initial request candidates, not redirect/DNS-rebinding or runtime claims.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1f4fb3bf7a1123394df5d08215184d34a7995a99f1e99b67f43805bbb908fd22"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "3d5de82e91bdad4d662a9526690812fb59531bb568e5efcd343d07bda2343a96"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "6deef90170267b35add2f7076c9ecefe421fde93021b06b5aba7f6a763ed7aee"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5ef45ecdf2c4f8f877437388110a02e78b0172b2b66215056e3a11d621050972"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "1bca21d05c55c3252fd1d05adc59649744634cc3b8070cd411b2afc056a25e11"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cecebcb38f6c523ab5d6372ebe51912b5767a42f64e48344a3006e5a1ab58b3a"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/17-atlassian-ssrf-vulnerable/atlassian-ssrf-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-ssrf-vulnerable"
+      }
+    },
+    {
+      "input_id": "atlassian-ssrf-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "prerequisites": [
+        "HTTP/SSE; no Authorization header; paired X-Atlassian-*-Url and Personal-Token headers; literal 127.0.0.1; SSRF allowlist overrides unset"
+      ],
+      "tree_sha256": "2d75e345c2c0de19b0b3c0c3a6178113085a99a7f284fb8ab792a36301fc8a9b",
+      "report_sha256": "274d65dcd837f82be077a8ba5ae210127a5a99cf8ea311c5ca930a74a5dd9b0f",
+      "candidate_identity": "c415c742e5b6fbb5ceb2d68c0a673b7359539bd01202b4815b8de19f848cf88b",
+      "matches": [
+        "494068e03bcae3ddbb2a802288a7260f1cdfaf56ed310f847bd62010c370e1a0",
+        "b6574625c66f82bfa44db038138095227ad89d0ca3bc740895653d36aaf2c48c",
+        "cd2aa6af030f3c66aee9a60501f661a9f2ce5e50f8bf9db8320bec3118985a65"
+      ],
+      "rationale": "Source follows caller Jira URL through HTTP context, selected configuration and the real Jira client to myself() and permission-search requests. The vulnerable source has no enforced destination validation. The fixed configuration rejects failed validation before selecting this URL; returned fixed authority remains fixed through the permission-search suffix. These are initial request candidates, not redirect/DNS-rebinding or runtime claims.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1f4fb3bf7a1123394df5d08215184d34a7995a99f1e99b67f43805bbb908fd22"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "3d5de82e91bdad4d662a9526690812fb59531bb568e5efcd343d07bda2343a96"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "6deef90170267b35add2f7076c9ecefe421fde93021b06b5aba7f6a763ed7aee"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5ef45ecdf2c4f8f877437388110a02e78b0172b2b66215056e3a11d621050972"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "1bca21d05c55c3252fd1d05adc59649744634cc3b8070cd411b2afc056a25e11"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cecebcb38f6c523ab5d6372ebe51912b5767a42f64e48344a3006e5a1ab58b3a"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/18-atlassian-ssrf-vulnerable-mutation/atlassian-ssrf-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-ssrf-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-ssrf-fixed",
+      "treatment": "rules",
+      "condition": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "prerequisites": [
+        "HTTP/SSE; no Authorization header; paired X-Atlassian-*-Url and Personal-Token headers; literal 127.0.0.1; SSRF allowlist overrides unset"
+      ],
+      "tree_sha256": "b8e79e445627341317f5ac662010f144714dc3ab1709dc2b2892419591940e28",
+      "report_sha256": "b71d13c495e2546279127264fe20a53116f78b565272f98b5bce2bfa259e0475",
+      "candidate_identity": "1625ee5952bd075bc059c066f5f8a8d240362c6847d2e8b1861ef5e02eee81f6",
+      "matches": [],
+      "rationale": "Source follows caller Jira URL through HTTP context, selected configuration and the real Jira client to myself() and permission-search requests. The vulnerable source has no enforced destination validation. The fixed configuration rejects failed validation before selecting this URL; returned fixed authority remains fixed through the permission-search suffix. These are initial request candidates, not redirect/DNS-rebinding or runtime claims.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1f4fb3bf7a1123394df5d08215184d34a7995a99f1e99b67f43805bbb908fd22"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "3d5de82e91bdad4d662a9526690812fb59531bb568e5efcd343d07bda2343a96"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "6deef90170267b35add2f7076c9ecefe421fde93021b06b5aba7f6a763ed7aee"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cecebcb38f6c523ab5d6372ebe51912b5767a42f64e48344a3006e5a1ab58b3a"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5ef45ecdf2c4f8f877437388110a02e78b0172b2b66215056e3a11d621050972"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "1bca21d05c55c3252fd1d05adc59649744634cc3b8070cd411b2afc056a25e11"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/19-atlassian-ssrf-fixed/atlassian-ssrf-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-ssrf-fixed"
+      }
+    },
+    {
+      "input_id": "atlassian-ssrf-fixed-mutation",
+      "treatment": "rules",
+      "condition": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "prerequisites": [
+        "HTTP/SSE; no Authorization header; paired X-Atlassian-*-Url and Personal-Token headers; literal 127.0.0.1; SSRF allowlist overrides unset"
+      ],
+      "tree_sha256": "f69d8ecc08b295669c78dcba5f4945548b4392a9b6decfee0147345e37062c43",
+      "report_sha256": "8872765a86afebfc6e09cbb9066b8b272ab801a61233949fff8c9768f0336456",
+      "candidate_identity": "1625ee5952bd075bc059c066f5f8a8d240362c6847d2e8b1861ef5e02eee81f6",
+      "matches": [],
+      "rationale": "Source follows caller Jira URL through HTTP context, selected configuration and the real Jira client to myself() and permission-search requests. The vulnerable source has no enforced destination validation. The fixed configuration rejects failed validation before selecting this URL; returned fixed authority remains fixed through the permission-search suffix. These are initial request candidates, not redirect/DNS-rebinding or runtime claims.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1f4fb3bf7a1123394df5d08215184d34a7995a99f1e99b67f43805bbb908fd22"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "3d5de82e91bdad4d662a9526690812fb59531bb568e5efcd343d07bda2343a96"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "6deef90170267b35add2f7076c9ecefe421fde93021b06b5aba7f6a763ed7aee"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cecebcb38f6c523ab5d6372ebe51912b5767a42f64e48344a3006e5a1ab58b3a"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5ef45ecdf2c4f8f877437388110a02e78b0172b2b66215056e3a11d621050972"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "1bca21d05c55c3252fd1d05adc59649744634cc3b8070cd411b2afc056a25e11"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/20-atlassian-ssrf-fixed-mutation/atlassian-ssrf-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-ssrf-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-auth-vulnerable",
+      "treatment": "rules",
+      "condition": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "prerequisites": [
+        "HTTP MCP endpoint; global credentials; no per-user credential; OAuth proxy and ignore-header-auth overrides disabled"
+      ],
+      "tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "report_sha256": "103cde176e58cbc5b5136fc77e622a071dd0ca72387f9f8aa854414ed3bfc89a",
+      "candidate_identity": "aa9c0845a1de76e18268abe877fefffd41322d02e2d26345f8826cdef0773c71",
+      "matches": [
+        "491e88b3c258eeacf9a6a4bc2236f4fc6443dfbc606f2d77f261391a4abc6c35",
+        "73ca2e4f3b5d4609db068273596d6943a861cd9ac33fc7d1f03f9cd5ba5f1880",
+        "c8271af83f52823bcf06e60a0050e8662ef40c7973ffdf555642b19890b353af",
+        "c9f199597f8a2b8a15056ce41577318e7aa8517f2a852ef1852f54696045af8a",
+        "f2a9ec72dbe4d2e56c0f6ad5c193d79bd44a3c2b3c1203b7adf4f6382fa1308a",
+        "f95b7df1550a68b3ea4124a2c6a8af18ae056b9e6a7b0eda452dbb0f32ba3d03"
+      ],
+      "rationale": "Source review links the actual SDK HTTP request and absent per-user credential to lifespan environment configuration and the Jira/Confluence token/password constructor. Vulnerable source reaches the operator fallback without the explicit opt-in guard. Fixed source rejects that fallback at the declared default; its retained candidates describe the nondefault path. Both direct service families and helper-renaming mutations retain these relationships. Current source additionally follows shared service sessions and prepared configuration into forms_api/users requests. All six fixed findings explicitly require ALLOW_GLOBAL_CRED_FALLBACK, outside the frozen unset default; all six vulnerable findings lack that enforced opt-in. The final full trace is retained separately.",
+      "prior_assessment": "integration/auth-fixed342-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "aa5a53551fe1401ad03deda896fc384fcabed71ffcc7127fbc4205a5dc180ed5"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "c3aa1c200e83f33c284c94c0bfc9e5eec3dd893f7b719e1a35d64d2a7961d08c"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cae937d845a8baf33954253df67a8792691191a4318f5d21cafa62046a2e562f"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "d01d46377998332c3f525978c9b7e1d55a974ff6d19d1c4ec2ba7c17ee89340e"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/21-atlassian-auth-vulnerable/atlassian-auth-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-auth-vulnerable"
+      }
+    },
+    {
+      "input_id": "atlassian-auth-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "prerequisites": [
+        "HTTP MCP endpoint; global credentials; no per-user credential; OAuth proxy and ignore-header-auth overrides disabled"
+      ],
+      "tree_sha256": "543e0ba069f3a8ffb081fc8827097b186b1dea0a5d99718ba0b275abb59c3ecd",
+      "report_sha256": "793646ee96755eca6d5fdb99f01b3ebcd2aa05455c4ceb0c94c055ae111448c4",
+      "candidate_identity": "aa9c0845a1de76e18268abe877fefffd41322d02e2d26345f8826cdef0773c71",
+      "matches": [
+        "491e88b3c258eeacf9a6a4bc2236f4fc6443dfbc606f2d77f261391a4abc6c35",
+        "73ca2e4f3b5d4609db068273596d6943a861cd9ac33fc7d1f03f9cd5ba5f1880",
+        "c8271af83f52823bcf06e60a0050e8662ef40c7973ffdf555642b19890b353af",
+        "c9f199597f8a2b8a15056ce41577318e7aa8517f2a852ef1852f54696045af8a",
+        "f2a9ec72dbe4d2e56c0f6ad5c193d79bd44a3c2b3c1203b7adf4f6382fa1308a",
+        "f95b7df1550a68b3ea4124a2c6a8af18ae056b9e6a7b0eda452dbb0f32ba3d03"
+      ],
+      "rationale": "Source review links the actual SDK HTTP request and absent per-user credential to lifespan environment configuration and the Jira/Confluence token/password constructor. Vulnerable source reaches the operator fallback without the explicit opt-in guard. Fixed source rejects that fallback at the declared default; its retained candidates describe the nondefault path. Both direct service families and helper-renaming mutations retain these relationships. Current source additionally follows shared service sessions and prepared configuration into forms_api/users requests. All six fixed findings explicitly require ALLOW_GLOBAL_CRED_FALLBACK, outside the frozen unset default; all six vulnerable findings lack that enforced opt-in. The final full trace is retained separately.",
+      "prior_assessment": "integration/auth-fixed342-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "aa5a53551fe1401ad03deda896fc384fcabed71ffcc7127fbc4205a5dc180ed5"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "c3aa1c200e83f33c284c94c0bfc9e5eec3dd893f7b719e1a35d64d2a7961d08c"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cae937d845a8baf33954253df67a8792691191a4318f5d21cafa62046a2e562f"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "d01d46377998332c3f525978c9b7e1d55a974ff6d19d1c4ec2ba7c17ee89340e"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/22-atlassian-auth-vulnerable-mutation/atlassian-auth-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-auth-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-auth-fixed",
+      "treatment": "rules",
+      "condition": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "prerequisites": [
+        "HTTP MCP endpoint; global credentials; no per-user credential; OAuth proxy and ignore-header-auth overrides disabled"
+      ],
+      "tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "report_sha256": "91b26c9448f0dfa7869c2376558ff8d81d3cfc0c9dbcef9e46a35741de144ac6",
+      "candidate_identity": "d4af71aeddf27e966182ad7c817a3dd78bc5d2d8021e42e944e826a89cc35eb2",
+      "matches": [],
+      "rationale": "Source review links the actual SDK HTTP request and absent per-user credential to lifespan environment configuration and the Jira/Confluence token/password constructor. Vulnerable source reaches the operator fallback without the explicit opt-in guard. Fixed source rejects that fallback at the declared default; its retained candidates describe the nondefault path. Both direct service families and helper-renaming mutations retain these relationships. Current source additionally follows shared service sessions and prepared configuration into forms_api/users requests. All six fixed findings explicitly require ALLOW_GLOBAL_CRED_FALLBACK, outside the frozen unset default; all six vulnerable findings lack that enforced opt-in. The final full trace is retained separately.",
+      "prior_assessment": "integration/auth-fixed342-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1ff160d01b1d94e5ba1af53414058ae4b104377ef8e6368c0115b85dd642dd7d"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "01021188da49ff8ed09a2e6883c1ca8466983dfd19fc687ae378f5eea544e1dc"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5d36f2bb5f42d3311af3e704fe28f6ca072f5f34178e87f80f8f5c70d8963e90"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/23-atlassian-auth-fixed/atlassian-auth-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-auth-fixed"
+      }
+    },
+    {
+      "input_id": "atlassian-auth-fixed-mutation",
+      "treatment": "rules",
+      "condition": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "prerequisites": [
+        "HTTP MCP endpoint; global credentials; no per-user credential; OAuth proxy and ignore-header-auth overrides disabled"
+      ],
+      "tree_sha256": "b38da7e1895593d3b74001c157c9b44fd8fbc20a04dd3d00b566d33fdc2cbf7b",
+      "report_sha256": "ddb4602dc629747e1a2f3f409c08fb6a7f2a6807a1dbafefd8f2bcda5f2050e0",
+      "candidate_identity": "d4af71aeddf27e966182ad7c817a3dd78bc5d2d8021e42e944e826a89cc35eb2",
+      "matches": [],
+      "rationale": "Source review links the actual SDK HTTP request and absent per-user credential to lifespan environment configuration and the Jira/Confluence token/password constructor. Vulnerable source reaches the operator fallback without the explicit opt-in guard. Fixed source rejects that fallback at the declared default; its retained candidates describe the nondefault path. Both direct service families and helper-renaming mutations retain these relationships. Current source additionally follows shared service sessions and prepared configuration into forms_api/users requests. All six fixed findings explicitly require ALLOW_GLOBAL_CRED_FALLBACK, outside the frozen unset default; all six vulnerable findings lack that enforced opt-in. The final full trace is retained separately.",
+      "prior_assessment": "integration/auth-fixed342-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1ff160d01b1d94e5ba1af53414058ae4b104377ef8e6368c0115b85dd642dd7d"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "01021188da49ff8ed09a2e6883c1ca8466983dfd19fc687ae378f5eea544e1dc"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5d36f2bb5f42d3311af3e704fe28f6ca072f5f34178e87f80f8f5c70d8963e90"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/24-atlassian-auth-fixed-mutation/atlassian-auth-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-auth-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-upload-vulnerable",
+      "treatment": "rules",
+      "condition": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "prerequisites": [
+        "HTTP multi-user caller with upload permission; readable sibling file; read-only mode off; existing page/issue and upload sink"
+      ],
+      "tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "report_sha256": "401a96e2238b29b957ece64c7d5dd632bee900361d7a1a0fe260a46acf984850",
+      "candidate_identity": "aa9c0845a1de76e18268abe877fefffd41322d02e2d26345f8826cdef0773c71",
+      "matches": [
+        "39a31ad7bc819082a4fd180deb0a2a0b1e28d4b3d9e07271d2fae79168edc10f"
+      ],
+      "rationale": "The registered Confluence upload tool passes its actual file_path to the constructed fetcher. Its upload method only absolutizes/checks existence, then passes the same path to _upload_attachment_direct and open(file_path, rb). A readable absolute sibling outside cwd meets the frozen boundary violation when the stated upload prerequisites hold. The native finding cites the actual read sink and registered caller parameter. This establishes a Confluence violation of the named upload invariant; it does not claim separate Jira detection or runtime exploitation.",
+      "prior_assessment": "integration/v2-upload-6da955e-adjudication/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "aa5a53551fe1401ad03deda896fc384fcabed71ffcc7127fbc4205a5dc180ed5"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "c3aa1c200e83f33c284c94c0bfc9e5eec3dd893f7b719e1a35d64d2a7961d08c"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cae937d845a8baf33954253df67a8792691191a4318f5d21cafa62046a2e562f"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "d01d46377998332c3f525978c9b7e1d55a974ff6d19d1c4ec2ba7c17ee89340e"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/25-atlassian-upload-vulnerable/atlassian-upload-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-upload-vulnerable"
+      }
+    },
+    {
+      "input_id": "atlassian-upload-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "prerequisites": [
+        "HTTP multi-user caller with upload permission; readable sibling file; read-only mode off; existing page/issue and upload sink"
+      ],
+      "tree_sha256": "a1ad8739f308a8ffa6b2fee4b8065f34b08113db20535e027f1375a33b9d4e7d",
+      "report_sha256": "b95f7cefdc6a2112aa8df8685cbd9530e084bdf8f3d146a87652d21b77fc1f07",
+      "candidate_identity": "c3b9b337b85320057073309089cc2cb4775d4256386bf3e734fbe98f7d1181e5",
+      "matches": [
+        "b990c4deb59ec9e2383fe33dd81115cc3e1437ce1a7bd35d4d320c7601ae06e1"
+      ],
+      "rationale": "The registered Confluence upload tool passes its actual file_path to the constructed fetcher. Its upload method only absolutizes/checks existence, then passes the same path to _upload_attachment_direct and open(file_path, rb). A readable absolute sibling outside cwd meets the frozen boundary violation when the stated upload prerequisites hold. The native finding cites the actual read sink and registered caller parameter. This establishes a Confluence violation of the named upload invariant; it does not claim separate Jira detection or runtime exploitation.",
+      "prior_assessment": "integration/v2-upload-6da955e-adjudication/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "aa5a53551fe1401ad03deda896fc384fcabed71ffcc7127fbc4205a5dc180ed5"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/attachments.py",
+          "sha256": "308413659224a66b64723f9cfbcadfadd5fba93add9287ca97c922b23a372f74"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "cae937d845a8baf33954253df67a8792691191a4318f5d21cafa62046a2e562f"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "d01d46377998332c3f525978c9b7e1d55a974ff6d19d1c4ec2ba7c17ee89340e"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/26-atlassian-upload-vulnerable-mutation/atlassian-upload-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-upload-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "atlassian-upload-fixed",
+      "treatment": "rules",
+      "condition": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "prerequisites": [
+        "HTTP multi-user caller with upload permission; readable sibling file; read-only mode off; existing page/issue and upload sink"
+      ],
+      "tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "report_sha256": "8f45454b369e94e793d245850839070298bac57513e0f92946d3abee039fec75",
+      "candidate_identity": "d4af71aeddf27e966182ad7c817a3dd78bc5d2d8021e42e944e826a89cc35eb2",
+      "matches": [],
+      "rationale": "The fixed upload method consumes validate_safe_path(file_path) before opening it. That helper resolves cwd/base and requested path, rejects paths outside the resolved component boundary, and returns the checked path. The safe download condition uses the same explicit-base containment helper with no filesystem race. Native reports contain no SENT-012 candidate; unrelated rule findings are not alerts on this condition.",
+      "prior_assessment": "integration/v2-upload-6da955e-adjudication/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1ff160d01b1d94e5ba1af53414058ae4b104377ef8e6368c0115b85dd642dd7d"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "01021188da49ff8ed09a2e6883c1ca8466983dfd19fc687ae378f5eea544e1dc"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5d36f2bb5f42d3311af3e704fe28f6ca072f5f34178e87f80f8f5c70d8963e90"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/27-atlassian-upload-fixed/atlassian-upload-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-upload-fixed"
+      }
+    },
+    {
+      "input_id": "atlassian-upload-fixed-mutation",
+      "treatment": "rules",
+      "condition": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "prerequisites": [
+        "HTTP multi-user caller with upload permission; readable sibling file; read-only mode off; existing page/issue and upload sink"
+      ],
+      "tree_sha256": "7681be9f39aff50f6029d9aed5c641a82c9fd965812b6a5c2892f2b2a18c5ca1",
+      "report_sha256": "9aa33a90245801df3b2498f5ea96308d65c07c0fe9b7a6e13b7c1e7ad44a67d9",
+      "candidate_identity": "d4af71aeddf27e966182ad7c817a3dd78bc5d2d8021e42e944e826a89cc35eb2",
+      "matches": [],
+      "rationale": "The fixed upload method consumes validate_safe_path(file_path) before opening it. That helper resolves cwd/base and requested path, rejects paths outside the resolved component boundary, and returns the checked path. The safe download condition uses the same explicit-base containment helper with no filesystem race. Native reports contain no SENT-012 candidate; unrelated rule findings are not alerts on this condition.",
+      "prior_assessment": "integration/v2-upload-6da955e-adjudication/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1ff160d01b1d94e5ba1af53414058ae4b104377ef8e6368c0115b85dd642dd7d"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "01021188da49ff8ed09a2e6883c1ca8466983dfd19fc687ae378f5eea544e1dc"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5d36f2bb5f42d3311af3e704fe28f6ca072f5f34178e87f80f8f5c70d8963e90"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/28-atlassian-upload-fixed-mutation/atlassian-upload-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-upload-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "excel-boundary-vulnerable",
+      "treatment": "rules",
+      "condition": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "prerequisites": [
+        "SSE or streamable HTTP sets EXCEL_FILES_PATH; readable workbook outside that directory"
+      ],
+      "tree_sha256": "900bbb1eba4ca8fc238092acf1249e9ec5e944e8b2ca743d998c4ce085daab27",
+      "report_sha256": "235e19e8b6c71be004bd5c4236508988010a339d94b1d2c574a738514f38a21c",
+      "candidate_identity": "f9e78c6c161e76cfb6bd2681104b4f33695cc0b46b58358297525e7505ee6889",
+      "matches": [
+        "03239cd3821f0ba7a0754c52140adff115be7de305d3d24db6b5be5289e82abf",
+        "05629049eac734c6a714eb241cd8fdd4f21c68afa1f353c9a80155045c3ecaab",
+        "05cf20647948a5e91b0e3a88d813b665fbe91a4a4da17eec8821a498c91be222",
+        "077945249f1719345330186cd248839bda90e950a986ba54d6355075241ad56d",
+        "092f83c2f7fbc14d9fde0a47cbb4eb59d38aab651c1ef901b82131b1f77c3229",
+        "09a9c7144f33a241941d3b2fba0df06e9f8d12caa3709f4181cac2bc611d99a0",
+        "0bea74132f11f81efaab7034999c83becaa8a8b9b4ff61a74d80d73e6c681335",
+        "20f86fff0b88ea6a5d01fb92fc9bbba4be863d58f8ea0df98bea7f4346f38598",
+        "26d4369f429996bf4036422e89c986e2f3e248f2298698e57e3ec7d7f95939b7",
+        "28e6e8d426548602e4f8863a880481f425b35aef6f6d998622a9091780e776e4",
+        "345aceed4e69c9b0757843f4f7bf936be6e166c7c87b15e5027e01a40ed1de06",
+        "3d9b98d056c80bcaadb58a1695b0c6f3a1302e54ecec1272c7cd81cc41a0d78e",
+        "3e3e0be79a46ce109d9ba488e79611417d0f54dd7d2c2181372dcaa567c9138d",
+        "3f89a201c964400fdd66e6f43edfedd2e246cedacd5e413a5956e60ce4ef3c29",
+        "45f87bb6e9cee7e771f3fd143dc2361f57c04d113756da8b6a399c45c6954f45",
+        "522ebf3a643e2deaad7cb8f572f20d2016bd1194a49404736f11a5082ab74782",
+        "54b48d4a0262764e50e043ea60ba8a7dcb028ad75b00238faad78638f9a0ab14",
+        "5f58f6eef8039e46fb4147527f2bc6bcccb5a1e9f7e10cfb9e735a73375f8d6f",
+        "615ebb6cb61ad40bad80b7290828be2a303a7607fc9a945c454df0ba6b087033",
+        "6860aa8924d7928d7fefe9d925acc12030da364c051fcb416ce011ae085006db",
+        "6be5637290e417418e4596f1aa8bec06e7b3c2ce82344ab1630c6adde210942c",
+        "7f7e1c432039fdde785ee431c8e96f9e08066d304cc32f396b7820e99abe335d",
+        "822e2f63e50a307c0322fc545eb080ca14d96153574e0c0669576ffd14cf0f9e",
+        "8c2e17b7021fc7bcb33316cfc62de53f326c5f2ab7f8d0b191a67eaaba0bd738",
+        "92450d08f5e2c89a13cb9605e0be17e66589f7c8a70a509db7cd1a18ae380559",
+        "9954d3f2a054f65aa7cc481becc6185f13243857f84ae6d033f5b9266741c1d7",
+        "9ac00fafd83b1dfa07523261b9fafa6163a4c17afa5c802b15505333560720ec",
+        "a28c74ea12c7fc38b16997788f372a82345e13165b9baf21f2fc78ea755e6b73",
+        "b930f917f3bf00d2730c239fb01d325c7ebb2eae0411727a803298342bcfbc18",
+        "bc3245a899e3146a8281c9c10b05bf2c6d3381a69dfed97e0e5013f7edfaa89e",
+        "c4ce60bd2b97697e46e57665800b257305df3adb7246f69fdf37cc37ca3f2a18",
+        "cb24f5b581abd7c2f06d3f7ce0ec34a91509bb4511ef43fcb07e44a30dcbc15b",
+        "cb3789bb4814689ec411bc3cb54c9b8147b6ab0d684fdca50e5f7364c17056e2",
+        "ccd24219f263596ecf877f99dae4301668d9a5c916122d6f9954da6605a83af8",
+        "d548ebc5c76e6bedc5cb6898b3d7129808b0eec25a56b7de45447d7519cb726e",
+        "df3207abf54075c4b20c0afc1522388942c20882578fef3d11ed0e5986c95d31",
+        "e57583b34327f626621bb5d2252d83a74106bdf378ee39dfad608f0297d6b95f",
+        "ed6f72998a1a357ea4d75f114122a9f6f8288dd42ee2a2bc44f198086d8748d1",
+        "f9b53cfaa171990258f76bc446e9217d595affdb52bbde8e3e66a5417c668610"
+      ],
+      "rationale": "Source review follows registered caller filenames through get_excel_path to cross-file workbook load/save sinks. Vulnerable remote launch globals do not contain absolute/traversal paths; fixed remote launches reject absolute paths and enforce realpath/commonpath. Retained fixed-source path candidates explicitly concern stdio, where no remote EXCEL_FILES_PATH policy applies. Current scan adds ten source-bound workbook/helper operations, including range read/copy/delete, load/save and parent mkdir. The three fixed/control parent-mkdir findings now explicitly retain the requested-path check for both remote launch modes. Source shows realpath/commonpath rejection before create_workbook_impl and startup creates EXCEL_FILES_PATH. A relative child has its parent in that directory; requesting the root itself reaches an existing ancestor mkdir and cannot save a workbook over the root directory. The remaining visible parent candidate does not assert an unchecked remote filename. Count it separately with its source-policy uncertainty, not as a bypass of the frozen filename condition. Its earlier unqualified report was conservatively false-alarm scored at 8bcaded and remains preserved. No finding is suppressed; no label/prerequisite or target source changed.",
+      "prior_assessment": "integration/containment-4dfd24c/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/excel_mcp/server.py",
+          "sha256": "bc862fc7b268446f7bec47ece78548f4c1d29f5499a2cd9290856f2d7ba9effc"
+        },
+        {
+          "path": "src/excel_mcp/chart.py",
+          "sha256": "578c461a5381e884afb43322c6b90f08bbf4158ce4b59e1d9ae476da157896aa"
+        },
+        {
+          "path": "src/excel_mcp/data.py",
+          "sha256": "5fadaf0384521c8d53cdee95cbd8da55aee0d3eea841eb00bce55444cb0c5616"
+        },
+        {
+          "path": "src/excel_mcp/pivot.py",
+          "sha256": "271aa7801505befec9f214a52a53bc82f7f0c60daf47bea0a54cc29af26da32d"
+        },
+        {
+          "path": "src/excel_mcp/sheet.py",
+          "sha256": "6263d640056f79eb3dd17d39a88bbdfbc1fabe7c29434b0d2dfcc17e32bbf6ff"
+        },
+        {
+          "path": "src/excel_mcp/tables.py",
+          "sha256": "17b2cf1ee9f0e4f93de70413b54670de46964b623a407c1d4dbda37ec19d2c43"
+        },
+        {
+          "path": "src/excel_mcp/validation.py",
+          "sha256": "4a5f1f1025c2b205b1598a2c4d2d9f4244d8dce5a1c6e34689f91e45708d33cd"
+        },
+        {
+          "path": "src/excel_mcp/workbook.py",
+          "sha256": "67f540ed5fd4a51a9b1b44ba130ad10cfc14e2adab3841fd1a6e0bf43a7ee43a"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/29-excel-boundary-vulnerable/excel-boundary-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "excel-boundary-vulnerable"
+      }
+    },
+    {
+      "input_id": "excel-boundary-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "prerequisites": [
+        "SSE or streamable HTTP sets EXCEL_FILES_PATH; readable workbook outside that directory"
+      ],
+      "tree_sha256": "d1ba919a6c3eec87e2cd309f395defe8884552dc65beb33dee1c0e7dbfc6554f",
+      "report_sha256": "458a74930febb41426591093eb603be001a037d653ded910bf510df01c62203e",
+      "candidate_identity": "90f4c46627e70fccf5dfb67b8e961ec03e8351ab7304601212e0c48bc0af7607",
+      "matches": [
+        "03239cd3821f0ba7a0754c52140adff115be7de305d3d24db6b5be5289e82abf",
+        "05629049eac734c6a714eb241cd8fdd4f21c68afa1f353c9a80155045c3ecaab",
+        "05cf20647948a5e91b0e3a88d813b665fbe91a4a4da17eec8821a498c91be222",
+        "077945249f1719345330186cd248839bda90e950a986ba54d6355075241ad56d",
+        "092f83c2f7fbc14d9fde0a47cbb4eb59d38aab651c1ef901b82131b1f77c3229",
+        "09a9c7144f33a241941d3b2fba0df06e9f8d12caa3709f4181cac2bc611d99a0",
+        "0bea74132f11f81efaab7034999c83becaa8a8b9b4ff61a74d80d73e6c681335",
+        "20f86fff0b88ea6a5d01fb92fc9bbba4be863d58f8ea0df98bea7f4346f38598",
+        "26d4369f429996bf4036422e89c986e2f3e248f2298698e57e3ec7d7f95939b7",
+        "28e6e8d426548602e4f8863a880481f425b35aef6f6d998622a9091780e776e4",
+        "345aceed4e69c9b0757843f4f7bf936be6e166c7c87b15e5027e01a40ed1de06",
+        "3d9b98d056c80bcaadb58a1695b0c6f3a1302e54ecec1272c7cd81cc41a0d78e",
+        "3e3e0be79a46ce109d9ba488e79611417d0f54dd7d2c2181372dcaa567c9138d",
+        "3f89a201c964400fdd66e6f43edfedd2e246cedacd5e413a5956e60ce4ef3c29",
+        "45f87bb6e9cee7e771f3fd143dc2361f57c04d113756da8b6a399c45c6954f45",
+        "522ebf3a643e2deaad7cb8f572f20d2016bd1194a49404736f11a5082ab74782",
+        "54b48d4a0262764e50e043ea60ba8a7dcb028ad75b00238faad78638f9a0ab14",
+        "5f58f6eef8039e46fb4147527f2bc6bcccb5a1e9f7e10cfb9e735a73375f8d6f",
+        "615ebb6cb61ad40bad80b7290828be2a303a7607fc9a945c454df0ba6b087033",
+        "6860aa8924d7928d7fefe9d925acc12030da364c051fcb416ce011ae085006db",
+        "6be5637290e417418e4596f1aa8bec06e7b3c2ce82344ab1630c6adde210942c",
+        "7f7e1c432039fdde785ee431c8e96f9e08066d304cc32f396b7820e99abe335d",
+        "822e2f63e50a307c0322fc545eb080ca14d96153574e0c0669576ffd14cf0f9e",
+        "8c2e17b7021fc7bcb33316cfc62de53f326c5f2ab7f8d0b191a67eaaba0bd738",
+        "92450d08f5e2c89a13cb9605e0be17e66589f7c8a70a509db7cd1a18ae380559",
+        "9954d3f2a054f65aa7cc481becc6185f13243857f84ae6d033f5b9266741c1d7",
+        "9ac00fafd83b1dfa07523261b9fafa6163a4c17afa5c802b15505333560720ec",
+        "a28c74ea12c7fc38b16997788f372a82345e13165b9baf21f2fc78ea755e6b73",
+        "b930f917f3bf00d2730c239fb01d325c7ebb2eae0411727a803298342bcfbc18",
+        "bc3245a899e3146a8281c9c10b05bf2c6d3381a69dfed97e0e5013f7edfaa89e",
+        "c4ce60bd2b97697e46e57665800b257305df3adb7246f69fdf37cc37ca3f2a18",
+        "cb24f5b581abd7c2f06d3f7ce0ec34a91509bb4511ef43fcb07e44a30dcbc15b",
+        "cb3789bb4814689ec411bc3cb54c9b8147b6ab0d684fdca50e5f7364c17056e2",
+        "ccd24219f263596ecf877f99dae4301668d9a5c916122d6f9954da6605a83af8",
+        "d548ebc5c76e6bedc5cb6898b3d7129808b0eec25a56b7de45447d7519cb726e",
+        "df3207abf54075c4b20c0afc1522388942c20882578fef3d11ed0e5986c95d31",
+        "e57583b34327f626621bb5d2252d83a74106bdf378ee39dfad608f0297d6b95f",
+        "ed6f72998a1a357ea4d75f114122a9f6f8288dd42ee2a2bc44f198086d8748d1",
+        "f9b53cfaa171990258f76bc446e9217d595affdb52bbde8e3e66a5417c668610"
+      ],
+      "rationale": "Source review follows registered caller filenames through get_excel_path to cross-file workbook load/save sinks. Vulnerable remote launch globals do not contain absolute/traversal paths; fixed remote launches reject absolute paths and enforce realpath/commonpath. Retained fixed-source path candidates explicitly concern stdio, where no remote EXCEL_FILES_PATH policy applies. Current scan adds ten source-bound workbook/helper operations, including range read/copy/delete, load/save and parent mkdir. The three fixed/control parent-mkdir findings now explicitly retain the requested-path check for both remote launch modes. Source shows realpath/commonpath rejection before create_workbook_impl and startup creates EXCEL_FILES_PATH. A relative child has its parent in that directory; requesting the root itself reaches an existing ancestor mkdir and cannot save a workbook over the root directory. The remaining visible parent candidate does not assert an unchecked remote filename. Count it separately with its source-policy uncertainty, not as a bypass of the frozen filename condition. Its earlier unqualified report was conservatively false-alarm scored at 8bcaded and remains preserved. No finding is suppressed; no label/prerequisite or target source changed.",
+      "prior_assessment": "integration/containment-4dfd24c/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/excel_mcp/server.py",
+          "sha256": "66ee8f031a07fa3ef1d21cc068c458af388a393662cafeb0568119c6bce99b0b"
+        },
+        {
+          "path": "src/excel_mcp/chart.py",
+          "sha256": "578c461a5381e884afb43322c6b90f08bbf4158ce4b59e1d9ae476da157896aa"
+        },
+        {
+          "path": "src/excel_mcp/data.py",
+          "sha256": "5fadaf0384521c8d53cdee95cbd8da55aee0d3eea841eb00bce55444cb0c5616"
+        },
+        {
+          "path": "src/excel_mcp/pivot.py",
+          "sha256": "271aa7801505befec9f214a52a53bc82f7f0c60daf47bea0a54cc29af26da32d"
+        },
+        {
+          "path": "src/excel_mcp/sheet.py",
+          "sha256": "6263d640056f79eb3dd17d39a88bbdfbc1fabe7c29434b0d2dfcc17e32bbf6ff"
+        },
+        {
+          "path": "src/excel_mcp/tables.py",
+          "sha256": "17b2cf1ee9f0e4f93de70413b54670de46964b623a407c1d4dbda37ec19d2c43"
+        },
+        {
+          "path": "src/excel_mcp/validation.py",
+          "sha256": "4a5f1f1025c2b205b1598a2c4d2d9f4244d8dce5a1c6e34689f91e45708d33cd"
+        },
+        {
+          "path": "src/excel_mcp/workbook.py",
+          "sha256": "67f540ed5fd4a51a9b1b44ba130ad10cfc14e2adab3841fd1a6e0bf43a7ee43a"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/30-excel-boundary-vulnerable-mutation/excel-boundary-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "excel-boundary-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "excel-boundary-fixed",
+      "treatment": "rules",
+      "condition": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "prerequisites": [
+        "SSE or streamable HTTP sets EXCEL_FILES_PATH; readable workbook outside that directory"
+      ],
+      "tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "report_sha256": "88c44a25e2f126073ef418f819f048a36e7102939f5c9386748be529bb361d82",
+      "candidate_identity": "49b390319c8828fd6f5c7f52f3c18c94081d79b07ce0fd70d683dd2d571c0435",
+      "matches": [],
+      "rationale": "Source review follows registered caller filenames through get_excel_path to cross-file workbook load/save sinks. Vulnerable remote launch globals do not contain absolute/traversal paths; fixed remote launches reject absolute paths and enforce realpath/commonpath. Retained fixed-source path candidates explicitly concern stdio, where no remote EXCEL_FILES_PATH policy applies. Current scan adds ten source-bound workbook/helper operations, including range read/copy/delete, load/save and parent mkdir. The three fixed/control parent-mkdir findings now explicitly retain the requested-path check for both remote launch modes. Source shows realpath/commonpath rejection before create_workbook_impl and startup creates EXCEL_FILES_PATH. A relative child has its parent in that directory; requesting the root itself reaches an existing ancestor mkdir and cannot save a workbook over the root directory. The remaining visible parent candidate does not assert an unchecked remote filename. Count it separately with its source-policy uncertainty, not as a bypass of the frozen filename condition. Its earlier unqualified report was conservatively false-alarm scored at 8bcaded and remains preserved. No finding is suppressed; no label/prerequisite or target source changed.",
+      "prior_assessment": "integration/containment-4dfd24c/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/excel_mcp/server.py",
+          "sha256": "4cf2d42ea3114b691eeff3c3a2bddfd84e89d68d405946ea3158194b1495c97b"
+        },
+        {
+          "path": "src/excel_mcp/chart.py",
+          "sha256": "578c461a5381e884afb43322c6b90f08bbf4158ce4b59e1d9ae476da157896aa"
+        },
+        {
+          "path": "src/excel_mcp/data.py",
+          "sha256": "5fadaf0384521c8d53cdee95cbd8da55aee0d3eea841eb00bce55444cb0c5616"
+        },
+        {
+          "path": "src/excel_mcp/pivot.py",
+          "sha256": "271aa7801505befec9f214a52a53bc82f7f0c60daf47bea0a54cc29af26da32d"
+        },
+        {
+          "path": "src/excel_mcp/sheet.py",
+          "sha256": "6263d640056f79eb3dd17d39a88bbdfbc1fabe7c29434b0d2dfcc17e32bbf6ff"
+        },
+        {
+          "path": "src/excel_mcp/tables.py",
+          "sha256": "17b2cf1ee9f0e4f93de70413b54670de46964b623a407c1d4dbda37ec19d2c43"
+        },
+        {
+          "path": "src/excel_mcp/validation.py",
+          "sha256": "4a5f1f1025c2b205b1598a2c4d2d9f4244d8dce5a1c6e34689f91e45708d33cd"
+        },
+        {
+          "path": "src/excel_mcp/workbook.py",
+          "sha256": "67f540ed5fd4a51a9b1b44ba130ad10cfc14e2adab3841fd1a6e0bf43a7ee43a"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/31-excel-boundary-fixed/excel-boundary-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "excel-boundary-fixed"
+      }
+    },
+    {
+      "input_id": "excel-boundary-fixed-mutation",
+      "treatment": "rules",
+      "condition": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "prerequisites": [
+        "SSE or streamable HTTP sets EXCEL_FILES_PATH; readable workbook outside that directory"
+      ],
+      "tree_sha256": "835d36188e5b651ea20919555f4a1d7bf463b081b30c3fe2b45cdae8b792dc18",
+      "report_sha256": "36a1d228503b89b4621bf6157ec83b9cd1b5349889dd9b089b53225bb0f81bd7",
+      "candidate_identity": "cd6b061cac4efeafb9357e520140162d767c3eece5c0db244c8d6df85acd579b",
+      "matches": [],
+      "rationale": "Source review follows registered caller filenames through get_excel_path to cross-file workbook load/save sinks. Vulnerable remote launch globals do not contain absolute/traversal paths; fixed remote launches reject absolute paths and enforce realpath/commonpath. Retained fixed-source path candidates explicitly concern stdio, where no remote EXCEL_FILES_PATH policy applies. Current scan adds ten source-bound workbook/helper operations, including range read/copy/delete, load/save and parent mkdir. The three fixed/control parent-mkdir findings now explicitly retain the requested-path check for both remote launch modes. Source shows realpath/commonpath rejection before create_workbook_impl and startup creates EXCEL_FILES_PATH. A relative child has its parent in that directory; requesting the root itself reaches an existing ancestor mkdir and cannot save a workbook over the root directory. The remaining visible parent candidate does not assert an unchecked remote filename. Count it separately with its source-policy uncertainty, not as a bypass of the frozen filename condition. Its earlier unqualified report was conservatively false-alarm scored at 8bcaded and remains preserved. No finding is suppressed; no label/prerequisite or target source changed.",
+      "prior_assessment": "integration/containment-4dfd24c/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/excel_mcp/server.py",
+          "sha256": "c3dfc78e06cd9d4cca1c9bfe6827cce337ecaed5e3cc068f9e3f65c9e0fc7fc8"
+        },
+        {
+          "path": "src/excel_mcp/chart.py",
+          "sha256": "578c461a5381e884afb43322c6b90f08bbf4158ce4b59e1d9ae476da157896aa"
+        },
+        {
+          "path": "src/excel_mcp/data.py",
+          "sha256": "5fadaf0384521c8d53cdee95cbd8da55aee0d3eea841eb00bce55444cb0c5616"
+        },
+        {
+          "path": "src/excel_mcp/pivot.py",
+          "sha256": "271aa7801505befec9f214a52a53bc82f7f0c60daf47bea0a54cc29af26da32d"
+        },
+        {
+          "path": "src/excel_mcp/sheet.py",
+          "sha256": "6263d640056f79eb3dd17d39a88bbdfbc1fabe7c29434b0d2dfcc17e32bbf6ff"
+        },
+        {
+          "path": "src/excel_mcp/tables.py",
+          "sha256": "17b2cf1ee9f0e4f93de70413b54670de46964b623a407c1d4dbda37ec19d2c43"
+        },
+        {
+          "path": "src/excel_mcp/validation.py",
+          "sha256": "4a5f1f1025c2b205b1598a2c4d2d9f4244d8dce5a1c6e34689f91e45708d33cd"
+        },
+        {
+          "path": "src/excel_mcp/workbook.py",
+          "sha256": "67f540ed5fd4a51a9b1b44ba130ad10cfc14e2adab3841fd1a6e0bf43a7ee43a"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/32-excel-boundary-fixed-mutation/excel-boundary-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "excel-boundary-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "mobile-output-vulnerable",
+      "treatment": "rules",
+      "condition": "On Linux, screenshot/recording output cannot write outside both process.cwd() and os.tmpdir() using an ordinary non-symlink parent",
+      "prerequisites": [
+        "Linux; a functioning mobile device/toolchain; supported output extension; existing output parent outside both allowed roots"
+      ],
+      "tree_sha256": "d2d68e7efd31e92a831610bdb123a79bc12e801c72aac0d4e9bfa6250d87b97c",
+      "report_sha256": "ff3794895df4edb48033907f90ee45a8758ad7ced44a4ef9ba540048ebf13602",
+      "candidate_identity": "6449da4216720ae387e1d956337e1b5892cb073391af69cb81cadff8cfe40dbc",
+      "matches": [
+        "341af352479c21483b7a7b07c2225bc8eeef7eb952cd8a78cd20c45712bf56ed",
+        "d6c83ba8243647511a96f018061dd5b2e00233d0549875a260934f4375d25823"
+      ],
+      "rationale": "Implementation-agent source review follows screenshot saveTo to writeFileSync and recording output through optional fallback, ordered argv, the included Mobilecli receiver/getPath and genuine Node spawn. Findings qualify the source-selected executable. Fixed validateOutputPath enforces the lexical boundary only when caller output is present; the truthy output branch retains that check, while temporary output is not caller-controlled. Both fixed candidates explicitly concern symlinks, outside this frozen Linux ordinary-parent condition. Functioning device/toolchain and executable identity remain prerequisites, not runtime evidence. The safe locale control has its own named condition and is not a recording scenario.",
+      "prior_assessment": "integration/mobile-recording-b51-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/server.ts",
+          "sha256": "c5970017bff467d653a4685fe74fcac384da1c57a6202eb6f3e11146582ea8ed"
+        },
+        {
+          "path": "src/index.ts",
+          "sha256": "1de14a3c0ef9d2bbbef2a012876a7a41d983c7788698669308b3675790fdd79f"
+        },
+        {
+          "path": "src/mobilecli.ts",
+          "sha256": "0fd5f10b89535051244477ba3aeb239315f78f3e13f4d9662c8622eea827641b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/33-mobile-output-vulnerable/mobile-output-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "mobile-output-vulnerable"
+      }
+    },
+    {
+      "input_id": "mobile-output-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "On Linux, screenshot/recording output cannot write outside both process.cwd() and os.tmpdir() using an ordinary non-symlink parent",
+      "prerequisites": [
+        "Linux; a functioning mobile device/toolchain; supported output extension; existing output parent outside both allowed roots"
+      ],
+      "tree_sha256": "bde943f636bf5378d93bdd468acf292d157957acca6160c82651e2199ef422b0",
+      "report_sha256": "c85b91580b342f615260db4edc90c17cf79aebc60ed1382d9f13b995546bd835",
+      "candidate_identity": "db874bcdda035e9692e4bf0c39dc74e5ae592ae7b1a2a95d4afd3071cd1439cb",
+      "matches": [
+        "0b697797a83390e3a4915d523174c1837c7f673ef0ff57b7be8210e2230011db",
+        "d6c83ba8243647511a96f018061dd5b2e00233d0549875a260934f4375d25823"
+      ],
+      "rationale": "Implementation-agent source review follows screenshot saveTo to writeFileSync and recording output through optional fallback, ordered argv, the included Mobilecli receiver/getPath and genuine Node spawn. Findings qualify the source-selected executable. Fixed validateOutputPath enforces the lexical boundary only when caller output is present; the truthy output branch retains that check, while temporary output is not caller-controlled. Both fixed candidates explicitly concern symlinks, outside this frozen Linux ordinary-parent condition. Functioning device/toolchain and executable identity remain prerequisites, not runtime evidence. The safe locale control has its own named condition and is not a recording scenario.",
+      "prior_assessment": "integration/mobile-recording-b51-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/server.ts",
+          "sha256": "17531ff8ec3ab11969e61a19d1edcf38b3bf90738c6ab4ba2ea157281321c7b9"
+        },
+        {
+          "path": "src/index.ts",
+          "sha256": "1de14a3c0ef9d2bbbef2a012876a7a41d983c7788698669308b3675790fdd79f"
+        },
+        {
+          "path": "src/mobilecli.ts",
+          "sha256": "0fd5f10b89535051244477ba3aeb239315f78f3e13f4d9662c8622eea827641b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/34-mobile-output-vulnerable-mutation/mobile-output-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "mobile-output-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "mobile-output-fixed",
+      "treatment": "rules",
+      "condition": "On Linux, screenshot/recording output cannot write outside both process.cwd() and os.tmpdir() using an ordinary non-symlink parent",
+      "prerequisites": [
+        "Linux; a functioning mobile device/toolchain; supported output extension; existing output parent outside both allowed roots"
+      ],
+      "tree_sha256": "1e790758f211d1186766035cbe333b7479ba64fc2eb85e0b9ea8fdee60227385",
+      "report_sha256": "da9672609aaaaefec65bda08816ad13929a1f17bf8319cedc7ad70d48dfc62c0",
+      "candidate_identity": "c4249b08949ac38ec8d7d0c5cd205a959f4691310da76e2c92498afa808efd49",
+      "matches": [],
+      "rationale": "Implementation-agent source review follows screenshot saveTo to writeFileSync and recording output through optional fallback, ordered argv, the included Mobilecli receiver/getPath and genuine Node spawn. Findings qualify the source-selected executable. Fixed validateOutputPath enforces the lexical boundary only when caller output is present; the truthy output branch retains that check, while temporary output is not caller-controlled. Both fixed candidates explicitly concern symlinks, outside this frozen Linux ordinary-parent condition. Functioning device/toolchain and executable identity remain prerequisites, not runtime evidence. The safe locale control has its own named condition and is not a recording scenario.",
+      "prior_assessment": "integration/mobile-recording-b51-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/server.ts",
+          "sha256": "aa99170dbf71a75c20985ed191b11758ab8b11bc840e4ee9bdbb046584d24efd"
+        },
+        {
+          "path": "src/index.ts",
+          "sha256": "1de14a3c0ef9d2bbbef2a012876a7a41d983c7788698669308b3675790fdd79f"
+        },
+        {
+          "path": "src/mobilecli.ts",
+          "sha256": "0fd5f10b89535051244477ba3aeb239315f78f3e13f4d9662c8622eea827641b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/35-mobile-output-fixed/mobile-output-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "mobile-output-fixed"
+      }
+    },
+    {
+      "input_id": "mobile-output-fixed-mutation",
+      "treatment": "rules",
+      "condition": "On Linux, screenshot/recording output cannot write outside both process.cwd() and os.tmpdir() using an ordinary non-symlink parent",
+      "prerequisites": [
+        "Linux; a functioning mobile device/toolchain; supported output extension; existing output parent outside both allowed roots"
+      ],
+      "tree_sha256": "daccaad22e20238522fb2dee24752aae45493a01f32e99e278bbbc73392f853f",
+      "report_sha256": "b0c16580d3144337b84a41ed6e4c3e5298c15b1f9af1e6726a45b5edc6d48ad1",
+      "candidate_identity": "dd4598e81bf48e5461ea269aa69c29fb485f60e9b1209fba2c53b5ff6ba8b545",
+      "matches": [],
+      "rationale": "Implementation-agent source review follows screenshot saveTo to writeFileSync and recording output through optional fallback, ordered argv, the included Mobilecli receiver/getPath and genuine Node spawn. Findings qualify the source-selected executable. Fixed validateOutputPath enforces the lexical boundary only when caller output is present; the truthy output branch retains that check, while temporary output is not caller-controlled. Both fixed candidates explicitly concern symlinks, outside this frozen Linux ordinary-parent condition. Functioning device/toolchain and executable identity remain prerequisites, not runtime evidence. The safe locale control has its own named condition and is not a recording scenario.",
+      "prior_assessment": "integration/mobile-recording-b51-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/server.ts",
+          "sha256": "8c19de155762155998dad484f0640c063b47382d2ca445af7743205b133d94c8"
+        },
+        {
+          "path": "src/index.ts",
+          "sha256": "1de14a3c0ef9d2bbbef2a012876a7a41d983c7788698669308b3675790fdd79f"
+        },
+        {
+          "path": "src/mobilecli.ts",
+          "sha256": "0fd5f10b89535051244477ba3aeb239315f78f3e13f4d9662c8622eea827641b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/36-mobile-output-fixed-mutation/mobile-output-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "mobile-output-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "kubernetes-shell-vulnerable",
+      "treatment": "rules",
+      "condition": "kubectl_get input cannot cause shell metacharacter execution while constructing the kubectl command",
+      "prerequisites": [
+        "kubectl on PATH and initialized Kubernetes configuration; tool input carrying a shell metacharacter; benchmark never uses a real cluster"
+      ],
+      "tree_sha256": "2891d35c553e3221daafc9b2f632eb0b406201a8a9eec2873663d5bc40f07d52",
+      "report_sha256": "bae3a4220523b62bda05006b10c840bb5cc78e705f1b6240e233b21bfa8fd591",
+      "candidate_identity": "dd6796a5945c58595f5ada6ba6602769d9e157bc8406ff9bd2018875d039689f",
+      "matches": [
+        "b800a785ed841de18d45550a9ef28974a3313dcc26de3413e0dff6cc8d45b5f6"
+      ],
+      "rationale": "Source review: index.ts tools/call dispatch passes actual request.params.arguments to kubectlGet; resourceType/name/namespace/selectors become command text and execSync invokes a shell. The candidate cites that sink and cross-file caller source. Current1f3f72f source review: preserve the same kubectl_get match; the added kubectl_logs cronjob command finding is a separate source-grounded condition and remains unmatched here.",
+      "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/tools/helm-operations.ts",
+          "sha256": "958bd5ed85fd681cdb091ba081d03b95c66769ede343d2b22f8afc351edffd38"
+        },
+        {
+          "path": "src/tools/kubectl-apply.ts",
+          "sha256": "634b3b9fcf94759941b95957bca555c17f829b02cbc24dce540b539587fce455"
+        },
+        {
+          "path": "src/tools/kubectl-context.ts",
+          "sha256": "63672a4a87b1855c08d5bdd100e56d0c9d9dc23b5d02ab86f24bd8a1b6346aa5"
+        },
+        {
+          "path": "src/tools/kubectl-create.ts",
+          "sha256": "91dd3b4585c33a465c6595f7fc2065b201bdbecafa6b1e60eff4a7f3eb081052"
+        },
+        {
+          "path": "src/tools/kubectl-delete.ts",
+          "sha256": "682b8b036b34417265bcee29e0d090eff49746c8632b2f0872e1e060ab06ea12"
+        },
+        {
+          "path": "src/tools/kubectl-describe.ts",
+          "sha256": "a28d020df7ea001140f7b77f94a5d49b690136cb934628119a4a4009dd1c88ee"
+        },
+        {
+          "path": "src/tools/kubectl-generic.ts",
+          "sha256": "e21380fd69cf5dd1b461dbb345744435c9f0eb27dad72a4b9171ab178c2f04d5"
+        },
+        {
+          "path": "src/tools/kubectl-get.ts",
+          "sha256": "be71031212b01ce632713799ff0f0eae4b2042041436de3316291edcc42ac92b"
+        },
+        {
+          "path": "src/tools/kubectl-logs.ts",
+          "sha256": "184244dd1e8c0bf5ea06903bfc2fdcd3f1a89d92ed3daa3f16740b85f21f417a"
+        },
+        {
+          "path": "src/tools/kubectl-operations.ts",
+          "sha256": "a1effcdc4c47f340213c4b84c71ef2c15d840255ac7cbdf17d74334be1356d39"
+        },
+        {
+          "path": "src/tools/kubectl-patch.ts",
+          "sha256": "2aae41b229d7077ce6c081f9e345fc732f8db45da722235b38d5095025f204fb"
+        },
+        {
+          "path": "src/tools/kubectl-rollout.ts",
+          "sha256": "28cc610bf0379f49b73cf630e7da34c6ad6c76b1a7939b6bacd49ba76774f8de"
+        },
+        {
+          "path": "src/tools/kubectl-scale.ts",
+          "sha256": "1de35ac2f980d744dc11fe3c1f9e81f81407c29401395845ae32828b1ba1addf"
+        },
+        {
+          "path": "src/utils/sse.ts",
+          "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+        },
+        {
+          "path": "tests/sse.test.ts",
+          "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v21-sequence-hosted/artifacts/phase22-full-historical_first/37-kubernetes-shell-vulnerable/kubernetes-shell-vulnerable/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "kubernetes-shell-vulnerable"
+      }
+    },
+    {
+      "input_id": "kubernetes-shell-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "kubectl_get input cannot cause shell metacharacter execution while constructing the kubectl command",
+      "prerequisites": [
+        "kubectl on PATH and initialized Kubernetes configuration; tool input carrying a shell metacharacter; benchmark never uses a real cluster"
+      ],
+      "tree_sha256": "8761edde89098b050989586b70bcdf1fbaa1ede8a86c16bb268da6c21e4b6d41",
+      "report_sha256": "8382963ab8eb31a9e9eb9c07e4820382acfe7aee8ce6a2d9d8e49e88cb4b6579",
+      "candidate_identity": "dd6796a5945c58595f5ada6ba6602769d9e157bc8406ff9bd2018875d039689f",
+      "matches": [
+        "b800a785ed841de18d45550a9ef28974a3313dcc26de3413e0dff6cc8d45b5f6"
+      ],
+      "rationale": "Source review: index.ts tools/call dispatch passes actual request.params.arguments to kubectlGet; resourceType/name/namespace/selectors become command text and execSync invokes a shell. The candidate cites that sink and cross-file caller source. Current1f3f72f source review: preserve the same kubectl_get match; the added kubectl_logs cronjob command finding is a separate source-grounded condition and remains unmatched here.",
+      "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/tools/helm-operations.ts",
+          "sha256": "958bd5ed85fd681cdb091ba081d03b95c66769ede343d2b22f8afc351edffd38"
+        },
+        {
+          "path": "src/tools/kubectl-apply.ts",
+          "sha256": "634b3b9fcf94759941b95957bca555c17f829b02cbc24dce540b539587fce455"
+        },
+        {
+          "path": "src/tools/kubectl-context.ts",
+          "sha256": "63672a4a87b1855c08d5bdd100e56d0c9d9dc23b5d02ab86f24bd8a1b6346aa5"
+        },
+        {
+          "path": "src/tools/kubectl-create.ts",
+          "sha256": "91dd3b4585c33a465c6595f7fc2065b201bdbecafa6b1e60eff4a7f3eb081052"
+        },
+        {
+          "path": "src/tools/kubectl-delete.ts",
+          "sha256": "682b8b036b34417265bcee29e0d090eff49746c8632b2f0872e1e060ab06ea12"
+        },
+        {
+          "path": "src/tools/kubectl-describe.ts",
+          "sha256": "a28d020df7ea001140f7b77f94a5d49b690136cb934628119a4a4009dd1c88ee"
+        },
+        {
+          "path": "src/tools/kubectl-generic.ts",
+          "sha256": "e21380fd69cf5dd1b461dbb345744435c9f0eb27dad72a4b9171ab178c2f04d5"
+        },
+        {
+          "path": "src/tools/kubectl-get.ts",
+          "sha256": "0f8c1e30395bfeb9bbce68a6f1505eb2b171857c83364a9c7252088c8162c14e"
+        },
+        {
+          "path": "src/tools/kubectl-logs.ts",
+          "sha256": "184244dd1e8c0bf5ea06903bfc2fdcd3f1a89d92ed3daa3f16740b85f21f417a"
+        },
+        {
+          "path": "src/tools/kubectl-operations.ts",
+          "sha256": "a1effcdc4c47f340213c4b84c71ef2c15d840255ac7cbdf17d74334be1356d39"
+        },
+        {
+          "path": "src/tools/kubectl-patch.ts",
+          "sha256": "2aae41b229d7077ce6c081f9e345fc732f8db45da722235b38d5095025f204fb"
+        },
+        {
+          "path": "src/tools/kubectl-rollout.ts",
+          "sha256": "28cc610bf0379f49b73cf630e7da34c6ad6c76b1a7939b6bacd49ba76774f8de"
+        },
+        {
+          "path": "src/tools/kubectl-scale.ts",
+          "sha256": "1de35ac2f980d744dc11fe3c1f9e81f81407c29401395845ae32828b1ba1addf"
+        },
+        {
+          "path": "src/utils/sse.ts",
+          "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+        },
+        {
+          "path": "tests/sse.test.ts",
+          "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/01-kubernetes-shell-vulnerable-mutation/kubernetes-shell-vulnerable-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "kubernetes-shell-vulnerable-mutation"
+      }
+    },
+    {
+      "input_id": "kubernetes-shell-fixed",
+      "treatment": "rules",
+      "condition": "kubectl_get input cannot cause shell metacharacter execution while constructing the kubectl command",
+      "prerequisites": [
+        "kubectl on PATH and initialized Kubernetes configuration; tool input carrying a shell metacharacter; benchmark never uses a real cluster"
+      ],
+      "tree_sha256": "0d03a7a86e33c9502b7117cd8edcbae77c207c6e80c4fc41382a4631cd2b8561",
+      "report_sha256": "bc807b67d5e0b66703fb1aa263ca63f42853441d0cecbf80aee31090e3638346",
+      "candidate_identity": "51d7d349e648b5c76c9bdc211a121eb604d7cb38a5fd55e1393c15fafd6b443b",
+      "matches": [],
+      "rationale": "Source review: the fixed kubectlGet uses execFileSync with a fixed executable and separate argv, without shell:true. The safe formatting projection retains that handling. Other rule alerts concern different behavior.",
+      "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/utils/sse.ts",
+          "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+        },
+        {
+          "path": "tests/sse.test.ts",
+          "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+        },
+        {
+          "path": "src/tools/helm-operations.ts",
+          "sha256": "45dbb000c8cfbff0fa04d6228c4b9229f6869c53a05a96fb9f29733020a1f5bb"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/02-kubernetes-shell-fixed/kubernetes-shell-fixed/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "kubernetes-shell-fixed"
+      }
+    },
+    {
+      "input_id": "kubernetes-shell-fixed-mutation",
+      "treatment": "rules",
+      "condition": "kubectl_get input cannot cause shell metacharacter execution while constructing the kubectl command",
+      "prerequisites": [
+        "kubectl on PATH and initialized Kubernetes configuration; tool input carrying a shell metacharacter; benchmark never uses a real cluster"
+      ],
+      "tree_sha256": "5d2faeb098cc70b3eead4aaa8fac4a7b000f88650be967c508e287f09b8ca36f",
+      "report_sha256": "00fd71f85db0229f28c70d7f291467e6060fa6f7669540eaf52905ef409a151a",
+      "candidate_identity": "51d7d349e648b5c76c9bdc211a121eb604d7cb38a5fd55e1393c15fafd6b443b",
+      "matches": [],
+      "rationale": "Source review: the fixed kubectlGet uses execFileSync with a fixed executable and separate argv, without shell:true. The safe formatting projection retains that handling. Other rule alerts concern different behavior.",
+      "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/utils/sse.ts",
+          "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+        },
+        {
+          "path": "tests/sse.test.ts",
+          "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+        },
+        {
+          "path": "src/tools/helm-operations.ts",
+          "sha256": "45dbb000c8cfbff0fa04d6228c4b9229f6869c53a05a96fb9f29733020a1f5bb"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/03-kubernetes-shell-fixed-mutation/kubernetes-shell-fixed-mutation/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "kubernetes-shell-fixed-mutation"
+      }
+    },
+    {
+      "input_id": "git-status-safe",
+      "treatment": "rules",
+      "condition": "git_status uses fixed Git status options, with no caller-provided shell command; missing shell sanitization here is not a defect",
+      "prerequisites": [
+        "A valid repository; status has no command-string parameter"
+      ],
+      "tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "report_sha256": "2d0ca7165e52a74887c338e6bb355d64a80ce9348ebe3e8864082cd2dc5b378e",
+      "candidate_identity": "8739fdcad0d3399bcab4316f762348470b1530936bbdc4c161d7a5d7419be306",
+      "matches": [],
+      "rationale": "The safe named status operation uses fixed Git status options and has no caller command-string parameter. Other low-level handlers and add/log/branch candidates in the shared snapshot do not establish shell execution in this status operation.",
+      "prior_assessment": null,
+      "source_evidence": [
+        {
+          "path": "src/git/src/mcp_server_git/server.py",
+          "sha256": "f0348f0df7e46203310035420b20da673708844453d823628d35ae8683de8f3b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/04-git-status-safe/git-status-safe/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "git-status-safe"
+      }
+    },
+    {
+      "input_id": "atlassian-download-path-safe",
+      "treatment": "rules",
+      "condition": "validate_safe_path rejects a resolved download destination outside its supplied base directory; normalization without checking containment would not suffice",
+      "prerequisites": [
+        "An explicit base directory, an out-of-base path, and no filesystem race; download callers consume the checked path or check the same destination"
+      ],
+      "tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "report_sha256": "e6c90ff96776ac660da37c2a0ad1dc7eb714e0352d5f92b95477917789c951a3",
+      "candidate_identity": "d4af71aeddf27e966182ad7c817a3dd78bc5d2d8021e42e944e826a89cc35eb2",
+      "matches": [],
+      "rationale": "The fixed upload method consumes validate_safe_path(file_path) before opening it. That helper resolves cwd/base and requested path, rejects paths outside the resolved component boundary, and returns the checked path. The safe download condition uses the same explicit-base containment helper with no filesystem race. Native reports contain no SENT-012 candidate; unrelated rule findings are not alerts on this condition.",
+      "prior_assessment": "integration/v2-upload-6da955e-adjudication/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/mcp_atlassian/servers/confluence.py",
+          "sha256": "1ff160d01b1d94e5ba1af53414058ae4b104377ef8e6368c0115b85dd642dd7d"
+        },
+        {
+          "path": "src/mcp_atlassian/servers/jira.py",
+          "sha256": "ebbe03c48b65a17132ede5d3acece8d83151843e932ad7d9874ef61539c6ebb7"
+        },
+        {
+          "path": "src/mcp_atlassian/confluence/client.py",
+          "sha256": "01021188da49ff8ed09a2e6883c1ca8466983dfd19fc687ae378f5eea544e1dc"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/client.py",
+          "sha256": "5d36f2bb5f42d3311af3e704fe28f6ca072f5f34178e87f80f8f5c70d8963e90"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/forms_api.py",
+          "sha256": "8b381cb3da6eafa3a6e2209f03ca63c7b08c5c3b3234566dd85702ae8cdb9771"
+        },
+        {
+          "path": "src/mcp_atlassian/jira/users.py",
+          "sha256": "16245490f4da1fc8e7dd0efb590d0ca01d5fddf3ffedad330e717c47e5c1aa44"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/05-atlassian-download-path-safe/atlassian-download-path-safe/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "atlassian-download-path-safe"
+      }
+    },
+    {
+      "input_id": "excel-child-path-safe",
+      "treatment": "rules",
+      "condition": "A plain child workbook filename resolving inside EXCEL_FILES_PATH is permitted in remote mode; accepting this contained path is not a path-boundary violation",
+      "prerequisites": [
+        "Remote mode; EXCEL_FILES_PATH set; ordinary existing child workbook; no symlinks or concurrent path replacement"
+      ],
+      "tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "report_sha256": "ff3508f974d491565feff0f3fc249a8b09f072acd9bc04ab9f496f0ee22b5115",
+      "candidate_identity": "49b390319c8828fd6f5c7f52f3c18c94081d79b07ce0fd70d683dd2d571c0435",
+      "matches": [],
+      "rationale": "Source review follows registered caller filenames through get_excel_path to cross-file workbook load/save sinks. Vulnerable remote launch globals do not contain absolute/traversal paths; fixed remote launches reject absolute paths and enforce realpath/commonpath. Retained fixed-source path candidates explicitly concern stdio, where no remote EXCEL_FILES_PATH policy applies. Current scan adds ten source-bound workbook/helper operations, including range read/copy/delete, load/save and parent mkdir. The three fixed/control parent-mkdir findings now explicitly retain the requested-path check for both remote launch modes. Source shows realpath/commonpath rejection before create_workbook_impl and startup creates EXCEL_FILES_PATH. A relative child has its parent in that directory; requesting the root itself reaches an existing ancestor mkdir and cannot save a workbook over the root directory. The remaining visible parent candidate does not assert an unchecked remote filename. Count it separately with its source-policy uncertainty, not as a bypass of the frozen filename condition. Its earlier unqualified report was conservatively false-alarm scored at 8bcaded and remains preserved. No finding is suppressed; no label/prerequisite or target source changed.",
+      "prior_assessment": "integration/containment-4dfd24c/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/excel_mcp/server.py",
+          "sha256": "4cf2d42ea3114b691eeff3c3a2bddfd84e89d68d405946ea3158194b1495c97b"
+        },
+        {
+          "path": "src/excel_mcp/chart.py",
+          "sha256": "578c461a5381e884afb43322c6b90f08bbf4158ce4b59e1d9ae476da157896aa"
+        },
+        {
+          "path": "src/excel_mcp/data.py",
+          "sha256": "5fadaf0384521c8d53cdee95cbd8da55aee0d3eea841eb00bce55444cb0c5616"
+        },
+        {
+          "path": "src/excel_mcp/pivot.py",
+          "sha256": "271aa7801505befec9f214a52a53bc82f7f0c60daf47bea0a54cc29af26da32d"
+        },
+        {
+          "path": "src/excel_mcp/sheet.py",
+          "sha256": "6263d640056f79eb3dd17d39a88bbdfbc1fabe7c29434b0d2dfcc17e32bbf6ff"
+        },
+        {
+          "path": "src/excel_mcp/tables.py",
+          "sha256": "17b2cf1ee9f0e4f93de70413b54670de46964b623a407c1d4dbda37ec19d2c43"
+        },
+        {
+          "path": "src/excel_mcp/validation.py",
+          "sha256": "4a5f1f1025c2b205b1598a2c4d2d9f4244d8dce5a1c6e34689f91e45708d33cd"
+        },
+        {
+          "path": "src/excel_mcp/workbook.py",
+          "sha256": "67f540ed5fd4a51a9b1b44ba130ad10cfc14e2adab3841fd1a6e0bf43a7ee43a"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/06-excel-child-path-safe/excel-child-path-safe/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "excel-child-path-safe"
+      }
+    },
+    {
+      "input_id": "mobile-locale-safe",
+      "treatment": "rules",
+      "condition": "validateLocale rejects values outside its locale regular expression before locale-changing operations; unrelated path checks are not the condition",
+      "prerequisites": [
+        "A caller locale string outside the anchored accepted pattern"
+      ],
+      "tree_sha256": "1e790758f211d1186766035cbe333b7479ba64fc2eb85e0b9ea8fdee60227385",
+      "report_sha256": "5b81f4ba7f6fb7efa6aa6aabf610ed64a366d3a0bab921b9e49c21598631bec6",
+      "candidate_identity": "c4249b08949ac38ec8d7d0c5cd205a959f4691310da76e2c92498afa808efd49",
+      "matches": [],
+      "rationale": "Implementation-agent source review follows screenshot saveTo to writeFileSync and recording output through optional fallback, ordered argv, the included Mobilecli receiver/getPath and genuine Node spawn. Findings qualify the source-selected executable. Fixed validateOutputPath enforces the lexical boundary only when caller output is present; the truthy output branch retains that check, while temporary output is not caller-controlled. Both fixed candidates explicitly concern symlinks, outside this frozen Linux ordinary-parent condition. Functioning device/toolchain and executable identity remain prerequisites, not runtime evidence. The safe locale control has its own named condition and is not a recording scenario.",
+      "prior_assessment": "integration/mobile-recording-b51-development/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/server.ts",
+          "sha256": "aa99170dbf71a75c20985ed191b11758ab8b11bc840e4ee9bdbb046584d24efd"
+        },
+        {
+          "path": "src/index.ts",
+          "sha256": "1de14a3c0ef9d2bbbef2a012876a7a41d983c7788698669308b3675790fdd79f"
+        },
+        {
+          "path": "src/mobilecli.ts",
+          "sha256": "0fd5f10b89535051244477ba3aeb239315f78f3e13f4d9662c8622eea827641b"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/07-mobile-locale-safe/mobile-locale-safe/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "mobile-locale-safe"
+      }
+    },
+    {
+      "input_id": "kubernetes-formatting-safe",
+      "treatment": "rules",
+      "condition": "Formatting parsed Kubernetes response fields using JSON.stringify does not evaluate those fields as JavaScript or shell code",
+      "prerequisites": [
+        "A valid JSON kubectl response, considered only in the result-formatting flow"
+      ],
+      "tree_sha256": "0d03a7a86e33c9502b7117cd8edcbae77c207c6e80c4fc41382a4631cd2b8561",
+      "report_sha256": "4622a0a408ec532429fe7327faeeb5882467db34fa8b5b967f8b76cbdcc5e640",
+      "candidate_identity": "51d7d349e648b5c76c9bdc211a121eb604d7cb38a5fd55e1393c15fafd6b443b",
+      "matches": [],
+      "rationale": "Source review: the fixed kubectlGet uses execFileSync with a fixed executable and separate argv, without shell:true. The safe formatting projection retains that handling. Other rule alerts concern different behavior.",
+      "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+      "source_evidence": [
+        {
+          "path": "src/utils/sse.ts",
+          "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+        },
+        {
+          "path": "tests/sse.test.ts",
+          "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+        },
+        {
+          "path": "src/tools/helm-operations.ts",
+          "sha256": "45dbb000c8cfbff0fa04d6228c4b9229f6869c53a05a96fb9f29733020a1f5bb"
+        }
+      ],
+      "refresh_basis": {
+        "prior_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+        "source_report": "artifacts/phase22/integration/v22-preparatory-hosted/artifacts/phase22-refresh-preparatory/08-kubernetes-formatting-safe/kubernetes-formatting-safe/report.json",
+        "scanner": {
+          "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+          "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+          "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+        },
+        "input_id": "kubernetes-formatting-safe"
+      }
+    }
+  ],
+  "source_assessment_only": true,
+  "whole_45_execution_pass": false,
+  "basis": "37 retained plus8new preparatory reports, not a pooled execution pass; all named labels/prerequisites/matches preserved."
+}
