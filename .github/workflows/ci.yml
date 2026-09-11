@@ -14,6 +14,10 @@ on:
         description: Run only the separately approved replacement-v5 evaluation
         type: boolean
         default: false
+      phase22_lighthouse_regression:
+        description: Run only the separately approved exposed Lighthouse regression
+        type: boolean
+        default: false
   workflow_call:
 
 permissions:
@@ -25,7 +29,7 @@ concurrency:
 
 jobs:
   phase20-offline:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Phase 20 ${{ matrix.treatment }} verification
     runs-on: ubuntu-latest
     strategy:
@@ -68,7 +72,7 @@ jobs:
           path: ${{ runner.temp }}/phase20-${{ matrix.treatment }}
 
   quality:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Quality (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -142,7 +146,7 @@ jobs:
           uv run --python ${{ matrix.python-version }} pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/runtime-requirements.txt"
 
   build-wheel:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Build canonical distributions
     runs-on: ubuntu-latest
 
@@ -175,7 +179,7 @@ jobs:
           retention-days: 90
 
   distribution:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Wheel (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     needs: build-wheel
@@ -213,7 +217,7 @@ jobs:
         run: python scripts/smoke_wheel.py artifacts dist
 
   docker-demo:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Installed-wheel Docker replay
     runs-on: ubuntu-latest
     needs: build-wheel
@@ -288,7 +292,7 @@ jobs:
           python -m sentinel.report.validate_sarif "${{ runner.temp }}/sentinel-demo-results/report.sarif"
 
   rules-only-isolation:
-    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 }}
+    if: ${{ !inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression }}
     name: Installed-wheel rules-only network isolation
     runs-on: ubuntu-latest
     needs: build-wheel
@@ -323,7 +327,7 @@ jobs:
 
   phase22-refresh-historical_first:
     name: Approved Phase 22 historical_first
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && github.ref == 'refs/heads/phase22/integration' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression && github.ref == 'refs/heads/phase22/integration' }}
     runs-on: ubuntu-latest
     timeout-minutes: 245
     steps:
@@ -368,7 +372,7 @@ jobs:
 
   phase22-refresh-historical_second:
     name: Approved Phase 22 historical_second
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && github.ref == 'refs/heads/phase22/integration' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && !inputs.phase22_fresh_v5 && !inputs.phase22_lighthouse_regression && github.ref == 'refs/heads/phase22/integration' }}
     needs: phase22-refresh-historical_first
     runs-on: ubuntu-latest
     timeout-minutes: 245
@@ -419,7 +423,7 @@ jobs:
 
   phase22-fresh-v5:
     name: Approved Phase 22 replacement-v5 evaluation
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_fresh_v5 && !inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_fresh_v5 && !inputs.phase22_historical && !inputs.phase22_lighthouse_regression && github.ref == 'refs/heads/phase22/integration' }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -476,4 +480,51 @@ jobs:
         with:
           name: phase22-fresh-v5
           path: ${{ runner.temp }}/phase22-fresh-v5
+          if-no-files-found: error
+
+  phase22-lighthouse-regression:
+    name: Approved Phase 22 exposed Lighthouse regression
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_lighthouse_regression && !inputs.phase22_fresh_v5 && !inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Start the internal deadline and reserve upload time
+        run: >-
+          python3 -c 'import os, pathlib, time;
+          pathlib.Path(os.environ["RUNNER_TEMP"], "phase22-lighthouse-deadline").write_text(str(time.monotonic() + 3480))'
+      - name: Check out the approved runner and bindings
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - name: Check out the immutable corrected scanner
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          ref: b8300271baadf41621aeb10fb2f4ce6fb865fd7d
+          path: .phase22-scanner
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: 0.8.22
+      - name: Install locked scanner dependencies
+        working-directory: .phase22-scanner
+        run: uv sync --frozen --extra dev --python 3.12
+      - name: Run the exact approved ten exposed observations
+        working-directory: .phase22-scanner
+        env:
+          PATH: ${{ github.workspace }}/.phase22-scanner/.venv/bin:/usr/local/bin:/usr/bin:/bin
+        run: >-
+          .venv/bin/python -I ../artifacts/phase22/integration/v25-lighthouse-fix/evaluate.py run
+          "${{ runner.temp }}/phase22-lighthouse-regression"
+          "${{ runner.temp }}/phase22-lighthouse-deadline"
+      - name: Retain every attempt, including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: phase22-lighthouse-regression
+          path: ${{ runner.temp }}/phase22-lighthouse-regression
           if-no-files-found: error
