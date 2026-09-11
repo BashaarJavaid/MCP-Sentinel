@@ -46,7 +46,7 @@ def parse_typescript(file: TypeScriptSourceFile, *, deadline: float) -> dict[str
                 capture_output=True,
                 text=True,
                 encoding="utf-8",
-                timeout=min(120.0, max(0.001, deadline - time.monotonic())),
+                timeout=max(0.001, deadline - time.monotonic()),
                 env={
                     **os.environ,
                     "SSL_CERT_FILE": certifi.where(),
@@ -56,7 +56,7 @@ def parse_typescript(file: TypeScriptSourceFile, *, deadline: float) -> dict[str
             )
     except subprocess.TimeoutExpired as error:
         raise InfrastructureError(
-            "static analysis exceeded its 120-second timeout"
+            "static analysis timeout: deadline exceeded"
         ) from error
     except OSError as error:
         raise InfrastructureError(

@@ -104,7 +104,7 @@ def run_flow_rules(
                     process.wait()
     except subprocess.TimeoutExpired as error:
         raise InfrastructureError(
-            "static analysis exceeded its 120-second timeout"
+            "static analysis timeout: deadline exceeded"
         ) from error
     except (OSError, pickle.UnpicklingError, EOFError) as error:
         raise InfrastructureError("static worker communication failed") from error

@@ -1152,7 +1152,25 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-### Current v18 throughput probe at `0b71a29`
+### Current v19 timeout policy
+
+The user approved a uniform **120-second performance target / 300-second static
+maximum** with “okay go ahead with this.” The implementation changes the shared
+static deadline and the TypeScript parser's remaining-budget handling, preserves
+shorter caller deadlines, and checks final coverage/report assembly. It makes no
+speedup claim and changes no detector rules, model budget or dynamic budget.
+
+The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+remain preserved. The 120-second hard completion requirement is prospectively
+revised; future assessments must separate completion within 120 seconds from
+completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+Engineering verification is pending on this candidate; no new corpus run, full
+Linux retry, fresh evaluation or paid call is authorized. A four-observation
+Linux diagnostic proposal will bind the frozen candidate before approval.
+
+[Static timing policy](docs/phase22-timeout-policy.md)
+
+### Historical v18 throughput probe at `0b71a29`
 
 The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
 Run **34536965288** completed **12/12 observations** in an 88-second job;

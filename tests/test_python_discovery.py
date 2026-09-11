@@ -299,7 +299,7 @@ def test_registration_resolution_obeys_shared_static_deadline() -> None:
 
     index = program({"server.py": "def read(p): return p\nserver.add_tool(read)\n"})
     index.deadline = 0
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.tools()
 
 
@@ -316,9 +316,9 @@ def test_warm_resolution_retains_cycle_budgets_and_deadline() -> None:
         index.resolve_in(symbol, "read", frozenset({(id(symbol.node), "read")})) is None
     )
     index.deadline = 0
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.resolve(file, "read")
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.resolve_in(symbol, "read")
 
 
@@ -339,9 +339,9 @@ def test_repeated_class_metadata_keeps_mro_cycle_and_deadline_checks() -> None:
     assert index.instance_method(child, "read") is not None
     assert index.instance_method(child, "read", after=base) is None
     index.deadline = 0
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.plain_instance(child)
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.instance_method(child, "read")
 
 
@@ -384,7 +384,7 @@ def test_discovery_reuses_snapshot_and_retains_unknown_bindings() -> None:
         assert index.tools() == bindings
         assert tuple(index.warnings) == warnings
     index.deadline = 0
-    with pytest.raises(InfrastructureError, match="120-second"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         index.tools()
 
 

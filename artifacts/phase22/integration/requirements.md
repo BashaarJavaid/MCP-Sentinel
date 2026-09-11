@@ -1,6 +1,15 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v18 source-bound audit
+## Current v19 timeout-policy transition
+
+The user approved the 120-second target / 300-second maximum. This changes the
+prospective timing criterion; original failed observations remain unchanged.
+The original 89 rows retain their IDs. The v18 dispositions apply to their
+recorded source; engineering checks and current-source measurement status will
+be rebound in the v19 audit. Timing, fresh evaluation and final acceptance remain
+unmet. No additional corpus run or paid call is approved.
+
+## Historical v18 source-bound audit
 
 All 89 original rows are mapped in `v18-closeout-audit/packet.json`:
 **70 passed, 2 explicitly user-deferred, 17 unresolved**. Six v18 execution

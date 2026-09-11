@@ -57,7 +57,8 @@ from sentinel.static.suppression import apply_inline_suppressions
 from sentinel.static.traversal import collect_static_files
 from sentinel.static.workers import run_flow_rules
 
-STATIC_TIMEOUT_SECONDS = 120
+# A scan may use extended time; 120 seconds remains the performance target.
+STATIC_TIMEOUT_SECONDS = 300
 
 AstDetector = Callable[[StaticContext, RuleRunState], None]
 _AST_DETECTORS: dict[str, AstDetector] = {
@@ -85,7 +86,9 @@ def run_static_scan(
     """Execute every selected Phase 1 static rule without target-code execution."""
 
     started = time.monotonic()
-    scan_deadline = deadline or started + STATIC_TIMEOUT_SECONDS
+    scan_deadline = started + STATIC_TIMEOUT_SECONDS
+    if deadline is not None:
+        scan_deadline = min(deadline, scan_deadline)
     selected = select_rule_ids(configuration.scanner.scanner.rules)
     files = collect_static_files(
         configuration.scan_root,
@@ -205,9 +208,11 @@ def run_static_scan(
     suppressed_findings, suppression_warnings = apply_inline_suppressions(
         files, tuple(findings)
     )
+    coverage = inventory(context, states)
+    _enforce_timeout(scan_deadline)
     duration_ms = round((time.monotonic() - started) * 1000)
     summary = StaticAnalysisSummary(
-        coverage=inventory(context, states),
+        coverage=coverage,
         selected_rule_ids=selected,
         scanned_file_count=files.scanned_file_count,
         ignored_file_count=files.ignored_file_count,
@@ -243,6 +248,7 @@ def run_static_scan(
     for rule_id in selected:
         warnings.extend(states[rule_id].warnings)
     keys = tuple(dict.fromkeys((warning.code, warning.message) for warning in warnings))
+    _enforce_timeout(scan_deadline)
     return StaticScanResult(
         findings=suppressed_findings,
         warnings=tuple(
@@ -271,7 +277,7 @@ def select_rule_ids(tokens: tuple[str, ...]) -> tuple[str, ...]:
 
 def _enforce_timeout(deadline: float) -> None:
     if time.monotonic() > deadline:
-        raise InfrastructureError("static analysis exceeded its 120-second timeout")
+        raise InfrastructureError("static analysis timeout: deadline exceeded")
 
 
 def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:

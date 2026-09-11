@@ -55,6 +55,12 @@ configuration, or target execution. It ignores inactive LLM settings even when
 credentials and endpoint overrides are present. Installation and dependency
 auditing need network access separately.
 
+The Phase 22 integration source allows deterministic static analysis up to 300
+seconds, with a 120-second performance target. Fast scans return immediately;
+expiry remains an incomplete scan. Model review and dynamic budgets are separate.
+See the [timing policy](docs/phase22-timeout-policy.md) for measurement limits and
+the retained failures; this change is not yet a published release.
+
 Optionally run `sentinel init` afterward to generate a deny-by-default
 `sentinel.permissions.yaml`; review scopes before granting them. It never imports
 or executes source and needs no main guard or launch inference. Existing files

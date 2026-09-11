@@ -317,3 +317,91 @@ def test_rule_specific_configuration_is_strict() -> None:
         Sent006Config(public_routes=("/health",))
     with pytest.raises(ValidationError):
         Sent005AllowlistEntry(path="../escape", fingerprint="x", reason=" ")
+
+
+@pytest.mark.parametrize("elapsed", [30.0, 120.0, 120.001, 299.0, 300.001])
+def test_static_budget_allows_extended_time_but_stops_at_hard_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, elapsed: float
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static import engine
+    from sentinel.static.model import RuleRunState, StaticContext
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True, "rules": ["SENT-003"]}
+    )
+    clock = [1000.0]
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: clock[0])
+    monkeypatch.setattr(engine, "run_semgrep", lambda *a, **kw: {})
+    observed: list[float] = []
+
+    def analyze(
+        context: StaticContext, selected: tuple[str, ...]
+    ) -> dict[str, RuleRunState]:
+        observed.append(context.deadline)
+        clock[0] += elapsed
+        return {}
+
+    monkeypatch.setattr(engine, "run_flow_rules", analyze)
+    if elapsed > 300:
+        with pytest.raises(InfrastructureError, match="deadline"):
+            engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
+    else:
+        result = engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
+        assert result.summary.duration_ms == round(elapsed * 1000)
+        assert not result.incomplete
+    assert observed == [1300.0]
+
+
+@pytest.mark.parametrize("deadline", [0.0, 1005.0, 2000.0])
+def test_static_scan_preserves_shorter_deadline_and_caps_longer_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, deadline: float
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static import engine
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True}
+    )
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: 1000.0)
+    seen: list[float] = []
+
+    def stop(*args: object, deadline: float, **kwargs: object) -> dict[str, object]:
+        seen.append(deadline)
+        raise InfrastructureError("deadline captured")
+
+    monkeypatch.setattr(engine, "run_semgrep", stop)
+    with pytest.raises(InfrastructureError, match="deadline"):
+        engine.run_static_scan(configuration, uuid4(), timestamp=NOW, deadline=deadline)
+    assert seen == [min(deadline, 1300.0)]
+
+
+def test_static_report_assembly_cannot_return_success_after_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.report.coverage import StaticCoverage
+    from sentinel.static import engine
+    from sentinel.static.model import RuleRunState, StaticContext
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True, "rules": ["SENT-003"]}
+    )
+    clock = [1000.0]
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: clock[0])
+    monkeypatch.setattr(engine, "run_semgrep", lambda *a, **kw: {})
+    from sentinel.static.coverage import inventory as original
+
+    def inventory(
+        context: StaticContext, states: dict[str, RuleRunState]
+    ) -> StaticCoverage:
+        result = original(context, states)
+        clock[0] = 1300.001
+        return result
+
+    monkeypatch.setattr(engine, "inventory", inventory)
+    with pytest.raises(InfrastructureError, match="deadline"):
+        engine.run_static_scan(configuration, uuid4(), timestamp=NOW)

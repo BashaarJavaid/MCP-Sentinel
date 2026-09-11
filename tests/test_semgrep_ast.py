@@ -43,3 +43,26 @@ def test_semgrep_ast_rejects_parse_failure(tmp_path: Path) -> None:
             TypeScriptSourceFile(path, "broken.ts", path.read_text()),
             deadline=time.monotonic() + 15,
         )
+
+
+@pytest.mark.parametrize("remaining", [15.0, 240.0])
+def test_typescript_parser_uses_remaining_shared_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, remaining: float
+) -> None:
+    import subprocess
+    from typing import Any
+
+    from sentinel.static import semgrep_ast
+
+    monkeypatch.setattr(time, "monotonic", lambda: 1000.0)
+    monkeypatch.setattr(semgrep_ast, "_verify_semgrep_version", lambda: None)
+    observed: list[float] = []
+
+    def parse(*args: Any, **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        observed.append(kwargs["timeout"])
+        return subprocess.CompletedProcess([], 0, '{"Pr": []}', "")
+
+    monkeypatch.setattr(subprocess, "run", parse)
+    file = TypeScriptSourceFile(tmp_path / "source.ts", "source.ts", "const x = 1;")
+    assert parse_typescript(file, deadline=1000.0 + remaining) == {"Pr": []}
+    assert observed == [remaining]

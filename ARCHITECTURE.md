@@ -392,7 +392,7 @@ Phase 22 extends TypeScript discovery using the installed, pinned Semgrep core's
 generic syntax tree and original token locations. The adapter performs source
 parsing only; it never loads a target module, invokes Node, renders templates or
 executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
-shares the existing 120-second static deadline, and malformed source remains a
+shares the 300-second static deadline, and malformed source remains a
 target error. This extension introduces no parser dependency or language target.
 
 Factory registration follows `registerTool` and the legacy
@@ -685,7 +685,10 @@ separate trusted-evidence treatment.
 Phase 22's execution correction indexes SENT-004 prompt sinks before branch
 analysis and reuses each event's sink list across paths. Functions without a
 supported sink cannot produce this rule's finding; source and coverage inventory
-are retained. The 120-second scan deadline and detector selection are unchanged.
+are retained. Detector selection is unchanged. The approved Phase 22 timing
+policy now allows a 300-second shared static deadline, retaining 120 seconds as
+the performance target; historical 120-second failures remain failures. See
+[the timing policy](docs/phase22-timeout-policy.md).
 
 For at least 128 KiB of collected Python/TypeScript source on a multicore host,
 two or more selected SENT-012/014/015/016 traversals run in at most four isolated
@@ -707,7 +710,7 @@ source analysis. It traces tool inputs through top-level same-file named
 helpers, assignments, explicit argument bindings, and returned values. Python
 keyword arguments and simple TypeScript object-field destructuring are supported.
 Constant arguments or helper returns do not establish input-derived execution.
-There is no fixed helper-hop limit; the existing 120-second scan deadline bounds
+There is no fixed helper-hop limit; the shared 300-second scan deadline bounds
 the analysis. Expiry is an infrastructure failure, not a completed clean scan.
 
 Imported helpers, recursion, ambiguous bindings, spreads, dynamic aliases,

@@ -1267,7 +1267,7 @@ def test_execution_traversal_obeys_scan_deadline() -> None:
     from sentinel.static.execution import Summary, emit
     from sentinel.static.model import RuleRunState
 
-    with pytest.raises(InfrastructureError, match="120-second timeout"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         emit(Summary(("value",)), {}, RuleRunState(), deadline=0)
 
 

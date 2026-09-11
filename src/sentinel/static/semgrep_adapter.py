@@ -108,7 +108,7 @@ def run_semgrep(
     for batch in batches:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise InfrastructureError("static analysis exceeded its 120-second timeout")
+            raise InfrastructureError("static analysis timeout: deadline exceeded")
         with tempfile.TemporaryDirectory(prefix="sentinel-semgrep-") as directory:
             temporary_root = Path(directory)
             output = temporary_root / "results.json"
