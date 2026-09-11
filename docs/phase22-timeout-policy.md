@@ -72,3 +72,9 @@ the next proposal must bound each sequential job and the total run budget.
 Fresh evaluation after stabilization, final human acceptance, and complete
 evidence/draft delivery remain required. Phase 22 is not complete. The policy
 approval does not authorize new paid calls, a runner upgrade, merge or release.
+
+## Candidate verification
+
+Candidate `1f3f72f` passes the local full suite (2,194 passed, 36 skipped), all 29
+normal hosted CI jobs and docs. The four-observation diagnostic proposal remains
+unapproved and unexecuted. See the [integration evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).

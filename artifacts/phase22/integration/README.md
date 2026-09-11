@@ -1,22 +1,35 @@
-# Integration evidence, batches 1–47 and closeout audit
+# Integration evidence, batches 1–48 and closeout audit
 
 ## Current v19 timeout policy
 
-The user approved a uniform **120-second performance target / 300-second static
-maximum** with “okay go ahead with this.” The implementation changes the shared
-static deadline and the TypeScript parser's remaining-budget handling, preserves
-shorter caller deadlines, and checks final coverage/report assembly. It makes no
-speedup claim and changes no detector rules, model budget or dynamic budget.
+The approved **120-second performance target / 300-second static maximum** is
+implemented and verified at `1f3f72f`. The same deadline applies to every input;
+fast scans return immediately. The TypeScript parser and source-flow workers use
+the remaining shared budget, shorter caller deadlines are honored, and coverage/
+report assembly checks expiry. No detector rules or model/dynamic budgets change.
 
-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
-remain preserved. The 120-second hard completion requirement is prospectively
-revised; future assessments must separate completion within 120 seconds from
-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
-Engineering verification is pending on this candidate; no new corpus run, full
-Linux retry, fresh evaluation or paid call is authorized. A four-observation
-Linux diagnostic proposal will bind the frozen candidate before approval.
+Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
+branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
+12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
+pass. Six production requests regenerate/replay with **zero paid calls**; Git
+runtime components/image remain compatible with the retained incomplete campaigns.
+Initial failing deadline regressions, lint/type-check corrections and all earlier
+failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
+prior exposed detections remain source-bound regressions with deadline-only
+compatibility explained in `v19-source-verification.json`.
 
-Policy: `docs/phase22-timeout-policy.md`.
+**No new corpus timing run has occurred.** The original Linux result remains
+15/25 development complete, ten Meta timeouts at 120 seconds and both historical
+batches skipped. The user approved revising the prospective hard timing criterion
+to 300 seconds; completion within the original 120-second target must still be
+reported separately. This is no speedup or completed timing-gate claim.
+
+`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
+two named slow Meta inputs twice each, four native observations, 300 seconds each,
+one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
+incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
+human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
+Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
 
 ## Historical v18 throughput probe at `0b71a29`
 
@@ -411,6 +424,15 @@ from failed whole development/historical timing gates. Both v10 follow-up
 proposals are prepared and unapproved; no automatic dispatch is authorized.
 
 ## Evidence archives
+
+Batch 48 is sealed: **356 files**, SHA-256
+`595aee05cda6debf4aab85accae532156a1e830b4c6f0272e21ec2a1a19015e9`. Every member and all 47 prior archives are verified. Restore
+after batches 1–47 in separate staging using `evidence-v48.json`, requiring existing
+destinations to match identical bytes or their recorded previous hash. Stop on
+unexpected conflicts. This batch retains the policy approval, candidate, all
+local/hosted checks and artifacts, original regression failures and corrections,
+production replay/runtime compatibility, prepared diagnostic and helper sources.
+Final audit/documentation/delivery bindings are tracked directly after sealing.
 
 Batch 47 is sealed: **446 files**, SHA-256
 `8b458443e193d91b1780c252877107e38392dac05683b58fbac21b167ef678d6`. Every member and all 46 prior archive hashes are verified.

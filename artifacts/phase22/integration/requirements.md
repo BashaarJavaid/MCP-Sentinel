@@ -2,12 +2,14 @@
 
 ## Current v19 timeout-policy transition
 
-The user approved the 120-second target / 300-second maximum. This changes the
-prospective timing criterion; original failed observations remain unchanged.
-The original 89 rows retain their IDs. The v18 dispositions apply to their
-recorded source; engineering checks and current-source measurement status will
-be rebound in the v19 audit. Timing, fresh evaluation and final acceptance remain
-unmet. No additional corpus run or paid call is approved.
+All 89 original requirements are mapped in `v19-closeout-audit/packet.json`:
+**70 passed, 2 explicitly user-deferred, 17 unresolved**. R63 keeps its ID and
+records its original wording plus the user-approved prospective 300-second
+maximum/120-second target. Original failed measurements remain unchanged.
+All 33 added rows retain **32 passed, 1 unresolved** (historical v14 retention).
+Five v19 rows cover policy, deadline controls, verification, proposal and delivery.
+The diagnostic itself is not approved or run. No current-source timing or fresh
+evaluation pass, paid call or human acceptance is inferred.
 
 ## Historical v18 source-bound audit
 
