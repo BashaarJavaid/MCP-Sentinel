@@ -1,0 +1,47 @@
+{
+  "basis_sha256": "cc78e9784c967e57a8d4d3659d54810737bb5aaf1cb76a68ebe46ff4ee3c401b",
+  "source_metadata": {
+    "development": {
+      "manifest_path": "artifacts/phase22/corpus-review/manifest.json",
+      "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+      "input_count": 25,
+      "declared_languages": {
+        "python": 15,
+        "typescript": 10
+      },
+      "typescript_families": [
+        "integsec-calculator-poisoning",
+        "mastra-directory-fallback"
+      ]
+    },
+    "historical": {
+      "manifest_path": "tests/evals/phase20/manifest.yaml",
+      "manifest_sha256": "f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682",
+      "input_count": 45,
+      "declared_languages": {
+        "python": 31,
+        "typescript": 14
+      },
+      "typescript_families": [
+        "filesystem-prefix",
+        "kubernetes-shell",
+        "mobile-output"
+      ]
+    }
+  },
+  "changed_product_files": [
+    "src/sentinel/static/engine.py",
+    "src/sentinel/static/rules/sent015.py",
+    "src/sentinel/static/typescript_discovery.py",
+    "src/sentinel/static/typescript_path_flow.py",
+    "src/sentinel/static/typescript_registration_flow.py"
+  ],
+  "assessment": "The correction changes shared TypeScript discovery/registration/path and URL flows, plus a narrow report qualifier. The development batch contains10 TypeScript inputs and the historical batch14. Earlier three exposed SSRF families are TypeScript. Therefore current full ordered-report/condition compatibility is not claimed by blanket byte equality or by the passing synthetic suite. Approved1f3f72f whole25+45+45 results remain historical passes. A separately justified measurement scope is required where current-source compatible reuse cannot be established; do not pool old Python results with new TypeScript results into a whole-batch pass. The immediate prepared Lighthouse ten-observation gate is independent of those remaining decisions.",
+  "scope": "Source metadata and code diff only; no scanner, target or comparator execution.",
+  "new_corpus_observations": 0,
+  "paid_calls": 0,
+  "corrected_scanner": "f85a90f9ba2d1c43019e8505b977d57f3476a9c9",
+  "prior_scope_sha256": "76334581f49e90e8c228865cebb622fd8d0a8464435197a12a742af56038b6a0",
+  "alias_correction_sha256": "bb2ccada94fbaed9e2ba06ccc66334e030fc3c5ecf69199c05713e21e2ceacc6",
+  "final_correction_assessment": "The new two-line change only adds a narrow fact for exact IPv6 loopback allowlist literals; it does not establish current-source compatibility of the earlier broader TypeScript changes. All old timing/three exposed-family results retain actualsources1f3f72f/2ac39aa. Currentf85a90f has no corpus observation. Latest4a2359d regression consumed3 observations (two vulnerable hits,one fixed qualification failure),closed7 unstarted,and has0remaining."
+}

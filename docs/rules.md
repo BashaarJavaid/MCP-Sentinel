@@ -49,6 +49,8 @@ retaining the broader finding. Ordered prefix-table guards require a known array
 and at most 32 iterations. Indexed aliases, unknown mutations, unresolved loop
 control, swallowed failures and checks on another URL cannot establish this
 qualification. This does not imply loopback, DNS, redirect or IPv6 protection.
+An allowlist branch restricted to exact `::1` or `[::1]` hostname literals can
+preserve the narrower IPv4 link-local exclusion at a helper's normal-return join.
 
 At `2ac39aa`, the full exposed SearXNG source retains this qualifier on both
 fixed variants. Receiver invalidations stay local to mutually exclusive `if`

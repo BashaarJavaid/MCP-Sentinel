@@ -1152,7 +1152,7 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
-### Current loopback qualification correction under verification
+### Current loopback qualification correction and regression checkpoint
 
 The approved Lighthouse regression at scanner **`4a2359d`**, workflow **`b53581d`**,
 run **34641101185**, detects both correlated vulnerable variants, then **fails**
@@ -1167,7 +1167,17 @@ The minimal correction at **`f85a90f`** preserves the narrow IPv4 link-local fac
 on a helper's IPv6 loopback equality return. It adds two shared URL-analysis lines;
 broader SSRF candidates remain visible. Six synthetic checks cover loopback and
 unsafe literal exceptions, compound range iteration, URL parsing and DNS branches.
-All **518 affected tests pass**. Full engineering verification is in progress.
+All **518 affected tests pass**. Full local and all 12 hosted suites pass
+**2,242 tests / 36 skips**, with **89.76%** local branch coverage and
+**89.75–89.78%** hosted coverage. All **29 normal jobs** and documentation
+pass at workflow **`439c3fe`**
+([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34642059839),
+[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34642059977)).
+Wheel/sdist source members match actual Git blobs. Ruff/format/strict mypy,
+lock/schema/notices/offline artifact checks pass. Six production requests regenerate
+and checked-replay with unchanged fingerprints/request hashes and zero paid calls.
+The owned Docker demo completes 20/20 attempts with 14 findings and cleanup.
+Git runtime/image bindings remain unchanged; its campaigns remain incomplete.
 No corpus observation has occurred at this corrected scanner.
 
 The next exact proposal is **unapproved**:
@@ -1185,6 +1195,12 @@ miss and nine unstarted closed. These later exposed corrections cannot establish
 fresh generalization or independent human review. Earlier historical timing and
 three exposed-family passes retain their actual `1f3f72f` / `2ac39aa` sources;
 current-source compatibility and fresh-result disposition remain unresolved.
+
+The **89 original rows remain 82 passed, two user-deferred and five unresolved**.
+The **78 added rows are 71 passed and seven unresolved**, including five closed
+historical failed gates. No stopped budget is reopened. The original held-out result
+remains 10 completed, 10 unsupported and five incomplete, with zero hits among
+four completed vulnerable inputs out of ten vulnerable inputs total.
 
 **Phase 22 remains incomplete**, pending the remaining technical gates and explicit
 human technical acceptance. Pilots and the full paid benchmark remain user-deferred;

@@ -1,0 +1,122 @@
+{
+  "scanner": "f85a90f9ba2d1c43019e8505b977d57f3476a9c9",
+  "checks": [
+    {
+      "label": "v29-full-suite",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--junitxml=artifacts/phase22/integration/v29-full-suite-junit.xml",
+        "--cov-report=json:artifacts/phase22/integration/v29-full-suite-coverage.json"
+      ],
+      "source": "f85a90f9ba2d1c43019e8505b977d57f3476a9c9",
+      "exit_code": 0,
+      "evidence_sha256": "1545441d4ddf60b0b5bb5aadcd43aff147a1dd6f54d3e6912396299c331e9bb6"
+    },
+    {
+      "label": "v29-ruff",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "1e7f71cdec572a28cf7ce7155a37576271fac009c9083726b3e62add7d8b2e28"
+    },
+    {
+      "label": "v29-format",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "035c7f15a56cb0563faf41fb11e076943e85fad45245c09749df02f9a5bea392"
+    },
+    {
+      "label": "v29-mypy",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "mypy"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "c7e1b3545786a1ca4b2c9713eb0f9606dbded50671540d24501dbfde2839a98c"
+    },
+    {
+      "label": "v29-lock-corrected",
+      "command": [
+        "uv",
+        "lock",
+        "--check",
+        "--offline"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "4704791acc20debb9941ffa804a047d92e5e144ca0dcd9b6b588322fe5f6f80c"
+    },
+    {
+      "label": "v29-schema",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "sentinel.schema",
+        "check"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "ce19cff2a7df137500d231c0317874a6979f62d0b0d4b7b59d47169c7394e0d3"
+    },
+    {
+      "label": "v29-notices",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "scripts/generate_third_party_notices.py",
+        "--check"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "af9a2b6a8a85a8f6fc9ac0f2e73125aa9ebde9e203536eb6801beb1138146e0c"
+    },
+    {
+      "label": "v29-artifacts",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "-m",
+        "scripts.generate_phase5_artifacts",
+        "--check"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "23cfc2ed4fc89c304065c6d5a06a123b96fe5f5c7ecab5efe4c67a03225be007"
+    },
+    {
+      "label": "v29-production-capture",
+      "command": [
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+        "/private/tmp/phase22-v9-capture-production.py",
+        "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+        "v29-production-capture-revalidation"
+      ],
+      "source": "439c3fe658d30ebbc6cf6e21296261a38a6a3e92",
+      "exit_code": 0,
+      "evidence_sha256": "bbbbe3e134fdc201641534a92bd583ae4fada8dc294e67b6c2e2e42a3770438d"
+    }
+  ],
+  "full_suite": {
+    "passed": 2242,
+    "skipped": 36,
+    "branch_coverage_percent": 89.76411120471778
+  },
+  "source_binding": "local-source-binding.json",
+  "new_paid_calls": 0
+}
