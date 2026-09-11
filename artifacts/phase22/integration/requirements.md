@@ -1,6 +1,15 @@
 # Consolidated Phase 22 requirement checklist
 
-## Current v19 timeout-policy transition
+## Current v20 diagnostic audit
+
+All 89 original rows are mapped in `v20-closeout-audit/packet.json`: **70 passed,
+2 explicitly user-deferred, 17 unresolved**. All 39 added rows retain **38 passed,
+1 unresolved** (historical v14 retention). Six new rows cover the approved
+diagnostic, supervisor, verification, full-sequence proposal and delivery.
+The four diagnostic observations pass; full25+45+45, fresh evaluation and final
+human acceptance remain unmet. No paid calls.
+
+## Historical v19 timeout-policy transition
 
 All 89 original requirements are mapped in `v19-closeout-audit/packet.json`:
 **70 passed, 2 explicitly user-deferred, 17 unresolved**. R63 keeps its ID and

@@ -8,6 +8,10 @@ bounded native correction gates at `2ac39aa`. A new post-stabilization fresh
 freeze/evaluation remains separately gated. See the
 [current implementation status](phase22-implementation-status.md).
 
+The four approved Meta diagnostic observations at `1f3f72f` pass within the
+300-second maximum with ordered report equality. These are existing development
+inputs. Full 25 + 45 + 45 and a new fresh evaluation remain separately gated.
+
 ## Historical proposal
 
 **Status: prepared and independently source-reviewed; user freeze approval pending.**

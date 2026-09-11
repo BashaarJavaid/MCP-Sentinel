@@ -55,14 +55,15 @@ batches were skipped. Those results remain unchanged. The successful Stage 0
 probe at `0b71a29` failed its prospective throughput premise; no partitioning
 or micro-optimization is included in this policy change.
 
-The first proposed diagnostic is the two named slow Meta inputs, each twice:
+The approved diagnostic covered the two named slow Meta inputs, each twice:
 `meta-image-ssrf-vulnerable` and `meta-operator-fallback-fixed-mutation`.
-It would allow four native observations at 300 seconds each in one standard
-Linux job, with zero paid calls, profiles, target execution or retries. Its
-exact source-bound proposal is prepared separately before requesting approval.
-No new corpus measurement is authorized merely by this document.
+Run 34550284556 completed all four native observations within 300 seconds in one
+standard Linux job; 0/4 met 120 seconds. Reports matched retained references
+and repeats in their entirety and order. Zero paid calls, profiles, target
+execution or retries occurred. The approval and budget are consumed; this
+document does not authorize additional runs.
 
-If the diagnostic passes, the entire 25 + 45 + 45 sequence remains a separately
+After this diagnostic pass, the entire 25 + 45 + 45 sequence remains a separately
 approved gate, with its original detection conditions and repeat equivalence.
 Its revised timing requirement is completion within 300 seconds per input,
 with the count meeting the 120-second target reported separately. The former
@@ -76,5 +77,6 @@ approval does not authorize new paid calls, a runner upgrade, merge or release.
 ## Candidate verification
 
 Candidate `1f3f72f` passes the local full suite (2,194 passed, 36 skipped), all 29
-normal hosted CI jobs and docs. The four-observation diagnostic proposal remains
-unapproved and unexecuted. See the [integration evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).
+normal hosted CI jobs and docs. Workflow candidate `71906a7` also passes fresh normal
+CI/docs; its scanner bytes equal `1f3f72f`. The four-observation diagnostic passes,
+while the full 115-observation proposal is unapproved and unexecuted. See the [integration evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).
