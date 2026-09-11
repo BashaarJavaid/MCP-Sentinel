@@ -1187,6 +1187,22 @@ because it cannot fill the unchanged SENT-015 slot. The new exact evaluation
 proposal is **unapproved and unevaluated**: 10 native plus five Semgrep observations,
 one standard Linux 90-minute job, 120-second target/300-second whole-input maximum,
 zero retries, target executions or paid calls. No v4 or historical budget transfers.
+
+Current preparation CI **34578515990** and docs **34578515965** pass at
+**`e1ab15c`**: all **29 normal jobs**, all **12 quality suites with
+2,194 passed / 36 skipped**, and three optional measurement jobs skipped.
+CI checkout is synthetic merge `c044a1a`, whose complete tree equals `e1ab15c`.
+Hosted branch coverage is **89.67–89.69%**; wheel/sdist source members
+are byte-verified against that Git revision. The earlier `1942760` CI
+retains 28 successful jobs and one cancelled final hook job; all its
+12 test suites completed, but it is **not** a whole CI pass.
+The new 56-row added-scope audit retains three historical failed checkpoints
+with budgets closed or never approved; its other 53 rows pass. The original 89-row audit
+remains 84 passed, two user-deferred and three unresolved. Zero fresh
+observations or additional paid calls. Exact source-only preparation,
+novelty, approval and execution-proposal bindings are retained; evaluation
+and technical acceptance remain unapproved.
+
 Final human technical acceptance has not been requested. Paid benchmark/pilots
 remain deferred, Phase 21 incomplete and Phase 24/15 unchanged.
 

@@ -15,3 +15,7 @@ Source research and reproducible preparation helpers are retained in
 `../v23-fresh-v4/`; their names preserve this turn's prior preparation history.
 The rejected Git source candidate is retained in `../v23-rejected-git-source/`.
 No target imports, builds, dependencies, browser or scans ran during curation.
+
+The active source preparation helpers are `../v23-fresh-v4/download-lighthouse-source.py`
+and `../v23-fresh-v4/curate-lighthouse.py`. `prepare-v5-source.py` records the
+rejected Git research and is historical; it is not the Lighthouse preparation path.
