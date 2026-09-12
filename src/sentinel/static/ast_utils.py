@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 from dataclasses import dataclass
 from pathlib import Path
+from weakref import WeakKeyDictionary
 
 from sentinel.finding import SourceRange
 from sentinel.static.model import ParsedPythonFile, StaticMatch
@@ -15,6 +16,7 @@ class ToolRegion:
     name: str
     function: ast.AsyncFunctionDef | ast.FunctionDef
     node: ast.AST
+    registration_decorator: ast.AST | None = None
 
 
 def qualified_name(node: ast.AST) -> str | None:
@@ -66,14 +68,14 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
                             and isinstance(keyword.value.value, str)
                         ):
                             tool_name = keyword.value.value
-                regions.append(ToolRegion(tool_name, node, node))
+                regions.append(ToolRegion(tool_name, node, node, decorator))
             if name and name.endswith(".call_tool"):
                 parameters = node.args.posonlyargs + node.args.args
                 selector = parameters[0].arg if parameters else "name"
                 for branch in scope_nodes(node):
                     literal = _dispatcher_literal(branch, selector)
                     if literal is not None:
-                        regions.append(ToolRegion(literal, node, branch))
+                        regions.append(ToolRegion(literal, node, branch, decorator))
                     elif (
                         isinstance(branch, ast.Match)
                         and isinstance(branch.subject, ast.Name)
@@ -86,12 +88,21 @@ def discover_tool_regions(file: ParsedPythonFile) -> tuple[ToolRegion, ...]:
                                     qualified_name(case.pattern.value) or ""
                                 )
                                 if literal is not None:
-                                    regions.append(ToolRegion(literal, node, case))
+                                    regions.append(
+                                        ToolRegion(literal, node, case, decorator)
+                                    )
     return tuple(regions)
+
+
+_SCOPES: WeakKeyDictionary[ast.AST, tuple[ast.AST, ...]] = WeakKeyDictionary()
 
 
 def scope_nodes(node: ast.AST) -> tuple[ast.AST, ...]:
     """Walk one lexical body, excluding nested function/class implementation."""
+    # Scanner ASTs are immutable; release cached walks with their source snapshot.
+    cached = _SCOPES.get(node)
+    if cached is not None:
+        return cached
     pending = list(reversed(list(ast.iter_child_nodes(node))))
     result: list[ast.AST] = []
     while pending:
@@ -101,7 +112,9 @@ def scope_nodes(node: ast.AST) -> tuple[ast.AST, ...]:
             current, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
         ):
             pending.extend(reversed(list(ast.iter_child_nodes(current))))
-    return tuple(result)
+    cached = tuple(result)
+    _SCOPES[node] = cached
+    return cached
 
 
 def discover_prompt_functions(

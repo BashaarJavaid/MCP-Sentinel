@@ -6,15 +6,18 @@ import ast
 import hashlib
 import json
 import re
+from itertools import islice, zip_longest
 from pathlib import Path
 
-from sentinel.errors import InfrastructureError
+from sentinel.config import resolve_within_root
+from sentinel.errors import ConfigurationError, InfrastructureError, TargetError
 from sentinel.finding import (
     ContractModel,
     DynamicEvidence,
     FileLocation,
     Finding,
     NonEmptyString,
+    StaticEvidence,
     proof_identity,
     runtime_evidence,
 )
@@ -47,6 +50,7 @@ class FindingContext(ContractModel):
     finding_id: str
     blocks: tuple[ContextBlock, ...]
     context_hash: NonEmptyString
+    omitted_flow_locations: tuple[FileLocation, ...] = ()
 
     def contains(self, path: str, start_line: int, end_line: int) -> bool:
         return any(
@@ -57,10 +61,123 @@ class FindingContext(ContractModel):
 
 
 def build_finding_context(root: Path, finding: Finding) -> FindingContext:
+    context = _base_finding_context(root, finding)
+    if not isinstance(finding.evidence, StaticEvidence) or not isinstance(
+        finding.location, FileLocation
+    ):
+        return context
+    locations = finding.evidence.flow_locations
+    if all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in locations
+    ):
+        return context
+    anchors = tuple(
+        dict.fromkeys(
+            (item.path, item.range.start_line)
+            for item in (finding.location, *locations)
+        )
+    )
+    bounded_anchors = anchors[:160]
+    if len(anchors) > 160:
+        by_file: dict[str, list[tuple[str, int]]] = {}
+        for anchor in anchors:
+            by_file.setdefault(anchor[0], []).append(anchor)
+        bounded_anchors = tuple(
+            islice(
+                (
+                    anchor
+                    for row in zip_longest(*by_file.values())
+                    for anchor in row
+                    if anchor is not None
+                ),
+                160,
+            )
+        )
+    sources: dict[str, list[str]] = {}
+    selected: dict[str, set[int]] = {}
+    for path, line in bounded_anchors:
+        if path not in sources:
+            try:
+                sources[path] = _source_lines(_read_source(root, path))
+            except InfrastructureError:
+                continue
+        if 1 <= line <= len(sources[path]):
+            selected.setdefault(path, set()).add(line)
+    remaining = 160 - sum(map(len, selected.values()))
+    for distance in range(1, 41):
+        for path, line in bounded_anchors:
+            if path not in selected:
+                continue
+            for nearby in (line - distance, line + distance):
+                if (
+                    remaining
+                    and 1 <= nearby <= len(sources[path])
+                    and nearby not in selected[path]
+                ):
+                    selected[path].add(nearby)
+                    remaining -= 1
+        if remaining == 0:
+            break
+    blocks = []
+    for path, numbers in selected.items():
+        ordered = sorted(numbers)
+        start = end = ordered[0]
+        for line in (*ordered[1:], -1):
+            if line == end + 1:
+                end = line
+                continue
+            role = (
+                "primary"
+                if path == finding.location.path
+                and start <= finding.location.range.start_line <= end
+                else "resolved_flow"
+            )
+            blocks.append(_block(path, sources[path], start, end, role))
+            start = end = line
+    omitted = tuple(
+        item
+        for item in locations
+        if not any(
+            block.path == item.path
+            and block.start_line
+            <= item.range.start_line
+            <= item.range.end_line
+            <= block.end_line
+            for block in blocks
+        )
+    )
+    return _finish_context(finding, tuple(blocks), omitted=omitted)
+
+
+def _read_source(root: Path, relative: str) -> str:
+    from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
+
+    try:
+        path = resolve_within_root(root, relative)
+        if not path.is_file() or path.stat().st_size > MAX_STATIC_FILE_BYTES:
+            raise InfrastructureError(
+                f"GPT source is not a bounded regular file: {relative}"
+            )
+        return path.read_text(encoding="utf-8")
+    except (ConfigurationError, TargetError, OSError, UnicodeDecodeError) as error:
+        raise InfrastructureError(
+            f"cannot construct GPT context for {relative}: {error}"
+        ) from error
+
+
+def _source_lines(source: str) -> list[str]:
+    # read_text normalizes CRLF/CR; Unicode separators inside strings are not lines.
+    return source.removesuffix("\n").split("\n") if source else []
+
+
+def _base_finding_context(root: Path, finding: Finding) -> FindingContext:
     if not isinstance(finding.location, FileLocation):
         evidence_text = sanitize_text(
             json.dumps(
-                proof_identity(finding.evidence)
+                [proof_identity(item) for item in runtime_evidence(finding)]
+                if len(runtime_evidence(finding)) > 1
+                else proof_identity(finding.evidence)
                 if isinstance(finding.evidence, DynamicEvidence)
                 and finding.evidence.proof is not None
                 else finding.evidence.model_dump(mode="json", exclude={"proof"}),
@@ -83,15 +200,14 @@ def build_finding_context(root: Path, finding: Finding) -> FindingContext:
             ),
         )
     path = root / finding.location.path
-    try:
-        source = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError) as error:
-        raise InfrastructureError(
-            f"cannot construct GPT context for {finding.location.path}: {error}"
-        ) from error
-    lines = source.splitlines()
+    source = _read_source(root, finding.location.path)
+    lines = _source_lines(source)
     target_line = finding.location.range.start_line
-    if path.suffix in {".ts", ".mts", ".cts"}:
+    if finding.location.range.end_line > len(lines):
+        raise InfrastructureError(
+            f"GPT finding location is outside source: {finding.location.path}"
+        )
+    if path.suffix != ".py":
         start, end = _centered_window(
             1, max(1, len(lines)), max(1, len(lines)), 80, focus=target_line
         )
@@ -161,10 +277,15 @@ def sanitize_text(value: str) -> str:
 
     sanitized = value
     for pattern in _SECRET_PATTERNS:
-        sanitized = pattern.sub(SECRET_PLACEHOLDER, sanitized)
+        sanitized = pattern.sub(
+            lambda match: (
+                SECRET_PLACEHOLDER + "".join(re.findall(r"\r\n|\r|\n", match.group()))
+            ),
+            sanitized,
+        )
     sanitized = _POSIX_ABSOLUTE.sub(PATH_PLACEHOLDER, sanitized)
     sanitized = _WINDOWS_ABSOLUTE.sub(PATH_PLACEHOLDER, sanitized)
-    if sanitized.count("\n") != value.count("\n"):
+    if any(sanitized.count(char) != value.count(char) for char in ("\r", "\n")):
         raise InfrastructureError("unsafe GPT redaction changed line structure")
     verification = sanitized.replace(SECRET_PLACEHOLDER, "")
     if any(pattern.search(verification) for pattern in _SECRET_PATTERNS):
@@ -187,7 +308,10 @@ def _block(
 
 
 def _finish_context(
-    finding: Finding, blocks: tuple[ContextBlock, ...]
+    finding: Finding,
+    blocks: tuple[ContextBlock, ...],
+    *,
+    omitted: tuple[FileLocation, ...] = (),
 ) -> FindingContext:
     if isinstance(finding.location, FileLocation) and runtime_evidence(finding):
         text = sanitize_text(
@@ -209,11 +333,22 @@ def _finish_context(
             ),
         )
     payload = [block.model_dump(mode="json") for block in blocks]
+    if omitted:
+        payload.append(
+            {
+                "omitted_flow_locations": [
+                    item.model_dump(mode="json") for item in omitted
+                ]
+            }
+        )
     digest = hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
     return FindingContext(
-        finding_id=str(finding.finding_id), blocks=blocks, context_hash=digest
+        finding_id=str(finding.finding_id),
+        blocks=blocks,
+        context_hash=digest,
+        omitted_flow_locations=omitted,
     )
 
 

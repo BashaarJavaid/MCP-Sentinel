@@ -159,3 +159,323 @@ def test_custom_construction_does_not_establish_registered_method(
     )
     assert not index.tools()
     assert index.warnings
+
+
+def test_nested_registered_handler_resolves_lexical_helper() -> None:
+    index = program(
+        {
+            "server.py": "def factory():\n"
+            "    def helper(value): return open(value)\n"
+            "    @server.tool()\n"
+            "    def read(path): return helper(path)\n"
+            "    return read\n"
+        }
+    )
+    tool = index.tools()[0]
+    helper = index.resolve_in(tool.handler, "helper")
+    assert helper is not None and helper.name == "factory.helper"
+    assert isinstance(helper.node, ast.FunctionDef)
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        "helper = replacement",
+        "def helper(value): return value",
+    ],
+)
+def test_ambiguous_nested_helper_is_unresolved(replacement: str) -> None:
+    index = program(
+        {
+            "server.py": "def helper(value): return value\n"
+            "def factory():\n"
+            "    def helper(value): return open(value)\n"
+            "    " + replacement + "\n"
+            "    @server.tool()\n"
+            "    def read(path): return helper(path)\n"
+        }
+    )
+    assert index.resolve_in(index.tools()[0].handler, "helper") is None
+
+
+def test_nested_registration_and_returned_handler_alias() -> None:
+    index = program(
+        {
+            "server.py": "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    alias = read\n"
+            '    server.add_tool(alias, name="nested")\n'
+            "    return alias\n"
+            "handler = factory()\n"
+            'server.add_tool(handler, name="returned")\n'
+        }
+    )
+    tools = index.tools()
+    assert {t.name for t in tools} == {"nested", "returned"}
+    assert all(t.handler.name == "factory.read" for t in tools)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "return handler",
+        "if choice: return replacement\n    return read",
+        "return callback",
+    ],
+)
+def test_factory_ambiguous_or_recursive_returns_stay_unresolved(body: str) -> None:
+    index = program(
+        {
+            "server.py": "def factory(callback=None, choice=False):\n"
+            "    def read(path): return open(path)\n"
+            "    " + body + "\n"
+            "handler = factory()\nserver.add_tool(handler)\n"
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "@dataclass\nclass Definition:\n    fn: object\n",
+        "@dataclass\nclass Base:\n    fn: object\n"
+        "@dataclass\nclass Definition(Base):\n    pass\n",
+    ],
+)
+def test_factory_definitions_follow_field_to_actual_registration(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "definitions.py": "from dataclasses import dataclass\n" + constructor,
+            "server.py": "from definitions import Definition\n"
+            "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    return [Definition(fn=read)]\n"
+            "register(factory())\n",
+        }
+    )
+    tools = index.tools()
+    assert len(tools) == 1
+    assert tools[0].handler.name == "factory.read"
+    assert isinstance(tools[0].registration.node, ast.Call)
+    assert tools[0].registration.node.lineno == 4
+
+
+@pytest.mark.parametrize(
+    "constructor",
+    [
+        "class Definition:\n    fn: object\n",
+        "@dataclass(init=False)\nclass Definition:\n    fn: object\n",
+        "@dataclass\nclass Definition:\n    fn: object\n"
+        "    def __post_init__(self): self.fn = replacement\n",
+    ],
+)
+def test_definition_annotation_or_custom_construction_is_not_binding(
+    constructor: str,
+) -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            + constructor
+            + "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def read(path): return open(path)\n"
+            "register([Definition(fn=read)])\n"
+        }
+    )
+    assert not index.tools()
+    assert index.warnings
+
+
+def test_registration_resolution_obeys_shared_static_deadline() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program({"server.py": "def read(p): return p\nserver.add_tool(read)\n"})
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.tools()
+
+
+def test_warm_resolution_retains_cycle_budgets_and_deadline() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program({"server.py": "def read(p): return p\n"})
+    file = index.files[0]
+    symbol = index.resolve(file, "read")
+    assert symbol is not None
+    assert index.resolve_in(symbol, "read") == symbol
+    assert index.resolve(file, "read", frozenset({("server.py", "read")})) is None
+    assert (
+        index.resolve_in(symbol, "read", frozenset({(id(symbol.node), "read")})) is None
+    )
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.resolve(file, "read")
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.resolve_in(symbol, "read")
+
+
+def test_repeated_class_metadata_keeps_mro_cycle_and_deadline_checks() -> None:
+    from sentinel.errors import InfrastructureError
+
+    index = program(
+        {
+            "server.py": "class Base:\n    def read(self): pass\n"
+            "class Child(Base): pass\n"
+        }
+    )
+    base = index.resolve(index.files[0], "Base")
+    child = index.resolve(index.files[0], "Child")
+    assert base is not None and child is not None
+    assert index.plain_instance(child)
+    assert not index.plain_instance(child, frozenset({("server.py", "Child")}))
+    assert index.instance_method(child, "read") is not None
+    assert index.instance_method(child, "read", after=base) is None
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.plain_instance(child)
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.instance_method(child, "read")
+
+
+def test_partially_resolved_factory_keeps_unknown_registration_visible() -> None:
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass\n"
+            "@dataclass\nclass Definition:\n    fn: object\n"
+            "def register(definitions):\n"
+            "    for definition in definitions:\n"
+            "        server.add_tool(fn=definition.fn)\n"
+            "def factory():\n"
+            "    def read(path): return open(path)\n"
+            "    return [Definition(fn=read), dynamic_definition()]\n"
+            "register(factory())\n"
+        }
+    )
+    assert len(index.tools()) == 1
+    assert any(w.code == "static_handler_unresolved" for w in index.warnings)
+
+
+def test_discovery_reuses_snapshot_and_retains_unknown_bindings() -> None:
+    from unittest.mock import patch
+
+    from sentinel.errors import InfrastructureError
+
+    index = program(
+        {
+            "server.py": "def read(path): return open(path)\n"
+            "server.add_tool(read)\nserver.add_tool(missing)\n"
+        }
+    )
+    bindings = index.tools()
+    warnings = tuple(index.warnings)
+    assert bindings and warnings
+    with patch(
+        "sentinel.static.discovery.discover_tool_regions",
+        side_effect=AssertionError("repeated source discovery"),
+    ):
+        assert index.tools() == bindings
+        assert tuple(index.warnings) == warnings
+    index.deadline = 0
+    with pytest.raises(InfrastructureError, match="deadline"):
+        index.tools()
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "reader: ClassVar[object]",
+        "reader: InitVar[object]",
+        "reader: object = []",
+        "reader: object\n    @property\n    def reader(self): return replacement",
+    ],
+)
+def test_unsupported_dataclass_layout_is_not_callback_binding(field: str) -> None:
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.registration_flow import RegistrationFlow
+
+    index = program(
+        {
+            "server.py": "from dataclasses import dataclass, InitVar\n"
+            "from typing import ClassVar\n"
+            "@dataclass\nclass Spec:\n    " + field + "\n"
+        }
+    )
+    node = index.files[0].tree.body[-1]
+    assert RegistrationFlow(index).fields(Symbol(index.files[0], "Spec", node)) is None
+
+
+@pytest.mark.parametrize(
+    ("declaration", "reference"),
+    [
+        ("from .helpers import read as selected", "selected"),
+        ("from . import helpers as selected", "selected.read"),
+        ("import package.helpers as selected", "selected.read"),
+    ],
+)
+@pytest.mark.parametrize("replaced", [False, True])
+def test_function_local_import_has_its_own_binding(
+    declaration: str, reference: str, replaced: bool
+) -> None:
+    index = program(
+        {
+            "package/server.py": "def selected(path): return path\n"
+            "def handler(path):\n"
+            f"    {declaration}\n"
+            + ("    selected = unknown\n" if replaced else "")
+            + f"    return {reference}(path)\n",
+            "package/helpers.py": "def read(path): return open(path)\n",
+        }
+    )
+    owner = index.resolve(index.files[0], "handler")
+    assert owner is not None
+    resolved = index.resolve_in(owner, reference)
+    if replaced:
+        assert resolved is None
+    else:
+        assert resolved is not None
+        assert resolved.file.relative_path == "package/helpers.py"
+        assert resolved.name == "read"
+
+
+@pytest.mark.parametrize("body", ["return open(path)", "return 'safe'"])
+def test_unobserved_module_forward_declaration_uses_later_implementation(
+    body: str,
+) -> None:
+    index = program(
+        {
+            "server.py": "def read(path): pass\n"
+            "def invoke(path): return read(path)\n"
+            f"def read(path): {body}\n"
+        }
+    )
+    target = index.resolve(index.files[0], "read")
+    assert target is not None
+    assert isinstance(target.node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert target.node.lineno == 3
+
+
+@pytest.mark.parametrize(
+    "between",
+    [
+        "saved = read\n",
+        "def capture(callback=read): pass\n",
+        "@read\ndef decorated(): pass\n",
+    ],
+)
+def test_observed_forward_declaration_remains_unresolved(between: str) -> None:
+    index = program(
+        {
+            "server.py": "def read(path): pass\n"
+            + between
+            + "def read(path): return open(path)\n"
+        }
+    )
+    assert index.resolve(index.files[0], "read") is None

@@ -147,11 +147,13 @@ def validate(path: Path = CORPUS / "manifest.json", root: Path = ROOT) -> Manife
     return manifest
 
 
-def frozen(root: Path = ROOT) -> Manifest:
+def frozen(root: Path = ROOT, *, approval_path: Path | None = None) -> Manifest:
     """Bind the immutable proposal to the separately recorded user decision."""
-    decision = json.loads((root / "artifacts/phase22/authorization.json").read_text())
+    decision = json.loads(
+        (approval_path or root / "artifacts/phase22/authorization.json").read_text()
+    )
     approval = decision["corpus"]
-    path = root / "artifacts/phase22/corpus-review/manifest.json"
+    path = root / relative_path(approval["manifest"])
     if (
         approval.get("freeze_approved") is not True
         or approval.get("manifest") != path.relative_to(root).as_posix()

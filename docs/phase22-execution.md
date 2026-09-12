@@ -1,5 +1,9 @@
 # Phase 22 — execution correction increment
 
+This page preserves the initial increment's implementation/evidence scope. The
+current [implementation status](phase22-implementation-status.md) records later
+changes and the user-authorized deferral of the full paid benchmark and pilots.
+
 This increment restores benchmark execution. Phase 22 technical acceptance is
 not complete: the new detector catalog, shared discovery/compatibility, review
 context, campaign scheduling and report migration remain under implementation.

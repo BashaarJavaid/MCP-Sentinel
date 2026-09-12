@@ -1,0 +1,85 @@
+{
+  "name": "mcp-memory-keeper",
+  "version": "0.12.2",
+  "description": "MCP server for persistent context management in AI coding assistants",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-memory-keeper": "./bin/mcp-memory-keeper"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "lint:warn": "eslint . --ext .ts --max-warnings=-1 || true",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit",
+    "check-all": "npm run build && npm run type-check && npm run lint && npm run format:check && npm test",
+    "pre-commit": "npm run build && npm run type-check && npm run lint && npm run format:check && npm test",
+    "check-migrations": "tsx scripts/check-migrations.ts",
+    "prepare": "husky",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "keywords": [
+    "mcp",
+    "claude",
+    "ai",
+    "context",
+    "coding-assistant"
+  ],
+  "author": "Mark Kreyman",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mkreyman/mcp-memory-keeper"
+  },
+  "homepage": "https://github.com/mkreyman/mcp-memory-keeper#readme",
+  "bugs": {
+    "url": "https://github.com/mkreyman/mcp-memory-keeper/issues"
+  },
+  "files": [
+    "dist/**/*",
+    "bin/**/*",
+    "examples/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.3",
+    "better-sqlite3": "^12.1.0",
+    "simple-git": "^3.28.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@jest/globals": "^30.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.0",
+    "globals": "^16.2.0",
+    "husky": "^9.1.7",
+    "jest": "^30.0.0",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.4.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

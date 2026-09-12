@@ -1,0 +1,250 @@
+1: """Safe webpage fetching and clean text extraction."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import asyncio
+6: from typing import Any
+7: from urllib.parse import urljoin
+8: 
+9: import httpx
+10: 
+11: from mcp_ddg_research.cache import JsonFileCache, build_fetch_cache, get_env_int
+12: from mcp_ddg_research.models import (
+13:     DeepSearchPage,
+14:     DeepSearchRequest,
+15:     DeepSearchResponse,
+16:     FailedPage,
+17:     FetchRequest,
+18:     FetchResponse,
+19: )
+20: from mcp_ddg_research.search import ddg_search
+21: from mcp_ddg_research.security import UnsafeUrlError, validate_fetch_url, validate_url_shape
+22: from mcp_ddg_research.text import extract_html_text, is_plain_text_content, truncate_text
+23: 
+24: DEFAULT_FETCH_TIMEOUT_SECONDS = 15
+25: DEFAULT_MAX_CONCURRENCY = 5
+26: MAX_REDIRECTS = 5
+27: FETCH_HEADERS = {
+28:     "User-Agent": (
+29:         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+30:         "AppleWebKit/537.36 (KHTML, like Gecko) "
+31:         "Chrome/120.0.0.0 Safari/537.36"
+32:     ),
+33:     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.5",
+34:     "Accept-Language": "en-US,en;q=0.9",
+35: }
+36: 
+37: 
+38: def get_fetch_timeout_seconds() -> int:
+39:     return get_env_int("FETCH_TIMEOUT_SECONDS", DEFAULT_FETCH_TIMEOUT_SECONDS)
+40: 
+41: 
+42: def get_max_concurrency(max_concurrency: int | None = None) -> int:
+43:     if max_concurrency is not None:
+44:         return max_concurrency
+45:     return min(get_env_int("MAX_CONCURRENCY", DEFAULT_MAX_CONCURRENCY), 12)
+46: 
+47: 
+48: def _cache_payload(request: FetchRequest) -> dict[str, Any]:
+49:     return request.model_dump(mode="json")
+50: 
+51: 
+52: def _cacheable_fetch_response(response: FetchResponse) -> dict[str, Any]:
+53:     return response.model_copy(update={"cached": False}).model_dump(mode="json")
+54: 
+55: 
+56: def _error_response(url: str, error: str) -> FetchResponse:
+57:     return FetchResponse(
+58:         url=url,
+59:         final_url="",
+60:         title="",
+61:         content="",
+62:         content_type="",
+63:         cached=False,
+64:         success=False,
+65:         error=error,
+66:     )
+67: 
+68: 
+69: async def _get_with_validated_redirects(
+70:     client: httpx.AsyncClient,
+71:     url: str,
+72: ) -> httpx.Response:
+73:     current_url = url
+74:     for _ in range(MAX_REDIRECTS + 1):
+75:         await validate_fetch_url(current_url)
+76:         response = await client.get(current_url)
+77:         if response.status_code not in {301, 302, 303, 307, 308}:
+78:             return response
+79: 
+80:         location = response.headers.get("location")
+81:         if not location:
+82:             return response
+83:         next_url = urljoin(str(response.url), location)
+84:         validate_url_shape(next_url)
+85:         current_url = next_url
+86: 
+87:     raise UnsafeUrlError(f"Too many redirects; maximum is {MAX_REDIRECTS}")
+88: 
+89: 
+90: def _response_to_fetch_response(
+91:     request_url: str,
+92:     response: httpx.Response,
+93:     max_chars: int,
+94: ) -> FetchResponse:
+95:     final_url = str(response.url)
+96:     content_type = response.headers.get("content-type", "")
+97:     if response.status_code >= 400:
+98:         return FetchResponse(
+99:             url=request_url,
+100:             final_url=final_url,
+101:             title="",
+102:             content="",
+103:             content_type=content_type,
+104:             cached=False,
+105:             success=False,
+106:             error=f"HTTP {response.status_code}",
+107:         )
+108: 
+109:     lowered_content_type = content_type.lower()
+110:     if "html" in lowered_content_type:
+111:         extracted = extract_html_text(response.text, max_chars)
+112:         return FetchResponse(
+113:             url=request_url,
+114:             final_url=final_url,
+115:             title=extracted.title,
+116:             content=extracted.content,
+117:             content_type=content_type,
+118:             cached=False,
+119:             success=True,
+120:             error=None,
+121:         )
+122: 
+123:     if is_plain_text_content(content_type, final_url):
+124:         return FetchResponse(
+125:             url=request_url,
+126:             final_url=final_url,
+127:             title="",
+128:             content=truncate_text(response.text, max_chars),
+129:             content_type=content_type,
+130:             cached=False,
+131:             success=True,
+132:             error=None,
+133:         )
+134: 
+135:     return FetchResponse(
+136:         url=request_url,
+137:         final_url=final_url,
+138:         title="",
+139:         content="",
+140:         content_type=content_type,
+141:         cached=False,
+142:         success=False,
+143:         error=f"Unsupported content type: {content_type or 'unknown'}",
+144:     )
+145: 
+146: 
+147: async def web_fetch(
+148:     url: str,
+149:     max_chars: int = 12000,
+150:     *,
+151:     cache: JsonFileCache | None = None,
+152: ) -> FetchResponse:
+153:     request = FetchRequest(url=url, max_chars=max_chars)
+154: 
+155:     try:
+156:         await validate_fetch_url(request.url)
+157:     except UnsafeUrlError as exc:
+158:         return _error_response(request.url, str(exc))
+159: 
+160:     cache = cache or build_fetch_cache()
+161:     payload = _cache_payload(request)
+162:     cached_value = cache.get(payload)
+163:     if cached_value is not None:
+164:         return FetchResponse.model_validate(cached_value).model_copy(update={"cached": True})
+165: 
+166:     try:
+167:         async with httpx.AsyncClient(
+168:             timeout=httpx.Timeout(get_fetch_timeout_seconds()),
+169:             follow_redirects=False,
+170:             headers=FETCH_HEADERS,
+171:         ) as client:
+172:             response = await _get_with_validated_redirects(client, request.url)
+173:         fetch_response = _response_to_fetch_response(request.url, response, request.max_chars)
+174:         if fetch_response.success:
+175:             cache.set(payload, _cacheable_fetch_response(fetch_response))
+176:         return fetch_response
+177:     except Exception as exc:  # noqa: BLE001 - fetch failures must be returned as structured errors.
+178:         return _error_response(request.url, str(exc))
+179: 
+180: 
+181: async def ddg_deep_search(
+182:     query: str,
+183:     max_results: int = 10,
+184:     search_window: int | None = None,
+185:     max_pages: int = 5,
+186:     max_chars_per_page: int = 12000,
+187:     safe_search: str = "off",
+188:     time_filter: str | None = None,
+189:     blocked_domains: list[str] | None = None,
+190:     allowed_domains: list[str] | None = None,
+191:     preferred_domains: list[str] | None = None,
+192:     max_concurrency: int | None = None,
+193: ) -> DeepSearchResponse:
+194:     request = DeepSearchRequest(
+195:         query=query,
+196:         max_results=max_results,
+197:         search_window=search_window,
+198:         max_pages=max_pages,
+199:         max_chars_per_page=max_chars_per_page,
+200:         safe_search=safe_search,
+201:         time_filter=time_filter,
+202:         blocked_domains=blocked_domains or [],
+203:         allowed_domains=allowed_domains or [],
+204:         preferred_domains=preferred_domains or [],
+205:         max_concurrency=max_concurrency,
+206:     )
+207:     search_response = await ddg_search(
+208:         query=request.query,
+209:         max_results=request.max_results,
+210:         search_window=request.search_window,
+211:         safe_search=request.safe_search,
+212:         time_filter=request.time_filter,
+213:         blocked_domains=request.blocked_domains,
+214:         allowed_domains=request.allowed_domains,
+215:         preferred_domains=request.preferred_domains,
+216:     )
+217:     selected_sources = search_response.results[: request.max_pages]
+218:     semaphore = asyncio.Semaphore(get_max_concurrency(request.max_concurrency))
+219: 
+220:     async def fetch_source(source_url: str) -> FetchResponse:
+221:         async with semaphore:
+222:             return await web_fetch(source_url, max_chars=request.max_chars_per_page)
+223: 
+224:     fetched_pages = await asyncio.gather(*(fetch_source(source.url) for source in selected_sources))
+225:     pages: list[DeepSearchPage] = []
+226:     failed_pages: list[FailedPage] = []
+227:     cached_flags = [search_response.cached]
+228: 
+229:     for source, page in zip(selected_sources, fetched_pages, strict=True):
+230:         cached_flags.append(page.cached)
+231:         if page.success:
+232:             pages.append(
+233:                 DeepSearchPage(
+234:                     title=page.title or source.title,
+235:                     url=source.url,
+236:                     final_url=page.final_url,
+237:                     content=page.content,
+238:                 )
+239:             )
+240:         else:
+241:             failed_pages.append(FailedPage(url=source.url, error=page.error or "Fetch failed"))
+242: 
+243:     return DeepSearchResponse(
+244:         query=request.query,
+245:         search_provider=search_response.provider,
+246:         sources=selected_sources,
+247:         pages=pages,
+248:         failed_pages=failed_pages,
+249:         cached=bool(cached_flags) and all(cached_flags),
+250:     )

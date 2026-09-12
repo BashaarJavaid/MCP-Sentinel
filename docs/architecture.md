@@ -9,13 +9,13 @@ flowchart LR
     B --> C[Canonical candidates]
     C -->|rules-only| H[Static finalization]
     C --> D[GPT-5.6 semantic review]
-    D --> E[Constrained four-probe plan]
+    D --> E[Bounded ordered attempts]
     E --> F[Docker sandbox]
     F --> G[Reviewed dynamic evidence]
     D --> H
     G --> H
     H --> I[Console]
-    H --> J[JSON 1.6.0]
+    H --> J[JSON 1.7.0]
     H --> K[SARIF 2.1.0]
     K --> L[GitHub code scanning]
 ```
@@ -45,7 +45,10 @@ a finding. GPT cannot create rule-less findings or executable probe code.
 Docker is the only target execution boundary. Each approved inert probe runs
 against a local Python target in a fresh container with read-only source,
 restricted build egress, no runtime network, stripped environment, resource
-limits, and forced cleanup.
+limits, and forced cleanup. Separate baseline and attack containers are required per
+attempt. The default campaign permits 24 started attempts or 120 seconds,
+including runtime discovery; incomplete remainders remain visible. This Phase 22
+integration contract is still under verification.
 
 Reports are security artifacts. Incomplete static, GPT, dynamic, or validation
 stages cannot silently become an empty successful report. Console, JSON, and
@@ -61,7 +64,9 @@ coverage, incomplete execution, and review cost are reported separately.
 
 The [Phase 22 technical contract](phase22-technical.md) records the authorized
 expansion and its pending evidence/approval gates. Phase 20 inputs are now exposed
-regression evidence; Phase 21 and Phase 22's pilot acceptance remain incomplete.
+regression evidence. The user deferred the full paid benchmark and removed pilots
+as a Phase 22 completion prerequisite. Final technical verification and human
+acceptance remain pending; Phase 21 and the later adoption/launch gates are unchanged.
 
 The complete field, state-transition, sandbox, configuration, and failure
 contracts live in the root [architecture

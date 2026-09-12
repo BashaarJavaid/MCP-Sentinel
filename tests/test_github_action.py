@@ -449,3 +449,49 @@ def test_legacy_sarif_without_stages_remains_readable() -> None:
     metrics = analyze_sarif(payload)
     assert metrics.analysis_complete
     assert metrics.rules_only is False
+
+
+def test_action_consumes_repository_campaign_settings(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from typer.testing import CliRunner
+
+    from sentinel.cli import app
+    from sentinel.config import LoadedConfiguration
+    from sentinel.orchestrator import ScanOutcome
+    from tests.conftest import make_target
+    from tests.test_baseline import _report
+
+    workspace = tmp_path / "workspace"
+    make_target(
+        workspace / "server",
+        scanner_toml="[sandbox]\nmax_probe_attempts=7\ncampaign_timeout_seconds=31\n",
+    )
+    temporary = tmp_path / "runner"
+    temporary.mkdir()
+    captured = []
+
+    def scan(
+        configuration: LoadedConfiguration, *args: Any, **kwargs: Any
+    ) -> ScanOutcome:
+        captured.append(configuration.scanner.sandbox)
+        return ScanOutcome(report=_report(()), exit_code=0)
+
+    monkeypatch.setattr("sentinel.cli.run_scan", scan)
+
+    def command_runner(
+        command: list[str], *, env: dict[str, str], check: bool
+    ) -> subprocess.CompletedProcess[str]:
+        result = CliRunner().invoke(app, command[3:], env=env)
+        assert result.exit_code == 0, result.output
+        return subprocess.CompletedProcess(command, result.exit_code)
+
+    result = execute_action(
+        ActionInputs("server", "high", "false"),
+        _environment(workspace, temporary),
+        command_runner=command_runner,
+    )
+    assert result.effective_exit_code == 0
+    assert [
+        (item.max_probe_attempts, item.campaign_timeout_seconds) for item in captured
+    ] == [(7, 31)]

@@ -1,0 +1,380 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index dc29db7..eeb72f4 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -78,6 +78,39 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
+ 
+ ## Current phase
+ 
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++### Historical v17 diagnostic at `127763c`
++
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+ full ordered baseline equivalence after established volatile exclusions and valid
+diff --git a/ROADMAP.md b/ROADMAP.md
+index 47091dc..afd2974 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -1152,7 +1152,40 @@ helps solve and identify the obstacles to voluntary CI adoption.
+ 
+ ## 25. Phase 22 — MCP coverage and compatibility expansion
+ 
+-### Current v17 diagnostic at `127763c`
++### Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++### Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+diff --git a/artifacts/phase22/integration/README.md b/artifacts/phase22/integration/README.md
+index 61cb523..d8929a9 100644
+--- a/artifacts/phase22/integration/README.md
++++ b/artifacts/phase22/integration/README.md
+@@ -1,6 +1,39 @@
+-# Integration evidence, batches 1–46 and closeout audit
+-
+-## Current v17 diagnostic at `127763c`
++# Integration evidence, batches 1–47 and closeout audit
++
++## Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++## Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+@@ -361,6 +394,16 @@ proposals are prepared and unapproved; no automatic dispatch is authorized.
+ 
+ ## Evidence archives
+ 
++Batch 47 is sealed: **446 files**, SHA-256
++`8b458443e193d91b1780c252877107e38392dac05683b58fbac21b167ef678d6`. Every member and all 46 prior archive hashes are verified.
++Restore after batches 1–46 in separate staging using `evidence-v47.json`; existing
++destinations must match identical bytes or a recorded previous hash. Stop on
++unexpected conflicts. This batch retains Stage0 approval/implementation, all raw
++observations and logs, fresh CI/docs artifacts, the failed premise, verification,
++preparation failures/corrections and helper sources. Final audit/docs/delivery
++bindings are tracked directly after the seal.
++
++
+ Batch 46 is sealed: **64 files**, SHA-256
+ `9ea5341776dddd494c9d9c160e9b587bc385a930b385b3268a00dfa30a43e0a5`. Every member and all 45 prior archive hashes are verified.
+ Restore after batches 1–45 in separate staging using `evidence-v46.json`; existing
+diff --git a/artifacts/phase22/integration/progress.md b/artifacts/phase22/integration/progress.md
+index 79515b4..25b52c7 100644
+--- a/artifacts/phase22/integration/progress.md
++++ b/artifacts/phase22/integration/progress.md
+@@ -1,6 +1,39 @@
+ # Integration progress — not technical acceptance
+ 
+-## Current v17 diagnostic at `127763c`
++## Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++## Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+@@ -3270,3 +3303,14 @@ unexpected conflicts. The batch retains approval, synthetic controls, the single
+ profile, raw stack catalogs/counts, complete reports, assessment, source review,
+ verification, the initial permission failure and helpers. Final audit/docs/delivery
+ bindings are tracked directly after the seal.
++
++### Evidence batch 47
++
++Batch 47 is sealed: **446 files**, SHA-256
++`8b458443e193d91b1780c252877107e38392dac05683b58fbac21b167ef678d6`. Every member and all 46 prior archive hashes are verified.
++Restore after batches 1–46 in separate staging using `evidence-v47.json`; existing
++destinations must match identical bytes or a recorded previous hash. Stop on
++unexpected conflicts. This batch retains Stage0 approval/implementation, all raw
++observations and logs, fresh CI/docs artifacts, the failed premise, verification,
++preparation failures/corrections and helper sources. Final audit/docs/delivery
++bindings are tracked directly after the seal.
+diff --git a/artifacts/phase22/integration/requirements.md b/artifacts/phase22/integration/requirements.md
+index 368c3d2..78b8451 100644
+--- a/artifacts/phase22/integration/requirements.md
++++ b/artifacts/phase22/integration/requirements.md
+@@ -1,6 +1,25 @@
+ # Consolidated Phase 22 requirement checklist
+ 
+-## Current v17 source-bound audit
++## Current v18 source-bound audit
++
++All 89 original rows are mapped in `v18-closeout-audit/packet.json`:
++**70 passed, 2 explicitly user-deferred, 17 unresolved**. Six v18 execution
++requirements pass, including applying the failed throughput premise correctly.
++The throughput premise itself failed. All 28 added rows retain **27 passed and
++1 unresolved** (the historical v14 retention requirement). Fresh normal hosted
++CI verifies `0b71a29`; compatible local checks remain at `592a9cd`.
++No scanner timing pass, fresh result, scope waiver or human acceptance is inferred.
++
++| ID | Requirement | Disposition |
++| --- | --- | --- |
++| V18-AUTH | Exact Stage0 approval and immutable implementation bindings | **passed** |
++| V18-CHECK | Readiness, checksum, timeout, cleanup and decision implementation controls | **passed** |
++| V18-DISPATCH | One bounded synthetic Linux dispatch with retained observations | **passed** |
++| V18-STOP | Apply the failed throughput premise without inferring scanner improvement | **passed** |
++| V18-VERIFY | Verify changed workflow with fresh hosted CI and unchanged scanner compatibility | **passed** |
++| V18-DELIVERY | Seal and deliver all completed scope while retaining unmet Phase22 gates | **passed** |
++
++## Historical v17 source-bound audit
+ 
+ All 89 original rows are mapped in `v17-closeout-audit/packet.json`:
+ **70 passed, 2 explicitly user-deferred, 17 unresolved**. Five v17 execution
+diff --git a/docs/phase22-implementation-status.md b/docs/phase22-implementation-status.md
+index 3bb21e1..b80cb47 100644
+--- a/docs/phase22-implementation-status.md
++++ b/docs/phase22-implementation-status.md
+@@ -1,6 +1,39 @@
+ # Phase 22 implementation status
+ 
+-## Current v17 diagnostic at `127763c`
++## Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++## Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+diff --git a/docs/phase22-ssrf-follow-up.md b/docs/phase22-ssrf-follow-up.md
+index 0082e9f..1ba8722 100644
+--- a/docs/phase22-ssrf-follow-up.md
++++ b/docs/phase22-ssrf-follow-up.md
+@@ -1,6 +1,39 @@
+ # Replacement SSRF follow-up
+ 
+-## Current v17 diagnostic at `127763c`
++## Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++## Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,
+diff --git a/docs/phase22-technical.md b/docs/phase22-technical.md
+index 57f590d..40edfae 100644
+--- a/docs/phase22-technical.md
++++ b/docs/phase22-technical.md
+@@ -1,6 +1,39 @@
+ # Phase 22 technical expansion
+ 
+-## Current v17 diagnostic at `127763c`
++## Current v18 throughput probe at `0b71a29`
++
++The approved Stage 0 synthetic throughput probe is complete at `0b71a29`.
++Run **34536965288** completed **12/12 observations** in an 88-second job;
++all checksums match, all children were ready before the shared monotonic start,
++and every child was reaped. No scanner or corpus input executed in the probe.
++
++Median throughput relative to one process is **2.029× at three processes,
++2.136× at four, and 2.125× at six**. Four processes add only **5.25%** over
++three; six add **4.71%**. The runner reports four vCPUs, two cores and two
++threads per core, with Python 3.12.14. The prospective **E3 ≥ 2.7 premise
++fails**. This result does not support proceeding to the proposed partitioning
++experiment; it is not proof that all scanner parallelism is ineffective.
++See `v18-scaling-assessment.json` and its retained raw observations.
++
++**One dispatch consumed; zero scanner runs, optimization attempts or paid model
++calls.** Stage 1 and partitioning remain unapproved. The normal CI jobs are
++structurally unchanged, but the optional workflow changed, ending workflow
++equality to `592a9cd`. Fresh CI **34536886816** verifies all 29 normal jobs;
++all 12 suites pass **2,183 tests / 36 skipped**. Docs **34536886750** pass.
++Scanner/test/package bytes remain identical to `592a9cd`; prior local checks,
++production replay and Git compatibility retain their executed sources, and the
++three exposed SSRF gates retain measured `2ac39aa`. Initial probe lint issues
++and an immediate post-push PR-readback assertion are preserved with corrections.
++
++**Phase 22 remains incomplete.** The retained Linux scanner result is still
++15/25 development complete, ten Meta timeouts and both historical batches
++skipped. No current-source full timing pass, fresh evaluation, scope waiver or
++final human acceptance is inferred. Further source-design work may investigate
++reducing repeated analysis, but no safe reuse design or new experiment is
++established here. Pilots/full paid benchmark remain deferred, Phase 21 incomplete,
++and Phase 24/15 unchanged. No merge, release, outreach or next phase.
++
++## Historical v17 diagnostic at `127763c`
+ 
+ The approved whole-worker sampling scope is complete at `127763c`:
+ **one Meta operator input**, **69.906s native / 71.578s outer**, 49 findings,

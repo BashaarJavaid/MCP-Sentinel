@@ -1,0 +1,19 @@
+MCP handlers can hide unsafe filesystem, process-option, URL and credential flows behind helpers, factories, clients and middleware. This integration follows supported bindings, adds SENT-014–016, expands workspace/registration coverage and preserves canonical evidence, unresolved flows and ordered runtime campaigns. It builds on the containment and description-poisoning parent increments.
+
+At measured scanner **2ac39aa**, TypeScript receiver invalidation stays local to mutually exclusive `if` arms and is conservatively unioned at the join. An unknown HTTP-startup `process` effect no longer contaminates ordinary stdio startup. SearXNG's fixed source now retains its native default-loopback guard qualification; unknown callbacks are still conservative.
+
+| Exposed native family | Inputs × batches | Vulnerable matches per batch | Matching fixed/control alerts |
+| --- | --- | --- | --- |
+| fetch-mcp | 5 × 2, all complete | 2/2 | 0 |
+| open-webSearch | 5 × 2, all complete | 2/2 | 0 |
+| SearXNG | 5 × 2, all complete | 2/2 | 0 |
+
+All three correction gates pass within the unchanged 120-second native/end-to-end deadlines. Entire ordered repeats agree except documented volatile fields; JSON/SARIF and source assessments pass. SearXNG retains broader URL candidates and unresolved MCP dispatch. Only its negative-source SSRF descriptions change; every other ordered field and diagnostic matches v12. The 23 unmatched scorer keys per batch are separately source-assessed. Original frozen native/comparator 0/2 misses remain preserved. These are correlated exposed regressions, not fresh generalization or runtime proof.
+
+The approved Value-reconstruction experiment is **reverted**. All 12 native reports matched, but Meta operator median wall/CPU increased 4.58%/1.31%; Atlassian's improvement and Meta image's smaller gain did not meet the cross-input retention rule. One optimization, two counter profiles and all 12 native observations are consumed; both profile deadline failures remain explicit. The test and attempted commit are preserved. No full Linux retry occurred: retained run 34435283462 still completes 15/25 development inputs, times out on all ten Meta cases and skips both historical batches.
+
+Local final-source verification passes **2,182 tests, 36 skips and no expected failures**, with **89.66% branch coverage**. Ruff/format, strict mypy, lock, schemas, notices and offline artifacts pass. Both approved production requests are regenerated and checked-replayed through the owned Docker demo with zero new paid calls. Hosted verification for this delivered source is pending; previous hosted passes retain their historical source.
+
+The [current status](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/docs/phase22-implementation-status.md), [core verification packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v13-prehosted-packet.json) and [evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md) preserve the measurements, failed attempts and separate gates. The [next bounded helper-fact proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v13-next-performance-proposal.json) is prepared but unapproved. No new experiment is inferred from the prior approval.
+
+**Phase 22 remains incomplete; final human acceptance is not requested.** Timing and a post-stabilization fresh evaluation remain unmet. Pilots and the full paid benchmark remain user-deferred; Phase 21 is incomplete and Phase 24/15 gates are unchanged. No new paid call, benchmark target execution, optional hosted measurement dispatch, full retry, runner/gate waiver, merge, release, outreach or next phase occurred.

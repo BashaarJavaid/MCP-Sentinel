@@ -1,0 +1,497 @@
+{
+  "rows": [
+    {
+      "kind": "warning",
+      "index": 0,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'Server'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        22
+      ],
+      "assessment": "Upstream mutates the imported SDK prototype. The scanner records a module-root rebound and declines SDK identity; this is a real conservative recognition boundary, not evidence that startup fails.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 1,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.server'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        88,
+        103,
+        105,
+        111,
+        172,
+        376
+      ],
+      "assessment": "Class field holds the SDK Server instance; unresolved constructor identity prevents recognizing this receiver and its registered surfaces.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 2,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'console'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        103,
+        312,
+        361,
+        377,
+        382
+      ],
+      "assessment": "The source uses the ordinary console object for error/startup logging and passes console.error as a catch callback. An unresolved builtin binding is not an SSRF finding or evidence of failed runtime startup.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 3,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'console.error'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        103,
+        312,
+        361,
+        377
+      ],
+      "assessment": "Logging occurs on startup, SDK and tool errors. These diagnostics are not an SSRF finding or proof of exfiltration.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 4,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 5,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'Server.prototype.setRequestHandler.call'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        27,
+        46
+      ],
+      "assessment": "Upstream wrapper invokes its saved original method with this/schema/handler and patches Zod shape on a specific error. The alias is not independently proven by the scanner.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 6,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'Array.isArray'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        36,
+        75
+      ],
+      "assessment": "Builtin array checks occur in the upstream schema compatibility patch and argument category validation. They do not establish destination restrictions.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 7,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'args.categories.every'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        76
+      ],
+      "assessment": "Optional category values must be strings; omitted categories satisfy the source prerequisite. This is argument typing, not URL policy.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 8,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.setupToolHandlers'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        100
+      ],
+      "assessment": "Constructor invokes the local method that installs the tool list and request dispatch. Failure to bind it leaves tool coverage unresolved.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 9,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'process.on'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        104
+      ],
+      "assessment": "SIGINT cleanup callback registration is ordinary source behavior; scanner does not prove the callback receiver/effects.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 10,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.close'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        105
+      ],
+      "assessment": "SIGINT callback closes the SDK server. This unresolved cleanup call does not prove the named URL condition safe.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 11,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'process.exit'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        106
+      ],
+      "assessment": "SIGINT callback exits after close. It does not reject the caller URL.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 12,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.setRequestHandler'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        111,
+        172
+      ],
+      "assessment": "The source registers ListTools and CallTool handlers through the upstream-patched SDK method. Scanner recognition of that dispatch is unresolved.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 13,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.handleRunAudit'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        175,
+        342
+      ],
+      "assessment": "CallTool run_audit arm forwards request.params.arguments to the local method; the performance helper also calls it. This unrecognized handler path is material to the miss.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 14,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.handleGetPerformanceScore'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        177
+      ],
+      "assessment": "A separate tool dispatches to the performance helper, which delegates to handleRunAudit; this tool is outside the frozen named condition.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 15,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'chrome.kill'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        245
+      ],
+      "assessment": "Chrome is killed after the Lighthouse call. This is unexecuted lifecycle code, not a destination guard or verified runtime cleanup.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 16,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'Object.entries'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        268
+      ],
+      "assessment": "Lighthouse category output is mapped into the response. It does not qualify the request destination.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 17,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        307,
+        356
+      ],
+      "assessment": "Tool output is serialized into response text. It is unrelated to initial link-local rejection.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 18,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'JSON.parse'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        345
+      ],
+      "assessment": "The performance helper parses the delegated audit response. It is outside the named run_audit destination condition.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 19,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.connect'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        376
+      ],
+      "assessment": "run connects the constructed Server to StdioServerTransport. Source evidence establishes the intended entrypoint; startup remains unexecuted.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "warning",
+      "index": 20,
+      "diagnostic": {
+        "code": "static_binding_unresolved",
+        "message": "src/index.ts: cannot resolve TypeScript binding 'run'"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        382
+      ],
+      "assessment": "The module creates LighthouseServer and calls run(). The unresolved warning does not mean the source has no MCP entrypoint.",
+      "disposition": "Retained source-assessed diagnostic; not runtime proof or a finding."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 0,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 1,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 2,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 3,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 4,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    },
+    {
+      "kind": "unresolved_flow",
+      "index": 5,
+      "diagnostic": {
+        "code": "static_flow_unresolved",
+        "location": {
+          "kind": "file",
+          "path": "src/index.ts",
+          "range": {
+            "end_column": 2,
+            "end_line": 84,
+            "start_column": 1,
+            "start_line": 84
+          }
+        },
+        "message": "SENT-012 at src/index.ts:84: unsupported class inheritance, decorators or members; protection is not established"
+      },
+      "source_path": "src/index.ts",
+      "source_sha256": "2c1af74d8d75841ac9c1936a83530f749231e323e4b308c08fa7db58587e68c7",
+      "source_lines": [
+        84,
+        103
+      ],
+      "assessment": "Constructor eligibility scans descendant Return nodes without excluding nested function/class scopes. The concise onerror callback at line103 is not a constructor return. A synthetic equivalent reproduces the false class rejection at6db3858. This is a source-supported diagnosis, not a counterfactual corpus run or proof that this correction alone restores detection.",
+      "disposition": "Retained duplicate shared-flow diagnostic; no inferred complete handler coverage."
+    }
+  ],
+  "warnings": 21,
+  "unresolved_flow_occurrences": 6,
+  "unassessed": 0,
+  "findings": 0
+}

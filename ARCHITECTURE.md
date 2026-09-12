@@ -1,5 +1,148 @@
 # PortunusMCP Sentinel Architecture
 
+## Current v40 fresh detection and failed discrimination checkpoint
+
+The approved additional fresh-repository evaluation **completed all six
+observations**, but **fails fixed/control discrimination** at frozen scanner
+**`8c62567`**. In each three-input batch, Sentinel detects the **one vulnerable
+`context_import` file read**, and also emits **matching false alerts on both
+negative inputs** (fixed and safe). All **three entire ordered report repeats
+agree** after only the established 11 volatile exclusions. This demonstrates
+first-frozen vulnerable detection on another project-unused repository, but it
+is not a passing vulnerable/fixed discrimination result.
+
+All six inputs completed within the **120-second target**. Maximum native time
+was **91.706 seconds**; maximum whole-input time was
+**98.448156 seconds**, below the uniform **300-second maximum**.
+The single serial macOS sequence took **573.363 seconds**.
+Native JSON/SARIF, source/configuration identities and process cleanup validate.
+The **six-observation budget is closed**, with zero unused observations, retries,
+profiles, comparators, target executions or paid calls.
+
+The repository is **`mkreyman/mcp-memory-keeper`**: complete vulnerable
+**`dd53a8f` (0.12.2)** and fixed **`84f6dfa` (0.13.0)** upstream trees, the latter
+compared against its direct first parent. It was selected only after `8c62567`
+freeze and is absent from all eight earlier corpus manifests and 100 unique
+prior effective trees. The same implementation agent curated and assessed it;
+this is one repository and one vulnerability, not independent human review,
+training-data novelty or six independent discoveries. The 45 old manifest records
+and two format-required mutation records were not evaluated.
+
+The vulnerable source directly reads caller `filePath` at `src/index.ts:1724`.
+The fixed source calls `resolveConfinedImportPath`, checks canonical equality or
+`exportsDirReal + path.sep` containment, returns on rejection, then reads the checked
+`safePath` at line 1849. The frozen sibling `exports-backup` path is rejected before
+reading; the safe control lies inside `exports`. Sentinel supports the actual
+fixed read but still asserts missing containment. **Fixed guard recognition fails**;
+this is a matching false positive, not an unsupported-sink silence. All six reports
+also retain one unnamed **unresolved MCP dispatch surface**, so complete named
+metadata/dispatch coverage is not established. No runtime protection proof is claimed.
+
+All **22 findings**, **31,802 warning/unresolved-flow occurrences** and
+**six surfaces** are indexed to exact source evidence and assessed. Broader export
+and Git-message candidates remain unmatched and unconfirmed; the added secret
+finding is upstream test fixture data. The diagnostic assessment retains binding,
+callback, class and metadata limitations without treating them as resolved or safe.
+An initial inventory helper incorrectly treated a synthetic metadata diagnostic
+label as a literal source token; its failure and corrected catalog binding are
+preserved. No report, source, label, rubric or scanner changed, and no scan repeated.
+
+The proposed next step is **one focused source-only correction cycle**, in
+`artifacts/phase22/integration/v40-fresh-v7/recovery-proposal.json`: establish the
+shared guard/root-state cause using synthetic controls, implement only a supported
+fix, run required engineering checks, freeze the new source and prepare a separate
+exact exposed-regression proposal. It authorizes no work until approved and requests
+**zero new corpus scans, profiles, comparators, target executions or paid calls**.
+The original result remains immutable; a later fix is exposed regression. Source
+inspection suggests checking canonical-root propagation across startup try/catch
+and termination, but no root-cause execution proof or repair has occurred.
+
+Prior **87/87 exposed regression at `8c62567` remains passed**, with 36 whole
+ordered repeats, DDG two vulnerable hits per batch, zero matching negatives and
+six actual fixed/control sends carrying the narrow direct-route initial 100.64/10
+qualification. Python development and both 31-input historical batches retain
+actual passes. Original fresh DDG at `f85a90f` remains 10 native + five Semgrep,
+two correlated native hits per batch, zero matching negatives, five ordered
+repeats and Semgrep 0/2; its original fixed-coverage gap and later exposed fix
+remain distinguished. Original Lighthouse misses, failed `a50e9b7` regression,
+all closed experiments and the original held-out result (10 completed,
+10 unsupported, five incomplete; 0/4 completed vulnerable hits out of 10 total
+vulnerable inputs) remain unchanged.
+
+Historical whole Linux timing retains `1f3f72f`: both whole 45-input batches pass
+with 20 hits and zero matching alerts on 25 negatives each, and the whole 25-input
+development batch is reused under the explicit amendment. Current Python and
+compatible TypeScript subsets are not pooled into new whole-batch execution.
+Product/tests/workflows remain identical to tested `8c62567`: local and all 12
+hosted suites retain **2,283 passed / 36 skipped**, **89.91% local branch coverage**,
+29 normal CI jobs and docs passed. Final status docs/package metadata are checked
+separately; six zero-call production replays and runtime/image compatibility retain
+source bindings. **Git campaigns stay incomplete at 312/1,040**, as requested.
+
+The audit retains **89 original rows: 84 passed, two user-deferred, three unresolved
+(R66/R88 for this failed fresh discrimination checkpoint, R84 for human acceptance)**.
+All **112 added rows** remain: 106 passed, five proposed historical closure
+limitations, one unresolved evaluation criterion. Passing execution/source
+assessment does not turn the failed criterion into a pass. **Phase 22 remains
+incomplete; technical acceptance is not requested.** The correction and any later
+exact measurements need their recorded decisions. Paid benchmark and pilots stay
+deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge, ready-state change,
+release, outreach or Phase 23 is authorized.
+
+
+## Bounded TypeScript URL guard evidence
+
+The TypeScript flow follows source-bound low-level `CallToolRequestSchema`
+handlers through factory-created `Server` instances and `McpServer.server`
+aliases, including the parser's optional else branch. Replaced or escaped
+receivers lose that binding.
+
+The current correction also interprets actual module-level class construction
+and saved SDK setter forwarding through source wrappers. It recognizes
+Lighthouse URL sinks and can retain a narrow initial link-local IPv4 rejection
+qualifier. Bounded prefix tables require known ordered arrays; indexed aliases,
+unknown mutation and unresolved control flow cannot establish protection.
+Constructor eligibility at `4a2359d` excludes returns owned by nested callbacks,
+functions and classes while retaining rejection of actual constructor return values.
+Engineering at `2998b79` passes. Its approved `4a2359d` regression detects both
+correlated vulnerable variants, then fails qualification on the first fixed input;
+three observations complete and seven unstarted observations close. The subsequent
+`f85a90f` correction preserves narrow IPv4 link-local exclusion on exact `::1` or
+`[::1]` hostname equality returns. Engineering verification passes at `439c3fe`;
+the approved Lighthouse repeat gate passes all ten observations at `f85a90f`
+(run 34648036083). This is not broad IPv6 protection. Earlier TypeScript compatibility
+now passes the separately approved 54-observation local sequence at the same scanner.
+Replacement-v6 first-frozen detection at `f85a90f` passes its approved output
+threshold: two vulnerable hits per native batch, zero matching negative alerts
+and five ordered repeats. Fixed `build_request`/`send` remains unresolved, so
+recognition of the fixed guard is not established and requires explicit acceptance
+as a limitation. Git runtime coverage stays 312/1,040 incomplete. Phase 22 awaits
+human technical acceptance and verified closeout delivery.
+
+The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
+verification passed at `51fd2cb`; its exposed evaluation failed on the first input.
+No successful Lighthouse regression or generalization result is claimed.
+
+SENT-015 can qualify a broader SSRF candidate with narrow source-established
+literal loopback IPv4 rejection. Local hostname prefix checks and `net.isIP`
+comparisons preserve the actual URL identity. A default-only qualifier requires
+every normal guard exit either to enforce that check or to require an unshadowed,
+unmutated `process.env` option explicitly compared to `"true"`. Missing hardening
+options, unknown conditions, URL replacement and environment mutation cannot
+establish this protection. The scanner does not read the target environment or
+suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
+unestablished; this is source analysis, not runtime proof.
+
+The earlier exposed SearXNG result lost this qualifier and flagged both fixed
+variants. The correction at `2ac39aa` passes two complete five-input native
+batches: both vulnerable conditions detected and no matching fixed/control
+alerts in either batch. Deadline-only scanner `1f3f72f` retains source-compatible
+reuse of that result; this is not a new measurement or fresh generalization.
+Broader URL candidates and unresolved MCP dispatch remain visible. These checks
+do not establish complete destination or redirect coverage; see the current
+Phase 22 status and audit.
+
+
 ## 1. Purpose and status
 
 This document is the approved architecture baseline for PortunusMCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.
@@ -13,8 +156,10 @@ The [PortunusMCP Gateway](https://github.com/BashaarJavaid/PortunusMCP) and Port
 Phase 22's user-approved expansion contract is specified in
 [`docs/phase22-technical.md`](docs/phase22-technical.md), including new rule
 meanings, workspace compatibility, bounded campaigns and schema 1.7.0 migration.
-Those changes remain pending until implemented and verified; the current scope
-and native 1.6.0 contracts below continue to describe shipped behavior.
+The integration source implements native 1.7.0; its campaign/report contract at
+the end of this document supersedes the historical scheduling and report sections.
+Final verification and acceptance remain pending. Historical native 1.6.0 evidence
+continues to describe the behavior of its recorded source.
 
 ### Supported
 
@@ -90,7 +235,7 @@ flowchart TD
     BATCH1 --> GPT1[GPT semantic review]
     GPT1 --> PRIORITY[Order dynamic probes]
     PRIORITY --> DOCKER[Docker sandbox]
-    DOCKER --> PROBES[Run all four probes]
+    DOCKER --> PROBES[Discover and run bounded probe attempts]
     PROBES --> DF[Dynamic candidate Findings]
     DF --> BATCH2[Batch related dynamic candidates]
     BATCH2 --> GPT2[GPT semantic review]
@@ -113,7 +258,8 @@ The normal order is:
 3. Run both static engines.
 4. Batch related static candidates by tool or file and review them with GPT.
 5. Use the validated GPT probe plan only to reorder and safely parameterize, never skip, the dynamic probes.
-6. Run all four dynamic probes in fresh ephemeral containers.
+6. Discover supported attempts under the four dynamic rules and run them in
+   fresh ephemeral containers within the configured campaign budgets.
 7. Batch related dynamic candidates and review them with GPT.
 8. Deduplicate root causes and merge provenance.
 9. Render reports, validate SARIF, and apply the exit-code policy.
@@ -346,14 +492,264 @@ and are rejected before analysis unless `--static-only` or `--rules-only` is sel
 orchestrator owns one dedicated Semgrep catalog-discovery pass and reuses that
 catalog for GPT review.
 
+Legacy TypeScript tool findings also derive their ranges and snippets from the
+retained original source. Handler offsets are relative to the actual callback
+body, including named callbacks, rather than the registration's metadata lines.
+Permission findings without a concrete operation use the registration location.
+Correcting a location can change its deduplication/baseline key and review request
+fingerprint. Historical reports and captures retain their original identities;
+only exact compatible requests may reuse a capture.
+
 Semgrep is a required `[project.dependencies]` dependency, not a development-only or optional extra. Sentinel checks the installed Semgrep version at startup. Static analysis never imports target modules.
+
+Python path flow retains the distinction between a contained requested path and
+its derived parent directory. Parent access remains a candidate; report assembly
+preserves the original check by launch transport only when every observed
+alternative for that transport establishes it. Replacement, further path
+transformation and unknown returned values invalidate the qualification.
 
 Phase 22 extends TypeScript discovery using the installed, pinned Semgrep core's
 generic syntax tree and original token locations. The adapter performs source
 parsing only; it never loads a target module, invokes Node, renders templates or
 executes target tooling. Unsupported syntax-tree forms remain explicit. Parsing
-shares the existing 120-second static deadline, and malformed source remains a
+shares the 300-second static deadline, and malformed source remains a
 target error. This extension introduces no parser dependency or language target.
+
+Factory registration follows `registerTool` and the legacy
+`tool(name, schema, handler)` / `tool(name, description, schema, handler)` forms
+when the existing Zod reader recognizes the schema. These callbacks retain their
+captured source helpers. Other legacy layouts remain unresolved, including
+annotation overloads and unknown schemas. Computed names remain unresolved;
+following a callback does not establish the binding of an injected runtime service.
+
+Plain object methods, async methods and arrow properties retain captured helpers
+in distinct source call contexts. Dot calls and literal-key object calls bind an
+ordinary method's receiver; arrows retain lexical `this`, and extracted ordinary
+methods acquire no receiver. Existing record replacement and escape handling
+applies to these methods. Accessors remain explicitly unresolved.
+
+Source-invoked parameterless TypeScript startup functions can supply factory
+dependencies through included helpers and literal local dynamic imports. Resolution
+uses the existing module/export and repository boundaries; computed and external
+dynamic imports remain unresolved. Known nullish defaults retain their selected
+callable, including explicit `undefined` defaults. Unknown or replaced dependencies
+do not establish a callable. `satisfies` preserves its runtime operand, and
+conditional record allocations retain their member state across later calls.
+A callable missing on another source branch remains an explicit coverage warning.
+Receiver invalidations from mutually exclusive TypeScript `if` arms are evaluated
+from the same incoming invalidation state and conservatively unioned at the join.
+An unknown effect in one transport branch does not establish an effect in its
+alternative; unknown callbacks, replacement and subsequent join effects remain
+conservative. This preserves source-bound default URL guard evidence through
+ordinary stdio startup without exempting `process` calls.
+This bounded source interpretation does not execute startup or establish a runtime
+configuration, complete dispatch coverage or target safety.
+
+SENT-015 tracks the actual parsed URL through hostname normalization and URL
+serialization. For literal-address checks, paired IPv6 bracket removal must precede
+the genuine `node:net.isIP` / `ipaddr.js.parse(...).range()` classification. An
+enforced unicast-only predicate can protect that URL; ignored results, unrelated
+values and non-rejecting branches cannot. A preceding valid-IP check makes only
+the pure parse/range comparison's catch arm unreachable; additional fallible work
+keeps the catch path. Mutated or escaped URL objects lose serialization protection.
+This does not establish DNS, redirect, proxy or runtime protection.
+
+Included plain TypeScript classes retain instance/static method receivers,
+including async methods and private static helpers. Supported source-bound Zod
+object/scalar/record schemas preserve caller field flow through `parse`; validation
+does not sanitize a URL. Arbitrary parse methods and transforming schemas remain
+unresolved. An enforced genuine `private-ip` check on the parsed hostname records
+only literal IPv4 rejection. SENT-015 retains a separately worded residual
+candidate when complete URL restrictions are unestablished; it does not attribute
+an initial IPv4 loopback bypass to that guarded path. A whole-URL argument, ignored
+result, unrelated value, unknown URL-object escape or subsequent replacement
+establishes no such guard.
+
+The frozen SearXNG evaluation at `7555a9d` misses both vulnerable variants: its
+ordinary stdio factory and aliased low-level server dispatch produce no recognized
+MCP tool surface. Recognized optional HTTP routes do not cover that tool path.
+The source assessments and unaccepted limitation are recorded in
+`docs/phase22-implementation-status.md`; completed analysis is not protection.
+
+Included plain TypeScript classes retain
+constructor fields and branch-local field updates through helper calls. Arrow
+functions retain lexical `this`; ordinary extracted functions do not acquire an
+implicit receiver. Callees and arguments are evaluated once per call, including
+delegation between the shared flow and rule-specific interpreters. Inheritance,
+decorated or computed class definitions, constructor object replacement and
+unknown receiver mutation remain explicit limitations. Computed writes, deletion
+and escaped receivers invalidate inferred method behavior. This source support
+does not by itself establish an external executable's command or output semantics.
+
+Python tool discovery retains the exact registration decorator separately from
+its historical finding location. Source-defined decorators inside that registration
+are interpreted in application order; an outer decorator applied afterward does
+not change the callable already registered. Nested returned functions retain their
+individual captured state. Only genuine default `functools.wraps(function)` is
+metadata-only; other unresolved decoration cannot establish callback behavior.
+The interpreter never imports or executes the decorated target on the host.
+
+Caller classification and lifespan binding share SDK `Context` annotation
+recognition, including genuine `typing.Annotated` wrappers. Replaced bindings,
+included modules impersonating SDK imports, and unresolved relative imports
+cannot establish injected context; their parameters retain caller provenance.
+
+Included decorators on nested function definitions use the same application path:
+factory expressions evaluate in source order, then apply in reverse order.
+Distinct closure allocations may call one another even when they share source;
+recursion is bounded by callable identity and the existing 64-frame ceiling.
+Unknown decorator results remain unresolved rather than executing the original
+body by assumption.
+
+Python HTTP client identity is shared by URL and credential flow for the existing
+httpx, requests and aiohttp client constructors. Ordinary member state tracks
+replacement and escape; an unknown receiver cannot establish a request method.
+Receiver evaluation is scoped to one call across rule delegation, and credential
+requests evaluate positional effects before reading keyword values. Credential flow
+includes session authentication, headers and supported query defaults at the actual
+request. Requests and aiohttp inherit authentication for request `auth=None`;
+httpx disables it. Request mappings override matching defaults, with case-insensitive
+header names. Httpx header/parameter setters copy mappings; requests assignments
+retain aliases. Known Basic Auth fields retain credential provenance and override
+Authorization headers only when that authentication is definitely selected. Aiohttp default auth also respects a known base origin;
+combined auth and Authorization headers are disclosed as an invalid request.
+Custom authentication hooks remain unresolved.
+Credential values retain the absent-caller selection and required operator opt-in
+through helper arguments, returned clients and stored fields. Combining values
+keeps an opt-in only when every contributing operator credential requires it;
+caller-owned alternatives do not erase it. Unknown mutation clears this value
+qualification. Source-defined `get` methods follow their included bodies rather
+than the mapping lookup path. Credential checks at Atlassian constructors reuse
+shared client/session construction and its already evaluated arguments. Startup
+configuration retains the condition on the selected object when its credential
+fields are later read. Absence markers add caller evidence without contributing
+a second credential alternative.
+
+SENT-015 also tracks the current base URL on genuine Atlassian Jira/Confluence
+clients at supported REST requests and Jira `myself()`. A constructor alone is
+not a request. Relative REST paths retain the base destination; `absolute=True`
+selects the supplied path, and an unknown flag preserves both possibilities.
+The request requires an intact requests session; replaced methods, unknown
+sessions and escaped clients do not establish the SDK request contract. Middleware
+checks on the source of SDK request state still need their application attachment
+established before they can qualify a destination.
+
+Genuine Python `contextvars.ContextVar` allocations retain their declared default
+and request-local `get`, `set` and matching single-use `reset` state through included
+helpers. Per-read defaults apply only to unset variables; setting `None` does not
+restore the default. State merges and escaped tokens cannot establish a valid
+reset. Separate handler entries start from the declared default. Manual context
+switching and scheduler-created tasks are not modeled; unsupported operations are
+reported as unresolved. This does not establish middleware-to-tool attachment.
+Known scalar literal truth controls short-circuit flow without invoking target
+objects or their truth methods.
+
+Source-defined TypeScript modules and factories can register Express routes through
+included helpers and captured callbacks. The shared interpreter requires a genuine
+Express constructor and intact route method. Ordered `use` and route callbacks,
+including bounded literal arrays, pass the same request through actual `next()`
+calls; returning or throwing before that call prevents continuation. Each route
+starts independently from initialized source state. Literal mount prefixes must
+match the route boundary; unknown paths or callbacks cannot establish protection.
+Replaced methods, unknown application escape, error middleware, `next(error/route)`,
+nested routers and chains beyond 32 continuations remain unresolved. Plain source
+record configurations retain aliases, named and literal-indexed field updates,
+helper returns and branch state. Outbound fetch headers and factory registration
+metadata consume the current record state. Distinct helper call sites retain
+separate allocation identities; unknown mutation or prototype replacement cannot
+establish protection. This is bounded source interpretation, not general JavaScript
+object, accessor or proxy execution.
+
+Repeated genuine FastMCP HTTP request getters share one request/state identity
+within an analyzed tool entry, including across included helpers. Replacing a
+state value changes the downstream value; a later tool entry starts independently.
+This identity alone does not establish application middleware or cross-task context.
+
+For an unambiguous registered FastMCP application, SENT-012/015/016 can interpret an
+included `http_app` override that passes a literal sequence of genuine Starlette
+`Middleware` registrations to `super().http_app`. Included ASGI constructors and
+`__call__` methods run symbolically in registration order. Scope dictionaries,
+Starlette request/state aliases and the continuation's current request retain the
+same member identities. Replaced or escaped applications, unknown callback
+forwarding and unresolved middleware sequences do not establish protection.
+An uninvoked source helper is not evidence that an application was mutated.
+The separate path without an HTTP request retains stdio findings and exception
+fallbacks; HTTP middleware cannot remove an earlier reachable stdio sink.
+On a prepared HTTP path, a genuine request getter followed by constant local
+assignments preserves those assignments at exception entry. Earlier unknown
+operations, setter targets, later writes and nonlocal/global mutation cannot
+establish that prefix state. SENT-016 keeps different caller-absence conditions
+separate through the remaining statements of a try/except without `finally`,
+within the existing deadline. General exception side effects remain unsupported.
+Genuine Starlette `BaseHTTPMiddleware` subclasses can supply a source-defined
+`dispatch(self, request, call_next)` through the same attached middleware sequence.
+The scanner interprets state before `call_next` and explicit refusal; it does not
+execute the framework or assume downstream task changes propagate back upstream.
+Custom construction/call/attribute hooks, replaced or escaped middleware classes,
+and unknown continuation forwarding cannot establish protection. General external
+middleware behavior remains unsupported.
+For a genuine directly imported `mcp.server.fastmcp.FastMCP`, the scanner also
+models the MCP 1.29 SDK's source-selected `run`, `sse_app` and
+`streamable_http_app` relationship. A zero-argument source startup function can
+replace providers through included helpers, saved callbacks and known-field
+assignments. Only middleware added to the returned, served application contributes
+request state. SSE provider calls preserve the SDK's mount-path argument.
+Source JSON-response choices and relevant initialization try/except branches are
+explored separately, up to 16 paths; exception alternatives are possibilities,
+not observed startup failures. Unresolved paths remain visible. Module-level
+server mutation, unknown SDK authentication configuration, replaced classes,
+reflection and escaped server/app state do not establish this SDK contract.
+Startup globals and the path without an HTTP request remain separate from
+middleware request state; failed launch resolution cannot establish configured
+globals. An unset request ContextVar can retain HTTP absence provenance when its
+fallback selects an operator credential; ordinary stdio defaults do not acquire
+that provenance. This interpretation never runs the SDK or target server.
+Plain startup branches follow the selected launch: an alternative transport or
+an unconditional early return/raise cannot configure that launch. The scanner
+does not infer such termination through loops, helpers or try/finally regions.
+Tools with the same explicit launch sites share the source startup interpretation.
+Each handler/request alternative receives its own mutable globals, member tables,
+closures and guard state; only immutable values, source syntax and source-index
+caches are shared. This does not model persistent state between tool invocations.
+Included Python module imports retain module identity through known-field callback
+replacement and saved callbacks. Function-local imports read the current binding;
+an earlier saved callback retains its original source body. Unknown module escape,
+reflection and deletion cannot restore the original callback. This source-only
+interpretation does not import target modules or establish SDK provider attachment.
+An unconditional module-level no-op forward declaration can resolve to its later
+undecorated implementation when no earlier eager expression captured the placeholder.
+Conditional, decorated or previously observed replacements remain unresolved.
+Known Python lists/tuples retain element and allocation identity through indexing
+and bounded iteration; lists also retain builtin append through aliases/helpers.
+The interpreter follows at most 32 known positions, including appended elements.
+Larger or unresolved layouts, starred expansion and break/continue loops retain
+conservative aggregate flow rather than establishing ordered execution.
+Known-field builtin `setattr` on the established Starlette state wrapper updates
+that state without escaping the assigned service object. Unknown fields, replaced
+setters and arbitrary object setters do not establish this contract.
+
+Known dictionary membership and genuinely missing keys preserve optional field
+identity. A fresh empty dictionary default supports reads through the populated
+alias, with conservative writes to that alias; general mapping alternatives are
+not modeled. Optional protected fields cannot unconditionally protect a caller's
+original value. SENT-015 retains URL checks across an optional value's absence
+only when the same value is later present, and follows an IP address's mapped
+IPv4 value without claiming DNS resolution or rebinding protection.
+
+Ordered TypeScript arrays retain allocation identity, aliases, `push`, zero-argument
+`slice` copies and bounded branch alternatives through included helpers. The
+interpreter retains at most 32 layouts of 256 positions; larger layouts, computed
+updates and unknown escapes do not establish argument order. Git option checks
+consume the evaluated layouts, without re-evaluating their expressions.
+
+SENT-012 recognizes the `mobilecli screenrecord --output` contract at genuine
+Node child-process calls. Executable recognition requires the literal command or
+a source-selected, caller-independent `@mobilenext/mobilecli/bin/mobilecli-...`
+package path; arbitrary methods called `spawnCommand` do not establish it.
+Unknown/repeated options remain unresolved. Findings qualify the executable
+condition. Optional guards can protect the same value when a later short-circuit
+expression returns its truthy branch; unrelated and replaced values do not inherit
+that protection. Lexical containment still leaves physical symlink uncertainty.
 
 Workspace discovery reads root uv `members`/`exclude`, npm `workspaces`, and
 pnpm `packages` declarations without invoking their package managers. Expansion
@@ -362,9 +758,11 @@ and reports missing, inaccessible or unsupported declarations. Root Sentinel
 configuration governs aggregate scans; nested configurations are disclosed and
 apply only when a member is scanned individually. Python and TypeScript source
 share one aggregate static deadline. Dynamic scans still select one Python
-package. Report 1.7.0 will record each declared member's actual coverage.
-Until that schema migration, member file counts and inaccessible members appear
-as explicit warnings. Missing declared members make an aggregate incomplete.
+package. The integrated native 1.7.0 report records each declared member's actual
+coverage; member file counts and inaccessible members also appear as explicit
+warnings. Missing declared members make an aggregate incomplete.
+Unsupported inclusion or exclusion glob syntax also makes expansion incomplete;
+unrecognized exclusions leave potentially affected members visible.
 Local TypeScript package names resolve only from declared members (or the single
 package root), through included source exports. Source aliases use local JSONC
 compiler options and bounded local `extends` chains, retaining the declaring
@@ -373,12 +771,52 @@ missing targets remain unresolved; package managers and target compilers are
 never invoked. Conditional exports require one unambiguous included source;
 declaration-only `types` entries are not handler evidence.
 
+### Native 1.7.0 attempt and workspace contract
+
+Each dynamic outcome carries a stable `attempt_id`, nullable mutation and
+eligibility, and an explicit `legacy_attempt` flag. Attempt identity binds the
+probe, tool, argument path and mutation; multiple attempts may use one probe ID.
+Campaign coverage records configured limits, enumeration completeness, planned,
+eligible, started, tested and remaining counts, elapsed time and budget exhaustion.
+Unknown history stays null. Discovery snapshots and planned bindings reference
+attempt IDs; discovery-only sessions have no attempt ID. Legacy 1.3–1.6 outcomes
+become uniquely identified legacy records without invented campaign coverage.
+Finding identities, suppression, nullable review and runtime proof are preserved.
+
+Static workspace coverage records declared members, included source counts,
+observed recognized/unresolved/unsupported surfaces, inaccessible members and
+nested configurations. Historical reports have null workspace coverage.
+JSON and SARIF consumers use the same report model; SARIF remains 2.1.0.
+
+Static evidence carries resolved repository-relative flow locations in canonical
+Finding provenance. Candidate-bound review retains compatible existing context
+when those locations are already supplied. Otherwise it supplies source, guard
+and sink blocks within 160 total source lines, with redaction and explicit omitted
+flow locations. When more than 160 distinct anchors compete, selection rotates
+across their source files so numerous callers cannot crowd out a separate guard
+or credential-selection file. Smaller contexts retain their existing selection.
+References must ground in supplied blocks. Changed blocks or
+omissions change context/request cache identity; unaffected captures are reusable
+only after request compatibility checks. Runtime proof retains its existing
+separate trusted-evidence treatment.
+
 ### Phase 16 flow and safety recognition
 
 Phase 22's execution correction indexes SENT-004 prompt sinks before branch
 analysis and reuses each event's sink list across paths. Functions without a
 supported sink cannot produce this rule's finding; source and coverage inventory
-are retained. The 120-second scan deadline and detector selection are unchanged.
+are retained. Detector selection is unchanged. The approved Phase 22 timing
+policy now allows a 300-second shared static deadline, retaining 120 seconds as
+the performance target; historical 120-second failures remain failures. See
+[the timing policy](docs/phase22-timeout-policy.md).
+
+For at least 128 KiB of collected Python/TypeScript source on a multicore host,
+two or more selected SENT-012/014/015/016 traversals run in at most four isolated
+Python workers. They share the original deadline and scanner-owned parsed source
+snapshot; the parent retains finding, suppression and coverage assembly. Workers
+rebuild identity-based indexes from parsed trees and never import target code.
+Failure or interruption terminates and reaps every started worker. Smaller scans
+and single-rule selections retain serial traversal.
 
 Static traversal recognizes YAML with template delimiters below a chart's
 `templates/` directory when a non-symlink `Chart.yaml` exists inside the scan
@@ -392,7 +830,7 @@ source analysis. It traces tool inputs through top-level same-file named
 helpers, assignments, explicit argument bindings, and returned values. Python
 keyword arguments and simple TypeScript object-field destructuring are supported.
 Constant arguments or helper returns do not establish input-derived execution.
-There is no fixed helper-hop limit; the existing 120-second scan deadline bounds
+There is no fixed helper-hop limit; the shared 300-second scan deadline bounds
 the analysis. Expiry is an infrastructure failure, not a completed clean scan.
 
 Imported helpers, recursion, ambiguous bindings, spreads, dynamic aliases,
@@ -597,7 +1035,8 @@ Probe planning makes GPT operationally consequential without granting it arbitra
 2. GPT grounds its judgment in supplied evidence references.
 3. GPT orders all four fixed probe IDs and binds safe template fields to the relevant target tool schema.
 4. Sentinel validates the plan independently.
-5. The Docker prober executes every required template under the existing sandbox limits.
+5. The Docker prober enumerates supported attempts and executes them under the
+   campaign limits, recording every unstarted remainder.
 6. Dynamic evidence is merged back into the deterministic finding.
 
 An invalid plan does not remove or skip probes. Sentinel falls back to the fixed default order, records the plan validation failure, and preserves the original candidate for review.
@@ -773,7 +1212,10 @@ image so state cannot persist between sessions.
 | `SENT-010` | Send shell, SQL, or template-injection strings. | Treat them as inert data. | Observe a canary side effect such as a Sentinel scratch file. | `ASI05:2026` | Critical |
 | `SENT-011` | Omit a required field or send the wrong type. | Reject with a validation error. | Process without error. | `ASI02:2026` | Low |
 
-The validated GPT probe plan may reorder and bind approved inert template values for these probes. Sentinel independently validates the target tool, field names, values, and probe set; all four probes run even when the plan is absent or invalid.
+The validated GPT probe plan may reorder approved inert template choices for
+these probes. Sentinel independently validates the target tool, field names,
+values, and probe set. An absent or invalid plan uses the default ordering;
+runtime schemas determine supported attempts, and budgets bound execution.
 
 ### Phase 17 accepted contract (complete)
 
@@ -1014,6 +1456,9 @@ Static inventory uses included files and existing recognizers. Registrations
 are distinguished by kind and source location, preserving duplicate names and
 resolved handler locations. Reasons identify computed names, imported schemas
 or implementations, unsupported handler forms, and unresolved execution flows.
+Repeated identical Python flow limitations are reported once per rule, source
+line and reason. These entries describe distinct source limitations, not a count
+of executions or analyzed paths; surface and rule-visit accounting remains separate.
 Rule visits are recorded inside the actual detector loops, before exemptions,
 and are independent of the broader model-context catalog. File/configuration
 rules (`SENT-005`, `SENT-007`) stay separate. Configuration-excluded IDs are
@@ -1054,11 +1499,14 @@ selected analysis and never establishes security assurance.
 ### Team-adoption contracts
 
 `sentinel scan --baseline <report.json>` accepts a bounded, regular,
-non-symlink native JSON 1.3.0, 1.4.0, 1.5.0, or 1.6.0 report. Historical reports are
-migrated in memory and validated as strict 1.6.0; source bytes remain untouched.
-Historical `dynamic_analysis` and `DynamicEvidence.proof` are null. Historical
-model counts are recovered from accepted batch judgments, and disagreement
-counts are unavailable (null). Compatible baselines must be complete,
+non-symlink native JSON 1.3.0 through 1.7.0 report. Historical reports are migrated
+in memory and validated as strict 1.7.0; source bytes remain untouched. Versions
+1.3/1.4 lack the later dynamic summary and typed proof; these fields remain null.
+Versions 1.5/1.6 preserve their recorded proof and fixed-probe outcomes as legacy
+attempts without inventing mutations, eligibility or campaign totals. Version 1.6
+retains its recorded coverage and review activity; older versions keep them null.
+For 1.3/1.4, model counts are recovered from accepted batch judgments, and
+disagreement counts remain unavailable (null). Compatible baselines must be complete,
 execution-successful, contain static analysis, select the same ordered rules,
 and use the same static-only/full mode. Target display names and Sentinel
 package versions do not bind a baseline.
@@ -1093,7 +1541,7 @@ proves that same type/required violation. Ambiguous bindings, unconstrained path
 size-only violations, and resource-only failures stay separate.
 
 Included `.py`, `.ts`, `.mts`, and `.cts` files may carry exact lowercase
-reason-bearing inline directives for `SENT-001`–`SENT-007` and `SENT-012`–`SENT-013`. Python comments are
+reason-bearing inline directives for `SENT-001`–`SENT-007` and `SENT-012`–`SENT-014`. Python comments are
 read through the tokenizer; TypeScript line comments use a lexer that excludes
 strings, templates, escapes, and block comments. Applied directives preserve the
 finding with `suppressed` status and typed source location, exclude it from GPT
@@ -1278,5 +1726,62 @@ warnings and benign prerequisites are controls. Low-level TypeScript tools/list
 metadata is recovered through the imported SDK request schema; this metadata
 recognition does not establish handler or runtime coverage. Dynamic descriptions
 are disclosed as unresolved. The existing selection, suppression, baseline and
-review pipeline applies. Native schema remains 1.6.0 until the coordinated campaign
-migration ships; the complete Phase 22 technical and external gates remain pending.
+review pipeline applies. The integrated campaign migration below emits native
+1.7.0; final Phase 22 technical verification and human acceptance remain pending.
+The user-deferred full paid benchmark and external pilots are not Phase 22
+completion prerequisites. Phase 21 and the later adoption/launch gates remain
+unchanged; no external validation is inferred.
+
+### Phase 22 integrated campaign/report contract (verification in progress)
+
+The integration source implements native 1.7.0 ordered attempts. This section
+supersedes the fixed four-attempt scheduling above for this source branch;
+historical Phase 17/19 and Phase 20 evidence retains its original contract.
+This is not a release or technical acceptance statement.
+
+After dependency-image preparation, the campaign clock starts. A separate Docker
+session discovers the runtime catalog; discovery and enumeration consume the
+campaign budget. The scheduler enumerates supported explicit object-property
+paths (depth 8), inert oversized/injection mutations, wrong-type mutations and
+required-field omissions. Listed ungranted tools receive SENT-008 attempts; a
+nonempty entirely granted catalog receives the existing unknown-name control.
+Empty discovery creates no attempts. Pagination, unsupported schemas and
+unresolved field space remain explicit in discovery records.
+An unsupported schema or unresolved local reference also leaves campaign
+enumeration incomplete, while retaining attempts recovered from supported
+properties. Completing those attempts cannot establish complete analysis.
+
+Rounds select one attempt per tool, rotating eligible rules and fields within
+each tool. Valid candidate-bound GPT priorities reorder choices within each
+round without removing attempts or starving other tools. Attempt IDs hash the
+probe, tool, exact argument path and mutation. Schema fingerprints are separate
+and checked between discovery, baseline and attack. They are not attempt IDs.
+
+Defaults are 24 **started** attempts or 120 seconds, whichever comes first.
+Startup failure counts as started. Each attempt has fresh separate baseline and
+attack containers; invalid baselines prevent attack. Cleanup runs after expiry
+or interruption. All planned attempts retain outcomes, including unstarted
+remainders; incomplete discovery, unsupported/inconclusive results and eligible
+remainders make analysis incomplete. The existing observable-effect conditions
+remain necessary for findings; neither discovery nor an unsuccessful attack
+establishes a security defense.
+
+`--max-probe-attempts` / `SENTINEL_MAX_PROBE_ATTEMPTS` /
+`[sandbox].max_probe_attempts` and `--campaign-timeout-seconds` /
+`SENTINEL_CAMPAIGN_TIMEOUT_SECONDS` / `[sandbox].campaign_timeout_seconds`
+accept positive integers with CLI > environment > file > default precedence.
+Rules-only bypasses sandbox settings. The Action invokes the same configuration
+loader on its selected repository path.
+
+Native 1.7.0 links ordered planned bindings, attempt discovery and outcomes by
+unique IDs. `tested <= started <= eligible <= planned`, the started budget,
+remaining eligible count and totals must agree with records. Workspace members
+have unique paths, observed file counts and inventory-matched surface counts;
+unavailable counts remain null. Native JSON validation enforces these relational
+constraints in addition to the packaged JSON Schema. SARIF remains 2.1.0.
+Versions 1.3/1.4 keep their unavailable dynamic summaries and typed proof null.
+Versions 1.5/1.6 retain fixed-probe outcomes as explicit legacy attempts with unknown
+mutation, eligibility, started counts and campaign totals. Original Finding
+identities, nullable reviews and suppressions are preserved; later historical
+schemas retain their recorded proof. Repeated attempts at a shared finding
+retain every proof in provenance and candidate-bound review context.

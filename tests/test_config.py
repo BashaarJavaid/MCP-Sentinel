@@ -20,6 +20,44 @@ from sentinel.errors import UsageError
 from tests.conftest import make_target
 
 
+@pytest.mark.parametrize(
+    "setting,default", [("max_probe_attempts", 24), ("campaign_timeout_seconds", 120)]
+)
+def test_campaign_setting_precedence_and_offline_bypass(
+    tmp_path: Path, setting: str, default: int
+) -> None:
+    target = make_target(tmp_path / "target")
+    assert (
+        getattr(load_configuration(target, environ={}).scanner.sandbox, setting)
+        == default
+    )
+    config = target / "sentinel.toml"
+    config.write_text(f"[sandbox]\n{setting} = 2\n", encoding="utf-8")
+    assert getattr(load_configuration(target, environ={}).scanner.sandbox, setting) == 2
+    environment = {"SENTINEL_" + setting.upper(): "3"}
+    assert (
+        getattr(
+            load_configuration(target, environ=environment).scanner.sandbox, setting
+        )
+        == 3
+    )
+    loaded = load_configuration(
+        target, environ=environment, sandbox_cli_overrides={setting: 4}
+    )
+    assert getattr(loaded.scanner.sandbox, setting) == 4
+    for invalid in ("0", "-1", '"bad"', "true", "1.5"):
+        config.write_text(f"[sandbox]\n{setting} = {invalid}\n", encoding="utf-8")
+        with pytest.raises(UsageError):
+            load_configuration(target, environ={})
+        offline = load_configuration(
+            target,
+            environ={"SENTINEL_" + setting.upper(): "bad"},
+            cli_overrides={"rules_only": True},
+            sandbox_cli_overrides={setting: -1},
+        )
+        assert getattr(offline.scanner.sandbox, setting) == default
+
+
 def test_defaults_and_framework_metadata_are_loaded(target_root: Path) -> None:
     loaded = load_configuration(target_root, environ={})
     assert loaded.scanner.scanner.format is OutputFormat.CONSOLE

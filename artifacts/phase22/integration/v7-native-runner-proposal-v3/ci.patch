@@ -1,0 +1,137 @@
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -5,6 +5,11 @@
+   push:
+     branches: [main]
+   workflow_dispatch:
++    inputs:
++      phase22_historical:
++        description: Run only the approved Phase 22 development batch and historical pair
++        type: boolean
++        default: false
+   workflow_call:
+ 
+ permissions:
+@@ -16,6 +21,7 @@
+ 
+ jobs:
+   phase20-offline:
++    if: ${{ !inputs.phase22_historical }}
+     name: Phase 20 ${{ matrix.treatment }} verification
+     runs-on: ubuntu-latest
+     strategy:
+@@ -58,6 +64,7 @@
+           path: ${{ runner.temp }}/phase20-${{ matrix.treatment }}
+ 
+   quality:
++    if: ${{ !inputs.phase22_historical }}
+     name: Quality (${{ matrix.os }}, Python ${{ matrix.python-version }})
+     runs-on: ${{ matrix.os }}
+     strategy:
+@@ -131,6 +138,7 @@
+           uv run --python ${{ matrix.python-version }} pip-audit --no-deps --disable-pip -r "${{ runner.temp }}/runtime-requirements.txt"
+ 
+   build-wheel:
++    if: ${{ !inputs.phase22_historical }}
+     name: Build canonical distributions
+     runs-on: ubuntu-latest
+ 
+@@ -163,6 +171,7 @@
+           retention-days: 90
+ 
+   distribution:
++    if: ${{ !inputs.phase22_historical }}
+     name: Wheel (${{ matrix.os }}, Python ${{ matrix.python-version }})
+     runs-on: ${{ matrix.os }}
+     needs: build-wheel
+@@ -200,6 +209,7 @@
+         run: python scripts/smoke_wheel.py artifacts dist
+ 
+   docker-demo:
++    if: ${{ !inputs.phase22_historical }}
+     name: Installed-wheel Docker replay
+     runs-on: ubuntu-latest
+     needs: build-wheel
+@@ -274,6 +284,7 @@
+           python -m sentinel.report.validate_sarif "${{ runner.temp }}/sentinel-demo-results/report.sarif"
+ 
+   rules-only-isolation:
++    if: ${{ !inputs.phase22_historical }}
+     name: Installed-wheel rules-only network isolation
+     runs-on: ubuntu-latest
+     needs: build-wheel
+@@ -305,3 +316,74 @@
+           name: rules-only-isolation-log
+           path: ${{ runner.temp }}/rules-only-isolation.log
+           if-no-files-found: error
++
++  phase22-historical-final:
++    name: Approved Phase 22 development and historical checks
++    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase22_historical && github.ref == 'refs/heads/phase22/integration' }}
++    runs-on: ubuntu-latest
++    timeout-minutes: 240
++    env:
++      OPENAI_API_KEY: ""
++      PYTHONPATH: src:.
++    steps:
++      - name: Check out the approved measurement files
++        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
++        with:
++          persist-credentials: false
++      - name: Preserve the exact approval and gate files
++        run: cp -R artifacts/phase22/integration/v7-native-runner-proposal-v3 "${{ runner.temp }}/phase22-approval"
++      - name: Check out the immutable detector and existing harness
++        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
++        with:
++          ref: 62987a6c519f04e443fe3c305644e24b8d128773
++          persist-credentials: false
++      - name: Set up Python
++        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
++        with:
++          python-version: "3.12"
++      - name: Set up uv
++        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
++        with:
++          version: 0.8.22
++      - name: Install locked development dependencies
++        run: uv sync --frozen --extra dev --python 3.12
++      - name: Record the execution environment
++        env:
++          MEASUREMENT_ROOT: ${{ runner.temp }}/phase22-final-historical
++        run: |
++          uv run python - <<'PYCODE'
++          import importlib.metadata,json,os,platform,subprocess,sys
++          from pathlib import Path
++          from scripts.phase20_measurements import scanner_identity
++          root=Path(os.environ['MEASUREMENT_ROOT']);root.mkdir()
++          record={'source':scanner_identity(),'python':sys.version,'platform':platform.platform(),'cpu_count':os.cpu_count(),'loadavg':os.getloadavg(),'meminfo':Path('/proc/meminfo').read_text(),'semgrep':importlib.metadata.version('semgrep'),'packages':sorted(f"{d.metadata['Name']}=={d.version}" for d in importlib.metadata.distributions()),'workflow_run':os.environ['GITHUB_RUN_ID']}
++          (root/'environment.json').write_text(json.dumps(record,indent=2)+'\n')
++          PYCODE
++      - name: Entire original development batch and gate
++        env:
++          DEVELOPMENT_OUTPUT: ${{ runner.temp }}/phase22-final-historical/development
++        run: |
++          uv run python - <<'PYCODE'
++          import os
++          from pathlib import Path
++          from scripts.phase22_corpus import frozen
++          from scripts.phase20_measurements import measure
++          manifest=frozen();selected=[i for i in manifest.inputs if i.split=='development'];assert len(selected)==25
++          measure(manifest.model_copy(update={'inputs':selected}),'rules',Path(os.environ['DEVELOPMENT_OUTPUT']))
++          PYCODE
++          uv run python "${{ runner.temp }}/phase22-approval/development-gate.py" "$DEVELOPMENT_OUTPUT" "${{ runner.temp }}/phase22-approval"
++      - name: First entire native historical batch and gate
++        run: |
++          uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase22-final-historical/first"
++          uv run python "${{ runner.temp }}/phase22-approval/gate.py" "${{ runner.temp }}/phase22-final-historical/first" "${{ runner.temp }}/phase22-approval"
++      - name: Second entire native historical batch and gate
++        run: |
++          uv run python -m scripts.run_phase20_benchmark rules --output "${{ runner.temp }}/phase22-final-historical/second" --compare-to "${{ runner.temp }}/phase22-final-historical/first"
++          uv run python "${{ runner.temp }}/phase22-approval/gate.py" "${{ runner.temp }}/phase22-final-historical/second" "${{ runner.temp }}/phase22-approval"
++      - name: Retain every result, including failures
++        if: always()
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
++        with:
++          name: phase22-final-historical
++          path: ${{ runner.temp }}/phase22-final-historical
++          if-no-files-found: error

@@ -66,15 +66,26 @@ def main() -> int:
 
     if args.command == "offline":
         interfaces = Path("/proc/net/dev").read_text().splitlines()[2:]
-        assert {line.split(":")[0].strip() for line in interfaces} <= {"lo"}
+        active_interfaces = {
+            name
+            for line in interfaces
+            if (name := line.split(":")[0].strip())
+            and int(Path(f"/sys/class/net/{name}/flags").read_text(), 16) & 1
+        }
+        assert active_interfaces <= {"lo"}, active_interfaces
         route_interfaces = {
             line.split()[0]
             for line in Path("/proc/net/route").read_text().splitlines()
             if line.strip()
         } - {"Iface"}
+        route_interfaces.update(
+            line.split()[-1]
+            for line in Path("/proc/net/ipv6_route").read_text().splitlines()
+            if line.strip()
+        )
         assert route_interfaces <= {"lo"}, route_interfaces
         print(
-            "Namespace verified: no external interfaces or routes "
+            "Namespace verified: no active external interfaces or IPv4/IPv6 routes "
             f"({sorted(route_interfaces)})"
         )
         _check_rules_only_scans(args.executable_dir)
@@ -338,16 +349,26 @@ def _check_rules_only_scans(executable_dir: Path) -> None:
     fixtures = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
     with tempfile.TemporaryDirectory(prefix="sentinel-offline-smoke-") as raw:
         temporary = Path(raw)
-        for fixture in (
-            "clean_server",
-            "vulnerable_server",
-            "typescript_clean_server",
-            "typescript_vulnerable_server",
+        for fixture, large in (
+            ("clean_server", False),
+            ("vulnerable_server", False),
+            ("typescript_clean_server", False),
+            ("typescript_vulnerable_server", False),
+            ("vulnerable_server", True),
+            ("typescript_vulnerable_server", True),
         ):
-            target = temporary / fixture
+            label = fixture + ("-large" if large else "")
+            target = temporary / label
             shutil.copytree(fixtures / fixture, target)
             (target / "sentinel.target.yaml").unlink(missing_ok=True)
             (target / "sentinel.permissions.yaml").unlink(missing_ok=True)
+            if large:
+                typescript = fixture.startswith("typescript")
+                source = target / ("server.ts" if typescript else "server.py")
+                # Exercise installed flow workers on multicore CI without adding
+                # executable fixture behavior or changing existing source locations.
+                with source.open("a", encoding="utf-8") as stream:
+                    stream.write("\n" + ("//" if typescript else "#") + "x" * 131072)
             for key in ("", "dummy-not-a-real-key"):
                 output = temporary / "report.json"
                 environment = {
@@ -379,8 +400,7 @@ def _check_rules_only_scans(executable_dir: Path) -> None:
                 assert report["dynamic_analysis"] is None
                 assert all(finding["review"] is None for finding in report["findings"])
                 print(
-                    f"rules-only {fixture}, key={bool(key)}: "
-                    f"exit {completed.returncode}"
+                    f"rules-only {label}, key={bool(key)}: exit {completed.returncode}"
                 )
 
 
@@ -394,8 +414,11 @@ def _run(
 
 _IDENTITY_CHECK = """
 from importlib import metadata
+from pathlib import Path
+import sys
 import sentinel
 
+assert Path(sentinel.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
 distribution = metadata.distribution("portunusmcp-sentinel")
 assert sentinel.__version__ == "1.3.0"
 assert distribution.version == "1.3.0"

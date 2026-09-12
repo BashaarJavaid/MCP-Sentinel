@@ -24,14 +24,13 @@ from sentinel.llm.semantic_reviewer import (
 )
 from sentinel.llm.tools import extract_tool_catalog
 from sentinel.report.coverage import (
+    DiscoverySnapshot,
     DynamicCoverage,
     ReviewActivity,
     StageReviewActivity,
 )
 from sentinel.report.model import (
-    PROBE_IDS,
     DynamicAnalysisSummary,
-    DynamicProbeOutcome,
     GptReviewSummary,
     ReportWarning,
     ScanContext,
@@ -439,21 +438,19 @@ def _failed_dynamic_outcome(
         ),
         gpt_review=review.summary,
         dynamic_analysis=DynamicAnalysisSummary(
-            coverage=DynamicCoverage(discovery=()),
-            probe_outcomes=tuple(
-                DynamicProbeOutcome(
-                    probe_id=probe_id,
-                    status="untested",
-                    verdict=None,
-                    tool=None,
-                    field=None,
-                    reason=reason,
-                    execution_successful=False,
-                    baseline_attempted=False,
-                    attack_attempted=False,
+            coverage=DynamicCoverage(
+                discovery=(
+                    DiscoverySnapshot(
+                        probe_id="campaign",
+                        role="discovery",
+                        tools=(),
+                        more_pages=None,
+                        tool_total=None,
+                        reason=reason,
+                    ),
                 )
-                for probe_id in PROBE_IDS
             ),
+            probe_outcomes=(),
         )
         if dynamic_started
         else None,

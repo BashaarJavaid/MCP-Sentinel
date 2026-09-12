@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import posixpath
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Any
 
+from sentinel.finding import SourceRange
 from sentinel.report.model import ReportWarning
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import TypeScriptSourceFile
@@ -15,12 +16,14 @@ from sentinel.static.semgrep_ast import parse_typescript, source_range
 from sentinel.static.typescript_modules import TypeScriptModules
 
 
-def walk(tree: Any) -> Iterator[dict[str, Any]]:
+def walk(tree: Any, *, stop_at: tuple[str, ...] = ()) -> Iterator[dict[str, Any]]:
     pending = [tree]
     while pending:
         node = pending.pop()
         if isinstance(node, dict):
             yield node
+            if stop_at and any(kind in node for kind in stop_at):
+                continue
             pending.extend(
                 v
                 for k, v in reversed(tuple(node.items()))
@@ -66,6 +69,8 @@ class TypeScriptBinding:
     handler: TypeScriptSymbol | None
     schema: TypeScriptSymbol | None
     description: TypeScriptSymbol | None
+    factory: TypeScriptSymbol | None = None
+    sdk_registration: TypeScriptSymbol | None = None
 
 
 class TypeScriptProgram:
@@ -75,6 +80,7 @@ class TypeScriptProgram:
         *,
         deadline: float,
         modules: TypeScriptModules | None = None,
+        trees: dict[str, dict[str, Any]] | None = None,
     ) -> None:
         self.files = {file.relative_path: file for file in files}
         self.deadline = deadline
@@ -82,15 +88,25 @@ class TypeScriptProgram:
         self.trees: dict[str, dict[str, Any]] = {}
         self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}
         self.exports: dict[str, set[str]] = {}
+        self.class_attributes: dict[int, list[dict[str, Any]]] = {}
+        self.source_ranges: OrderedDict[
+            tuple[int, int], tuple[Any, TypeScriptSourceFile, SourceRange]
+        ] = OrderedDict()
         self.warnings: list[ReportWarning] = modules.warnings if modules else []
         for file in files:
-            tree = parse_typescript(file, deadline=deadline)
+            tree = (
+                parse_typescript(file, deadline=deadline)
+                if trees is None
+                else trees[file.relative_path]
+            )
             self.trees[file.relative_path] = tree
             bindings: dict[str, list[dict[str, Any]]] = defaultdict(list)
             exports: set[str] = set()
             for node in tree["Pr"]:
                 if "DefStmt" in node:
                     entity, definition = node["DefStmt"]
+                    if "ClassDef" in definition:
+                        self.class_attributes[id(definition)] = entity.get("attrs", [])
                     name = name_of(entity["name"])
                     if name:
                         variable = definition.get("VarDef", {})
@@ -325,11 +341,34 @@ class TypeScriptProgram:
                         description,
                     )
                 )
-        return tuple(found)
+        from sentinel.static.typescript_registration_flow import factory_tools
 
-    @staticmethod
-    def text(file: TypeScriptSourceFile, node: Any) -> str:
-        location = source_range(node, file)
+        wrapped = factory_tools(self)
+        registrations = {id(tool.registration.node) for tool in wrapped}
+        return (
+            tuple(
+                tool
+                for tool in found
+                if id(tool.registration.node) not in registrations
+            )
+            + wrapped
+        )
+
+    def source_range(self, node: Any, file: TypeScriptSourceFile) -> SourceRange:
+        check_deadline(self.deadline)
+        # Source syntax stays immutable within a program. Retain both objects so
+        # identity reuse cannot confuse a synthetic node or another source snapshot.
+        key = (id(node), id(file))
+        if key not in self.source_ranges:
+            self.source_ranges[key] = (node, file, source_range(node, file))
+            # ponytail: bound retained locations; evicted nodes are revalidated.
+            if len(self.source_ranges) > 4096:
+                self.source_ranges.popitem(last=False)
+        self.source_ranges.move_to_end(key)
+        return self.source_ranges[key][2]
+
+    def text(self, file: TypeScriptSourceFile, node: Any) -> str:
+        location = self.source_range(node, file)
         lines = file.source.splitlines(keepends=True)
         start = (
             sum(map(len, lines[: location.start_line - 1])) + location.start_column - 1
@@ -371,6 +410,15 @@ class TypeScriptProgram:
         seen: frozenset[tuple[str, str]] = frozenset(),
     ) -> TypeScriptSymbol | None:
         check_deadline(self.deadline)
+        if "Await" in node:
+            return self.resolve_node(file, node["Await"][1], rest, seen)
+        call = node.get("Call")
+        if call and name_of(call[0]) == "import" and len(call[1][1]) == 1:
+            module = self.literal(TypeScriptSymbol(file, call[1][1][0].get("Arg", {})))
+            if module is None or not module.startswith("."):
+                self.unresolved(file, "nonliteral or external dynamic import")
+                return None
+            return self.resolve_node(file, {"import": (module, "")}, rest, seen)
         if "import" in node:
             module, imported = node["import"]
             target = ".".join(part for part in (imported, rest) if part)
@@ -389,13 +437,15 @@ class TypeScriptProgram:
                 )
             )
             if not local:
-                # Node's default fs/path exports are the built-in module object.
+                # These Node default exports are the built-in module object.
                 if imported == "default" and module.removeprefix("node:") in {
                     "fs",
                     "fs/promises",
                     "path",
                     "path/posix",
                     "path/win32",
+                    "child_process",
+                    "net",
                 }:
                     target = rest
                 return TypeScriptSymbol(
@@ -425,10 +475,12 @@ class TypeScriptProgram:
                     return None
                 included_paths.update(matches)
             included = [self.files[path] for path in sorted(included_paths)]
-            if (
-                len(included) != 1
-                or target.split(".")[0] not in self.exports[included[0].relative_path]
-            ):
+            if len(included) != 1:
+                self.unresolved(file, module + ":" + target)
+                return None
+            if not target:
+                return TypeScriptSymbol(file, node)
+            if target.split(".")[0] not in self.exports[included[0].relative_path]:
                 self.unresolved(file, module + ":" + target)
                 return None
             return self.resolve(included[0], target, seen)

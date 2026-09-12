@@ -31,7 +31,7 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover - exercised on the Python 3.10 CI job
     import tomli as tomllib
 
-SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 14))
+SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 17))
 DEFAULT_IGNORES = (
     ".venv/",
     "venv/",
@@ -196,6 +196,8 @@ class LlmConfig(ContractModel):
 
 
 class SandboxConfig(ContractModel):
+    max_probe_attempts: int = Field(default=24, ge=1)
+    campaign_timeout_seconds: int = Field(default=120, ge=1)
     allowed_registries: tuple[str, ...] = (
         "pypi.org",
         "files.pythonhosted.org",
@@ -420,6 +422,8 @@ ENV_OVERRIDES: dict[str, tuple[str, str]] = {
     "SENTINEL_LLM_MAX_CONCURRENCY": ("llm", "max_concurrency"),
     "SENTINEL_LLM_CACHE_ENABLED": ("llm", "cache_enabled"),
     "SENTINEL_ALLOWED_REGISTRIES": ("sandbox", "allowed_registries"),
+    "SENTINEL_MAX_PROBE_ATTEMPTS": ("sandbox", "max_probe_attempts"),
+    "SENTINEL_CAMPAIGN_TIMEOUT_SECONDS": ("sandbox", "campaign_timeout_seconds"),
 }
 LIST_ENV_VARS = {
     "SENTINEL_RULES",
@@ -427,6 +431,8 @@ LIST_ENV_VARS = {
     "SENTINEL_ALLOWED_REGISTRIES",
 }
 INTEGER_ENV_VARS = {
+    "SENTINEL_MAX_PROBE_ATTEMPTS",
+    "SENTINEL_CAMPAIGN_TIMEOUT_SECONDS",
     "SENTINEL_MAX_FINDINGS",
     "SENTINEL_LLM_TIMEOUT_SECONDS",
     "SENTINEL_LLM_RETRIES",
@@ -441,6 +447,7 @@ def load_configuration(
     environ: Mapping[str, str] | None = None,
     cli_overrides: Mapping[str, Any] | None = None,
     llm_cli_overrides: Mapping[str, Any] | None = None,
+    sandbox_cli_overrides: Mapping[str, Any] | None = None,
     trust_llm_endpoint: bool = False,
     target_launch_cmd: str | None = None,
     static_only: bool = False,
@@ -470,13 +477,16 @@ def load_configuration(
         raise ConfigurationError(f"invalid scanner configuration: {error}") from error
     if rules_only:
         config_data.pop("llm", None)
+        config_data.pop("sandbox", None)
         environment = {
             key: value
             for key, value in environment.items()
             if not key.startswith("SENTINEL_LLM_")
             and key != "SENTINEL_TRUST_LLM_ENDPOINT"
+            and not (key in ENV_OVERRIDES and ENV_OVERRIDES[key][0] == "sandbox")
         }
         llm_cli_overrides = {}
+        sandbox_cli_overrides = {}
         trust_llm_endpoint = False
         project_base_url = None
         static_only = True
@@ -486,6 +496,16 @@ def load_configuration(
     merged = _apply_environment(merged, environment)
     merged = _apply_cli(merged, cli_overrides or {})
     merged = _apply_llm_cli(merged, llm_cli_overrides or {})
+    merged = _deep_merge(
+        merged,
+        {
+            "sandbox": {
+                key: value
+                for key, value in (sandbox_cli_overrides or {}).items()
+                if value is not None
+            }
+        },
+    )
     try:
         scanner = SentinelConfig.model_validate(merged)
     except Exception as error:

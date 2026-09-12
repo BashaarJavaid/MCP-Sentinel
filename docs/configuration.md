@@ -113,7 +113,7 @@ findings remain visible but do not affect `--fail-on`; resolved findings appear
 as an aggregate count of findings not observed in this scan. Sentinel never updates a baseline automatically. Generate
 a separate candidate file, review its diff, then replace the accepted baseline.
 
-Native 1.6.0 reports use `sentinel-baseline-v2`. Supported 1.3/1.4/1.5 baselines
+Native 1.7.0 reports use `sentinel-baseline-v2`. Supported 1.3/1.4/1.5/1.6 baselines
 migrate in memory without changing their files or claiming completed dynamic
 testing. Static matching is preserved. Historical entries cannot hide newly
 verified runtime proof, including proof appended to a static finding. Timings
@@ -122,6 +122,12 @@ and incidental logs do not invalidate otherwise identical proof.
 ## Dynamic outcomes and valid examples
 
 Provide complete legitimate argument objects in `sentinel.target.yaml`:
+
+`sentinel init --dynamic` leaves these examples empty. Generated schema-valid
+arguments may still be invalid for the application: a calculator can accept
+strings while requiring a valid expression. Supply known valid examples when
+baseline calls fail; Sentinel reports incomplete analysis rather than treating
+those failed baselines as defenses.
 
 ```yaml
 probe_baselines:
@@ -135,10 +141,27 @@ Examples replace generated arguments. Both must validate against the listed
 runtime schema and succeed in a fresh baseline container. Examples share depth-8
 and 16-KiB bounds; generated arrays are limited to 16 items. References resolve
 locally only. Each probe has separate fresh baseline and attack sessions, with
-10-second session and 120-second campaign deadlines.
+10-second session deadlines. Campaigns default to 24 started attempts or 120
+seconds including runtime discovery, whichever comes first. Startup failures
+count as started; mandatory cleanup still runs after expiry.
+
+```toml
+[sandbox]
+max_probe_attempts = 24
+campaign_timeout_seconds = 120
+```
+
+Override with `--max-probe-attempts` / `SENTINEL_MAX_PROBE_ATTEMPTS` and
+`--campaign-timeout-seconds` / `SENTINEL_CAMPAIGN_TIMEOUT_SECONDS`. Values must
+be positive integers. Precedence is CLI > environment > file > default.
+Rules-only ignores these runtime settings, including invalid inactive values.
+The GitHub Action consumes this configuration from its selected repository.
 
 Default console, native JSON `dynamic_analysis.probe_outcomes`, and SARIF
-invocation `properties.dynamicAnalysis` show all four probe outcomes. A `tested`
+invocation `properties.dynamicAnalysis` show one outcome per planned attempt, including the unstarted remainder.
+Attempts rotate across discovered tools and supported arguments. Multiple
+attempts may share a rule; use `attempt_id` to join bindings, discovery and
+outcomes. Empty or failed discovery does not invent four attempts. A `tested`
 probe has verdict `violation_observed` or `no_violation_observed`. Unsupported,
 untested, and inconclusive probes have null verdicts and make analysis incomplete
 (exit 3), preserving any findings. Timeout alone cannot prove a violation.
@@ -166,7 +189,7 @@ const apiKey = "ghp_example"; // sentinel: ignore[SENT-005] reason=test fixture
 ```
 
 A standalone directive binds the next physical line; a trailing directive binds
-its line. Only `SENT-001`–`SENT-007` are supported. Suppressed findings remain
+its line. Static rules `SENT-001`–`SENT-007` and `SENT-012`–`SENT-016` are supported. Suppressed findings remain
 auditable in console, JSON, and SARIF. Invalid directives fail; unused valid
 directives warn.
 
@@ -185,7 +208,7 @@ sentinel-baseline.json]` to use a reviewed baseline.
 
 ## Rules-only report compatibility
 
-Native schema 1.6.0 retains the canonical Finding shape, with nullable finding
+Native schema 1.7.0 retains the canonical Finding shape, with nullable finding
 review for explicitly unreviewed rules-only results. Provenance reviews and the
 GPT summary are null. Existing `not_reviewed`, degraded, and completed review
 records remain readable. Consumers must handle null review; older validators

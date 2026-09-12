@@ -1,0 +1,104 @@
+{
+  "status": "prepared_not_approved_not_dispatched",
+  "recorded_at": "2026-09-11T08:12:33.223219+00:00",
+  "checkpoint": {
+    "path": "artifacts/phase22/corpus-replacement-v5/checkpoint-1f3f72f.json",
+    "sha256": "ae4d6c817446b4cf675ec2b1f74a99323e3e21de5a2b1545f29264e4513cf60e"
+  },
+  "manifest": {
+    "path": "artifacts/phase22/corpus-replacement-v5/manifest.json",
+    "sha256": "4990b75b3648a96fef8ee2f23ebd5bda6aae2bce1fef8e0db1b877ef34c09ae6"
+  },
+  "scanner": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "configuration": {
+    "path": "artifacts/phase22/corpus-replacement-v5/configurations.json",
+    "sha256": "de9e6a8ad89f7cf3974ca28fb7a5de86b72e1729daf5150501639684464ffc2a"
+  },
+  "pre_curation_freeze": {
+    "path": "artifacts/phase22/integration/v23-scanner-freeze-before-v5-curation.json",
+    "sha256": "4134eca616db433e69d8b8b869d9c840dd137da18bde627bed3c3cde21d167b1"
+  },
+  "bounds": {
+    "dispatches": 1,
+    "native_observations": 10,
+    "comparator_observations": 5,
+    "profiles": 0,
+    "retries": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "normal_target_seconds": 120,
+    "native_and_whole_input_maximum_seconds": 300,
+    "comparator_and_whole_input_maximum_seconds": 300,
+    "nominal_input_minutes": 75,
+    "cleanup_maximum_seconds_per_input": 15,
+    "job_limit_minutes": 90,
+    "internal_stop_minutes": 88,
+    "reserved_upload_minutes": 2
+  },
+  "input_order": [
+    "lighthouse-linklocal-vulnerable",
+    "lighthouse-linklocal-vulnerable-mutation",
+    "lighthouse-linklocal-fixed",
+    "lighthouse-linklocal-fixed-mutation",
+    "lighthouse-public-safe"
+  ],
+  "batch_order": [
+    "rules-first",
+    "rules-repeat",
+    "semgrep-first"
+  ],
+  "environment": "One standard ubuntu-latest job, Python3.12, uv0.8.22, immutable1f3f72f scanner with frozen uv.lock. Record actual Python patch/packages/CPU/topology/memory/load/workflow. No larger runner or procurement. No overlap with other owned timing work.",
+  "comparator": {
+    "engine_version": "1.176.0",
+    "repository": "semgrep/semgrep-rules",
+    "revision": "40b8c63f75dc7c22c8a77482d73bfb864b146f7e",
+    "archive_url": "https://api.github.com/repos/semgrep/semgrep-rules/tarball/40b8c63f75dc7c22c8a77482d73bfb864b146f7e",
+    "archive_sha256": "beb4ecfbe2ef6d14942bf58c6805456d802d9380fd894c11de8fde957ff1159c",
+    "configuration_count": 511,
+    "rule_count": 533,
+    "command": [
+      "semgrep",
+      "scan",
+      "--config",
+      "<prepared-local-rules-dir>",
+      "--json",
+      "--metrics=off",
+      "--disable-version-check",
+      "--no-git-ignore",
+      "--exclude",
+      ".phase20/**",
+      "<same-materialized-scan-root>"
+    ],
+    "selection": "Root rules: YAML configurations; metadata.category exactly security; languages intersects python/javascript/typescript. Select before scans."
+  },
+  "comparator_preparation": {
+    "path": "artifacts/phase20/semgrep-preparation.json",
+    "sha256": "795e5da795dc894838eec68c51363f3e7c91874f166eee3cd12065445c92f23f"
+  },
+  "execution": "After approval only, version a minimal runner using the existing measure(), frozen(approval_path=...), source scoring and tested process-group supervisor. Copy only the approved corpus/provenance artifacts into the isolated scanner checkout; scanner/test/harness/lock bytes stay1f3f72f. Verify exact source/manifest/config/rules hashes before each isolated child and bind final runner/workflow bytes before one dispatch. Native and comparator whole-input deadlines start before Popen, including materialization/configuration/import/analysis/validation/writing. Start no child without315seconds remaining before the internal stop. Forbid model transport and credentials; no target source imports/builds/tests/browser/dependency installation. Scanner/comparator dependencies alone use the locked environment.",
+  "correctness": "Validate native JSON/SARIF and canonical provenance, compare entire ordered native repeats excluding only the established11 volatile fields, source-assess every finding/warning/coverage delta. Semgrep uses the same materialized input records and prepared rules. No generic source overlap or rule-ID-only condition scoring. Preserve all original/fixed/safe labels and input denominators.",
+  "stop": "One attempt per named input per batch. Any infrastructure, execution, timeout, identity, schema, cleanup or ordered-repeat failure closes unused budget. Detection misses and false alerts remain measured outcomes, do not abort remaining outcome collection, and never authorize tuning/retry/case replacement. End after15 observations even if all succeed. No automatic technical acceptance.",
+  "prior_results": "Preserve original/v1-v4 results and rejected v4 novelty. This novel Lighthouse repository contributes one correlated vulnerability, curated by the implementation agent after scanner freeze; no independent human or unseen-source claim.",
+  "separate_checkpoints": [
+    "Explicit approval of this exact operational proposal and checkpoint before any run.",
+    "Any correction following these first frozen results requires an exposure/disposition decision, bounded regressions and a later separately approved freeze as appropriate.",
+    "Final human Phase22 technical acceptance after all gates and final packet. No merge/release/outreach/next phase."
+  ],
+  "source_only_authorization": {
+    "path": "artifacts/phase22/integration/v23-source-only-recovery-authorization.json",
+    "sha256": "5360b9ea2f3225c9624f60ca0f8583fec58f304c64b8338f6a02f1d3cfd7e0fd"
+  },
+  "condition_review": {
+    "path": "artifacts/phase22/corpus-replacement-v5/review/condition-review.json",
+    "sha256": "f89b80abfdc9c2de5560850b0076b0cada6d6a05c32444e1b665924577f0e605"
+  },
+  "novelty": {
+    "path": "artifacts/phase22/corpus-replacement-v5/provenance/novelty.json",
+    "sha256": "a9ae1f087944c376821adc358d0636b32aa50504ab4c48b7ae8a530b409942be"
+  },
+  "scope_change": "Replace only the invalid v4 SENT-015 five-input slot with the novel Lighthouse pre-launch link-local condition. No requirement, timing, label-after-evaluation, scanner or harness waiver."
+}

@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cached_property
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from sentinel.config import LoadedConfiguration
 from sentinel.finding import Finding, Impact, OwaspCategory, SourceRange
@@ -15,6 +15,7 @@ from sentinel.report.model import ReportWarning, StaticAnalysisSummary
 
 if TYPE_CHECKING:
     from sentinel.static.discovery import PythonProgram
+    from sentinel.static.http_discovery import HTTPBinding, TypeScriptHTTPBinding
     from sentinel.static.typescript_discovery import TypeScriptProgram
 
 
@@ -102,12 +103,25 @@ class StaticContext:
     configuration: LoadedConfiguration
     files: StaticFileSet
     deadline: float = float("inf")
+    typescript_trees: dict[str, dict[str, Any]] | None = None
 
     @cached_property
     def python_program(self) -> PythonProgram:
         from sentinel.static.discovery import PythonProgram
 
-        return PythonProgram(self.files.python_files)
+        return PythonProgram(self.files.python_files, deadline=self.deadline)
+
+    @cached_property
+    def python_http_handlers(self) -> tuple[HTTPBinding, ...]:
+        from sentinel.static.http_discovery import handlers
+
+        return handlers(self.python_program)
+
+    @cached_property
+    def typescript_http_handlers(self) -> tuple[TypeScriptHTTPBinding, ...]:
+        from sentinel.static.http_discovery import typescript_handlers
+
+        return typescript_handlers(self.typescript_program)
 
     @cached_property
     def typescript_program(self) -> TypeScriptProgram:
@@ -118,6 +132,7 @@ class StaticContext:
         return TypeScriptProgram(
             self.files.typescript_files,
             deadline=self.deadline,
+            trees=self.typescript_trees,
             modules=TypeScriptModules(
                 self.configuration.scan_root,
                 self.files.config_files,

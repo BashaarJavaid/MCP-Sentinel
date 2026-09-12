@@ -20,7 +20,8 @@ from sentinel.finding import SourceRange
 from sentinel.static.model import StaticFileSet, StaticMatch
 
 SEMGREP_VERSION = "1.176.0"
-SEMGREP_BATCH_SIZE = 200
+# Reserve space for the fixed flags/configs; Windows has a smaller command limit.
+SEMGREP_BATCH_BYTES = 20_000 if os.name == "nt" else 100_000
 SEMGREP_TIMEOUT_SECONDS = 10
 TYPESCRIPT_CATALOG_RULE_ID = "typescript-tool-catalog"
 _TYPESCRIPT_HYBRID_RULE_IDS = {
@@ -95,11 +96,19 @@ def run_semgrep(
             "SSL_CERT_FILE": certifi.where(),
         }
     )
-    for index in range(0, len(paths), SEMGREP_BATCH_SIZE):
+    batches: list[list[Path]] = [[]]
+    size = 0
+    for path in paths:
+        cost = len(str(path).encode("utf-8")) + 3
+        if batches[-1] and size + cost > SEMGREP_BATCH_BYTES:
+            batches.append([])
+            size = 0
+        batches[-1].append(path)
+        size += cost
+    for batch in batches:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
-            raise InfrastructureError("static analysis exceeded its 120-second timeout")
-        batch = paths[index : index + SEMGREP_BATCH_SIZE]
+            raise InfrastructureError("static analysis timeout: deadline exceeded")
         with tempfile.TemporaryDirectory(prefix="sentinel-semgrep-") as directory:
             temporary_root = Path(directory)
             output = temporary_root / "results.json"
@@ -136,6 +145,7 @@ def run_semgrep(
                     encoding="utf-8",
                     timeout=remaining,
                     env=environment,
+                    cwd=scan_root,
                 )
             except (OSError, subprocess.TimeoutExpired) as error:
                 raise InfrastructureError(
@@ -202,7 +212,8 @@ def _collect_results(
         rule_id = metadata.get("sentinel_rule_id")
         if rule_id not in results:
             continue
-        raw_path = Path(str(item.get("path", ""))).resolve()
+        reported_path = Path(str(item.get("path", "")))
+        raw_path = (scan_root / reported_path).resolve()
         relative = _relative_path(raw_path, files, scan_root)
         start = item.get("start", {})
         end = item.get("end", {})

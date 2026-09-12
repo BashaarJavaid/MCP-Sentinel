@@ -63,6 +63,40 @@ def test_no_workspace_does_not_expand_arbitrary_packages(tmp_path: Path) -> None
     assert discover_workspace(tmp_path) is None
 
 
+@pytest.mark.parametrize(
+    "manifest,content",
+    [
+        (
+            "pyproject.toml",
+            '[tool.uv.workspace]\nmembers=["packages/*"]\n'
+            'exclude=["packages/{one,two}"]\n',
+        ),
+        (
+            "package.json",
+            '{"workspaces":["packages/*","!packages/{one,two}"]}',
+        ),
+        (
+            "pnpm-workspace.yaml",
+            'packages: ["packages/*", "!packages/{one,two}"]\n',
+        ),
+    ],
+)
+def test_unsupported_workspace_exclusion_is_disclosed(
+    tmp_path: Path, manifest: str, content: str
+) -> None:
+    (tmp_path / manifest).write_text(content)
+    member = tmp_path / "packages" / "one"
+    member.mkdir(parents=True)
+    (member / "package.json").write_text("{}")
+    (member / "pyproject.toml").write_text("[project]\nname='one'\n")
+    layout = discover_workspace(tmp_path)
+    assert layout is not None
+    assert layout.members == (".", "packages/one")
+    assert len(layout.issues) == 1
+    assert layout.issues[0].path == "packages/{one,two}"
+    assert "unsupported workspace glob" in layout.issues[0].reason
+
+
 @pytest.fixture
 def mixed_workspace(tmp_path: Path) -> Path:
     (tmp_path / "package.json").write_text('{"workspaces":["packages/*"]}')

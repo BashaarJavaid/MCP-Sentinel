@@ -23,7 +23,7 @@ from mcp import ClientSession
 from mcp.shared.exceptions import McpError
 from mcp.types import INVALID_PARAMS, CallToolResult, ErrorData, ListToolsResult, Tool
 
-from sentinel.config import LlmConfig, LoadedConfiguration
+from sentinel.config import LlmConfig, LoadedConfiguration, SandboxConfig
 from sentinel.dynamic import prober
 from sentinel.dynamic.prober import (
     INJECTION_MARKER,
@@ -59,6 +59,9 @@ class SyntheticSandbox:
     ) -> None:
         self.tool = tool
         self.target = SimpleNamespace(probe_baselines={})
+        self.configuration = SimpleNamespace(
+            scanner=SimpleNamespace(sandbox=SandboxConfig())
+        )
         self.enforce_schema = enforce_schema
         self.baseline_error = baseline_error
         self.create_canary = create_canary
@@ -162,10 +165,14 @@ def test_unconstrained_nested_field_is_not_malformed_input() -> None:
     manifest = PermissionsManifest.model_validate(
         {"version": 1, "tools": {"process": {}}}
     )
-    binding = prober._select_runtime_binding(
-        ProbeBinding("SENT-011", tool.name, "record_id", WRONG_TYPE_MARKER),
-        (tool,),
-        manifest,
+    binding = next(
+        item
+        for item in prober.enumerate_attempts(
+            (tool,),
+            manifest,
+            prober.ProbeCampaign(prober.DEFAULT_ORDER, (), None, True),
+        )[0]
+        if item.probe_id == "SENT-011"
     )
     arguments, _ = _probe_arguments(binding, (tool,))
     assert not Draft202012Validator(tool.inputSchema).is_valid(arguments)
@@ -265,7 +272,7 @@ def test_timeout_alone_is_not_proof_and_independent_probes_continue(
             ),
         )
     )
-    assert attempted == list(prober.DEFAULT_ORDER)
+    assert attempted == [binding.probe_id for binding in campaign.bindings]
     assert not any(item.vulnerable for item in results)
 
 
@@ -290,9 +297,9 @@ def test_campaign_preserves_completed_proof_and_stops_only_on_infrastructure(
             {},
             {},
             (),
-            binding.probe_id == "SENT-008",
+            binding.probe_id == "SENT-009",
         )
-        if binding.probe_id == "SENT-009":
+        if binding.probe_id == "SENT-010":
             if failure == "infrastructure":
                 raise InfrastructureError("synthetic inspection or cleanup failure")
             observation.status = (
@@ -312,14 +319,14 @@ def test_campaign_preserves_completed_proof_and_stops_only_on_infrastructure(
             ),
         )
     )
-    assert len(results) == 4
+    assert len(results) == len(campaign.bindings) == 5
     assert results[0].vulnerable
     if failure == "infrastructure":
-        assert attempted == ["SENT-008", "SENT-009"]
-        assert not results[1].execution_successful
-        assert [item.status for item in results[2:]] == ["untested", "untested"]
+        assert attempted == ["SENT-009", "SENT-008", "SENT-010"]
+        assert not results[2].execution_successful
+        assert [item.status for item in results[3:]] == ["untested", "untested"]
     else:
-        assert attempted == list(prober.DEFAULT_ORDER)
+        assert attempted == [binding.probe_id for binding in campaign.bindings]
         assert all(item.execution_successful for item in results)
 
 

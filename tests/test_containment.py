@@ -1,5 +1,6 @@
 """Containment checks must protect the actual value before its filesystem use."""
 
+import json
 from pathlib import Path
 from uuid import uuid4
 
@@ -11,6 +12,295 @@ from sentinel.static.model import RuleRunState
 from sentinel.static.rules.sent012 import analyze
 from tests.conftest import NOW, make_target
 from tests.test_python_discovery import program
+
+
+@pytest.mark.parametrize(
+    ("change", "qualified"),
+    [
+        ("", True),
+        ("parent = returned(parent)", True),
+        ("parent = parent if enabled else Path(other)", False),
+        ("parent = parent.parent", False),
+        ("parent = parent / other", False),
+        ("parent = unknown(parent)", False),
+        ("parent = Path(other)", False),
+    ],
+)
+def test_checked_parent_remains_a_visible_containment_gap(
+    change: str, qualified: bool
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from pathlib import Path\n"
+                    "def returned(value): return value\n"
+                    "@mcp.tool()\ndef create(path, other, enabled):\n"
+                    "    p = Path(path).resolve()\n"
+                    "    p.relative_to(Path('/srv/data').resolve())\n"
+                    "    parent = p.parent\n"
+                    + (f"    {change}\n" if change else "")
+                    + "    return open(parent)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("containment_gap") == "checked-parent"
+    ) is qualified
+
+
+def test_checked_parent_transport_qualification_survives_native_deduplication() -> None:
+    from sentinel.static.engine import _deduplicate, _finding_from_match
+
+    source = (
+        "import os\nfrom pathlib import Path\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n"
+        "def checked(path):\n"
+        "    if ROOT is None: return path\n"
+        "    root = os.path.realpath(ROOT)\n"
+        "    p = os.path.realpath(os.path.join(root, path))\n"
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n"
+        "    return p\n"
+        "@mcp.tool()\ndef create(path):\n"
+        "    Path(checked(path)).parent.mkdir(parents=True, exist_ok=True)\n"
+        "def http():\n    global ROOT\n    ROOT = '/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n"
+        "def stdio():\n    mcp.run(transport='stdio')\n"
+    )
+    for extra, expected in (
+        ("", ["streamable-http"]),
+        ("def unguarded_http():\n    mcp.run(transport='streamable-http')\n", []),
+    ):
+        state = RuleRunState()
+        analyze(program({"server.py": source + extra}), state)
+        matches = _deduplicate(state.matches)
+        assert len(matches) == 1
+        assert json.loads(matches[0].captures["checked_parent_transports"]) == expected
+        assert "containment_gap" not in matches[0].captures
+        finding = _finding_from_match(matches[0], uuid4(), NOW)
+        assert ("the requested path passed containment" in finding.description) is bool(
+            expected
+        )
+        assert finding.status.value == "needs_review"
+
+
+@pytest.mark.parametrize("callback", ["read_global", "lambda: open(state['path'])"])
+def test_helper_keeps_mutated_global_and_closure_state(callback: str) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from proxy import invoke\n"
+                "state = {'path': '/srv/fixed'}\n"
+                "def read_global(): return open(state['path'])\n"
+                "@mcp.tool()\ndef read(path):\n"
+                "    state['path'] = path\n"
+                f"    return invoke({callback})\n",
+                "proxy.py": "def invoke(callback): return callback()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert state.matches[0].path == "server.py"
+
+
+def test_repeated_helper_limit_reports_each_source_reason_once() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "def checked(p): return unknown(p)\n"
+                "@mcp.tool()\ndef read_one(path): return open(checked(path))\n"
+                "@mcp.tool()\ndef read_two(path): return open(checked(path))\n"
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 2
+    assert len(state.warnings) == 1
+    assert "server.py:1" in state.warnings[0].message
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("open('/srv/fixed' if True else path)", 0),
+        ("open('/srv/fixed' if False else path)", 1),
+        ("open('/srv/fixed' if enabled else path)", 1),
+        ("open(path) if False else None", 0),
+    ],
+)
+def test_conditional_expression_only_visits_possible_branch(
+    expression: str, expected: int
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "@mcp.tool()\ndef read(path, enabled):\n    return "
+                + expression
+                + "\n"
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
+
+
+def test_configured_launch_globals_keep_transport_specific_path_evidence() -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n"
+        "def checked(path):\n"
+        "    if ROOT is None: return path\n"
+        "    root = os.path.realpath(ROOT)\n"
+        "    p = os.path.realpath(os.path.join(root, path))\n"
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n"
+        "    return p\n"
+        "@mcp.tool()\ndef read(path):\n    return open(checked(path))\n"
+        "def http():\n    global ROOT\n    ROOT = os.environ.get('ROOT', '/srv/data')\n"
+        "    mcp.run(transport='streamable-http')\n"
+        "def stdio():\n    mcp.run(transport='stdio')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == 1
+    assert json.loads(state.matches[0].captures["launch_transports"]) == ["stdio"]
+    vulnerable = source.replace(
+        "    if os.path.commonpath([root, p]) != root: raise ValueError()\n", ""
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": vulnerable}), state)
+    assert {
+        json.loads(match.captures["launch_transports"])[0] for match in state.matches
+    } == {
+        "stdio",
+        "streamable-http",
+    }
+
+
+@pytest.mark.parametrize(
+    "extra", ["mcp.run()", "def other(transport):\n    mcp.run(transport=transport)"]
+)
+def test_unresolved_launch_cannot_hide_unconfigured_handler(extra: str) -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n@mcp.tool()\ndef read(path):\n"
+        "    if ROOT is None: return open(path)\n"
+        "    return open('/srv/data/fixed')\n"
+        "def configured():\n    global ROOT\n    ROOT='/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n" + extra + "\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert state.matches
+    assert any("launch" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("if not inside(root, p): raise ValueError()", 0),
+        ("if not inside(root, p): return None", 0),
+        ("inside(root, p)", 1),
+        ("if not inside(root, other): raise ValueError()", 1),
+        ("if not inside(root, p): raise ValueError()\np = other_input", 1),
+        (
+            "try:\n    if not inside(root, p): raise ValueError()\n"
+            "except ValueError:\n    pass",
+            1,
+        ),
+    ],
+)
+def test_realpath_commonpath_boolean_helper(guard: str, expected: int) -> None:
+    source = (
+        "import os\nfrom mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "def inside(root, p):\n"
+        "    root = os.path.realpath(root)\n    p = os.path.realpath(p)\n"
+        "    if p == root: return True\n"
+        "    try:\n        return os.path.commonpath([root, p]) == root\n"
+        "    except ValueError:\n        return False\n"
+        "@mcp.tool()\ndef read(path, other_input):\n"
+        "    root = os.path.realpath('/srv/data')\n"
+        "    p = os.path.realpath(path)\n"
+        "    other = os.path.realpath('/srv/data/fixed')\n"
+        + "\n".join("    " + line for line in guard.splitlines())
+        + "\n    return open(p)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("setup", "guard", "argument", "expected"),
+    [
+        ("", "", "path", 1),
+        ("", "", "filename=path", 1),
+        ("", "path = '/srv/data/fixed.xlsx'", "path", 0),
+        (
+            "",
+            "p = Path(path).resolve(); "
+            "p.relative_to(Path('/srv/data').resolve()); path = str(p)",
+            "path",
+            0,
+        ),
+        ("load = custom", "", "path", 0),
+        ("", "load = custom", "path", 0),
+    ],
+)
+def test_source_bound_workbook_path(
+    tmp_path: Path, setup: str, guard: str, argument: str, expected: int
+) -> None:
+    root = make_target(tmp_path / "target", target_yaml="")
+    (root / "server.py").write_text(
+        "from pathlib import Path\nfrom openpyxl import load_workbook as load\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        + setup
+        + "\n@mcp.tool()\ndef read(path: str):\n"
+        + ("    " + guard + "\n" if guard else "")
+        + f"    return load({argument})\n",
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-012"]}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert not result.incomplete
+    assert len(result.findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("construction", "mutation", "expected"),
+    [
+        ("Workbook()", "", 1),
+        ("load_workbook('/srv/data/fixed.xlsx')", "", 1),
+        ("Workbook()", "wb.save = replacement", 0),
+        ("Workbook()", "unknown(wb)", 0),
+        ("Workbook()", "wb.create_sheet('new')", 1),
+        ("custom()", "", 0),
+    ],
+)
+def test_workbook_save_requires_source_bound_receiver(
+    construction: str, mutation: str, expected: int
+) -> None:
+    source = (
+        "from openpyxl import Workbook, load_workbook\n"
+        "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+        "@mcp.tool()\ndef write(path):\n"
+        f"    wb = {construction}\n"
+        + (f"    {mutation}\n" if mutation else "")
+        + "    wb.save(filename=path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
 
 
 @pytest.mark.parametrize(
@@ -190,6 +480,51 @@ def test_optional_operator_root_does_not_become_a_caller_bypass(
     assert bool(state.matches) == caller_boundary
 
 
+@pytest.mark.parametrize("lookup", ["arguments['path']", "arguments.get('path')"])
+@pytest.mark.parametrize("guarded", [False, True])
+def test_constructed_path_keeps_helper_protection_for_optional_input(
+    lookup: str, guarded: bool
+) -> None:
+    source = (
+        "from pathlib import Path\n"
+        "def validate(path):\n"
+        "    path.resolve().relative_to(Path('/srv/data').resolve())\n"
+        "@mcp.tool()\ndef read(arguments: dict):\n"
+        f"    path = Path({lookup})\n"
+        + ("    validate(path)\n" if guarded else "")
+        + "    return open(path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert bool(state.matches) is not guarded
+
+
+def test_local_pathlib_constructor_does_not_establish_containment() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "pathlib.py": (
+                    "class Path:\n"
+                    "    def __init__(self, path): self.path = path\n"
+                    "    def resolve(self): return self\n"
+                    "    def relative_to(self, root): return self\n"
+                    "    def __fspath__(self): return self.path\n"
+                ),
+                "server.py": (
+                    "from pathlib import Path\n"
+                    "@mcp.tool()\ndef read(path):\n"
+                    "    p = Path(path).resolve()\n"
+                    "    p.relative_to(Path('/srv/data'))\n"
+                    "    return open(p)\n"
+                ),
+            }
+        ),
+        state,
+    )
+    assert state.matches
+
+
 def test_checking_unknown_transformation_does_not_validate_original_value() -> None:
     state = RuleRunState()
     analyze(
@@ -262,9 +597,14 @@ def test_imported_handler_report_preserves_suppression_and_no_execution(
     assert tool.location.path == "server.py"
     assert tool.handler is not None and tool.handler.path == "helpers.py"
     assert tool.examined_rule_ids == ("SENT-012",)
-    assert any(
-        warning.code == "static_review_context_incomplete"
-        for warning in result.warnings
+    from sentinel.llm.context import build_finding_context
+
+    context = build_finding_context(root, finding)
+    assert context.contains("server.py", 4, 4)
+    assert context.contains("helpers.py", 3, 3)
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
     )
 
 
@@ -297,6 +637,72 @@ def test_similarly_named_context_is_still_caller_controlled() -> None:
                 "server.py": (
                     "@mcp.tool()\ndef read(ctx: Context):\n    return open(ctx.path)\n"
                 )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("annotation", ["Context", "Annotated[Context, 'injected']"])
+def test_local_sdk_context_import_is_still_caller_controlled(annotation: str) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": (
+                    "from mcp.server.fastmcp import Context\n"
+                    "from typing import Annotated\n"
+                    f"@mcp.tool()\ndef read(ctx: {annotation}):\n"
+                    "    return open(ctx.path)\n"
+                ),
+                "mcp/server/fastmcp.py": "class Context: pass\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+def test_unresolved_relative_context_import_is_not_an_external_sdk() -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "pkg/server.py": (
+                    "from .mcp.server.fastmcp import Context\n"
+                    "@mcp.tool()\ndef read(ctx: Context):\n"
+                    "    return open(ctx.path)\n"
+                )
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("annotation", ["Context", "Annotated[Context, 'injected']"])
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "def configure(Context):\n",
+        "def configure():\n    Context = str\n",
+        "def configure():\n    class Context: pass\n",
+        "def configure():\n    from local_types import Context\n",
+    ],
+)
+def test_nested_context_binding_cannot_borrow_global_sdk_import(
+    annotation: str, scope: str
+) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from fastmcp import Context\n"
+                "from typing import Annotated\n"
+                + scope
+                + f"    @mcp.tool()\n    def read(ctx: {annotation}):\n"
+                "        return open(ctx.path)\n"
             }
         ),
         state,
@@ -406,6 +812,92 @@ def test_replaced_factory_method_is_not_mistaken_for_original() -> None:
     assert state.warnings
 
 
+@pytest.mark.parametrize(
+    ("guard", "change", "expected"),
+    [
+        ("if mode not in ['oauth', 'pat', 'basic']: raise ValueError()", "", 0),
+        ("if not (mode in ('oauth', 'pat', 'basic')): raise ValueError()", "", 0),
+        ("if mode != 'pat': raise ValueError()", "", 0),
+        ("if other not in ['oauth', 'pat', 'basic']: raise ValueError()", "", 1),
+        ("mode in ['oauth', 'pat', 'basic']", "", 1),
+        (
+            "if mode not in ['oauth', 'pat', 'basic']: raise ValueError()",
+            "mode = other",
+            1,
+        ),
+        (
+            "if mode not in ['oauth', 'pat', 'basic']: raise ValueError()",
+            "mode = mode + other",
+            1,
+        ),
+        ("if mode not in ['oauth', 'pat', 'basic']: pass", "", 1),
+    ],
+)
+def test_enforced_literal_choices_exclude_impossible_fallthrough(
+    guard: str, change: str, expected: int
+) -> None:
+    state = RuleRunState()
+    source = (
+        "def choose(mode, path):\n"
+        "    if mode == 'oauth': return '/fixed/oauth'\n"
+        "    elif mode == 'pat': return '/fixed/pat'\n"
+        "    elif mode == 'basic': return '/fixed/basic'\n"
+        "    return path\n"
+        "@mcp.tool()\ndef read(mode, other, path):\n"
+        f"    {guard}\n    {change or 'pass'}\n"
+        "    alias = mode\n    return open(choose(alias, path))\n"
+    )
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == expected
+
+
+def test_custom_equality_does_not_establish_literal_choices() -> None:
+    source = (
+        "class Mode:\n"
+        "    def __eq__(self, other): return unknown()\n"
+        "@mcp.tool()\ndef read(path):\n"
+        "    mode = Mode()\n"
+        "    if mode not in ['oauth', 'pat']: raise ValueError()\n"
+        "    if mode == 'oauth': return open('/fixed/oauth')\n"
+        "    if mode == 'pat': return open('/fixed/pat')\n"
+        "    return open(path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "configuration",
+    [
+        "kwargs = {'output': getattr(obj, 'output', None)}; "
+        "config = replace(base, **kwargs)",
+        "kwargs = {}; kwargs['output'] = getattr(obj, 'output', None); "
+        "config = replace(base, **kwargs)",
+        "kwargs = dict(output=getattr(obj, 'output', None)); "
+        "config = replace(base, **kwargs)",
+        "kwargs = {}; kwargs.update(output=getattr(obj, 'output', None)); "
+        "config = replace(base, **kwargs)",
+        "config = Config(getattr(obj, 'output', None)); config = replace(config)",
+    ],
+)
+def test_assigned_record_fields_exist_when_their_values_are_uncertain(
+    configuration: str,
+) -> None:
+    source = (
+        "from dataclasses import dataclass, replace\n"
+        "@dataclass\nclass Config:\n    output: str\n"
+        "@mcp.tool()\ndef read(obj, path):\n"
+        "    base = Config('/fixed')\n"
+        f"    {configuration}\n"
+        "    if not config: return open(path)\n"
+        "    return open('/fixed')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert not state.matches
+
+
 def test_rebound_sdk_context_annotation_stays_caller_controlled() -> None:
     state = RuleRunState()
     analyze(
@@ -449,3 +941,293 @@ def test_custom_factory_construction_stays_explicitly_unresolved(
     )
     assert not state.matches
     assert any("custom construction" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "mcp.run = unknown",
+        "alias = mcp\nalias.run = unknown",
+        "setattr(mcp, 'run', unknown)",
+        "del mcp.run",
+    ],
+)
+def test_replaced_launch_cannot_establish_configured_globals(mutation: str) -> None:
+    source = (
+        "from mcp.server.fastmcp import FastMCP\nmcp = FastMCP('test')\n"
+        "ROOT = None\n@mcp.tool()\ndef read(path):\n"
+        "    if ROOT is None: return open(path)\n"
+        "    return open('/srv/data/fixed')\n" + mutation + "\n"
+        "def configured():\n    global ROOT\n    ROOT = '/srv/data'\n"
+        "    mcp.run(transport='streamable-http')\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert state.matches
+    assert any("launch" in warning.message for warning in state.warnings)
+
+
+@pytest.mark.parametrize(
+    ("wrapper", "expected"),
+    [
+        ("return func(*args, **kwargs)", 1),
+        ("kwargs['path'] = '/srv/fixed'\n        return func(**kwargs)", 0),
+        ("return '/srv/fixed'", 0),
+        ("func = unknown\n        return func(*args, **kwargs)", 0),
+        ("return func(path=kwargs['path'])", 1),
+    ],
+)
+def test_registered_handler_runs_its_included_decorator(
+    wrapper: str, expected: int
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "wrapper.py": "from functools import wraps\n"
+            "def decorate(func):\n"
+            "    @wraps(func)\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        " + wrapper + "\n"
+            "    return wrapped\n",
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "from wrapper import decorate\nmcp = FastMCP('test')\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("registration", "expected"), [("inner", 0), ("outer", 1), ("call", 0)]
+)
+def test_decorator_order_uses_the_callable_captured_at_registration(
+    registration: str, expected: int
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    decorators = {
+        "inner": "@mcp.tool()\n@decorate",
+        "outer": "@decorate\n@mcp.tool()",
+        "call": "@decorate",
+    }[registration]
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp = FastMCP('test')\n"
+            "def decorate(func):\n"
+            "    def wrapper(**kwargs): return func(path='/fixed')\n"
+            "    return wrapper\n" + decorators + "\ndef read(path: str):\n"
+            "    return open(path).read()\n"
+            + ("mcp.add_tool(read)\n" if registration == "call" else "")
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize("forward", [True, False])
+def test_nested_source_decorator_runs_the_selected_callable(forward: bool) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from functools import wraps\n"
+            "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+            "def errors(func):\n"
+            "    @wraps(func)\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        try:\n            "
+            + ("return func(*args, **kwargs)" if forward else "return 'fixed'")
+            + "\n        except Exception: raise\n"
+            "    return wrapped\n"
+            "def decorate(func):\n"
+            "    @wraps(func)\n    @errors\n"
+            "    def wrapped(*args, **kwargs):\n"
+            "        return func(*args, **kwargs)\n"
+            "    return wrapped\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == forward
+
+
+@pytest.mark.parametrize("forward", [False, True])
+def test_decorator_factories_evaluate_in_source_order(forward: bool) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\nmcp=FastMCP('test')\n"
+            "def select(state, forward):\n"
+            "    state['forward'] = forward\n"
+            "    def decorate(func):\n"
+            "        def wrapped(*args, **kwargs):\n"
+            "            if state['forward']: return func(*args, **kwargs)\n"
+            "            return 'fixed'\n"
+            "        return wrapped\n"
+            "    return decorate\n"
+            "def decorate(func):\n    state={}\n"
+            f"    @select(state, {not forward!r})\n    @select(state, {forward!r})\n"
+            "    def wrapped(*args, **kwargs): return func(*args, **kwargs)\n"
+            "    return wrapped\n"
+            "@mcp.tool()\n@decorate\ndef read(path: str):\n"
+            "    return open(path).read()\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == forward
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("cache", [False, True])
+def test_http_request_cache_retains_the_source_constructed_service(
+    guarded: bool, cache: bool
+) -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from fastmcp import FastMCP\n"
+            "from fastmcp.server.dependencies import get_http_request\n"
+            "from starlette.middleware import Middleware\nfrom pathlib import Path\n"
+            "class PassThrough:\n"
+            "    def __init__(self, app): self.app=app\n"
+            "    async def __call__(self, scope, receive, send):\n"
+            "        await self.app(scope, receive, send)\n"
+            "class App(FastMCP):\n"
+            "    def http_app(self, middleware=None, **kwargs):\n"
+            "        return super().http_app("
+            "middleware=[Middleware(PassThrough)], **kwargs)\n"
+            "class Client:\n"
+            "    def read(self, path):\n"
+            + (
+                "        path=Path(path).resolve()\n"
+                "        if not path.is_relative_to(Path('/srv').resolve()): "
+                "raise ValueError()\n"
+                if guarded
+                else ""
+            )
+            + "        return open(path).read()\n"
+            "def service():\n    request=get_http_request()\n"
+            "    cached=getattr(request.state, 'client', None)\n"
+            "    if cached: return cached\n    client = Client()\n"
+            + (
+                "    key = 'client'\n    setattr(request.state, key, client)\n"
+                if cache
+                else ""
+            )
+            + "    return client\n"
+            "mcp=App('test')\n@mcp.tool()\ndef read(path: str):\n"
+            "    return service().read(path)\n",
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == (not guarded)
+
+
+def test_decorator_factory_keeps_each_returned_closure_separate() -> None:
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent012 import analyze
+    from tests.test_python_discovery import program
+
+    index = program(
+        {
+            "server.py": "from mcp.server.fastmcp import FastMCP\n"
+            "mcp = FastMCP('test')\n"
+            "def choose(forward):\n"
+            "    def decorate(func):\n"
+            "        def wrapper(**kwargs):\n"
+            "            if forward: return func(**kwargs)\n"
+            "            return func(path='/fixed')\n"
+            "        return wrapper\n"
+            "    return decorate\n"
+            "@mcp.tool()\n@choose(False)\ndef fixed(path: str):\n"
+            "    return open(path).read()\n"
+            "@mcp.tool()\n@choose(True)\ndef vulnerable(path: str):\n"
+            "    return open(path).read()\n"
+        }
+    )
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == 1
+    assert state.matches[0].range.start_line == 17
+
+
+@pytest.mark.parametrize("protected", [False, True])
+@pytest.mark.parametrize("dispatch", ["if", "match"])
+def test_python_low_level_dispatch_reaches_imported_guard_and_sink(
+    protected: bool, dispatch: str
+) -> None:
+    branch = (
+        "    if name == 'read':\n        return read(arguments['path'])\n"
+        if dispatch == "if"
+        else "    match name:\n        case 'read':\n            return "
+        "read(arguments['path'])\n"
+    )
+    validation = (
+        "    target.relative_to(root)\n"
+        if protected
+        else "    root.relative_to(root)\n"
+    )
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from mcp.server import Server\nfrom handler import read\n"
+                "server=Server('test')\n@server.call_tool()\n"
+                "async def dispatch(name, arguments):\n" + branch,
+                "handler.py": "from pathlib import Path\ndef read(value):\n"
+                "    root=Path('/srv/data').resolve()\n    target=(root/va"
+                "lue).resolve()\n" + validation + "    return target.read_text()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == (not protected)
+    if state.matches:
+        assert state.matches[0].path == "handler.py"
+        assert state.matches[0].range.start_line == 6
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_source_get_method_uses_its_body(guarded: bool) -> None:
+    state = RuleRunState()
+    analyze(
+        program(
+            {
+                "server.py": "from pathlib import Path\n"
+                "class Reader:\n"
+                "    def __init__(self, path): self.path=path\n"
+                "    def get(self):\n        target=Path(self.path).resolve()\n"
+                + (
+                    "        target.relative_to(Path('/srv/data').resolve())\n"
+                    if guarded
+                    else ""
+                )
+                + "        return target.read_text()\n"
+                "@mcp.tool()\ndef read(path): return Reader(path).get()\n",
+            }
+        ),
+        state,
+    )
+    assert len(state.matches) == (not guarded)

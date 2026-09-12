@@ -1,0 +1,1447 @@
+"""Source-only caller URL flow to supported outbound HTTP clients."""
+
+from __future__ import annotations
+
+import ast
+import copy
+import ipaddress
+import json
+from dataclasses import replace
+from typing import Any
+from urllib.parse import urlsplit
+
+from sentinel.static.ast_utils import match_from_node, qualified_name
+from sentinel.static.discovery import Symbol
+from sentinel.static.model import (
+    RuleRunState,
+    StaticContext,
+    StaticMatch,
+    TypeScriptSourceFile,
+)
+from sentinel.static.path_flow import (
+    UNKNOWN_VALUE,
+    PathFlow,
+    Value,
+    _key,
+    combine,
+    member_label,
+)
+from sentinel.static.rules.sent012 import analyze
+from sentinel.static.traversal import MAX_STATIC_FILE_BYTES
+from sentinel.static.typescript_discovery import TypeScriptSymbol, name_of, walk
+from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+from sentinel.static.typescript_path_flow import analyze as analyze_typescript
+
+Facts = frozenset[tuple[str, str]]
+IP_CHECKS = frozenset(
+    f"not:{name}"
+    for name in (
+        "is_private",
+        "is_loopback",
+        "is_link_local",
+        "is_reserved",
+        "is_multicast",
+        "is_unspecified",
+    )
+)
+
+
+def restricted(checks: frozenset[str]) -> bool:
+    return "scheme" in checks and (
+        "host" in checks
+        or (checks >= IP_CHECKS and "cgnat-ipv4" in checks)
+        or "is_global" in checks
+    )
+
+
+def public_host(host: str) -> bool:
+    """Judge literal allowlist entries without resolving names or making requests."""
+    host = host.lower().rstrip(".")
+    if not host or host == "localhost" or host.endswith(".localhost"):
+        return False
+    try:
+        address = ipaddress.ip_address(host.strip("[]"))
+    except ValueError:
+        # Reject ambiguous integer/hex/short IP notations and local hostnames.
+        return (
+            "." in host
+            and all(label and not label.startswith("0x") for label in host.split("."))
+            and not all(char in "0123456789." for char in host)
+        )
+    address = getattr(address, "ipv4_mapped", None) or address
+    return address.is_global and not address.is_multicast
+
+
+def fixed_destination(prefix: str) -> bool:
+    try:
+        parsed = urlsplit(prefix)
+    except ValueError:
+        return False
+    return (
+        parsed.scheme in {"http", "https"}
+        and parsed.hostname is not None
+        and public_host(parsed.hostname)
+        and "/" in prefix.split("://", 1)[-1]
+    )
+
+
+class URLFlow(PathFlow):
+    rule_id = "SENT-015"
+    helper_state_prefixes = (
+        *PathFlow.helper_state_prefixes,
+        "#url-conditional:",
+        "#url-truth:",
+    )
+
+    def __init__(self, *args: Any) -> None:
+        super().__init__(*args)
+        self.parts: dict[str, tuple[str, str]] = {}
+        self.networks: dict[str, ipaddress.IPv4Network | ipaddress.IPv6Network] = {}
+        self.requests: set[str] = set()
+        self.predicates: dict[str, tuple[Facts, Facts]] = {}
+        self.ip_lists: dict[str, Value] = {}
+        self.return_facts: list[list[tuple[Facts | None, Facts | None]]] = []
+        self.fact_keys: dict[str, tuple[str, str]] = {}
+        self.evaluated: dict[ast.AST, Value] = {}
+        self.expression_depth = 0
+        self.conditional_checks: dict[str, frozenset[str]] = {}
+
+    def function(self, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        previous = self.evaluated, self.expression_depth
+        self.evaluated, self.expression_depth = {}, 0
+        self.return_facts.append([])
+        try:
+            result = super().function(symbol, bindings)
+            returns = self.return_facts[-1]
+            if (
+                returns
+                and any(false or true for false, true in returns)
+                and result.key not in self.mapping_keys
+                and result.key not in self.record_keys
+                and result.key not in self.callables
+            ):
+                result = replace(
+                    result,
+                    key=_key(
+                        "url-predicate",
+                        symbol.file.relative_path,
+                        symbol.name,
+                        result.key,
+                        *sorted(
+                            _key(name, value.key) for name, value in bindings.items()
+                        ),
+                    ),
+                )
+                facts = []
+                for truth in (0, 1):
+                    possible = [
+                        pair[truth] for pair in returns if pair[truth] is not None
+                    ]
+                    facts.append(
+                        frozenset.intersection(
+                            *(item for item in possible if item is not None)
+                        )
+                        if possible
+                        else frozenset()
+                    )
+                self.predicates[result.key] = (facts[0], facts[1])
+            return result
+        finally:
+            self.return_facts.pop()
+            self.evaluated, self.expression_depth = previous
+
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        conditional = {}
+        unknown = UNKNOWN_VALUE
+        for marker in set().union(*(branch.keys() for branch in branches)):
+            if not marker.startswith("#url-truth:"):
+                continue
+            origin = marker.removeprefix("#url-truth:")
+            possible = [
+                branch
+                for branch in branches
+                if branch.get(marker, unknown).key != "False"
+            ]
+            if not possible or len(possible) == len(branches):
+                continue
+            checks = frozenset.intersection(
+                *(
+                    frozenset().union(
+                        *(
+                            value.url_checks
+                            for value in branch.values()
+                            if value.key == origin
+                        )
+                    )
+                    for branch in possible
+                )
+            )
+            if checks:
+                conditional[origin] = checks
+        super().merge(env, branches)
+        for origin, checks in conditional.items():
+            key = _key("conditional-url", origin, *sorted(checks))
+            self.conditional_checks[key] = checks
+            env["#url-conditional:" + origin] = Value(key=key)
+        for key in env.keys() & self.fact_keys.keys():
+            env[key] = replace(
+                env[key],
+                contained=all(
+                    branch.get(key, unknown).contained for branch in branches
+                ),
+            )
+
+    def statements(
+        self,
+        symbol: Symbol,
+        body: list[ast.stmt],
+        env: dict[str, Value],
+        returned: list[Value],
+    ) -> bool:
+        for node in body:
+            if isinstance(node, ast.Return):
+                super().statements(symbol, [node], env, returned)
+                value = returned[-1]
+                checked = [
+                    key
+                    for key in env.keys() & self.fact_keys.keys()
+                    if env[key].contained
+                ]
+                enforced = frozenset(self.fact_keys[key] for key in checked)
+                false, true = self.predicates.get(value.key, (frozenset(), frozenset()))
+                known = None
+                if isinstance(node.value, ast.Constant):
+                    known = bool(node.value.value)
+                elif node.value is None:
+                    known = False
+                elif isinstance(node.value, ast.JoinedStr) and any(
+                    isinstance(part, ast.Constant) and bool(part.value)
+                    for part in node.value.values
+                ):
+                    known = True
+                self.return_facts[-1].append(
+                    (
+                        None if known is True else false | enforced,
+                        None if known is False else true | enforced,
+                    )
+                )
+                if checked:
+                    returned[-1] = replace(
+                        value,
+                        locations=value.locations
+                        | frozenset().union(*(env[key].locations for key in checked)),
+                    )
+                return False
+            if isinstance(node, ast.Try) and len(node.body) == 1:
+                assignment = node.body[0]
+                expression = (
+                    assignment.value
+                    if isinstance(assignment, (ast.Assign, ast.AnnAssign))
+                    else None
+                )
+                if isinstance(expression, ast.Call) or (
+                    isinstance(expression, ast.List) and len(expression.elts) == 1
+                ):
+                    call = (
+                        expression
+                        if isinstance(expression, ast.Call)
+                        else expression.elts[0]
+                    )
+                    if (
+                        isinstance(call, ast.Call)
+                        and len(call.args) == 1
+                        and self.external(symbol, call.func, env)
+                        == "ipaddress.ip_address"
+                        and self.parts.get(
+                            self.expression(symbol, call.args[0], env).key, ("", "")
+                        )[1]
+                        == "hostname"
+                    ):
+                        # This rule's destination obligation is literal addresses.
+                        # ip_address succeeds on that domain. Hostname resolution
+                        # and DNS rebinding are not established by this branch.
+                        node = copy.copy(node)
+                        node.handlers = []
+            if isinstance(node, ast.For):
+                iterable = self.expression(symbol, node.iter, env)
+                item = self.ip_lists.get(iterable.key)
+                if item is not None and not any(
+                    isinstance(child, (ast.Break, ast.Continue))
+                    for statement in node.body
+                    for child in ast.walk(statement)
+                ):
+                    self.assign(node.target, item, env)
+                    if not super().statements(symbol, node.body, env, returned):
+                        return False
+                    if not super().statements(symbol, node.orelse, env, returned):
+                        return False
+                    continue
+            if not super().statements(symbol, [node], env, returned):
+                return False
+        return True
+
+    def external(self, symbol: Symbol, node: ast.AST, env: dict[str, Value]) -> str:
+        name = qualified_name(node) or ""
+        root = name.split(".")[0]
+        declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
+        if root in env or (
+            declarations
+            and not (
+                len(declarations) == 1
+                and isinstance(declarations[0], (ast.Import, ast.ImportFrom))
+            )
+        ):
+            return ""
+        if isinstance(node, ast.Attribute):
+            root_node: ast.AST = node
+            while isinstance(root_node, ast.Attribute):
+                root_node = root_node.value
+            if not isinstance(root_node, ast.Name):
+                return ""
+            receiver = self.expression(symbol, node.value, env)
+            if (
+                self.member_key(receiver, node.attr) in env
+                or "#member:unknown:" + receiver.key in env
+            ):
+                return ""
+        resolved = self.program.external(symbol, node) if declarations else name
+        return (
+            ""
+            if resolved in self.external_writes
+            or f"builtins.{resolved}" in self.external_writes
+            else resolved
+        )
+
+    def expression(
+        self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
+    ) -> Value:
+        if self.expression_depth == 0:
+            self.evaluated = {}
+        self.expression_depth += 1
+        try:
+            result = self.expression_value(symbol, node, env)
+            if node is not None:
+                self.evaluated[node] = result
+            return result
+        finally:
+            self.expression_depth -= 1
+
+    def expression_value(
+        self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
+    ) -> Value:
+        result = super().expression(symbol, node, env)
+        if isinstance(node, ast.List) and len(node.elts) == 1:
+            item = self.evaluated.get(node.elts[0], UNKNOWN_VALUE)
+            if self.parts.get(item.key, ("", ""))[1] == "ip":
+                result = replace(
+                    result,
+                    key=_key(
+                        "ip-list", symbol.file.relative_path, str(node.lineno), item.key
+                    ),
+                )
+                self.ip_lists[result.key] = item
+        if isinstance(node, ast.BoolOp):
+            values = [self.evaluated.get(child, UNKNOWN_VALUE) for child in node.values]
+            parts = {self.parts[v.key] for v in values if v.key in self.parts}
+            if len(parts) == 1 and all(
+                not v.sources or v.key in self.parts for v in values
+            ):
+                self.parts[result.key] = next(iter(parts))
+        if isinstance(node, ast.Attribute):
+            receiver = self.evaluated.get(node.value, UNKNOWN_VALUE)
+            if (
+                self.parts.get(receiver.key, ("", ""))[1] == "ip"
+                and node.attr == "ipv4_mapped"
+            ):
+                result = replace(receiver, maybe_none=True)
+            if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
+                self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
+                if "cgnat-ipv4" in receiver.url_checks and node.attr == "scheme":
+                    # Qualification of the initially checked URL, not the new
+                    # authority produced by later URL reconstruction.
+                    result = replace(result, url_checks=frozenset({"cgnat-ipv4"}))
+        if isinstance(node, (ast.BinOp, ast.JoinedStr)):
+            result = replace(result, url_checks=frozenset())
+        if isinstance(node, ast.FormattedValue) and (
+            node.conversion != -1 or node.format_spec is not None
+        ):
+            result = replace(result, key=_key("formatted", result.key, ast.dump(node)))
+        prefix_nodes = (
+            node.values
+            if isinstance(node, ast.JoinedStr)
+            else [node.left, node.right]
+            if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
+            else []
+        )
+        if prefix_nodes:
+            first_node = prefix_nodes[0]
+            first = self.evaluated.get(first_node, UNKNOWN_VALUE)
+            suffix = (
+                member_label(self.evaluated.get(prefix_nodes[1], UNKNOWN_VALUE))
+                if len(prefix_nodes) > 1
+                else None
+            )
+            if (
+                restricted(first.url_checks)
+                and first.instance is None
+                and not (
+                    isinstance(first_node, ast.FormattedValue)
+                    and (
+                        first_node.conversion != -1
+                        or first_node.format_spec is not None
+                    )
+                )
+                and (
+                    "authority" in first.url_checks
+                    or (isinstance(suffix, str) and suffix.startswith("/"))
+                )
+            ):
+                result = replace(result, url_checks=first.url_checks | {"authority"})
+        prefix = ""
+        for part in prefix_nodes:
+            value = self.evaluated.get(part, UNKNOWN_VALUE)
+            try:
+                literal = ast.literal_eval(value.key)
+            except (ValueError, SyntaxError):
+                break
+            if value.sources or not isinstance(literal, str):
+                break
+            # Bound constant expansion by the existing source-size ceiling.
+            if len(prefix) + len(literal) > MAX_STATIC_FILE_BYTES:
+                break
+            prefix += literal
+        else:
+            if prefix_nodes:
+                result = replace(result, key=repr(prefix))
+        if fixed_destination(prefix):
+            result = replace(
+                result, url_checks=frozenset({"scheme", "host", "authority"})
+            )
+        if isinstance(node, (ast.Compare, ast.BoolOp, ast.UnaryOp, ast.Attribute)):
+            self.predicates[result.key] = (
+                self.facts(symbol, node, env, False),
+                self.facts(symbol, node, env, True),
+            )
+        return result
+
+    def literals(self, symbol: Symbol, node: ast.AST) -> tuple[str, ...]:
+        if isinstance(node, ast.Name):
+            declarations = self.program.bindings[symbol.file.relative_path].get(
+                node.id, []
+            )
+            if len(declarations) == 1 and isinstance(
+                declarations[0], (ast.Assign, ast.AnnAssign)
+            ):
+                node = declarations[0].value or node
+        try:
+            value = ast.literal_eval(node)
+        except (ValueError, TypeError):
+            return ()
+        if isinstance(value, str):
+            return (value,)
+        if isinstance(value, (tuple, list, set)) and all(
+            isinstance(v, str) for v in value
+        ):
+            return tuple(value)
+        return ()
+
+    def facts(
+        self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
+    ) -> Facts:
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            return self.facts(symbol, node.operand, env, not truth)
+        if isinstance(node, ast.BoolOp):
+            children = [self.facts(symbol, child, env, truth) for child in node.values]
+            if (truth and isinstance(node.op, ast.And)) or (
+                not truth and isinstance(node.op, ast.Or)
+            ):
+                return frozenset().union(*children)
+            return frozenset.intersection(*children) if children else frozenset()
+        if isinstance(node, ast.Attribute):
+            value = self.evaluated.get(node.value, UNKNOWN_VALUE)
+            origin, part = self.parts.get(value.key, ("", ""))
+            if (
+                part == "ip"
+                and self.address_intact(value, env)
+                and ("not:" + node.attr in IP_CHECKS or node.attr == "is_global")
+            ):
+                return frozenset({(origin, ("" if truth else "not:") + node.attr)})
+            return frozenset()
+        if isinstance(node, (ast.Call, ast.Name)):
+            result = self.evaluated.get(node, UNKNOWN_VALUE)
+            return self.predicates.get(result.key, (frozenset(), frozenset()))[
+                int(truth)
+            ]
+        if not (isinstance(node, ast.Compare) and len(node.ops) == 1):
+            return frozenset()
+        operator = node.ops[0]
+        if not (
+            (truth and isinstance(operator, (ast.In, ast.Eq)))
+            or (not truth and isinstance(operator, (ast.NotIn, ast.NotEq)))
+        ):
+            return frozenset()
+        checked = self.evaluated.get(node.left, UNKNOWN_VALUE)
+        origin, part = self.parts.get(checked.key, ("", ""))
+        values = self.literals(symbol, node.comparators[0])
+        if not values:
+            return frozenset()
+        check = (
+            "scheme"
+            if part == "scheme" and set(values) <= {"http", "https"}
+            else (
+                "host"
+                if part == "hostname" and all(public_host(v) for v in values)
+                else ""
+            )
+        )
+        return frozenset({(origin, check)}) if check else frozenset()
+
+    def guard(
+        self, symbol: Symbol, node: ast.AST, env: dict[str, Value], truth: bool
+    ) -> None:
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            self.guard(symbol, node.operand, env, not truth)
+            return
+        facts = self.facts(symbol, node, env, truth)
+        if isinstance(node, ast.Name):
+            value = self.evaluated.get(node, UNKNOWN_VALUE)
+            if value.sources:
+                env["#url-truth:" + value.key] = Value(key=repr(truth))
+                if truth:
+                    selected = env.get("#url-conditional:" + value.key, UNKNOWN_VALUE)
+                    facts |= frozenset(
+                        (value.key, check)
+                        for check in self.conditional_checks.get(selected.key, ())
+                    )
+        if not facts:
+            return
+        for origin, check in facts:
+            key = "#url:" + _key(origin, check)
+            self.fact_keys[key] = (origin, check)
+            env[key] = Value(
+                contained=True,
+                locations=frozenset(
+                    {(symbol.file.relative_path, getattr(node, "lineno", 1))}
+                ),
+            )
+        for name, value in env.items():
+            checks = frozenset(check for origin, check in facts if value.key == origin)
+            if checks:
+                env[name] = replace(
+                    value,
+                    url_checks=value.url_checks | checks,
+                    locations=value.locations
+                    | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
+                )
+
+    def address_intact(self, value: Value, env: dict[str, Value]) -> bool:
+        return "#member:unknown:" + value.key not in env and not any(
+            marker in env
+            for name, marker in self.members.get(value.key, {}).items()
+            if name != "#address-input"
+        )
+
+    def network_rejection(
+        self, symbol: Symbol, node: ast.Call, env: dict[str, Value]
+    ) -> Value | None:
+        """Recognize bounded, unfiltered membership over source-known networks."""
+        if len(node.args) != 1 or node.keywords:
+            return None
+        expression = node.args[0]
+        if not (
+            isinstance(expression, ast.GeneratorExp)
+            and len(expression.generators) == 1
+            and isinstance(expression.elt, ast.Compare)
+            and len(expression.elt.ops) == 1
+            and isinstance(expression.elt.ops[0], ast.In)
+        ):
+            return None
+        generator = expression.generators[0]
+        if (
+            generator.is_async
+            or generator.ifs
+            or not isinstance(generator.target, ast.Name)
+            or not isinstance(expression.elt.comparators[0], ast.Name)
+            or expression.elt.comparators[0].id != generator.target.id
+            or any(
+                isinstance(part, ast.Name) and part.id == generator.target.id
+                for part in ast.walk(expression.elt.left)
+            )
+        ):
+            return None
+        items = self.sequence_elements(
+            self.expression(symbol, generator.iter, env), env
+        )
+        if not items:
+            return None
+        blocked = []
+        for item in items:
+            network = self.networks.get(item.key)
+            if (
+                network is None
+                or "#member:unknown:" + item.key in env
+                or any(
+                    marker in env for marker in self.members.get(item.key, {}).values()
+                )
+            ):
+                return None
+            blocked.append(network)
+        ip = self.expression(symbol, expression.elt.left, env)
+        origin, part = self.parts.get(ip.key, ("", ""))
+        if part != "ip" or not self.address_intact(ip, env):
+            return None
+        value = Value(key=_key("network-membership", origin, *map(str, blocked)))
+        shared = ipaddress.IPv4Network("100.64.0.0/10")
+        checks = (
+            frozenset({(origin, "cgnat-ipv4")})
+            if any(
+                isinstance(network, ipaddress.IPv4Network) and shared.subnet_of(network)
+                for network in blocked
+            )
+            else frozenset()
+        )
+        self.predicates[value.key] = (checks, frozenset())
+        return value
+
+    def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
+        external = self.external(symbol, node.func, env)
+        name = qualified_name(node.func) or ""
+        receiver = self.call_receiver(symbol, node, env)
+        method = name.rsplit(".", 1)[-1]
+        if (
+            external in {"isinstance", "builtins.isinstance"}
+            and len(node.args) == 2
+            and not node.keywords
+            and isinstance(node.args[0], ast.Name)
+            and self.external(symbol, node.args[1], env)
+            in {"ipaddress.IPv4Address", "ipaddress.IPv6Address"}
+        ):
+            address = self.expression(symbol, node.args[0], env)
+            if self.parts.get(address.key, ("", ""))[1] == "ip" and self.address_intact(
+                address, env
+            ):
+                # Exact stdlib type inspection cannot mutate the known IP value.
+                return UNKNOWN_VALUE
+        if external in {"any", "builtins.any"}:
+            membership = self.network_rejection(symbol, node, env)
+            if membership is not None:
+                return membership
+        if (
+            external == "ipaddress.ip_network"
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            literal = member_label(self.expression(symbol, node.args[0], env))
+            if isinstance(literal, str):
+                try:
+                    network = ipaddress.ip_network(literal)
+                except ValueError:
+                    pass
+                else:
+                    value = Value(
+                        key=_key(
+                            "ip-network",
+                            symbol.file.relative_path,
+                            str(node.lineno),
+                            str(node.col_offset),
+                            literal,
+                            *self.call_sites,
+                        )
+                    )
+                    self.networks[value.key] = network
+                    self.record_keys.add(value.key)
+                    return value
+        if (
+            external == "urllib.parse.urlunparse"
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            sequence = self.expression(symbol, node.args[0], env)
+            parts = self.sequence_elements(sequence, env)
+            if parts is not None and len(parts) == 6:
+                value = replace(
+                    combine(list(parts)),
+                    key=_key("rebuilt-url", sequence.key),
+                    url_checks=frozenset(),
+                )
+                # Only the scheme from the checked parsed URL carries the initial
+                # literal rejection; arbitrary string formatting does not.
+                if self.parts.get(parts[0].key, ("", ""))[1] == "scheme":
+                    value = replace(
+                        value, url_checks=parts[0].url_checks & {"cgnat-ipv4"}
+                    )
+                return value
+        if (
+            self.parts.get(receiver.key, ("", ""))[1] == "hostname"
+            and not node.keywords
+        ) and (
+            (method == "lower" and not node.args)
+            or (
+                method == "rstrip"
+                and len(node.args) == 1
+                and isinstance(node.args[0], ast.Constant)
+                and node.args[0].value == "."
+            )
+        ):
+            return receiver
+        if receiver.key in self.ip_lists:
+            # A known nonempty validation list ceases to prove iteration after mutation.
+            self.ip_lists.pop(receiver.key)
+        if (
+            method == "strip"
+            and not node.args
+            and not node.keywords
+            and receiver.sources
+        ):
+            return receiver
+        if (
+            external == "getattr"
+            and len(node.args) == 3
+            and isinstance(node.args[1], ast.Constant)
+            and node.args[1].value == "ipv4_mapped"
+        ):
+            ip = self.expression(symbol, node.args[0], env)
+            if self.parts.get(ip.key, ("", ""))[1] == "ip":
+                return ip
+        if (
+            external in {"urllib.parse.urlparse", "urllib.parse.urlsplit"}
+            and len(node.args) == 1
+        ):
+            argument = self.expression(symbol, node.args[0], env)
+            result = replace(argument, key=_key("urlparse", argument.key))
+            self.parts[result.key] = (argument.key, "parsed")
+            return result
+        if external == "ipaddress.ip_address" and len(node.args) == 1:
+            argument = self.expression(symbol, node.args[0], env)
+            origin, part = self.parts.get(argument.key, ("", ""))
+            if part == "hostname":
+                result = replace(argument, key=_key("ip", argument.key))
+                self.parts[result.key] = (origin, "ip")
+                self.record_keys.add(result.key)
+                env[self.member_key(result, "#address-input")] = argument
+                return result
+        if (
+            method == "lower"
+            and not node.args
+            and self.parts.get(receiver.key, ("", ""))[1] == "scheme"
+        ):
+            return receiver
+        client = self.http_client(receiver, method, env)
+        service = self.http_clients.get(receiver.key, "")
+        if (
+            client
+            and service in {"httpx.Client", "httpx.AsyncClient"}
+            and method in {"build_request", "send"}
+            and not any(isinstance(arg, ast.Starred) for arg in node.args)
+            and all(kw.arg is not None for kw in node.keywords)
+        ):
+            # Reuse the existing per-call expression cache if an unsupported
+            # request falls through to ordinary unknown-call handling.
+            values = []
+            for expression in (*node.args, *(kw.value for kw in node.keywords)):
+                value = self.expression(symbol, expression, env)
+                values.append(value)
+                if self.call_receivers is not None:
+                    self.call_receivers[expression] = value
+            arguments = values[: len(node.args)]
+            keywords = dict(
+                zip(
+                    (kw.arg for kw in node.keywords),
+                    values[len(node.args) :],
+                    strict=True,
+                )
+            )
+            if method == "build_request" and (
+                len(arguments) <= 2
+                and None not in keywords
+                and not any(isinstance(arg, ast.Starred) for arg in node.args)
+                and not (arguments and "method" in keywords)
+                and not (len(arguments) == 2 and "url" in keywords)
+                and (arguments or "method" in keywords)
+                and (len(arguments) == 2 or "url" in keywords)
+            ):
+                url = keywords.get(
+                    "url", arguments[1] if len(arguments) == 2 else UNKNOWN_VALUE
+                )
+                prepared_request = Value(
+                    key=_key(
+                        "httpx-request",
+                        symbol.file.relative_path,
+                        str(node.lineno),
+                        str(node.col_offset),
+                        *self.call_sites,
+                    )
+                )
+                self.requests.add(prepared_request.key)
+                self.record_keys.add(prepared_request.key)
+                env[self.member_key(prepared_request, "url")] = url
+                return self.aggregate(prepared_request, env)
+            if method == "send" and (
+                len(arguments) <= 1
+                and None not in keywords
+                and not any(isinstance(arg, ast.Starred) for arg in node.args)
+                and not (arguments and "request" in keywords)
+            ):
+                prepared_request = keywords.get(
+                    "request", arguments[0] if arguments else UNKNOWN_VALUE
+                )
+                if prepared_request.key in self.requests:
+                    url = self.member(prepared_request, "url", env)
+                    self.url_sink(symbol, node, url, name)
+                    if (
+                        "#member:unknown:" + prepared_request.key in env
+                        or url.maybe_missing
+                    ):
+                        self.unresolved(symbol, node, "request URL state is unresolved")
+                    return UNKNOWN_VALUE
+        service_request = client and service in {
+            "atlassian.Jira",
+            "atlassian.Confluence",
+        }
+        if service_request:
+            named_request = method == "myself" and service == "atlassian.Jira"
+            if named_request or method in {
+                "get",
+                "post",
+                "put",
+                "patch",
+                "delete",
+                "request",
+            }:
+                args = [self.expression(symbol, arg, env) for arg in node.args]
+                keywords = {
+                    kw.arg: self.expression(symbol, kw.value, env)
+                    for kw in node.keywords
+                }
+                if (
+                    not self.http_client(receiver, "request", env)
+                    or (named_request and not self.http_client(receiver, "get", env))
+                    or self.member_key(receiver, "url_joiner") in env
+                ):
+                    self.unresolved(
+                        symbol, node, "replaced service request implementation"
+                    )
+                    return UNKNOWN_VALUE
+                if (
+                    None in keywords
+                    or any(isinstance(arg, ast.Starred) for arg in node.args)
+                    or (named_request and (args or keywords))
+                ):
+                    self.unresolved(
+                        symbol, node, "unresolved service request arguments"
+                    )
+                    return UNKNOWN_VALUE
+                url = self.member(receiver, "url", env)
+                if not named_request:
+                    index = int(method == "request")
+                    if (
+                        len(args) > index + 1
+                        or (
+                            method != "request"
+                            and len(args) <= index
+                            and "path" not in keywords
+                        )
+                        or (len(args) > index and "path" in keywords)
+                    ):
+                        self.unresolved(symbol, node, "unresolved service request path")
+                        return UNKNOWN_VALUE
+                    path = keywords.get(
+                        "path", args[index] if len(args) > index else UNKNOWN_VALUE
+                    )
+                    absolute = self.truth_value(
+                        keywords.get("absolute", Value(key="False")), env
+                    )
+                    if absolute is True:
+                        url = path
+                    elif absolute is None:
+                        url = combine([url, path])
+                self.url_sink(symbol, node, url, name)
+                return UNKNOWN_VALUE
+        request = method in {
+            "get",
+            "post",
+            "put",
+            "patch",
+            "delete",
+            "head",
+            "options",
+            "request",
+        } and (
+            (client and not service_request)
+            or external in {f"{library}.{method}" for library in ("requests", "httpx")}
+        )
+        if request or external == "urllib.request.urlopen":
+            index = int(method == "request")
+            argument_node = next(
+                (kw.value for kw in node.keywords if kw.arg == "url"),
+                node.args[index] if len(node.args) > index else None,
+            )
+            url = self.expression(symbol, argument_node, env)
+            self.url_sink(symbol, node, url, name)
+            return UNKNOWN_VALUE
+        result = super().call(symbol, node, env)
+        helper = self.program.resolve_in(symbol, name)
+        if not helper and not (
+            method == "get" and (receiver.sources or receiver.key in self.mapping_keys)
+        ):
+            result = replace(result, url_checks=frozenset())
+        return result
+
+    def url_sink(self, symbol: Symbol, node: ast.Call, url: Value, name: str) -> None:
+        if url.sources and not restricted(url.url_checks):
+            scope = (
+                "cgnat-ipv4"
+                if "cgnat-ipv4" in url.url_checks
+                else "literal-ipv4"
+                if url.url_checks >= IP_CHECKS | {"scheme"}
+                else ""
+            )
+            route = " -> ".join(
+                (
+                    *self.call_sites,
+                    f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}",
+                )
+            )
+            self.state.matches.append(
+                replace(
+                    match_from_node(self.rule_id, symbol.file, node, "url-flow"),
+                    captures={
+                        "sink_name": name,
+                        **({"url_guard_scope": scope} if scope else {}),
+                        "url_guard_paths": json.dumps({route: scope}),
+                        "flow_locations": json.dumps(
+                            sorted(
+                                url.locations
+                                | {(symbol.file.relative_path, node.lineno)}
+                            )
+                        ),
+                    },
+                )
+            )
+
+
+def detect(context: StaticContext, state: RuleRunState) -> None:
+    analyze(
+        context.python_program,
+        state,
+        context.deadline,
+        flow=URLFlow(context.python_program, state, context.deadline),
+        entries=(*context.python_program.tools(), *context.python_http_handlers),
+    )
+    if context.files.typescript_files:
+        analyze_typescript(
+            context.typescript_program,
+            state,
+            flow=TypeScriptURLFlow(context.typescript_program, state),
+            entries=(
+                *context.typescript_program.tools(),
+                *context.typescript_http_handlers,
+            ),
+        )
+
+
+class TypeScriptURLFlow(TypeScriptPathFlow):
+    rule_id = "SENT-015"
+
+    def __init__(self, *args: Any) -> None:
+        super().__init__(*args)
+        self.url_parts: dict[str, tuple[str, str]] = {}
+        self.ip_arguments: dict[str, str] = {}
+        self.process = Value(key=_key("node-process"))
+        self.environment = Value(key=_key("node-process-env"))
+        self.objects[self.process.key] = {"env": self.environment}
+        self.objects[self.environment.key] = {}
+        self.environment_values: set[str] = set()
+
+    def exit_facts(self, exits: list[dict[str, Value]]) -> frozenset[str] | None:
+        common = super().exit_facts(exits)
+        if common is None:
+            return None
+        facts = [self.enforced(exit) for exit in exits]
+        suffixes = (":loopback-ipv4", ":loopback-ipv4-default")
+        origins = {
+            fact.removesuffix(suffix)
+            for branch in facts
+            for fact in branch
+            for suffix in suffixes
+            if fact.startswith("#guard:url:") and fact.endswith(suffix)
+        }
+        for origin in origins:
+            if (
+                all(
+                    any(origin + suffix in branch for suffix in suffixes)
+                    or "#guard:url-operator-opt-in" in branch
+                    for branch in facts
+                )
+                and origin + suffixes[0] not in common
+            ):
+                common |= {origin + suffixes[1]}
+        return common
+
+    def statement(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        env: dict[str, Value],
+        returned: list[Value],
+    ) -> bool:
+        if "For" in node and "ForEach" in node["For"][1]:
+            _, header, body = node["For"]
+            pattern, _, iterable = header["ForEach"]
+            iteration = iterable.get("Call")
+            if (
+                iteration
+                and iteration[0].get("Special", [None])[0] == "ForOf"
+                and len(iteration[1][1]) == 1
+            ):
+                value = self.expression(file, iteration[1][1][0].get("Arg", {}), env)
+                variants = self.array_items(value, env)
+                if (
+                    variants is not None
+                    and len(variants) == 1
+                    and not any("Break" in n or "Continue" in n for n in walk(body))
+                ):
+                    initial = env.copy()
+                    # ponytail: at most 32 exact iterations; larger or ambiguous
+                    # loops stay unresolved. Re-read state after each iteration.
+                    for index in range(33):
+                        current = self.array_items(value, env)
+                        if (
+                            current is not None
+                            and len(current) == 1
+                            and index >= len(current[0])
+                        ):
+                            return True
+                        if current is None or len(current) != 1 or index == 32:
+                            self.warning(
+                                file, node, "URL policy loop bounds unresolved"
+                            )
+                            returned.append(UNKNOWN_VALUE)
+                            if self.normal_exits:
+                                self.normal_exits[-1].append(initial)
+                            return True
+                        self.pattern(pattern, current[0][index], env)
+                        if not self.statement(file, body, env, returned):
+                            return False
+                # Unknown iteration stays conservative, without evaluating its
+                # source expression or side effects a second time.
+                local = env.copy()
+                self.pattern(pattern, value, local)
+                self.statement(file, body, local, returned)
+                self.merge(env, [env.copy(), local])
+                return True
+        if "Try" in node:
+            _, body, _, otherwise, final = node["Try"]
+            statements = body.get("Block", [None, []])[1]
+            if not otherwise and not final and len(statements) == 1:
+                returned_node = statements[0].get("Return", [None, None])[1]
+                comparison = (returned_node or {}).get("some", {}).get("Call")
+                if comparison and len(comparison[1][1]) == 2:
+                    left, right = [a.get("Arg", {}) for a in comparison[1][1]]
+                    range_call = left.get("Call", [{}, [None, []]])
+                    access = range_call[0].get("DotAccess", [{}, None, {}])
+                    parse_call = access[0].get("Call")
+                    name = name_of(parse_call[0]) if parse_call else None
+                    binding = (
+                        self.program.resolve(file, name)
+                        if name and name.split(".")[0] not in env
+                        else None
+                    )
+                    if (
+                        parse_call
+                        and len(parse_call[1][1]) == 1
+                        and name_of(access[2]) == "range"
+                        and not range_call[1][1]
+                        and comparison[0].get("Special", [{}])[0].get("Op")
+                        in {"PhysEq", "NotPhysEq", "Eq", "NotEq"}
+                        and "L" in right
+                        and binding
+                        and binding.external
+                        in {"ipaddr.js.parse", "ipaddr.js.default.parse"}
+                    ):
+                        argument = env.get(
+                            name_of(parse_call[1][1][0].get("Arg", {})) or "",
+                            UNKNOWN_VALUE,
+                        )
+                        if env.get(
+                            "#guard:ip-valid:" + argument.key, UNKNOWN_VALUE
+                        ).contained:
+                            # net.isIP established a valid literal; this pure
+                            # parse/range comparison cannot enter its catch arm.
+                            return super().statement(file, body, env, returned)
+        return super().statement(file, node, env, returned)
+
+    def combined(self, values: list[Value], key: str = "") -> Value:
+        result = super().combined(values, key)
+        parts = {self.url_parts.get(value.key) for value in values}
+        if len(parts) == 1 and None not in parts:
+            part = parts.pop()
+            assert part is not None
+            self.url_parts[result.key] = part
+        return result
+
+    def expression(
+        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+    ) -> Value:
+        if (
+            isinstance(node, dict)
+            and name_of(node) == "process"
+            and "process" not in env
+            and "process" not in self.program.bindings[file.relative_path]
+        ):
+            return self.process
+        if isinstance(node, dict) and "New" in node:
+            _, type_, _, arguments = node["New"]
+            constructor = type_.get("t", {}).get("TyExpr", {})
+            name = name_of(constructor) or ""
+            symbol = self.program.resolve(file, name)
+            if (
+                (
+                    name == "URL"
+                    and name not in env
+                    and name not in self.program.bindings[file.relative_path]
+                )
+                or (
+                    symbol
+                    and symbol.external in {"node:url.URL", "url.URL"}
+                    and name not in env
+                )
+            ) and len(arguments[1]) == 1:
+                argument = self.expression(file, arguments[1][0].get("Arg", {}), env)
+                origin, part = self.url_parts.get(argument.key, (argument.key, ""))
+                origin = origin if part == "parsed" else argument.key
+                result = replace(argument, key=_key("parsed-url", origin))
+                self.url_parts[result.key] = (origin, "parsed")
+                self.objects.setdefault(result.key, {})
+                return result
+        result = super().expression(file, node, env)
+        origin, part = self.url_parts.get(result.key, (result.key, ""))
+        if (
+            part == "hostname"
+            and env.get(f"#guard:unbracketed:{origin}", UNKNOWN_VALUE).contained
+        ):
+            result = replace(result, key=_key(result.key, "unbracketed"))
+            self.url_parts[result.key] = (origin, "hostname-unbracketed")
+        checks = frozenset(
+            check
+            for check in (
+                "scheme",
+                "host",
+                "literal-ipv4",
+                "loopback-ipv4",
+                "loopback-ipv4-default",
+                "linklocal-ipv4",
+            )
+            if env.get(
+                f"#guard:url:{origin if part == 'parsed' else result.key}:{check}",
+                UNKNOWN_VALUE,
+            ).contained
+        )
+        return replace(result, url_checks=result.url_checks | checks)
+
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        result = replace(super().member(value, name, env), url_checks=frozenset())
+        if value.key == self.environment.key:
+            if {self.process.key, self.environment.key} & self.invalidated_objects:
+                return replace(result, key=_key("changed-environment", result.key))
+            self.environment_values.add(result.key)
+        origin, part = self.url_parts.get(value.key, ("", ""))
+        if part == "parsed" and value.key not in self.invalidated_objects:
+            self.url_parts[result.key] = (origin, name)
+        return result
+
+    def restriction(self, value: Value, literals: Any) -> frozenset[str]:
+        origin, part = self.url_parts.get(value.key, ("", ""))
+        if isinstance(literals, str):
+            literals = [literals]
+        if (
+            not isinstance(literals, (list, tuple))
+            or not literals
+            or not all(isinstance(v, str) for v in literals)
+        ):
+            return frozenset()
+        check = (
+            "scheme"
+            if part == "protocol" and set(literals) <= {"http:", "https:"}
+            else (
+                "host"
+                if part == "hostname" and all(public_host(v) for v in literals)
+                else "linklocal-ipv4"
+                if part == "hostname" and set(literals) <= {"::1", "[::1]"}
+                else ""
+            )
+        )
+        return frozenset({f"#guard:url:{origin}:{check}"}) if check else frozenset()
+
+    def call(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
+    ) -> Value:
+        callee, arguments = node["Call"]
+        name = name_of(callee) or ""
+        symbol = (
+            self.callables.get(self.call_value(file, callee, env).key)
+            if "Special" not in callee
+            else None
+        )
+        external = (symbol.external or "").removeprefix("node:") if symbol else ""
+        argument_nodes = [item.get("Arg", item) for item in arguments[1]]
+        receiver = self.receivers.get(id(callee), UNKNOWN_VALUE)
+        origin, part = self.url_parts.get(receiver.key, ("", ""))
+        method = name_of(callee.get("DotAccess", [{}, None, {}])[2])
+        if external == "private-ip.default" and len(argument_nodes) == 1:
+            value = self.call_value(file, argument_nodes[0], env)
+            address_origin, address_part = self.url_parts.get(value.key, ("", ""))
+            if address_part in {"hostname", "hostname-unbracketed"}:
+                result = replace(value, key=_key(external, value.key))
+                # private-ip classifies addresses, not whole URLs. Its false
+                # result also admits names and unsupported IPv6 spellings.
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:url:{address_origin}:literal-ipv4"}),
+                    frozenset(),
+                )
+                return result
+        if part == "parsed" and method in {"toString", "toJSON"} and not argument_nodes:
+            if receiver.key in self.invalidated_objects:
+                self.warning(file, node, "URL object was mutated or escaped")
+                return replace(
+                    receiver,
+                    key=_key("changed-url", receiver.key),
+                    url_checks=frozenset(),
+                )
+            return replace(receiver, key=origin)
+        if part in {"hostname", "hostname-unbracketed"}:
+            if method == "startsWith" and len(argument_nodes) == 1:
+                prefix = self.string_literals.get(
+                    self.call_value(file, argument_nodes[0], env).key
+                )
+                if prefix in {"127.", "169.254."}:
+                    scope = "loopback-ipv4" if prefix == "127." else "linklocal-ipv4"
+                    result = replace(receiver, key=_key(receiver.key, scope))
+                    self.conditions[result.key] = (
+                        frozenset({f"#guard:url:{origin}:{scope}"}),
+                        frozenset({f"#guard:url:{origin}:linklocal-ipv4"})
+                        if prefix == "127."
+                        else frozenset(),
+                    )
+                    return result
+            if method in {"trim", "toLowerCase"} and not argument_nodes:
+                return receiver
+            bracket_literals = [
+                self.program.literal(TypeScriptSymbol(file, arg))
+                for arg in argument_nodes
+            ]
+            if (method, bracket_literals) in (
+                ("startsWith", ["["]),
+                ("endsWith", ["]"]),
+            ):
+                result = replace(receiver, key=_key(receiver.key, str(method)))
+                # A parsed URL hostname has either paired IPv6 brackets or none.
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:unbracketed:{origin}"}),
+                    frozenset({f"#guard:bracketed:{origin}"}),
+                )
+                return result
+            if (
+                method == "slice"
+                and [self.program.text(file, arg) for arg in argument_nodes]
+                == ["1", "-1"]
+                and env.get(f"#guard:bracketed:{origin}", UNKNOWN_VALUE).contained
+            ):
+                result = replace(receiver, key=_key(receiver.key, "unbracketed"))
+                self.url_parts[result.key] = (origin, "hostname-unbracketed")
+                return result
+        if (
+            external in {"net.isIP", "ipaddr.js.parse", "ipaddr.js.default.parse"}
+            and len(argument_nodes) == 1
+        ):
+            value = self.call_value(file, argument_nodes[0], env)
+            origin, part = self.url_parts.get(value.key, ("", ""))
+            if part == "hostname-unbracketed" or (
+                part == "hostname" and external == "net.isIP"
+            ):
+                result = replace(value, key=_key(external, value.key))
+                self.url_parts[result.key] = (
+                    origin,
+                    "ip-version-bracketed"
+                    if part == "hostname"
+                    else "ip-version"
+                    if external == "net.isIP"
+                    else "ip-address",
+                )
+                self.ip_arguments[result.key] = value.key
+                if external == "net.isIP":
+                    self.conditions[result.key] = (
+                        frozenset({f"#guard:url:{origin}:linklocal-ipv4"}),
+                        frozenset(),
+                    )
+                return result
+        if part == "ip-address" and method == "range" and not argument_nodes:
+            result = replace(receiver, key=_key(receiver.key, "range"))
+            self.url_parts[result.key] = (origin, "ip-range")
+            return result
+        is_fetch = (
+            name == "fetch"
+            and "fetch" not in env
+            and "fetch" not in self.program.bindings[file.relative_path]
+        )
+        request = (
+            is_fetch
+            or external
+            in {
+                "node-fetch",
+                "node-fetch.default",
+                "undici.fetch",
+                "axios",
+                "axios.default",
+                "lighthouse",
+                "lighthouse.default",
+            }
+            or external
+            in {
+                f"{library}.{method}"
+                for library in (
+                    "axios",
+                    "axios.default",
+                    "http",
+                    "http.default",
+                    "https",
+                    "https.default",
+                )
+                for method in (
+                    "get",
+                    "post",
+                    "put",
+                    "delete",
+                    "patch",
+                    "head",
+                    "request",
+                )
+            }
+        )
+        if request and argument_nodes:
+            url = self.call_value(file, argument_nodes[0], env)
+            if url.sources and not restricted(url.url_checks):
+                location = self.program.source_range(node, file)
+                self.state.matches.append(
+                    StaticMatch(
+                        rule_id=self.rule_id,
+                        path=file.relative_path,
+                        range=location,
+                        snippet=self.program.text(file, node),
+                        match_kinds=("url-flow",),
+                        captures={
+                            "sink_name": name,
+                            **(
+                                {"url_guard_scope": "literal-ipv4"}
+                                if "literal-ipv4" in url.url_checks
+                                else {"url_guard_scope": "loopback-ipv4"}
+                                if "loopback-ipv4" in url.url_checks
+                                else {"url_guard_scope": "loopback-ipv4-default"}
+                                if "loopback-ipv4-default" in url.url_checks
+                                else {"url_guard_scope": "linklocal-ipv4"}
+                                if "linklocal-ipv4" in url.url_checks
+                                else {}
+                            ),
+                            "flow_locations": json.dumps(
+                                sorted(
+                                    url.locations
+                                    | {(file.relative_path, location.start_line)}
+                                )
+                            ),
+                        },
+                    )
+                )
+            return UNKNOWN_VALUE
+        result = super().call(file, node, env)
+        operation = callee.get("Special", [{}])[0]
+        if (
+            isinstance(operation, dict)
+            and operation.get("Op") in {"PhysEq", "NotPhysEq"}
+            and len(argument_nodes) == 2
+        ):
+            values = [self.call_value(file, arg, env) for arg in argument_nodes]
+            if all(v.key in {"#ts:null", "#ts:undefined"} for v in values):
+                equal = values[0].key == values[1].key
+                truth = equal if operation["Op"] == "PhysEq" else not equal
+                self.conditions[result.key] = (
+                    (None, frozenset()) if truth else (frozenset(), None)
+                )
+        operator = callee.get("Special", [{}])[0]
+        if (
+            isinstance(operator, dict)
+            and (operator.get("Op") == "Plus" or "ConcatString" in operator)
+            and argument_nodes
+        ):
+            prefix = ""
+            for part in argument_nodes:
+                literal = self.program.literal(self.program.resolve_node(file, part))
+                if literal is None:
+                    break
+                prefix += literal
+            if fixed_destination(prefix):
+                result = replace(result, url_checks=frozenset({"scheme", "host"}))
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") in {"PhysEq", "NotPhysEq", "Eq", "NotEq"}
+            and len(argument_nodes) == 2
+        ):
+            for index in (0, 1):
+                value = self.call_value(file, argument_nodes[index], env)
+                literals = self.program.literal(
+                    TypeScriptSymbol(file, argument_nodes[1 - index])
+                )
+                facts = self.restriction(value, literals)
+                if value.key in self.environment_values and literals == "true":
+                    opted_in = frozenset({"#guard:url-operator-opt-in"})
+                    self.conditions[result.key] = (
+                        (frozenset(), opted_in)
+                        if operator["Op"] in {"PhysEq", "Eq"}
+                        else (opted_in, frozenset())
+                    )
+                origin, part = self.url_parts.get(value.key, ("", ""))
+                if (
+                    part in {"ip-version", "ip-version-bracketed"}
+                    and self.program.text(file, argument_nodes[1 - index]) == "4"
+                ):
+                    excluded = frozenset({f"#guard:url:{origin}:loopback-ipv4"})
+                    self.conditions[result.key] = (
+                        (excluded, frozenset())
+                        if operator["Op"] in {"PhysEq", "Eq"}
+                        else (frozenset(), excluded)
+                    )
+                if (part == "ip-range" and literals == "unicast") or (
+                    part == "ip-version"
+                    and "L" in argument_nodes[1 - index]
+                    and self.program.text(file, argument_nodes[1 - index]) == "0"
+                ):
+                    facts = frozenset({f"#guard:url:{origin}:host"})
+                if facts:
+                    opposite = (
+                        frozenset({"#guard:ip-valid:" + self.ip_arguments[value.key]})
+                        if part == "ip-version" and value.key in self.ip_arguments
+                        else frozenset()
+                    )
+                    self.conditions[result.key] = (
+                        (opposite, facts)
+                        if operator["Op"] in {"PhysEq", "Eq"}
+                        else (facts, opposite)
+                    )
+        if (
+            "DotAccess" in callee
+            and name_of(callee["DotAccess"][2]) == "includes"
+            and len(argument_nodes) == 1
+        ):
+            container = callee["DotAccess"][0].get("Container")
+            literal_array = (
+                [
+                    self.program.literal(TypeScriptSymbol(file, item))
+                    for item in container[1][1]
+                ]
+                if container
+                else []
+            )
+            facts = self.restriction(
+                self.call_value(file, argument_nodes[0], env), literal_array
+            )
+            self.conditions[result.key] = (frozenset(), facts)
+        return result

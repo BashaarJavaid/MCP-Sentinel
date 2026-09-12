@@ -155,23 +155,32 @@ def measure(
     destination: Path,
     *,
     rules_dir: Path | None = None,
+    phase22_approval: Path | None = None,
 ) -> dict[str, Any]:
     if isinstance(manifest, Phase22Manifest):
-        if treatment != "rules":
-            raise ValueError("Phase 22 measurement currently supports rules-only")
-        approved = frozen_phase22()
+        if treatment not in {"rules", "prepare-live", "replay", "semgrep"}:
+            raise ValueError("Phase 22 corpus measurement requires a source-only tier")
+        approval_path = (
+            phase22_approval or ROOT / "artifacts/phase22/authorization.json"
+        )
+        decision = json.loads(approval_path.read_text())["corpus"]
+        approved = frozen_phase22(approval_path=approval_path)
+        if ("treatments" in decision and treatment not in decision["treatments"]) or (
+            "input_ids" in decision
+            and any(item.id not in decision["input_ids"] for item in manifest.inputs)
+        ):
+            raise ValueError("Phase 22 treatment or input subset is not authorized")
         inputs = {item.id: item for item in approved.inputs}
         if (
-            manifest.snapshots != approved.snapshots
-            or manifest.packet != approved.packet
+            manifest.model_dump(exclude={"inputs"})
+            != approved.model_dump(exclude={"inputs"})
             or any(item != inputs.get(item.id) for item in manifest.inputs)
             or len({item.id for item in manifest.inputs}) != len(manifest.inputs)
         ):
             raise ValueError("Phase 22 measurement differs from its authorized inputs")
         approval = {
-            "manifest_sha256": digest(
-                (ROOT / "artifacts/phase22/corpus-review/manifest.json").read_bytes()
-            )
+            "manifest_sha256": decision["sha256"],
+            "authorization_sha256": digest(approval_path.read_bytes()),
         }
     else:
         approval = frozen()
@@ -207,6 +216,11 @@ def measure(
         if replay["scanner"]["source_sha256"] != scanner_identity()["source_sha256"]:
             raise ValueError("static replay scanner drift")
     destination.mkdir(parents=True)
+    captures = (
+        ROOT / "artifacts/phase22/captures"
+        if isinstance(manifest, Phase22Manifest)
+        else ARTIFACTS / "captures"
+    )
     result: dict[str, Any] = {
         "version": 1,
         "treatment": treatment,
@@ -217,6 +231,8 @@ def measure(
         "requests": {},
         "model_calls": 0,
     }
+    if isinstance(manifest, Phase22Manifest):
+        result["authorization_sha256"] = approval["authorization_sha256"]
     snapshots = {s.revision: s for s in manifest.snapshots}
     for item in manifest.inputs:
         entry: dict[str, Any] = {
@@ -360,7 +376,7 @@ def measure(
                         completed_at=datetime.now(timezone.utc),
                         allow_degraded=False,
                         review_mode="replay",
-                        transport=CheckedCassettes(ARTIFACTS / "captures"),
+                        transport=CheckedCassettes(captures),
                     )
                 native = json.loads(render_json(outcome.report))
                 sarif = json.loads(render_sarif(outcome.report))

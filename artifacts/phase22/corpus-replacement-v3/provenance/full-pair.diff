@@ -1,0 +1,473 @@
+--- vulnerable/CONFIGURATION.md
++++ fixed/CONFIGURATION.md
+@@ -56,8 +56,16 @@
+ | `MCP_HTTP_AUTH_TOKEN` | No | — | Required bearer token for all HTTP requests in hardened mode |
+ | `MCP_HTTP_ALLOWED_ORIGINS` | No | — | Comma-separated CORS origin allowlist (e.g. `https://app.example.com`) |
+ | `MCP_HTTP_ALLOWED_HOSTS` | No | — | Comma-separated DNS rebinding protection allowlist override |
+-| `MCP_HTTP_ALLOW_PRIVATE_URLS` | No | `false` | Allow `web_url_read` to fetch internal/private URLs in hardened mode |
++| `MCP_HTTP_ALLOW_PRIVATE_URLS` | No | `false` | Allow `web_url_read` to fetch internal/private URLs. Private URL reads are blocked by default in all modes. |
+ | `MCP_HTTP_EXPOSE_FULL_CONFIG` | No | `false` | Expose full config details in `/health` response (for debugging) |
++
++## URL Reader Security
++
++`web_url_read` blocks private/internal URLs by default in all transport modes. This includes localhost, loopback addresses, private IPv4 ranges, link-local addresses, `0.0.0.0/8`, IPv6 loopback/ULA/link-local addresses, and IPv4-mapped IPv6 private addresses.
++
++Redirects are also checked before they are followed. A public URL that redirects to a private/internal URL is blocked.
++
++Set `MCP_HTTP_ALLOW_PRIVATE_URLS=true` only when internal URL reads are intentional for your deployment.
+ 
+ 
+ ## Full Example (All Options)
+--- vulnerable/__tests__/unit/url-reader.test.ts
++++ fixed/__tests__/unit/url-reader.test.ts
+@@ -40,9 +40,71 @@
+   close: () => Promise<void>;
+ }
+ 
++type ServerHandler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
++type ConnectProxyHandler = (authority: string, requestText: string) => {
++  status?: number;
++  headers?: Record<string, string>;
++  body?: string;
++};
++
++function startHttpServer(handler: ServerHandler): Promise<TestServer> {
++  return new Promise((resolve, reject) => {
++    const server = http.createServer(handler);
++
++    server.listen(0, '127.0.0.1', () => {
++      const addr = server.address() as net.AddressInfo;
++      resolve({
++        url: `http://127.0.0.1:${addr.port}`,
++        close: () =>
++          new Promise<void>((res) => {
++            server.closeAllConnections();
++            server.close(() => res());
++          }),
++      });
++    });
++
++    server.once('error', reject);
++  });
++}
++
++function startConnectProxyServer(handler: ConnectProxyHandler): Promise<TestServer> {
++  return new Promise((resolve, reject) => {
++    const server = http.createServer();
++
++    server.on('connect', (req, socket) => {
++      socket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
++      socket.once('data', (data) => {
++        const response = handler(req.url || '', data.toString('utf8'));
++        const status = response.status ?? 200;
++        const headers = {
++          'content-type': 'text/html; charset=utf-8',
++          ...response.headers,
++        };
++        const headerLines = Object.entries(headers)
++          .map(([key, value]) => `${key}: ${value}`)
++          .join('\r\n');
++        socket.end(`HTTP/1.1 ${status} OK\r\n${headerLines}\r\n\r\n${response.body ?? ''}`);
++      });
++    });
++
++    server.listen(0, '127.0.0.1', () => {
++      const addr = server.address() as net.AddressInfo;
++      resolve({
++        url: `http://127.0.0.1:${addr.port}`,
++        close: () =>
++          new Promise<void>((res) => {
++            server.closeAllConnections();
++            server.close(() => res());
++          }),
++      });
++    });
++
++    server.once('error', reject);
++  });
++}
++
+ function startTestServer(opts: ServerOpts = {}): Promise<TestServer> {
+-  return new Promise((resolve, reject) => {
+-    const server = http.createServer((req, res) => {
++  return startHttpServer((req, res) => {
+       if (opts.closeImmediately) {
+         req.socket.destroy();
+         return;
+@@ -58,21 +120,6 @@
+       };
+       res.writeHead(status, headers);
+       res.end(opts.body ?? '');
+-    });
+-
+-    server.listen(0, '127.0.0.1', () => {
+-      const addr = server.address() as net.AddressInfo;
+-      resolve({
+-        url: `http://127.0.0.1:${addr.port}`,
+-        close: () =>
+-          new Promise<void>((res) => {
+-            server.closeAllConnections(); // drop any lingering (hung) connections
+-            server.close(() => res());
+-          }),
+-      });
+-    });
+-
+-    server.once('error', reject);
+   });
+ }
+ 
+@@ -95,6 +142,8 @@
+ 
+ async function runTests() {
+   console.log('🧪 Testing: url-reader.ts\n');
++  const originalAllowPrivateUrls = process.env.MCP_HTTP_ALLOW_PRIVATE_URLS;
++  process.env.MCP_HTTP_ALLOW_PRIVATE_URLS = 'true';
+ 
+   // ── invalid URLs (blocked before any network call) ────────────────────────
+ 
+@@ -409,6 +458,178 @@
+ 
+   // ── security: hardened mode ───────────────────────────────────────────────
+ 
++  await testFunction('default mode blocks private URL reads', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    const privateUrls = [
++      'http://127.0.0.1:1/private',
++      'http://localhost:1/private',
++      'http://10.0.0.1/private',
++    ];
++
++    try {
++      for (const privateUrl of privateUrls) {
++        try {
++          await fetchAndConvertToMarkdown(mockServer as any, privateUrl, 50);
++          assert.fail(`Expected private URL to be blocked: ${privateUrl}`);
++        } catch (error: any) {
++          assert.ok(
++            error.message.includes('blocked by security policy'),
++            `Expected security policy error for ${privateUrl}, got: ${error.message}`,
++          );
++        }
++      }
++    } finally {
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('default mode blocks 0.0.0.0 URL reads', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    try {
++      await fetchAndConvertToMarkdown(mockServer as any, 'http://0.0.0.0:1/private', 50);
++      assert.fail('Expected 0.0.0.0 URL to be blocked');
++    } catch (error: any) {
++      assert.ok(error.message.includes('blocked by security policy'));
++    } finally {
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('default mode blocks hex IPv4-mapped IPv6 private URL reads', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    try {
++      await fetchAndConvertToMarkdown(mockServer as any, 'http://[::ffff:7f00:1]:1/private', 50);
++      assert.fail('Expected IPv4-mapped IPv6 URL to be blocked');
++    } catch (error: any) {
++      assert.ok(error.message.includes('blocked by security policy'));
++    } finally {
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('redirects to private URLs are blocked', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    const proxy = await startConnectProxyServer((authority) => {
++      if (authority === 'public.example:80') {
++        return {
++          status: 302,
++          headers: { Location: 'http://127.0.0.1:12345/private' },
++        };
++      }
++
++      return {
++        body: '<html><body><h1>Internal redirect target</h1></body></html>',
++      };
++    });
++
++    envManager.set('URL_READER_HTTP_PROXY', proxy.url);
++    envManager.delete('NO_PROXY');
++    try {
++      await fetchAndConvertToMarkdown(mockServer as any, 'http://public.example/article', 1000);
++      assert.fail('Expected redirect to private URL to be blocked');
++    } catch (error: any) {
++      assert.ok(
++        error.message.includes('blocked by security policy'),
++        `Expected security policy error, got: ${error.message}`,
++      );
++    } finally {
++      await proxy.close();
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('redirects to public URLs are followed', async () => {
++    const mockServer = createMockServer();
++    urlCache.clear();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    const proxy = await startConnectProxyServer((authority, requestText) => {
++      if (authority === 'public.example:80' && requestText.startsWith('GET /start ')) {
++        return {
++          status: 302,
++          headers: { Location: 'http://safe.example/final' },
++        };
++      }
++
++      return {
++        body: '<html><body><h1>Public redirect target</h1></body></html>',
++      };
++    });
++
++    envManager.set('URL_READER_HTTP_PROXY', proxy.url);
++    envManager.delete('NO_PROXY');
++    try {
++      const result = await fetchAndConvertToMarkdown(mockServer as any, 'http://public.example/start', 1000);
++      assert.ok(result.includes('Public redirect target'), `Expected public redirect content, got: ${result}`);
++    } finally {
++      await proxy.close();
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('redirect responses without Location are treated as server errors', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    const proxy = await startConnectProxyServer(() => ({
++      status: 302,
++      body: '<html><body>Missing location</body></html>',
++    }));
++
++    envManager.set('URL_READER_HTTP_PROXY', proxy.url);
++    envManager.delete('NO_PROXY');
++    try {
++      await fetchAndConvertToMarkdown(mockServer as any, 'http://public.example/missing-location', 1000);
++      assert.fail('Expected redirect without Location to be treated as a server error');
++    } catch (error: any) {
++      assert.ok(error.message.includes('Server Error') || error.message.includes('302'));
++    } finally {
++      await proxy.close();
++      envManager.restore();
++    }
++  }, results);
++
++  await testFunction('redirect chains are capped', async () => {
++    const mockServer = createMockServer();
++    envManager.delete('MCP_HTTP_HARDEN');
++    envManager.delete('MCP_HTTP_ALLOW_PRIVATE_URLS');
++
++    let redirectCount = 0;
++    const proxy = await startConnectProxyServer(() => {
++      redirectCount++;
++      return {
++        status: 302,
++        headers: { Location: `http://loop.example/redirect-${redirectCount}` },
++      };
++    });
++
++    envManager.set('URL_READER_HTTP_PROXY', proxy.url);
++    envManager.delete('NO_PROXY');
++    try {
++      await fetchAndConvertToMarkdown(mockServer as any, 'http://public.example/start-loop', 1000);
++      assert.fail('Expected redirect chain to be capped');
++    } catch (error: any) {
++      assert.ok(error.message.includes('Too many redirects'), `Unexpected error: ${error.message}`);
++    } finally {
++      await proxy.close();
++      envManager.restore();
++    }
++  }, results);
++
+   await testFunction('hardened mode blocks localhost URL reads', async () => {
+     const mockServer = createMockServer();
+     envManager.set('MCP_HTTP_HARDEN', 'true');
+@@ -639,6 +860,12 @@
+     }
+   }, results);
+ 
++  if (originalAllowPrivateUrls === undefined) {
++    delete process.env.MCP_HTTP_ALLOW_PRIVATE_URLS;
++  } else {
++    process.env.MCP_HTTP_ALLOW_PRIVATE_URLS = originalAllowPrivateUrls;
++  }
++
+   printTestSummary(results, 'URL Reader Module');
+   return results;
+ }
+@@ -651,5 +878,3 @@
+ }
+ 
+ export { runTests };
+-
+-
+--- vulnerable/src/resources.ts
++++ fixed/src/resources.ts
+@@ -68,6 +68,10 @@
+ - \`HTTP_PROXY\` / \`HTTPS_PROXY\`: Proxy server configuration
+ - \`NO_PROXY\` / \`no_proxy\`: Comma-separated list of hosts to bypass proxy
+ - \`MCP_HTTP_PORT\`: Enable HTTP transport on specified port
++- \`MCP_HTTP_ALLOW_PRIVATE_URLS\`: Allow \`web_url_read\` to fetch private/internal URLs. Disabled by default in all modes.
++
++### URL Reader Security
++\`web_url_read\` blocks private/internal URLs and redirects to private/internal URLs by default. Set \`MCP_HTTP_ALLOW_PRIVATE_URLS=true\` only when internal URL reads are intentional.
+ 
+ ## Transport Modes
+ 
+--- vulnerable/src/url-reader.ts
++++ fixed/src/url-reader.ts
+@@ -27,6 +27,9 @@
+   readHeadings?: boolean;
+ }
+ 
++const REDIRECT_STATUS_CODES = new Set([301, 302, 303, 307, 308]);
++const MAX_REDIRECTS = 5;
++
+ function isPrivateHostname(hostname: string): boolean {
+   const lower = hostname.toLowerCase().replace(/\.+$/, "");
+   return lower === "localhost" || lower.endsWith(".localhost");
+@@ -38,6 +41,7 @@
+   }
+ 
+   return (
++    hostname.startsWith("0.") ||
+     hostname.startsWith("10.") ||
+     hostname.startsWith("127.") ||
+     hostname.startsWith("192.168.") ||
+@@ -64,18 +68,31 @@
+   const mapped = addr.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/);
+   if (mapped) return isPrivateIpv4(mapped[1]);
+ 
++  // IPv4-mapped ::ffff:<hhhh>:<hhhh> — convert the hex segments to dotted decimal
++  const hexMapped = addr.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
++  if (hexMapped) {
++    const high = parseInt(hexMapped[1], 16);
++    const low = parseInt(hexMapped[2], 16);
++    const ipv4 = `${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`;
++    return isPrivateIpv4(ipv4);
++  }
++
+   return false;
+ }
+ 
+ function assertUrlAllowed(url: URL): void {
+   const security = getHttpSecurityConfig();
+-  if (!security.harden || security.allowPrivateUrls) {
++  if (security.allowPrivateUrls) {
+     return;
+   }
+ 
+   if (isPrivateHostname(url.hostname) || isPrivateIpv4(url.hostname) || isPrivateIPv6(url.hostname)) {
+     throw createURLSecurityPolicyError(url.toString());
+   }
++}
++
++function isRedirectResponse(response: Response): boolean {
++  return REDIRECT_STATUS_CODES.has(response.status);
+ }
+ 
+ function applyCharacterPagination(content: string, startChar: number = 0, maxLength?: number): string {
+@@ -232,17 +249,11 @@
+   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+ 
+   try {
+-    // Prepare request options with proxy support
++    // Prepare base request options with proxy support
+     const requestOptions: RequestInit = {
+       signal: controller.signal,
++      redirect: "manual",
+     };
+-
+-    // Add proxy or default dispatcher (includes system CA certs for TLS)
+-    const proxyAgent = createProxyAgent(url, ProxyType.URL_READER);
+-    const dispatcher = proxyAgent ?? createDefaultAgent();
+-    if (dispatcher) {
+-      (requestOptions as any).dispatcher = dispatcher;
+-    }
+ 
+     // Add User-Agent header if configured (URL_READER_USER_AGENT takes priority over USER_AGENT)
+     const userAgent = process.env.URL_READER_USER_AGENT || process.env.USER_AGENT;
+@@ -253,17 +264,53 @@
+       };
+     }
+ 
+-    let response: Response;
++    let response!: Response;
++    let currentUrl = parsedUrl;
++    let usedDispatcher = false;
+     try {
+-      // Fetch the URL with the abort signal.
+-      // Use undici's own fetch so it shares the same internal version as the
+-      // Agent/ProxyAgent dispatcher — avoids the Node.js bundled-undici vs
+-      // npm-undici version mismatch that breaks Content-Encoding decompression.
+-      response = await (undiciFetch as unknown as typeof fetch)(url, requestOptions);
++      for (let redirects = 0; redirects <= MAX_REDIRECTS; redirects++) {
++        // Add proxy or default dispatcher (includes system CA certs for TLS)
++        const proxyAgent = createProxyAgent(currentUrl.toString(), ProxyType.URL_READER);
++        const dispatcher = proxyAgent ?? createDefaultAgent();
++        usedDispatcher = !!dispatcher;
++        const currentRequestOptions = {
++          ...requestOptions,
++        };
++        if (dispatcher) {
++          (currentRequestOptions as any).dispatcher = dispatcher;
++        }
++
++        // Fetch the URL with the abort signal.
++        // Use undici's own fetch so it shares the same internal version as the
++        // Agent/ProxyAgent dispatcher — avoids the Node.js bundled-undici vs
++        // npm-undici version mismatch that breaks Content-Encoding decompression.
++        response = await (undiciFetch as unknown as typeof fetch)(currentUrl.toString(), currentRequestOptions);
++
++        if (!isRedirectResponse(response)) {
++          break;
++        }
++
++        const location = response.headers.get("location");
++        if (!location) {
++          break;
++        }
++
++        if (redirects === MAX_REDIRECTS) {
++          throw createContentError(`Too many redirects while fetching URL: ${url}`, url);
++        }
++
++        const nextUrl = new URL(location, currentUrl);
++        assertUrlAllowed(nextUrl);
++        currentUrl = nextUrl;
++      }
+     } catch (error: any) {
++      if (error.name === 'MCPSearXNGError') {
++        throw error;
++      }
++
+       const context: ErrorContext = {
+-        url,
+-        proxyAgent: !!dispatcher,
++        url: currentUrl.toString(),
++        proxyAgent: usedDispatcher,
+         timeout: timeoutMs
+       };
+       throw createNetworkError(error, context);

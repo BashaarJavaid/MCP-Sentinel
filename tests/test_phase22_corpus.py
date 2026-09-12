@@ -71,6 +71,112 @@ def test_phase22_measurement_rejects_unapproved_changes(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="authorized inputs"):
         measure(changed, "rules", tmp_path / "changed")
     assert not (tmp_path / "changed").exists()
-    with pytest.raises(ValueError, match="rules-only"):
-        measure(approved, "prepare-live", tmp_path / "paid")
-    assert not (tmp_path / "paid").exists()
+    with pytest.raises(ValueError, match="source-only"):
+        measure(approved, "dynamic", tmp_path / "runtime")
+    assert not (tmp_path / "runtime").exists()
+
+
+def test_replacement_approval_binds_exact_subset_and_treatments(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import phase20_measurements as measurements
+    from scripts.phase20_corpus import digest
+
+    approval = ROOT / "artifacts/phase22/corpus-replacement-v1/authorization.json"
+    replacement = frozen(approval_path=approval)
+    decision = json.loads(approval.read_text())["corpus"]
+    selected = [i for i in replacement.inputs if i.id in decision["input_ids"]]
+    subset = replacement.model_copy(update={"inputs": selected})
+    monkeypatch.setattr(measurements, "verify_rules", lambda root: None)
+    monkeypatch.setattr(
+        measurements,
+        "run_comparator",
+        lambda *args: {"state": "completed", "exit_code": 0, "finding_count": 0},
+    )
+    result = measurements.measure(
+        subset,
+        "semgrep",
+        tmp_path / "valid",
+        rules_dir=tmp_path,
+        phase22_approval=approval,
+    )
+    assert result["manifest_sha256"] == decision["sha256"]
+    assert result["authorization_sha256"] == digest(approval.read_bytes())
+    assert len(result["outcomes"]) == 5
+    assert all(row["state"] == "completed" for row in result["outcomes"])
+    for manifest, treatment in [(replacement, "rules"), (subset, "prepare-live")]:
+        with pytest.raises(ValueError, match="authorized"):
+            measurements.measure(
+                manifest, treatment, tmp_path / "denied", phase22_approval=approval
+            )
+        assert not (tmp_path / "denied").exists()
+    with pytest.raises(ValueError, match="authorized inputs"):
+        measurements.measure(subset, "rules", tmp_path / "original-approval")
+    changed = json.loads(approval.read_text())
+    changed["corpus"]["sha256"] = "0" * 64
+    wrong = tmp_path / "wrong-approval.json"
+    wrong.write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="matching freeze approval"):
+        frozen(approval_path=wrong)
+
+
+@pytest.mark.parametrize("treatment", ["prepare-live", "replay", "semgrep"])
+def test_phase22_offline_treatments_keep_separate_capture_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, treatment: str
+) -> None:
+    from scripts import phase20_measurements as measurements
+    from scripts import phase20_review
+    from sentinel.llm import semantic_reviewer
+
+    approved = frozen()
+    item = next(i for i in approved.inputs if i.split == "development")
+
+    def materialize(*args: object) -> Path:
+        root = tmp_path / "source"
+        root.mkdir()
+        (root / "requirements.txt").write_text("mcp==1.29.0\n")
+        (root / "server.py").write_text(
+            "import subprocess\nfrom mcp.server.fastmcp import FastMCP\n"
+            'mcp=FastMCP("test")\n@mcp.tool()\n'
+            "def run(command: str):\n"
+            "    return subprocess.check_output(command, shell=True)\n"
+        )
+        return root
+
+    def forbid_live(*args: object, **kwargs: object) -> None:
+        pytest.fail("offline corpus treatment constructed a live model transport")
+
+    roots = []
+    checked = phase20_review.CheckedCassettes
+
+    def capture_transport(root: Path) -> phase20_review.CheckedCassettes:
+        roots.append(root)
+        return checked(root)
+
+    monkeypatch.setattr(measurements, "materialize", materialize)
+    monkeypatch.setattr(semantic_reviewer, "OpenAITransport", forbid_live)
+    monkeypatch.setattr(phase20_review, "CheckedCassettes", capture_transport)
+    monkeypatch.setattr(measurements, "verify_rules", lambda root: None)
+    monkeypatch.setattr(
+        measurements,
+        "run_comparator",
+        lambda *args: {"state": "completed", "exit_code": 0, "finding_count": 0},
+    )
+    result = measurements.measure(
+        approved.model_copy(update={"inputs": [item]}),
+        treatment,
+        tmp_path / "measurement",
+        rules_dir=tmp_path / "rules",
+    )
+    assert result["model_calls"] == 0
+    assert len(result["outcomes"]) == 1
+    outcome = result["outcomes"][0]
+    if treatment == "semgrep":
+        assert outcome["state"] == "completed"
+        assert not roots
+    else:
+        assert roots == [ROOT / "artifacts/phase22/captures"]
+        assert outcome["state"] == (
+            "review_pending" if treatment == "prepare-live" else "incomplete"
+        )
+        assert bool(result["requests"]) is (treatment == "prepare-live")

@@ -28,23 +28,41 @@ detection accuracy.
 
 ## Phase 22 pending acceptance
 
-The [approved technical contract](phase22-technical.md) reserves SENT-012 through
-SENT-016. None is accepted or enabled by this table. Each requires the new
-independent development/held-out pairs, safe controls, structural mutations,
-applicable Python/TypeScript regressions, actionable remediation and measured
-false alarms before technical sign-off.
+The [approved technical contract](phase22-technical.md) governs SENT-012 through
+SENT-016. All five are implemented and included in default static selection on the
+integration branch. Implementation does not constitute technical sign-off: the
+condition measurements, fresh holdout and human review remain separate gates in
+the [implementation status](phase22-implementation-status.md). The full paid
+reviewed-retention comparison and external pilots are explicitly user-deferred;
+neither is counted as passed or required for Phase 22 technical completion.
 
-| Rule | OWASP justification | Required false-positive controls | Review |
-| --- | --- | --- | --- |
-| SENT-012 | `ASI02:2026`: caller paths escape a tool's intended resource boundary | Enforced canonical containment, relevant guards, safe symlink handling | Pending |
-| SENT-013 | `ASI01:2026`: tool metadata explicitly redirects model goals | Benign imperatives and quoted security warnings | Pending |
-| SENT-014 | `ASI05:2026`: caller values become executable command options | Enforced option rejection and command-specific safe positions | Pending |
-| SENT-015 | `ASI02:2026`: caller URLs redirect server requests beyond intended services | Relevant scheme/destination rejection and authorized requests | Pending |
-| SENT-016 | `ASI03:2026`: caller requests inherit unauthorized operator credentials | Explicit authorized operator use and enforced caller rejection | Pending |
+| Rule | Impact / initial severity | OWASP justification | Required false-positive controls | Review |
+| --- | --- | --- | --- | --- |
+| [SENT-012](rules.md#sent-012) | High / Medium | `ASI02:2026`: caller paths escape a tool's intended resource boundary | Enforced canonical containment, relevant guards, safe symlink handling | Pending |
+| [SENT-013](rules.md#sent-013) | High / Medium | `ASI01:2026`: tool metadata explicitly redirects model goals | Benign imperatives and quoted security warnings | Pending |
+| [SENT-014](rules.md#sent-014) | Critical / High | `ASI05:2026`: caller values become command options | Enforced option rejection and command-specific safe positions | Pending |
+| [SENT-015](rules.md#sent-015) | High / Medium | `ASI02:2026`: caller URLs redirect server requests beyond intended services | Relevant scheme/destination rejection and authorized requests | Pending |
+| [SENT-016](rules.md#sent-016) | High / Medium | `ASI03:2026`: caller requests inherit unauthorized operator credentials | Explicit authorized operator use and enforced caller rejection | Pending |
 
-The current draft implements bounded Python and TypeScript portions of SENT-012
-and includes it in default static rule selection. TypeScript shares the installed
-Semgrep parser and reports unresolved bindings, control flow and schemas.
-The new source-only regressions exercise relevant guards, value replacement,
-imports and bound methods. The table above remains pending: this engineering
-increment does not constitute independent-corpus or reviewed-tier acceptance.
+The initial severity above uses theoretical exploitability. The canonical catalog
+owns impact, remediation and false-positive risk; the canonical OWASP map owns the
+category. Findings use the shared identity, evidence/provenance, severity,
+suppression, baseline and report pipeline. Selecting a rule by ID does not create
+a different finding shape or change its meaning.
+
+The durable controls are `test_containment.py`, `test_typescript_containment.py`,
+`test_description_poisoning.py`, `test_command_options.py`, `test_ssrf.py` and
+`test_credential_fallback.py`. They cover applicable Python and TypeScript flows,
+relevant versus unrelated/discarded guards, replacement and mutation, and safe
+partners. Shared engine tests check default/explicit selection and SARIF catalog
+identity; CLI rule tests check suppression, baselines and severity thresholds.
+Imported containment reporting also asserts that a target execution marker is
+never created. Static workers operate only on scanner-owned parsed snapshots.
+
+The rule catalog links describe bounded support and actionable remediation.
+Unresolved frameworks, command semantics or operator policy remain visible and
+need source review; a false alarm or uncertain unrelated candidate is not silently
+converted into a condition hit. Frozen development and holdout cases are scored
+against their exact named condition and prerequisites. The historical 70-warning
+backlog remains distinct from newly reviewed candidates. No row is signed off by
+this documentation update or by synthetic fixture success alone.

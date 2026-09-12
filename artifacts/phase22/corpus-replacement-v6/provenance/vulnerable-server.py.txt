@@ -1,0 +1,339 @@
+1: """FastMCP server entrypoint."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import logging
+6: import os
+7: from hmac import compare_digest
+8: from typing import Annotated, Any
+9: 
+10: from mcp.server.fastmcp import FastMCP
+11: from mcp.server.transport_security import TransportSecuritySettings
+12: from pydantic import Field
+13: 
+14: from mcp_ddg_research import cache as cache_ops
+15: from mcp_ddg_research.fetch import ddg_deep_search as perform_deep_search
+16: from mcp_ddg_research.fetch import web_fetch as perform_web_fetch
+17: from mcp_ddg_research.models import (
+18:     ARGUMENT_DESCRIPTIONS,
+19:     CacheNamespace,
+20:     SafeSearch,
+21:     TimeFilter,
+22: )
+23: from mcp_ddg_research.search import ddg_search as perform_ddg_search
+24: 
+25: LOGGER = logging.getLogger(__name__)
+26: 
+27: mcp = FastMCP(
+28:     name="mcp-ddg-research",
+29:     instructions=(
+30:         "Deterministic DuckDuckGo search and safe webpage fetching tools. "
+31:         "This server does not call LLMs, summarize, or generate reports."
+32:     ),
+33: )
+34: 
+35: 
+36: class BearerTokenAuthMiddleware:
+37:     """ASGI middleware that requires one configured bearer token."""
+38: 
+39:     def __init__(self, app: Any, token: str) -> None:
+40:         self.app = app
+41:         self.expected_authorization = f"Bearer {token}"
+42: 
+43:     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+44:         if scope.get("type") != "http":
+45:             await self.app(scope, receive, send)
+46:             return
+47: 
+48:         authorization = _authorization_header(scope)
+49:         if authorization is None or not compare_digest(
+50:             authorization,
+51:             self.expected_authorization,
+52:         ):
+53:             await _send_unauthorized(send)
+54:             return
+55: 
+56:         await self.app(scope, receive, send)
+57: 
+58: 
+59: def _authorization_header(scope: dict[str, Any]) -> str | None:
+60:     for name, value in scope.get("headers", []):
+61:         if name.lower() == b"authorization":
+62:             return value.decode("latin-1")
+63:     return None
+64: 
+65: 
+66: async def _send_unauthorized(send: Any) -> None:
+67:     body = b"Unauthorized"
+68:     await send(
+69:         {
+70:             "type": "http.response.start",
+71:             "status": 401,
+72:             "headers": [
+73:                 (b"content-type", b"text/plain; charset=utf-8"),
+74:                 (b"www-authenticate", b"Bearer"),
+75:                 (b"content-length", str(len(body)).encode("ascii")),
+76:             ],
+77:         }
+78:     )
+79:     await send({"type": "http.response.body", "body": body})
+80: 
+81: 
+82: def _csv_env(name: str, default: list[str]) -> list[str]:
+83:     raw_value = os.getenv(name, "")
+84:     values = [value.strip() for value in raw_value.split(",") if value.strip()]
+85:     return values or default
+86: 
+87: 
+88: def _has_wildcard(values: list[str]) -> bool:
+89:     return "*" in values
+90: 
+91: 
+92: def _http_auth_token() -> str | None:
+93:     token = os.getenv("MCP_AUTH_TOKEN")
+94:     if token is None or not token.strip():
+95:         return None
+96:     return token.strip()
+97: 
+98: 
+99: def _build_transport_security_settings(
+100:     allowed_hosts: list[str],
+101:     allowed_origins: list[str],
+102: ) -> TransportSecuritySettings:
+103:     wildcard_requested = _has_wildcard(allowed_hosts) or _has_wildcard(allowed_origins)
+104:     return TransportSecuritySettings(
+105:         enable_dns_rebinding_protection=not wildcard_requested,
+106:         allowed_hosts=allowed_hosts,
+107:         allowed_origins=allowed_origins,
+108:     )
+109: 
+110: 
+111: def _configure_http_settings() -> None:
+112:     host = os.getenv("MCP_HOST", "0.0.0.0")
+113:     port = int(os.getenv("MCP_PORT", "8000"))
+114:     allowed_hosts = _csv_env("MCP_ALLOWED_HOSTS", ["*"])
+115:     allowed_origins = _csv_env("MCP_ALLOWED_ORIGINS", ["*"])
+116: 
+117:     mcp.settings.host = host
+118:     mcp.settings.port = port
+119:     mcp.settings.transport_security = _build_transport_security_settings(
+120:         allowed_hosts=allowed_hosts,
+121:         allowed_origins=allowed_origins,
+122:     )
+123: 
+124: 
+125: async def _run_http_async() -> None:
+126:     import uvicorn
+127: 
+128:     auth_token = _http_auth_token()
+129:     if auth_token is None:
+130:         LOGGER.warning(
+131:             "MCP HTTP transport is running without MCP_AUTH_TOKEN; "
+132:             "all HTTP requests are unauthenticated."
+133:         )
+134: 
+135:     starlette_app = mcp.streamable_http_app()
+136:     if auth_token is not None:
+137:         starlette_app.add_middleware(BearerTokenAuthMiddleware, token=auth_token)
+138: 
+139:     config = uvicorn.Config(
+140:         starlette_app,
+141:         host=mcp.settings.host,
+142:         port=mcp.settings.port,
+143:         log_level=mcp.settings.log_level.lower(),
+144:     )
+145:     server = uvicorn.Server(config)
+146:     await server.serve()
+147: 
+148: 
+149: @mcp.tool()
+150: async def ddg_search(
+151:     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+152:     max_results: Annotated[
+153:         int,
+154:         Field(ge=1, le=30, description=ARGUMENT_DESCRIPTIONS["max_results"]),
+155:     ] = 10,
+156:     search_window: Annotated[
+157:         int | None,
+158:         Field(ge=1, le=100, description=ARGUMENT_DESCRIPTIONS["search_window"]),
+159:     ] = None,
+160:     safe_search: Annotated[
+161:         SafeSearch,
+162:         Field(description=ARGUMENT_DESCRIPTIONS["safe_search"]),
+163:     ] = "off",
+164:     time_filter: Annotated[
+165:         TimeFilter | None,
+166:         Field(description=ARGUMENT_DESCRIPTIONS["time_filter"]),
+167:     ] = None,
+168:     blocked_domains: Annotated[
+169:         list[str] | None,
+170:         Field(description=ARGUMENT_DESCRIPTIONS["blocked_domains"]),
+171:     ] = None,
+172:     allowed_domains: Annotated[
+173:         list[str] | None,
+174:         Field(description=ARGUMENT_DESCRIPTIONS["allowed_domains"]),
+175:     ] = None,
+176:     preferred_domains: Annotated[
+177:         list[str] | None,
+178:         Field(description=ARGUMENT_DESCRIPTIONS["preferred_domains"]),
+179:     ] = None,
+180: ) -> dict:
+181:     """Search DuckDuckGo using the configured provider mode."""
+182: 
+183:     response = await perform_ddg_search(
+184:         query=query,
+185:         max_results=max_results,
+186:         search_window=search_window,
+187:         safe_search=safe_search,
+188:         time_filter=time_filter,
+189:         blocked_domains=blocked_domains,
+190:         allowed_domains=allowed_domains,
+191:         preferred_domains=preferred_domains,
+192:     )
+193:     return response.model_dump(mode="json")
+194: 
+195: 
+196: @mcp.tool()
+197: async def web_fetch(
+198:     url: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["url"])],
+199:     max_chars: Annotated[
+200:         int,
+201:         Field(ge=1000, le=50000, description=ARGUMENT_DESCRIPTIONS["max_chars"]),
+202:     ] = 12000,
+203: ) -> dict:
+204:     """Fetch one HTTP(S) page safely and return extracted text."""
+205: 
+206:     response = await perform_web_fetch(url=url, max_chars=max_chars)
+207:     return response.model_dump(mode="json")
+208: 
+209: 
+210: @mcp.tool()
+211: async def ddg_deep_search(
+212:     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+213:     max_results: Annotated[
+214:         int,
+215:         Field(ge=1, le=30, description=ARGUMENT_DESCRIPTIONS["max_results"]),
+216:     ] = 10,
+217:     search_window: Annotated[
+218:         int | None,
+219:         Field(ge=1, le=100, description=ARGUMENT_DESCRIPTIONS["search_window"]),
+220:     ] = None,
+221:     max_pages: Annotated[
+222:         int,
+223:         Field(ge=1, le=10, description=ARGUMENT_DESCRIPTIONS["max_pages"]),
+224:     ] = 5,
+225:     max_chars_per_page: Annotated[
+226:         int,
+227:         Field(ge=1000, le=50000, description=ARGUMENT_DESCRIPTIONS["max_chars_per_page"]),
+228:     ] = 12000,
+229:     safe_search: Annotated[
+230:         SafeSearch,
+231:         Field(description=ARGUMENT_DESCRIPTIONS["safe_search"]),
+232:     ] = "off",
+233:     time_filter: Annotated[
+234:         TimeFilter | None,
+235:         Field(description=ARGUMENT_DESCRIPTIONS["time_filter"]),
+236:     ] = None,
+237:     blocked_domains: Annotated[
+238:         list[str] | None,
+239:         Field(description=ARGUMENT_DESCRIPTIONS["blocked_domains"]),
+240:     ] = None,
+241:     allowed_domains: Annotated[
+242:         list[str] | None,
+243:         Field(description=ARGUMENT_DESCRIPTIONS["allowed_domains"]),
+244:     ] = None,
+245:     preferred_domains: Annotated[
+246:         list[str] | None,
+247:         Field(description=ARGUMENT_DESCRIPTIONS["preferred_domains"]),
+248:     ] = None,
+249:     max_concurrency: Annotated[
+250:         int | None,
+251:         Field(ge=1, le=12, description=ARGUMENT_DESCRIPTIONS["max_concurrency"]),
+252:     ] = None,
+253: ) -> dict:
+254:     """Search once, fetch top pages in parallel, and return raw page text."""
+255: 
+256:     response = await perform_deep_search(
+257:         query=query,
+258:         max_results=max_results,
+259:         search_window=search_window,
+260:         max_pages=max_pages,
+261:         max_chars_per_page=max_chars_per_page,
+262:         safe_search=safe_search,
+263:         time_filter=time_filter,
+264:         blocked_domains=blocked_domains,
+265:         allowed_domains=allowed_domains,
+266:         preferred_domains=preferred_domains,
+267:         max_concurrency=max_concurrency,
+268:     )
+269:     return response.model_dump(mode="json")
+270: 
+271: 
+272: @mcp.tool()
+273: async def cache_stats() -> dict:
+274:     """Return cache file counts and byte totals for each cache namespace."""
+275: 
+276:     return cache_ops.get_cache_stats().to_dict()
+277: 
+278: 
+279: @mcp.tool()
+280: async def cache_prune(
+281:     expired_only: Annotated[
+282:         bool,
+283:         Field(description=ARGUMENT_DESCRIPTIONS["expired_only"]),
+284:     ] = False,
+285:     dry_run: Annotated[
+286:         bool,
+287:         Field(description=ARGUMENT_DESCRIPTIONS["dry_run"]),
+288:     ] = False,
+289: ) -> dict:
+290:     """Prune expired, corrupt, temporary, and oversized cache files."""
+291: 
+292:     return cache_ops.prune_cache(expired_only=expired_only, dry_run=dry_run).to_dict()
+293: 
+294: 
+295: @mcp.tool()
+296: async def cache_clear(
+297:     namespace: Annotated[
+298:         CacheNamespace,
+299:         Field(description=ARGUMENT_DESCRIPTIONS["namespace"]),
+300:     ],
+301:     confirm: Annotated[
+302:         bool,
+303:         Field(description=ARGUMENT_DESCRIPTIONS["confirm"]),
+304:     ],
+305: ) -> dict:
+306:     """Clear one cache namespace, or all namespaces, when confirm is true."""
+307: 
+308:     return cache_ops.clear_cache(namespace=namespace, confirm=confirm).to_dict()
+309: 
+310: 
+311: def _prune_cache_on_startup() -> None:
+312:     try:
+313:         stats = cache_ops.prune_cache_on_startup()
+314:     except Exception:  # noqa: BLE001 - cache pruning must not block server startup.
+315:         LOGGER.warning("Startup cache pruning failed", exc_info=True)
+316:         return
+317:     if stats is not None and stats.deleted_files:
+318:         LOGGER.info(
+319:             "Pruned %s cache files on startup (%s bytes)",
+320:             stats.deleted_files,
+321:             stats.deleted_bytes,
+322:         )
+323: 
+324: 
+325: def main() -> None:
+326:     _prune_cache_on_startup()
+327:     transport = os.getenv("MCP_TRANSPORT", "stdio").strip().lower()
+328:     if transport == "http":
+329:         import asyncio
+330: 
+331:         _configure_http_settings()
+332:         asyncio.run(_run_http_async())
+333:         return
+334: 
+335:     mcp.run(transport="stdio")
+336: 
+337: 
+338: if __name__ == "__main__":
+339:     main()

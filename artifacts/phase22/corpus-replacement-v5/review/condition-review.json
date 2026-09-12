@@ -1,0 +1,53 @@
+{
+  "reviewer": "Same implementation agent, after immutable scanner freeze; no independent human/unseen-source review.",
+  "freeze": {
+    "path": "artifacts/phase22/integration/v23-scanner-freeze-before-v5-curation.json",
+    "sha256": "4134eca616db433e69d8b8b869d9c840dd137da18bde627bed3c3cde21d167b1"
+  },
+  "scanner": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "condition": "The registered run_audit tool rejects the literal http://169.254.169.254/ before Chrome launch or passing the URL to Lighthouse",
+  "prerequisites": [
+    "Use the unmodified upstream stdio entrypoint with the source-locked SDK1.27.1, Zod4.3.6, Lighthouse12.8.2 and chrome-launcher0.15.2. Existing upstream Server.prototype.setRequestHandler compatibility patch remains present. Registration and startup succeed; no evaluator monkeypatch or alternative entrypoint.",
+    "Invoke run_audit with arguments {url: http://169.254.169.254/}, with categories/device/throttling omitted. The declared string schema and isValidAuditArgs admit it. No proxy, custom URL policy or destination override.",
+    "The absolute HTTP URL has the canonical IPv4 link-local hostname169.254.169.254; Node URL/net classification succeeds without DNS. Fixed source reaches the169.254. prefix with null mask and throws before the Chrome launch. Vulnerable source has no URL policy before that boundary.",
+    "For vulnerable onward delivery, normal temporary-directory access and Chrome startup must succeed; these are unexecuted prerequisites. The named condition is pre-launch rejection, not a successful network request, reachable metadata service, credential access, completed audit or runtime proof. No target, dependencies, browser or build is run.",
+    "Other tools, redirects, DNS resolution/rebinding, IPv6 and response contents are outside this label. Upstream intentionally allows loopback; its DNS-error branch returns without rejection. Fixed means only the named literal condition, not complete SSRF protection."
+  ],
+  "flow": "new LighthouseServer -> run stdio -> SDK CallToolRequestSchema handler -> run_audit -> this.handleRunAudit -> isValidAuditArgs -> [fixed await validateUrl] -> temporary-directory setup -> chromeLauncher.launch -> lighthouse(args.url,options).",
+  "label_basis": "Canonical169.254.169.254 is not loopback; fixed literal branch calls isBlockedIP, whose169.254. prefix entry has null mask and returns true. The guard throws before Chrome. Vulnerable source proceeds toward Chrome/Lighthouse after only type checks. Public8.8.8.8 matches no blocked prefix.",
+  "correlation": "One repository and one narrow upstream vulnerability; original pair plus two reversible renames and one fixed-tree control, not five independent discoveries.",
+  "limitations": "Known source-exposure, class dispatch and third-party Lighthouse call remain intact. No detector support or hit is predicted. Source novelty is relative to recorded prior corpora; SSRF/browser concepts overlap earlier families. Upstream report mentions both tools and broad impact; only run_audit literal pre-launch rejection is labeled here. Loopback intentionally allowed, DNS errors fail open, redirects and IPv6 outside label.",
+  "metadata_discrepancies": "package.json and server.json advance0.1.12 to0.1.13; unchanged lock root remains0.1.11 and runtime server identity0.1.0. Source revisions and actual lock contents, not those stale version strings, bind this pair.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v5/mutations/vulnerable-argument-helper-rename.tar.gz",
+        "sha256": "52442c0b8e82999fa788bbe11bcbe54b980152054f708a69bd15d8a36a90dd57"
+      },
+      "identifier_occurrences": 3,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "e633056651b393989c307516045ddfea9e55aef2f58c43b37ec2a8e7085267e1",
+      "mutated_tree_sha256": "906c13bf681a9bb94d520e03ca9ed947eccaf1157374225ed49169a2f394b402"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v5/mutations/fixed-argument-helper-rename.tar.gz",
+        "sha256": "228611bd607368c5c86605de169c8e869edafb675595f5f80f03958211ab90bd"
+      },
+      "identifier_occurrences": 3,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "f8ecdaa7734f77e91d744c727801f1247ec3afbe63013116c2bbd5d957b2b033",
+      "mutated_tree_sha256": "6bfec2b8d9924bc38db1f169b045ba28d7787f71dcd97d3306f022a323dc4639"
+    }
+  ],
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "target_execution": false,
+  "model_calls": 0
+}

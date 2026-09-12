@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-09-11T16:20:14.993804+00:00",
+  "user_decision": "continue",
+  "approved": true,
+  "approval_context": "Direct response to the exact final ten-observation Lighthouse regression approval question delivered at aef8cc7. This approves that bounded exposed regression only; no other experiment or technical acceptance is inferred.",
+  "delivery_at_approval": "aef8cc75cfc458902b3b9b355aa47370f8a161c4",
+  "proposal_path": "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+  "proposal_sha256": "26ac27d01740faa0ac664a13963ef7a4d91f199818bba29d9a257d98f1f4206a",
+  "scanner": {
+    "revision": "6db3858f1368033642354ab5ebb53aef76315a16",
+    "source_sha256": "db6698026209940e2dcbdd2e3428bc96487fb231d0785093d6c258f14ebf79a3",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "bounds": {
+    "dispatches": 1,
+    "native_observations": 10,
+    "comparator_observations": 0,
+    "profiles": 0,
+    "retries": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "normal_target_seconds": 120,
+    "native_and_whole_input_maximum_seconds": 300,
+    "nominal_input_minutes": 50,
+    "cleanup_maximum_seconds_per_input": 15,
+    "job_limit_minutes": 60,
+    "internal_stop_minutes": 58,
+    "reserved_upload_minutes": 2
+  },
+  "corpus": {
+    "manifest": "artifacts/phase22/corpus-replacement-v5/manifest.json",
+    "sha256": "4990b75b3648a96fef8ee2f23ebd5bda6aae2bce1fef8e0db1b877ef34c09ae6",
+    "input_ids": [
+      "lighthouse-linklocal-vulnerable",
+      "lighthouse-linklocal-vulnerable-mutation",
+      "lighthouse-linklocal-fixed",
+      "lighthouse-linklocal-fixed-mutation",
+      "lighthouse-public-safe"
+    ],
+    "treatments": [
+      "rules"
+    ],
+    "freeze_approved": true
+  },
+  "batch_order": [
+    "rules-first",
+    "rules-repeat"
+  ],
+  "exposure": "One repository and one correlated vulnerability, curated by the implementation agent. Sources, conditions and misses are exposed. This correction and any subsequent pass cannot be called fresh generalization or independent human review.",
+  "stop": "Stop on the first incomplete, late, identity/schema/cleanup failure, named-condition gate failure or ordered-repeat mismatch. Retain attempted/partial reports; close every unstarted observation on stop. No source/label/guard/deadline change, tuning, retries, comparator or target execution inside the budget. End after ten attempts even if successful.",
+  "technical_acceptance": false,
+  "paid_calls_authorized": 0
+}

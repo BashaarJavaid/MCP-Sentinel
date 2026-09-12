@@ -100,7 +100,7 @@ def generate_ablation(output: Path) -> None:
             "ambiguous_excluded_from_binary_metrics": True,
             "ambiguous_reported_as_abstention": True,
             "dynamic_scores_case_specific_root_cause_probe": True,
-            "all_four_probes_execute_for_each_eligible_case": True,
+            "campaign_completion_reported_per_case": True,
         },
         "rules_only": _rules_only(cases),
         "gpt_reviewed": treatments,
@@ -207,9 +207,17 @@ def _run_dynamic_case(case: dict[str, Any]) -> dict[str, Any]:
         scan_id=scan_id,
         timestamp=timestamp,
     )
-    if set(dynamic.campaign.ordered_probe_ids) != set(DYNAMIC_RULE_IDS):
-        raise RuntimeError(f"dynamic truth case {case['id']} skipped a required probe")
     probe_id = str(expectation["probe_id"])
+    if not any(
+        item.probe_id == probe_id
+        and item.target_tool == tool_name
+        and item.status == "tested"
+        and item.attack_attempted
+        for item in dynamic.observations
+    ):
+        raise RuntimeError(
+            f"dynamic truth case {case['id']} has no completed matching attempt"
+        )
     observed = any(
         finding.rule_id == probe_id and tool_name in finding.location.path
         for finding in dynamic.findings
@@ -220,6 +228,8 @@ def _run_dynamic_case(case: dict[str, Any]) -> dict[str, Any]:
         "target_tool": tool_name,
         "expected_vulnerable": bool(expectation["expected_vulnerable"]),
         "observed_vulnerable": observed,
+        "analysis_complete": dynamic.complete,
+        "dynamic_analysis": dynamic.summary.model_dump(mode="json"),
         "ordered_probe_ids": list(dynamic.campaign.ordered_probe_ids),
         "gpt_status": planned.status.value,
         "probe_plan_source": plan_source,

@@ -19,12 +19,13 @@ from sentinel.dynamic.prober import (
     OVERSIZED_MARKER,
     WRONG_TYPE_MARKER,
     ProbeBinding,
+    ProbeCampaign,
     _bounded_response,
     _finding_from_observation,
     _Observation,
     _probe_arguments,
-    _select_runtime_binding,
     build_probe_campaign,
+    enumerate_attempts,
 )
 from sentinel.finding import (
     Confidence,
@@ -122,7 +123,12 @@ def test_valid_gpt_plan_controls_order_and_bindings(sample_finding: Finding) -> 
         "SENT-009",
         "SENT-008",
     )
-    assert campaign.bindings["SENT-010"].target_tool == "unsafe_calculator"
+    assert (
+        next(
+            item for item in campaign.bindings if item.probe_id == "SENT-010"
+        ).target_tool
+        == "unsafe_calculator"
+    )
     assert campaign.primary_finding_id == str(finding.finding_id)
     assert campaign.used_fallback is False
     assert warning is None
@@ -138,7 +144,7 @@ def test_invalid_or_suppressed_plan_uses_all_four_fixed_probes(
     campaign, warning = build_probe_campaign((finding,), _catalog())
 
     assert campaign.ordered_probe_ids == DEFAULT_ORDER
-    assert set(campaign.bindings) == set(DEFAULT_ORDER)
+    assert {item.probe_id for item in campaign.bindings} == set(DEFAULT_ORDER)
     assert campaign.used_fallback is True
     assert warning is not None
 
@@ -211,12 +217,11 @@ def test_runtime_binding_uses_ungranted_tool_and_schema_fallback() -> None:
         ),
     )
 
-    scope = _select_runtime_binding(
-        ProbeBinding("SENT-008", None, None, None), tools, manifest
+    attempts, _ = enumerate_attempts(
+        tools, manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
     )
-    malformed = _select_runtime_binding(
-        ProbeBinding("SENT-011", "missing", "missing", None), tools, manifest
-    )
+    scope = next(item for item in attempts if item.probe_id == "SENT-008")
+    malformed = next(item for item in attempts if item.probe_id == "SENT-011")
 
     assert scope.target_tool == "hidden"
     assert malformed.target_tool == "hidden"
@@ -244,10 +249,12 @@ def test_malformed_binding_targets_constrained_envelope_not_unconstrained_field(
         },
     )
 
-    binding = _select_runtime_binding(
-        ProbeBinding("SENT-011", "wrapped", "record_id", WRONG_TYPE_MARKER),
-        (tool,),
-        manifest,
+    binding = next(
+        item
+        for item in enumerate_attempts(
+            (tool,), manifest, ProbeCampaign(DEFAULT_ORDER, (), None, True)
+        )[0]
+        if item.probe_id == "SENT-011"
     )
     arguments, evidence = _probe_arguments(binding, (tool,))
 

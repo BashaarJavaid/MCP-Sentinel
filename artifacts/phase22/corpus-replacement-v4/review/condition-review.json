@@ -1,0 +1,52 @@
+{
+  "reviewer": "Same implementation agent after freezing scanner1f3f72f; no independent human or unseen-source claim.",
+  "freeze": {
+    "path": "artifacts/phase22/integration/v21-scanner-freeze-before-curation.json",
+    "sha256": "aeb7ad53be4aa308c7d3f658d0e988b848fc9df1f426aca9feb70caa4655f381"
+  },
+  "scanner_identity": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "condition": "The registered auth_fetch tool rejects a caller-supplied http://[::ffff:7f00:1]/ URL before the initial browser navigation when private destinations have not been opted into",
+  "prerequisites": [
+    "Use the normal upstream stdio entrypoint, source-locked MCP SDK1.27.1 and Playwright1.58.2, with AUTH_FETCH_ALLOW_PRIVATE and AUTH_FETCH_ALLOW_HOSTS unset. No source monkeypatch, custom proxy, browser route hook or external destination policy. Nothing is executed in this evaluation.",
+    "Invoke auth_fetch with url=http://[::ffff:7f00:1]/ and wait_for omitted. The genuine registered Zod string schema admits this string. Browser startup succeeds and provides a context; a fresh blank page is available or can be created.",
+    "The exact input is already the hex-normalized IPv4-mapped loopback form. Brackets are removed by the guard; node:net classifies ::ffff:7f00:1 as IPv6, so the literal-IP branch avoids DNS. Empty opt-in/allowlist values do not bypass policy.",
+    "The scored boundary is rejection before page.goto. A reachable loopback service, capture-button click, successful page load, returned content, redirects, DNS/rebinding, other embedded-IPv4 formats and download_media are outside the named condition. Browser/runtime availability is a prerequisite, not a measured success."
+  ],
+  "flow": "index McpServer -> registerTools -> auth_fetch string argument -> getOrLaunchBrowser -> navigateTo(ctx,url) -> imported assertSafeUrl -> literal IPv6 guard -> returned URL -> page.goto. Capture interaction occurs afterward and is outside the condition.",
+  "difference_from_exposed": "Independent auth-fetch-mcp repository with Playwright browser navigation and a guard returning a parsed URL, hexadecimal mapped-address reconstruction and CIDR arithmetic. It shares the SSRF family and mapped-loopback concept with exposed open-webSearch; this is not an independent vulnerability family.",
+  "correlation": "Two original source revisions and their two reversible renames concern one vulnerability. The safe control shares the fixed tree; five inputs are not five independent vulnerabilities.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v4/mutations/vulnerable-ipv6-helper-rename.tar.gz",
+        "sha256": "c932a493fffa45147d843e015482ce3517c09af8d66ce412e5b67b86db980f8e"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "b15e97c472bec520e16c891003982fdddf84ef8e8406d6301971c12eb6062802",
+      "mutated_tree_sha256": "49ebbad5c78a69881859b92deb47dbeb28dd3a6f19fb137402a168740df67115"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v4/mutations/fixed-ipv6-helper-rename.tar.gz",
+        "sha256": "9d2c412c6025253e477643acec4b303f71046ad352104c811b0c950bdaa2db64"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "6fb6feca4e634bb3860335b6faa55166d8c5d82e7475b8e1b5f8cca80e3a2afc",
+      "mutated_tree_sha256": "6e859e1f0194c36e424cca76a2f88f2c9ddd8f88f3f8764749b5da7326229fa2"
+    }
+  ],
+  "source_judgment": "Named validators alone do not establish protection; the exact literal and source branches determine these narrow labels. DNS, redirects and other embedded address forms remain outside scope.",
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "detector_tuning_after_curation": false,
+  "target_execution": false,
+  "model_calls": 0
+}

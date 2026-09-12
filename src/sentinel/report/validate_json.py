@@ -6,9 +6,12 @@ import json
 from typing import Any
 
 import jsonschema
+from pydantic import ValidationError
 from referencing import Registry, Resource
 
 from sentinel.errors import InfrastructureError
+from sentinel.report.json_report import report_model_input
+from sentinel.report.model import ScanReport
 from sentinel.schema import schema_resource
 
 SCHEMA_BASE = "https://mcp-sentinel.invalid/schemas/"
@@ -29,6 +32,7 @@ def validate_report_data(data: Any) -> None:
             registry=registry,
         )
         validator.validate(data)
+        ScanReport.model_validate_json(report_model_input(data))
     except jsonschema.ValidationError as error:
         raise InfrastructureError(
             f"native report schema validation failed: {error.message}"
@@ -36,6 +40,10 @@ def validate_report_data(data: Any) -> None:
     except (FileNotFoundError, json.JSONDecodeError) as error:
         raise InfrastructureError(
             "generated native report schemas are missing or invalid"
+        ) from error
+    except ValidationError as error:
+        raise InfrastructureError(
+            "native report invariants failed: " + str(error)
         ) from error
 
 
