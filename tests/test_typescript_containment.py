@@ -15,6 +15,160 @@ from sentinel.static.typescript_path_flow import analyze
 from tests.conftest import NOW
 
 
+@pytest.mark.parametrize("failure", ["throw new Error();", "process.exit(1);"])
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ("none", 0),
+        ("raw-prefix", 1),
+        ("replaced-read", 1),
+        ("later-root-write", 1),
+        ("callback-root-write", 1),
+        ("caller-root", 1),
+        ("destructured-root-write", 1),
+        ("loop-root-write", 1),
+        ("evaluated-root-write", 1),
+        ("operator-root-and-metadata", 0),
+    ],
+)
+def test_checked_import_after_canonical_root_initialization(
+    tmp_path: Path, failure: str, change: str, expected: int
+) -> None:
+    source = """
+import {Server} from '@modelcontextprotocol/sdk/server/index.js';
+import {CallToolRequestSchema} from '@modelcontextprotocol/sdk/types.js';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+let root: string;
+try { root = fs.realpathSync('/allowed'); }
+catch { FAILURE }
+function checked(input: string): string {
+  let resolved: string;
+  try { resolved = fs.realpathSync(path.resolve(root, input)); }
+  catch { throw new Error(); }
+  const inside = resolved === root || resolved.startsWith(root + path.sep);
+  if (!inside) throw new Error();
+  return resolved;
+}
+const server = new Server({name: 'unit', version: '1'});
+server.setRequestHandler(CallToolRequestSchema, request => {
+  let safe: string;
+  try { safe = checked(request.params.arguments.file); }
+  catch { return {content: []}; }
+  return fs.readFileSync(safe);
+});
+""".replace("FAILURE", failure)
+    changes = {
+        "none": ("", ""),
+        "raw-prefix": ("root + path.sep", "root"),
+        "replaced-read": (
+            "fs.readFileSync(safe)",
+            "fs.readFileSync(request.params.arguments.file)",
+        ),
+        "later-root-write": ("function checked", "root = unknown;\nfunction checked"),
+        "callback-root-write": (
+            "function checked",
+            "unknown(() => { root = unknown; });\nfunction checked",
+        ),
+        "caller-root": (
+            "let safe: string;",
+            "root = fs.realpathSync(request.params.arguments.root);\nlet safe: string;",
+        ),
+        "destructured-root-write": (
+            "function checked",
+            "[root] = unknown;\nfunction checked",
+        ),
+        "loop-root-write": (
+            "function checked",
+            "for (root of unknown) {}\nfunction checked",
+        ),
+        "evaluated-root-write": ("function checked", "eval(code);\nfunction checked"),
+        "operator-root-and-metadata": (
+            "fs.realpathSync('/allowed')",
+            "fs.realpathSync(path.resolve(process.env.ROOT || '/allowed'))",
+        ),
+    }
+    old, new = changes[change]
+    if old:
+        source = source.replace(old, new)
+    if change == "operator-root-and-metadata":
+        source = source.replace(
+            "try { resolved = fs.realpathSync(path.resolve(root, input)); }",
+            "let stats; try { resolved = fs.realpathSync(path.resolve(root, input)); "
+            "stats = fs.statSync(resolved); }",
+        ).replace(
+            "return resolved;",
+            "if (!stats.isFile() || stats.size > 1024) throw new Error(); "
+            "return resolved;",
+        )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    "setup, failure, catch_binding",
+    [
+        ("", "unknown();", ""),
+        ("", "if (unknown) process.exit(1);", ""),
+        ("const process = {exit: unknown};", "process.exit(1);", ""),
+        ("process.exit = unknown;", "process.exit(1);", ""),
+        ("process['exit'] = unknown;", "process.exit(1);", ""),
+        ("const alias = process; alias.exit = unknown;", "process.exit(1);", ""),
+        ("const exit = process.exit; unknown(exit);", "process.exit(1);", ""),
+        ("unknown(process);", "process.exit(1);", ""),
+        ("globalThis.process.exit = unknown;", "process.exit(1);", ""),
+        ("eval(code);", "process.exit(1);", ""),
+        (
+            "import other from 'node:process'; other.exit = unknown;",
+            "process.exit(1);",
+            "",
+        ),
+        (
+            "const other = require('node:process'); other.exit = unknown;",
+            "process.exit(1);",
+            "",
+        ),
+        ("import('node:process').then(unknown);", "process.exit(1);", ""),
+        ("", "process.exit(1);", "(process)"),
+    ],
+)
+def test_global_root_requires_a_proven_terminal_failure_branch(
+    tmp_path: Path, setup: str, failure: str, catch_binding: str
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        + setup
+        + '\nlet root; try { root = fs.realpathSync("/allowed"); } '
+        + f"catch {catch_binding} {{ {failure} }}\n"
+        + 'const server = new McpServer({name:"unit",version:"1"});\n'
+        + 'server.registerTool("read", {}, ({file}) => {\n'
+        + "const p = fs.realpathSync(file);\n"
+        + "if (!(p === root || p.startsWith(root + path.sep))) throw new Error();\n"
+        + "return fs.readFileSync(p); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
 @pytest.mark.parametrize(
     "mutation",
     ["server.registerTool = unknown;", "unknown(server);", "unknown({server});"],

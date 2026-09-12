@@ -100,6 +100,100 @@ class TypeScriptPathFlow:
         self.mobilecli_paths: set[str] = set()
         self.string_prefixes: dict[str, str] = {}
         self.zod_schemas: dict[str, tuple[str, dict[str, Value], Value | None]] = {}
+        self.node_exit_bindings: dict[str, bool] = {}
+
+    def node_exit_is_stable(self, file: TypeScriptSourceFile) -> bool:
+        """Recognize the global only when its visible uses cannot replace it."""
+        if file.relative_path in self.node_exit_bindings:
+            return self.node_exit_bindings[file.relative_path]
+        nodes = tuple(walk(self.program.trees[file.relative_path]))
+        callees = {id(n["Call"][0]) for n in nodes if "Call" in n}
+        allowed: set[int] = set()
+        stable = "process" not in self.program.bindings[file.relative_path]
+        for node in nodes:
+            check_deadline(self.program.deadline)
+            access = node.get("DotAccess")
+            if access and name_of(access[0]) == "process":
+                member = name_of(access[2])
+                if member == "env" or (
+                    member in {"cwd", "exit"} and id(node) in callees
+                ):
+                    allowed.add(id(access[0]))
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if assignment and (name_of(assignment[0]) or "").startswith("process."):
+                stable = False
+            if "PatId" in node and node["PatId"][0][0] == "process":
+                stable = False
+            if "N" in node and name_of(node) in {
+                "eval",
+                "Function",
+                "global",
+                "globalThis",
+                "require",
+            }:
+                stable = False
+            if "Call" in node and name_of(node["Call"][0]) == "import":
+                stable = False
+            if node.get("Special", [None])[0] in ("Eval", "Require"):
+                stable = False
+            directive = node.get("DirectiveStmt", {}).get("d", {})
+            for kind in ("ImportFrom", "ImportAs"):
+                if kind in directive and directive[kind][1].get("FileName", [""])[
+                    0
+                ] in {"process", "node:process"}:
+                    stable = False
+        stable = stable and all(
+            id(node) in allowed
+            for node in nodes
+            if "N" in node and name_of(node) == "process"
+        )
+        self.node_exit_bindings[file.relative_path] = stable
+        return stable
+
+    def initialized_global(self, file: TypeScriptSourceFile, name: str) -> Value:
+        """Reuse branch semantics for one assignment to an uninitialized scalar."""
+        declarations = self.program.bindings[file.relative_path].get(name, [])
+        if not (
+            len(declarations) == 2
+            and "VarDef" in declarations[0]
+            and not declarations[0]["VarDef"].get("vinit")
+            and declarations[1].get("rebound")
+        ):
+            return self.globals[(file.relative_path, name)]
+        for node in walk(self.program.trees[file.relative_path]):
+            check_deadline(self.program.deadline)
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if (
+                node.get("Special", [None])[0] == "Eval"
+                or ("N" in node and name_of(node) == "eval")
+                or ("PatId" in node and node["PatId"][0][0] == name)
+                or (
+                    assignment
+                    and name_of(assignment[0]) is None
+                    and any(name_of(part) == name for part in walk(assignment[0]))
+                )
+            ):
+                return self.globals[(file.relative_path, name)]
+        for statement in self.program.trees[file.relative_path]["Pr"]:
+            check_deadline(self.program.deadline)
+            attempt = statement.get("Try")
+            if not attempt or attempt[3] or attempt[4]:
+                continue
+            body = attempt[1].get("Block", [None, []])[1]
+            if len(body) != 1:
+                continue
+            expression = body[0].get("ExprStmt", [{}])[0]
+            assignment = expression.get("Assign")
+            if not assignment or name_of(assignment[0]) != name:
+                continue
+            # Module returns/declarations and nested initialization are outside
+            # this scalar proof; later writes already fail the declaration count.
+            if any("Return" in n or "DefStmt" in n for n in walk(statement)):
+                continue
+            local = {name: self.globals[(file.relative_path, name)]}
+            self.statement(file, statement, local, [])
+            return local.get(name, Value())
+        return self.globals[(file.relative_path, name)]
 
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
@@ -380,7 +474,17 @@ class TypeScriptPathFlow:
                 value = self.expression(file, definition, env)
                 self.pattern(entity["name"], value, env)
         elif "ExprStmt" in node:
-            self.expression(file, node["ExprStmt"][0], env)
+            expression = node["ExprStmt"][0]
+            call = expression.get("Call")
+            terminates = (
+                call is not None
+                and name_of(call[0]) == "process.exit"
+                and "process" not in env
+                and self.node_exit_is_stable(file)
+            )
+            self.expression(file, expression, env)
+            if terminates:
+                return False
         elif "Return" in node:
             value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
             if value.sources:
@@ -836,6 +940,8 @@ class TypeScriptPathFlow:
                             for k, v in local.items()
                             if k.startswith(self.state_prefixes)
                         )
+                else:
+                    self.globals[key] = self.initialized_global(file, name)
             pending = [self.globals[key]]
             seen: set[str] = set()
             while pending:
