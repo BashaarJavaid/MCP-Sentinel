@@ -1,0 +1,107 @@
+{
+  "reviewer": "Same implementation agent, source inspected only after immutable f85a90f freeze.",
+  "freeze": {
+    "path": "artifacts/phase22/integration/v32-fresh-v6/scope-and-precuration-freeze.json",
+    "sha256": "d806648b9c4c9c4343dcc16eb68255b14da3baf7db2a662250072877561534e7"
+  },
+  "condition": "The registered web_fetch tool rejects initial http://100.100.200.200/ in shared address space 100.64.0.0/10 before issuing an outbound HTTP request.",
+  "prerequisites": [
+    "Run the unmodified upstream stdio entrypoint, python -m mcp_ddg_research.server, with Python3.12 and compatible official MCP SDK1.x/Pydantic2/httpx dependencies. Registration, imports and ordinary startup succeed. No evaluator entrypoint, wrappers or target execution.",
+    "Invoke web_fetch with url=http://100.100.200.200/ and default max_chars=12000. The declared nonempty-string schema admits this literal; no target environment, proxy, DNS override or source monkeypatch is applied.",
+    "For the vulnerable onward request, the system resolver returns the same literal address, the fetch cache misses, cache access and HTTP client construction succeed, and no external egress policy blocks it. These are explicit unexecuted prerequisites, not runtime observations.",
+    "On Python3.12, this shared-space address has none of the six tested ipaddress flags. It is absent from the vulnerable explicit networks and present in the fixed explicit 100.64.0.0/10 entry. Fixed validate_url_shape raises before resolution, cache access or HTTP creation.",
+    "This condition covers initial literal destination rejection only. DNS rebinding, redirects, response contents, cloud credentials, live network reachability and other tools are outside the label. No complete SSRF protection or runtime exploit proof is claimed."
+  ],
+  "source_flow": "server.web_fetch -> perform_web_fetch alias -> fetch.web_fetch -> FetchRequest -> validate_fetch_url -> validate_url_shape -> is_unsafe_ip; vulnerable continues via cache miss -> _get_with_validated_redirects -> validate_fetch_url -> client.get. Fixed rejects the literal in the first validate_url_shape call.",
+  "literal_checks": {
+    "vulnerable": {
+      "100.100.200.200": {
+        "network_match": false,
+        "stdlib_flags": {
+          "is_private": false,
+          "is_loopback": false,
+          "is_link_local": false,
+          "is_reserved": false,
+          "is_multicast": false,
+          "is_unspecified": false
+        }
+      },
+      "8.8.8.8": {
+        "network_match": false,
+        "stdlib_flags": {
+          "is_private": false,
+          "is_loopback": false,
+          "is_link_local": false,
+          "is_reserved": false,
+          "is_multicast": false,
+          "is_unspecified": false
+        }
+      }
+    },
+    "fixed": {
+      "100.100.200.200": {
+        "network_match": true,
+        "stdlib_flags": {
+          "is_private": false,
+          "is_loopback": false,
+          "is_link_local": false,
+          "is_reserved": false,
+          "is_multicast": false,
+          "is_unspecified": false
+        }
+      },
+      "8.8.8.8": {
+        "network_match": false,
+        "stdlib_flags": {
+          "is_private": false,
+          "is_loopback": false,
+          "is_link_local": false,
+          "is_reserved": false,
+          "is_multicast": false,
+          "is_unspecified": false
+        }
+      }
+    }
+  },
+  "source_only_check": "AST-read constant network strings plus local stdlib ipaddress operations; no target imports/functions, resolver, scanner or comparator run.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v6/mutations/vulnerable-helper-rename.tar.gz",
+        "sha256": "12e50afdbb759b7cb70438a2d8a26a895de3ba0272c1c3f8476c61457854a917"
+      },
+      "transformation": "Rename _normalize_hostname and its two calls to _canonical_hostname. Add dated modification/license comment; removing that notice and reversing all three identifiers exactly restores original bytes. No runtime semantics change.",
+      "reverse_verified": true
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v6/mutations/fixed-helper-rename.tar.gz",
+        "sha256": "adf2dfde35b6efad998dd224fa18bca68faf95fb2789dd2276fe269f6236e59d"
+      },
+      "transformation": "Rename _normalize_hostname and its two calls to _canonical_hostname. Add dated modification/license comment; removing that notice and reversing all three identifiers exactly restores original bytes. No runtime semantics change.",
+      "reverse_verified": true
+    }
+  ],
+  "correlation": "One previously unused repository and one upstream shared-address-space exclusion, with two correlated renames and one fixed-tree control.",
+  "dependency_scope": "Both source versions declare0.5.1 and Python>=3.12. Vulnerable dependencies are unpinned. Fixed pins minimums and mcp>=1.27.2,<2, and adds requirements-lock.txt with mcp1.30.0/httpx0.28.1/Pydantic2.13.5. Runtime compatibility is a prerequisite, not an executed result.",
+  "other_fix_changes": [
+    "Dockerfile",
+    "README.md",
+    "docker-compose.yml",
+    "pyproject.toml",
+    "requirements-lock.txt",
+    "src/mcp_ddg_research/cache.py",
+    "src/mcp_ddg_research/fetch.py",
+    "src/mcp_ddg_research/models.py",
+    "src/mcp_ddg_research/search.py",
+    "src/mcp_ddg_research/security.py",
+    "src/mcp_ddg_research/server.py",
+    "src/mcp_ddg_research/text.py",
+    "tests/test_audit_fixes.py"
+  ],
+  "limitations": "The upstream commit also changes DNS pinning, body caps, cache handling, search, HTTP authentication and tool annotations. Complete sources/diff retained. These are not separate evaluated vulnerabilities; no guarantee of detector support or detection.",
+  "scans": 0,
+  "paid_calls": 0
+}

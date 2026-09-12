@@ -22,8 +22,10 @@ three observations complete and seven unstarted observations close. The subseque
 the approved Lighthouse repeat gate passes all ten observations at `f85a90f`
 (run 34648036083). This is not broad IPv6 protection. Earlier TypeScript compatibility
 now passes the separately approved 54-observation local sequence at the same scanner.
-All current technical gates are ready for explicit human acceptance; Phase 22 remains
-incomplete until that decision and closeout delivery.
+The user now requires first-frozen detection on another previously unused repository
+before technical acceptance. Replacement-v6 is prepared at immutable `f85a90f`;
+its exact evaluation remains unapproved and unexecuted. Git runtime coverage stays
+312/1,040 incomplete. Phase 22 awaits this new gate, acceptance and closeout delivery.
 
 The original Lighthouse miss remains measured at frozen `1f3f72f`. Engineering
 verification passed at `51fd2cb`; its exposed evaluation failed on the first input.

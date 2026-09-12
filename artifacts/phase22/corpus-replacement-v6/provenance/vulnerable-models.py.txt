@@ -1,0 +1,218 @@
+1: """Typed request and response models for MCP tools."""
+2: 
+3: from typing import Literal
+4: 
+5: from pydantic import BaseModel, ConfigDict, Field, field_validator
+6: 
+7: from mcp_ddg_research.domains import normalize_domains
+8: 
+9: SafeSearch = Literal["off", "moderate", "strict"]
+10: TimeFilter = Literal["day", "week", "month", "year"]
+11: SearchProvider = Literal["ddgs", "duckduckgo_html"]
+12: CacheNamespace = Literal["search", "fetch", "all"]
+13: 
+14: ARGUMENT_DESCRIPTIONS = {
+15:     "query": "DuckDuckGo search query text.",
+16:     "max_results": (
+17:         "Final number of search results returned after URL dedupe and optional domain controls. "
+18:         "This is not the provider request window."
+19:     ),
+20:     "search_window": (
+21:         "Internal provider result count requested from DuckDuckGo before URL dedupe, domain "
+22:         "filtering, and final max_results capping. This is a result-count window, not a time "
+23:         "range or number of days."
+24:     ),
+25:     "safe_search": "DuckDuckGo safe search level: off, moderate, or strict.",
+26:     "time_filter": "DuckDuckGo time filter for search recency: day, week, month, or year.",
+27:     "blocked_domains": (
+28:         "Exclusion list of domains to remove from search results. Exact domains and subdomains "
+29:         "match; lookalike substring matches do not."
+30:     ),
+31:     "allowed_domains": (
+32:         "Exclusive domain allowlist. When provided, only matching domains and their subdomains "
+33:         "are kept."
+34:     ),
+35:     "preferred_domains": (
+36:         "Stable ordering preference. Matching domains are moved earlier while preserving relative "
+37:         "order; this is not exclusive filtering and does not add numeric scores."
+38:     ),
+39:     "url": "HTTP or HTTPS URL to fetch with SSRF protections and redirect validation.",
+40:     "max_chars": "Maximum number of extracted characters returned from one fetched page.",
+41:     "max_pages": "Number of top search result pages to fetch in ddg_deep_search.",
+42:     "max_chars_per_page": "Maximum number of extracted characters returned per fetched page.",
+43:     "max_concurrency": (
+44:         "Per-call concurrent page fetch limit for ddg_deep_search. If omitted, MAX_CONCURRENCY "
+45:         "from the environment is used."
+46:     ),
+47:     "expired_only": (
+48:         "When true, cache_prune deletes only expired, corrupt, or temporary cache files and skips "
+49:         "size-limit pruning."
+50:     ),
+51:     "dry_run": "When true, cache_prune reports files that would be deleted without deleting them.",
+52:     "namespace": "Cache namespace to clear: search, fetch, or all.",
+53:     "confirm": "Must be true for cache_clear to delete cache files.",
+54: }
+55: 
+56: 
+57: class StrictBaseModel(BaseModel):
+58:     """Base model that rejects unexpected tool arguments."""
+59: 
+60:     model_config = ConfigDict(extra="forbid")
+61: 
+62: 
+63: class SearchRequest(StrictBaseModel):
+64:     query: str = Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])
+65:     max_results: int = Field(
+66:         default=10,
+67:         ge=1,
+68:         le=30,
+69:         description=ARGUMENT_DESCRIPTIONS["max_results"],
+70:     )
+71:     search_window: int | None = Field(
+72:         default=None,
+73:         ge=1,
+74:         le=100,
+75:         description=ARGUMENT_DESCRIPTIONS["search_window"],
+76:     )
+77:     safe_search: SafeSearch = Field(default="off", description=ARGUMENT_DESCRIPTIONS["safe_search"])
+78:     time_filter: TimeFilter | None = Field(
+79:         default=None,
+80:         description=ARGUMENT_DESCRIPTIONS["time_filter"],
+81:     )
+82:     blocked_domains: list[str] = Field(
+83:         default_factory=list,
+84:         description=ARGUMENT_DESCRIPTIONS["blocked_domains"],
+85:     )
+86:     allowed_domains: list[str] = Field(
+87:         default_factory=list,
+88:         description=ARGUMENT_DESCRIPTIONS["allowed_domains"],
+89:     )
+90:     preferred_domains: list[str] = Field(
+91:         default_factory=list,
+92:         description=ARGUMENT_DESCRIPTIONS["preferred_domains"],
+93:     )
+94: 
+95:     @field_validator("blocked_domains", "allowed_domains", "preferred_domains")
+96:     @classmethod
+97:     def normalize_domain_options(cls, values: list[str]) -> list[str]:
+98:         return normalize_domains(values)
+99: 
+100: 
+101: class FetchRequest(StrictBaseModel):
+102:     url: str = Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["url"])
+103:     max_chars: int = Field(
+104:         default=12000,
+105:         ge=1000,
+106:         le=50000,
+107:         description=ARGUMENT_DESCRIPTIONS["max_chars"],
+108:     )
+109: 
+110: 
+111: class DeepSearchRequest(StrictBaseModel):
+112:     query: str = Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])
+113:     max_results: int = Field(
+114:         default=10,
+115:         ge=1,
+116:         le=30,
+117:         description=ARGUMENT_DESCRIPTIONS["max_results"],
+118:     )
+119:     search_window: int | None = Field(
+120:         default=None,
+121:         ge=1,
+122:         le=100,
+123:         description=ARGUMENT_DESCRIPTIONS["search_window"],
+124:     )
+125:     max_pages: int = Field(default=5, ge=1, le=10, description=ARGUMENT_DESCRIPTIONS["max_pages"])
+126:     max_chars_per_page: int = Field(
+127:         default=12000,
+128:         ge=1000,
+129:         le=50000,
+130:         description=ARGUMENT_DESCRIPTIONS["max_chars_per_page"],
+131:     )
+132:     safe_search: SafeSearch = Field(default="off", description=ARGUMENT_DESCRIPTIONS["safe_search"])
+133:     time_filter: TimeFilter | None = Field(
+134:         default=None,
+135:         description=ARGUMENT_DESCRIPTIONS["time_filter"],
+136:     )
+137:     blocked_domains: list[str] = Field(
+138:         default_factory=list,
+139:         description=ARGUMENT_DESCRIPTIONS["blocked_domains"],
+140:     )
+141:     allowed_domains: list[str] = Field(
+142:         default_factory=list,
+143:         description=ARGUMENT_DESCRIPTIONS["allowed_domains"],
+144:     )
+145:     preferred_domains: list[str] = Field(
+146:         default_factory=list,
+147:         description=ARGUMENT_DESCRIPTIONS["preferred_domains"],
+148:     )
+149:     max_concurrency: int | None = Field(
+150:         default=None,
+151:         ge=1,
+152:         le=12,
+153:         description=ARGUMENT_DESCRIPTIONS["max_concurrency"],
+154:     )
+155: 
+156:     @field_validator("blocked_domains", "allowed_domains", "preferred_domains")
+157:     @classmethod
+158:     def normalize_domain_options(cls, values: list[str]) -> list[str]:
+159:         return normalize_domains(values)
+160: 
+161: 
+162: class CachePruneRequest(StrictBaseModel):
+163:     expired_only: bool = Field(
+164:         default=False,
+165:         description=ARGUMENT_DESCRIPTIONS["expired_only"],
+166:     )
+167:     dry_run: bool = Field(default=False, description=ARGUMENT_DESCRIPTIONS["dry_run"])
+168: 
+169: 
+170: class CacheClearRequest(StrictBaseModel):
+171:     namespace: CacheNamespace = Field(description=ARGUMENT_DESCRIPTIONS["namespace"])
+172:     confirm: bool = Field(description=ARGUMENT_DESCRIPTIONS["confirm"])
+173: 
+174: 
+175: class SearchResult(StrictBaseModel):
+176:     title: str
+177:     url: str
+178:     snippet: str
+179: 
+180: 
+181: class SearchResponse(StrictBaseModel):
+182:     query: str
+183:     provider: SearchProvider
+184:     results: list[SearchResult]
+185:     cached: bool
+186:     error: str | None
+187: 
+188: 
+189: class FetchResponse(StrictBaseModel):
+190:     url: str
+191:     final_url: str
+192:     title: str
+193:     content: str
+194:     content_type: str
+195:     cached: bool
+196:     success: bool
+197:     error: str | None
+198: 
+199: 
+200: class DeepSearchPage(StrictBaseModel):
+201:     title: str
+202:     url: str
+203:     final_url: str
+204:     content: str
+205: 
+206: 
+207: class FailedPage(StrictBaseModel):
+208:     url: str
+209:     error: str
+210: 
+211: 
+212: class DeepSearchResponse(StrictBaseModel):
+213:     query: str
+214:     search_provider: SearchProvider
+215:     sources: list[SearchResult]
+216:     pages: list[DeepSearchPage]
+217:     failed_pages: list[FailedPage]
+218:     cached: bool
