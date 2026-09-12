@@ -1,65 +1,90 @@
 # PortunusMCP Sentinel rule catalog
 
-## Current v37 diagnostic and caller-route correction checkpoint
+## Current v38 regression pass and technical acceptance checkpoint
 
-The approved **single DDG diagnostic passes** at frozen **`a50e9b7`**:
-**3.967 seconds native / 8.369 seconds whole input**, identical entire ordered
-report after the established 11 volatile exclusions, valid JSON/SARIF, complete
-trace and verified cleanup. All **1,066 events** were retained, with no dropped
-events and all hooks restored. Its **one-observation budget is closed**.
+The separately approved **87-observation exposed regression passes** at frozen
+scanner **`8c62567`**. All **87/87** inputs complete and all **36 entire ordered
+repeats agree**, excluding only the established 11 volatile fields. Native JSON,
+SARIF, source/configuration identities and process cleanup validate. **74**
+observations finish within the **120-second target** and **13** use the approved
+extended allowance. Maximum whole-input time is **157.750767 seconds**;
+maximum native time is **148.514 seconds**, both within the uniform
+**300-second maximum**. The single serial macOS sequence took
+**3757.993 seconds**. Its **87-observation budget is closed**;
+zero retries, profiles, comparators, corpus target executions or paid calls occurred.
 
-The trace establishes that the direct `web_fetch` caller reaches the actual send
-with its initial CGNAT guard recognized. A separate search-derived caller reaches
-the same send without that qualification. Whole-location deduplication drops the
-recognized direct-route qualification. The broader search-derived uncertainty
-remains visible; the trace does not establish complete SSRF protection.
+DDG detects **both vulnerable variants in each batch**. All **six fixed/control
+reports** support the actual prepared-request `client.send` and retain recognized
+initial **100.64.0.0/10 rejection on the direct `web_fetch` caller route**. The
+build/send calls are no longer unresolved. There are **zero matching alerts on
+all three negative inputs per batch**. Broader SSRF findings remain visible;
+other caller routes, later transformations, DNS, redirects, IPv6 and broader
+destination protection remain unestablished. This resolves the requested actual
+fixed-path coverage gate without accepting the earlier unsupported-path limitation.
 
-The approved source correction is frozen at **`8c62567`**. It preserves narrow
-guard qualifications by analyzed caller route within **one canonical finding per
-sink**. Conflicting guarded/unguarded visits to the same route cancel that route's
-qualification. Other caller routes, later transformations, DNS, redirects and
-broader destination protection remain unresolved. Python scheme plus six-flag
-address guards now retain the existing narrow private-literal qualification;
-they do not become CGNAT guards or universal SSRF suppression.
+Python development completes **15/15**: **six vulnerable condition hits**, **zero
+matching alerts on seven valid negatives**, and the unchanged Meta operator
+erratum: **two nominal fixed input cases, each with two raw matched candidate
+keys**. Meta image fixed/control reports retain their narrow private-literal
+qualification at all three request sinks. Each whole **31-input Python historical
+batch** passes with **14 vulnerable hits and zero matching alerts on 17 negatives**.
+All source labels, prerequisites and unrelated candidates remain unchanged.
 
-Both new reproductions failed before correction. The affected suite passes
-**436 tests**. Full local and all **12 hosted quality suites pass 2,283 tests /
-36 skips**; local branch coverage is **89.91%**. All **29 normal CI jobs**
-and docs pass at actual `8c62567`; package members match Git blobs and all actual
-CI checkout trees equal that source. Six exact production requests regenerate and
-replay with **zero paid calls**. The abbreviated-revision replay check failure
-and corrected runtime receipt are preserved. Existing Git runtime components and
-image are unchanged; its **312/1,040 attempts remain incomplete**, as requested.
+Against the immediate `a50e9b7` regression, there are **15 description-only finding
+changes**, individually assessed against exact retained source: six DDG direct-route
+qualifications and nine Meta private-literal qualifications. No findings are added,
+removed or reordered; no warnings, unresolved flows, coverage, surfaces or counters
+change. Earlier source-assessed deltas against original references remain bound to
+their actual reports. Raw scorer identities and unmatched broader candidates stay
+visible. This is source-grounded static evidence, not runtime protection proof.
 
-**No corrected-scanner corpus observation has occurred.** The next exact
-**unapproved** proposal is
-`artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json`:
-**87 native observations** at `8c62567` (five DDG inputs twice, 15 Python development
-inputs once, 31 Python historical inputs twice), one local serial sequence,
-120-second target, **300-second native/whole-input maximum**, 15-second cleanup,
-**480-minute sequence maximum**, zero retries, profiles, comparators, target
-execution or paid calls. The original rubric, inputs, conditions and **36 entire
-ordered repeats** remain mandatory; qualification must cover the exact initial
-caller route, never an uncertain sibling. Execution/identity/time/schema/cleanup/
-repeat failure closes all unstarted observations. Detection changes require
-individual source assessment after collection and confer no repair/retry authority.
+The original fresh repository **`isyuricunha/mcp-ddg-research`** remains measured
+at pre-curation scanner **`f85a90f`**: **10 native + five Semgrep observations**,
+two correlated vulnerable hits per native batch, zero matching negative alerts,
+five whole ordered repeats, and **Semgrep 0/2**. Its original fixed-path coverage
+gap remains recorded. The later `8c62567` correction is **exposed regression**;
+it does not replace that first-frozen result. This is one repository and one narrow
+vulnerability, curated by the implementation agent after scanner freeze, with
+source exposure disclosed; no independent human review, broad accuracy or
+training-data novelty is claimed.
 
-The previous **v35 87-observation regression still fails** DDG guard coverage and
-Meta compatibility at `a50e9b7`; its 79 target / eight extended completions,
-241.846285-second maximum, 36 ordered repeats and every source assessment remain.
-Original first-frozen DDG detection at `f85a90f` remains two vulnerable hits per
-batch and zero matching negative alerts, with its original fixed-path limitation.
-All original misses and exposed corrections remain distinct. TypeScript's prior
-54-observation compatibility and ten Lighthouse observations retain compatible
-source bindings; whole Linux timing remains at `1f3f72f`. No partial batches are
-pooled and no new fresh-source, speedup or runtime protection claim is made.
+Prior exposed TypeScript families, Lighthouse and TypeScript compatibility retain
+their actual **`f85a90f` source-compatible evidence**. Historical whole Linux timing
+retains **`1f3f72f`**: both whole 45-input batches pass, with the explicitly approved
+reuse of the previously passed whole 25-input development batch. Current Python
+and prior TypeScript subsets are **not pooled into a new whole-batch execution**.
+All original misses, the failed `a50e9b7` regression, stopped experiments and closed
+budgets remain preserved. No speedup or new fresh-source result is claimed.
 
-The audit retains **89 original rows: 84 passed, two user-deferred and three
-unresolved (R33, R65, R84)**, plus **106 added rows: 98 passed, five historical
-proposed limitations and three unresolved**. Corrected DDG/Meta regression and
-explicit human technical acceptance remain. **Phase 22 remains incomplete**;
-paid benchmark/pilots stay deferred, Phase 21 incomplete and Phase 24/15 unchanged.
-No merge, ready-state, release, outreach or Phase 23 is authorized.
+Product, tests and workflows are unchanged from verified **`8c62567`**. Local and
+all **12 hosted quality suites pass 2,283 tests / 36 skips**; local branch coverage
+is **89.91%**. All **29 normal CI jobs** and docs pass at that
+actual source. Package source bindings and six zero-call production replays retain
+their verified source identities; final status-only documentation/package metadata
+is checked separately. Existing Git runtime components/image remain compatible,
+and **Git coverage stays incomplete at 312/1,040 attempts**, as the user requested.
+
+The initial delivery preflight stopped before staging, commit or push because six
+status-document hashes in the audit had not been refreshed after documentation
+edits. The failed receipt and seal 65 remain preserved. Final documentation
+bindings are corrected in supplemental seal 66; scanner and evaluation evidence
+are unchanged.
+
+The reconciled audit accounts for **89 original requirements: 86 passed, two
+user-deferred and only R84 (human technical acceptance) unresolved**. All **108 added
+scope rows** are retained: **103 passed and five historical closure dispositions
+awaiting explicit acceptance**. Those five preserve the failed optimization,
+stale-assessment sequence, reused-source preparation and two stopped Lighthouse
+corrections; accepting their closure never converts failures into passes.
+
+The concrete **technical acceptance proposal** is
+`artifacts/phase22/integration/v38-guard-regression/acceptance-proposal-final.json`.
+**Human technical acceptance has not been received; Phase 22 remains incomplete.**
+Acceptance must explicitly cover the final technical scope and retained limitations,
+then the authorized closeout must be delivered to existing draft PR #37. The full
+paid benchmark and pilots remain user-deferred; Phase 21 remains incomplete and
+Phase 24/15 gates are unchanged. No paid calls, further observations, merge,
+ready-state change, release, outreach or Phase 23 is authorized by this packet.
 
 
 Every rule emits the canonical Finding contract and has a stable permanent ID.
