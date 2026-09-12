@@ -3,7 +3,7 @@
 ## Current v34 fixed-request correction checkpoint
 
 The user approved correcting the DDG fixed-path coverage gap before acceptance.
-Corrected scanner candidate **`2624578`** follows source-established HTTPX
+Corrected scanner candidate **`a50e9b7`** follows source-established HTTPX
 `build_request` → `send` and retains a narrow initial `100.64.0.0/10` rejection
 qualification. Synthetic controls cover guard removal/bypass, URL replacement,
 client rebinding and unknown mutation. The old six negative IP flags alone no
@@ -13,11 +13,15 @@ subsequent URL transformations remain unestablished.
 The initial `5b5016e` full suite retained one failure, 2,269 passes and 36 skips.
 The correction preserves known IP type inspection while treating unknown/replaced
 classes conservatively, including direct module-level imported-attribute writes.
-All **37 focused controls pass**; the initial failure and correction checks are retained.
+All **40 focused controls and 976 affected rule tests pass**. A subsequent source
+binding control found that a local ipaddress module could mimic the standard
+library. The correction now uses the existing import resolver and rejects local
+module/package shadows and replaced builtins. The complete 2624578 local pass
+(2,277 tests / 36 skips) and its later failing shadow-module control are preserved.
 Full current-source engineering verification is in progress. Earlier `439c3fe`
 quality results describe earlier bytes. No new corpus observation is authorized
 or executed: an exact exposed DDG and affected Python compatibility proposal is
-being prepared in `artifacts/phase22/integration/v34-fixed-coverage-final/`.
+being prepared in `artifacts/phase22/integration/v34-import-binding/`.
 The original `f85a90f` fresh result and its fixed-coverage limitation remain
 immutable; the later correction is exposed engineering, not a new fresh result.
 
