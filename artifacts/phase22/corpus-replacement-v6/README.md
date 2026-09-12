@@ -1,5 +1,31 @@
 # Replacement-v6: DDG shared-space URL condition
 
+## Current v34 fixed-request correction checkpoint
+
+The user approved correcting the DDG fixed-path coverage gap before acceptance.
+Scanner candidate **`5b5016e`** follows source-established HTTPX
+`build_request` → `send` and retains a narrow initial `100.64.0.0/10` rejection
+qualification. Synthetic controls cover guard removal/bypass, URL replacement,
+client rebinding and unknown mutation. The old six negative IP flags alone no
+longer imply shared-space rejection. Broader destinations, DNS, redirects and
+subsequent URL transformations remain unestablished.
+
+Focused controls pass **45 tests**; Ruff, formatting and strict mypy pass.
+Full current-source engineering verification is in progress. Earlier `439c3fe`
+quality results describe earlier bytes. No new corpus observation is authorized
+or executed: an exact exposed DDG and affected Python compatibility proposal is
+being prepared in `artifacts/phase22/integration/v34-fixed-coverage-proposal/`.
+The original `f85a90f` fresh result and its fixed-coverage limitation remain
+immutable; the later correction is exposed engineering, not a new fresh result.
+
+**Phase 22 remains incomplete.** The v33 acceptance-ready proposal is superseded
+by the requested correction, its verification and separate regression checkpoint.
+Git runtime stays **312/1,040 incomplete** under the user's instruction. Paid
+benchmark/pilots remain deferred; zero additional paid calls. Final human
+technical acceptance and verified closeout remain separate decisions. No merge,
+release, ready-state, outreach or Phase 23 is authorized.
+
+
 Approved first-frozen evaluation completed: 10 native + 5 Semgrep, zero paid calls or target execution. Native2/2 hits per batch and0/3matching negative alerts;5ordered repeats. Fixed HTTP send remains unresolved, so no recognized-fix claim. See `../integration/v33-fresh-v6/assessment.json` and `summary.md` for complete source assessments and the proposed limitation.
 
 The complete upstream AGPL v3 source archives are retained verbatim with their
