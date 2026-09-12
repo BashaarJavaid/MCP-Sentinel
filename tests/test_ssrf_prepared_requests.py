@@ -372,3 +372,29 @@ def fetch(url: str):
     )
     assert not result.findings
     assert any("unresolved call to client.send" in w.message for w in result.warnings)
+
+
+@pytest.mark.parametrize("module_path", ["ipaddress.py", "ipaddress/__init__.py"])
+def test_local_ip_module_cannot_establish_standard_library_rejection(
+    tmp_path: Path, module_path: str
+) -> None:
+    module = tmp_path / module_path
+    module.parent.mkdir(parents=True, exist_ok=True)
+    module.write_text(
+        "def ip_network(value):\n    return ()\n"
+        "def ip_address(value):\n    return value\n"
+    )
+    result = report(
+        tmp_path,
+        PREFIX
+        + GUARD
+        + """@mcp.tool()
+def fetch(url: str):
+    validate(url)
+    client = httpx.Client()
+    request = client.build_request("GET", url)
+    return client.send(request)
+""",
+    )
+    assert len(result.findings) == 1
+    assert "100.64.0.0/10" not in result.findings[0].description

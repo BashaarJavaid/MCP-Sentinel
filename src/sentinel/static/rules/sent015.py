@@ -10,7 +10,7 @@ from dataclasses import replace
 from typing import Any
 from urllib.parse import urlsplit
 
-from sentinel.static.ast_utils import match_from_node, qualified_name, resolve_name
+from sentinel.static.ast_utils import match_from_node, qualified_name
 from sentinel.static.discovery import Symbol
 from sentinel.static.model import (
     RuleRunState,
@@ -304,8 +304,13 @@ class URLFlow(PathFlow):
                 or "#member:unknown:" + receiver.key in env
             ):
                 return ""
-        resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
-        return "" if resolved in self.external_writes else resolved
+        resolved = self.program.external(symbol, node) if declarations else name
+        return (
+            ""
+            if resolved in self.external_writes
+            or f"builtins.{resolved}" in self.external_writes
+            else resolved
+        )
 
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]

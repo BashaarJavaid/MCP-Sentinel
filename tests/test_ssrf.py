@@ -1649,6 +1649,11 @@ def test_environment_escape_is_local_to_exclusive_branch(
         ("", "isinstance(ip, unknown_class)", 1),
         ("isinstance = unknown\n", "isinstance(ip, ipaddress.IPv6Address)", 1),
         (
+            "import builtins\nbuiltins.isinstance = unknown\n",
+            "isinstance(ip, ipaddress.IPv6Address)",
+            1,
+        ),
+        (
             "ipaddress.IPv6Address = unknown\n",
             "isinstance(ip, ipaddress.IPv6Address)",
             1,
