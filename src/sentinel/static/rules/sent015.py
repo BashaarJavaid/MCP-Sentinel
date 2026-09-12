@@ -48,7 +48,9 @@ IP_CHECKS = frozenset(
 
 def restricted(checks: frozenset[str]) -> bool:
     return "scheme" in checks and (
-        "host" in checks or checks >= IP_CHECKS or "is_global" in checks
+        "host" in checks
+        or (checks >= IP_CHECKS and "cgnat-ipv4" in checks)
+        or "is_global" in checks
     )
 
 
@@ -94,6 +96,8 @@ class URLFlow(PathFlow):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         self.parts: dict[str, tuple[str, str]] = {}
+        self.networks: dict[str, ipaddress.IPv4Network | ipaddress.IPv6Network] = {}
+        self.requests: set[str] = set()
         self.predicates: dict[str, tuple[Facts, Facts]] = {}
         self.ip_lists: dict[str, Value] = {}
         self.return_facts: list[list[tuple[Facts | None, Facts | None]]] = []
@@ -288,6 +292,18 @@ class URLFlow(PathFlow):
             )
         ):
             return ""
+        if isinstance(node, ast.Attribute):
+            root_node: ast.AST = node
+            while isinstance(root_node, ast.Attribute):
+                root_node = root_node.value
+            if not isinstance(root_node, ast.Name):
+                return ""
+            receiver = self.expression(symbol, node.value, env)
+            if (
+                self.member_key(receiver, node.attr) in env
+                or "#member:unknown:" + receiver.key in env
+            ):
+                return ""
         return resolve_name(name, self.aliases[symbol.file.relative_path])
 
     def expression(
@@ -334,6 +350,10 @@ class URLFlow(PathFlow):
                 result = replace(receiver, maybe_none=True)
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
+                if "cgnat-ipv4" in receiver.url_checks and node.attr == "scheme":
+                    # Qualification of the initially checked URL, not the new
+                    # authority produced by later URL reconstruction.
+                    result = replace(result, url_checks=frozenset({"cgnat-ipv4"}))
         if isinstance(node, (ast.BinOp, ast.JoinedStr)):
             result = replace(result, url_checks=frozenset())
         if isinstance(node, ast.FormattedValue) and (
@@ -434,8 +454,10 @@ class URLFlow(PathFlow):
         if isinstance(node, ast.Attribute):
             value = self.evaluated.get(node.value, UNKNOWN_VALUE)
             origin, part = self.parts.get(value.key, ("", ""))
-            if part == "ip" and (
-                "not:" + node.attr in IP_CHECKS or node.attr == "is_global"
+            if (
+                part == "ip"
+                and self.address_intact(value, env)
+                and ("not:" + node.attr in IP_CHECKS or node.attr == "is_global")
             ):
                 return frozenset({(origin, ("" if truth else "not:") + node.attr)})
             return frozenset()
@@ -506,11 +528,142 @@ class URLFlow(PathFlow):
                     | {(symbol.file.relative_path, getattr(node, "lineno", 1))},
                 )
 
+    def address_intact(self, value: Value, env: dict[str, Value]) -> bool:
+        return "#member:unknown:" + value.key not in env and not any(
+            marker in env
+            for name, marker in self.members.get(value.key, {}).items()
+            if name != "#address-input"
+        )
+
+    def network_rejection(
+        self, symbol: Symbol, node: ast.Call, env: dict[str, Value]
+    ) -> Value | None:
+        """Recognize bounded, unfiltered membership over source-known networks."""
+        if len(node.args) != 1 or node.keywords:
+            return None
+        expression = node.args[0]
+        if not (
+            isinstance(expression, ast.GeneratorExp)
+            and len(expression.generators) == 1
+            and isinstance(expression.elt, ast.Compare)
+            and len(expression.elt.ops) == 1
+            and isinstance(expression.elt.ops[0], ast.In)
+        ):
+            return None
+        generator = expression.generators[0]
+        if (
+            generator.is_async
+            or generator.ifs
+            or not isinstance(generator.target, ast.Name)
+            or not isinstance(expression.elt.comparators[0], ast.Name)
+            or expression.elt.comparators[0].id != generator.target.id
+            or any(
+                isinstance(part, ast.Name) and part.id == generator.target.id
+                for part in ast.walk(expression.elt.left)
+            )
+        ):
+            return None
+        items = self.sequence_elements(
+            self.expression(symbol, generator.iter, env), env
+        )
+        if not items:
+            return None
+        blocked = []
+        for item in items:
+            network = self.networks.get(item.key)
+            if (
+                network is None
+                or "#member:unknown:" + item.key in env
+                or any(
+                    marker in env for marker in self.members.get(item.key, {}).values()
+                )
+            ):
+                return None
+            blocked.append(network)
+        ip = self.expression(symbol, expression.elt.left, env)
+        origin, part = self.parts.get(ip.key, ("", ""))
+        if part != "ip" or not self.address_intact(ip, env):
+            return None
+        value = Value(key=_key("network-membership", origin, *map(str, blocked)))
+        shared = ipaddress.IPv4Network("100.64.0.0/10")
+        checks = (
+            frozenset({(origin, "cgnat-ipv4")})
+            if any(
+                isinstance(network, ipaddress.IPv4Network) and shared.subnet_of(network)
+                for network in blocked
+            )
+            else frozenset()
+        )
+        self.predicates[value.key] = (checks, frozenset())
+        return value
+
     def call(self, symbol: Symbol, node: ast.Call, env: dict[str, Value]) -> Value:
         external = self.external(symbol, node.func, env)
         name = qualified_name(node.func) or ""
         receiver = self.call_receiver(symbol, node, env)
         method = name.rsplit(".", 1)[-1]
+        if external in {"any", "builtins.any"}:
+            membership = self.network_rejection(symbol, node, env)
+            if membership is not None:
+                return membership
+        if (
+            external == "ipaddress.ip_network"
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            literal = member_label(self.expression(symbol, node.args[0], env))
+            if isinstance(literal, str):
+                try:
+                    network = ipaddress.ip_network(literal)
+                except ValueError:
+                    pass
+                else:
+                    value = Value(
+                        key=_key(
+                            "ip-network",
+                            symbol.file.relative_path,
+                            str(node.lineno),
+                            str(node.col_offset),
+                            literal,
+                            *self.call_sites,
+                        )
+                    )
+                    self.networks[value.key] = network
+                    self.record_keys.add(value.key)
+                    return value
+        if (
+            external == "urllib.parse.urlunparse"
+            and len(node.args) == 1
+            and not node.keywords
+        ):
+            sequence = self.expression(symbol, node.args[0], env)
+            parts = self.sequence_elements(sequence, env)
+            if parts is not None and len(parts) == 6:
+                value = replace(
+                    combine(list(parts)),
+                    key=_key("rebuilt-url", sequence.key),
+                    url_checks=frozenset(),
+                )
+                # Only the scheme from the checked parsed URL carries the initial
+                # literal rejection; arbitrary string formatting does not.
+                if self.parts.get(parts[0].key, ("", ""))[1] == "scheme":
+                    value = replace(
+                        value, url_checks=parts[0].url_checks & {"cgnat-ipv4"}
+                    )
+                return value
+        if (
+            self.parts.get(receiver.key, ("", ""))[1] == "hostname"
+            and not node.keywords
+        ) and (
+            (method == "lower" and not node.args)
+            or (
+                method == "rstrip"
+                and len(node.args) == 1
+                and isinstance(node.args[0], ast.Constant)
+                and node.args[0].value == "."
+            )
+        ):
+            return receiver
         if receiver.key in self.ip_lists:
             # A known nonempty validation list ceases to prove iteration after mutation.
             self.ip_lists.pop(receiver.key)
@@ -544,6 +697,8 @@ class URLFlow(PathFlow):
             if part == "hostname":
                 result = replace(argument, key=_key("ip", argument.key))
                 self.parts[result.key] = (origin, "ip")
+                self.record_keys.add(result.key)
+                env[self.member_key(result, "#address-input")] = argument
                 return result
         if (
             method == "lower"
@@ -553,6 +708,72 @@ class URLFlow(PathFlow):
             return receiver
         client = self.http_client(receiver, method, env)
         service = self.http_clients.get(receiver.key, "")
+        if (
+            client
+            and service in {"httpx.Client", "httpx.AsyncClient"}
+            and method in {"build_request", "send"}
+            and not any(isinstance(arg, ast.Starred) for arg in node.args)
+            and all(kw.arg is not None for kw in node.keywords)
+        ):
+            # Reuse the existing per-call expression cache if an unsupported
+            # request falls through to ordinary unknown-call handling.
+            values = []
+            for expression in (*node.args, *(kw.value for kw in node.keywords)):
+                value = self.expression(symbol, expression, env)
+                values.append(value)
+                if self.call_receivers is not None:
+                    self.call_receivers[expression] = value
+            arguments = values[: len(node.args)]
+            keywords = dict(
+                zip(
+                    (kw.arg for kw in node.keywords),
+                    values[len(node.args) :],
+                    strict=True,
+                )
+            )
+            if method == "build_request" and (
+                len(arguments) <= 2
+                and None not in keywords
+                and not any(isinstance(arg, ast.Starred) for arg in node.args)
+                and not (arguments and "method" in keywords)
+                and not (len(arguments) == 2 and "url" in keywords)
+                and (arguments or "method" in keywords)
+                and (len(arguments) == 2 or "url" in keywords)
+            ):
+                url = keywords.get(
+                    "url", arguments[1] if len(arguments) == 2 else UNKNOWN_VALUE
+                )
+                prepared_request = Value(
+                    key=_key(
+                        "httpx-request",
+                        symbol.file.relative_path,
+                        str(node.lineno),
+                        str(node.col_offset),
+                        *self.call_sites,
+                    )
+                )
+                self.requests.add(prepared_request.key)
+                self.record_keys.add(prepared_request.key)
+                env[self.member_key(prepared_request, "url")] = url
+                return self.aggregate(prepared_request, env)
+            if method == "send" and (
+                len(arguments) <= 1
+                and None not in keywords
+                and not any(isinstance(arg, ast.Starred) for arg in node.args)
+                and not (arguments and "request" in keywords)
+            ):
+                prepared_request = keywords.get(
+                    "request", arguments[0] if arguments else UNKNOWN_VALUE
+                )
+                if prepared_request.key in self.requests:
+                    url = self.member(prepared_request, "url", env)
+                    self.url_sink(symbol, node, url, name)
+                    if (
+                        "#member:unknown:" + prepared_request.key in env
+                        or url.maybe_missing
+                    ):
+                        self.unresolved(symbol, node, "request URL state is unresolved")
+                    return UNKNOWN_VALUE
         service_request = client and service in {
             "atlassian.Jira",
             "atlassian.Confluence",
@@ -653,6 +874,11 @@ class URLFlow(PathFlow):
                     match_from_node(self.rule_id, symbol.file, node, "url-flow"),
                     captures={
                         "sink_name": name,
+                        **(
+                            {"url_guard_scope": "cgnat-ipv4"}
+                            if "cgnat-ipv4" in url.url_checks
+                            else {}
+                        ),
                         "flow_locations": json.dumps(
                             sorted(
                                 url.locations

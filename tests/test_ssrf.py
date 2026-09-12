@@ -814,7 +814,8 @@ def test_caught_guard_does_not_protect_request(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("check", "expected"),
     [
-        ("if blocked(ip): raise ValueError()", 0),
+        # Six negative flags still admit shared address space (100.64/10).
+        ("if blocked(ip): raise ValueError()", 1),
         ("blocked(ip)", 1),
         (
             "if blocked(ipaddress.ip_address(urlparse(other).hostname"
@@ -867,9 +868,7 @@ def test_literal_ip_validation_loop(tmp_path: Path, mutation: str) -> None:
         "def blocked(ip):\n"
         "    mapped = getattr(ip, 'ipv4_mapped', None)\n"
         "    if mapped is not None: ip = mapped\n"
-        "    return ip.is_private or ip.is_loopback or ip.is_link"
-        "_local or ip.is_reserved or ip.is_multicast or ip.is_uns"
-        "pecified\n"
+        "    return not ip.is_global or ip.is_multicast\n"
         "def validate(url):\n"
         "    parsed = urlparse(url.strip())\n"
         "    scheme = (parsed.scheme or '').lower()\n"

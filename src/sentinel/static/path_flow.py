@@ -1955,6 +1955,16 @@ class PathFlow:
         ):
             resolved = ""
         receiver = self.call_receiver(symbol, node, env)
+        if isinstance(node.func, ast.Attribute):
+            root_node: ast.AST = node.func
+            while isinstance(root_node, ast.Attribute):
+                root_node = root_node.value
+            if (
+                not isinstance(root_node, ast.Name)
+                or self.member_key(receiver, node.func.attr) in env
+                or "#member:unknown:" + receiver.key in env
+            ):
+                resolved = ""
         args = []
         unknown_args = False
         for arg in node.args:
@@ -2957,6 +2967,10 @@ class PathFlow:
                             ):
                                 bindings[marker] = value
                             pending.append((value, from_argument))
+                        elif marker in self.global_members:
+                            # An unused global's unchanged parent still leads to
+                            # descendants mutated by an earlier caller.
+                            pending.append((self.global_members[marker], False))
                 initial_instances = {
                     value.key
                     for value in bindings.values()

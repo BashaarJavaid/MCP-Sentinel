@@ -452,6 +452,12 @@ def _finding_from_match(
             "initial literal link-local bypass. Other destinations, DNS, redirects "
             "and IPv6 protection remain unestablished."
             if match.captures.get("url_guard_scope") == "linklocal-ipv4"
+            else "The source rejects initial literal IPv4 destinations in shared "
+            "address space (100.64.0.0/10) for the checked caller URL before this "
+            "request. This candidate does not allege that initial shared-space "
+            "bypass. Other destinations, subsequent URL transformations, DNS, "
+            "redirects and IPv6 protection remain unestablished."
+            if match.captures.get("url_guard_scope") == "cgnat-ipv4"
             else definition.description
         )
         + (
