@@ -889,16 +889,26 @@ class URLFlow(PathFlow):
 
     def url_sink(self, symbol: Symbol, node: ast.Call, url: Value, name: str) -> None:
         if url.sources and not restricted(url.url_checks):
+            scope = (
+                "cgnat-ipv4"
+                if "cgnat-ipv4" in url.url_checks
+                else "literal-ipv4"
+                if url.url_checks >= IP_CHECKS | {"scheme"}
+                else ""
+            )
+            route = " -> ".join(
+                (
+                    *self.call_sites,
+                    f"{symbol.file.relative_path}:{node.lineno}:{node.col_offset}",
+                )
+            )
             self.state.matches.append(
                 replace(
                     match_from_node(self.rule_id, symbol.file, node, "url-flow"),
                     captures={
                         "sink_name": name,
-                        **(
-                            {"url_guard_scope": "cgnat-ipv4"}
-                            if "cgnat-ipv4" in url.url_checks
-                            else {}
-                        ),
+                        **({"url_guard_scope": scope} if scope else {}),
+                        "url_guard_paths": json.dumps({route: scope}),
                         "flow_locations": json.dumps(
                             sorted(
                                 url.locations

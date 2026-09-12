@@ -328,6 +328,15 @@ def _deduplicate(matches: list[StaticMatch]) -> tuple[StaticMatch, ...]:
             "url_guard_scope"
         ):
             captures.pop("url_guard_scope", None)
+        if "url_guard_paths" in captures:
+            paths = json.loads(existing.captures.get("url_guard_paths", "{}"))
+            for route, scope in json.loads(
+                match.captures.get("url_guard_paths", "{}")
+            ).items():
+                paths[route] = (
+                    scope if route not in paths or paths[route] == scope else ""
+                )
+            captures["url_guard_paths"] = json.dumps(paths, sort_keys=True)
         if match.captures.get("credential_operator_opt_in") != existing.captures.get(
             "credential_operator_opt_in"
         ):
@@ -459,6 +468,24 @@ def _finding_from_match(
             "redirects and IPv6 protection remain unestablished."
             if match.captures.get("url_guard_scope") == "cgnat-ipv4"
             else definition.description
+        )
+        + "".join(
+            " Only the analyzed caller route "
+            + route
+            + " has recognized initial "
+            + (
+                "shared-space IPv4 (100.64.0.0/10) rejection"
+                if scope == "cgnat-ipv4"
+                else "private literal IPv4 rejection"
+            )
+            + "; this candidate does not allege that initial bypass on that route. "
+            "Other caller routes, subsequent URL transformations, DNS, redirects "
+            "and broader destination protection remain unestablished."
+            for route, scope in sorted(
+                json.loads(match.captures.get("url_guard_paths", "{}")).items()
+            )
+            if scope in {"cgnat-ipv4", "literal-ipv4"}
+            and not match.captures.get("url_guard_scope")
         )
         + (
             " For source-declared transports "

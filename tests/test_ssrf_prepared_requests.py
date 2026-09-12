@@ -398,3 +398,113 @@ def fetch(url: str):
     )
     assert len(result.findings) == 1
     assert "100.64.0.0/10" not in result.findings[0].description
+
+
+def test_shared_send_keeps_guard_qualification_on_its_own_caller_route(
+    tmp_path: Path,
+) -> None:
+    source = (
+        PREFIX
+        + GUARD
+        + """
+async def shared(client, url):
+    for _ in range(2):
+        request = client.build_request("GET", url)
+        response = await client.send(request)
+        if response.status_code == 302:
+            url = response.headers["location"]
+            continue
+        return response
+
+@mcp.tool()
+async def checked(url: str):
+    validate(url)
+    return await shared(httpx.AsyncClient(), url)
+
+@mcp.tool()
+async def unchecked(url: str):
+    return await shared(httpx.AsyncClient(), url)
+"""
+    )
+    result = report(tmp_path, source)
+    assert len(result.findings) == 1
+    description = result.findings[0].description
+    assert "100.64.0.0/10" in description
+    assert "Only the analyzed caller route" in description
+    guarded_call = (
+        source.splitlines().index("    return await shared(httpx.AsyncClient(), url)")
+        + 1
+    )
+    assert f"server.py:{guarded_call}:" in description
+    assert "Other caller routes" in description
+    assert "redirects" in description
+
+
+def test_private_literal_guard_does_not_claim_shared_space_rejection(
+    tmp_path: Path,
+) -> None:
+    source = (
+        PREFIX
+        + """
+def validate(url):
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError()
+    ip = ip_address(parsed.hostname)
+    if (ip.is_private or ip.is_loopback or ip.is_link_local
+            or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+        raise ValueError()
+
+@mcp.tool()
+def fetch(url: str):
+    validate(url)
+    return httpx.get(url)
+"""
+    )
+    result = report(tmp_path, source)
+    assert len(result.findings) == 1
+    assert "private literal IPv4" in result.findings[0].description
+    assert "100.64.0.0/10" not in result.findings[0].description
+    assert "DNS, redirects" in result.findings[0].description
+
+
+def test_route_qualification_requires_agreement_on_every_merged_visit() -> None:
+    import json
+    from itertools import permutations
+
+    from sentinel.finding import SourceRange
+    from sentinel.static.engine import _deduplicate, _finding_from_match
+    from sentinel.static.model import StaticMatch
+
+    def visit(route: str, scope: str) -> StaticMatch:
+        return StaticMatch(
+            "SENT-015",
+            "sink.py",
+            SourceRange(start_line=5, start_column=1, end_line=5, end_column=9),
+            "send(request)",
+            captures={
+                **({"url_guard_scope": scope} if scope else {}),
+                "url_guard_paths": json.dumps({route: scope}),
+            },
+        )
+
+    # A later unguarded visit to the same route cancels its earlier qualifier;
+    # an independently guarded route remains qualified in the single finding.
+    visits = [
+        visit("mixed.py:10:4", "cgnat-ipv4"),
+        visit("mixed.py:10:4", ""),
+        visit("checked.py:20:4", "cgnat-ipv4"),
+    ]
+    descriptions = set()
+    for ordered in permutations(visits):
+        for merged in (
+            _deduplicate(list(ordered)),
+            _deduplicate([*_deduplicate(list(ordered[:2])), ordered[2]]),
+        ):
+            assert len(merged) == 1
+            description = _finding_from_match(merged[0], uuid4(), NOW).description
+            assert "checked.py:20:4" in description
+            assert "mixed.py:10:4" not in description
+            assert "Other caller routes" in description
+            descriptions.add(description)
+    assert len(descriptions) == 1
