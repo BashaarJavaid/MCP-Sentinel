@@ -1,102 +1,93 @@
 # PortunusMCP Sentinel Architecture
 
-## Current v39 additional fresh-repository preparation checkpoint
+## Current v40 fresh detection and failed discrimination checkpoint
 
-The additional fresh-repository checkpoint is **prepared, unapproved and
-unevaluated**. The user's “okay proceed with this” authorizes source preparation;
-the exact evaluation remains a separate decision under the original closeout
-prompt. Scanner **`8c62567`** was frozen before repository selection and remains
-unchanged. A separate staging checkout preserves the original frozen checkout.
+The approved additional fresh-repository evaluation **completed all six
+observations**, but **fails fixed/control discrimination** at frozen scanner
+**`8c62567`**. In each three-input batch, Sentinel detects the **one vulnerable
+`context_import` file read**, and also emits **matching false alerts on both
+negative inputs** (fixed and safe). All **three entire ordered report repeats
+agree** after only the established 11 volatile exclusions. This demonstrates
+first-frozen vulnerable detection on another project-unused repository, but it
+is not a passing vulnerable/fixed discrimination result.
 
-The selected independent repository is **`mkreyman/mcp-memory-keeper`** (MIT).
-The maintainer's [CVE-2026-54561 advisory](https://github.com/mkreyman/mcp-memory-keeper/security/advisories/GHSA-f7wf-v2vw-mpcx)
-documents `context_import` reading arbitrary local files before the 0.13.0 fix.
-Complete upstream trees are retained: vulnerable **`dd53a8f` (0.12.2)** and fixed
-**`84f6dfa` (0.13.0)**, compared against the fix merge's direct first parent.
-The repository is absent from all **eight prior corpus manifests**; neither tree
-matches any of **100 unique prior effective trees**, and no source file matches
-a prior corpus source file. Curation occurred after scanner freeze by the same
-implementation agent. This establishes repository novelty relative to the retained
-corpora, not independent human review or training-data novelty.
+All six inputs completed within the **120-second target**. Maximum native time
+was **91.706 seconds**; maximum whole-input time was
+**98.448156 seconds**, below the uniform **300-second maximum**.
+The single serial macOS sequence took **573.363 seconds**.
+Native JSON/SARIF, source/configuration identities and process cleanup validate.
+The **six-observation budget is closed**, with zero unused observations, retries,
+profiles, comparators, target executions or paid calls.
 
-The named SENT-012 condition is a caller-selected import file outside the
-operator-owned exports directory. The vulnerable source reads the supplied path;
-the fixed source canonicalizes it and checks equality or a directory-separator
-boundary before reading file bytes. A sibling `exports-backup` directory must be
-rejected; a file inside `exports` is the safe control. Startup, tool profile,
-operator configuration and ordinary readable-file prerequisites are frozen.
-The condition excludes symlink races, later parsing/database behavior and broader
-filesystem safety. Source inspection is not target execution or runtime proof.
+The repository is **`mkreyman/mcp-memory-keeper`**: complete vulnerable
+**`dd53a8f` (0.12.2)** and fixed **`84f6dfa` (0.13.0)** upstream trees, the latter
+compared against its direct first parent. It was selected only after `8c62567`
+freeze and is absent from all eight earlier corpus manifests and 100 unique
+prior effective trees. The same implementation agent curated and assessed it;
+this is one repository and one vulnerability, not independent human review,
+training-data novelty or six independent discoveries. The 45 old manifest records
+and two format-required mutation records were not evaluated.
 
-The exact proposal is
-`artifacts/phase22/integration/v39-fresh-v7/evaluation-proposal.json`:
-**six native rules-only observations**, original vulnerable/fixed/safe inputs
-twice, **zero comparators**, one serial local macOS sequence, **120-second target /
-300-second native and whole-input maximum**, at most **15 seconds cleanup per
-input** and **40 minutes overall** (38-minute internal stop). It allows **zero
-retries, profiles, detector changes, target executions, target dependency installs
-or paid calls**. First infrastructure, timeout, identity, schema, cleanup or ordered
-repeat failure closes the unused budget. Detection misses remain recorded outcomes.
+The vulnerable source directly reads caller `filePath` at `src/index.ts:1724`.
+The fixed source calls `resolveConfinedImportPath`, checks canonical equality or
+`exportsDirReal + path.sep` containment, returns on rejection, then reads the checked
+`safePath` at line 1849. The frozen sibling `exports-backup` path is rejected before
+reading; the safe control lies inside `exports`. Sentinel supports the actual
+fixed read but still asserts missing containment. **Fixed guard recognition fails**;
+this is a matching false positive, not an unsupported-sink silence. All six reports
+also retain one unnamed **unresolved MCP dispatch surface**, so complete named
+metadata/dispatch coverage is not established. No runtime protection proof is claimed.
 
-Success requires the one vulnerable condition hit and zero matching alerts on
-the two negatives in each batch, three entire ordered repeats, and source
-assessment of all findings, warnings, unresolved flows and coverage. Fixed-path
-support and guard recognition are reported separately: silence cannot establish
-that the scanner understood the fix. Any unresolved fixed-path coverage requires
-an explicit disposition before final acceptance. The existing manifest contract
-retains 45 earlier records and two paired variable-renaming records; **all 47 are
-outside this proposed evaluation**. Six repeats do not represent six independent
-repositories or vulnerabilities.
+All **22 findings**, **31,802 warning/unresolved-flow occurrences** and
+**six surfaces** are indexed to exact source evidence and assessed. Broader export
+and Git-message candidates remain unmatched and unconfirmed; the added secret
+finding is upstream test fixture data. The diagnostic assessment retains binding,
+callback, class and metadata limitations without treating them as resolved or safe.
+An initial inventory helper incorrectly treated a synthetic metadata diagnostic
+label as a literal source token; its failure and corrected catalog binding are
+preserved. No report, source, label, rubric or scanner changed, and no scan repeated.
 
-Source/configuration validation and synthetic supervisor/sequence checks pass.
-An initial preflight was blocked by sandboxed read-only system topology access;
-the unchanged check passed with permitted access. A preparation-only repeat
-reference assignment error was corrected and both versions are preserved. No
-new corpus scan, comparator observation, target execution or paid call has run.
+The proposed next step is **one focused source-only correction cycle**, in
+`artifacts/phase22/integration/v40-fresh-v7/recovery-proposal.json`: establish the
+shared guard/root-state cause using synthetic controls, implement only a supported
+fix, run required engineering checks, freeze the new source and prepare a separate
+exact exposed-regression proposal. It authorizes no work until approved and requests
+**zero new corpus scans, profiles, comparators, target executions or paid calls**.
+The original result remains immutable; a later fix is exposed regression. Source
+inspection suggests checking canonical-root propagation across startup try/catch
+and termination, but no root-cause execution proof or repair has occurred.
 
-The prior **87/87 exposed regression pass at `8c62567` remains unchanged**:
-36 whole ordered repeats; DDG two vulnerable hits per batch and zero matching
-negative alerts; six actual fixed/control sends support initial 100.64.0.0/10
-rejection on the direct `web_fetch` route. Python development passes 15/15
-(six hits, seven valid negatives, two Meta operator erratum cases each retaining
-two raw matched keys). Each 31-input Python historical batch has 14 hits and
-zero matching alerts on 17 negatives. 74 observations met 120 seconds; 13 used
-extended time; maximum whole-input time was 157.750767 seconds. That budget is
-closed. Broader URL protection, other routes, DNS, redirects and IPv6 remain
-outside the narrow DDG guard qualification.
+Prior **87/87 exposed regression at `8c62567` remains passed**, with 36 whole
+ordered repeats, DDG two vulnerable hits per batch, zero matching negatives and
+six actual fixed/control sends carrying the narrow direct-route initial 100.64/10
+qualification. Python development and both 31-input historical batches retain
+actual passes. Original fresh DDG at `f85a90f` remains 10 native + five Semgrep,
+two correlated native hits per batch, zero matching negatives, five ordered
+repeats and Semgrep 0/2; its original fixed-coverage gap and later exposed fix
+remain distinguished. Original Lighthouse misses, failed `a50e9b7` regression,
+all closed experiments and the original held-out result (10 completed,
+10 unsupported, five incomplete; 0/4 completed vulnerable hits out of 10 total
+vulnerable inputs) remain unchanged.
 
-Original fresh DDG detection remains measured at `f85a90f`: 10 native and five
-Semgrep observations, two correlated vulnerable hits per native batch, zero
-matching negative alerts and five whole ordered repeats; Semgrep hit 0/2.
-Its original fixed coverage gap is preserved; the later correction is exposed
-regression. Original Lighthouse and earlier fresh misses, the failed `a50e9b7`
-regression, stopped experiments and all closed budgets remain unchanged. The
-original held-out baseline remains 10 completed, 10 unsupported, five incomplete,
-with zero hits among four completed vulnerable inputs out of ten vulnerable inputs.
+Historical whole Linux timing retains `1f3f72f`: both whole 45-input batches pass
+with 20 hits and zero matching alerts on 25 negatives each, and the whole 25-input
+development batch is reused under the explicit amendment. Current Python and
+compatible TypeScript subsets are not pooled into new whole-batch execution.
+Product/tests/workflows remain identical to tested `8c62567`: local and all 12
+hosted suites retain **2,283 passed / 36 skipped**, **89.91% local branch coverage**,
+29 normal CI jobs and docs passed. Final status docs/package metadata are checked
+separately; six zero-call production replays and runtime/image compatibility retain
+source bindings. **Git campaigns stay incomplete at 312/1,040**, as requested.
 
-Historical whole Linux timing retains its actual `1f3f72f` source: both 45-input
-batches pass with 20 vulnerable hits and zero matching alerts on 25 negatives
-each, with all 45 ordered repeats; the whole 25-input development batch is reused
-under the user's explicit amendment. Current Python and compatible TypeScript
-subsets are not pooled into a new whole execution. Prior exposed TypeScript and
-Lighthouse evidence retains its documented `f85a90f` compatibility bindings.
-
-Product, tests and workflows equal tested `8c62567`. Local and all 12 hosted
-quality suites retain **2,283 passed / 36 skipped**, **89.91% local branch
-coverage**, 29 normal CI jobs and docs passed. Affected documentation and package
-metadata are checked separately; no new hosted code pass is claimed. Six zero-call
-production replays and Git runtime/image compatibility retain exact source evidence.
-**Git coverage remains incomplete at 312/1,040 attempts**, under the user deferral.
-
-The audit retains all **89 original rows: 84 passed, two user-deferred and three
-unresolved (R66/R88 for this additional fresh checkpoint, R84 for human acceptance)**.
-All **110 added scope rows** remain: 104 passed, five proposed historical closure
-dispositions and the new evaluation unresolved. Historical passes stay recorded;
-the new test does not erase them. The earlier v38 acceptance proposal has not been
-accepted and is postponed pending this additional evaluation and source assessment.
-**Phase 22 remains incomplete.** Paid benchmark and pilots remain deferred;
-Phase 21 remains incomplete and Phase 24/15 gates are unchanged. No merge,
-ready-state change, release, outreach or Phase 23 is authorized.
+The audit retains **89 original rows: 84 passed, two user-deferred, three unresolved
+(R66/R88 for this failed fresh discrimination checkpoint, R84 for human acceptance)**.
+All **112 added rows** remain: 106 passed, five proposed historical closure
+limitations, one unresolved evaluation criterion. Passing execution/source
+assessment does not turn the failed criterion into a pass. **Phase 22 remains
+incomplete; technical acceptance is not requested.** The correction and any later
+exact measurements need their recorded decisions. Paid benchmark and pilots stay
+deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge, ready-state change,
+release, outreach or Phase 23 is authorized.
 
 
 ## Bounded TypeScript URL guard evidence
