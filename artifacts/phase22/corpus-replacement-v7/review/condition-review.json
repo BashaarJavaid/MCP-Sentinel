@@ -1,0 +1,86 @@
+{
+  "reviewer": "Same implementation agent after immutable8c62567 pre-curation freeze.",
+  "freeze": {
+    "path": "artifacts/phase22/integration/v39-fresh-v7/scope-and-precuration-freeze.json",
+    "sha256": "2dcf868d24e2ee268addb436833e90bf5c15d17a7fb2fcccb54973a3d134058b"
+  },
+  "condition": "The registered context_import tool must not read file bytes from /srv/memory-data/exports-backup/fixture.json outside the operator-owned /srv/memory-data/exports directory.",
+  "prerequisites": [
+    "Unmodified upstream Node>=20 stdio launch with compatible dependencies and writable DATA_DIR=/srv/memory-data; database migrations and ordinary startup succeed. MEMORY_KEEPER_EXPORT_DIR is unset and the normal full/standard tool profile enables context_import. These are source prerequisites, not target executions.",
+    "Call context_import with filePath=/srv/memory-data/exports-backup/fixture.json and merge=false. Both source schemas admit a nonempty string. The target is a readable existing regular file containing JSON; no symlinks, concurrent path changes, custom filesystem hooks or external access-control denials.",
+    "The fixed exports directory resolves to /srv/memory-data/exports. The sibling path shares its raw prefix but fails the separator-bounded containment check, which returns before readFileSync. Vulnerable source reads caller filePath directly.",
+    "The condition stops at reading file bytes: subsequent JSON parsing, database import, error-message disclosure, complete export/import correctness and filesystem races are outside the label. No exploit, host-file access or runtime proof is performed."
+  ],
+  "source_flow": "Official Server setRequestHandler(CallToolRequestSchema) -> request.params.arguments -> context_import filePath -> direct vulnerable readFileSync; fixed passes through resolveConfinedImportPath realpath/stat/segment-boundary rejection -> safePath -> readFileSync.",
+  "source_locations": {
+    "vulnerable": {
+      "dispatch": 372,
+      "case": 1720,
+      "read": 1724,
+      "tool_schema": 4359
+    },
+    "fixed": {
+      "root": 48,
+      "guard": 92,
+      "boundary": 116,
+      "dispatch": 473,
+      "case": 1829,
+      "guard_call": 1837,
+      "read": 1849,
+      "tool_schema": 4604
+    }
+  },
+  "path_checks": {
+    "/srv/memory-data/exports-backup/fixture.json": {
+      "raw_prefix_match": true,
+      "separator_bounded_match": false,
+      "resolved_path": "/srv/memory-data/exports-backup/fixture.json"
+    },
+    "/srv/memory-data/exports/fixture.json": {
+      "raw_prefix_match": true,
+      "separator_bounded_match": true,
+      "resolved_path": "/srv/memory-data/exports/fixture.json"
+    }
+  },
+  "source_only_check": "Read exact source and compare illustrative POSIX path strings with standard-library operations; no target import, JS execution, filesystem resolution, scanner or comparator.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v7/mutations/vulnerable-local-rename.tar.gz",
+        "sha256": "a5f31df6e5894198df0413bf7628566c840348090e37c87cf29ed5793ee7fba6"
+      },
+      "replacement_count": 4,
+      "reverse_verified": true,
+      "evaluated": false,
+      "reason": "Required paired records in existing 50-input corpus schema; excluded from the proposed six-observation budget."
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v7/mutations/fixed-local-rename.tar.gz",
+        "sha256": "7bd426d55a6cfe52361178ede8d912976b1e75ed3f107c1ea0cfd14a3719b458"
+      },
+      "replacement_count": 16,
+      "reverse_verified": true,
+      "evaluated": false,
+      "reason": "Required paired records in existing 50-input corpus schema; excluded from the proposed six-observation budget."
+    }
+  ],
+  "source_versions": {
+    "vulnerable": "0.12.2",
+    "fixed": "0.13.0"
+  },
+  "dependency_scope": "Node>=20, SDK^1.12.3, better-sqlite3^12.1.0, simple-git^3.28.0, uuid^11.1.0; no target dependencies installed.",
+  "other_fix_changes": [
+    "CHANGELOG.md",
+    "README.md",
+    "package-lock.json",
+    "package.json",
+    "src/__tests__/e2e/import-path-confinement.test.ts",
+    "src/index.ts"
+  ],
+  "limitations": "Upstream also confines export output, adds size/item limits, validates import shape, changes transaction/error behavior and bumps version. Complete sources retained. These are not separate condition labels. Guard recognition and current detector support are unmeasured.",
+  "scans": 0,
+  "paid_calls": 0
+}

@@ -1,90 +1,102 @@
 # PortunusMCP Sentinel rule catalog
 
-## Current v38 regression pass and technical acceptance checkpoint
+## Current v39 additional fresh-repository preparation checkpoint
 
-The separately approved **87-observation exposed regression passes** at frozen
-scanner **`8c62567`**. All **87/87** inputs complete and all **36 entire ordered
-repeats agree**, excluding only the established 11 volatile fields. Native JSON,
-SARIF, source/configuration identities and process cleanup validate. **74**
-observations finish within the **120-second target** and **13** use the approved
-extended allowance. Maximum whole-input time is **157.750767 seconds**;
-maximum native time is **148.514 seconds**, both within the uniform
-**300-second maximum**. The single serial macOS sequence took
-**3757.993 seconds**. Its **87-observation budget is closed**;
-zero retries, profiles, comparators, corpus target executions or paid calls occurred.
+The additional fresh-repository checkpoint is **prepared, unapproved and
+unevaluated**. The user's “okay proceed with this” authorizes source preparation;
+the exact evaluation remains a separate decision under the original closeout
+prompt. Scanner **`8c62567`** was frozen before repository selection and remains
+unchanged. A separate staging checkout preserves the original frozen checkout.
 
-DDG detects **both vulnerable variants in each batch**. All **six fixed/control
-reports** support the actual prepared-request `client.send` and retain recognized
-initial **100.64.0.0/10 rejection on the direct `web_fetch` caller route**. The
-build/send calls are no longer unresolved. There are **zero matching alerts on
-all three negative inputs per batch**. Broader SSRF findings remain visible;
-other caller routes, later transformations, DNS, redirects, IPv6 and broader
-destination protection remain unestablished. This resolves the requested actual
-fixed-path coverage gate without accepting the earlier unsupported-path limitation.
+The selected independent repository is **`mkreyman/mcp-memory-keeper`** (MIT).
+The maintainer's [CVE-2026-54561 advisory](https://github.com/mkreyman/mcp-memory-keeper/security/advisories/GHSA-f7wf-v2vw-mpcx)
+documents `context_import` reading arbitrary local files before the 0.13.0 fix.
+Complete upstream trees are retained: vulnerable **`dd53a8f` (0.12.2)** and fixed
+**`84f6dfa` (0.13.0)**, compared against the fix merge's direct first parent.
+The repository is absent from all **eight prior corpus manifests**; neither tree
+matches any of **100 unique prior effective trees**, and no source file matches
+a prior corpus source file. Curation occurred after scanner freeze by the same
+implementation agent. This establishes repository novelty relative to the retained
+corpora, not independent human review or training-data novelty.
 
-Python development completes **15/15**: **six vulnerable condition hits**, **zero
-matching alerts on seven valid negatives**, and the unchanged Meta operator
-erratum: **two nominal fixed input cases, each with two raw matched candidate
-keys**. Meta image fixed/control reports retain their narrow private-literal
-qualification at all three request sinks. Each whole **31-input Python historical
-batch** passes with **14 vulnerable hits and zero matching alerts on 17 negatives**.
-All source labels, prerequisites and unrelated candidates remain unchanged.
+The named SENT-012 condition is a caller-selected import file outside the
+operator-owned exports directory. The vulnerable source reads the supplied path;
+the fixed source canonicalizes it and checks equality or a directory-separator
+boundary before reading file bytes. A sibling `exports-backup` directory must be
+rejected; a file inside `exports` is the safe control. Startup, tool profile,
+operator configuration and ordinary readable-file prerequisites are frozen.
+The condition excludes symlink races, later parsing/database behavior and broader
+filesystem safety. Source inspection is not target execution or runtime proof.
 
-Against the immediate `a50e9b7` regression, there are **15 description-only finding
-changes**, individually assessed against exact retained source: six DDG direct-route
-qualifications and nine Meta private-literal qualifications. No findings are added,
-removed or reordered; no warnings, unresolved flows, coverage, surfaces or counters
-change. Earlier source-assessed deltas against original references remain bound to
-their actual reports. Raw scorer identities and unmatched broader candidates stay
-visible. This is source-grounded static evidence, not runtime protection proof.
+The exact proposal is
+`artifacts/phase22/integration/v39-fresh-v7/evaluation-proposal.json`:
+**six native rules-only observations**, original vulnerable/fixed/safe inputs
+twice, **zero comparators**, one serial local macOS sequence, **120-second target /
+300-second native and whole-input maximum**, at most **15 seconds cleanup per
+input** and **40 minutes overall** (38-minute internal stop). It allows **zero
+retries, profiles, detector changes, target executions, target dependency installs
+or paid calls**. First infrastructure, timeout, identity, schema, cleanup or ordered
+repeat failure closes the unused budget. Detection misses remain recorded outcomes.
 
-The original fresh repository **`isyuricunha/mcp-ddg-research`** remains measured
-at pre-curation scanner **`f85a90f`**: **10 native + five Semgrep observations**,
-two correlated vulnerable hits per native batch, zero matching negative alerts,
-five whole ordered repeats, and **Semgrep 0/2**. Its original fixed-path coverage
-gap remains recorded. The later `8c62567` correction is **exposed regression**;
-it does not replace that first-frozen result. This is one repository and one narrow
-vulnerability, curated by the implementation agent after scanner freeze, with
-source exposure disclosed; no independent human review, broad accuracy or
-training-data novelty is claimed.
+Success requires the one vulnerable condition hit and zero matching alerts on
+the two negatives in each batch, three entire ordered repeats, and source
+assessment of all findings, warnings, unresolved flows and coverage. Fixed-path
+support and guard recognition are reported separately: silence cannot establish
+that the scanner understood the fix. Any unresolved fixed-path coverage requires
+an explicit disposition before final acceptance. The existing manifest contract
+retains 45 earlier records and two paired variable-renaming records; **all 47 are
+outside this proposed evaluation**. Six repeats do not represent six independent
+repositories or vulnerabilities.
 
-Prior exposed TypeScript families, Lighthouse and TypeScript compatibility retain
-their actual **`f85a90f` source-compatible evidence**. Historical whole Linux timing
-retains **`1f3f72f`**: both whole 45-input batches pass, with the explicitly approved
-reuse of the previously passed whole 25-input development batch. Current Python
-and prior TypeScript subsets are **not pooled into a new whole-batch execution**.
-All original misses, the failed `a50e9b7` regression, stopped experiments and closed
-budgets remain preserved. No speedup or new fresh-source result is claimed.
+Source/configuration validation and synthetic supervisor/sequence checks pass.
+An initial preflight was blocked by sandboxed read-only system topology access;
+the unchanged check passed with permitted access. A preparation-only repeat
+reference assignment error was corrected and both versions are preserved. No
+new corpus scan, comparator observation, target execution or paid call has run.
 
-Product, tests and workflows are unchanged from verified **`8c62567`**. Local and
-all **12 hosted quality suites pass 2,283 tests / 36 skips**; local branch coverage
-is **89.91%**. All **29 normal CI jobs** and docs pass at that
-actual source. Package source bindings and six zero-call production replays retain
-their verified source identities; final status-only documentation/package metadata
-is checked separately. Existing Git runtime components/image remain compatible,
-and **Git coverage stays incomplete at 312/1,040 attempts**, as the user requested.
+The prior **87/87 exposed regression pass at `8c62567` remains unchanged**:
+36 whole ordered repeats; DDG two vulnerable hits per batch and zero matching
+negative alerts; six actual fixed/control sends support initial 100.64.0.0/10
+rejection on the direct `web_fetch` route. Python development passes 15/15
+(six hits, seven valid negatives, two Meta operator erratum cases each retaining
+two raw matched keys). Each 31-input Python historical batch has 14 hits and
+zero matching alerts on 17 negatives. 74 observations met 120 seconds; 13 used
+extended time; maximum whole-input time was 157.750767 seconds. That budget is
+closed. Broader URL protection, other routes, DNS, redirects and IPv6 remain
+outside the narrow DDG guard qualification.
 
-The initial delivery preflight stopped before staging, commit or push because six
-status-document hashes in the audit had not been refreshed after documentation
-edits. The failed receipt and seal 65 remain preserved. Final documentation
-bindings are corrected in supplemental seal 66; scanner and evaluation evidence
-are unchanged.
+Original fresh DDG detection remains measured at `f85a90f`: 10 native and five
+Semgrep observations, two correlated vulnerable hits per native batch, zero
+matching negative alerts and five whole ordered repeats; Semgrep hit 0/2.
+Its original fixed coverage gap is preserved; the later correction is exposed
+regression. Original Lighthouse and earlier fresh misses, the failed `a50e9b7`
+regression, stopped experiments and all closed budgets remain unchanged. The
+original held-out baseline remains 10 completed, 10 unsupported, five incomplete,
+with zero hits among four completed vulnerable inputs out of ten vulnerable inputs.
 
-The reconciled audit accounts for **89 original requirements: 86 passed, two
-user-deferred and only R84 (human technical acceptance) unresolved**. All **108 added
-scope rows** are retained: **103 passed and five historical closure dispositions
-awaiting explicit acceptance**. Those five preserve the failed optimization,
-stale-assessment sequence, reused-source preparation and two stopped Lighthouse
-corrections; accepting their closure never converts failures into passes.
+Historical whole Linux timing retains its actual `1f3f72f` source: both 45-input
+batches pass with 20 vulnerable hits and zero matching alerts on 25 negatives
+each, with all 45 ordered repeats; the whole 25-input development batch is reused
+under the user's explicit amendment. Current Python and compatible TypeScript
+subsets are not pooled into a new whole execution. Prior exposed TypeScript and
+Lighthouse evidence retains its documented `f85a90f` compatibility bindings.
 
-The concrete **technical acceptance proposal** is
-`artifacts/phase22/integration/v38-guard-regression/acceptance-proposal-final.json`.
-**Human technical acceptance has not been received; Phase 22 remains incomplete.**
-Acceptance must explicitly cover the final technical scope and retained limitations,
-then the authorized closeout must be delivered to existing draft PR #37. The full
-paid benchmark and pilots remain user-deferred; Phase 21 remains incomplete and
-Phase 24/15 gates are unchanged. No paid calls, further observations, merge,
-ready-state change, release, outreach or Phase 23 is authorized by this packet.
+Product, tests and workflows equal tested `8c62567`. Local and all 12 hosted
+quality suites retain **2,283 passed / 36 skipped**, **89.91% local branch
+coverage**, 29 normal CI jobs and docs passed. Affected documentation and package
+metadata are checked separately; no new hosted code pass is claimed. Six zero-call
+production replays and Git runtime/image compatibility retain exact source evidence.
+**Git coverage remains incomplete at 312/1,040 attempts**, under the user deferral.
+
+The audit retains all **89 original rows: 84 passed, two user-deferred and three
+unresolved (R66/R88 for this additional fresh checkpoint, R84 for human acceptance)**.
+All **110 added scope rows** remain: 104 passed, five proposed historical closure
+dispositions and the new evaluation unresolved. Historical passes stay recorded;
+the new test does not erase them. The earlier v38 acceptance proposal has not been
+accepted and is postponed pending this additional evaluation and source assessment.
+**Phase 22 remains incomplete.** Paid benchmark and pilots remain deferred;
+Phase 21 remains incomplete and Phase 24/15 gates are unchanged. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
 
 
 Every rule emits the canonical Finding contract and has a stable permanent ID.
