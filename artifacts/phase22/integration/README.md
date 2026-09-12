@@ -1,68 +1,67 @@
-# Integration evidence, batches 1–63 and closeout audit
+# Integration evidence, batches 1–64 and closeout audit
 
-## Current v36 source-only investigation and diagnostic checkpoint
+## Current v37 diagnostic and caller-route correction checkpoint
 
-The approved **v36 source-only recovery investigation has reached its explicit
-conditional diagnostic checkpoint**. Scanner **`a50e9b7` remains unchanged**.
-Scanner-owned synthetic DDG cases preserve the guard through async callbacks,
-request models/cache handling, redirects, multiple entries, separate modules,
-the full rule set and isolated workers. They **do not reproduce the actual DDG
-guard loss**. A separate synthetic Meta control reproduces its missing narrow
-private-literal qualification. No guessed detector correction is retained.
+The approved **single DDG diagnostic passes** at frozen **`a50e9b7`**:
+**3.967 seconds native / 8.369 seconds whole input**, identical entire ordered
+report after the established 11 volatile exclusions, valid JSON/SARIF, complete
+trace and verified cleanup. All **1,066 events** were retained, with no dropped
+events and all hooks restored. Its **one-observation budget is closed**.
 
-All prototype sources, successive results and failures are preserved. An initial
-full-rule test assertion incorrectly included other rules' unresolved-send
-warnings; the corrected SENT-015 assertion passes in worker execution. The
-prototype test edits were restored to the exact delivered source. The workspace's
-missing Git link and 1,028 tracked files were restored from commit `328f7af`,
-without overwriting existing files; 1,814 missing evidence members were restored
-from verified seals. Existing user files and source freezes remain intact.
+The trace establishes that the direct `web_fetch` caller reaches the actual send
+with its initial CGNAT guard recognized. A separate search-derived caller reaches
+the same send without that qualification. Whole-location deduplication drops the
+recognized direct-route qualification. The broader search-derived uncertainty
+remains visible; the trace does not establish complete SSRF protection.
 
-The exact **unapproved** fallback is
-`artifacts/phase22/integration/v36-guard-recovery/diagnostic-proposal.json`:
-**one instrumented `ddg-cgnat-fixed` observation** at immutable `a50e9b7`,
-120-second target, **300-second native/whole-input maximum**, 15-second cleanup
-maximum and **ten-minute sequence maximum**. It traces guard/predicate/request
-facts and report deduplication using bounded observational wrappers. Entire
-ordered output must match the retained fixed report after the established
-11 volatile exclusions; JSON/SARIF, source/configuration, trace completeness and
-hook/process cleanup must pass. Synthetic inline/worker report equality and
-one-use/failure accounting checks pass. The initial mocked output-directory
-failure and correction are retained. **No new corpus observation, comparator,
-CPU profile, target execution or paid call occurred.** Any diagnostic failure
-consumes its single observation; no retry or additional measurement is implied.
+The approved source correction is frozen at **`8c62567`**. It preserves narrow
+guard qualifications by analyzed caller route within **one canonical finding per
+sink**. Conflicting guarded/unguarded visits to the same route cancel that route's
+qualification. Other caller routes, later transformations, DNS, redirects and
+broader destination protection remain unresolved. Python scheme plus six-flag
+address guards now retain the existing narrow private-literal qualification;
+they do not become CGNAT guards or universal SSRF suppression.
 
-The actual **v35 regression still fails DDG guard coverage and Meta compatibility**:
-87/87 completed at `a50e9b7`, 79 within 120 seconds, eight extended, longest
-241.846285 seconds, and 36 entire ordered repeats. DDG detects both vulnerable
-variants per batch; all six fixed/control sends lack the required CGNAT qualifier.
-The two fixed DDG variants each have one matching generic alert. Each of two
-fixed Meta image variants gains three matching alerts; their public controls
-retain broader unmatched candidates. Both 31-input Python historical batches
-retain 14 vulnerable hits and zero matching alerts on 17 negatives. All changed
-findings and diagnostics remain source-assessed; the 87-observation budget is closed.
+Both new reproductions failed before correction. The affected suite passes
+**436 tests**. Full local and all **12 hosted quality suites pass 2,283 tests /
+36 skips**; local branch coverage is **89.91%**. All **29 normal CI jobs**
+and docs pass at actual `8c62567`; package members match Git blobs and all actual
+CI checkout trees equal that source. Six exact production requests regenerate and
+replay with **zero paid calls**. The abbreviated-revision replay check failure
+and corrected runtime receipt are preserved. Existing Git runtime components and
+image are unchanged; its **312/1,040 attempts remain incomplete**, as requested.
 
-Engineering retains actual `8a3db58`: 2,280 passed / 36 skipped locally and in
-12 hosted suites, 89.87% local branch coverage, 29 normal CI jobs, docs, verified
-package sources and six zero-call production replays. Product/test/workflow bytes
-are identical; no new full-suite or hosted pass is claimed for this investigation.
-Original first-frozen DDG detection at `f85a90f`, its fixed-path limitation, all
-original misses and every failed/closed scope remain unchanged. Prior TypeScript
-compatibility and whole Linux timing retain their actual source bindings; no
-partial observations are pooled into a new whole-batch pass.
+**No corrected-scanner corpus observation has occurred.** The next exact
+**unapproved** proposal is
+`artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json`:
+**87 native observations** at `8c62567` (five DDG inputs twice, 15 Python development
+inputs once, 31 Python historical inputs twice), one local serial sequence,
+120-second target, **300-second native/whole-input maximum**, 15-second cleanup,
+**480-minute sequence maximum**, zero retries, profiles, comparators, target
+execution or paid calls. The original rubric, inputs, conditions and **36 entire
+ordered repeats** remain mandatory; qualification must cover the exact initial
+caller route, never an uncertain sibling. Execution/identity/time/schema/cleanup/
+repeat failure closes all unstarted observations. Detection changes require
+individual source assessment after collection and confer no repair/retry authority.
 
-The audit retains **89 original rows: 84 passed, two user-deferred, three
-unresolved (R33, R65, R84)**, and **102 added rows: 94 passed, five historical
-proposed limitations and three unresolved**. The added DDG correction/recovery
-gates remain pending. Git campaigns stay **312/1,040 incomplete**, as requested.
-Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
-**Phase 22 remains incomplete; technical acceptance is not requested.** The
-approved recovery proposal requires separate diagnostic approval when synthetic
-controls cannot establish the actual loss. After an established correction,
-ordinary engineering, a new exact regression decision and final human acceptance
-remain. No merge, ready-state, release, outreach or Phase 23 is authorized.
+The previous **v35 87-observation regression still fails** DDG guard coverage and
+Meta compatibility at `a50e9b7`; its 79 target / eight extended completions,
+241.846285-second maximum, 36 ordered repeats and every source assessment remain.
+Original first-frozen DDG detection at `f85a90f` remains two vulnerable hits per
+batch and zero matching negative alerts, with its original fixed-path limitation.
+All original misses and exposed corrections remain distinct. TypeScript's prior
+54-observation compatibility and ten Lighthouse observations retain compatible
+source bindings; whole Linux timing remains at `1f3f72f`. No partial batches are
+pooled and no new fresh-source, speedup or runtime protection claim is made.
 
-Review [source-only investigation](v36-guard-recovery/assessment.json), [89 + 102 row audit](v36-guard-recovery/audit.json), [exact unapproved diagnostic](v36-guard-recovery/diagnostic-proposal.json) and [diagnostic rubric](v36-guard-recovery/scoring-rubric.json). Restore seal 63 after seals 1–62, verifying all archive/member hashes in numeric order. The measured [v35 failure](v35-ddg-regression/assessment.json) remains unchanged.
+The audit retains **89 original rows: 84 passed, two user-deferred and three
+unresolved (R33, R65, R84)**, plus **106 added rows: 98 passed, five historical
+proposed limitations and three unresolved**. Corrected DDG/Meta regression and
+explicit human technical acceptance remain. **Phase 22 remains incomplete**;
+paid benchmark/pilots stay deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state, release, outreach or Phase 23 is authorized.
+
+Review [measured diagnostic](v37-ddg-trace/diagnostic-assessment.json), [89 + 106 row audit](v37-ddg-trace/audit.json), [exact unapproved regression](v37-ddg-trace/evaluation-proposal.json) and the unchanged [regression rubric](v37-ddg-trace/scoring-rubric.json). Restore seal 64 after seals 1–63, verifying every archive and member hash. The [v35 failed regression](v35-ddg-regression/assessment.json) remains unchanged.
 
 
 ## Historical v33 fresh detection and acceptance checkpoint
