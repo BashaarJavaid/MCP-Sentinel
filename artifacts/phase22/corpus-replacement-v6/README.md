@@ -1,6 +1,6 @@
 # Replacement-v6: DDG shared-space URL condition
 
-Prepared only; no native/comparator evaluation or target execution.
+Approved first-frozen evaluation completed: 10 native + 5 Semgrep, zero paid calls or target execution. Native2/2 hits per batch and0/3matching negative alerts;5ordered repeats. Fixed HTTP send remains unresolved, so no recognized-fix claim. See `../integration/v33-fresh-v6/assessment.json` and `summary.md` for complete source assessments and the proposed limitation.
 
 The complete upstream AGPL v3 source archives are retained verbatim with their
 licenses and notices. The two mutation overlays rename one local helper and its
@@ -20,5 +20,5 @@ exact separately approvable scope and prospective scoring rubric.
 
 One repository and one narrow vulnerability, with correlated variants. No target
 imports, tests, builds, dependency installation, DNS or HTTP requests occurred.
-Current-source detection remains unproven. Earlier misses and exposed regressions
+Current-source first-frozen candidate detection is demonstrated for this narrow condition. Earlier misses and exposed regressions
 are preserved; a fix after observing this source cannot count as fresh success.
