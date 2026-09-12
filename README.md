@@ -1,36 +1,64 @@
 # PortunusMCP Sentinel
 
-## Current v34 fixed-request correction checkpoint
+## Current v34 correction and regression approval checkpoint
 
-The user approved correcting the DDG fixed-path coverage gap before acceptance.
-Corrected scanner candidate **`a50e9b7`** follows source-established HTTPX
-`build_request` → `send` and retains a narrow initial `100.64.0.0/10` rejection
-qualification. Synthetic controls cover guard removal/bypass, URL replacement,
-client rebinding and unknown mutation. The old six negative IP flags alone no
-longer imply shared-space rejection. Broader destinations, DNS, redirects and
-subsequent URL transformations remain unestablished.
+The DDG fixed-request correction is implemented at **`a50e9b7`**. SENT-015
+follows source-established HTTPX `build_request` → `send`, retaining a narrow
+initial shared-space (`100.64.0.0/10`) rejection qualification on the same caller
+URL. Removing/bypassing the guard or replacing/escaping the request loses that
+qualification in synthetic controls. Known IP type inspection preserves valid
+facts; local module/package shadows, replaced classes/imported attributes and
+unknown mutation stay conservative.
+The old six negative IP flags alone no longer establish CGNAT rejection. Broader
+destinations, subsequent transformations, DNS, redirects and IPv6 remain unproven.
 
-The initial `5b5016e` full suite retained one failure, 2,269 passes and 36 skips.
-The correction preserves known IP type inspection while treating unknown/replaced
-classes conservatively, including direct module-level imported-attribute writes.
-All **40 focused controls and 976 affected rule tests pass**. A subsequent source
-binding control found that a local ipaddress module could mimic the standard
-library. The correction now uses the existing import resolver and rejects local
-module/package shadows and replaced builtins. The complete 2624578 local pass
-(2,277 tests / 36 skips) and its later failing shadow-module control are preserved.
-Full current-source engineering verification is in progress. Earlier `439c3fe`
-quality results describe earlier bytes. No new corpus observation is authorized
-or executed: an exact exposed DDG and affected Python compatibility proposal is
-being prepared in `artifacts/phase22/integration/v34-import-binding/`.
-The original `f85a90f` fresh result and its fixed-coverage limitation remain
-immutable; the later correction is exposed engineering, not a new fresh result.
+Current engineering passes at **`8a3db58`**: **2,280 tests / 36 skips** locally
+and in all **12 supported hosted suites**, **89.87%** local branch coverage,
+all **29 normal CI jobs** and docs. Ruff/format/strict mypy, lock/schema/notices,
+offline artifacts, installed-wheel/Docker/isolation/hooks and exact package-source
+checks pass. All **six production requests regenerate and replay with zero paid
+calls**. The initial candidate's full-suite failure, failed/cancelled CI jobs,
+additional replacement control, disk exhaustion and interrupted verification are
+retained, including the local-module identity failure after the earlier full pass.
+The final import-binding correction passes a new full suite and hosted matrix.
 
-**Phase 22 remains incomplete.** The v33 acceptance-ready proposal is superseded
-by the requested correction, its verification and separate regression checkpoint.
-Git runtime stays **312/1,040 incomplete** under the user's instruction. Paid
-benchmark/pilots remain deferred; zero additional paid calls. Final human
-technical acceptance and verified closeout remain separate decisions. No merge,
-release, ready-state, outreach or Phase 23 is authorized.
+**Actual corrected DDG coverage is not yet evaluated.** The exact proposal at
+`artifacts/phase22/integration/v34-import-binding/evaluation-proposal.json`
+requires separate approval: **87 native observations**, one serial local macOS
+sequence, **zero comparator runs, retries, profiles, paid calls or corpus target
+executions**. The five unchanged DDG inputs run twice (10), 15 Python development
+inputs once, and 31 Python historical inputs twice (62). The target is 120 seconds,
+the uniform native/whole-input maximum 300 seconds, cleanup at most 15 seconds,
+and sequence maximum 480 minutes. Execution/identity/schema/cleanup/timing/repeat
+failure closes all unused observations; detector outcomes are retained for source
+assessment. No old budget is reopened.
+
+The gate requires actual fixed-source `send` coverage with initial CGNAT rejection
+evidence, both vulnerable detections per DDG batch, unchanged Python named
+conditions and **36 entire ordered repeats**. Source-sensitive synthetic controls
+are separate engineering evidence. All changed findings and diagnostics require
+source assessment. Preserve the two nominal fixed Meta operator erratum inputs,
+each with its retained two matched keys, separately from the seven valid Python
+development negatives. The unchanged TypeScript paths support reuse of the prior
+54-observation compatibility and ten-observation Lighthouse results at `f85a90f`.
+Historical whole 25 + 45 + 45 Linux timing remains measured at `1f3f72f`; these
+partial checks will not be pooled into a new whole-batch result.
+
+The original **DDG fresh detection at `f85a90f` remains immutable**: two correlated
+vulnerable hits in each native batch, zero matching negative alerts and five
+ordered repeats; fixed request/guard recognition was unresolved. The correction
+follows source exposure and is an exposed regression, not another unseen success.
+Original Lighthouse fresh misses, original held-out misses and all earlier failed
+attempts remain preserved. Git campaigns stay **312/1,040 incomplete**, as requested.
+Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
+
+The current audit accounts for **89 original requirements** (69 passed, two
+user-deferred, 18 pending current-source regression/acceptance) and **94 added
+rows** (87 passed, five historical proposed limitations, two unresolved). The
+pending original rows converge on this regression and its assessments. **Phase 22
+remains incomplete** until the actual remaining gates, explicit human technical
+acceptance and verified final closeout delivery. No merge, ready-state, release,
+outreach or Phase 23 is authorized.
 
 
 [![PyPI](https://img.shields.io/pypi/v/portunusmcp-sentinel)](https://pypi.org/project/portunusmcp-sentinel/)
