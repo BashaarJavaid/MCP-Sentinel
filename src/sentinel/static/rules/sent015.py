@@ -304,7 +304,8 @@ class URLFlow(PathFlow):
                 or "#member:unknown:" + receiver.key in env
             ):
                 return ""
-        return resolve_name(name, self.aliases[symbol.file.relative_path])
+        resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
+        return "" if resolved in self.external_writes else resolved
 
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
@@ -602,6 +603,20 @@ class URLFlow(PathFlow):
         name = qualified_name(node.func) or ""
         receiver = self.call_receiver(symbol, node, env)
         method = name.rsplit(".", 1)[-1]
+        if (
+            external in {"isinstance", "builtins.isinstance"}
+            and len(node.args) == 2
+            and not node.keywords
+            and isinstance(node.args[0], ast.Name)
+            and self.external(symbol, node.args[1], env)
+            in {"ipaddress.IPv4Address", "ipaddress.IPv6Address"}
+        ):
+            address = self.expression(symbol, node.args[0], env)
+            if self.parts.get(address.key, ("", ""))[1] == "ip" and self.address_intact(
+                address, env
+            ):
+                # Exact stdlib type inspection cannot mutate the known IP value.
+                return UNKNOWN_VALUE
         if external in {"any", "builtins.any"}:
             membership = self.network_rejection(symbol, node, env)
             if membership is not None:

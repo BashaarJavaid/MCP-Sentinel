@@ -354,3 +354,21 @@ def fetch(url: str):
     assert any(
         f"unresolved call to client.{method}" in w.message for w in result.warnings
     )
+
+
+def test_module_level_client_replacement_does_not_claim_supported_send(
+    tmp_path: Path,
+) -> None:
+    result = report(
+        tmp_path,
+        PREFIX
+        + """httpx.Client = unknown
+@mcp.tool()
+def fetch(url: str):
+    client = httpx.Client()
+    request = client.build_request("GET", url)
+    return client.send(request)
+""",
+    )
+    assert not result.findings
+    assert any("unresolved call to client.send" in w.message for w in result.warnings)

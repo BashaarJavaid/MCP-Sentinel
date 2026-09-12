@@ -1634,3 +1634,38 @@ def test_environment_escape_is_local_to_exclusive_branch(
         == ("loopback-ipv4-default" if placement == "sibling" else None)
         for match in state.matches
     )
+
+
+@pytest.mark.parametrize(
+    ("setup", "inspection", "expected"),
+    [
+        ("", "isinstance(ip, ipaddress.IPv6Address)", 0),
+        ("", "isinstance(ip, ipaddress.IPv4Address)", 0),
+        (
+            "from ipaddress import IPv6Address as Address\n",
+            "isinstance(ip, Address)",
+            0,
+        ),
+        ("", "isinstance(ip, unknown_class)", 1),
+        ("isinstance = unknown\n", "isinstance(ip, ipaddress.IPv6Address)", 1),
+        (
+            "ipaddress.IPv6Address = unknown\n",
+            "isinstance(ip, ipaddress.IPv6Address)",
+            1,
+        ),
+    ],
+)
+def test_ip_type_inspection_requires_known_unreplaced_builtin_and_class(
+    tmp_path: Path, setup: str, inspection: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n" + setup + "@mcp.tool()\ndef fetch(url: str):\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): raise ValueError()\n"
+        "    ip = ipaddress.ip_address(parsed.hostname)\n"
+        f"    {inspection}\n"
+        "    if not ip.is_global: raise ValueError()\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected

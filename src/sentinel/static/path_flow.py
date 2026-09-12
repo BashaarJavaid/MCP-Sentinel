@@ -199,6 +199,17 @@ class PathFlow:
         self.aliases = {
             file.relative_path: import_aliases(file) for file in program.files
         }
+        # Module-level writes can replace imported attributes before any handler.
+        self.external_writes = {
+            external
+            for file in program.files
+            for node in scope_nodes(file.tree)
+            if isinstance(node, ast.Attribute)
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+            and (
+                external := program.external(Symbol(file, "<module>", file.tree), node)
+            )
+        }
         self.globals: dict[tuple[str, str], Value] = {}
         self.global_members: dict[str, Value] = {}
         self.source_modules: dict[str, ParsedPythonFile] = {}
@@ -1946,11 +1957,15 @@ class PathFlow:
         resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
         root = name.split(".")[0]
         declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
-        if root in env or (
-            declarations
-            and not (
-                len(declarations) == 1
-                and isinstance(declarations[0], (ast.Import, ast.ImportFrom))
+        if (
+            resolved in self.external_writes
+            or root in env
+            or (
+                declarations
+                and not (
+                    len(declarations) == 1
+                    and isinstance(declarations[0], (ast.Import, ast.ImportFrom))
+                )
             )
         ):
             resolved = ""
