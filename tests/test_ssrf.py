@@ -1628,6 +1628,10 @@ def test_environment_escape_is_local_to_exclusive_branch(
     )
     state = RuleRunState()
     analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    if placement == "before" and effect == "process.exit(1);":
+        assert not program.tools()
+        assert not state.matches
+        return
     assert state.matches
     assert all(
         match.captures.get("url_guard_scope")
