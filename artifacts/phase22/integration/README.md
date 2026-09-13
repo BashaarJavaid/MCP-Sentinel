@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–87 and closeout audit
+# Integration evidence, batches 1–88 and closeout audit
+
+## Thirty-minute regression evidence seal 88
+
+[Seal 88](evidence-v88.json) retains **119 members / 4,288,154 raw bytes**,
+archive SHA-256 `a6fe85208ed574e43fa6c80b6e76eda915b6732380ab966efd7edb03cae13d89`. All 87 earlier archives and every member
+verified. This retains the approved first-input timeout at `7bf4c6e`, 204 closed
+unstarted observations, all 329 audit rows, the unapproved current-source profile,
+synthetic worker identity and approval-boundary checks, final docs/packages,
+and supplemental v59 delivery/approval receipts. All earlier failures remain retained.
+Restore after seals 1–87 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
 
 ## Timeout policy evidence seal 87
 
@@ -115,7 +128,35 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v59 timeout policy: engineering passed, evaluation pending
+## Current v60 thirty-minute regression: timed out, budget closed
+
+The approved 205-observation sequence at frozen **`7bf4c6e`** stopped on the first
+FAF vulnerable input after **1800.021672 seconds**. **One incomplete,
+zero reports, 204 unstarted closed and zero remaining**; cleanup passed. Findings,
+detection, fixed/control discrimination and ordered repeats remain unknown.
+The approved 1800-second shared policy remains in place; extending the deadline
+alone did not establish completion. No retry, profile or paid call occurred.
+
+`v60-long-timeout-regression/diagnostic-proposal.json` prepares **one sampled FAF
+input**, **unapproved and unexecuted**, with a 1800-second maximum and 15-second
+cleanup allowance. Existing sampler/worker layout, synthetic identity/timer and
+missing-approval checks pass. Older `a36f696` samples do not establish current costs.
+No optimization, uninstrumented run, comparator or target execution is included.
+
+All **329 requirements (89 original + 240 added)** remain, including five native
+timeouts, three valid partial profiles, invalid stale-root preparation, both
+singleton failures and six unaccepted historical closure proposals. Product and
+tests remain verified `7bf4c6e`: **2,403 tests / 36 skips** locally and in all 12
+hosted suites, 29 normal CI jobs and docs passed. Combined coverage is 89.98%,
+branch-only 85.86%; six zero-call replays and approved runtime bindings remain.
+This continuation adds outcome, preparation and docs/package checks.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v59 timeout policy: engineering passed, evaluation pending
 
 The user confirmed **30 minutes per input**. The shared static deadline is now
 1,800 seconds at **`7bf4c6e`**, source `40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6`;

@@ -1,6 +1,34 @@
 # PortunusMCP Sentinel Roadmap
 
-## Current v59 timeout policy: engineering passed, evaluation pending
+## Current v60 thirty-minute regression: timed out, budget closed
+
+The approved 205-observation sequence at frozen **`7bf4c6e`** stopped on the first
+FAF vulnerable input after **1800.021672 seconds**. **One incomplete,
+zero reports, 204 unstarted closed and zero remaining**; cleanup passed. Findings,
+detection, fixed/control discrimination and ordered repeats remain unknown.
+The approved 1800-second shared policy remains in place; extending the deadline
+alone did not establish completion. No retry, profile or paid call occurred.
+
+`v60-long-timeout-regression/diagnostic-proposal.json` prepares **one sampled FAF
+input**, **unapproved and unexecuted**, with a 1800-second maximum and 15-second
+cleanup allowance. Existing sampler/worker layout, synthetic identity/timer and
+missing-approval checks pass. Older `a36f696` samples do not establish current costs.
+No optimization, uninstrumented run, comparator or target execution is included.
+
+All **329 requirements (89 original + 240 added)** remain, including five native
+timeouts, three valid partial profiles, invalid stale-root preparation, both
+singleton failures and six unaccepted historical closure proposals. Product and
+tests remain verified `7bf4c6e`: **2,403 tests / 36 skips** locally and in all 12
+hosted suites, 29 normal CI jobs and docs passed. Combined coverage is 89.98%,
+branch-only 85.86%; six zero-call replays and approved runtime bindings remain.
+This continuation adds outcome, preparation and docs/package checks.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v59 timeout policy: engineering passed, evaluation pending
 
 The user confirmed **30 minutes per input**. The shared static deadline is now
 1,800 seconds at **`7bf4c6e`**, source `40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6`;

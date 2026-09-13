@@ -1,0 +1,162 @@
+{
+  "status": "prepared_not_approved_not_executed",
+  "scanner": {
+    "revision": "7bf4c6e1cf0c8d83229b1273f80737e7cacc5b82",
+    "source_sha256": "40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-7bf4c6e",
+  "input": {
+    "input": {
+      "id": "faf-read-root-vulnerable",
+      "family": "faf-read-root",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "language": "typescript",
+      "split": "held_out",
+      "variant": "original",
+      "label": "vulnerable",
+      "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+      "scan_root": ".",
+      "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+      "prerequisites": [
+        "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+        "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+        "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+      ],
+      "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+      "runtime_applicability": "unsupported",
+      "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+      "runtime_configuration": null,
+      "evidence": [
+        {
+          "path": "src/index.ts",
+          "start_line": 1,
+          "end_line": 18,
+          "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/server.ts",
+          "start_line": 1,
+          "end_line": 139,
+          "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/tools.ts",
+          "start_line": 1,
+          "end_line": 3302,
+          "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/fileHandler.ts",
+          "start_line": 1,
+          "end_line": 235,
+          "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/engine-adapter.ts",
+          "start_line": 1,
+          "end_line": 877,
+          "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "package.json",
+          "start_line": 1,
+          "end_line": 118,
+          "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "tsconfig.json",
+          "start_line": 1,
+          "end_line": 33,
+          "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        }
+      ],
+      "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+      "parent": null,
+      "transformation": null,
+      "overlay": null,
+      "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+    },
+    "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+    "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "assessment": null
+  },
+  "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+  "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+  "purpose": "Identify scanner costs over the same 1800-second window after the first FAF input failed to complete under the approved longer timeout. No current-source stack or stage trace exists; older a36f696 samples precede the credential correction. One sampled input is proposed, with no optimization attempt or uninstrumented retry.",
+  "command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v60-long-timeout-regression/diagnostic.py"
+  ],
+  "initial_cwd": "/private/tmp/mcp-phase22-options",
+  "output": "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v61-faf-long-timeout-sampling",
+  "bounds": {
+    "total_input_executions": 1,
+    "sampled_profiles": 1,
+    "uninstrumented_observations": 0,
+    "whole_input_maximum_seconds": 1800,
+    "normal_target_seconds": 120,
+    "cleanup_maximum_seconds": 15,
+    "cpu_timer_hz_per_worker": 100,
+    "periodic_snapshot_seconds": 15,
+    "maximum_stack_frames": 1024,
+    "optimization_attempts": 0,
+    "retries": 0,
+    "comparators": 0,
+    "paid_calls": 0,
+    "hosted_dispatches": 0,
+    "target_execution": false
+  },
+  "instrumentation": "Reuse the verified 100Hz stdlib CPU-timer worker sampler, existing rule set and worker layout. The prospective whole-input diagnostic ceiling is 1800 seconds, matching current product policy and the failed native window. Verify actual 7bf4c6e worker/flow/source/harness identities before timer setup or target snapshot access; retain each worker identity. No method replacement, locals or source values. Identity and sampling overhead are inside the ceiling.",
+  "partial_output": "Retain atomic15-second snapshots even if workers are killed by the unchanged timeout cleanup. A killed worker may lack a final/restored-state snapshot; report that fact. Do not weaken cleanup, extend deadlines or claim a complete profile interval.",
+  "interpretation": "Signal/GIL/native-code delivery and snapshot overhead bias attribution. Stack shares overlap and are neither additive costs nor guaranteed savings. This profile is not a native speedup or regression pass. Retain partial 15-second snapshots if timeout prevents final timer-restoration evidence. If a report completes, validate JSON/SARIF, compare its entire ordered content to the original 2e0efb2 reference with only the established 11 exclusions, and source-assess every change. The current native 7bf4c6e attempt has no report baseline. Absent or mismatched worker identities invalidate attribution. Earlier profiles and the invalid stale-root v50 attempt remain source-bound.",
+  "stop": "At most one attempted input, including timeout, interruption or worker-identity failure. Fail before consumption on parent preflight mismatch. Preserve partial outputs and close the one-use budget on every attempted outcome. No automatic retry, optimization, resource/deadline change or reopened regression/profile budget.",
+  "environment": "Existing locked local macOS environment and frozen 7bf4c6e. Product shared limit stays 1800 seconds. No dependency/resource/parallelism change or overlapping owned heavy work.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v59-timeout-policy/evaluation-proposal.json": "0a07544a9db0396780d686af952ab2057cc78f8df2f6897128c714ac4126d164",
+    "artifacts/phase22/integration/v59-timeout-policy/evaluation-authorization.json": "eadbcc984e9a2cbb99023281fc8fa645dc93cb25969b680046f6e25953eab7c1",
+    "artifacts/phase22/integration/v59-timeout-policy/execution-consumed.json": "86e4eb0115348122d3400dda89e86727921127fe87030805f18eb5e9d797d392",
+    "artifacts/phase22/integration/v59-timeout-policy/evaluate.py": "54b7d1d80614637551cf0e72cc2e6518d3aa6ad3f8e3b87c89378812b88b38c4",
+    "artifacts/phase22/integration/v59-timeout-policy/authorization.json": "636800aac0b16750c1c05d7477cb00b151521577fb48399f8bc759be1918ac44",
+    "artifacts/phase22/integration/v59-timeout-policy/timeout-confirmation.json": "73c44ec8a14bce4b4571a9afc3d85dac71bdb5db755174a907424f179386ba25",
+    "artifacts/phase22/integration/v59-timeout-policy/source-proof.json": "2fc230d6321dacecf15ddfa1d8a8b9c3bb2b478fb7604ca04ae36bcb0d7c219a",
+    "artifacts/phase22/integration/v59-timeout-policy/freeze.json": "1b3ce0e82d04f3cb51635a3d3e4ebe1868fa9c772a6a556d2261d0039d55d249",
+    "artifacts/phase22/integration/v59-timeout-policy/local-checks.json": "68ee26cda9f1640416369570064592148af2adf3aa9060eb14c96a7f17472c9a",
+    "artifacts/phase22/integration/v57-credential-merge/source-recovery-assessment.json": "2c1d24b4f779e5d9d81dafe433927e94564a0397faedbff097a752344f390a16",
+    "artifacts/phase22/integration/v57-credential-merge/correction-validation.json": "b36d218b3e2f07ea63e4d1755e28b29b12ab3191590cfa37f768064b47cf2de9",
+    "artifacts/phase22/integration/v57-credential-merge/synthetic-validation.json": "02f4cd094d92dda0c8910375ee668857d8fd75eadf4782a5197dd70a479514c0",
+    "artifacts/phase22/integration/v57-credential-merge/optimization-budget-closed.json": "18f4bc4c972fc0bc6a55625b97a5298cc6bae64c0424c594cf1336cc6cf40281",
+    "artifacts/phase22/integration/v60-long-timeout-regression/corrected-sampling-worker.py": "3fd7b0eeb49c252067ee9d77b3b5074fa7afa0c202ee4e4963425eec5be6cb89",
+    "artifacts/phase22/integration/v60-long-timeout-regression/diagnostic.py": "e38c78a74a2b86959705fc831d077c22f2eb4e5909723f326975c95dbb024457",
+    "artifacts/phase22/integration/v60-long-timeout-regression/sampler-selfcheck.py": "068cc61944f9194cc64bebcab6805341d534cc850713f475b3e342e796ae8414",
+    "artifacts/phase22/integration/v60-long-timeout-regression/sampler-selfcheck/packet.json": "cfc1b259ed2442d97a08b897babe1d2fdcc3a5aceb8860f4c7d316afa2818547",
+    "artifacts/phase22/integration/v60-long-timeout-regression/assessment.json": "668d02e28799ecbfdb45bc7e060412bcbb3675bad789781b36def6499902d1f5",
+    "artifacts/phase22/integration/v60-long-timeout-regression/validation.json": "b6706bdb64b3c0fc71eeac5187ead80290b56428981e42993448ac802c36cb3c",
+    "artifacts/phase22/integration/v60-long-timeout-regression/budget-closed.json": "120db835061949bc54bdcb259d5395008169498584907bd5340fa8f3667915f5",
+    "artifacts/phase22/integration/v60-long-timeout-regression/raw/packet.json": "299bb0a38fbd85d2bea623f1ffb86f67f7e0d1d52be06acaad2a369f55ca24ec",
+    "artifacts/phase22/integration/v60-long-timeout-regression/execution.json": "7b86ff8f1139941ff1ae632fc8666bb6556b9baad8b9690ace34cb317ace7a5a",
+    "artifacts/phase22/integration/v60-long-timeout-regression/assess-and-prepare.py": "608688073ff98d1d0fef588e58f72d7bd09416adac91366c2f081f66650b4593",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v54-faf-fastpath-sampling/assessment.json": "2c91538a793e5527690098941a949d9887b6dccb84807988b5e37194f1454e49",
+    "artifacts/phase22/integration/v54-faf-fastpath-sampling/source-assessment.json": "3aea4ec93c420cdb89b0bed86265f231bc3b0b333e3b3ffa9d11b42cca8e2020",
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json": "5f70268142fca7b6b26ee0ec953e8273ebecccc31e26b276d92fe556e92e06b1"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "sampler_reuse": {
+    "prior_proposal_sha256": "a225960b9179168b1de46e76043e5a62b90a7b8db9b2ced4d929833a654ae7f3",
+    "prior_sampler_sha256": "40651d959402b5cc4f6239d4e1e4bfd16cb150dc3b2671c41388751e1a3ece87",
+    "allowed_changes": "Worker and synthetic helper: only frozen root/revision/source identity and output/asset paths. Diagnostic launcher additionally changes its single supervisor ceiling from 300 to 1800 seconds. Sampling cadence, stack cap, snapshots, timer restoration and identity-before-target logic remain unchanged. A stale dc73715 control rejects before timer or target access."
+  }
+}

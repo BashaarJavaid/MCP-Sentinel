@@ -1,0 +1,222 @@
+{
+  "recorded_at": "2026-09-13T23:01:59.781098+00:00",
+  "scanner": {
+    "revision": "7bf4c6e1cf0c8d83229b1273f80737e7cacc5b82",
+    "source_sha256": "40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "approval_sha256": "eadbcc984e9a2cbb99023281fc8fa645dc93cb25969b680046f6e25953eab7c1",
+  "validation_sha256": "b6706bdb64b3c0fc71eeac5187ead80290b56428981e42993448ac802c36cb3c",
+  "execution_gate_passed": false,
+  "source_assessment_complete_for_retained_outputs": true,
+  "budget": {
+    "planned": 205,
+    "attempted": 1,
+    "completed": 0,
+    "incomplete": 1,
+    "unstarted_closed": 204,
+    "remaining": 0,
+    "closed": true
+  },
+  "input": {
+    "id": "faf-read-root-vulnerable",
+    "family": "faf-read-root",
+    "repository": "Wolfe-Jam/faf-mcp",
+    "language": "typescript",
+    "split": "held_out",
+    "variant": "original",
+    "label": "vulnerable",
+    "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+    "scan_root": ".",
+    "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+    "prerequisites": [
+      "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+      "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+      "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+    ],
+    "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+    "runtime_applicability": "unsupported",
+    "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+    "runtime_configuration": null,
+    "evidence": [
+      {
+        "path": "src/index.ts",
+        "start_line": 1,
+        "end_line": 18,
+        "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "src/server.ts",
+        "start_line": 1,
+        "end_line": 139,
+        "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "src/handlers/tools.ts",
+        "start_line": 1,
+        "end_line": 3302,
+        "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "src/handlers/fileHandler.ts",
+        "start_line": 1,
+        "end_line": 235,
+        "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "src/handlers/engine-adapter.ts",
+        "start_line": 1,
+        "end_line": 877,
+        "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "package.json",
+        "start_line": 1,
+        "end_line": 118,
+        "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      },
+      {
+        "path": "tsconfig.json",
+        "start_line": 1,
+        "end_line": 33,
+        "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+        "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+      }
+    ],
+    "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+    "parent": null,
+    "transformation": null,
+    "overlay": null,
+    "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+  },
+  "attempt": {
+    "batch": "first",
+    "command": [
+      "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+      "-I",
+      "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v59-timeout-policy/evaluate.py",
+      "child",
+      "faf-read-root",
+      "faf-read-root-vulnerable",
+      "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v60-long-timeout-regression/raw/01-first-faf-read-root-vulnerable"
+    ],
+    "directory": "01-first-faf-read-root-vulnerable",
+    "group": "faf-read-root",
+    "input_id": "faf-read-root-vulnerable",
+    "state": "incomplete",
+    "timing": {
+      "child_resource_after": [
+        4863.469351,
+        713.598521,
+        756105216,
+        0,
+        0,
+        0,
+        71392358,
+        221497,
+        0,
+        0,
+        0,
+        4,
+        2,
+        1,
+        93081,
+        31080250
+      ],
+      "child_resource_before": [
+        0.114719,
+        0.065078,
+        12107776,
+        0,
+        0,
+        0,
+        10603,
+        673,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        27,
+        426
+      ],
+      "cleanup_verified": true,
+      "elapsed_including_cleanup_seconds": 1801.235772666987,
+      "elapsed_seconds": 1800.0216723750345,
+      "remaining_group_killed": false,
+      "returncode": 1,
+      "timed_out": true
+    },
+    "label": "vulnerable",
+    "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+    "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca",
+    "repository": "Wolfe-Jam/faf-mcp",
+    "language": "typescript",
+    "actual_language": "typescript",
+    "language_metadata_note": "The language field preserves the original manifest; actual_language follows its hash-bound execution configuration.",
+    "report_present": false
+  },
+  "harness_results_sha256": "6fe14ed0dbb38ad58240764c32c4a665e575abb71424be7b4ad66ba8c7e30706",
+  "whole_seconds": 1800.0216723750345,
+  "whole_including_cleanup_seconds": 1801.235772666987,
+  "harness_wall_duration_ms": 1798592,
+  "sequence_seconds": 1809.6505332500674,
+  "report_count": 0,
+  "finding_count": null,
+  "warning_count": null,
+  "surface_count": null,
+  "named_detection": null,
+  "negative_discrimination": null,
+  "ordered_repeat_pairs": 0,
+  "source_explanation": "The whole-input supervisor reached 1800 seconds and sent SIGTERM. Its SystemExit handler bypasses the measurement harness except Exception while the finally writer retains an incomplete result with null reason. The outer evaluator separately records AssertionError at its completion check. No native JSON/SARIF report exists; detection and diagnostic counts are unknown. No stack or stage trace identifies the expensive operation. The latest v54 profile measures a36f696 before the credential correction and canonical bypass. Current 7bf4c6e changes only the shared timeout from dc73715; the five-minute and thirty-minute attempts both failed without reports. Their different stop limits do not measure a speedup or slowdown. The longer deadline alone did not establish completion.",
+  "source_bindings": {
+    "scripts/phase20_measurements.py": "37364932cd51d52caed4b95ede2246f48df1bcf40c734431997801af0cf915c2",
+    "src/sentinel/static/engine.py": "a50ab1334974b7429a4ac62cad70b005d8facb2d3a2298a1a2c54137df52efe5",
+    "src/sentinel/static/workers.py": "cc97d0b9bb3fae9f2c8205162137e0ae0ae2fd164d681ec24e27c0a4140b113c",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9"
+  },
+  "resource_interpretation": "Retained child resource totals include concurrent workers. Their summed CPU exceeds wall time; that is not the elapsed input duration or proof of a particular hotspot. No profile, stack sampling or target execution occurred.",
+  "compatibility": "All181prior-language observations and23remaining four-source observations were unstarted and closed. Current source compatibility and corrected four-source discrimination remain unestablished. Prior TS94/Python87/whole Linux results retain original scanner identities.",
+  "original_fresh_four_gates_unchanged": true,
+  "original_fresh_four_gates_passed": 0,
+  "paid_calls": 0,
+  "profiles": 0,
+  "retries": 0,
+  "target_execution": false,
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "prior_profile": {
+    "path": "artifacts/phase22/integration/v54-faf-fastpath-sampling/assessment.json",
+    "sha256": "2c91538a793e5527690098941a949d9887b6dccb84807988b5e37194f1454e49",
+    "scanner_revision": "a36f696c504e4e8d1f90de5dc84e8942d06316ca",
+    "current_residual_cost_established": false
+  },
+  "joint_correction": {
+    "source_assessment_sha256": "2c1d24b4f779e5d9d81dafe433927e94564a0397faedbff097a752344f390a16",
+    "correction_validation_sha256": "b36d218b3e2f07ea63e4d1755e28b29b12ab3191590cfa37f768064b47cf2de9",
+    "bypass_validation_sha256": "02f4cd094d92dda0c8910375ee668857d8fd75eadf4782a5197dd70a479514c0",
+    "engineering_sha256": "76082ca57288b1a28d972bf94581eab2b5747c489c35e2bb714ca7f49c850654",
+    "optimization_budget_closed_sha256": "18f4bc4c972fc0bc6a55625b97a5298cc6bae64c0424c594cf1336cc6cf40281",
+    "approved_semantic_delta_retained": true,
+    "bypass_equivalence_to_correction_only_reference_retained": true,
+    "old_state_equivalence_claimed": false,
+    "native_completion_established": false,
+    "speedup_established": false
+  },
+  "timeout_policy": {
+    "authorization_sha256": "636800aac0b16750c1c05d7477cb00b151521577fb48399f8bc759be1918ac44",
+    "confirmation_sha256": "73c44ec8a14bce4b4571a9afc3d85dac71bdb5db755174a907424f179386ba25",
+    "source_proof_sha256": "2fc230d6321dacecf15ddfa1d8a8b9c3bb2b478fb7604ca04ae36bcb0d7c219a",
+    "shared_limit_seconds": 1800,
+    "policy_retained": true,
+    "completion_established": false
+  }
+}
