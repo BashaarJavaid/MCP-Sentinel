@@ -1,6 +1,33 @@
 # Phase 22 technical expansion
 
-## Current v54 sampled timeout: source-only decision pending
+## Current v55 singleton attempt: equivalence failure retained
+
+The approved broad singleton cache bypass failed its synthetic environment
+equivalence prerequisite and was reverted. A warm cache interns equal Values;
+direct return changes identity-sensitive credential-marker merging for a tainted
+contained-false internal state. Real-target reachability of that state is not
+established. Initial whole-flow comparison flags were a helper-object comparison
+defect; structural reassessment preserves equal full flow state and confirms the
+independent environment delta. All evidence remains visible. **One failed attempt
+consumed, zero remaining; product restored exactly to tested `a36f696`.**
+
+`v55-singleton-combine/optimization-proposal.json` prepares one **unapproved,
+unimplemented** attempt restricted to the canonical `UNKNOWN_VALUE` singleton
+and empty requested key. Every other input must retain cache dispatch. Complete
+state and interning checks remain required; eligibility frequency and speedup
+are unknown. No corpus/profile/retry, target execution or paid call is authorized.
+
+All three native timeouts, partial profiles, invalid stale-root attempt and
+original fresh failures remain source-bound. The audit retains **290 rows
+(89 original + 201 added)**, including six unaccepted historical closure proposals
+and the new unresolved equivalence failure. Restored `a36f696` retains 2,386 tests /
+36 skips in local and all 12 hosted suites, 29 normal CI jobs and docs passed;
+combined coverage 89.98%, branch-only 85.85%. This is no new hosted code pass.
+**Phase 22 remains incomplete.** Git remains 312/1,040 incomplete; paid benchmark
+and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v54 sampled timeout: source-only decision pending
 
 The approved single profile at frozen **`a36f696`** retains **four verified worker
 identities and 78,769 partial samples**. Whole input **300.007176 seconds**;

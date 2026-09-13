@@ -1,0 +1,23 @@
+diff --git a/src/sentinel/static/path_flow.py b/src/sentinel/static/path_flow.py
+index 3ab4db1..6c7ba06 100644
+--- a/src/sentinel/static/path_flow.py
++++ b/src/sentinel/static/path_flow.py
+@@ -53,6 +53,18 @@ UNKNOWN_VALUE = Value()
+ 
+ 
+ def combine(values: list[Value], key: str = "") -> Value:
++    if len(values) == 1:
++        first = values[0]
++        if (not key or key == first.key) and (
++            first.sources
++            or not (
++                first.contained
++                or first.checked_path_parent
++                or first.option_safe
++                or first.url_checks
++            )
++        ):
++            return first
+     return _combine(tuple(values), key)
+ 
+ 
