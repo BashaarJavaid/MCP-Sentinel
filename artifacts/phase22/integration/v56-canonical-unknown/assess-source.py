@@ -1,0 +1,50 @@
+"""Assess the closed eviction failure and prepare an explicit contract revision."""
+import ast
+import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+OUT=Path(__file__).resolve().parent;BASE=OUT.parent;ROOT=Path.cwd()
+read=lambda p:json.loads(p.read_text())
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+def save(name,value):
+    with (OUT/name).open('x') as stream:json.dump(value,stream,indent=2);stream.write('\n')
+v=read(OUT/'synthetic-validation.json')
+assert not v['passed'] and v['cases'][0]['narrow_equivalent'] and v['cases'][1]['narrow_equivalent']
+case=v['cases'][2]; baseline=case['results']['baseline']; narrow=case['results']['narrow']
+assert not baseline['same_result_identity'] and narrow['same_result_identity']
+assert baseline['environment']!=narrow['environment'] and baseline['flow']==narrow['flow']
+assert baseline['before_unknown']['currsize']==narrow['before_unknown']['currsize']==4096
+assert baseline['after_unknown']['misses']==baseline['before_unknown']['misses']+1
+assert narrow['after_unknown']==narrow['before_unknown']
+assert sha(ROOT/'src/sentinel/static/path_flow.py')==sha(OUT/'baseline-path-flow.py')==v['baseline_sha256']
+assert sha(OUT/'candidate-path-flow.py')==v['candidate_sha256']
+sections=[]
+for name in ['src/sentinel/static/path_flow.py','src/sentinel/static/rules/sent016.py']:
+    path=ROOT/name;source=path.read_text()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node,ast.FunctionDef):
+            code=ast.get_source_segment(source,node)
+            if node.name in {'combine','_combine','_credential_guard_facts'} or any(key in code for key in ['absent_markers','opt_in_markers','helper_state_prefixes','#absent:','#credential:opt-in:','#credential:excluded:']):
+                sections.append({'file':name,'source_sha256':sha(path),'function':node.name,'line':node.lineno,'source':code})
+assessment={'assessment_passed':True,'candidate_equivalence_passed':False,'baseline_sha256':v['baseline_sha256'],'candidate_sha256':v['candidate_sha256'],'source_restored':True,'synthetic_validation_sha256':sha(OUT/'synthetic-validation.json'),'retained_prior_identity_cases':2,'prior_broad_failure_reproduced':True,'eviction_cases':1,'cache_capacity':4096,'cache_fill':4095,'eviction_summary':{'baseline_before_empty':baseline['before_unknown'],'baseline_after_empty':baseline['after_unknown'],'baseline_before_merge':baseline['before_merge'],'narrow_before_empty':narrow['before_unknown'],'narrow_after_empty':narrow['after_unknown'],'narrow_before_merge':narrow['before_merge']},'environment_equal':False,'full_flow_equal':True,'inputs_unchanged':True,
+    'source_cause':'A first tainted singleton and4095distinct other entries fill the LRU. Baseline then caches UNKNOWN_VALUE and evicts the tainted entry; a second equal tainted Value returns separately. The narrow bypass keeps the tainted entry, so the second call returns the first object. CredentialFlow.merge compares marker identity only, selecting UNKNOWN_VALUE in the baseline and the nonempty marker in the candidate. All other structural flow fields agree. The root interaction is cache-dependent symbolic credential joining, not a change to Value equality or LRU size.',
+    'consumer_assessment':'Guard constructors establish contained=True absent/excluded/opt-in markers. _credential_guard_facts filters absent and selected markers by contained, assign checks contained, Python try-path partitioning checks contained, and SDK option extraction checks contained. Helper/launch state copies retain marker values and require review for downstream effects. The current adversarial contained=False marker is not proved reachable from a real target. No finding, alert or runtime exploit change is claimed.',
+    'contract_consequence':'The exact approved complete-state baseline equivalence prerequisite failed, including the new eviction case. It cannot be weakened retrospectively. One attempt closed; product restored to a36f696. No further narrowing is implemented. Any deliberate identity-independent credential join changes this baseline internal-state behavior and requires an explicit prospective scope/contract revision before source changes.',
+    'remaining_checks':'Broader Python/TypeScript metadata/key matrix, avoided-work matrix and affected/full local/hosted engineering were not run after the prerequisite failure. Existing a36f696 engineering remains source-bound; final docs/package restoration checks are separate.',
+    'source_sections':sections,'prior_all_combine_and_identity_sites':{'path':'artifacts/phase22/integration/v55-singleton-combine/assessment.json','sha256':sha(BASE/'v55-singleton-combine/assessment.json'),'unchanged_product_source':True},
+    'optimization_attempts':1,'optimization_remaining':0,'corpus_observations':0,'profiles':0,'paid_calls':0,'technical_acceptance_received':False,'phase22_complete':False}
+save('assessment.json',assessment)
+previous=read(BASE/'v55-singleton-combine/optimization-proposal.json')
+proposal={'status':'prepared_not_approved_not_started','recorded_at':datetime.now(timezone.utc).isoformat(),'starting_delivery':'8df485e7e2dfbea964f8b71db39403f8f3ce17ad','scanner':previous['scanner'],'target':'CredentialFlow.merge identity-independent equal-marker join, then canonical UNKNOWN_VALUE combine bypass','target_source_sha256':{name:sha(ROOT/name) for name in ['src/sentinel/static/rules/sent016.py','src/sentinel/static/path_flow.py']},'failure_assessment_sha256':sha(OUT/'assessment.json'),
+    'approval_kind':'Explicit prospective failed-gate scope revision plus one joint source-only correction/optimization attempt; not acceptance of any historical failure or Phase22.',
+    'proposed_changes':['In CredentialFlow.merge, make the existing all-branches-same-marker fast path accept is OR complete Value equality, using the existing fallback UNKNOWN_VALUE for missing entries. Preserve every unequal-marker, contained, HTTP-selection and other merge path. Do not change credential guard predicates or suppress findings.','Only after validating that semantic correction, add the exact two-line canonical UNKNOWN_VALUE singleton/no-key bypass to path_flow.combine. Preserve _combine and its4096-entry LRU and all other inputs. No additional optimization target.'],
+    'prospective_contract':'Equal immutable absent/excluded/opt-in marker Values merge to the first Value irrespective of cache interning or eviction. This intentionally changes a36f696 when equal but distinct contained=False markers previously fell through to UNKNOWN_VALUE. Retain the original full baseline delta; do not label this a semantics-preserving optimization relative to a36f696. For the bypass, compare against the credential-merge-corrected reference and require complete Value/environment/full-flow equivalence with no exclusions.',
+    'bounds':{'joint_source_only_attempts':1,'credential_merge_corrections':1,'canonical_unknown_bypass_attempts':1,'corpus_observations':0,'profiles':0,'comparators':0,'retries':0,'new_repositories':0,'paid_calls':0,'target_execution':False,'runtime_campaigns':0},
+    'verification':['Preserve exact a36f696 source and both failed candidates. Demonstrate both retained broad and canonical eviction failures on their original sources; preserve these as historical failures, not revised passes.','Validate corrected credential joining for all equal/shared/distinct and unequal markers, missing branches, contained flags, HTTP success selection, absent/excluded/opt-in sets and full Value metadata. The only permitted baseline internal-state delta is the explicitly revised equal-marker join; trace every downstream difference individually and stop on any unrelated delta. Verify direct guard facts and caller-to-operator synthetic findings, captures, warnings and coverage: uncontained markers must not establish absent-caller or operator-opt-in facts. Reachability remains a separate disclosed question.','Before adding the bypass, retain the correction-only reference. Against that reference require complete Value, Python/TypeScript environments and structural full flow state including helper backreferences across cold/warm/saturated/evicted caches, mixed identities, canonical/other empty Values, all key/guard/source/metadata variants, null/missing/undefined and empty/one/two/many inputs. No new canonicalization exclusions.','Count synthetic cache dispatch: only canonical UNKNOWN_VALUE with one input and empty key may bypass; all other dispatch remains unchanged. On the first verified unrelated semantic, bypass equivalence, guard-fact or avoided-work failure, close the entire joint attempt without another target or retry.','If prerequisites pass, complete affected/full local and all hosted engineering suites, static/package/schema/lock/docs checks, source-bound zero-call production/runtime compatibility, and freeze. Prepare a separate exact both-language regression proposal; no corpus/profile observation is included here.'],
+    'limits':'The proposed credential semantic correction and bypass are unimplemented and unapproved. The internal cache-dependent marker difference is demonstrated; target-level detection impact/reachability is not. Canonical UNKNOWN_VALUE frequency is unmeasured. No percentage speedup or300-second completion is promised. Original fresh failures, native timeouts, partial/invalid profiles, both failed singleton attempts and all closed budgets remain unchanged. No historical limitation or failed gate is accepted by this prospective revision.',
+    'not_authorized':['another correction/optimization target or attempt','new cache, resource/deadline change or analysis truncation','corpus or profile execution','target build/install/tests/endpoints','paid calls','merge/ready/release/outreach/Phase23'],'technical_acceptance_received':False,'phase22_complete':False}
+save('optimization-proposal.json',proposal)
+print('Assessed retained eviction failure; explicit prospective credential-join contract revision prepared, not approved.')
+print(sha(OUT/'optimization-proposal.json'))

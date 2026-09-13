@@ -1,6 +1,33 @@
 # Integration progress — not technical acceptance
 
-## Current v55 singleton attempt: equivalence failure retained
+## Current v56 canonical bypass: eviction failure retained
+
+The approved canonical `UNKNOWN_VALUE` bypass passes the two retained ordinary
+identity cases, then fails synthetic environment equivalence after LRU eviction.
+Skipping an empty entry changes whether a tainted value remains interned; the
+identity-only credential-marker join then returns different environments. Full
+flow fields agree and inputs are unchanged. Real-target reachability/impact of
+the adversarial contained-false marker remains unestablished. **One attempt
+consumed, zero remaining; exact tested `a36f696` source restored.**
+
+`v56-canonical-unknown/optimization-proposal.json` prepares an **unapproved
+prospective contract revision**: equal immutable credential markers would join
+consistently by identity or complete equality, followed by the canonical bypass.
+The specified baseline marker delta must remain visible; bypass equivalence must
+then hold against a correction-only reference with no exclusions. Neither edit
+is implemented. No speedup or 300-second completion is promised. No corpus,
+profile, retry, target execution or paid call is included.
+
+All prior native/profile/fresh failures and both singleton failures remain
+source-bound and closed. The audit retains **297 rows (89 original + 208 added)**,
+including six unaccepted historical closure proposals. Restored `a36f696`
+retains 2,386 tests / 36 skips locally and in all 12 hosted suites, 29 normal CI
+jobs and docs passed; combined coverage 89.98%, branch-only 85.85%. This is no
+new hosted code pass. **Phase 22 remains incomplete.** Git stays 312/1,040
+incomplete; paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15
+unchanged. No merge, ready-state change, release, outreach or Phase 23.
+
+## Historical v55 singleton attempt: equivalence failure retained
 
 The approved broad singleton cache bypass failed its synthetic environment
 equivalence prerequisite and was reverted. A warm cache interns equal Values;
