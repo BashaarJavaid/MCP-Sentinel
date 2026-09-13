@@ -1,0 +1,206 @@
+{
+  "recorded_at": "2026-09-13T04:27:44.414792+00:00",
+  "candidate": "17b4784363f35096a13d33913e98967b24cbad14",
+  "authorization_sha256": "2469bf48bea2e88c7c3b17a056be24327389494009e4866a498210b00cbb95e7",
+  "original_diagnosis_sha256": "e923a960f4472d56c59ed6aa010c571d706caf3ae34568e3d8e7dcb6cb9a11ef",
+  "original_assessment_sha256": "f895435b935290a69c82ae7a7bc3f0216b31766a201ef72eca7dcade308d52da",
+  "source_and_test_files_sha256": {
+    "src/sentinel/static/discovery.py": "dc3fc66c30df5a4280cffb7f018077eb2b17d7e600836181aca507bde28c93fb",
+    "src/sentinel/static/path_flow.py": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+    "src/sentinel/static/engine.py": "f6d0d25e68cc9295032d15fb3bae4682e507c13d90cb83d6fb8f9d466771528e",
+    "src/sentinel/static/rules/sent015.py": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+    "src/sentinel/static/typescript_path_flow.py": "f7764bf9829bac73ed71e6503c3e381de2a7f57c55a42512a3c5d7e5ce6edd3f",
+    "src/sentinel/static/typescript_registration_flow.py": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+    "tests/test_flow_recovery.py": "666048c8d211ab10e6e0f5520de8df34a971cfca01f5488bbf6c82b5f42a21e7",
+    "tests/test_containment.py": "e07a130ebe770de025248b2c2ed4d8027cb258e81428f4c205fa0ad8128f9aba",
+    "docs/rules.md": "40063599d708def710134c23ca8d10dae315f23a5eef17ea72f7e2f5fcef7c57"
+  },
+  "rows": [
+    {
+      "case_id": "faf-read-root",
+      "source_recovery": "The existing module-startup path now considers New expressions resolving to included classes. Imported class values come from initialization of their defining module, including its recorded replacement/escape effects. Existing instance forwarding reaches scanner-owned dictionary/switch/record/Promise.race read controls. No target module is imported or executed.",
+      "guard_recovery": "The unconditional path-operation loop is widened once and every return alternative retained. Only the listed intact path calls and local array operations qualify; arbitrary effects, breaks and nested loops remain unsupported. A canonical fallback retains lexical normalization; a raw-input fallback does not. Operator root arrays require actual nonempty cardinality or a checked length branch before fallback; filter, flatMap and find cannot borrow map cardinality.",
+      "controls": {
+        "test_imported_class_constructed_by_actual_startup": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 29,
+          "end_line": 48
+        },
+        "test_imported_constructor_requires_actual_intact_startup": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 230,
+          "end_line": 250
+        },
+        "test_startup_dictionary_forwarding_and_checked_read": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 311,
+          "end_line": 354
+        },
+        "test_infinite_canonicalization_loop_keeps_all_return_alternatives": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 415,
+          "end_line": 452
+        },
+        "test_operator_root_fallback_requires_nonempty_collection": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 536,
+          "end_line": 569
+        },
+        "test_path_loop_summary_rejects_unproven_effects": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 633,
+          "end_line": 657
+        }
+      },
+      "limits": "The loop summary proves neither termination nor physical identity. Lexical-only containment keeps a physical-gap candidate. Actual FAF detection/guard support and all newly reachable tool paths remain unmeasured at this candidate.",
+      "actual_corpus_status": "No new observation; original first-frozen gate failed."
+    },
+    {
+      "case_id": "no-bash-write-prefix",
+      "source_recovery": "Equality and separator-prefix alternatives share a target-bound lexical fact even when repeated normalization calls give operator roots different symbolic identities. Checked record returns preserve the alternatives only when every tainted alternative has the fact; ignored flags, changed records and raw prefixes remain conservative.",
+      "guard_recovery": "A component-bounded lexical check qualifies the existing finding as a remaining physical-containment gap. It does not establish symlink/race safety or suppress the candidate. The common fact requires a canonical non-caller root and canonical target.",
+      "controls": {
+        "test_checked_record_preserves_lexical_component_boundary": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 51,
+          "end_line": 77
+        },
+        "test_compound_record_guard_is_checked_and_unmodified": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 280,
+          "end_line": 307
+        }
+      },
+      "limits": "The original vulnerable after-prefix explanation defect and four original fixed/control false-alert occurrences remain in frozen reports. Current actual report text and support require a separately approved exposed measurement.",
+      "actual_corpus_status": "No new observation; original first-frozen gate failed."
+    },
+    {
+      "case_id": "lightning-discover-linklocal",
+      "source_recovery": "A single module try-import with an ImportError-to-None fallback creates a maybe-None external identity. Only the established available branch narrows it, including propagation into included helper calls. Shadowed ImportError, global writes, member mutation and escaped module identities are excluded. Existing client construction and request logic then apply.",
+      "guard_recovery": "A successful bound stdlib ip_address result is non-None, preserving the literal-address branch and existing URL qualification. Synthetic checks require the actual caller URL, terminal rejection and an intact import/client. DNS failure paths remain unresolved.",
+      "controls": {
+        "test_available_optional_httpx_import_reaches_actual_request": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 99,
+          "end_line": 118
+        },
+        "test_optional_import_requires_available_unmodified_branch": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 161,
+          "end_line": 181
+        },
+        "test_optional_global_availability_reaches_included_helpers": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 456,
+          "end_line": 478
+        },
+        "test_optional_client_retains_literal_guard_and_dns_limit": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 365,
+          "end_line": 411
+        }
+      },
+      "limits": "The supported scope is initial literal IPv4 rejection, not destination/DNS/redirect safety. Optional dependency availability is a source prerequisite. Actual Lightning reports remain unmeasured at this candidate.",
+      "actual_corpus_status": "No new observation; original first-frozen gate failed."
+    },
+    {
+      "case_id": "engram-export-home",
+      "source_recovery": "Function-local external imports use actual import declarations and canonical namespace/class identities through the existing mutable value flow. Included local modules take precedence, and alias replacement, namespace/member mutation, escape and reimport after mutation are checked. Bound pathlib.Path and Path.home return path objects without importing pathlib from the target.",
+      "guard_recovery": "Resolution produces a distinct identity from the original path. A relative_to guard on the resolved copy cannot suppress a sink using the reconstructed original. The finding can retain an explicit resolved-copy qualification only for the checked originating input; derived paths retain every tainted origin and unrelated/replaced inputs lose the qualification.",
+      "controls": {
+        "test_function_local_pathlib_import_reaches_actual_write": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 80,
+          "end_line": 96
+        },
+        "test_local_import_identity_requires_intact_value": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 130,
+          "end_line": 146
+        },
+        "test_local_import_aliases_retain_namespace_mutations": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 502,
+          "end_line": 519
+        },
+        "test_home_guard_does_not_protect_reconstructed_original": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 192,
+          "end_line": 216
+        },
+        "test_manifest_reconstruction_keeps_only_initial_copy_evidence": {
+          "path": "tests/test_flow_recovery.py",
+          "start_line": 583,
+          "end_line": 622
+        }
+      },
+      "limits": "Stable operator home, environment, cwd and ordinary filesystem assumptions are source prerequisites. A resolved-copy qualifier expressly leaves equivalence and containment at use unestablished, including after cwd change. Four older test expectations that suppressed original-path sinks were tightened; their original source is preserved. Actual Engram manifest reports remain unmeasured at this candidate.",
+      "actual_corpus_status": "No new observation; original first-frozen gate failed."
+    }
+  ],
+  "synthetic_checks": {
+    "v45-class-module-effects": {
+      "receipt_sha256": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519",
+      "log_sha256": "8e15d4cdde7085cf9fd31f88e82611e67eabf1b4542866acbeebff6354deeb7f",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "bf19d65db5a9ee6da7976d14ac65d94d925da3ac18688117bc5cf77f6cbd91cb",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-final-synthetic-controls": {
+      "receipt_sha256": "0a6b13f147d72945ecf75aaf2d6e094d1edaf47977be69ba2e78b88b8a7a01f6",
+      "log_sha256": "7b59d1f0036c07f11edb3c5aba5eb5bf321d492c6bb89cfd18017e48d487dc20",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "3c7f616d41d405c2aebe5121bccd40b92b8986c18ea443745aad9124b374ef62",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-flow-recovery-expanded": {
+      "receipt_sha256": "0aea323b41c5c4dfc2481af3fc18e2977d617ab72860ae0616f9c933e24037bd",
+      "log_sha256": "9ff1fb744bbb889383eee22b6c0094cf3215962b15c79dc1f7c1428f4c222ee1",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "2a370017d179f2af4b1d4851cc18d69366f87a423762a4191163f056aa822987",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-copy-proof-controls": {
+      "receipt_sha256": "9ec9bbe642ec9df79ef164a3283232815af4da7ac4e0eebc029d5da019016322",
+      "log_sha256": "3622571b58cbfca44fb309731c4758bb7c7c0697c20157bdcedb15a08d563078",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "4bf1613204a2009814238090ec2899be51a35bd4946a7d47878049df3a2c91ea",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-collection-length-controls": {
+      "receipt_sha256": "5358ad8af26dee6bdb35ad3387923df81a7a85137961a2b87893a74589c6cc03",
+      "log_sha256": "4f84c7cc9711d5ecddaacde80e7590a2954602e8883d5e0cf03ffb2bf24e7c78",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "3c7f616d41d405c2aebe5121bccd40b92b8986c18ea443745aad9124b374ef62",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-candidate-lint": {
+      "receipt_sha256": "012aeb0cf682e81f31521638008fc80ff493c09750fc0c9b6a8a3cead3f2691e",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "ee5b3459e82f3ab6576ccc58acb10b96c7408c194d326f399628207810beccac",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-candidate-mypy": {
+      "receipt_sha256": "cba14fed6597c0f3ace4de7ed0f584e85799e22860a91e203a3df9d781623b4b",
+      "log_sha256": "e0882189711bb25ec70ba990a19f0fd4a9bc195cd7cd2484ec95ec37251d583c",
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "ee5b3459e82f3ab6576ccc58acb10b96c7408c194d326f399628207810beccac",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    },
+    "v45-format-check": {
+      "receipt_sha256": "fad2d7c526094457debb9949e45352ca9f16e887e9bf9a9e02c8171ff9c664ac",
+      "log_sha256": "2db62cbf405a23e5ee25cc14249179fe9c17f40a1b3b99d839d497ad879c7384",
+      "source": "17b4784363f35096a13d33913e98967b24cbad14",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qualification": "Exact recorded source snapshot; earlier controls are not relabeled as a full final suite."
+    }
+  },
+  "reviewer": "Same implementation agent; no independent human validation.",
+  "full_engineering": "Pending; this source review does not freeze or pass the candidate.",
+  "compatibility_required": "Both shared Python and TypeScript paths changed. Prior 87 Python observations at8c62567 and94 TypeScript observations at2e0efb2 are historical references, not proof of current-source compatibility. The four new repositories also require separately approved exposed regression. Preserve whole25+45+45 historical Linux timing sources and never pool language subsets into a new whole batch.",
+  "new_corpus_observations": 0,
+  "paid_calls": 0,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

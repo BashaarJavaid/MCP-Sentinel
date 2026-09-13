@@ -1,4 +1,26 @@
-# Integration evidence, batches 1–72 and closeout audit
+# Integration evidence, batches 1–73 and closeout audit
+
+## Recovery evidence seal 73
+
+[Seal 73](evidence-v73.json) retains **704 members / 18,413,816 raw bytes**,
+archive SHA-256 `464278ce1fbea2d0d61c940e24e3d112a59b107901e0c361d9effc141d60a958`. It binds the verified `17b4784` source
+recovery, local/hosted engineering, frozen scanner, unapproved 205-observation
+proposal, 227-row audit, helpers, failed checks and supplemental v44 delivery.
+All 72 prior archives and every member were verified; old archives/indexes remain
+unchanged. Restore after seals 1–72 in numeric order into separate safe staging,
+reject unsafe paths/symlinks and verify archive/member hashes before extraction.
+Stop on any unexplained existing-file conflict.
+
+The [seal-log binding correction](v45-seal-log-binding-correction.json) records that
+the archiver captured its own empty wrapper log before printing its final result.
+The indexed empty snapshot is restored at its original path; the intact completed
+output is retained separately as [v45-seal-completed.log](v45-seal-completed.log).
+No archive/index or completed output was altered or discarded. This correction,
+post-seal bindings and future delivery readback are supplemental, outside seal 73.
+Future sealing must keep its active log outside the sealed tree. Current owning
+docs and these supplemental receipts are directly tracked; no self-sealing claim.
+**Phase 22 remains incomplete**: evaluation approval, actual regression/source
+assessment, explicit technical acceptance and verified accepted closeout remain.
 
 ## Evaluation evidence seal 72
 
@@ -15,20 +37,24 @@ Current owning docs and post-seal bindings are directly tracked. The delivery
 readback will be a supplemental post-commit receipt, outside the commit it verifies.
 Phase 22 remains incomplete; this seal records four failed fresh gates, not acceptance.
 
-## Current v45 source recovery: engineering verification pending
+## Current v45 source recovery: verified, regression approval pending
 
-The user approved the focused source-only recovery proposal by replying
-`continue`. Shared startup, import, path-return and guard corrections are now
-implemented with scanner-owned synthetic controls. Full engineering verification,
-a frozen corrected scanner and a separately approved exposed-regression proposal
-remain before any new corpus observations. **No new corpus observation or paid
-call has occurred.** No technical acceptance or limitation waiver is inferred.
-The original 24 observations and all four failed fresh gates at `2e0efb2` remain
-unchanged. Earlier engineering and evaluation passes retain their actual source
-bindings; they are not current-code passes for this correction.
-**Phase 22 remains incomplete.** Git remains 312/1,040 incomplete, paid benchmark
-and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
-ready-state change, release, outreach or Phase 23 is authorized.
+Source recovery at `17b4784` passes **2,380 tests / 36 skips** locally and in all
+12 hosted suites; all 29 normal CI jobs and docs pass. Local combined branch-enabled
+coverage is 89.98% (branch-only 85.85%). Packaging, isolation and six exact zero-call
+production replays are verified. The [review packet](v45-four-source-recovery/summary.md) binds the corrected
+scanner and an **unapproved 205-observation exposed/compatibility proposal**:
+24 four-repository + 94 prior TypeScript + 87 prior Python observations, 110 inputs,
+95 ordered pairs; 120-second target, 300-second maximum, one 1,150-minute sequence.
+**No corrected-scanner corpus observation or paid call has occurred.** Original
+24 first-frozen observations and all four failed fresh gates at `2e0efb2` remain
+unchanged. Later passes would be exposed regression. Accurate lexical/physical and
+resolved-copy qualifiers retain their source prerequisites and unresolved safety.
+The audit retains all 227 requirements; no historical failure or limitation is
+accepted. **Phase 22 remains incomplete** pending separate evaluation approval,
+source assessment, explicit technical acceptance and verified closeout. Git stays
+312/1,040 incomplete, paid benchmark/pilots deferred, Phase 21 incomplete and
+Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
 
 ## Historical v44 four-repository result: failed fresh gates, recovery proposed
 
