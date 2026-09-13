@@ -12,6 +12,8 @@ new rule IDs.
 
 ### Fixed
 
+- Merge equal credential markers consistently regardless of cache interning, and
+  bypass cache dispatch for the canonical unknown singleton without a key override.
 - Recover actual startup through imported TypeScript classes, checked path-return
   facts, and source-bound Python imports. Keep reconstructed paths as qualified
   candidates instead of treating a guard on a resolved copy as full protection.

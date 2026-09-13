@@ -11,6 +11,86 @@ from sentinel.static.engine import run_static_scan
 from tests.conftest import NOW, make_target
 
 
+@pytest.mark.parametrize("contained", [False, True])
+@pytest.mark.parametrize("tainted", [False, True])
+@pytest.mark.parametrize(
+    "marker",
+    ["#absent:caller", "#credential:excluded:caller", "#credential:opt-in:FLAG"],
+)
+def test_equal_credential_markers_do_not_depend_on_interning(
+    contained: bool, tainted: bool, marker: str
+) -> None:
+    from dataclasses import replace
+
+    from sentinel.static.discovery import PythonProgram
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent016 import CredentialFlow
+
+    flow = CredentialFlow(PythonProgram(()), RuleRunState(), float("inf"))
+    markers = (
+        flow.opt_in_markers
+        if marker.startswith("#credential:opt-in:")
+        else flow.absent_markers
+    )
+    markers.add(marker)
+    first = Value(
+        key="caller",
+        sources=frozenset({"http:caller"}) if tainted else frozenset(),
+        contained=contained,
+        locations=frozenset({("server.py", 1)}),
+        option_safe=True,
+        checked_path_parent=True,
+        url_checks=frozenset({"host"}),
+    )
+    second = replace(first)
+    assert first == second and first is not second
+    env: dict[str, Value] = {}
+    flow.merge(env, [{marker: first}, {marker: second}])
+    assert env[marker] is first
+    owner = Value(key="owner", operator_credential=True)
+    selected = flow.conditioned_credential(owner, env)
+    if not contained:
+        assert selected is owner
+    elif marker.startswith("#credential:opt-in:"):
+        assert selected.operator_opt_in == frozenset({"FLAG"})
+    else:
+        assert selected.credential_fallback is tainted
+
+
+def test_canonical_unknown_bypass_preserves_credential_join_after_eviction() -> None:
+    from dataclasses import replace
+
+    from sentinel.static import path_flow
+    from sentinel.static.discovery import PythonProgram
+    from sentinel.static.model import RuleRunState
+    from sentinel.static.rules.sent016 import CredentialFlow
+
+    cache = path_flow._combine
+    cache.cache_clear()
+    try:
+        value = path_flow.Value(key="caller", sources=frozenset({"http:caller"}))
+        first = path_flow.combine([value])
+        for index in range(4095):
+            path_flow.combine([path_flow.Value(key=f"other:{index}")])
+        before = cache.cache_info()
+        assert before.currsize == 4096
+        assert path_flow.combine([path_flow.UNKNOWN_VALUE]) is path_flow.UNKNOWN_VALUE
+        assert cache.cache_info() == before
+        second = path_flow.combine([replace(value)])
+        assert first is second
+        flow = CredentialFlow(PythonProgram(()), RuleRunState(), float("inf"))
+        marker = "#absent:caller"
+        flow.absent_markers.add(marker)
+        env: dict[str, path_flow.Value] = {}
+        flow.merge(env, [{marker: first}, {marker: replace(second)}])
+        assert env[marker] is first
+        owner = path_flow.Value(key="owner", operator_credential=True)
+        assert flow.conditioned_credential(owner, env) is owner
+    finally:
+        cache.cache_clear()
+
+
 def test_credential_guard_facts_follow_current_branch_and_mutations() -> None:
     from dataclasses import replace
 

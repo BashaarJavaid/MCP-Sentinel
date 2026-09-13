@@ -53,6 +53,8 @@ UNKNOWN_VALUE = Value()
 
 
 def combine(values: list[Value], key: str = "") -> Value:
+    if len(values) == 1 and values[0] is UNKNOWN_VALUE and not key:
+        return UNKNOWN_VALUE
     return _combine(tuple(values), key)
 
 

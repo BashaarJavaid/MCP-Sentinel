@@ -171,7 +171,10 @@ class CredentialFlow(PathFlow):
             env["#credential:http"] = Value(contained=True)
         for name in (self.absent_markers | self.opt_in_markers) & env.keys():
             first = branches[0].get(name, empty) if branches else empty
-            if all(branch.get(name, empty) is first for branch in branches[1:]):
+            if all(
+                (other := branch.get(name, empty)) is first or other == first
+                for branch in branches[1:]
+            ):
                 env[name] = first
                 continue
             env[name] = (
