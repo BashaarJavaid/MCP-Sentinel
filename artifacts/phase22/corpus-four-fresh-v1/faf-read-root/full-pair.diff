@@ -1,0 +1,432 @@
+--- vulnerable/src/handlers/fileHandler.ts
++++ fixed/src/handlers/fileHandler.ts
+@@ -4,6 +4,7 @@
+ import * as fs from 'fs/promises';
+ import * as path from 'path';
+ import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
++import { confineFileOp, PathConfinementError } from '../utils/safe-path';
+ 
+ /**
+  * Security validator for file paths
+@@ -96,20 +97,23 @@
+   const startTime = Date.now();
+   
+   try {
+-    const { path: filePath } = args;
+-    
+-    // Validate path
+-    const pathValidation = PathValidator.validate(filePath);
+-    if (!pathValidation.valid) {
+-      return {
+-        content: [{
+-          type: 'text',
+-          text: `❌ Security error: ${pathValidation.error}`
+-        }],
+-        isError: true
+-      };
+-    }
+-    
++    const { path: rawPath } = args;
++
++    // Confine to the project root(s) — any file type, but no escape to
++    // /etc, ~/.ssh, or via ../ traversal (CWE-22). Returns symlink-canonical path.
++    let filePath: string;
++    try {
++      filePath = confineFileOp(rawPath);
++    } catch (err) {
++      if (err instanceof PathConfinementError) {
++        return {
++          content: [{ type: 'text', text: `❌ Security error: ${err.message}` }],
++          isError: true,
++        };
++      }
++      throw err;
++    }
++
+     // Check file size
+     const sizeValidation = await PathValidator.checkFileSize(filePath);
+     if (!sizeValidation.valid) {
+@@ -164,20 +168,23 @@
+   const startTime = Date.now();
+   
+   try {
+-    const { path: filePath, content } = args;
+-    
+-    // Validate path
+-    const pathValidation = PathValidator.validate(filePath);
+-    if (!pathValidation.valid) {
+-      return {
+-        content: [{
+-          type: 'text',
+-          text: `❌ Security error: ${pathValidation.error}`
+-        }],
+-        isError: true
+-      };
+-    }
+-    
++    const { path: rawPath, content } = args;
++
++    // Confine to the project root(s) before any write — closes arbitrary file
++    // write outside the project (e.g. overwriting ~/.bashrc).
++    let filePath: string;
++    try {
++      filePath = confineFileOp(rawPath);
++    } catch (err) {
++      if (err instanceof PathConfinementError) {
++        return {
++          content: [{ type: 'text', text: `❌ Security error: ${err.message}` }],
++          isError: true,
++        };
++      }
++      throw err;
++    }
++
+     // Check content size
+     const contentSize = Buffer.byteLength(content, 'utf8');
+     if (contentSize > 50 * 1024 * 1024) {
+--- vulnerable/src/handlers/tools.ts
++++ fixed/src/handlers/tools.ts
+@@ -6,6 +6,7 @@
+ import * as pathModule from 'path';
+ import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
+ import { findFafFile } from '../utils/faf-file-finder.js';
++import { confinePath, PathConfinementError } from '../utils/safe-path';
+ import { VERSION } from '../version';
+ import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
+ // v2.1.1: single-source scoring — same path the championship handler uses.
+@@ -33,13 +34,10 @@
+    */
+   private getProjectPath(explicitPath?: string): string {
+     if (explicitPath) {
+-      // Expand tilde
+-      const expandedPath = explicitPath.startsWith('~')
+-        ? pathModule.join(os.homedir(), explicitPath.slice(1))
+-        : explicitPath;
+-
+-      // Resolve to absolute path
+-      const resolvedPath = pathModule.resolve(expandedPath);
++      // Confine the caller-supplied path. A passed *file* must be a .faf/.fafm
++      // context file; absolute/`..` escapes to secrets are refused. Throws
++      // PathConfinementError, caught centrally in callTool() (CWE-22/73/200).
++      const resolvedPath = confinePath(explicitPath);
+ 
+       // If it's a file path, get the directory
+       const projectDir = fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()
+@@ -253,7 +251,7 @@
+         },
+         {
+           name: 'faf_read',
+-          description: 'Read content from any file on the local filesystem',
++          description: 'Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.',
+           annotations: {
+             title: 'Read .faf File',
+             readOnlyHint: true,
+@@ -273,7 +271,7 @@
+         },
+         {
+           name: 'faf_write',
+-          description: 'Write content to any file on the local filesystem',
++          description: 'Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.',
+           annotations: {
+             title: 'Write .faf File',
+             readOnlyHint: false,
+@@ -668,6 +666,7 @@
+       throw new Error('Tool name must be a non-empty string');
+     }
+     
++    try {
+     switch (name) {
+       case 'faf_status':
+         return await this.handleFafStatus(args);
+@@ -744,8 +743,16 @@
+       default:
+         throw new Error(`Unknown tool: ${name}`);
+     }
+-  }
+-  
++    } catch (err) {
++      // Central catch for path-confinement violations from getProjectPath()
++      // (CWE-22/73/200). Anything else propagates unchanged.
++      if (err instanceof PathConfinementError) {
++        return { content: [{ type: 'text', text: `PATH DENIED\n\n${err.message}` }], isError: true };
++      }
++      throw err;
++    }
++  }
++
+   private async handleFafStatus(args: any): Promise<CallToolResult> {
+     // Native implementation - no CLI needed!
+     const cwd = this.getProjectPath(args?.path);
+--- vulnerable/src/utils/safe-path.ts
++++ fixed/src/utils/safe-path.ts
+@@ -0,0 +1,180 @@
++/**
++ * safe-path.ts — confinement for caller-supplied `path` arguments.
++ *
++ * Several MCP tools (`refresh_faf`, `faf_score`, `faf_get_orchestration_policy`,
++ * `refresh_blend`, …) accept a `path` argument and read a `.faf` context file
++ * from it. Historically that path flowed straight through `path.resolve()` into
++ * `fs.readFileSync()` with no confinement, so an absolute path or `../` traversal
++ * could read ANY file the server uid can read (CWE-22 / CWE-73 / CWE-200) and
++ * have its contents echoed back — e.g. `refresh_faf({path:"~/.ssh/id_rsa"})`.
++ *
++ * This module is the single chokepoint that closes that. Two layers:
++ *
++ *   1. Context-file allow-list (ALWAYS ON) — this server's only job is reading
++ *      `.faf` / `.fafm` context files. When a caller path resolves to a *file*,
++ *      it must be one of those. That alone blocks the entire secret-disclosure
++ *      surface — `/etc/passwd`, `~/.ssh/id_rsa`, `~/.aws/credentials`, `.env`,
++ *      etc. are none of them `.faf` files — regardless of directory. A `.faf`
++ *      is a public project-context format, so reading one anywhere discloses no
++ *      secrets (a planted one only echoes what the attacker already wrote).
++ *
++ *   2. Root confinement (OPT-IN) — when `FAF_ALLOWED_ROOTS` is set (OS-path
++ *      delimited), the resolved path must additionally stay within one of those
++ *      roots. Off by default so legitimate `.faf` files outside $HOME (CI temp
++ *      fixtures, /opt, /srv, monorepos) keep working; operators who want a hard
++ *      directory boundary opt in.
++ *
++ * Layer 1 is the security boundary; layer 2 is defense-in-depth for locked-down
++ * deployments. Either way, `..` traversal and absolute paths can never reach a
++ * non-context file.
++ */
++
++import * as path from 'path';
++import * as os from 'os';
++import * as fs from 'fs';
++
++export class PathConfinementError extends Error {
++  constructor(message: string) {
++    super(message);
++    this.name = 'PathConfinementError';
++  }
++}
++
++/** True when `p`'s basename is a `.faf` / `.fafm` context file. */
++export function isFafContextFile(p: string): boolean {
++  const base = path.basename(p).toLowerCase();
++  return base === '.faf' || base.endsWith('.faf') || base.endsWith('.fafm');
++}
++
++/** Expand a leading `~` / `~/` for the CURRENT user only. `~otheruser` is left
++ *  literal (it will then fail the root check rather than reaching another home). */
++function expandTilde(p: string): string {
++  if (p === '~') return os.homedir();
++  if (p.startsWith('~/') || p.startsWith('~\\')) {
++    return path.join(os.homedir(), p.slice(2));
++  }
++  return p;
++}
++
++/** Opt-in allowed roots from `FAF_ALLOWED_ROOTS` (OS-delimited). Empty when
++ *  unset → root confinement is not enforced (the `.faf`-only rule still is). */
++export function allowedRoots(): string[] {
++  const env = process.env.FAF_ALLOWED_ROOTS;
++  if (env && env.trim()) {
++    return env
++      .split(path.delimiter)
++      .map((r) => r.trim())
++      .filter(Boolean)
++      .map((r) => path.resolve(expandTilde(r)));
++  }
++  return [];
++}
++
++function withinRoots(resolved: string, roots: string[]): boolean {
++  return roots.some((root) => resolved === root || resolved.startsWith(root + path.sep));
++}
++
++/**
++ * Symlink-canonical absolute path, tolerant of a not-yet-existing target
++ * (a `faf_write` to a new file). Resolves the nearest EXISTING ancestor through
++ * symlinks, then re-appends the missing tail — so a new file under /tmp matches
++ * a /private/tmp root on macOS instead of slipping past the confinement check.
++ */
++function canonicalize(input: string): string {
++  let cur = path.resolve(input);
++  const tail: string[] = [];
++  for (;;) {
++    try {
++      const real = fs.realpathSync(cur);
++      return tail.length ? path.join(real, ...tail.reverse()) : real;
++    } catch {
++      const parent = path.dirname(cur);
++      if (parent === cur) return path.resolve(input); // hit filesystem root
++      tail.push(path.basename(cur));
++      cur = parent;
++    }
++  }
++}
++
++/**
++ * Roots for the general-purpose file tools (`faf_read` / `faf_write`). Unlike
++ * the `.faf` tools, these legitimately handle any file *type* — but they must
++ * still be confined to the project. Default root = the process cwd; override /
++ * extend with `FAF_ALLOWED_ROOTS`.
++ */
++export function fileOpRoots(): string[] {
++  const opt = allowedRoots();
++  if (opt.length) return opt;
++  // Default: the project (cwd) plus the OS temp dir(s) — legitimate scratch
++  // space for tools. Still blocks the high-value targets — $HOME secrets
++  // (~/.ssh, ~/.aws), /etc, and anything reached via ../ traversal.
++  const roots = [path.resolve(process.cwd()), os.tmpdir()];
++  // On macOS the canonical system temp (/tmp → /private/tmp) differs from
++  // os.tmpdir() (/var/folders/...); include it (roots are canonicalized later).
++  if (process.platform !== 'win32') roots.push('/tmp');
++  return roots;
++}
++
++/**
++ * Confine a general-purpose file read/write path: any file type, but it must
++ * stay within fileOpRoots(). Closes absolute-path escapes (`~/.ssh/id_rsa`),
++ * `..` traversal, and arbitrary writes outside the project. Throws
++ * PathConfinementError on violation. Returns the safe (symlink-canonical) path.
++ */
++export function confineFileOp(input: unknown): string {
++  return confinePath(input, { requireFafFile: false, roots: fileOpRoots() });
++}
++
++export interface ConfineOptions {
++  /** Override allowed roots (resolved internally). Defaults to allowedRoots()
++   *  (the opt-in `FAF_ALLOWED_ROOTS`). Empty = root confinement not enforced. */
++  roots?: string[];
++  /** When the resolved path is an existing file, require it be a `.faf`/`.fafm`
++   *  context file. Use for sinks that read the path verbatim. Default true. */
++  requireFafFile?: boolean;
++}
++
++/**
++ * Resolve and confine a caller-supplied path. Returns the safe absolute path,
++ * or throws PathConfinementError. Never reaches the filesystem read itself —
++ * callers do that with the returned value.
++ */
++export function confinePath(input: unknown, opts: ConfineOptions = {}): string {
++  if (typeof input !== 'string' || input.length === 0) {
++    throw new PathConfinementError('path must be a non-empty string');
++  }
++  if (input.includes('\0')) {
++    throw new PathConfinementError('path contains a null byte');
++  }
++
++  // Canonicalize THROUGH symlinks when the target exists. This closes the
++  // symlink bypass: a file named `project.faf` that is actually a symlink to
++  // `/etc/passwd` would pass a lexical name check but read the secret. We check
++  // the real target's name instead. Missing paths stay lexical (nothing to read
++  // yet — a directory walk or a downstream ENOENT handles them).
++  const resolved = canonicalize(expandTilde(input));
++  let isFile = false;
++  try {
++    isFile = fs.statSync(resolved).isFile();
++  } catch {
++    isFile = false;
++  }
++
++  const roots = (opts.roots ?? allowedRoots()).map(canonicalize);
++
++  // Layer 2 (opt-in): enforce root confinement only when roots are configured.
++  if (roots.length > 0 && !withinRoots(resolved, roots)) {
++    throw new PathConfinementError(`path escapes FAF_ALLOWED_ROOTS: "${input}".`);
++  }
++
++  // Layer 1 (always on): a resolved *file* must be a `.faf`/`.fafm` context file.
++  const requireFaf = opts.requireFafFile ?? true;
++  if (requireFaf && isFile && !isFafContextFile(resolved)) {
++    throw new PathConfinementError(
++      `refusing to read a non-context file via \`path\`: "${input}". ` +
++        `Only .faf / .fafm files (or a directory containing one) are allowed.`,
++    );
++  }
++
++  return resolved;
++}
+--- vulnerable/tests/security-path-confinement.test.ts
++++ fixed/tests/security-path-confinement.test.ts
+@@ -0,0 +1,87 @@
++/**
++ * Security regression — arbitrary local-file read/write via unconfined `path`.
++ *
++ * Mirrors the disclosure reproduced against the grok-faf-mcp sibling (Zhihao
++ * Zhang, WPI): caller `path` arguments flowed through path.resolve() into
++ * fs read/write with no confinement (here via the shared getProjectPath()
++ * chokepoint + the faf_read/faf_write file tools). CWE-22 / CWE-73 / CWE-200.
++ *
++ * Boundary under test (utils/safe-path.ts): the `.faf` tools only ever read
++ * `.faf`/`.fafm` context files; the general file tools are confined to the
++ * project root(s). `..`/absolute escapes to secrets are refused.
++ */
++import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
++import * as fs from 'fs';
++import * as os from 'os';
++import * as path from 'path';
++import { FafToolHandler } from '../src/handlers/tools';
++import { FafEngineAdapter } from '../src/handlers/engine-adapter';
++import { confinePath, PathConfinementError, isFafContextFile } from '../src/utils/safe-path';
++
++describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () => {
++  let secretDir: string;
++  let secretFile: string;
++  let plantedFaf: string;
++
++  beforeAll(() => {
++    secretDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fafmcp-sec-'));
++    secretFile = path.join(secretDir, 'fake_id_rsa');
++    plantedFaf = path.join(secretDir, 'project.faf');
++    fs.writeFileSync(secretFile, 'SECRET-DO-NOT-LEAK fake-private-key\n');
++    fs.writeFileSync(plantedFaf, 'project:\n  name: planted\n');
++  });
++
++  afterAll(() => {
++    try { fs.rmSync(secretDir, { recursive: true, force: true }); } catch { /* */ }
++  });
++
++  describe('confinePath() unit', () => {
++    test('refuses /etc/passwd', () => {
++      expect(() => confinePath('/etc/passwd')).toThrow(PathConfinementError);
++    });
++    test('refuses ../ traversal to a non-.faf file', () => {
++      expect(() => confinePath('../../../../../../etc/passwd')).toThrow(PathConfinementError);
++    });
++    test('refuses a real existing secret file (any directory)', () => {
++      expect(() => confinePath(secretFile)).toThrow(PathConfinementError);
++    });
++    test('refuses a *.faf symlink that targets a secret (symlink bypass)', () => {
++      const link = path.join(secretDir, 'evil.faf');
++      fs.symlinkSync(secretFile, link);
++      try { expect(() => confinePath(link)).toThrow(PathConfinementError); }
++      finally { fs.rmSync(link, { force: true }); }
++    });
++    test('allows a real .faf context file', () => {
++      expect(confinePath(plantedFaf)).toBe(fs.realpathSync(plantedFaf));
++    });
++    test('isFafContextFile classifies correctly', () => {
++      expect(isFafContextFile('/x/project.faf')).toBe(true);
++      expect(isFafContextFile('/x/.faf')).toBe(true);
++      expect(isFafContextFile('/etc/passwd')).toBe(false);
++    });
++  });
++
++  describe('handler — PoC must NOT leak', () => {
++    const handler = new FafToolHandler(new FafEngineAdapter('native'));
++    const textOf = (res: any): string =>
++      (res?.content ?? []).map((c: any) => c.text ?? '').join('\n');
++
++    test('faf_score(path=<secret file>) does not read it as a .faf', async () => {
++      const res: any = await handler.callTool('faf_score', { path: secretFile });
++      expect(textOf(res)).not.toContain('SECRET-DO-NOT-LEAK');
++    });
++
++    test('faf_read(path=/etc/passwd) is refused (root-confined)', async () => {
++      const res: any = await handler.callTool('faf_read', { path: '/etc/passwd' });
++      expect(res.isError).toBeTruthy();
++      expect(textOf(res)).not.toContain('root:');
++    });
++
++    test('faf_write outside the project root is refused', async () => {
++      const target = path.join(os.homedir(), '.fafmcp_should_not_be_written');
++      const res: any = await handler.callTool('faf_write', { path: target, content: 'pwned' });
++      expect(res.isError).toBeTruthy();
++      expect(fs.existsSync(target)).toBe(false);
++    });
++  });
++});

@@ -1,0 +1,145 @@
+--- vulnerable/src/engram/server.py
++++ fixed/src/engram/server.py
+@@ -1064,6 +1064,20 @@
+ 
+     from .markdown_io import dump_all_projects, create_export_readme
+ 
++    # Security: reject paths outside the user's home directory to prevent
++    # MCP clients from writing to arbitrary filesystem locations (path traversal).
++    resolved = Path(output_path).resolve()
++    home = Path.home().resolve()
++    try:
++        resolved.relative_to(home)
++    except ValueError:
++        return {
++            "error": (
++                f"Export path must be within home directory ({home}). "
++                f"Resolved path '{resolved}' is outside the allowed area."
++            )
++        }
++
+     # Use the global engine to get a DB handle, then access all projects
+     engine = _get_engine("global")
+ 
+--- vulnerable/tests/test_export_path_security.py
++++ fixed/tests/test_export_path_security.py
+@@ -0,0 +1,119 @@
++"""Security tests for memory_export_all path traversal protection (closes #100).
++
++These tests do NOT require TEST_DATABASE_URL because path validation is performed
++before any database access. The function should return an error dict immediately
++when the output_path is outside the user's home directory.
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++import pytest
++
++import engram.server as srv
++
++
++def _call_export(output_path: str) -> dict:
++    """Call memory_export_all and return its result dict.
++
++    Wraps the raw function object extracted from the MCP tool registry so we
++    can invoke it without standing up a full MCP server.
++    """
++    return srv.memory_export_all(output_path=output_path)
++
++
++class TestExportPathTraversalRejected:
++    """Paths outside the home directory must be rejected before any I/O."""
++
++    def test_absolute_system_path_rejected(self):
++        result = _call_export("/etc/cron.d/backdoor")
++        assert "error" in result, f"Expected error for /etc/cron.d/backdoor, got: {result}"
++        assert "Export path must be within home directory" in result["error"], (
++            f"Error message should cite home directory restriction: {result['error']}"
++        )
++
++    def test_relative_traversal_rejected(self, tmp_path, monkeypatch):
++        # Change cwd to a tmp dir that is NOT under home so a short traversal
++        # reliably escapes the home tree regardless of where the test suite runs.
++        # From /tmp, ../etc/passwd resolves to /etc/passwd — outside home.
++        monkeypatch.chdir(tmp_path)
++        result = _call_export("../etc/passwd")
++        assert "error" in result, (
++            f"Expected error for ../etc/passwd traversal from /tmp, got: {result}"
++        )
++        assert "Export path must be within home directory" in result["error"], (
++            f"Error message should cite home directory restriction: {result['error']}"
++        )
++
++    def test_slash_tmp_rejected(self):
++        result = _call_export("/tmp/evil-export")
++        assert "error" in result, f"Expected error for /tmp path, got: {result}"
++
++    def test_etc_passwd_rejected(self):
++        result = _call_export("/etc/passwd")
++        assert "error" in result, f"Expected error for /etc/passwd, got: {result}"
++
++    def test_ssh_authorized_keys_rejected(self):
++        # Even though ~/.ssh is under home, a direct path to authorized_keys should
++        # be allowed by the home-directory check — but a path to root's ssh should not.
++        result = _call_export("/root/.ssh/authorized_keys")
++        assert "error" in result, f"Expected error for /root/.ssh path, got: {result}"
++
++
++class TestExportPathAllowed:
++    """Paths within the home directory must pass validation (not return an error
++    at the path-check stage). We monkeypatch _get_engine to avoid needing a DB."""
++
++    @pytest.fixture(autouse=True)
++    def _patch_engine(self, monkeypatch, tmp_path):
++        """Replace _get_engine with a stub so we don't need a real database.
++        Also redirect the export to a temp directory so no actual files land in ~.
++        """
++        class _FakeDB:
++            project = "global"
++
++            def list_projects(self):
++                return []
++
++        class _FakeEngine:
++            db = _FakeDB()
++
++        monkeypatch.setattr(srv, "_get_engine", lambda *a, **kw: _FakeEngine())
++
++        # Patch dump_all_projects and create_export_readme from markdown_io
++        from engram import markdown_io
++        monkeypatch.setattr(
++            markdown_io,
++            "dump_all_projects",
++            lambda db, export_dir: {
++                "projects": {},
++                "total_memories": 0,
++                "exported_at": "2026-01-01T00:00:00Z",
++            },
++        )
++        monkeypatch.setattr(
++            markdown_io,
++            "create_export_readme",
++            lambda manifest, export_dir: export_dir / "README.md",
++        )
++
++        # Route writes to tmp_path so nothing lands in the real home
++        self._tmp_path = tmp_path
++
++    def test_home_subdirectory_allowed(self, monkeypatch):
++        """A path under Path.home() must not be rejected at the validation stage."""
++        home = Path.home()
++        allowed_path = str(home / "exports" / "memories.zip")
++
++        # Redirect the actual path used inside the function to tmp_path so
++        # the test is hermetic — we monkeypatch Path inside the server module
++        # by making the export write to tmp instead.
++        # We care only that "error" is NOT the path-traversal rejection message.
++        result = _call_export(str(home / "engram-test-export"))
++        # The function may fail for other reasons (no DB, missing dirs), but
++        # must NOT fail with our specific path-traversal validation error.
++        if "error" in result:
++            assert "Export path must be within home directory" not in result["error"], (
++                f"Path inside home was incorrectly rejected by path validation: {result['error']}"
++            )

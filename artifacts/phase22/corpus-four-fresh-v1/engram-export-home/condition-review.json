@@ -1,0 +1,64 @@
+{
+  "id": "engram-export-home",
+  "archive_label": "engram",
+  "repository": "petersimmons1972/engram",
+  "language": "python",
+  "rule_id": "SENT-012",
+  "scan_root": ".",
+  "licenses": [
+    "LICENSE"
+  ],
+  "tool": "memory_export_all",
+  "argument": "output_path",
+  "outside": "/home/operator-exports",
+  "inside": "/home/operator/exports",
+  "operator_root": "/home/operator",
+  "condition": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+  "flow": "pyproject entry point -> server.main -> genuine FastMCP mcp.run -> @mcp.tool memory_export_all(output_path). Vulnerable _get_engine('global') -> base_path=Path(output_path) -> export_dir=base_path / generated export name -> dump_all_projects creates output directory -> create_export_readme -> manifest_path=export_dir / 'manifest.json' -> manifest_path.write_text. Fixed resolves caller path and Path.home, requires resolved.relative_to(home), catches ValueError with return before engine/export. Later sink rebuilds Path(output_path); under stable cwd/environment and no symlink/race prerequisites this is the checked location, not a claim of value-identity tracking by the scanner.",
+  "prerequisites": [
+    "Ordinary unmodified Python package stdio startup with declared FastMCP and compatible dependencies succeeds. Operator home is /home/operator; stable cwd/environment. ENGRAM_EMBEDDER=none and local SQLite configuration allow _get_engine('global'), create_database and export helpers to succeed without model or service calls; no target startup is performed here.",
+    "Caller output_path=/home/operator-exports, an existing writable directory outside home with no symlinks/races/permission denial or conflicting generated timestamp directory. Database is healthy with zero or valid exportable records; dump_all_projects and create_export_readme complete so manifest_path.write_text is reachable. Safe control uses /home/operator/exports with the same prerequisites.",
+    "The condition is this initial export write boundary only. Complete zip/archive behavior, all memory tools, confidentiality of exported data, database access controls and protection against path changes are not labeled. The fixed source resolves a path for checking but later reconstructs the original argument; source equivalence under stated prerequisites is distinguished from actual scanner guard recognition."
+  ],
+  "evidence_files": [
+    "src/engram/server.py",
+    "src/engram/markdown_io.py",
+    "src/engram/db.py",
+    "src/engram/embeddings.py",
+    "pyproject.toml",
+    "LICENSE"
+  ],
+  "mutation_file": "src/engram/server.py",
+  "mutation_start": "def memory_export_all(",
+  "mutation_end": "def memory_import_claudemd(",
+  "mutation_identifier": "export_dir_name",
+  "mutation_replacement": "phase22_export_dir_name",
+  "provenance_notes": "Selected upstream repository is a fork of ubidev/engram; both parent/source family identities are checked against prior project records and source fingerprints. The security fix is an upstream merge with its actual first parent. Fork status is disclosed; no claim of independent human authorship/review or training-data novelty.",
+  "reviewer": "Same implementation agent after immutable scanner freeze; source-only, not independent human review.",
+  "vulnerable_revision": "1c08801517b72550bb1e69e05796aa1762d7b7a4",
+  "fixed_revision": "1c130bb6482c9b4c7db828553360a60555aeff39",
+  "actual_first_parent_verified": true,
+  "all_changed_files": [
+    "src/engram/server.py",
+    "tests/test_export_path_security.py"
+  ],
+  "full_pair_diff": {
+    "path": "artifacts/phase22/corpus-four-fresh-v1/engram-export-home/full-pair.diff",
+    "sha256": "dda9d7993f775c8b8866a04c71f9effdc65f694f2d59978251a956c9dbaec27e"
+  },
+  "actual_detector_support": "Unmeasured. Existing Python/TypeScript path and HTTPX sink families are relevant, but source-level reachability does not establish actual discovery, dispatch, guarded value propagation or fixed-path coverage at this frozen scanner. Those are mandatory post-run source-assessment gates. No positive per-sink guard trace is assumed.",
+  "negative_rule": "Fixed and safe use the same complete upstream fixed tree and configuration, with distinct frozen source prerequisites/labels. A static report is not specialized by the illustrative caller value. Broad candidates remain visible. Zero matching alerts count as discrimination only when the named fixed/safe path is demonstrably within scanner support.",
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/engram-vulnerable.tar.gz",
+      "sha256": "046b9ca173426615de113df18559f3bb7d93b59c94c04cb1c1db035523119439"
+    },
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/engram-fixed.tar.gz",
+      "sha256": "3706754c7e41013c931bb2202119ae3b2dbf2cf10e410c69ffc686e8699e5e37"
+    }
+  ],
+  "target_execution": false,
+  "observations": 0,
+  "paid_calls": 0
+}

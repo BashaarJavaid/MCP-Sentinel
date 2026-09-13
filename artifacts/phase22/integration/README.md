@@ -1,6 +1,40 @@
-# Integration evidence, batches 1–70 and closeout audit
+# Integration evidence, batches 1–71 and closeout audit
 
-## Current v42 regression result and pending technical acceptance
+## Current four-repository preparation: exact evaluation approval pending
+
+Two new TypeScript repositories (FAF and no-bash) and two Python repositories
+(Lightning's Python member and Engram) are source-prepared at frozen `2e0efb2`.
+The [reviewable preparation packet](v43-four-fresh-preparation/summary.md) proposes 24 native observations;
+**zero have run and no evaluation approval has been received**. Actual fixed-path
+support and first-frozen detection/discrimination remain unmeasured. All prior
+results, failures, closed budgets and proposed historical limitations remain intact.
+The v42 acceptance-readiness statement below is historical and superseded by this
+new requirement. **Phase 22 remains incomplete** pending exact evaluation approval,
+execution/source assessment, explicit human technical acceptance and verified closeout.
+No new paid calls; Git 312/1,040 remains incomplete, paid benchmark/pilots deferred,
+Phase 21 incomplete and Phase 24/15 gates unchanged. No merge, ready-state, release,
+outreach or Phase 23 is authorized.
+
+## Preparation evidence seal 71
+
+[Seal 71](evidence-v71.json) retains 1,218 members (41,489,808 raw bytes,
+12,677,193 compressed bytes), archive SHA-256
+`d662c14530e1a6d19fcc78a830c72b1b6326abe0fe023ca31427acb6e22d4633`.
+All 70 prior archives and every new member were verified after preparation writers
+stopped. This includes the supplemental v42 delivery receipts, recheck helper and
+failed/stale readback history, plus four-repository source research, rejected
+candidates, preparation corrections and synthetic checks. No fresh observation ran.
+
+Restore after seals 1–70 in numeric order into separate safe staging. Verify archive
+and member hashes before copying; reject unsafe paths and links, require existing
+destinations to match identical bytes or an explicitly recorded prior hash, and
+stop on unexplained conflicts. New `corpus-four-fresh-v1` (superseded draft) and
+`corpus-four-fresh-v2` (current) files are directly tracked. Selected complete source
+archives are also directly tracked for review. Final owning-document and delivery
+bindings follow the seal and are directly tracked or explicitly supplemental;
+no receipt claims to contain the commit it later verifies.
+
+## Historical v42 regression result and pending technical acceptance
 
 The approved **94-observation exposed TypeScript regression passes** at frozen
 scanner **`2e0efb2`**, source SHA-256 **`0eac8832012e213744d752c6c33a0ba6a2e378f6230e273030f5043f00cf6ebb`**.

@@ -1,0 +1,932 @@
+--- vulnerable/src/audit.test.ts
++++ fixed/src/audit.test.ts
+@@ -0,0 +1,45 @@
++/**
++ * Audit logging — Unit Tests
++ */
++
++import { describe, it, expect } from 'vitest';
++import {
++  createSuccessLog,
++  createErrorLog,
++} from './audit.js';
++
++describe('createSuccessLog', () => {
++  it('should redact sensitive fields', () => {
++    const entry = createSuccessLog('read_file', {
++      path: 'config.json',
++      api_key: 'sk-1234567890',
++      password: 'hunter2',
++      secret_token: 'abc',
++      Authorization: 'Bearer xyz',
++    }, 42);
++
++    expect(entry.tool).toBe('read_file');
++    expect(entry.status).toBe('success');
++    expect(entry.executionTimeMs).toBe(42);
++    expect(entry.arguments.path).toBe('config.json');
++    expect(entry.arguments.api_key).toBe('[REDACTED]');
++    expect(entry.arguments.password).toBe('[REDACTED]');
++    expect(entry.arguments.secret_token).toBe('[REDACTED]');
++  });
++
++  it('should leave non-sensitive fields unchanged', () => {
++    const entry = createSuccessLog('list_directory', { path: 'src', recursive: true }, 5);
++
++    expect(entry.arguments.path).toBe('src');
++    expect(entry.arguments.recursive).toBe(true);
++  });
++});
++
++describe('createErrorLog', () => {
++  it('should include error message', () => {
++    const entry = createErrorLog('read_file', { path: 'x' }, 100, 'File not found');
++
++    expect(entry.status).toBe('error');
++    expect(entry.error).toBe('File not found');
++  });
++});
+--- vulnerable/src/audit.ts
++++ fixed/src/audit.ts
+@@ -13,10 +13,7 @@
+  */
+ export function logAudit(entry: AuditLogEntry): void {
+   try {
+-    const timestamp = new Date().toISOString();
+-    const logLine = JSON.stringify({
+-      ...entry,
+-    }) + '\n';
++    const logLine = JSON.stringify(entry) + '\n';
+ 
+     // Append to audit log (atomic write)
+     fs.appendFileSync(AUDIT_LOG_PATH, logLine, { encoding: 'utf8' });
+--- vulnerable/src/fileSystem.test.ts
++++ fixed/src/fileSystem.test.ts
+@@ -2,7 +2,7 @@
+  * File System Operations - Unit Tests
+  */
+ 
+-import { describe, it, expect, vi, beforeEach } from 'vitest';
++import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
+ import fs from 'fs';
+ import path from 'path';
+ import {
+@@ -24,6 +24,12 @@
+   fs.mkdirSync(TEST_WORKSPACE, { recursive: true });
+ });
+ 
++afterAll(() => {
++  if (fs.existsSync(TEST_WORKSPACE)) {
++    fs.rmSync(TEST_WORKSPACE, { recursive: true, force: true });
++  }
++});
++
+ describe('listDirectory', () => {
+   it('should list files in a directory', () => {
+     fs.writeFileSync(path.join(TEST_WORKSPACE, 'test.txt'), 'hello');
+@@ -60,7 +66,7 @@
+     const filePath = 'test.txt';
+     fs.writeFileSync(path.join(TEST_WORKSPACE, filePath), 'hello world');
+ 
+-    const result = readFile(filePath, TEST_WORKSPACE);
++    const result = readFile(filePath, TEST_WORKSPACE, 10);
+     
+     expect(result.error).toBeUndefined();
+     expect('content' in result ? result.content : '').toContain('hello world');
+@@ -70,7 +76,7 @@
+     const content = 'line1\nline2\nline3\nline4\nline5';
+     fs.writeFileSync(path.join(TEST_WORKSPACE, 'test.txt'), content);
+ 
+-    const result = readFile('test.txt', TEST_WORKSPACE, 2, 4);
++    const result = readFile('test.txt', TEST_WORKSPACE, 10, 2, 4);
+     
+     expect(result.error).toBeUndefined();
+     if (!('error' in result)) {
+@@ -83,14 +89,21 @@
+   });
+ 
+   it('should reject reading files outside workspace', () => {
+-    const result = readFile('../../etc/passwd', TEST_WORKSPACE);
++    const result = readFile('../../etc/passwd', TEST_WORKSPACE, 10);
+     
+     expect(result.error).toBeDefined();
+   });
+ 
+   it('should reject reading non-existent file', () => {
+-    const result = readFile('nonexistent.txt', TEST_WORKSPACE);
+-    
++    const result = readFile('nonexistent.txt', TEST_WORKSPACE, 10);
++    
++    expect(result.error).toBeDefined();
++  });
++
++  it('should reject oversized file', () => {
++    // Create a file just over 1 byte limit
++    fs.writeFileSync(path.join(TEST_WORKSPACE, 'big.txt'), 'ab'); // 2 bytes
++    const result = readFile('big.txt', TEST_WORKSPACE, 0.000001); // 1 byte limit
+     expect(result.error).toBeDefined();
+   });
+ });
+@@ -175,6 +188,20 @@
+     expect(result.error).toBeUndefined();
+     expect(result.matches).toHaveLength(2);
+   });
++
++  it('should report skipped oversized files', () => {
++    fs.writeFileSync(path.join(TEST_WORKSPACE, 'big.txt'), 'ab');
++    const result = searchContent(TEST_WORKSPACE, 'match', undefined, 0.000001); // 1 byte limit
++    expect(result.skippedFiles).toBeDefined();
++    expect(result.skippedFiles!.length).toBeGreaterThan(0);
++  });
++
++  it('should skip hidden directories', () => {
++    fs.mkdirSync(path.join(TEST_WORKSPACE, '.hidden'), { recursive: true });
++    fs.writeFileSync(path.join(TEST_WORKSPACE, '.hidden', 'secret.txt'), 'treasure');
++    const result = searchContent(TEST_WORKSPACE, 'treasure');
++    expect(result.matches).toHaveLength(0);
++  });
+ });
+ 
+ describe('safeDelete', () => {
+--- vulnerable/src/fileSystem.ts
++++ fixed/src/fileSystem.ts
+@@ -4,10 +4,8 @@
+ 
+ import fs from 'fs';
+ import path from 'path';
+-import { resolveSafePath } from './security.js';
+-import { DirectoryEntry, FileContentResult, PathValidationResult } from './types.js';
+-import { validateFileSize } from './security.js';
+-import { createSuccessLog, createErrorLog } from './audit.js';
++import { resolveSafePath, validateFileSize } from './security.js';
++import { DirectoryEntry, FileContentResult } from './types.js';
+ 
+ const TRASH_DIR = '.mcp_trash';
+ 
+@@ -67,6 +65,7 @@
+ export function readFile(
+   requestedPath: string,
+   workspaceRoot: string,
++  maxFileSizeMb: number = 10,
+   startLine?: number,
+   endLine?: number
+ ): FileContentResult | { error: string } {
+@@ -75,10 +74,10 @@
+     return { error: validation.error || 'Access denied' };
+   }
+ 
+-  const ap = (validation as any).absolutePath as string;
+-
+-  try {
+-    const sizeValidation = validateFileSize(ap, 10); // Use 10MB default
++  const ap: string = validation.absolutePath;
++
++  try {
++    const sizeValidation = validateFileSize(ap, maxFileSizeMb);
+     if (!sizeValidation.valid) {
+       return { error: sizeValidation.error! };
+     }
+@@ -124,8 +123,10 @@
+   }
+ 
+   try {
+-    const dir = path.dirname(validation.absolutePath);
+-    if (!fs.existsSync(dir)) {
++    // Create parent directory if needed; appendFileSync does this already,
++    // so only explicitly create for overwrite/create_only modes
++    if (mode !== 'append') {
++      const dir = path.dirname(validation.absolutePath);
+       fs.mkdirSync(dir, { recursive: true });
+     }
+ 
+@@ -154,10 +155,18 @@
+ export function searchContent(
+   workspaceRoot: string,
+   query: string,
+-  filePattern?: string
+-): { matches: Array<{ file: string; line: number; content: string }>; error?: string } {
++  filePattern?: string,
++  maxFileSizeMb: number = 10
++): { matches: Array<{ file: string; line: number; content: string }>; error?: string; skippedFiles?: string[] } {
+   try {
+     const matches: Array<{ file: string; line: number; content: string }> = [];
++    const skippedFiles: string[] = [];
++
++    // Validate that workspaceRoot is, itself, within the jail
++    const validation = resolveSafePath(workspaceRoot, workspaceRoot);
++    if (!validation.safe) {
++      return { matches: [], error: validation.error };
++    }
+     
+     function scan(dirPath: string) {
+       const items = fs.readdirSync(dirPath, { withFileTypes: true });
+@@ -175,18 +184,20 @@
+           continue;
+         }
+ 
+-        // Apply file pattern filter
++        // Apply file pattern filter with safe glob matching
+         if (filePattern) {
+-          const globRegex = new RegExp(
+-            '^' + filePattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$'
+-          );
+-          if (!globRegex.test(item.name)) {
++          if (!simpleGlobMatch(item.name, filePattern)) {
+             continue;
+           }
+         }
+ 
+-        // Read and search file
++        // Read and search file (check size first)
+         try {
++          const sizeValidation = validateFileSize(itemPath, maxFileSizeMb);
++          if (!sizeValidation.valid) {
++            skippedFiles.push(`${relativePath} (too large)`);
++            continue;
++          }
+           const fileContent = fs.readFileSync(itemPath, 'utf8');
+           const lines = fileContent.split('\n');
+           
+@@ -200,14 +211,14 @@
+             }
+           });
+         } catch (error) {
+-          // Skip files that can't be read
++          skippedFiles.push(`${relativePath} (unreadable)`);
+         }
+       }
+     }
+ 
+     scan(workspaceRoot);
+     
+-    return { matches };
++    return { matches, skippedFiles: skippedFiles.length > 0 ? skippedFiles : undefined };
+   } catch (error) {
+     return {
+       matches: [],
+@@ -262,3 +273,9 @@
+     };
+   }
+ }
++
++/** Simple glob match without regex — avoids ReDoS. */
++function simpleGlobMatch(name: string, pattern: string): boolean {
++  const re = '^' + pattern.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*') + '$';
++  try { return new RegExp(re).test(name); } catch { return false; }
++}
+--- vulnerable/src/git.test.ts
++++ fixed/src/git.test.ts
+@@ -0,0 +1,76 @@
++/**
++ * Git operations — Unit Tests
++ */
++
++import { describe, it, expect, beforeEach, afterEach } from 'vitest';
++import { gitCheckpoint, gitRevertToCheckpoint, hasGit } from './git.js';
++import fs from 'fs';
++import path from 'path';
++import os from 'os';
++import { spawnSync } from 'child_process';
++
++const TMP = path.join(os.tmpdir(), 'nobash-git-test');
++
++function run(...args: string[]) {
++  return spawnSync('git', args, { cwd: TMP, shell: false, stdio: 'pipe', encoding: 'utf8' });
++}
++
++beforeEach(() => {
++  if (fs.existsSync(TMP)) fs.rmSync(TMP, { recursive: true, force: true });
++  fs.mkdirSync(TMP, { recursive: true });
++  run('init');
++  run('config', 'user.email', 'test@test.com');
++  run('config', 'user.name', 'Test');
++});
++
++afterEach(() => {
++  if (fs.existsSync(TMP)) fs.rmSync(TMP, { recursive: true, force: true });
++});
++
++describe('hasGit', () => {
++  it('should detect a git repo', () => {
++    expect(hasGit(TMP)).toBe(true);
++  });
++
++  it('should return false for non-repo', () => {
++    expect(hasGit('/tmp/nosuchrepo')).toBe(false);
++  });
++});
++
++describe('gitCheckpoint', () => {
++  it('should create a commit', () => {
++    fs.writeFileSync(path.join(TMP, 'test.txt'), 'hello');
++    const result = gitCheckpoint(TMP, 'Add test.txt');
++    expect(result.success).toBe(true);
++    expect(result.commitHash).toBeDefined();
++  });
++
++  it('should return success when nothing to commit', () => {
++    // First create a commit so the repo has a HEAD
++    fs.writeFileSync(path.join(TMP, 'base.txt'), 'base');
++    gitCheckpoint(TMP, 'initial');
++    // Now try a commit with no changes
++    const result = gitCheckpoint(TMP, 'empty commit');
++    expect(result.success).toBe(true);
++    expect(result.message).toContain('No changes');
++  });
++
++  it('should not allow shell injection in message', () => {
++    fs.writeFileSync(path.join(TMP, 'test.txt'), 'x');
++    const result = gitCheckpoint(TMP, '$(malicious) `backtick` ; rm -rf /');
++    expect(result.success).toBe(true);
++    // If injection worked, the repo would be destroyed — it's not
++    expect(fs.existsSync(path.join(TMP, '.git'))).toBe(true);
++  });
++});
++
++describe('gitRevertToCheckpoint', () => {
++  it('should revert uncommitted changes', () => {
++    fs.writeFileSync(path.join(TMP, 'keep.txt'), 'keep');
++    gitCheckpoint(TMP, 'baseline');
++    fs.writeFileSync(path.join(TMP, 'keep.txt'), 'should be gone');
++    const result = gitRevertToCheckpoint(TMP);
++    expect(result.success).toBe(true);
++    expect(fs.readFileSync(path.join(TMP, 'keep.txt'), 'utf8')).toBe('keep');
++  });
++});
+--- vulnerable/src/git.ts
++++ fixed/src/git.ts
+@@ -2,66 +2,86 @@
+  * Git operations for the No-Bash MCP Server
+  */
+ 
+-import { execSync } from 'child_process';
+-import path from 'path';
++import { spawnSync } from 'child_process';
+ import { GitCheckpointResult } from './types.js';
+ 
+ /**
++ * Does the workspace have a git repo?
++ */
++export function hasGit(workspaceRoot: string): boolean {
++  try {
++    const result = spawnSync('git', ['rev-parse', '--git-dir'], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 5000,
++    });
++    return result.status === 0;
++  } catch {
++    return false;
++  }
++}
++
++/**
+  * Stages all changes and creates a git checkpoint.
++ * Uses spawnSync with NO shell to prevent injection.
+  */
+ export function gitCheckpoint(workspaceRoot: string, message: string): GitCheckpointResult {
+   try {
+-    execSync('git add -A', { cwd: workspaceRoot, stdio: 'pipe' });
+-    const result = execSync(`git commit -m "${message.replace(/"/g, '\\"')}"`, {
+-      cwd: workspaceRoot,
+-      stdio: 'pipe',
+-      encoding: 'utf8',
++    const add = spawnSync('git', ['add', '-A'], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 30000,
++    });
++    if (add.status !== 0) {
++      return { success: false, message: add.stderr.toString() };
++    }
++
++    const commit = spawnSync('git', ['commit', '-m', message], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 30000,
+     });
+ 
+-    // Get the commit hash
+-    const hashResult = execSync('git rev-parse HEAD', {
+-      cwd: workspaceRoot,
+-      stdio: 'pipe',
+-      encoding: 'utf8',
++    // Nothing to commit is a success, not an error
++    if (commit.status !== 0) {
++      const stderrStr = commit.stderr.toString();
++      const stdoutStr = commit.stdout.toString();
++      const combined = stderrStr + stdoutStr;
++      // Simple string match avoids regex escaping issues
++      if (combined.indexOf('nothing') !== -1 && combined.indexOf('commit') !== -1) {
++        return { success: true, message: 'No changes to commit.' };
++      }
++      return { success: false, message: stderrStr || stdoutStr || 'Git commit failed.' };
++    }
++
++    const hash = spawnSync('git', ['rev-parse', 'HEAD'], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 5000, encoding: 'utf8',
+     });
+ 
+     return {
+       success: true,
+       message: 'Checkpoint created successfully.',
+-      commitHash: hashResult.trim(),
++      commitHash: hash.stdout.trim(),
+     };
+   } catch (error: any) {
+-    // If there's nothing to commit, that's still a success
+-    if (error.stderr?.includes('nothing to commit')) {
+-      return {
+-        success: true,
+-        message: 'No changes to commit.',
+-      };
+-    }
+-
+-    return {
+-      success: false,
+-      message: error.stderr?.toString() || error.message,
+-    };
++    return { success: false, message: error.message };
+   }
+ }
+ 
+ /**
+- * Reverts the workspace to the last git checkpoint.
++ * Reverts the workspace to the last clean git state.
++ * DESTRUCTIVE - requires HITL in index.ts.
+  */
+ export function gitRevertToCheckpoint(workspaceRoot: string): { success: boolean; message: string } {
+   try {
+-    execSync('git reset --hard HEAD', { cwd: workspaceRoot, stdio: 'pipe' });
+-    execSync('git clean -fd', { cwd: workspaceRoot, stdio: 'pipe' });
+-
+-    return {
+-      success: true,
+-      message: 'Workspace reverted to last checkpoint.',
+-    };
++    const reset = spawnSync('git', ['reset', '--hard', 'HEAD'], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 30000,
++    });
++    if (reset.status !== 0) {
++      return { success: false, message: reset.stderr.toString() };
++    }
++    const clean = spawnSync('git', ['clean', '-fd'], {
++      cwd: workspaceRoot, stdio: 'pipe', shell: false, timeout: 30000,
++    });
++    if (clean.status !== 0) {
++      return { success: false, message: clean.stderr.toString() };
++    }
++    return { success: true, message: 'Workspace reverted to last checkpoint.' };
+   } catch (error: any) {
+-    return {
+-      success: false,
+-      message: error.stderr?.toString() || error.message,
+-    };
++    return { success: false, message: error.message };
+   }
+ }
+--- vulnerable/src/hitl.ts
++++ fixed/src/hitl.ts
+@@ -27,15 +27,16 @@
+   });
+ 
+   return new Promise((resolve) => {
++    let settled = false;
++    const defaultText = options.defaultApproved ? '(Y/n)' : '(y/N)';
++
+     const timeout = setTimeout(() => {
+-      rl.close();
+-      console.log('\n⏰ Approval request timed out. Operation denied.');
+-      resolve(false);
++      if (!settled) { settled = true; rl.close(); resolve(false); }
+     }, options.timeoutMs || 30000);
+ 
+-    const defaultText = options.defaultApproved ? '(Y/n)' : '(y/N)';
+-    
+     rl.question(`${options.prompt} ${defaultText} `, (answer) => {
++      if (settled) return;
++      settled = true;
+       clearTimeout(timeout);
+       rl.close();
+       
+--- vulnerable/src/index.ts
++++ fixed/src/index.ts
+@@ -15,7 +15,7 @@
+ } from '@modelcontextprotocol/sdk/types.js';
+ import { z } from 'zod';
+ 
+-import { ServerConfig, AuditLogEntry } from './types.js';
++import { ServerConfig } from './types.js';
+ import {
+   listDirectory,
+   readFile,
+@@ -25,17 +25,20 @@
+ } from './fileSystem.js';
+ import { runProjectScript } from './system.js';
+ import { fetchApi } from './network.js';
+-import { gitCheckpoint, gitRevertToCheckpoint } from './git.js';
++import { gitCheckpoint, gitRevertToCheckpoint, hasGit } from './git.js';
+ import { logAudit, createSuccessLog, createErrorLog, readAuditLog } from './audit.js';
+ 
+ // Server configuration from environment variables
+ const config: ServerConfig = {
+   WORKSPACE_ROOT: process.env.WORKSPACE_ROOT || process.cwd(),
+-  ALLOW_DELETION: process.env.ALLOW_DELETION !== 'false',
++  ALLOW_DELETION: process.env.ALLOW_DELETION === 'true',
+   NETWORK_ALLOWLIST: process.env.NETWORK_ALLOWLIST 
+-    ? process.env.NETWORK_ALLOWLIST.split(',')
++    ? process.env.NETWORK_ALLOWLIST.split(',').map(s => s.trim()).filter(Boolean)
+     : [],
+-  MAX_FILE_SIZE_MB: parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10),
++  MAX_FILE_SIZE_MB: (() => {
++    const v = parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10);
++    return Number.isFinite(v) && v > 0 ? v : 10;
++  })(),
+   HITL_ENABLED: process.env.HITL_ENABLED !== 'false',
+ };
+ 
+@@ -293,7 +296,7 @@
+         })
+         .parse(args);
+       const result = await executeTool(name, args, () =>
+-        readFile(path, config.WORKSPACE_ROOT, start_line, end_line)
++        readFile(path, config.WORKSPACE_ROOT, config.MAX_FILE_SIZE_MB, start_line, end_line)
+       );
+       if ('error' in result) {
+         throw new McpError(ErrorCode.InvalidRequest, result.error);
+@@ -346,18 +349,21 @@
+         })
+         .parse(args);
+       const result = await executeTool(name, args, () =>
+-        searchContent(config.WORKSPACE_ROOT, query, file_pattern)
++        searchContent(config.WORKSPACE_ROOT, query, file_pattern, config.MAX_FILE_SIZE_MB)
+       );
+       if (result.error) {
+         throw new McpError(ErrorCode.InvalidRequest, result.error || 'Operation failed');
+       }
++      const skippedNote = result.skippedFiles?.length
++        ? `\n\nSkipped ${result.skippedFiles.length} file(s):\n${result.skippedFiles.map(s => `  - ${s}`).join('\n')}`
++        : '';
+       return {
+         content: [
+           {
+             type: 'text',
+             text: `Found ${result.matches.length} matches:\n\n${result.matches
+               .map((m) => `${m.file}:${m.line}: ${m.content}`)
+-              .join('\n')}`,
++              .join('\n')}${skippedNote}`,
+           },
+         ],
+       };
+@@ -419,7 +425,7 @@
+         })
+         .parse(args);
+       const result = await executeTool(name, args, () =>
+-        fetchApi(url, method, headers || {}, body, config.NETWORK_ALLOWLIST)
++        fetchApi(url, method, headers || {}, body, config.NETWORK_ALLOWLIST, config.MAX_FILE_SIZE_MB * 1024 * 1024)
+       );
+       if (!result.success) {
+         throw new McpError(ErrorCode.InvalidRequest, result.error || 'Operation failed');
+@@ -456,6 +462,20 @@
+     }
+ 
+     if (name === 'git_revert_to_checkpoint') {
++      // HITL: revert is destructive
++      if (config.HITL_ENABLED && hasGit(config.WORKSPACE_ROOT)) {
++        const { requestApproval } = await import('./hitl.js');
++        const approved = await requestApproval({
++          prompt: 'The agent wishes to REVERT all uncommitted changes (git reset --hard + git clean -fd). This will destroy all unsaved work. Approve?',
++          defaultApproved: false,
++          timeoutMs: 60000,
++        });
++        if (!approved) {
++          return {
++            content: [{ type: 'text', text: 'Revert denied by human operator.' }],
++          };
++        }
++      }
+       const result = await executeTool(name, args, () =>
+         gitRevertToCheckpoint(config.WORKSPACE_ROOT)
+       );
+@@ -476,11 +496,9 @@
+     // Audit Operations
+     // =========================================================================
+     if (name === 'mcp_audit_log') {
+-      await executeTool(name, args, async () => {
+-        const logEntries = readAuditLog();
+-        return { logEntries };
++      const { logEntries } = await executeTool(name, args, () => {
++        return { logEntries: readAuditLog() };
+       });
+-      const logEntries = readAuditLog();
+       return {
+         content: [
+           {
+@@ -524,3 +542,7 @@
+   console.error('Fatal error:', error);
+   process.exit(1);
+ });
++
++// Graceful shutdown
++process.on('SIGINT', () => { console.error('\nShutting down...'); process.exit(0); });
++process.on('SIGTERM', () => { console.error('\nShutting down...'); process.exit(0); });
+--- vulnerable/src/network.ts
++++ fixed/src/network.ts
+@@ -15,7 +15,8 @@
+   method: 'GET' | 'POST' = 'GET',
+   headers: Record<string, string> = {},
+   body?: string,
+-  allowlist: string[] = []
++  allowlist: string[] = [],
++  maxResponseBytes: number = 5 * 1024 * 1024
+ ): Promise<{ success: boolean; statusCode?: number; data?: string; error?: string }> {
+   // Validate URL against allowlist
+   const validation = validateNetworkRequest(url, allowlist);
+@@ -43,8 +44,16 @@
+       const req = (isHttps ? https : http).request(options, (res) => {
+         let data = '';
+ 
+-        res.on('data', (chunk) => {
+-          data += chunk;
++        res.on('data', (chunk: Buffer) => {
++          if (data.length + chunk.length > maxResponseBytes) {
++            req.destroy();
++            resolve({
++              success: false,
++              error: `Response exceeds maximum size of ${(maxResponseBytes / 1024 / 1024).toFixed(1)} MB.`,
++            });
++            return;
++          }
++          data += chunk.toString();
+         });
+ 
+         res.on('end', () => {
+@@ -53,6 +62,15 @@
+             statusCode: res.statusCode,
+             data,
+           });
++        });
++      });
++
++      const TIMEOUT_MS = 30_000;
++      req.setTimeout(TIMEOUT_MS, () => {
++        req.destroy();
++        resolve({
++          success: false,
++          error: `Request timed out after ${TIMEOUT_MS / 1000}s.`,
+         });
+       });
+ 
+--- vulnerable/src/security.test.ts
++++ fixed/src/security.test.ts
+@@ -0,0 +1,120 @@
++/**
++ * Security utilities — Unit Tests
++ */
++
++import { describe, it, expect } from 'vitest';
++import {
++  resolveSafePath,
++  validateNetworkRequest,
++  validateFileSize,
++} from './security.js';
++import fs from 'fs';
++import path from 'path';
++import os from 'os';
++
++describe('resolveSafePath', () => {
++  it('should resolve a valid path within workspace', () => {
++    const result = resolveSafePath('src/file.ts', '/app/workspace');
++    expect(result.safe).toBe(true);
++    expect(result.absolutePath).toBe('/app/workspace/src/file.ts');
++  });
++
++  it('should reject traversal with ../', () => {
++    const result = resolveSafePath('../../etc/passwd', '/app/workspace');
++    expect(result.safe).toBe(false);
++    expect(result.error).toBeDefined();
++  });
++
++  it('should reject traversal that matches prefix but is different dir', () => {
++    // The critical bug: "/app/project" should not match "/app/project_evil"
++    const result = resolveSafePath('../project_evil/secret', '/app/project');
++    expect(result.safe).toBe(false);
++  });
++
++  it('should reject null bytes', () => {
++    const result = resolveSafePath('safe\0malicious.txt', '/app/workspace');
++    expect(result.safe).toBe(false);
++  });
++
++  it('should allow the workspace root itself', () => {
++    const result = resolveSafePath('.', '/app/workspace');
++    expect(result.safe).toBe(true);
++  });
++});
++
++describe('validateNetworkRequest', () => {
++  it('should allow listed domains', () => {
++    const result = validateNetworkRequest('https://api.github.com/repos/foo', ['*.github.com']);
++    expect(result.allowed).toBe(true);
++  });
++
++  it('should block non-listed domains', () => {
++    const result = validateNetworkRequest('https://evil.com/steal', ['*.github.com']);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should block localhost (IPv4)', () => {
++    const result = validateNetworkRequest('http://127.0.0.1:8080/admin', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should block 10.x private range', () => {
++    const result = validateNetworkRequest('http://10.0.0.1/api', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should block 192.168.x.x', () => {
++    const result = validateNetworkRequest('http://192.168.1.1/', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should block 169.254.x.x (link-local)', () => {
++    const result = validateNetworkRequest('http://169.254.169.254/latest/meta-data', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should block IPv6 localhost', () => {
++    const result = validateNetworkRequest('http://[::1]:8080/', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should pass URLs with no allowlist (allowlist bypass == allow all non-private)', () => {
++    const result = validateNetworkRequest('https://example.com/page', []);
++    expect(result.allowed).toBe(true);
++  });
++
++  it('should handle invalid URLs gracefully', () => {
++    const result = validateNetworkRequest('not-a-url', []);
++    expect(result.allowed).toBe(false);
++  });
++
++  it('should trim whitespace from allowlist entries', () => {
++    const result = validateNetworkRequest('https://api.github.com/test', [' *.github.com ', ' api.stripe.com ']);
++    expect(result.allowed).toBe(true);
++  });
++});
++
++describe('validateFileSize', () => {
++  const tmpFile = path.join(os.tmpdir(), 'nobash-size-test.bin');
++
++  afterAll(() => {
++    try { fs.unlinkSync(tmpFile); } catch {}
++  });
++
++  it('should accept files under limit', () => {
++    fs.writeFileSync(tmpFile, 'hi'); // 2 bytes
++    const result = validateFileSize(tmpFile, 10);
++    expect(result.valid).toBe(true);
++  });
++
++  it('should reject files over limit', () => {
++    fs.writeFileSync(tmpFile, Buffer.alloc(100)); // 100 bytes
++    const result = validateFileSize(tmpFile, 0.00005); // ~50 bytes
++    expect(result.valid).toBe(false);
++  });
++
++  it('should handle missing files', () => {
++    const result = validateFileSize('/nonexistent/file.txt', 10);
++    expect(result.valid).toBe(false);
++  });
++});
+--- vulnerable/src/security.ts
++++ fixed/src/security.ts
+@@ -3,7 +3,6 @@
+  */
+ 
+ import path from 'path';
+-import { ServerConfig } from './types.js';
+ 
+ /**
+  * Resolves and validates a requested path against the workspace root.
+@@ -16,9 +15,10 @@
+   try {
+     const absolutePath = path.resolve(workspaceRoot, requestedPath);
+     
+-    // Ensure the resolved path is within the workspace root
+-    const normalizedRoot = path.resolve(workspaceRoot);
+-    if (!absolutePath.startsWith(normalizedRoot)) {
++    // Ensure the resolved path is within the workspace root.
++    // Trailing sep prevents /app/proj from matching /app/proj_evil
++    const normalizedRoot = path.resolve(workspaceRoot) + path.sep;
++    if (!absolutePath.startsWith(normalizedRoot) && absolutePath !== path.resolve(workspaceRoot)) {
+       return {
+         safe: false,
+         absolutePath,
+@@ -54,7 +54,7 @@
+ ): { allowed: boolean; error?: string } {
+   try {
+     const urlObj = new URL(url);
+-    const hostname = urlObj.hostname;
++    const hostname = urlObj.hostname.replace(/^\[|\]$/g, ''); // strip IPv6 brackets
+ 
+     // Block internal/private IP ranges
+     const privateIpRegexes = [
+@@ -74,11 +74,12 @@
+       };
+     }
+ 
+-    // Check against allowlist
++    // Check against allowlist (trim whitespace from split)
+     if (allowlist.length > 0) {
+       const isAllowed = allowlist.some((pattern) => {
++        const trimmed = pattern.trim();
+         const regex = new RegExp(
+-          '^' + pattern.replace(/\*/g, '.*').replace(/\./g, '\\.') + '$'
++          '^' + trimmed.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
+         );
+         return regex.test(hostname);
+       });
+--- vulnerable/src/system.ts
++++ fixed/src/system.ts
+@@ -2,10 +2,10 @@
+  * System operations for the No-Bash MCP Server
+  */
+ 
+-import { execSync, spawn } from 'child_process';
++import { spawnSync } from 'child_process';
++import fs from 'fs';
+ import path from 'path';
+ import { ServerConfig } from './types.js';
+-import { createSuccessLog, createErrorLog } from './audit.js';
+ import { requestApproval } from './hitl.js';
+ 
+ /**
+@@ -22,7 +22,8 @@
+     let allowedScripts: string[] = [];
+ 
+     try {
+-      const packageJson = JSON.parse(require('fs').readFileSync(packageJsonPath, 'utf8'));
++      const raw = fs.readFileSync(packageJsonPath, 'utf8');
++      const packageJson = JSON.parse(raw);
+       allowedScripts = Object.keys(packageJson.scripts || {});
+     } catch (error) {
+       // No package.json or no scripts section
+@@ -55,25 +56,26 @@
+       }
+     }
+ 
+-    // Execute the script
+-    const result = execSync(`npm run ${scriptName}`, {
++    // Execute the script via spawnSync — NO shell, args array
++    const result = spawnSync('npm', ['run', scriptName], {
+       cwd: workspaceRoot,
+       encoding: 'utf8',
+       stdio: 'pipe',
++      shell: false,
++      timeout: 120_000,
+     });
+ 
+     return {
+-      success: true,
+-      stdout: result,
+-      stderr: undefined,
+-      exitCode: 0,
++      success: result.status === 0,
++      stdout: result.stdout || undefined,
++      stderr: result.stderr || undefined,
++      exitCode: result.status ?? 1,
+     };
+   } catch (error: any) {
+     return {
+       success: false,
+-      stdout: error.stdout?.toString(),
+-      stderr: error.stderr?.toString() || error.message,
+       exitCode: error.status || 1,
++      stderr: error.message,
+     };
+   }
+ }
+--- vulnerable/src/types.ts
++++ fixed/src/types.ts
+@@ -1,15 +1,6 @@
+ /**
+  * Type definitions for the No-Bash MCP Server
+  */
+-
+-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+-import {
+-  CallToolRequestSchema,
+-  ListToolsRequestSchema,
+-  ErrorCode,
+-  McpError,
+-} from '@modelcontextprotocol/sdk/types.js';
+ 
+ export interface ServerConfig {
+   WORKSPACE_ROOT: string;
+--- vulnerable/tsconfig.json
++++ fixed/tsconfig.json
+@@ -10,6 +10,7 @@
+     "esModuleInterop": true,
+     "skipLibCheck": true,
+     "forceConsistentCasingInFileNames": true,
++    "noUnusedLocals": true,
+     "resolveJsonModule": true,
+     "declaration": true,
+     "declarationMap": true,

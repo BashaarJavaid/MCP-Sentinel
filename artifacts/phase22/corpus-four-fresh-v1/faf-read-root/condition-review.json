@@ -1,0 +1,68 @@
+{
+  "id": "faf-read-root",
+  "archive_label": "faf",
+  "repository": "Wolfe-Jam/faf-mcp",
+  "language": "typescript",
+  "rule_id": "SENT-012",
+  "scan_root": ".",
+  "licenses": [
+    "LICENSE"
+  ],
+  "tool": "faf_read",
+  "argument": "path",
+  "outside": "/srv/faf-outside/fixture.txt",
+  "inside": "/srv/faf-project/fixture.txt",
+  "operator_root": "/srv/faf-project",
+  "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+  "flow": "package bin dist/src/index.js -> new FafMcpServer -> official Server.setRequestHandler(CallToolRequestSchema) -> FafToolHandler.callTool -> fileHandlers.faf_read -> handleFafRead. Vulnerable PathValidator rejects selected system prefixes and normalized '..' only; the absolute outside path passes. Fixed confineFileOp -> confinePath with requireFafFile=false and fileOpRoots -> allowedRoots from operator FAF_ALLOWED_ROOTS -> canonicalized roots and withinRoots component-bounded some() check -> throws PathConfinementError caught as an error return, otherwise returns resolved to filePath -> Promise.race includes fs.readFile(filePath, 'utf8').",
+  "prerequisites": [
+    "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+    "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+    "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+  ],
+  "evidence_files": [
+    "src/index.ts",
+    "src/server.ts",
+    "src/handlers/tools.ts",
+    "src/handlers/fileHandler.ts",
+    "src/handlers/engine-adapter.ts",
+    "src/utils/safe-path.ts",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "mutation_file": "src/handlers/fileHandler.ts",
+  "mutation_start": "export async function handleFafRead(",
+  "mutation_end": "export async function handleFafWrite(",
+  "mutation_identifier": "startTime",
+  "mutation_replacement": "phase22StartTime",
+  "provenance_notes": "Actual fix ae4a501 has package version 2.1.2; the v2.1.3 tag points to a later changelog commit. The advisory/release chronology and exact direct-parent pair are retained. Prior archive README catalog links name Wolfe-Jam/claude-faf-mcp, a distinct repository ID, not faf-mcp; no source from that repository was part of a prior selected input. Same-owner relationship disclosed, not hidden.",
+  "reviewer": "Same implementation agent after immutable scanner freeze; source-only, not independent human review.",
+  "vulnerable_revision": "6531de40da1b558513c78b1072d195bd9452c016",
+  "fixed_revision": "ae4a5017e18381116c026f7317b43a6dbdd8df73",
+  "actual_first_parent_verified": true,
+  "all_changed_files": [
+    "src/handlers/fileHandler.ts",
+    "src/handlers/tools.ts",
+    "src/utils/safe-path.ts",
+    "tests/security-path-confinement.test.ts"
+  ],
+  "full_pair_diff": {
+    "path": "artifacts/phase22/corpus-four-fresh-v1/faf-read-root/full-pair.diff",
+    "sha256": "e4ca298d3fa31c0558ee6894c5a7bc143facebde134679321e93015bc98ec4c4"
+  },
+  "actual_detector_support": "Unmeasured. Existing Python/TypeScript path and HTTPX sink families are relevant, but source-level reachability does not establish actual discovery, dispatch, guarded value propagation or fixed-path coverage at this frozen scanner. Those are mandatory post-run source-assessment gates. No positive per-sink guard trace is assumed.",
+  "negative_rule": "Fixed and safe use the same complete upstream fixed tree and configuration, with distinct frozen source prerequisites/labels. A static report is not specialized by the illustrative caller value. Broad candidates remain visible. Zero matching alerts count as discrimination only when the named fixed/safe path is demonstrably within scanner support.",
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/faf-vulnerable.tar.gz",
+      "sha256": "e04cc12952c45a8a15f1227290294507652437f32f947780ef21595eac692e44"
+    },
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/faf-fixed.tar.gz",
+      "sha256": "905b0ef5888a49e087a9d79d916a5db102074fcbb4de33977273d19365a55b8f"
+    }
+  ],
+  "target_execution": false,
+  "observations": 0,
+  "paid_calls": 0
+}

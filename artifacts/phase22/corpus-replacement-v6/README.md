@@ -1,6 +1,21 @@
 # Replacement-v6: DDG shared-space URL condition
 
-## Current v42 regression result and pending technical acceptance
+## Current four-repository preparation: exact evaluation approval pending
+
+Two new TypeScript repositories (FAF and no-bash) and two Python repositories
+(Lightning's Python member and Engram) are source-prepared at frozen `2e0efb2`.
+The [reviewable preparation packet](../integration/v43-four-fresh-preparation/summary.md) proposes 24 native observations;
+**zero have run and no evaluation approval has been received**. Actual fixed-path
+support and first-frozen detection/discrimination remain unmeasured. All prior
+results, failures, closed budgets and proposed historical limitations remain intact.
+The v42 acceptance-readiness statement below is historical and superseded by this
+new requirement. **Phase 22 remains incomplete** pending exact evaluation approval,
+execution/source assessment, explicit human technical acceptance and verified closeout.
+No new paid calls; Git 312/1,040 remains incomplete, paid benchmark/pilots deferred,
+Phase 21 incomplete and Phase 24/15 gates unchanged. No merge, ready-state, release,
+outreach or Phase 23 is authorized.
+
+## Historical v42 regression result and pending technical acceptance
 
 The approved **94-observation exposed TypeScript regression passes** at frozen
 scanner **`2e0efb2`**, source SHA-256 **`0eac8832012e213744d752c6c33a0ba6a2e378f6230e273030f5043f00cf6ebb`**.

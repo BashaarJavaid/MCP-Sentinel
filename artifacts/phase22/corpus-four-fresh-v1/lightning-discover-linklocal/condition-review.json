@@ -1,0 +1,90 @@
+{
+  "id": "lightning-discover-linklocal",
+  "archive_label": "lightning",
+  "repository": "refined-element/lightning-enable-mcp",
+  "language": "python",
+  "rule_id": "SENT-015",
+  "scan_root": "python/lightning-enable-mcp",
+  "licenses": [
+    "LICENSE",
+    "python/lightning-enable-mcp/LICENSE"
+  ],
+  "tool": "discover_api",
+  "argument": "url",
+  "outside": "http://169.254.169.254/fixture.json",
+  "inside": "http://93.184.216.34/fixture.json",
+  "condition": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+  "flow": "Python package entry point -> LightningEnableServer -> official self.server.call_tool handler -> name == discover_api -> imported discover_api(url=arguments.get('url')) -> explicit URL branch -> _fetch_and_format_manifest -> HTTPX AsyncClient -> _fetch_manifest strips trailing slash, .json branch -> _try_fetch -> await client.get(url). Fixed _fetch_and_format_manifest first awaits validate_url_allowed(url); urlsplit.hostname -> ipaddress.ip_address -> is_blocked_ip literal has is_link_local/is_private -> raises SsrfError -> caller returns before client creation/request. Actual fixed get remains present. Literal public control is permitted by this initial guard. Fixed redirects are surfaced, not followed.",
+  "prerequisites": [
+    "Select the actual Python member python/lightning-enable-mcp and its pyproject entry point, Python>=3.11 and declared official MCP SDK/httpx available under ordinary unmodified startup. The repository is mixed C#/Python; GitHub's dominant C# label is not the execution language.",
+    "Invoke discover_api with url=http://169.254.169.254/fixture.json, query/category absent, budget_aware=false. No wallet or API credentials/configuration are set. Service initialization returns without a wallet and discover_api is explicitly in the wallet-exempt producer_tools set. httpx import succeeds. Environment proxy variables are absent and normal request construction reaches client.get; no network access is performed in this evaluation.",
+    "Safe control substitutes initial literal public host 93.184.216.34. No hostname/DNS behavior, redirects, manifest response validity, registry mode, payments, authentication, successful connection or disclosure is claimed. The fixed helper explicitly documents its DNS rebinding window and allows resolution exceptions; neither becomes a claim of complete SSRF protection."
+  ],
+  "evidence_files": [
+    "python/lightning-enable-mcp/pyproject.toml",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/_ssrf_guard.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/config.py"
+  ],
+  "mutation_file": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+  "mutation_start": "async def _try_fetch(",
+  "mutation_end": "async def _fetch_manifest(",
+  "mutation_identifier": "response",
+  "mutation_replacement": "phase22_response",
+  "provenance_notes": "Full mixed-language archives retained, with both MIT licenses. Exact merge commit and first parent selected; no assertion that the dominant repository language or a tag establishes the selected Python behavior. Broader .NET, payment and redirect changes are retained without becoming additional discoveries.",
+  "reviewer": "Same implementation agent after immutable scanner freeze; source-only, not independent human review.",
+  "vulnerable_revision": "73a657189a1adae889598da691fce6bd561f49bf",
+  "fixed_revision": "a1482dc5402e266e1ba835e6b6ceec85b716a1c3",
+  "actual_first_parent_verified": true,
+  "all_changed_files": [
+    "dotnet/src/LightningEnable.Mcp/Models/L402ClientChallenge.cs",
+    "dotnet/src/LightningEnable.Mcp/Program.cs",
+    "dotnet/src/LightningEnable.Mcp/Services/L402HttpClient.cs",
+    "dotnet/src/LightningEnable.Mcp/Services/PrivateIpAddressDetector.cs",
+    "dotnet/src/LightningEnable.Mcp/Services/RedirectResolver.cs",
+    "dotnet/src/LightningEnable.Mcp/Services/SsrfConnectValidator.cs",
+    "dotnet/src/LightningEnable.Mcp/Services/SsrfUrlGuard.cs",
+    "dotnet/src/LightningEnable.Mcp/Tools/AccessL402ResourceTool.cs",
+    "dotnet/src/LightningEnable.Mcp/Tools/AgentSettleTool.cs",
+    "dotnet/src/LightningEnable.Mcp/Tools/DiscoverApiTool.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Services/L402HttpClientRedirectTests.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Services/PrivateIpAddressDetectorTests.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Services/SsrfConnectValidatorTests.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Tools/AgentSettleToolTests.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Tools/DiscoverApiToolTests.cs",
+    "dotnet/tests/LightningEnable.Mcp.Tests/Tools/L402ToolsTests.cs",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/_redirect.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/_url_redact.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/l402_client.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/_ssrf_guard.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/access_resource.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+    "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/settle_agent_service.py",
+    "python/lightning-enable-mcp/tests/test_access_resource_redirect.py",
+    "python/lightning-enable-mcp/tests/test_discover_api.py",
+    "python/lightning-enable-mcp/tests/test_l402_client.py",
+    "python/lightning-enable-mcp/tests/test_settle_agent_service.py",
+    "python/lightning-enable-mcp/tests/test_ssrf_guard.py"
+  ],
+  "full_pair_diff": {
+    "path": "artifacts/phase22/corpus-four-fresh-v1/lightning-discover-linklocal/full-pair.diff",
+    "sha256": "f5b4480b610931141dd0f1345827b155f6ce3042771e27a37ac6ba751c42a54a"
+  },
+  "actual_detector_support": "Unmeasured. Existing Python/TypeScript path and HTTPX sink families are relevant, but source-level reachability does not establish actual discovery, dispatch, guarded value propagation or fixed-path coverage at this frozen scanner. Those are mandatory post-run source-assessment gates. No positive per-sink guard trace is assumed.",
+  "negative_rule": "Fixed and safe use the same complete upstream fixed tree and configuration, with distinct frozen source prerequisites/labels. A static report is not specialized by the illustrative caller value. Broad candidates remain visible. Zero matching alerts count as discrimination only when the named fixed/safe path is demonstrably within scanner support.",
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/lightning-vulnerable.tar.gz",
+      "sha256": "50a6586c183daae9cbf172e499c9404f8b450abd13b5451a2b6fc5df83fe75e6"
+    },
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/lightning-fixed.tar.gz",
+      "sha256": "f6ebbf19aefc20777cc5e044489aaff490d5453f944e711c20cddf4b3ed3f305"
+    }
+  ],
+  "target_execution": false,
+  "observations": 0,
+  "paid_calls": 0
+}
