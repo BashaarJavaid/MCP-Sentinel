@@ -1,4 +1,40 @@
-# Integration evidence, batches 1–74 and closeout audit
+# Integration evidence, batches 1–75 and closeout audit
+
+## FAF profile evidence seal 75
+
+[Seal 75](evidence-v75.json) retains **90 members / 120,578,162 raw bytes**,
+archive SHA-256 `d0b175a52fc7a56c88079c20ba0cabc553e2a8d2b9b4f2d5f0a4b80a424534bb`. All 74 prior archives and every member
+verified. It preserves the single approved sampled timeout, four raw partial
+profiles, source attribution, closed budget, full 239-row audit, unapproved
+source-only proposal, final checks and the initial cleanup-check overlap with
+its corrected readback. Supplemental v46 delivery and diagnostic approval are
+included. Restore after seals 1–74 in numeric order into safe separate staging;
+reject unsafe paths/symlinks and verify archive/member hashes before extraction.
+Stop on unexplained conflicts. The old v73 seal-log correction remains retained.
+No active wrapper log was included in this seal. Owning docs and post-seal
+bindings/readback are supplemental. **Phase 22 remains incomplete**; no source
+optimization or technical acceptance is authorized by the profile approval.
+
+## Current v47 sampled timeout: source-only proposal pending
+
+The separately approved single FAF worker profile at frozen `17b4784` timed out
+at 300 seconds with verified cleanup: **one incomplete sampled input, four partial
+snapshots / 86,659 samples, no report, zero budget remaining**. The [review packet](v47-faf-sampling/summary.md)
+attributes 58.36–59.06% of worker samples inclusively to TypeScript branch merging
+and 25.78–26.41% as leaves in its fallback Value constructor. These overlapping
+sample shares are not promised savings; unused allocations remain uncounted.
+One narrow **source-only fallback-allocation optimization** is proposed, unapproved
+and unstarted, with zero new corpus/profile/paid budget. The prior regression's
+one incomplete attempt and 204 closed unstarted observations remain unchanged.
+Corrected detection/compatibility gates remain unresolved. Engineering retains
+tested `17b4784`: 2,380 tests / 36 skips locally and in all 12 hosted suites,
+29 normal CI jobs and docs passed; combined coverage 89.98%, branch-only 85.85%.
+All 239 audit rows and original fresh failures remain. **Phase 22 is incomplete**;
+no limitation or human technical acceptance is inferred. Git remains 312/1,040
+incomplete, paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15
+unchanged. No optimization, retry, paid call, target execution, merge, ready-state,
+release, outreach or Phase 23 occurred or is newly authorized.
+
 
 ## Stopped regression evidence seal 74
 
@@ -15,7 +51,7 @@ No active wrapper log was included during this seal. Current owning docs and
 post-seal delivery bindings are supplemental and directly tracked.
 **Phase 22 remains incomplete.** No diagnostic or technical acceptance is implied.
 
-## Current v46 regression timeout: budget closed
+## Historical v46 regression timeout: budget closed
 
 The approved 205-observation sequence at frozen `17b4784` stopped on its first
 FAF vulnerable input at the 300-second whole-input maximum: **one incomplete,

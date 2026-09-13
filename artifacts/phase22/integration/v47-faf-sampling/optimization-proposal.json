@@ -1,0 +1,45 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-13T06:22:03.762358+00:00",
+  "starting_delivery": "73d7b61129e2e8ee8c49e491e0a436390ae2142c",
+  "scanner": {
+    "revision": "17b4784363f35096a13d33913e98967b24cbad14",
+    "source_sha256": "3c3ee0bd6d762a09e7c622700ae2f2fbdfa03d777bff73f2777d65a77ea31397",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "profile_assessment_sha256": "07c54a66a6043a5328ad2786958c83b531ff9985180079e4b9efadcb24edb175",
+  "source_assessment_sha256": "96fd21a90688ac6997d510bfd9a16f6024bbfd51e62465dc027da71f65d9ae77",
+  "target": "src/sentinel/static/typescript_path_flow.py:TypeScriptPathFlow.merge",
+  "target_source_sha256": "f7764bf9829bac73ed71e6503c3e381de2a7f57c55a42512a3c5d7e5ce6edd3f",
+  "purpose": "Investigate one measured merge-allocation concentration without changing analysis breadth, guard semantics or timeout policy.",
+  "proposed_change": "One source-only optimization: defer construction of the record-root fallback Value(key=root) until at least one branch actually lacks that record-state name. Keep the existing UNKNOWN_VALUE default for other names, all branch ordering/equality behavior, guards, source-free safety stripping, combined metadata, and missing-record fallback semantics. Prefer an in-place membership predicate using existing dictionaries; no cache, global state, new abstraction or dependency. Do not rewrite the general traversal or merge algorithm.",
+  "evidence": "All four retained worker snapshots place58.36\u201359.06% of samples inclusively under the shared TypeScript merge and25.78\u201326.41% at the generated Value constructor directly called by merge line307. These shares overlap. Source shows the constructor runs before branch.get even when the fallback is unused. Samples contain no locals, so the unused-allocation fraction and actual removable cost remain unmeasured.",
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Before editing, preserve the exact baseline kernel and compare scanner-owned synthetic branch states against the candidate: all-present, missing-first/middle/last, equal/unequal, empty/one/many branches, registered/unregistered roots, guard markers, source-free safety claims and metadata/record/array/path boundaries. Check unchanged inputs and all relevant result/flow state.",
+    "Use synthetic allocation accounting to establish the specific avoided construction while preserving used fallback values. If the predicate does not reduce those synthetic unused constructions or semantics differ, stop and retain the failed attempt; do not expand scope. No synthetic timing claim substitutes for native timing.",
+    "Run affected synthetic discovery/import/class/guard tests, then required full local and hosted engineering at the actual candidate, package/schema/docs checks, source-bound production replay and compatible runtime checks with zero paid calls. Preserve any failures and correct only issues in this approved narrow attempt.",
+    "Freeze the verified candidate and prepare a separate exact native diagnostic/regression/affected-compatibility proposal before any corpus observation. The current1incomplete regression/204closed remainder and1incomplete sampled profile remain historical and closed."
+  ],
+  "retention_and_limits": "Engineering and synthetic allocation reduction establish a reviewable candidate only. No promised percentage speedup,300-second completion,corrected detection/compatibility or acceptance follows from sampling or synthetic checks. Actual corpus validation needs another exact frozen proposal and approval.",
+  "not_authorized": [
+    "another optimization target or attempt",
+    "broad caching/analysis truncation",
+    "deadline or resource change",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}
