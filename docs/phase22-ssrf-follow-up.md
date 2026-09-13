@@ -1,6 +1,26 @@
 # Replacement SSRF follow-up
 
-## Current v50 profile binding failure: stopped and closed
+## Current v51 bound profile: source-only decision pending
+
+The approved corrected profile at frozen `6e4fd67` retains **four verified worker
+identities and 79,307 partial samples**. Its whole input timed out at 300 seconds;
+cleanup passed, no report exists, and the one-use budget is closed. Shared
+TypeScript branch merge is 43.02–44.46% inclusive sample share; its missing-branch
+predicate is 8.40–9.08% leaf share. These are not speedup or removable-cost claims.
+The [review packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v51-faf-bound-sampling/summary.md) proposes **one unapproved source-only optimization**:
+recognize eligible all-present equal branch values before fallback preparation.
+No implementation, corpus/profile/retry, resource change or paid call is authorized.
+The invalid old-root profile and V49 preparation failure remain preserved; this
+passes current diagnostic attribution only. Original native/fresh failures remain.
+Product retains tested `6e4fd67`: 2,384 tests / 36 skips locally and in all 12 hosted
+suites, 29 normal jobs and docs passed; combined coverage 89.98%, branch-only
+85.85%. All **265 requirements** remain. **Phase 22 is incomplete**; explicit
+human acceptance is separate. Git stays 312/1,040 incomplete, paid benchmark and
+pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state, release, outreach or Phase 23.
+
+
+## Historical v50 profile binding failure: stopped and closed
 
 The approved single profile was deliberately stopped when the reused sampler's
 worker import root was found to be `17b4784` instead of approved `6e4fd67`.

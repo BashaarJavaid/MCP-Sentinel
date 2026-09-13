@@ -1,4 +1,37 @@
-# Integration evidence, batches 1–78 and closeout audit
+# Integration evidence, batches 1–79 and closeout audit
+
+## Current-source partial profile evidence seal 79
+
+[Seal 79](evidence-v79.json) retains **93 members / 103,958,589 raw bytes**,
+archive SHA-256 `701da6634ba4c0752e41fb283d33c4f3d253394cd24e6a43760a9027520847e0`. All 78 earlier archives and every member
+verified. This retains the current-source sampled timeout, four verified worker identities and
+79,307 partial samples, complete frame/source attribution, all 265 audit rows,
+and one unapproved source-only merge fast-path optimization proposal. Final
+docs/packages and supplemental v50 delivery/approval receipts are retained.
+Restore after seals 1–78 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
+
+## Current v51 bound profile: source-only decision pending
+
+The approved corrected profile at frozen `6e4fd67` retains **four verified worker
+identities and 79,307 partial samples**. Its whole input timed out at 300 seconds;
+cleanup passed, no report exists, and the one-use budget is closed. Shared
+TypeScript branch merge is 43.02–44.46% inclusive sample share; its missing-branch
+predicate is 8.40–9.08% leaf share. These are not speedup or removable-cost claims.
+The [review packet](v51-faf-bound-sampling/summary.md) proposes **one unapproved source-only optimization**:
+recognize eligible all-present equal branch values before fallback preparation.
+No implementation, corpus/profile/retry, resource change or paid call is authorized.
+The invalid old-root profile and V49 preparation failure remain preserved; this
+passes current diagnostic attribution only. Original native/fresh failures remain.
+Product retains tested `6e4fd67`: 2,384 tests / 36 skips locally and in all 12 hosted
+suites, 29 normal jobs and docs passed; combined coverage 89.98%, branch-only
+85.85%. All **265 requirements** remain. **Phase 22 is incomplete**; explicit
+human acceptance is separate. Git stays 312/1,040 incomplete, paid benchmark and
+pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state, release, outreach or Phase 23.
+
 
 ## Diagnostic binding correction evidence seal 78
 
@@ -13,7 +46,7 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v50 profile binding failure: stopped and closed
+## Historical v50 profile binding failure: stopped and closed
 
 The approved single profile was deliberately stopped when the reused sampler's
 worker import root was found to be `17b4784` instead of approved `6e4fd67`.
