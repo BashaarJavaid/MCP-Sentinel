@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–80 and closeout audit
+# Integration evidence, batches 1–81 and closeout audit
+
+## Fast-path regression evidence seal 81
+
+[Seal 81](evidence-v81.json) retains **102 members / 3,817,313 raw bytes**,
+archive SHA-256 `4042f3abd549a0e67e30e8706267f49592f99dcd4acf5a44070112e1909e1087`. All 80 earlier archives and every member
+verified. This retains the approved first-input timeout at `a36f696`, 204 closed
+unstarted observations, all 277 audit rows, the unapproved current-source profile,
+synthetic worker identity and approval-boundary checks, final docs/packages,
+and supplemental v52 delivery/approval receipts. All earlier failures remain retained.
+Restore after seals 1–80 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
 
 ## Equal-value fast-path candidate evidence seal 80
 
@@ -26,7 +39,34 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v52 equal-value fast path: regression approval pending
+## Current v53 fast-path regression timeout: budget closed
+
+The approved 205-observation sequence at frozen **`a36f696`** stopped on its first
+FAF vulnerable input at **300.000481 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining**; cleanup
+passed. Findings, guards, negative discrimination and ordered repeats are unknown.
+Corrected four-source and prior-language compatibility gates remain unestablished.
+No retry, profile, target execution or paid call occurred. All earlier failures
+and original fresh outcomes remain preserved with their actual scanner identities.
+
+The next **single 300-second sampled FAF input** is prepared, **unapproved and
+unexecuted** in `v53-fastpath-regression/diagnostic-proposal.json`. It retains the
+existing CPU-timer sampler, source/configuration and worker layout, with verified
+actual worker/flow/scanner identities before timer or target snapshot access.
+The stale-root synthetic control and missing-approval boundary pass. Earlier
+`6e4fd67` samples cannot establish remaining costs after the current reorder.
+No further optimization, retry, resource/deadline change or paid call is authorized.
+
+All **277 requirements (89 original + 188 added)** remain, including six unaccepted
+historical closure proposals and the unresolved invalid stale-worker preparation.
+Product/tests/workflows remain `a36f696`: 2,386 tests / 36 skips locally and in all
+12 hosted suites; 29 normal CI jobs and docs passed, combined coverage 89.98% and
+branch-only 85.85%. Six zero-call production requests and runtime bindings persist.
+**Phase 22 remains incomplete.** Git stays 312/1,040 incomplete with 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v52 equal-value fast path: regression approval pending
 
 The one approved source-only merge reorder is engineering-verified at **`a36f696`**.
 It checks eligible equal values actually present in every branch before preparing

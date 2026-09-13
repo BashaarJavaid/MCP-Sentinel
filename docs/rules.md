@@ -1,6 +1,33 @@
 # PortunusMCP Sentinel rule catalog
 
-## Current v52 equal-value fast path: regression approval pending
+## Current v53 fast-path regression timeout: budget closed
+
+The approved 205-observation sequence at frozen **`a36f696`** stopped on its first
+FAF vulnerable input at **300.000481 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining**; cleanup
+passed. Findings, guards, negative discrimination and ordered repeats are unknown.
+Corrected four-source and prior-language compatibility gates remain unestablished.
+No retry, profile, target execution or paid call occurred. All earlier failures
+and original fresh outcomes remain preserved with their actual scanner identities.
+
+The next **single 300-second sampled FAF input** is prepared, **unapproved and
+unexecuted** in `v53-fastpath-regression/diagnostic-proposal.json`. It retains the
+existing CPU-timer sampler, source/configuration and worker layout, with verified
+actual worker/flow/scanner identities before timer or target snapshot access.
+The stale-root synthetic control and missing-approval boundary pass. Earlier
+`6e4fd67` samples cannot establish remaining costs after the current reorder.
+No further optimization, retry, resource/deadline change or paid call is authorized.
+
+All **277 requirements (89 original + 188 added)** remain, including six unaccepted
+historical closure proposals and the unresolved invalid stale-worker preparation.
+Product/tests/workflows remain `a36f696`: 2,386 tests / 36 skips locally and in all
+12 hosted suites; 29 normal CI jobs and docs passed, combined coverage 89.98% and
+branch-only 85.85%. Six zero-call production requests and runtime bindings persist.
+**Phase 22 remains incomplete.** Git stays 312/1,040 incomplete with 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v52 equal-value fast path: regression approval pending
 
 The one approved source-only merge reorder is engineering-verified at **`a36f696`**.
 It checks eligible equal values actually present in every branch before preparing
