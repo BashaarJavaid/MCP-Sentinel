@@ -1,0 +1,847 @@
+{
+  "scanner": {
+    "revision": "a36f696c504e4e8d1f90de5dc84e8942d06316ca",
+    "source_sha256": "2f4a49aeb2173ca2174b984b8108174d96d6df42cec93e58522caf713efbaeab",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "target_source": "/private/tmp/mcp-phase22-frozen-a36f696/src/sentinel/static/path_flow.py",
+  "sha256": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+  "combine_kernel_lines": {
+    "55": "def combine(values: list[Value], key: str = \"\") -> Value:",
+    "56": "    return _combine(tuple(values), key)",
+    "60": "def _combine(values: tuple[Value, ...], key: str) -> Value:",
+    "61": "    if values:",
+    "62": "        first = values[0]",
+    "63": "        if all(value is first or value == first for value in values[1:]):",
+    "64": "            if not first.sources and (",
+    "65": "                first.contained",
+    "66": "                or first.checked_path_parent",
+    "67": "                or first.option_safe",
+    "68": "                or first.url_checks",
+    "69": "            ):",
+    "70": "                return replace(",
+    "71": "                    first,",
+    "72": "                    key=key or first.key,",
+    "73": "                    contained=False,",
+    "74": "                    checked_path_parent=False,",
+    "75": "                    option_safe=False,",
+    "76": "                    url_checks=frozenset(),",
+    "77": "                )",
+    "78": "            return replace(first, key=key) if key and key != first.key else first",
+    "79": "    present = [value for value in values if value.key not in {\"None\", \"#missing\"}]",
+    "80": "    if present and len(present) != len(values):",
+    "81": "        return replace(",
+    "82": "            combine(present, key),",
+    "83": "            maybe_none=any(value.maybe_none or value.key == \"None\" for value in values),",
+    "84": "            maybe_missing=any(value.maybe_missing for value in values),",
+    "85": "        )",
+    "86": "    if len(values) == 2:",
+    "87": "        left, right = values",
+    "88": "        has_sources = bool(left.sources or right.sources)",
+    "89": "        return Value(",
+    "90": "            left.sources | right.sources,",
+    "91": "            key",
+    "92": "            or (",
+    "93": "                left.key",
+    "94": "                if left.key == right.key",
+    "95": "                else _key(\"merge\", *sorted((left.key, right.key)))",
+    "96": "            ),",
+    "97": "            left.resolved and right.resolved,",
+    "98": "            has_sources",
+    "99": "            and (not left.sources or left.contained)",
+    "100": "            and (not right.sources or right.contained),",
+    "101": "            left.locations | right.locations,",
+    "102": "            left.path_object and right.path_object,",
+    "103": "            left.repository_object and right.repository_object,",
+    "104": "            left.instance if left.instance == right.instance else None,",
+    "105": "            has_sources",
+    "106": "            and (not left.sources or left.option_safe)",
+    "107": "            and (not right.sources or right.option_safe),",
+    "108": "            left.url_checks & right.url_checks",
+    "109": "            if left.sources and right.sources",
+    "110": "            else left.url_checks",
+    "111": "            if left.sources",
+    "112": "            else right.url_checks",
+    "113": "            if right.sources",
+    "114": "            else frozenset(),",
+    "115": "            left.operator_credential or right.operator_credential,",
+    "116": "            left.credential_fallback or right.credential_fallback,",
+    "117": "            left.credential_present and right.credential_present,",
+    "118": "            left.maybe_missing or right.maybe_missing,",
+    "119": "            left.maybe_none or right.maybe_none,",
+    "120": "            left.operator_opt_in & right.operator_opt_in",
+    "121": "            if left.operator_credential and right.operator_credential",
+    "122": "            else left.operator_opt_in",
+    "123": "            if left.operator_credential",
+    "124": "            else right.operator_opt_in",
+    "125": "            if right.operator_credential",
+    "126": "            else frozenset(),",
+    "127": "            has_sources",
+    "128": "            and (not left.sources or left.checked_path_parent)",
+    "129": "            and (not right.sources or right.checked_path_parent),",
+    "130": "            left.collection_nonempty and right.collection_nonempty,",
+    "131": "        )",
+    "132": "    tainted = [v for v in values if v.sources]",
+    "133": "    operators = [v for v in values if v.operator_credential]",
+    "134": "    keys = sorted({v.key for v in values})",
+    "135": "    return Value(",
+    "136": "        union(v.sources for v in values),",
+    "137": "        key or (keys[0] if len(keys) == 1 else _key(\"merge\", *keys)),",
+    "138": "        bool(values) and all(v.resolved for v in values),",
+    "139": "        bool(tainted) and all(v.contained for v in tainted),",
+    "140": "        frozenset().union(*(v.locations for v in values)),",
+    "141": "        bool(values) and all(v.path_object for v in values),",
+    "142": "        bool(values) and all(v.repository_object for v in values),",
+    "143": "        values[0].instance",
+    "144": "        if values and all(v.instance == values[0].instance for v in values)",
+    "145": "        else None,",
+    "146": "        bool(tainted) and all(v.option_safe for v in tainted),",
+    "147": "        frozenset.intersection(*(v.url_checks for v in tainted))",
+    "148": "        if tainted",
+    "149": "        else frozenset(),",
+    "150": "        bool(operators),",
+    "151": "        any(v.credential_fallback for v in values),",
+    "152": "        bool(values) and all(v.credential_present for v in values),",
+    "153": "        any(v.maybe_missing for v in values),",
+    "154": "        any(v.maybe_none for v in values),",
+    "155": "        frozenset.intersection(*(v.operator_opt_in for v in operators))",
+    "156": "        if operators",
+    "157": "        else frozenset(),",
+    "158": "        bool(tainted) and all(v.checked_path_parent for v in tainted),",
+    "159": "        bool(values) and all(v.collection_nonempty for v in values),",
+    "160": "    )"
+  },
+  "source_combine_callers": {
+    "src/sentinel/static/path_flow.py": {
+      "sha256": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+      "calls": [
+        {
+          "line": 56,
+          "function": "_combine",
+          "context": {
+            "54": "",
+            "55": "def combine(values: list[Value], key: str = \"\") -> Value:",
+            "56": "    return _combine(tuple(values), key)",
+            "57": "",
+            "58": ""
+          }
+        },
+        {
+          "line": 1003,
+          "function": "combine",
+          "context": {
+            "1001": "",
+            "1002": "    def combine_instances(self, values: list[Value]) -> Value:",
+            "1003": "        result = combine(values)",
+            "1004": "        if result.instance is not None:",
+            "1005": "            alternatives = {"
+          }
+        },
+        {
+          "line": 1143,
+          "function": "combine",
+          "context": {
+            "1141": "            self.members[result.key] = self.members.setdefault(original.key, {})",
+            "1142": "            return result",
+            "1143": "        return combine([value, default])",
+            "1144": "",
+            "1145": "    def http_client(self, value: Value, method: str, env: dict[str, Value]) -> bool:"
+          }
+        },
+        {
+          "line": 2087,
+          "function": "combine",
+          "context": {
+            "2085": "            self.expression(symbol, child, env) for child in ast.iter_child_nodes(node)",
+            "2086": "        ]",
+            "2087": "        result = combine(values)",
+            "2088": "        return (",
+            "2089": "            replace("
+          }
+        },
+        {
+          "line": 2480,
+          "function": "combine",
+          "context": {
+            "2478": "        values = [*args, *keywords.values()]",
+            "2479": "        method = name.rsplit(\".\", 1)[-1]",
+            "2480": "        result = combine(values + ([receiver] if receiver.sources else []))",
+            "2481": "        result = replace(",
+            "2482": "            result,"
+          }
+        },
+        {
+          "line": 82,
+          "function": "combine",
+          "context": {
+            "80": "    if present and len(present) != len(values):",
+            "81": "        return replace(",
+            "82": "            combine(present, key),",
+            "83": "            maybe_none=any(value.maybe_none or value.key == \"None\" for value in values),",
+            "84": "            maybe_missing=any(value.maybe_missing for value in values),"
+          }
+        },
+        {
+          "line": 599,
+          "function": "combine",
+          "context": {
+            "597": "                \"recursive, deeper than 64 calls, or unsupported helper\",",
+            "598": "            )",
+            "599": "            return combine(list(bindings.values()))",
+            "600": "        self.active.add(key)",
+            "601": "        self.exits.append([])"
+          }
+        },
+        {
+          "line": 1056,
+          "function": "combine",
+          "context": {
+            "1054": "        if unknown is not None:",
+            "1055": "            marker = \"#member:unknown:\" + destination.key",
+            "1056": "            env[marker] = combine([env.get(marker, UNKNOWN_VALUE), unknown])",
+            "1057": "            for existing in self.members.get(destination.key, {}).values():",
+            "1058": "                if existing in env:"
+          }
+        },
+        {
+          "line": 1825,
+          "function": "combine",
+          "context": {
+            "1823": "            if middleware is not None:",
+            "1824": "                return middleware",
+            "1825": "            value = combine(",
+            "1826": "                list(elements),",
+            "1827": "                _key(",
+            "1828": "                    \"sequence\",",
+            "1829": "                    symbol.file.relative_path,",
+            "1830": "                    str(node.lineno),",
+            "1831": "                    str(node.col_offset),",
+            "1832": "                    *self.call_sites,",
+            "1833": "                ),",
+            "1834": "            )",
+            "1835": "            self.sequence_keys[value.key] = isinstance(node, ast.List)",
+            "1836": "            self.record_keys.add(value.key)"
+          }
+        },
+        {
+          "line": 1917,
+          "function": "combine",
+          "context": {
+            "1915": "                            key=repr(included != isinstance(operator, ast.NotIn))",
+            "1916": "                        )",
+            "1917": "            result = combine([left, UNKNOWN_VALUE, right])",
+            "1918": "            facts: set[str] = set()",
+            "1919": "            if isinstance(node.ops[0], (ast.Eq, ast.NotEq)):"
+          }
+        },
+        {
+          "line": 1952,
+          "function": "combine",
+          "context": {
+            "1950": "                if truth is stopping:",
+            "1951": "                    break",
+            "1952": "            return combine(values)",
+            "1953": "        if isinstance(node, ast.IfExp):",
+            "1954": "            conditional_value = self.expression(symbol, node.test, env)"
+          }
+        },
+        {
+          "line": 1805,
+          "function": "combine",
+          "context": {
+            "1803": "            self.mapping_keys.add(mapping_key)",
+            "1804": "            return replace(",
+            "1805": "                combine(values, mapping_key),",
+            "1806": "                maybe_missing=False,",
+            "1807": "                maybe_none=False,"
+          }
+        },
+        {
+          "line": 1984,
+          "function": "combine",
+          "context": {
+            "1982": "                    self.narrow(symbol, condition, local, True)",
+            "1983": "            if isinstance(node, ast.DictComp):",
+            "1984": "                return combine(",
+            "1985": "                    [",
+            "1986": "                        self.expression(symbol, node.key, local),",
+            "1987": "                        self.expression(symbol, node.value, local),",
+            "1988": "                    ]",
+            "1989": "                )",
+            "1990": "            return self.expression(symbol, node.elt, local)",
+            "1991": "        if isinstance(node, ast.Subscript):"
+          }
+        },
+        {
+          "line": 2068,
+          "function": "combine",
+          "context": {
+            "2066": "            right = self.expression(symbol, node.right, env)",
+            "2067": "            result = replace(",
+            "2068": "                combine([left, right], _key(\"path-join\", left.key, right.key)),",
+            "2069": "                path_object=left.path_object,",
+            "2070": "                resolved=False,"
+          }
+        },
+        {
+          "line": 3092,
+          "function": "combine",
+          "context": {
+            "3090": "                extra_args = tuple(args[len(positional) :])",
+            "3091": "                self.argument_tuples[tuple_key] = extra_args",
+            "3092": "                bindings[parameters.vararg.arg] = combine(list(extra_args), tuple_key)",
+            "3093": "                all_parameters.append(parameters.vararg.arg)",
+            "3094": "            if parameters.kwarg is not None:"
+          }
+        },
+        {
+          "line": 3323,
+          "function": "combine",
+          "context": {
+            "3321": "        if escaped:",
+            "3322": "            changed = replace(",
+            "3323": "                combine(values),",
+            "3324": "                contained=False,",
+            "3325": "                checked_path_parent=False,"
+          }
+        },
+        {
+          "line": 1059,
+          "function": "combine",
+          "context": {
+            "1057": "            for existing in self.members.get(destination.key, {}).values():",
+            "1058": "                if existing in env:",
+            "1059": "                    env[existing] = combine([env[existing], unknown])",
+            "1060": "        if source.key in self.mapping_keys:",
+            "1061": "            for label, existing in tuple(self.members.get(source.key, {}).items()):"
+          }
+        },
+        {
+          "line": 2620,
+          "function": "combine",
+          "context": {
+            "2618": "                self.update_mapping(",
+            "2619": "                    self.optional_mappings[receiver.key],",
+            "2620": "                    combine(",
+            "2621": "                        [receiver, *args, *keywords.values()],",
+            "2622": "                        _key(\"ambiguous-update\", receiver.key),",
+            "2623": "                    ),",
+            "2624": "                    env,",
+            "2625": "                )"
+          }
+        },
+        {
+          "line": 2380,
+          "function": "combine",
+          "context": {
+            "2378": "                if not any(value.maybe_missing for value in field_values.values()):",
+            "2379": "                    copied = replace(",
+            "2380": "                        combine(",
+            "2381": "                            list(field_values.values()),",
+            "2382": "                            _key(",
+            "2383": "                                \"dataclass-replacement\",",
+            "2384": "                                symbol.file.relative_path,",
+            "2385": "                                str(node.lineno),",
+            "2386": "                                str(node.col_offset),",
+            "2387": "                                *self.call_sites,",
+            "2388": "                            ),",
+            "2389": "                        ),",
+            "2390": "                        instance=original.instance,",
+            "2391": "                        maybe_none=False,"
+          }
+        },
+        {
+          "line": 2939,
+          "function": "combine",
+          "context": {
+            "2937": "                            bindings[field] = self.expression(default, default.node, {})",
+            "2938": "                    if set(bindings) == set(fields):",
+            "2939": "                        record = combine(",
+            "2940": "                            list(bindings.values()),",
+            "2941": "                            _key(",
+            "2942": "                                \"record\",",
+            "2943": "                                symbol.file.relative_path,",
+            "2944": "                                str(node.lineno),",
+            "2945": "                                str(node.col_offset),",
+            "2946": "                                *self.call_sites,",
+            "2947": "                            ),",
+            "2948": "                        )",
+            "2949": "                        self.record_keys.add(record.key)",
+            "2950": "                        for field, value in bindings.items():"
+          }
+        },
+        {
+          "line": 2246,
+          "function": "combine",
+          "context": {
+            "2244": "                            context_default",
+            "2245": "                            if current.key == \"#context-unset\"",
+            "2246": "                            else combine(",
+            "2247": "                                [replace(current, maybe_missing=False), context_default]",
+            "2248": "                            )",
+            "2249": "                        )",
+            "2250": "                elif method == \"set\" and len(args) == 1:"
+          }
+        },
+        {
+          "line": 3336,
+          "function": "combine",
+          "context": {
+            "3334": "                    if marker in env:",
+            "3335": "                        env[marker] = replace(",
+            "3336": "                            combine([env[marker], changed]),",
+            "3337": "                            contained=False,",
+            "3338": "                            checked_path_parent=False,"
+          }
+        },
+        {
+          "line": 1224,
+          "function": "combine",
+          "context": {
+            "1222": "                    previous = self.member(receiver, label, env)",
+            "1223": "                    if receiver.key in self.optional_mappings:",
+            "1224": "                        value = combine([previous, value])",
+            "1225": "                    env[self.member_key(receiver, label)] = replace(",
+            "1226": "                        value, maybe_missing=False"
+          }
+        },
+        {
+          "line": 919,
+          "function": "combine",
+          "context": {
+            "917": "                self.assign(",
+            "918": "                    node.target,",
+            "919": "                    combine(",
+            "920": "                        [",
+            "921": "                            self.expression(symbol, node.target, env),",
+            "922": "                            self.expression(symbol, node.value, env),",
+            "923": "                        ]",
+            "924": "                    ),",
+            "925": "                    env,",
+            "926": "                )"
+          }
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent014.py": {
+      "sha256": "b59017ed36b51beb0120f4ef8b3931f447cac844f4e676e351751eb0bfd64d16",
+      "calls": [
+        {
+          "line": 83,
+          "function": "combine",
+          "context": {
+            "81": "",
+            "82": "    def sequence(self, values: tuple[Value, ...], identity: str) -> Value:",
+            "83": "        result = combine(list(values), _key(\"argv\", identity, *(v.key for v in values)))",
+            "84": "        self.argv[result.key] = values",
+            "85": "        return result"
+          }
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent015.py": {
+      "sha256": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+      "calls": [
+        {
+          "line": 666,
+          "function": "combine",
+          "context": {
+            "664": "            if parts is not None and len(parts) == 6:",
+            "665": "                value = replace(",
+            "666": "                    combine(list(parts)),",
+            "667": "                    key=_key(\"rebuilt-url\", sequence.key),",
+            "668": "                    url_checks=frozenset(),"
+          }
+        },
+        {
+          "line": 861,
+          "function": "combine",
+          "context": {
+            "859": "                        url = path",
+            "860": "                    elif absolute is None:",
+            "861": "                        url = combine([url, path])",
+            "862": "                self.url_sink(symbol, node, url, name)",
+            "863": "                return UNKNOWN_VALUE"
+          }
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent016.py": {
+      "sha256": "4a1f81c6f92aae2d0b5de1b78066646e91ba954335991272922fd6ec7f3c6a20",
+      "calls": [
+        {
+          "line": 295,
+          "function": "combine",
+          "context": {
+            "293": "                if value.credential_present or self.truth_value(value, env) is True:",
+            "294": "                    break",
+            "295": "            result = combine(values)",
+            "296": "            if any(v.sources and not v.credential_present for v in values[:-1]) and any(",
+            "297": "                v.operator_credential for v in values[1:]"
+          }
+        },
+        {
+          "line": 320,
+          "function": "combine",
+          "context": {
+            "318": "                for keyword in node.keywords",
+            "319": "            }",
+            "320": "            value = combine(",
+            "321": "                [*arguments, *keywords.values()],",
+            "322": "                _key(",
+            "323": "                    external,",
+            "324": "                    symbol.file.relative_path,",
+            "325": "                    str(node.lineno),",
+            "326": "                    str(node.col_offset),",
+            "327": "                    *self.call_sites,",
+            "328": "                ),",
+            "329": "            )",
+            "330": "            required = fields[:1] if external == \"aiohttp.BasicAuth\" else fields",
+            "331": "            if ("
+          }
+        },
+        {
+          "line": 567,
+          "function": "combine",
+          "context": {
+            "565": "                self.conditioned_credential(value, env) for value in credentials",
+            "566": "            ]",
+            "567": "            crossing = combine(",
+            "568": "                [value for value in conditioned if value.credential_fallback]",
+            "569": "            )",
+            "570": "            if crossing.credential_fallback and any(",
+            "571": "                source.startswith(\"http:\") for source in crossing.sources"
+          }
+        },
+        {
+          "line": 756,
+          "function": "combine",
+          "context": {
+            "754": "                ):",
+            "755": "                    break",
+            "756": "            result = combine(values)",
+            "757": "            if any(v.sources and not v.credential_present for v in values[:-1]) and any(",
+            "758": "                v.operator_credential for v in values[1:]"
+          }
+        },
+        {
+          "line": 787,
+          "function": "combine",
+          "context": {
+            "785": "                and value.credential_fallback",
+            "786": "            ]",
+            "787": "            crossing = combine(credentials)",
+            "788": "            if crossing.credential_fallback and any(",
+            "789": "                source.startswith(\"http:\") for source in crossing.sources"
+          }
+        },
+        {
+          "line": 731,
+          "function": "combine",
+          "context": {
+            "729": "            ).contained",
+            "730": "        ):",
+            "731": "            value = replace(combine([value, original]), credential_fallback=True)",
+            "732": "        super().pattern(node, value, env)",
+            "733": ""
+          }
+        },
+        {
+          "line": 156,
+          "function": "combine",
+          "context": {
+            "154": "                and env.get(\"#absent:\" + original.key, UNKNOWN_VALUE).contained",
+            "155": "            ):",
+            "156": "                value = replace(combine([value, original]), credential_fallback=True)",
+            "157": "        super().assign(target, value, env)",
+            "158": ""
+          }
+        },
+        {
+          "line": 178,
+          "function": "combine",
+          "context": {
+            "176": "                continue",
+            "177": "            env[name] = (",
+            "178": "                replace(combine([branch[name] for branch in branches]), contained=True)",
+            "179": "                if all(branch.get(name, empty).contained for branch in branches)",
+            "180": "                else empty"
+          }
+        },
+        {
+          "line": 500,
+          "function": "combine",
+          "context": {
+            "498": "                    if auth.key in self.basic_auth_fields:",
+            "499": "                        credentials.append(",
+            "500": "                            combine(",
+            "501": "                                [",
+            "502": "                                    self.member(auth, name, env)",
+            "503": "                                    for name in self.basic_auth_fields[auth.key]",
+            "504": "                                ]",
+            "505": "                            )",
+            "506": "                        )",
+            "507": "                    else:"
+          }
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_path_flow.py": {
+      "sha256": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+      "calls": [
+        {
+          "line": 352,
+          "function": "combine",
+          "context": {
+            "350": "        if present and len(present) != len(values):",
+            "351": "            return replace(self.combined(present, key), maybe_missing=True)",
+            "352": "        result = combine(values, key)",
+            "353": "        if values and all(value is result or value == result for value in values):",
+            "354": "            # The same identity already carries these metadata facts (or defaults)."
+          }
+        },
+        {
+          "line": 410,
+          "function": "combine",
+          "context": {
+            "408": "    def array_state(self, variants: tuple[tuple[Value, ...], ...]) -> Value:",
+            "409": "        variants = tuple(dict.fromkeys(variants))",
+            "410": "        result = combine(",
+            "411": "            [value for items in variants for value in items],",
+            "412": "            _key(\"array-state\", repr(variants)),",
+            "413": "        )",
+            "414": "        # ponytail: cap branch alternatives; larger arrays remain unresolved.",
+            "415": "        if len(variants) <= 32 and all(len(items) <= 256 for items in variants):"
+          }
+        },
+        {
+          "line": 908,
+          "function": "combine",
+          "context": {
+            "906": "    def record_state(self, root: str, fields: dict[str, Value]) -> Value:",
+            "907": "        attributes = dataclass_fields(Value)",
+            "908": "        value = combine(",
+            "909": "            list(fields.values()),",
+            "910": "            _key(",
+            "911": "                root,",
+            "912": "                json.dumps(",
+            "913": "                    {",
+            "914": "                        name: {",
+            "915": "                            attribute.name: getattr(field, attribute.name)",
+            "916": "                            for attribute in attributes",
+            "917": "                        }",
+            "918": "                        for name, field in fields.items()",
+            "919": "                    },",
+            "920": "                    sort_keys=True,",
+            "921": "                    default=sorted,",
+            "922": "                ),",
+            "923": "            ),",
+            "924": "        )",
+            "925": "        self.objects[value.key] = fields",
+            "926": "        return value"
+          }
+        },
+        {
+          "line": 1442,
+          "function": "combine",
+          "context": {
+            "1440": "                env[\"#record:\" + value.key] = value",
+            "1441": "            return value",
+            "1442": "        return combine(",
+            "1443": "            [",
+            "1444": "                self.expression(file, child, env)",
+            "1445": "                for key, child in node.items()",
+            "1446": "                if key not in {\"token\", \"pinfo\"} and not key.startswith(\"id_\")",
+            "1447": "            ]",
+            "1448": "        )",
+            "1449": "",
+            "1450": "    def call_value("
+          }
+        },
+        {
+          "line": 1691,
+          "function": "combine",
+          "context": {
+            "1689": "            return Value()",
+            "1690": "        location = self.program.source_range(node, file)",
+            "1691": "        result = combine(",
+            "1692": "            [value for value, _ in logical_returns]",
+            "1693": "            if logical_returns is not None",
+            "1694": "            else args + ([receiver] if receiver.sources else [])",
+            "1695": "        )",
+            "1696": "        result = replace(",
+            "1697": "            result,"
+          }
+        },
+        {
+          "line": 480,
+          "function": "combine",
+          "context": {
+            "478": "            self.function_effects = frozenset()",
+            "479": "            self.warning(symbol.file, symbol.node, \"recursive or unsupported handler\")",
+            "480": "            return combine(args)",
+            "481": "        self.active.add(identity)",
+            "482": "        exits: list[dict[str, Value]] = []"
+          }
+        },
+        {
+          "line": 1044,
+          "function": "combine",
+          "context": {
+            "1042": "        check_deadline(self.program.deadline)",
+            "1043": "        if isinstance(node, list):",
+            "1044": "            return combine([self.expression(file, child, env) for child in node])",
+            "1045": "        if not isinstance(node, dict):",
+            "1046": "            return Value()"
+          }
+        },
+        {
+          "line": 1319,
+          "function": "combine",
+          "context": {
+            "1317": "                self.invalidate(parent)",
+            "1318": "                self.warning(file, node, \"indexed array alias unresolved\")",
+            "1319": "            return combine([parent, index_value])",
+            "1320": "        if \"DotAccess\" in node:",
+            "1321": "            full_name = name_of(node)"
+          }
+        },
+        {
+          "line": 1425,
+          "function": "combine",
+          "context": {
+            "1423": "                            env,",
+            "1424": "                        )",
+            "1425": "            value = combine(",
+            "1426": "                list(fields.values()),",
+            "1427": "                _key(",
+            "1428": "                    file.relative_path,",
+            "1429": "                    str(self.program.source_range(node, file)),",
+            "1430": "                    *(v.key for v in fields.values()),",
+            "1431": "                    *(",
+            "1432": "                        str(self.program.source_range(site.node, site.file))",
+            "1433": "                        for site in self.call_sites",
+            "1434": "                    ),",
+            "1435": "                ),",
+            "1436": "            )",
+            "1437": "            self.objects[value.key] = fields",
+            "1438": "            if plain_record and len(fields) == len(node[\"Record\"][1]):"
+          }
+        },
+        {
+          "line": 1285,
+          "function": "combine",
+          "context": {
+            "1283": "                    if receiver.key in self.arrays:",
+            "1284": "                        marker = \"#array:\" + receiver.key",
+            "1285": "                        env[marker] = combine([env.get(marker, receiver), value])",
+            "1286": "                    self.invalidate(receiver)",
+            "1287": "                    self.warning("
+          }
+        },
+        {
+          "line": 733,
+          "function": "combine",
+          "context": {
+            "731": "        ):",
+            "732": "            body = node[\"For\"][2]",
+            "733": "            joined = combine(list(env.values()))",
+            "734": "            unknown = Value(",
+            "735": "                sources=joined.sources,"
+          }
+        }
+      ]
+    }
+  },
+  "current_profile_metrics": [
+    {
+      "rule": "SENT-012",
+      "samples": 19498,
+      "snapshot_worker_cpu_seconds": 225.2758,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.09057339214279,
+      "merge_fallback_constructor_leaf_percent": 0.025643655759565082,
+      "registration_inclusive_percent": 99.62047389475843,
+      "leaf_samples": {
+        "json_encoder_leaf": 1279,
+        "merge_equal_predicate_leaf": 1490,
+        "combine_cache_call_leaf": 1450
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.559647143296749,
+        "merge_equal_predicate_leaf": 7.641809416350395,
+        "combine_cache_call_leaf": 7.436660170273875
+      }
+    },
+    {
+      "rule": "SENT-014",
+      "samples": 19397,
+      "snapshot_worker_cpu_seconds": 223.582121,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.32989637572821,
+      "merge_fallback_constructor_leaf_percent": 0.05670980048461102,
+      "registration_inclusive_percent": 99.62365314223848,
+      "leaf_samples": {
+        "json_encoder_leaf": 1396,
+        "merge_equal_predicate_leaf": 1453,
+        "combine_cache_call_leaf": 1463
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 7.196989225137908,
+        "merge_equal_predicate_leaf": 7.490849100376347,
+        "combine_cache_call_leaf": 7.542403464453266
+      }
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 20060,
+      "snapshot_worker_cpu_seconds": 229.034095,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.48953140578265,
+      "merge_fallback_constructor_leaf_percent": 0.03988035892323031,
+      "registration_inclusive_percent": 99.64606181455633,
+      "leaf_samples": {
+        "json_encoder_leaf": 1332,
+        "merge_equal_predicate_leaf": 1482,
+        "combine_cache_call_leaf": 1532
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.640079760717846,
+        "merge_equal_predicate_leaf": 7.387836490528414,
+        "combine_cache_call_leaf": 7.637088733798604
+      }
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 19814,
+      "snapshot_worker_cpu_seconds": 228.764967,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.73372362975674,
+      "merge_fallback_constructor_leaf_percent": 0.050469365095387096,
+      "registration_inclusive_percent": 99.63662057131322,
+      "leaf_samples": {
+        "json_encoder_leaf": 1375,
+        "merge_equal_predicate_leaf": 1427,
+        "combine_cache_call_leaf": 1467
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.939537700615726,
+        "merge_equal_predicate_leaf": 7.201978399111739,
+        "combine_cache_call_leaf": 7.403855859493287
+      }
+    }
+  ],
+  "stack_caller_attribution_sha256": "83b1da0f8627a6eb3870ca02df3dfb74614b18e97c300aa0aada54dcb7c45df5",
+  "measured_path": "All four verified workers spend about99.6% of each partial snapshot within TypeScript registration factory traversal; branch merging is33.09\u201333.73% inclusive. The shared combine entry/cache call is7.40\u20137.64% leaf share. Equality-predicate, source-range bookkeeping, branch state updates, literal serialization and key construction remain visible. Inclusive shares overlap and partial CPU intervals differ from prior profiles; no native improvement is quantified.",
+  "source_fact": "combine always converts its list to a tuple and enters the existing4096-entry LRU before _combine checks for equal unchanged Values. For exactly one Value with no effective key override and no source-free safety stripping required, _combine returns that Value unchanged. A guard for this existing pure case at the public combine entry can avoid tuple/cache dispatch; all other paths can use the unchanged cached implementation. This is shared by Python and TypeScript.",
+  "json_interpretation": "Retained JSON-encoder stacks have scanner callers, including TypeScript literal serialization and hashed key construction. They must not be dismissed as sampler serialization merely because the profiler writes JSON. Snapshot-thread CPU and signal/GIL delivery can still bias any sample share.",
+  "unmeasured": "No locals, argument lengths, cache hit rates or eligible singleton frequency were captured. The7.40\u20137.64% leaf share does not establish the removable fraction or300-second completion. Existing cache interning can return a distinct equal Value; any proposed bypass must assess every identity-sensitive caller and preserve semantic state. Cache statistics and internal interning behavior are not a report contract, but no identity-dependent semantic change is allowed.",
+  "proposal_boundary": "One source-only eligible-singleton fast path in combine, retaining _combine and its existing LRU. No new cache, dependency, multi-value shortcut, traversal pruning, resource/deadline change, target label or source change. Stop if complete-state equivalence or intended cache-bypass accounting fails.",
+  "source_modified": false,
+  "optimization_attempts": 0,
+  "target_execution": false
+}

@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–81 and closeout audit
+# Integration evidence, batches 1–82 and closeout audit
+
+## Current-source partial profile evidence seal 82
+
+[Seal 82](evidence-v82.json) retains **97 members / 104,398,146 raw bytes**,
+archive SHA-256 `9ff0ea8d4d138e5a172c2832394438f55dfb08f098a6841b4167bf3d7bed0b26`. All 81 earlier archives and every member
+verified. This retains the current-source sampled timeout, four verified worker identities and
+78,769 partial samples, complete frame/source attribution, all 283 audit rows,
+and one unapproved source-only singleton combine optimization proposal. Final
+docs/packages and supplemental v53 delivery/approval receipts are retained.
+Restore after seals 1–81 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
 
 ## Fast-path regression evidence seal 81
 
@@ -39,7 +52,34 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v53 fast-path regression timeout: budget closed
+## Current v54 sampled timeout: source-only decision pending
+
+The approved single profile at frozen **`a36f696`** retains **four verified worker
+identities and 78,769 partial samples**. Whole input **300.007176 seconds**;
+cleanup passed, no report exists and the one-use budget is closed. Registration
+traversal dominates; merge is 33.09–33.73% inclusive and shared combine/cache call
+is 7.40–7.64% leaf sample share. These overlapping partial shares establish no
+native speedup, removable-cost fraction or 300-second completion.
+
+`v54-faf-fastpath-sampling/optimization-proposal.json` proposes **one unapproved
+source-only singleton fast path** before the existing value-combination cache.
+Only an unchanged sole Value with no key override or required safety stripping
+could bypass the tuple/cache call. All other paths, cache and complete flow state
+must remain compatible, including cold/warm and identity-sensitive controls.
+No implementation, corpus/profile/retry, new cache, resource/deadline change or
+paid call is authorized. Eligible-case prevalence remains unmeasured.
+
+All three native timeouts/204 closed remainders, prior partial profiles, invalid
+stale-worker preparation and original fresh failures remain unchanged. The audit
+retains **283 requirements (89 original + 194 added)** and six unaccepted historical
+closure proposals. Product retains tested `a36f696`: 2,386 tests / 36 skips locally
+and in all 12 hosted suites, 29 normal CI jobs and docs passed; combined coverage 89.98%,
+branch-only 85.85%, six unchanged zero-call production requests and runtime bindings.
+**Phase 22 remains incomplete.** Git stays 312/1,040 incomplete with 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v53 fast-path regression timeout: budget closed
 
 The approved 205-observation sequence at frozen **`a36f696`** stopped on its first
 FAF vulnerable input at **300.000481 seconds** whole-input time.
