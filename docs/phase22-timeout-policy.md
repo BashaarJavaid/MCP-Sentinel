@@ -1,6 +1,21 @@
 # Phase 22 static timing policy
 
-## Current four-repository result: failed fresh gates, decision pending
+## Current v45 source recovery: engineering verification pending
+
+The user approved the focused source-only recovery proposal by replying
+`continue`. Shared startup, import, path-return and guard corrections are now
+implemented with scanner-owned synthetic controls. Full engineering verification,
+a frozen corrected scanner and a separately approved exposed-regression proposal
+remain before any new corpus observations. **No new corpus observation or paid
+call has occurred.** No technical acceptance or limitation waiver is inferred.
+The original 24 observations and all four failed fresh gates at `2e0efb2` remain
+unchanged. Earlier engineering and evaluation passes retain their actual source
+bindings; they are not current-code passes for this correction.
+**Phase 22 remains incomplete.** Git remains 312/1,040 incomplete, paid benchmark
+and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v44 four-repository result: failed fresh gates, recovery proposed
 
 The approved first-frozen batch at `2e0efb2` completes **24/24 observations**;
 all **12 entire ordered report pairs agree**, all within 120 seconds (maximum

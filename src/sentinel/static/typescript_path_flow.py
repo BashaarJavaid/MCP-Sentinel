@@ -53,6 +53,7 @@ class TypeScriptPathFlow:
         self.program, self.state = program, state
         self.active: set[tuple[str, int, int]] = set()
         self.globals: dict[tuple[str, str], Value] = {}
+        self.initialized_modules: set[str] = set()
         self.relative: dict[str, tuple[Value, Value, str]] = {}
         self.objects: dict[str, dict[str, Value]] = {}
         self.record_roots: dict[str, str] = {}
@@ -83,6 +84,7 @@ class TypeScriptPathFlow:
         self.normal_exits: list[list[dict[str, Value]]] = []
         self.function_effects: Facts = frozenset()
         self.path_inputs: dict[str, frozenset[str]] = {}
+        self.lexical_alternatives: dict[str, frozenset[str]] = {}
         self.basenames: dict[str, Value] = {}
         self.origins: dict[str, frozenset[str]] = {}
         self.initial_prefixes: dict[str, tuple[frozenset[str], tuple[str, int]]] = {}
@@ -94,6 +96,7 @@ class TypeScriptPathFlow:
         self.receivers: dict[int, Value] = {}
         self.call_values: dict[int, Value] | None = None
         self.arrays: set[str] = set()
+        self.collection_lengths: dict[str, Value] = {}
         self.array_states: dict[str, tuple[tuple[Value, ...], ...]] = {}
         self.string_literals: dict[str, str] = {}
         self.nonnull_literals: set[str] = set()
@@ -198,6 +201,104 @@ class TypeScriptPathFlow:
     def canonical(self, value: Value) -> bool:
         return value.resolved or value.key in self.normalized
 
+    def imported_class(self, symbol: TypeScriptSymbol) -> Value:
+        path = symbol.file.relative_path
+        self.initialize(TypeScriptSymbol(symbol.file, self.program.trees[path]))
+        return next(
+            (
+                self.globals.get((path, name), Value())
+                for name, declarations in self.program.bindings[path].items()
+                if any(declaration is symbol.node for declaration in declarations)
+            ),
+            Value(),
+        )
+
+    def nonempty(self, value: Value, env: dict[str, Value]) -> bool:
+        if (
+            value.key in self.invalidated_objects
+            or value.maybe_missing
+            or value.maybe_none
+        ):
+            return False
+        variants = self.array_items(value, env)
+        return (
+            bool(variants) and all(variants)
+            if variants is not None
+            else value.collection_nonempty
+            or env.get("#guard:nonempty:" + value.key, Value()).contained
+        )
+
+    def path_loop(
+        self, file: TypeScriptSourceFile, body: Any, env: dict[str, Value]
+    ) -> bool:
+        """Only summarize loops whose calls cannot replace the path operations."""
+        for node in walk(body):
+            check_deadline(self.program.deadline)
+            if node.keys() & {
+                "Break",
+                "Continue",
+                "For",
+                "While",
+                "Lambda",
+                "FuncDef",
+                "ClassDef",
+            }:
+                return False
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if assignment:
+                name = name_of(assignment[0])
+                value = env.get(name or "", Value())
+                if (
+                    not name
+                    or "." in name
+                    or value.key in self.callables
+                    or value.key in self.arrays
+                    or any(
+                        "import" in declaration
+                        for declaration in self.program.bindings[
+                            file.relative_path
+                        ].get(name, [])
+                    )
+                ):
+                    return False
+            if "Call" not in node:
+                continue
+            callee = node["Call"][0]
+            special = callee.get("Special", [{}])[0]
+            if isinstance(special, dict) and "Op" in special:
+                continue
+            if special == "Spread" and len(node["Call"][1][1]) == 1:
+                argument = node["Call"][1][1][0].get("Arg", {})
+                call = argument.get("Call")
+                source = name_of(call[0]) if call else name_of(argument)
+                source = (source or "").removesuffix(".reverse") if call else source
+                if self.array_items(env.get(source or "", Value()), env) is not None:
+                    continue
+            name = name_of(callee) or ""
+            owner, _, method = name.rpartition(".")
+            if (
+                method in {"push", "reverse"}
+                and self.array_items(env.get(owner, Value()), env) is not None
+            ):
+                continue
+            symbol = self.program.resolve_node(file, callee)
+            if not symbol or (symbol.external or "").removeprefix("node:") not in {
+                "path.resolve",
+                "path.join",
+                "path.dirname",
+                "path.basename",
+                "fs.realpathSync",
+            }:
+                return False
+        return True
+
+    def boundary_facts(self, base: Value, target: Value) -> frozenset[str]:
+        fact = f"#guard:boundary:{base.key}:{target.key}"
+        self.boundaries[fact] = (base, target)
+        # Either component-bounded branch establishes lexical containment, even
+        # when separate normalization calls give the operator root different keys.
+        return frozenset({fact, f"#guard:lexical:{target.key}"})
+
     def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
         first, *rest = branches or [{}]
         for name in set().union(*(branch.keys() for branch in branches)):
@@ -256,6 +357,13 @@ class TypeScriptPathFlow:
         if any(value.key in self.mobilecli_paths for value in values):
             self.mobilecli_paths.add(result.key)
         if result.sources:
+            self.lexical_alternatives[result.key] = frozenset().union(
+                *(
+                    self.lexical_alternatives.get(v.key, frozenset({v.key}))
+                    for v in values
+                    if v.sources
+                )
+            )
             self.origins[result.key] = frozenset().union(
                 *(
                     self.origins.get(v.key, frozenset({v.key}))
@@ -285,6 +393,8 @@ class TypeScriptPathFlow:
                     for value in values
                 )
             )
+        if values and all(value.key in self.arrays for value in values):
+            self.arrays.add(result.key)
         if any(value.key in self.conditions for value in values):
             self.conditions[result.key] = (
                 common_facts([self.condition(value)[0] for value in values]),
@@ -487,6 +597,8 @@ class TypeScriptPathFlow:
                 return False
         elif "Return" in node:
             value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
+            if value.key in self.arrays:
+                value = replace(value, collection_nonempty=self.nonempty(value, env))
             if value.sources:
                 value = replace(
                     value,
@@ -609,6 +721,37 @@ class TypeScriptPathFlow:
             self.pattern(pattern, self.expression(file, iterable, env), local)
             self.statement(file, body, local, returned)
             self.merge(env, [env.copy(), local])
+        elif (
+            "For" in node
+            and node["For"][1].get("ForClassic") == [[], None, None]
+            and self.path_loop(file, node["For"][2], env)
+        ):
+            body = node["For"][2]
+            joined = combine(list(env.values()))
+            unknown = Value(
+                sources=joined.sources,
+                key=_key(
+                    "loop-state",
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                ),
+                locations=joined.locations,
+            )
+            # ponytail: widen only path-operation loops; general loops need a
+            # fixed-point analysis. The back edge
+            # cannot fall through an unconditional loop without a break.
+            local = {
+                name: value
+                if value.key in self.callables
+                else replace(unknown, key=_key(unknown.key, name))
+                for name, value in env.items()
+                if not name.startswith("#")
+            }
+            self.warning(
+                file, node, "unbounded loop state widened; termination unresolved"
+            )
+            self.statement(file, body, local, returned)
+            return False
         elif "While" in node:
             _, condition, body = node["While"]
             value = self.expression(file, condition.get("Cond", condition), env)
@@ -930,6 +1073,8 @@ class TypeScriptPathFlow:
                 if symbol:
                     if symbol.external or symbol.function:
                         self.callables[self.globals[key].key] = symbol
+                    elif "ClassDef" in symbol.node:
+                        self.globals[key] = self.imported_class(symbol)
                     else:
                         local: dict[str, Value] = {}
                         self.globals[key] = self.expression(
@@ -1219,6 +1364,15 @@ class TypeScriptPathFlow:
                     )
                 return value
             value = self.member(parent, member, env)
+            if member == "length" and parent.key in self.arrays:
+                self.collection_lengths[value.key] = parent
+                variants = self.array_items(parent, env)
+                self.conditions[value.key] = (
+                    None if self.nonempty(parent, env) else frozenset(),
+                    None
+                    if variants is not None and not any(variants)
+                    else frozenset({"#guard:nonempty:" + parent.key}),
+                )
             binding = self.callables.get(parent.key)
             if parent.key not in self.invalidated_objects:
                 if binding and binding.external:
@@ -1541,6 +1695,7 @@ class TypeScriptPathFlow:
             key=_key(file.relative_path, str(location), name, result.key),
             contained=False,
             resolved=False,
+            collection_nonempty=False,
             locations=result.locations | {(file.relative_path, location.start_line)},
         )
         method = name_of(callee.get("DotAccess", [None, None, {}])[2])
@@ -1731,6 +1886,8 @@ class TypeScriptPathFlow:
                 )
         if external == "path.basename" and len(args) == 1:
             self.basenames[result.key] = args[0]
+        if external == "path.join" and args and self.canonical(args[0]):
+            self.normalized.add(result.key)
         if external == "path.join" and len(args) == 2:
             parent = self.parents.get(args[0].key)
             basename = self.basenames.get(args[1].key)
@@ -1786,6 +1943,18 @@ class TypeScriptPathFlow:
                 self.prefixes[result.key] = args[0]
         if (
             isinstance(operator, dict)
+            and operator.get("Op") == "Gt"
+            and len(args) == 2
+            and args[0].key in self.collection_lengths
+        ):
+            raw = arguments[1][1].get("Arg", {})
+            if (
+                raw.get("L", {}).keys() & {"Int", "Float"}
+                and self.program.text(file, raw) == "0"
+            ):
+                self.conditions[result.key] = self.condition(args[0])
+        if (
+            isinstance(operator, dict)
             and operator.get("Op") in {"PhysEq", "NotPhysEq"}
             and len(args) == 2
         ):
@@ -1825,9 +1994,7 @@ class TypeScriptPathFlow:
                 and self.canonical(base)
                 and not base.sources
             ):
-                fact = f"#guard:boundary:{base.key}:{target.key}"
-                self.boundaries[fact] = (base, target)
-                facts = frozenset({fact})
+                facts = self.boundary_facts(base, target)
                 self.conditions[result.key] = (
                     (frozenset(), facts)
                     if operator["Op"] == "PhysEq"
@@ -1840,9 +2007,10 @@ class TypeScriptPathFlow:
         ):
             base = self.prefixes[args[0].key]
             if self.canonical(receiver) and self.canonical(base) and not base.sources:
-                fact = f"#guard:boundary:{base.key}:{receiver.key}"
-                self.boundaries[fact] = (base, receiver)
-                self.conditions[result.key] = (frozenset(), frozenset({fact}))
+                self.conditions[result.key] = (
+                    frozenset(),
+                    self.boundary_facts(base, receiver),
+                )
         if name.endswith(".startsWith") and len(args) == 1:
             if (
                 receiver.sources
@@ -1865,9 +2033,7 @@ class TypeScriptPathFlow:
                 root_facts: set[str] = set()
                 for root_fact, base in self.root_directories.items():
                     if env.get(root_fact, Value()).contained:
-                        fact = f"#guard:boundary:{base.key}:{receiver.key}"
-                        self.boundaries[fact] = (base, receiver)
-                        root_facts.add(fact)
+                        root_facts.update(self.boundary_facts(base, receiver))
                 self.conditions[result.key] = (frozenset(), frozenset(root_facts))
         if (
             name.endswith(".startsWith")
@@ -1976,6 +2142,7 @@ class TypeScriptPathFlow:
                 else None
             )
             if callback and callback.function:
+                nonempty = self.nonempty(receiver, env)
                 captured = {**self.closures.get(args[0].key, env)}
                 if args[0].key not in self.lexical_this:
                     captured.pop("this", None)
@@ -1997,14 +2164,32 @@ class TypeScriptPathFlow:
                         self.condition(value)[0],
                         frozenset(),
                     )
-                elif method in {"filter", "find"}:
-                    return receiver
+                elif method == "find":
+                    return replace(
+                        receiver,
+                        key=result.key,
+                        collection_nonempty=False,
+                        maybe_missing=True,
+                    )
+                elif method == "filter":
+                    self.arrays.add(result.key)
+                    return replace(receiver, key=result.key, collection_nonempty=False)
                 elif method in {"map", "flatMap"}:
                     # Array truthiness does not establish callback boolean guards.
                     if self.canonical(value):
                         self.normalized.add(result.key)
-                    return replace(value, key=result.key)
+                    self.arrays.add(result.key)
+                    return replace(
+                        value,
+                        key=result.key,
+                        collection_nonempty=(method == "map" and nonempty),
+                    )
                 return result
+        if "DotAccess" in callee and name_of(callee["DotAccess"][2]) in {
+            "split",
+            "filter",
+        }:
+            self.arrays.add(result.key)
         if "Special" not in callee:
             pending = [receiver, *args]
             seen: set[str] = set()
@@ -2075,6 +2260,12 @@ class TypeScriptPathFlow:
                         **(
                             {"containment_gap": "physical"}
                             if env.get(f"#guard:lexical:{value.key}", Value()).contained
+                            or all(
+                                env.get(f"#guard:lexical:{key}", Value()).contained
+                                for key in self.lexical_alternatives.get(
+                                    value.key, frozenset({value.key})
+                                )
+                            )
                             else {"containment_gap": "after-prefix"}
                             if prefix_locations
                             else {}
@@ -2152,6 +2343,9 @@ class TypeScriptPathFlow:
         if initializer.function is not None:
             self.function(initializer, [])
         else:
+            if initializer.file.relative_path in self.initialized_modules:
+                return
+            self.initialized_modules.add(initializer.file.relative_path)
             env: dict[str, Value] = {}
             for name, declarations in self.program.bindings[
                 initializer.file.relative_path
@@ -2162,10 +2356,13 @@ class TypeScriptPathFlow:
                 ):
                     symbol = self.program.resolve_node(initializer.file, imports[0])
                     if symbol:
-                        value = Value(
-                            key=_key(initializer.file.relative_path, "import", name)
-                        )
-                        self.callables[value.key] = symbol
+                        if "ClassDef" in symbol.node:
+                            value = self.imported_class(symbol)
+                        else:
+                            value = Value(
+                                key=_key(initializer.file.relative_path, "import", name)
+                            )
+                            self.callables[value.key] = symbol
                         env[name] = value
             for statement in initializer.node.get("Pr", []):
                 if statement.keys() & {
@@ -2304,6 +2501,10 @@ class TypeScriptPathFlow:
             env[fact] = Value(contained=True)
         for fact, (base, target) in self.boundaries.items():
             if env.get(fact, Value()).contained:
+                for original_key in self.path_inputs.get(
+                    target.key, frozenset({target.key})
+                ):
+                    env[f"#guard:lexical:{original_key}"] = Value(contained=True)
                 for name, current in env.items():
                     if current.key == target.key and target.resolved:
                         env[name] = replace(current, contained=True)

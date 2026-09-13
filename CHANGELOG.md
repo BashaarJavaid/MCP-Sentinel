@@ -12,6 +12,9 @@ new rule IDs.
 
 ### Fixed
 
+- Recover actual startup through imported TypeScript classes, checked path-return
+  facts, and source-bound Python imports. Keep reconstructed paths as qualified
+  candidates instead of treating a guard on a resolved copy as full protection.
 - Accept comments and trailing commas in devcontainer JSON configuration while
   retaining original source evidence and rejecting malformed content.
 - Include Git in pinned Python runtime images and include the base-image digest

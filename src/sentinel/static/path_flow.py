@@ -43,6 +43,7 @@ class Value:
     operator_opt_in: frozenset[str] = frozenset()
     # Evidence about the original path, never protection for its parent.
     checked_path_parent: bool = False
+    collection_nonempty: bool = False
 
     def __deepcopy__(self, memo: dict[int, object]) -> Value:
         return self
@@ -126,6 +127,7 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
             has_sources
             and (not left.sources or left.checked_path_parent)
             and (not right.sources or right.checked_path_parent),
+            left.collection_nonempty and right.collection_nonempty,
         )
     tainted = [v for v in values if v.sources]
     operators = [v for v in values if v.operator_credential]
@@ -154,6 +156,7 @@ def _combine(values: tuple[Value, ...], key: str) -> Value:
         if operators
         else frozenset(),
         bool(tainted) and all(v.checked_path_parent for v in tainted),
+        bool(values) and all(v.collection_nonempty for v in values),
     )
 
 
@@ -184,6 +187,7 @@ class PathFlow:
         "#literal-choices:",
         "#context:",
         "#http:",
+        "#path-copy:",
     )
 
     def __init__(
@@ -211,6 +215,7 @@ class PathFlow:
             )
         }
         self.globals: dict[tuple[str, str], Value] = {}
+        self.external_imports: dict[str, str] = {}
         self.global_members: dict[str, Value] = {}
         self.source_modules: dict[str, ParsedPythonFile] = {}
         self.module_values = {
@@ -238,6 +243,8 @@ class PathFlow:
         ] = {}
         self.common_paths: dict[str, tuple[Value, ...]] = {}
         self.path_arrays: dict[ast.AST, tuple[Value, ...]] = {}
+        self.resolved_inputs: dict[str, str] = {}
+        self.path_origins: dict[str, frozenset[str]] = {}
         self.launch_call: ast.Call | None = None
         self.launch_states: list[dict[tuple[str, str], Value]] = []
         self.non_none: set[str] = set()
@@ -703,6 +710,8 @@ class PathFlow:
                     )
                     if imported_target is not None:
                         env[name] = self.source_value(imported_target, env)
+                    else:
+                        env[name] = self.import_value(node, name, env)
             elif isinstance(node, ast.Delete):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
@@ -1442,8 +1451,15 @@ class PathFlow:
             if present:
                 self.narrow(symbol, node.left, env, True)
         elif truth and isinstance(node, (ast.Name, ast.Attribute, ast.Subscript)):
-            value = self.bound_value(node, env)
+            global_name = isinstance(node, ast.Name) and node.id not in env
+            value = (
+                self.expression(symbol, node, env)
+                if isinstance(node, ast.Name)
+                else self.bound_value(node, env)
+            )
             if value.key and (value.maybe_none or value.maybe_missing):
+                if isinstance(node, ast.Name):
+                    env[node.id] = value
                 for name, current in env.items():
                     if current.key == value.key:
                         env[name] = replace(
@@ -1453,6 +1469,14 @@ class PathFlow:
                             locations=current.locations
                             | {(symbol.file.relative_path, node.lineno)},
                         )
+                if (
+                    global_name
+                    and isinstance(node, ast.Name)
+                    and value.key in self.external_imports
+                ):
+                    env[f"#global-value:{symbol.file.relative_path}:{node.id}"] = env[
+                        node.id
+                    ]
 
     @staticmethod
     def compared_strings(node: ast.Compare) -> frozenset[str] | None:
@@ -1493,6 +1517,13 @@ class PathFlow:
             self.expression(symbol, node.args[0], env) if node.args else UNKNOWN_VALUE
         )
         if value.path_object and value.resolved and base.resolved and not base.sources:
+            original = self.resolved_inputs.get(value.key)
+            if original and value.sources:
+                env["#path-copy:" + original] = Value(
+                    key="True",
+                    locations=value.locations
+                    | {(symbol.file.relative_path, node.lineno)},
+                )
             for name, current in env.items():
                 if current.key == value.key:
                     env[name] = replace(
@@ -1501,6 +1532,130 @@ class PathFlow:
                         locations=current.locations
                         | {(symbol.file.relative_path, node.lineno)},
                     )
+
+    def import_value(
+        self, declaration: ast.Import | ast.ImportFrom, name: str, env: dict[str, Value]
+    ) -> Value:
+        external = self.program.external_import(declaration, name)
+        if not external:
+            return UNKNOWN_VALUE
+        parts = external.split(".")
+        for index in range(1, len(parts) + 1):
+            parent = Value(key=_key("external-import", ".".join(parts[:index])))
+            if "#member:unknown:" + parent.key in env or (
+                index < len(parts) and self.member_key(parent, parts[index]) in env
+            ):
+                return UNKNOWN_VALUE
+        return self.external_value(external)
+
+    def external_value(self, external: str) -> Value:
+        value = Value(key=_key("external-import", external))
+        self.external_imports[value.key] = external
+        self.record_keys.add(value.key)
+        return value
+
+    def optional_import(
+        self, symbol: Symbol, name: str, declarations: list[ast.AST]
+    ) -> Value:
+        if len(declarations) != 2:
+            return UNKNOWN_VALUE
+        owner: ast.AST | None = symbol.node
+        while owner is not None:
+            if name in self.program.local_bindings.get(owner, {}):
+                return UNKNOWN_VALUE
+            owner = self.program.parents.get(owner)
+        declaration = next(
+            (n for n in declarations if isinstance(n, (ast.Import, ast.ImportFrom))),
+            None,
+        )
+        attempt = self.program.parents.get(declaration) if declaration else None
+        if not isinstance(attempt, ast.Try) or attempt not in symbol.file.tree.body:
+            return UNKNOWN_VALUE
+        if (
+            attempt.body != [declaration]
+            or attempt.orelse
+            or attempt.finalbody
+            or len(attempt.handlers) != 1
+        ):
+            return UNKNOWN_VALUE
+        handler = attempt.handlers[0]
+        if (
+            not isinstance(handler.type, ast.Name)
+            or handler.type.id != "ImportError"
+            or handler.name
+            or len(handler.body) != 1
+        ):
+            return UNKNOWN_VALUE
+        fallback = handler.body[0]
+        if (
+            "ImportError" in self.program.bindings[symbol.file.relative_path]
+            or fallback not in declarations
+            or not isinstance(fallback, ast.Assign)
+            or len(fallback.targets) != 1
+            or not isinstance(fallback.targets[0], ast.Name)
+            or fallback.targets[0].id != name
+            or not isinstance(fallback.value, ast.Constant)
+            or fallback.value.value is not None
+        ):
+            return UNKNOWN_VALUE
+        # This bounded global proof excludes replacement and escaped module
+        # identities; function-local imports use the ordinary mutable value flow.
+        for node in ast.walk(symbol.file.tree):
+            check_deadline(self.deadline)
+            if isinstance(node, ast.Global) and name in node.names:
+                return UNKNOWN_VALUE
+            if (
+                isinstance(node, ast.Attribute)
+                and isinstance(node.ctx, (ast.Store, ast.Del))
+                and (qualified_name(node) or "").split(".")[0] == name
+            ):
+                return UNKNOWN_VALUE
+            if (
+                isinstance(node, ast.Name)
+                and node.id == name
+                and isinstance(node.ctx, ast.Load)
+            ):
+                parent = self.program.parents.get(node)
+                if not isinstance(parent, (ast.Attribute, ast.Compare)):
+                    return UNKNOWN_VALUE
+        assert isinstance(declaration, (ast.Import, ast.ImportFrom))
+        return replace(self.import_value(declaration, name, {}), maybe_none=True)
+
+    def bound_external(
+        self, symbol: Symbol, node: ast.AST, env: dict[str, Value]
+    ) -> str:
+        root_node = node
+        while isinstance(root_node, ast.Attribute):
+            root_node = root_node.value
+        if not isinstance(root_node, ast.Name):
+            return ""
+        name = qualified_name(node) or ""
+        root, _, suffix = name.partition(".")
+        value = env.get(
+            root,
+            env.get(f"#global-value:{symbol.file.relative_path}:{root}", UNKNOWN_VALUE),
+        )
+        external = self.external_imports.get(value.key)
+        if not external or value.maybe_none or value.maybe_missing:
+            return ""
+        if "#member:unknown:" + value.key in env:
+            return ""
+        current = node
+        while isinstance(current, ast.Attribute):
+            receiver = self.expression(symbol, current.value, env)
+            if (
+                self.member_key(receiver, current.attr) in env
+                or "#member:unknown:" + receiver.key in env
+            ):
+                return ""
+            current = current.value
+        resolved = external + ("." + suffix if suffix else "")
+        return (
+            ""
+            if resolved in self.external_writes
+            or "#member:unknown:" + _key("external-import", resolved) in env
+            else resolved
+        )
 
     def source_value(self, target: Symbol, env: dict[str, Value]) -> Value:
         module = self.module_values[target.file.relative_path]
@@ -1586,6 +1741,9 @@ class PathFlow:
                 declarations = self.program.bindings[symbol.file.relative_path].get(
                     node.id, []
                 )
+                optional = self.optional_import(symbol, node.id, declarations)
+                if optional.key:
+                    self.globals[key] = optional
                 if len(declarations) == 1 and isinstance(
                     declarations[0], (ast.Import, ast.ImportFrom)
                 ):
@@ -1846,6 +2004,15 @@ class PathFlow:
             )
         if isinstance(node, ast.Attribute):
             value = self.expression(symbol, node.value, env)
+            if value.key in self.external_imports:
+                if (
+                    self.member_key(value, node.attr) in env
+                    or "#member:unknown:" + value.key in env
+                ):
+                    return self.member(value, node.attr, env)
+                return self.external_value(
+                    self.external_imports[value.key] + "." + node.attr
+                )
             if value.key in self.source_modules:
                 if node.attr in {"__dict__", "__class__"}:
                     self.unresolved(symbol, node, "source module reflection")
@@ -1897,13 +2064,21 @@ class PathFlow:
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
             left = self.expression(symbol, node.left, env)
             right = self.expression(symbol, node.right, env)
-            return replace(
+            result = replace(
                 combine([left, right], _key("path-join", left.key, right.key)),
                 path_object=left.path_object,
                 resolved=False,
                 contained=False,
                 checked_path_parent=False,
             )
+            self.path_origins[result.key] = frozenset().union(
+                *(
+                    self.path_origins.get(value.key, frozenset({value.key}))
+                    for value in (left, right)
+                    if value.sources
+                )
+            )
+            return result
         if isinstance(node, (ast.Lambda, ast.FunctionDef, ast.AsyncFunctionDef)):
             return UNKNOWN_VALUE
         values = [
@@ -1955,6 +2130,7 @@ class PathFlow:
             return UNKNOWN_VALUE
         name = qualified_name(node.func) or "dynamic call"
         resolved = resolve_name(name, self.aliases[symbol.file.relative_path])
+        imported_external = self.bound_external(symbol, node.func, env)
         root = name.split(".")[0]
         declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
         if (
@@ -1969,6 +2145,8 @@ class PathFlow:
             )
         ):
             resolved = ""
+        if imported_external:
+            resolved = imported_external
         receiver = self.call_receiver(symbol, node, env)
         if isinstance(node.func, ast.Attribute):
             root_node: ast.AST = node.func
@@ -2101,17 +2279,16 @@ class PathFlow:
             self.unresolved(symbol, node, "unresolved ContextVar operation")
             env[marker] = UNKNOWN_VALUE
             return UNKNOWN_VALUE
-        if (
-            resolved
-            in {
-                "httpx.Client",
-                "httpx.AsyncClient",
-                "requests.Session",
-                "aiohttp.ClientSession",
-                "atlassian.Jira",
-                "atlassian.Confluence",
-            }
-            and self.program.external(symbol, node.func) == resolved
+        if resolved in {
+            "httpx.Client",
+            "httpx.AsyncClient",
+            "requests.Session",
+            "aiohttp.ClientSession",
+            "atlassian.Jira",
+            "atlassian.Confluence",
+        } and (
+            imported_external == resolved
+            or self.program.external(symbol, node.func) == resolved
         ):
             value = Value(
                 key=_key(
@@ -2461,9 +2638,27 @@ class PathFlow:
             resolved == "os.path.realpath"
             and self.program.external(symbol, node.func) == resolved
         ):
-            return replace(
-                result if args else receiver, resolved=True, locations=result.locations
+            original = result if args else receiver
+            resolved_path = replace(
+                original,
+                key=original.key
+                if original.resolved
+                else _key(
+                    "resolved-path",
+                    original.key,
+                    symbol.file.relative_path,
+                    str(node.lineno),
+                    str(node.col_offset),
+                    *self.call_sites,
+                ),
+                resolved=True,
+                contained=False,
+                checked_path_parent=False,
+                locations=result.locations,
             )
+            if not original.resolved:
+                self.resolved_inputs[resolved_path.key] = original.key
+            return resolved_path
         if (
             resolved == "os.path.commonpath"
             and len(args) == 1
@@ -2477,7 +2672,9 @@ class PathFlow:
                 )
                 self.common_paths[result.key] = path_values
             return result
-        if resolved == "pathlib.Path" and name.split(".")[0] not in env:
+        if resolved == "pathlib.Path" or (
+            resolved == "pathlib.Path.home" and not args and not keywords
+        ):
             return replace(
                 result, path_object=True, maybe_missing=False, maybe_none=False
             )
@@ -2565,6 +2762,13 @@ class PathFlow:
             sink = args[0] if args else keywords.get("items")
         if sink is not None:
             if self.rule_id == "SENT-012" and sink.sources and not sink.contained:
+                copies = [
+                    env.get("#path-copy:" + key, UNKNOWN_VALUE)
+                    for key in self.path_origins.get(sink.key, frozenset({sink.key}))
+                ]
+                checked_copy = bool(copies) and all(
+                    value.key == "True" for value in copies
+                )
                 match = match_from_node("SENT-012", symbol.file, node, "path-flow")
                 self.state.matches.append(
                     replace(
@@ -2574,11 +2778,20 @@ class PathFlow:
                             **(
                                 {"containment_gap": "checked-parent"}
                                 if sink.checked_path_parent
+                                else {"containment_gap": "resolved-copy"}
+                                if checked_copy
                                 else {}
                             ),
                             "flow_locations": json.dumps(
                                 sorted(
                                     sink.locations
+                                    | (
+                                        frozenset().union(
+                                            *(value.locations for value in copies)
+                                        )
+                                        if checked_copy
+                                        else frozenset()
+                                    )
                                     | {(symbol.file.relative_path, node.lineno)}
                                 )
                             ),

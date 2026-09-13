@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 from sentinel.report.model import ReportWarning
 from sentinel.static.ast_utils import (
     discover_tool_regions,
-    import_aliases,
     literal_string,
     qualified_name,
     resolve_name,
@@ -463,12 +462,29 @@ class PythonProgram:
             declarations[0], (ast.Import, ast.ImportFrom)
         ):
             return ""
-        if isinstance(declarations[0], ast.ImportFrom) and declarations[0].level:
+        return self.external_import(declarations[0], name)
+
+    def external_import(
+        self, declaration: ast.Import | ast.ImportFrom, name: str
+    ) -> str:
+        """Resolve an actual import without loading the dependency or local source."""
+        if isinstance(declaration, ast.ImportFrom) and declaration.level:
             return ""
-        imported = resolve_name(name, import_aliases(symbol.file))
+        aliases = {
+            alias.asname
+            or alias.name.split(".")[0]: f"{declaration.module}.{alias.name}"
+            if isinstance(declaration, ast.ImportFrom)
+            else alias.name
+            if alias.asname
+            else alias.name.split(".")[0]
+            for alias in declaration.names
+        }
+        if name.split(".")[0] not in aliases:
+            return ""
+        imported = resolve_name(name, aliases)
         if any(
             ".".join(imported.split(".")[:end]) in self.modules
-            for end in range(1, len(imported.split(".")))
+            for end in range(1, len(imported.split(".")) + 1)
         ):
             return ""
         return imported

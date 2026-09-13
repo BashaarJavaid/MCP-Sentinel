@@ -64,7 +64,21 @@ def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:
     for path, tree in program.trees.items():
         # Follow actual module construction of included classes. Merely declaring
         # an unused class does not register a tool.
-        if not any("ClassDef" in node for node in walk(tree)):
+        if not any(
+            "ClassDef" in node
+            or (
+                "New" in node
+                and (
+                    constructor := program.resolve_node(
+                        program.files[path],
+                        node["New"][1].get("t", {}).get("TyExpr", {}),
+                    )
+                )
+                is not None
+                and "ClassDef" in constructor.node
+            )
+            for node in walk(tree)
+        ):
             continue
         initializer = TypeScriptSymbol(program.files[path], tree)
         flow = RegistrationFlow(program, initializer)

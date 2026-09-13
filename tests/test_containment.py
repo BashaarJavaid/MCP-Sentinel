@@ -426,7 +426,7 @@ def test_unknown_helper_is_disclosed_without_inventing_a_sink() -> None:
 
 
 @pytest.mark.parametrize("early_return", [False, True])
-def test_void_validator_must_reject_on_every_return_path(early_return: bool) -> None:
+def test_void_validator_does_not_protect_original_path(early_return: bool) -> None:
     guard = "    if skip:\n        return\n" if early_return else ""
     source = (
         "from pathlib import Path\n"
@@ -437,7 +437,8 @@ def test_void_validator_must_reject_on_every_return_path(early_return: bool) -> 
     )
     state = RuleRunState()
     analyze(program({"server.py": source}), state)
-    assert bool(state.matches) == early_return
+    # Validating a resolved copy does not bind a later use of the original path.
+    assert len(state.matches) == 1
 
 
 @pytest.mark.parametrize("constructor", ["FakePath", "Path"])
@@ -477,12 +478,12 @@ def test_optional_operator_root_does_not_become_a_caller_bypass(
     )
     state = RuleRunState()
     analyze(program({"server.py": source}), state)
-    assert bool(state.matches) == caller_boundary
+    assert len(state.matches) == 1
 
 
 @pytest.mark.parametrize("lookup", ["arguments['path']", "arguments.get('path')"])
 @pytest.mark.parametrize("guarded", [False, True])
-def test_constructed_path_keeps_helper_protection_for_optional_input(
+def test_constructed_path_requires_using_the_checked_resolved_value(
     lookup: str, guarded: bool
 ) -> None:
     source = (
@@ -496,7 +497,7 @@ def test_constructed_path_keeps_helper_protection_for_optional_input(
     )
     state = RuleRunState()
     analyze(program({"server.py": source}), state)
-    assert bool(state.matches) is not guarded
+    assert len(state.matches) == 1
 
 
 def test_local_pathlib_constructor_does_not_establish_containment() -> None:

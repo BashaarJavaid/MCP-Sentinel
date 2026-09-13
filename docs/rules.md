@@ -1,6 +1,21 @@
 # PortunusMCP Sentinel rule catalog
 
-## Current four-repository result: failed fresh gates, decision pending
+## Current v45 source recovery: engineering verification pending
+
+The user approved the focused source-only recovery proposal by replying
+`continue`. Shared startup, import, path-return and guard corrections are now
+implemented with scanner-owned synthetic controls. Full engineering verification,
+a frozen corrected scanner and a separately approved exposed-regression proposal
+remain before any new corpus observations. **No new corpus observation or paid
+call has occurred.** No technical acceptance or limitation waiver is inferred.
+The original 24 observations and all four failed fresh gates at `2e0efb2` remain
+unchanged. Earlier engineering and evaluation passes retain their actual source
+bindings; they are not current-code passes for this correction.
+**Phase 22 remains incomplete.** Git remains 312/1,040 incomplete, paid benchmark
+and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v44 four-repository result: failed fresh gates, recovery proposed
 
 The approved first-frozen batch at `2e0efb2` completes **24/24 observations**;
 all **12 entire ordered report pairs agree**, all within 120 seconds (maximum
@@ -382,6 +397,15 @@ check: Python permits parent components in that mode. Checking an expanded
 home-directory path does not validate the original unexpanded value. See the
 [Python API contract](https://docs.python.org/3.12/library/pathlib.html#pathlib.PurePath.relative_to).
 
+An actual function-local pathlib import retains its identity through aliases;
+replacement, namespace mutation and escape to an unknown call invalidate that
+identity. Resolving a path produces a distinct value. A guard on that resolved
+copy does not suppress a later use of the original path. A remaining candidate
+can record that the originating path's resolved copy passed containment while
+explicitly leaving reconstruction, subsequent derivation, working-directory
+changes and physical containment unresolved. The checked value itself must reach
+the operation to establish protection.
+
 Recursive or deeper-than-64 helper/binding chains and unresolved calls are
 disclosed. This is source analysis, with no race-free filesystem or runtime
 symlink guarantee. `static_review_context_incomplete` discloses traced evidence
@@ -416,6 +440,17 @@ initial normalized root-prefix check from the containment of paths derived
 afterward. That initial check does not establish component, parent-fallback or
 symlink safety. While loops receive zero-or-one-iteration source interpretation;
 later loop-carried state is explicitly unresolved. No target loop is executed.
+
+Actual module startup can construct an imported local class and register its
+handlers; an unused class alone does not establish registration. Compound
+component-prefix-or-root checks retain their shared lexical fact through checked
+record returns, without suppressing physical-path concerns. Nonempty root
+collections can survive a checked fallback and `map`; empty alternatives and
+mutations remain conservative. An unconditional, break-free path-canonicalization
+loop has a narrow source summary: locals are widened before collecting returns,
+and only known path operations and intact local arrays are supported. Its
+termination remains unresolved; arbitrary calls or mutations do not receive that
+summary.
 
 A TypeScript module root assigned once inside a top-level `try` can retain its
 canonical path when failure branches throw or call a proven global `process.exit`.

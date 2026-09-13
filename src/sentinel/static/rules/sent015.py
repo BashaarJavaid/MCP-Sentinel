@@ -281,6 +281,9 @@ class URLFlow(PathFlow):
         return True
 
     def external(self, symbol: Symbol, node: ast.AST, env: dict[str, Value]) -> str:
+        imported = self.bound_external(symbol, node, env)
+        if imported:
+            return imported
         name = qualified_name(node) or ""
         root = name.split(".")[0]
         declarations = self.program.bindings[symbol.file.relative_path].get(root, [])
@@ -718,6 +721,7 @@ class URLFlow(PathFlow):
                 result = replace(argument, key=_key("ip", argument.key))
                 self.parts[result.key] = (origin, "ip")
                 self.record_keys.add(result.key)
+                self.non_none.add(result.key)
                 env[self.member_key(result, "#address-input")] = argument
                 return result
         if (
