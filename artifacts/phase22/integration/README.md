@@ -1,4 +1,37 @@
-# Integration evidence, batches 1–77 and closeout audit
+# Integration evidence, batches 1–78 and closeout audit
+
+## Diagnostic binding correction evidence seal 78
+
+[Seal 78](evidence-v78.json) retains **89 members / 3,534,831 raw bytes**,
+archive SHA-256 `d7fb1724485f8a319b1fc8d12a25108f0ccfcce857ef863562a7b030dbf1f13d`. All 77 earlier archives and every member
+verified. This retains the invalid interrupted profile caused by the stale worker import root,
+all 259 audit rows including the corrected preparation disposition, the corrected
+unapproved profile with worker identity guards, synthetic rejection and approval
+boundary checks, final docs/packages, and supplemental v49 delivery/approval receipts.
+Restore after seals 1–77 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
+
+## Current v50 profile binding failure: stopped and closed
+
+The approved single profile was deliberately stopped when the reused sampler's
+worker import root was found to be `17b4784` instead of approved `6e4fd67`.
+**One invalid interrupted attempt, no report or sample snapshot, zero remaining.**
+Cleanup inventory is empty. Parent identity does not prove worker identity;
+V49-DIAGNOSTIC-PREPARATION is corrected to unresolved with its prior row preserved.
+The [review packet](v50-faf-allocation-sampling/summary.md) retains this agent preparation error and the diagnostic-only
+correction: actual worker/flow imports and full scanner identity checked before
+sampling or target snapshot access, with a stale-root rejection control.
+A new **single 300-second profile is unapproved and unexecuted**; no retry,
+optimization or paid call is authorized. Prior native timeouts and all four
+first-frozen failures remain unchanged. Product retains tested `6e4fd67`:
+2,384 tests / 36 skips locally and in all 12 hosted suites; 29 normal jobs and
+docs passed, combined coverage 89.98%, branch-only 85.85%. All 259 requirements
+remain. **Phase 22 is incomplete**; human acceptance is separate. Git stays
+312/1,040 incomplete; paid benchmark/pilots deferred, Phase 21 incomplete and
+Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
+
 
 ## Allocation regression evidence seal 77
 
@@ -13,7 +46,7 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v49 allocation regression timeout: budget closed
+## Historical v49 allocation regression timeout: budget closed
 
 The approved 205-observation sequence at frozen `6e4fd67` stopped on its first
 FAF vulnerable input at the 300-second whole-input maximum: **one incomplete,

@@ -1,0 +1,76 @@
+{
+  "recorded_at": "2026-09-13T08:56:23.214252+00:00",
+  "scanner_expected": {
+    "revision": "6e4fd671a97d92f6297dffc900c4dd9e18faad2c",
+    "source_sha256": "d1d24e53db3dc112639aaedcfd6a03102188e29d3007fcfc823d2b1b015cc2ed",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "parent_scanner_reported": {
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add",
+    "revision": "6e4fd671a97d92f6297dffc900c4dd9e18faad2c",
+    "source_sha256": "d1d24e53db3dc112639aaedcfd6a03102188e29d3007fcfc823d2b1b015cc2ed"
+  },
+  "validation_passed": true,
+  "profile_gate_passed": false,
+  "status": "invalid interrupted profile: stale worker import root",
+  "profile_attempts": 1,
+  "completed_inputs": 0,
+  "incomplete_inputs": 1,
+  "valid_current_source_profiles": 0,
+  "report_count": 0,
+  "sample_snapshots": 0,
+  "finding_count": null,
+  "warning_count": null,
+  "surface_count": null,
+  "source_assessment_complete_for_retained_outputs": true,
+  "harness_outcome": {
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "input_id": "faf-read-root-vulnerable",
+    "reason": null,
+    "state": "incomplete",
+    "wall_duration_ms": 27097
+  },
+  "whole_input_seconds": null,
+  "cleanup_seconds": null,
+  "cleanup_verified_by_post_stop_process_inventory": true,
+  "budget_closed": true,
+  "remaining": 0,
+  "manual_stop": {
+    "signal": "SIGTERM",
+    "owned_supervisor_pid": 82270,
+    "tool_exit_code": 1,
+    "tool_stdout": "supervisor termination",
+    "reason": "Source inspection found the sealed sampler literal points to old frozen17b4784 while approved parent/proposal specifies6e4fd67. Supervisor was stopped immediately; its finally reaped owned children. Diagnostic finally closed its budget. Its post-supervise execution.json writer was bypassed by SystemExit, so no exact supervisor timing is claimed."
+  },
+  "source_explanation": "The sampler prep reused the old file byte-for-byte and failed to replace its literal sys.path root. Parent scanner_identity and proposal file hashes did not prove subprocess import identity. The synthetic sampler test checked values and timer restoration but lacked an expected worker-source assertion. No worker snapshot or startup identity receipt exists, so actual worker progress is unknown. The interrupted result is invalid for current-source attribution, not a timing miss, condition result, or fresh pass. This is an agent preparation error, not an observed scanner product defect.",
+  "worker_import_root_in_sealed_source": "/private/tmp/mcp-phase22-frozen-17b4784",
+  "worker_scanner_observed": null,
+  "proposal_sha256": "e902b48857e0cfca4aaffe3fe551511952c064f57c902fe3850d6892b05ec9c4",
+  "approval_sha256": "1f668a036c71e10ae4c70fb73f7d31a4cb8b88860f1c1b54918fc9a134988039",
+  "source_bindings": {
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/sampling-worker.py": "c848c6bd5577ad766534e49d1d8aa83c85e619360c7d245da5a5d0125aefce15",
+    "artifacts/phase22/integration/v49-allocation-regression/diagnostic.py": "b7b33f199ccac9c40e36ad5b152ef690ed47aa9829217acd8e841848886bb792",
+    "artifacts/phase22/integration/v49-allocation-regression/sampler-selfcheck.py": "4eebc21e7396920337ea984f6dfec65c2fca1d630fad6e8f96ff01da06bf4dfb",
+    "src/sentinel/static/workers.py": "cc97d0b9bb3fae9f2c8205162137e0ae0ae2fd164d681ec24e27c0a4140b113c",
+    "scripts/phase20_measurements.py": "37364932cd51d52caed4b95ede2246f48df1bcf40c734431997801af0cf915c2",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6"
+  },
+  "retained_raw_sha256": {
+    "attempt.json": "5e38d1a286b66104d5e30fb7af50ad7502657103a93ed7f93a421aa2eb806826",
+    "budget-closed.json": "32ce91f69736f43f8d5f0f5bdc77e89cc26ba22896b685287b1a29a5f6eca5f4",
+    "measurement/results.json": "db55f36a9fb150dff6ac04294a0c5e95fad31c6257342eaff1034ec271d94955",
+    "measurement/faf-read-root-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "observation.log": "46104dbe0da9840f1c9f7913496e2c6e318eb38d339e11a880a23c229b212a7b",
+    "sampling-worker.py": "c848c6bd5577ad766534e49d1d8aa83c85e619360c7d245da5a5d0125aefce15"
+  },
+  "prior_native205_budget_unchanged": true,
+  "prior_native_attempts": 1,
+  "prior_native_unstarted_closed": 204,
+  "optimization_attempts": 0,
+  "uninstrumented_observations": 0,
+  "retries": 0,
+  "paid_calls": 0,
+  "target_execution": false,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}
