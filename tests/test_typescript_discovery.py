@@ -1,6 +1,7 @@
 """Resolve original TypeScript source, including imports and typed handlers."""
 
 import time
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -8,6 +9,25 @@ import pytest
 
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
+
+
+@pytest.mark.parametrize("shared", [False, True])
+def test_equal_present_record_merge_skips_fallback_preparation(shared: bool) -> None:
+    from sentinel.static.path_flow import Value
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+
+    flow = TypeScriptPathFlow(
+        TypeScriptProgram((), deadline=time.monotonic() + 15), RuleRunState()
+    )
+    flow.objects["root"] = {}
+    value = Value(key="root", sources=frozenset({"caller"}), contained=True)
+    branches = [{"#record:root": value if shared else replace(value)} for _ in range(3)]
+    env: dict[str, Value] = {}
+    with patch.object(flow, "objects", wraps=flow.objects) as objects:
+        flow.merge(env, branches)
+    objects.__contains__.assert_not_called()
+    assert env == {"#record:root": value}
+    assert env["#record:root"] is branches[0]["#record:root"]
 
 
 @pytest.mark.parametrize("missing", [None, 0, 1, 2])

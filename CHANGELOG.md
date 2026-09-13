@@ -33,6 +33,8 @@ new rule IDs.
 
 ### Changed
 
+- Reuse equal, present TypeScript branch values before preparing record fallbacks,
+  retaining conservative guard and missing-state merges.
 - Avoid constructing unused record fallbacks when merging TypeScript branches.
 - Cancel superseded PR CI/documentation runs and build distributions alongside
   source checks while retaining the full platform matrix and release gates.
