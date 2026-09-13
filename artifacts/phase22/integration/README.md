@@ -1,6 +1,39 @@
-# Integration evidence, batches 1–71 and closeout audit
+# Integration evidence, batches 1–72 and closeout audit
 
-## Current four-repository preparation: exact evaluation approval pending
+## Evaluation evidence seal 72
+
+[Seal 72](evidence-v72.json) retains 226 members
+(177,814,744 raw bytes), archive SHA-256
+`c382d337a255fed5dc04b43bae3dfa9463822315b3e941d15f28ab945cad99d9`. It includes all 24 observations, exact approvals, complete raw
+reports/logs, source assessments, the failed-gate recovery proposal, 220-row audit,
+current checks and supplemental v43 delivery receipts. All 71 prior archives and
+every member were verified; no sealed historical file was changed.
+Restore after seals 1–71 in numeric order into separate safe staging; reject unsafe
+paths/symlinks and verify archive/member hashes before extraction. Existing files
+must match identical bytes or an explicit recorded previous hash; stop on conflicts.
+Current owning docs and post-seal bindings are directly tracked. The delivery
+readback will be a supplemental post-commit receipt, outside the commit it verifies.
+Phase 22 remains incomplete; this seal records four failed fresh gates, not acceptance.
+
+## Current four-repository result: failed fresh gates, decision pending
+
+The approved first-frozen batch at `2e0efb2` completes **24/24 observations**;
+all **12 entire ordered report pairs agree**, all within 120 seconds (maximum
+51.378262 seconds; sequence 455.321356 seconds). **All four repository gates fail**:
+FAF, Lightning's Python member and Engram miss their named vulnerable sinks;
+no-bash detects the vulnerable overwrite but falsely alerts on both fixed/safe
+inputs per pass. Quiet negatives lack established named-path support.
+The [completed review packet](v44-four-fresh-evaluation/summary.md) source-assesses all 236 findings,
+46,486 diagnostics and 270 surfaces and proposes focused source-only recovery.
+No correction or limitation waiver is inferred. All 24 observations are consumed,
+zero budget remains, and no extra paid/target/comparator/retry/profile call occurred.
+All prior source-bound results and failures remain preserved; product/test/workflow
+bytes still equal tested `2e0efb2`. **Phase 22 remains incomplete**: actual failed-gate
+disposition/recovery, separate explicit technical acceptance and closeout remain.
+Git 312/1,040 stays incomplete, paid benchmark/pilots deferred, Phase 21 incomplete,
+Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
+
+## Historical v43 four-repository preparation: exact evaluation approval pending
 
 Two new TypeScript repositories (FAF and no-bash) and two Python repositories
 (Lightning's Python member and Engram) are source-prepared at frozen `2e0efb2`.
