@@ -1,6 +1,32 @@
 # AGENTS.md
 
-## Current v58 credential regression timeout: budget closed
+## Current v59 timeout policy: engineering passed, evaluation pending
+
+The user confirmed **30 minutes per input**. The shared static deadline is now
+1,800 seconds at **`7bf4c6e`**, source `40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6`;
+120 seconds remains informational. Source proof establishes one product AST
+literal change; detector logic and cleanup are unchanged from `dc73715`.
+Local and all 12 hosted suites pass **2,403 tests / 36 skips**; all 29 normal jobs
+and docs pass in 34784085204 / 34784085193. Six production requests replay with
+zero paid calls. Actual engineering and runtime bindings are retained.
+
+`v59-timeout-policy/evaluation-proposal.json` is **unapproved and unexecuted**:
+205 exposed observations, 110 input records, 95 ordered pairs; 30-minute input
+ceiling, 15-second cleanup and 6,275-minute outer cap. This is a worst-case cap,
+not a duration estimate. All original conditions, support requirements and
+11 volatile exclusions remain. No retry, profile, comparator, new repository,
+target execution or paid call. The pending v58 diagnostic is preserved unexecuted.
+
+All four earlier native timeouts, partial/invalid profiles, singleton failures
+and original fresh failures remain source-bound and unaccepted. No speedup,
+current-source compatibility or new unseen-source discrimination is established.
+The audit retains **323 rows (89 original + 234 added)**, including all 314 prior
+rows and six unaccepted historical closure proposals. **Phase 22 is incomplete**:
+actual regression, source assessment, explicit human acceptance and closeout remain.
+Git stays 312/1,040 incomplete; paid benchmark/pilots deferred, Phase 21 incomplete
+and Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
+
+## Historical v58 credential regression timeout: budget closed
 
 The approved 205-observation sequence at frozen **`dc73715`** stopped on the first
 FAF vulnerable input at **300.005621 seconds** whole-input time.
