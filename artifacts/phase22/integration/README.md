@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–85 and closeout audit
+# Integration evidence, batches 1–86 and closeout audit
+
+## Credential regression evidence seal 86
+
+[Seal 86](evidence-v86.json) retains **112 members / 4,160,297 raw bytes**,
+archive SHA-256 `fc8d70f552c6b6dd7e7d0e1fa09f77c9f7e81c162883845e77d88a97c3867aa9`. All 85 earlier archives and every member
+verified. This retains the approved first-input timeout at `dc73715`, 204 closed
+unstarted observations, all 314 audit rows, the unapproved current-source profile,
+synthetic worker identity and approval-boundary checks, final docs/packages,
+and supplemental v57 delivery/approval receipts. All earlier failures remain retained.
+Restore after seals 1–85 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
 
 ## Credential correction and regression proposal: evidence seal 85
 
@@ -90,7 +103,37 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v57 joint correction: engineering passed, regression pending
+## Current v58 credential regression timeout: budget closed
+
+The approved 205-observation sequence at frozen **`dc73715`** stopped on the first
+FAF vulnerable input at **300.005621 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining**; cleanup
+passed. Detection, findings, fixed/control discrimination and ordered repeats are
+unknown. Current-source four-repository and prior-language gates remain unresolved.
+No retry, profile, comparator, target execution or paid call occurred.
+
+`v58-credential-regression/diagnostic-proposal.json` prepares **one sampled FAF
+input**, **unapproved and unexecuted**, with a 300-second maximum and 15-second
+cleanup allowance. The existing sampler and worker layout remain unchanged;
+actual worker/flow/source identities are verified before timer or target access.
+Synthetic identity/timer checks and the missing-approval boundary pass.
+Earlier `a36f696` samples do not establish residual costs at the corrected source.
+No optimization, resource/deadline change or further measurement is authorized.
+
+All **314 requirements (89 original + 225 added)** remain. All four native
+timeouts, three partial profiles, invalid stale-root preparation, both singleton
+failures and six unaccepted historical closure proposals retain their actual
+source bindings. Product and tests remain engineering-tested `dc73715`: **2,399
+tests / 36 skips** locally and in all 12 hosted suites, all 29 normal CI jobs and
+docs passed. Combined coverage is 89.98%, branch-only 85.86%; six zero-call
+production replays and approved runtime/image bindings remain compatible.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v57 joint correction: engineering passed, regression pending
 
 The approved equal-marker credential correction and canonical unknown bypass
 are verified at **`dc73715`**, source `4f3e5b2e9c89f61d179ac82db94ced06e83033f9cf1640644cefb53326e96eb9`.

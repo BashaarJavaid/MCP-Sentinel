@@ -1,6 +1,36 @@
 # AGENTS.md
 
-## Current v57 joint correction: engineering passed, regression pending
+## Current v58 credential regression timeout: budget closed
+
+The approved 205-observation sequence at frozen **`dc73715`** stopped on the first
+FAF vulnerable input at **300.005621 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining**; cleanup
+passed. Detection, findings, fixed/control discrimination and ordered repeats are
+unknown. Current-source four-repository and prior-language gates remain unresolved.
+No retry, profile, comparator, target execution or paid call occurred.
+
+`v58-credential-regression/diagnostic-proposal.json` prepares **one sampled FAF
+input**, **unapproved and unexecuted**, with a 300-second maximum and 15-second
+cleanup allowance. The existing sampler and worker layout remain unchanged;
+actual worker/flow/source identities are verified before timer or target access.
+Synthetic identity/timer checks and the missing-approval boundary pass.
+Earlier `a36f696` samples do not establish residual costs at the corrected source.
+No optimization, resource/deadline change or further measurement is authorized.
+
+All **314 requirements (89 original + 225 added)** remain. All four native
+timeouts, three partial profiles, invalid stale-root preparation, both singleton
+failures and six unaccepted historical closure proposals retain their actual
+source bindings. Product and tests remain engineering-tested `dc73715`: **2,399
+tests / 36 skips** locally and in all 12 hosted suites, all 29 normal CI jobs and
+docs passed. Combined coverage is 89.98%, branch-only 85.86%; six zero-call
+production replays and approved runtime/image bindings remain compatible.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v57 joint correction: engineering passed, regression pending
 
 The approved equal-marker credential correction and canonical unknown bypass
 are verified at **`dc73715`**, source `4f3e5b2e9c89f61d179ac82db94ced06e83033f9cf1640644cefb53326e96eb9`.
