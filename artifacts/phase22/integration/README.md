@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–88 and closeout audit
+# Integration evidence, batches 1–89 and closeout audit
+
+## Thirty-minute profile evidence seal 89
+
+[Seal 89](evidence-v89.json) retains **118 members / 433,133,275 raw bytes**,
+archive SHA-256 `4d75f30bb44006fbb6b0fcd46a1324365810032de76a6a819bd0f27ddc88c31b`. All 88 earlier archives and every member verified.
+The approved `7bf4c6e` profile, partial samples and frame/source assessment, closed
+one-use budget, all 335 audit rows, unapproved discovery-reuse proposal, final
+docs/packages and supplemental v60 delivery/approval receipts are preserved.
+Restore after seals 1–88 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase 22 remains incomplete.**
 
 ## Thirty-minute regression evidence seal 88
 
@@ -128,7 +140,35 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v60 thirty-minute regression: timed out, budget closed
+## Current v61 thirty-minute profile: source-only decision pending
+
+The approved FAF profile at frozen **`7bf4c6e`** timed out after
+**1800.090669 seconds**, retaining **four verified worker identities
+and 432,756 partial samples**. Cleanup passed; no report exists and the
+one-use budget is closed. Registration discovery appears in **99.93–99.93%**
+of each worker's retained samples. These overlapping partial shares do not prove
+native speedup, removable-cost fraction, detection or compatibility.
+
+`v61-faf-long-timeout-sampling/optimization-proposal.json` prepares **one unapproved
+source-only attempt** to reuse completed TypeScript tool discovery across the
+existing workers and coverage. Preserve ordered warnings and source-node identity;
+all rule-specific analysis still executes. Full synthetic/engineering verification
+is required. No implementation, corpus/profile/retry/comparator, target execution,
+paid call, resource change or timeout revision is included in current approval.
+The shared 1800-second policy remains in place.
+
+All **335 requirements (89 original + 246 added)** and every earlier failed gate
+remain. Product/tests retain verified `7bf4c6e`: **2,403 tests / 36 skips** locally
+and in all 12 hosted suites, 29 normal CI jobs and docs passed. Combined coverage
+is 89.98%, branch-only 85.86%; six zero-call replays and approved runtime bindings
+remain compatible. This continuation adds profile assessment and docs/package checks.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v60 thirty-minute regression: timed out, budget closed
 
 The approved 205-observation sequence at frozen **`7bf4c6e`** stopped on the first
 FAF vulnerable input after **1800.021672 seconds**. **One incomplete,
