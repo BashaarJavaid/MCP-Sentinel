@@ -2,11 +2,41 @@
 
 import time
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
 from sentinel.static.typescript_discovery import TypeScriptProgram
+
+
+@pytest.mark.parametrize("missing", [None, 0, 1, 2])
+def test_record_merge_allocates_fallback_only_when_used(missing: int | None) -> None:
+    from sentinel.static.path_flow import Value
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+
+    flow = TypeScriptPathFlow(
+        TypeScriptProgram((), deadline=time.monotonic() + 15), RuleRunState()
+    )
+    flow.objects["root"] = {}
+    value = Value(key="root")
+    branches = [{"#record:root": value} for _ in range(3)]
+    if missing is not None:
+        branches[missing] = {}
+    env: dict[str, Value] = {}
+    with patch(
+        "sentinel.static.typescript_path_flow.Value", wraps=Value
+    ) as constructor:
+        flow.merge(env, branches)
+    assert env == {"#record:root": value}
+    if missing is None:
+        constructor.assert_not_called()
+        assert env["#record:root"] is value
+    else:
+        constructor.assert_called_once_with(key="root")
+    assert branches == [
+        {} if index == missing else {"#record:root": value} for index in range(3)
+    ]
 
 
 @pytest.mark.parametrize("use_else", [False, True])

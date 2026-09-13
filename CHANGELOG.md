@@ -33,6 +33,7 @@ new rule IDs.
 
 ### Changed
 
+- Avoid constructing unused record fallbacks when merging TypeScript branches.
 - Cancel superseded PR CI/documentation runs and build distributions alongside
   source checks while retaining the full platform matrix and release gates.
 - Empty enabled review uses `not_run`; it does not imply live/replay activity.

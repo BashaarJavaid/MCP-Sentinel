@@ -305,7 +305,9 @@ class TypeScriptPathFlow:
             root = name.removeprefix("#record:")
             initial = (
                 Value(key=root)
-                if name.startswith("#record:") and root in self.objects
+                if name.startswith("#record:")
+                and root in self.objects
+                and any(name not in branch for branch in branches)
                 else UNKNOWN_VALUE
             )
             value = first.get(name, initial)
