@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–75 and closeout audit
+# Integration evidence, batches 1–76 and closeout audit
+
+## Allocation candidate evidence seal 76
+
+[Seal 76](evidence-v76.json) retains **508 members / 50,624,123 raw bytes**,
+archive SHA-256 `ec3ff2d52ca96d5c312a912d80189f072c71c36ca41b8ab5eba350dea50080c7`. All 75 prior archives and every member
+verified. This retains the approved source-only allocation attempt, baseline,
+synthetic equivalence/allocation checks, local/hosted engineering, source-bound
+packages and zero-call replays, all 247 audit rows, the unapproved native proposal
+and corrected engineering/permission failures. Supplemental v47 delivery receipts
+are included. Restore after seals 1–75 in numeric order into safe separate staging;
+reject unsafe paths/symlinks, verify archive/member hashes, and stop on unexplained
+conflicts. The prior v73 log correction remains preserved. Post-seal documentation
+and delivery readback are supplemental. **Phase 22 remains incomplete.**
 
 ## FAF profile evidence seal 75
 
@@ -15,7 +28,38 @@ No active wrapper log was included in this seal. Owning docs and post-seal
 bindings/readback are supplemental. **Phase 22 remains incomplete**; no source
 optimization or technical acceptance is authorized by the profile approval.
 
-## Current v47 sampled timeout: source-only proposal pending
+## Current v48 allocation candidate: regression approval pending
+
+The approved single source-only merge optimization is engineering-verified at
+**`6e4fd67`**. It avoids constructing unused record fallbacks; **10,944 synthetic
+comparisons** preserve environment, complete flow state and inputs. Allocation
+checks preserve needed fallbacks. Full local and all 12 hosted suites pass
+**2,384 tests / 36 skips**; local combined statement/branch coverage is
+**89.98%**, branch-only **85.85%**. All **29 normal CI jobs** and docs
+pass in **34743452798 / 34743452818**, with exact candidate checkout/package
+bindings. Six production requests checked-replay unchanged with zero model calls;
+Git runtime/image remains compatible. No new corpus observation or profile ran.
+
+The new **205-observation exposed regression** is prepared, **unapproved and
+unexecuted**: 24 four-repository, 94 TypeScript and 87 Python, on 110 inputs and
+95 ordered repeat pairs. Bounds are 120-second target, 300-second native/whole
+maximum, 15-second cleanup and one 1,150-minute serial local sequence; no retry,
+profile, comparator, new repository, target execution or paid call. Exact scope
+is in `v48-merge-allocation/evaluation-proposal.json` and `launcher-binding.json`.
+The earlier shared source recovery still lacks completed corpus validation, so
+both prior-language schedules remain necessary. Synthetic allocation reduction
+establishes no native speedup or 300-second completion. The old native timeout
+and 204 unstarted closed, sampled timeout and all original fresh failures remain
+unchanged. No closed budget is reused and no failed gate is waived.
+
+The audit retains **all 247 requirements**, including 89 original and 158 added
+rows. Corrected corpus gates, six historical closure decisions and explicit human
+technical acceptance remain unresolved. **Phase 22 remains incomplete.** Git
+campaigns stay 312/1,040 incomplete with 728 deferred; paid benchmark/pilots stay
+deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge, ready-state
+change, release, outreach or Phase 23 is authorized.
+
+## Historical v47 sampled timeout: source-only proposal pending
 
 The separately approved single FAF worker profile at frozen `17b4784` timed out
 at 300 seconds with verified cleanup: **one incomplete sampled input, four partial
