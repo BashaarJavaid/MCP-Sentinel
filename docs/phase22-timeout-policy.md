@@ -928,11 +928,42 @@ Final human technical acceptance has not been requested. Paid benchmark/pilots
 remain deferred, Phase 21 incomplete and Phase 24/15 unchanged.
 
 
+## Current supported limit: completion within 30 minutes
+
+On 2026-09-13, the user asked why the scan's duration mattered and instructed
+“yes do that.” after the proposal to revise the timeout policy and evaluate
+completed results at a longer supported limit. The initial implementation uses
+**1,800 seconds (30 minutes)** uniformly for deterministic static analysis.
+**120 seconds remains informational**, with no separate failure at that target.
+This is a prospective policy revision, not a performance improvement or acceptance
+of any previous incomplete measurement. Engineering verification and exact new
+frozen-source evaluation approval remain separate prerequisites.
+
+The orchestrator and engine share the same constant. Source-flow workers,
+Semgrep batches, TypeScript parsing and coverage/report assembly receive the
+remaining deadline. A shorter caller deadline still wins; a later caller deadline
+cannot extend the shared maximum. Completed scans return immediately. Expiry stays
+incomplete, and interruption or worker failure still terminates and reaps children.
+Model review, dynamic campaigns and Semgrep's per-rule/per-file limits retain
+their separate budgets. Detector logic, rule selection and report schemas are
+unchanged. Static analysis still never imports or executes target code.
+
+Future measurements must bind the actual revised scanner, sources, configurations,
+order, whole-input maximum, cleanup reserve and outer sequence budget before
+execution. The proposed whole-input ceiling is also 1,800 seconds from process
+start, including materialization and validation; cleanup remains separately
+bounded at 15 seconds. Native and whole-input times must both fit their declared
+limits. A report beyond the cap is retained but does not pass that timing gate.
+No old closed observation budget is reused, and no sampled diagnostic is approved
+by this policy change. The pending v58 diagnostic is superseded as the next step.
+
+## Historical 300-second policy
+
 The user approved this policy with “okay go ahead with this.” on 2026-09-10.
 It replaces the 120-second hard timing requirement prospectively. It does not
 change the outcome of any earlier measurement or establish a speed improvement.
 
-## Target and maximum
+### Target and maximum
 
 Deterministic static analysis has a **120-second normal performance target** and
 a **300-second shared deadline**. The same policy applies to every input, on
@@ -954,7 +985,7 @@ static + model review + dynamic invocation. Model review, dynamic campaign and
 Semgrep's existing per-rule/per-file safety limits keep their own budgets.
 The native Finding/report schema and detector semantics are unchanged.
 
-## Measurement and reporting
+### Measurement and reporting
 
 New timing assessments retain both native scan duration and whole-input elapsed
 time, alongside completion, findings, coverage, warnings and source identities.

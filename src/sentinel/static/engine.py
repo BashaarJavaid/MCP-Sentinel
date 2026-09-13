@@ -57,8 +57,8 @@ from sentinel.static.suppression import apply_inline_suppressions
 from sentinel.static.traversal import collect_static_files
 from sentinel.static.workers import run_flow_rules
 
-# A scan may use extended time; 120 seconds remains the performance target.
-STATIC_TIMEOUT_SECONDS = 300
+# Completion uses a 30-minute shared limit; 120 seconds is an informational target.
+STATIC_TIMEOUT_SECONDS = 1800
 
 AstDetector = Callable[[StaticContext, RuleRunState], None]
 _AST_DETECTORS: dict[str, AstDetector] = {

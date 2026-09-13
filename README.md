@@ -514,8 +514,9 @@ configuration, or target execution. It ignores inactive LLM settings even when
 credentials and endpoint overrides are present. Installation and dependency
 auditing need network access separately.
 
-The Phase 22 integration source allows deterministic static analysis up to 300
-seconds, with a 120-second performance target. Fast scans return immediately;
+The Phase 22 integration source allows deterministic static analysis up to 1,800
+seconds (30 minutes), with a 120-second informational target. Fast scans return
+immediately;
 expiry remains an incomplete scan. Model review and dynamic budgets are separate.
 See the [timing policy](docs/phase22-timeout-policy.md) for measurement limits and
 the retained failures; this change is not yet a published release.

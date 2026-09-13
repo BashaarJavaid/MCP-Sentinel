@@ -319,7 +319,9 @@ def test_rule_specific_configuration_is_strict() -> None:
         Sent005AllowlistEntry(path="../escape", fingerprint="x", reason=" ")
 
 
-@pytest.mark.parametrize("elapsed", [30.0, 120.0, 120.001, 299.0, 300.001])
+@pytest.mark.parametrize(
+    "elapsed", [30.0, 120.0, 120.001, 299.0, 300.001, 1799.0, 1800.0, 1800.001]
+)
 def test_static_budget_allows_extended_time_but_stops_at_hard_limit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, elapsed: float
 ) -> None:
@@ -344,17 +346,17 @@ def test_static_budget_allows_extended_time_but_stops_at_hard_limit(
         return {}
 
     monkeypatch.setattr(engine, "run_flow_rules", analyze)
-    if elapsed > 300:
+    if elapsed > 1800:
         with pytest.raises(InfrastructureError, match="deadline"):
             engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
     else:
         result = engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
         assert result.summary.duration_ms == round(elapsed * 1000)
         assert not result.incomplete
-    assert observed == [1300.0]
+    assert observed == [2800.0]
 
 
-@pytest.mark.parametrize("deadline", [0.0, 1005.0, 2000.0])
+@pytest.mark.parametrize("deadline", [0.0, 1005.0, 2000.0, 3000.0])
 def test_static_scan_preserves_shorter_deadline_and_caps_longer_one(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, deadline: float
 ) -> None:
@@ -375,7 +377,7 @@ def test_static_scan_preserves_shorter_deadline_and_caps_longer_one(
     monkeypatch.setattr(engine, "run_semgrep", stop)
     with pytest.raises(InfrastructureError, match="deadline"):
         engine.run_static_scan(configuration, uuid4(), timestamp=NOW, deadline=deadline)
-    assert seen == [min(deadline, 1300.0)]
+    assert seen == [min(deadline, 2800.0)]
 
 
 def test_static_report_assembly_cannot_return_success_after_deadline(
@@ -399,7 +401,7 @@ def test_static_report_assembly_cannot_return_success_after_deadline(
         context: StaticContext, states: dict[str, RuleRunState]
     ) -> StaticCoverage:
         result = original(context, states)
-        clock[0] = 1300.001
+        clock[0] = 2800.001
         return result
 
     monkeypatch.setattr(engine, "inventory", inventory)

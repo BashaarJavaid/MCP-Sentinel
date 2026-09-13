@@ -34,8 +34,8 @@ root. TypeScript analysis never invokes Node or package scripts.
 Helm YAML templates under a chart's `templates/` directory remain available to
 text/secret checks. Each template reports `static_helm_template_unparsed` because
 structured YAML analysis is omitted; Sentinel does not render charts. Ordinary
-YAML and Sentinel configuration remain strict. Static analysis retains its
-120-second deadline.
+YAML and Sentinel configuration remain strict. Static analysis shares a
+1,800-second (30-minute) deadline; 120 seconds is an informational target.
 
 GPT is an external data boundary. Sentinel sends only bounded, redacted source
 context with `store: false`. Model output is untrusted: strict Structured

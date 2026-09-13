@@ -12,6 +12,8 @@ new rule IDs.
 
 ### Fixed
 
+- Allow deterministic static scans a 30-minute shared deadline; retain the
+  two-minute target as informational and preserve incomplete results on expiry.
 - Merge equal credential markers consistently regardless of cache interning, and
   bypass cache dispatch for the canonical unknown singleton without a key override.
 - Recover actual startup through imported TypeScript classes, checked path-return
