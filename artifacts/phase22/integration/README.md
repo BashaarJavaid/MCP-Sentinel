@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–79 and closeout audit
+# Integration evidence, batches 1–80 and closeout audit
+
+## Equal-value fast-path candidate evidence seal 80
+
+[Seal 80](evidence-v80.json) retains **449 members / 16,418,739 raw bytes**,
+archive SHA-256 `eb59ee82c6c2f56e26c2fd20677e4924fa3f512f51af62973aa3c2dcba9e29e4`. All 79 prior archives and every member
+verified. This retains the approved source-only equal-value fast-path attempt, baseline,
+synthetic equivalence and avoided-work checks, local/hosted engineering, source-bound
+packages and zero-call replays, all 271 audit rows, the unapproved native proposal
+and the initial formatting failure with its correction. Supplemental v51 delivery receipts
+are included. Restore after seals 1–79 in numeric order into safe separate staging;
+reject unsafe paths/symlinks, verify archive/member hashes, and stop on unexplained
+conflicts. The prior v73 log correction remains preserved. Post-seal documentation
+and delivery readback are supplemental. **Phase 22 remains incomplete.**
 
 ## Current-source partial profile evidence seal 79
 
@@ -13,7 +26,38 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v51 bound profile: source-only decision pending
+## Current v52 equal-value fast path: regression approval pending
+
+The one approved source-only merge reorder is engineering-verified at **`a36f696`**.
+It checks eligible equal values actually present in every branch before preparing
+record fallbacks. **10,944 synthetic comparisons** preserve environment, complete
+flow state and inputs; eight intended cases skip the registry lookup and all 13
+needed defaults remain. No native speedup or 300-second completion is established.
+Full local and all 12 hosted suites pass **2,386 tests / 36 skips**; local combined
+statement/branch coverage **89.98%**, branch-only **85.85%**. All 29 normal CI jobs
+and docs pass in **34767417083 / 34767417081**, with exact checkout/package bindings.
+Six unchanged production requests checked-replay with zero model calls. No new
+corpus observation, profile or Git campaign ran.
+
+The **205-observation exposed regression** is prepared, **unapproved and unexecuted**:
+24 four-source + 94 TypeScript + 87 Python, 110 inputs and 95 whole ordered pairs.
+Bounds: 120-second target, 300-second native/whole maximum, 15-second cleanup, one
+1,150-minute serial local sequence. No retries, profiles, comparators, new repository,
+target execution or paid calls. See `v52-merge-fastpath/evaluation-proposal.json`
+and `launcher-binding.json`. Earlier shared recovery still lacks completed corpus
+validation, so both language schedules remain necessary; they are no new whole
+Linux batch. Every original label, qualifier and source-support condition remains.
+
+Both earlier native timeouts/204 closed remainders, sampled timeouts, invalid stale
+worker preparation and all original fresh failures remain preserved. The corrected
+v51 partial profile does not erase the invalid attempt or establish a native pass.
+All **271 requirements (89 original + 182 added)** remain; six historical closure
+proposals, corrected gates and human technical acceptance are unresolved.
+**Phase 22 remains incomplete.** Git stays 312/1,040 incomplete with 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v51 bound profile: source-only decision pending
 
 The approved corrected profile at frozen `6e4fd67` retains **four verified worker
 identities and 79,307 partial samples**. Its whole input timed out at 300 seconds;
