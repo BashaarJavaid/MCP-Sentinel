@@ -1,0 +1,578 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    token = token or os.environ[\"OPERATOR_TOKEN\"]\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 1,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 10,
+              "start_column": 12,
+              "end_line": 10,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 9], [\"server.py\", 10]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 10,
+              "start_column": 12,
+              "end_line": 10,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 9], [\"server.py\", 10]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    if not token: token = os.getenv(\"OPERATOR_TOKEN\")\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 1,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 10,
+              "start_column": 12,
+              "end_line": 10,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 9], [\"server.py\", 10]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 10,
+              "start_column": 12,
+              "end_line": 10,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 9], [\"server.py\", 10]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    if not token: raise HTTPException(401)\n    token = token or os.environ[\"OPERATOR_TOKEN\"]\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 0,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 11,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 11,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    if not other: raise HTTPException(401)\n    token = token or os.environ[\"OPERATOR_TOKEN\"]\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 1,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 11,
+              "start_column": 12,
+              "end_line": 11,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 10], [\"server.py\", 11]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 11,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 11,
+              "start_column": 12,
+              "end_line": 11,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 10], [\"server.py\", 11]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 11,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    if not token: raise HTTPException(401)\n    token = other\n    token = token or os.environ[\"OPERATOR_TOKEN\"]\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 1,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 12,
+              "start_column": 12,
+              "end_line": 12,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 11], [\"server.py\", 12]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 12,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [
+          {
+            "rule_id": "SENT-016",
+            "path": "server.py",
+            "range": {
+              "start_line": 12,
+              "start_column": 12,
+              "end_line": 12,
+              "end_column": 86
+            },
+            "snippet": "    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})",
+            "fingerprint": null,
+            "match_kinds": [
+              "credential-fallback"
+            ],
+            "captures": {
+              "sink_name": "requests.get",
+              "flow_locations": "[[\"server.py\", 5], [\"server.py\", 6], [\"server.py\", 11], [\"server.py\", 12]]"
+            }
+          }
+        ],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 12,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    token = token or \"\"\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 0,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "source": "from fastapi import FastAPI, Request, HTTPException\nimport os\nimport requests\napp = FastAPI()\n@app.get(\"/data\")\nasync def fetch(request: Request):\n    token = request.headers.get(\"Authorization\")\n    other = request.headers.get(\"X-Other-Token\")\n    operator = os.environ[\"OPERATOR_TOKEN\"]\n    return requests.get(\"https://api.example.com/\", headers={\"Authorization\": token})\n",
+      "expected_matches": 0,
+      "entire_ordered_rule_state_equal": true,
+      "baseline": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      },
+      "candidate": {
+        "matches": [],
+        "exemptions": {},
+        "skip_reason": null,
+        "warnings": [],
+        "visits": [
+          [
+            "server.py",
+            {
+              "start_line": 5,
+              "start_column": 2,
+              "end_line": 5,
+              "end_column": 18
+            }
+          ],
+          [
+            "server.py",
+            {
+              "start_line": 6,
+              "start_column": 1,
+              "end_line": 10,
+              "end_column": 86
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  "case_source": "Existing tests/test_credential_fallback.py::test_http_credential_selection patterns; scanner-owned synthetic source only.",
+  "compared": "All ordered StaticMatch findings/captures, warnings, visits, exemptions and skip_reason. No fields excluded and no list sorting.",
+  "baseline_files_sha256": {
+    "baseline-path-flow.py": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+    "baseline-sent016.py": "4a1f81c6f92aae2d0b5de1b78066646e91ba954335991272922fd6ec7f3c6a20"
+  },
+  "candidate_files_sha256": {
+    "src/sentinel/static/path_flow.py": "5eeeb6973abeb45d96b20efd4c4a73d4bfc7da4eb723e8153dc18a955cc7f337",
+    "src/sentinel/static/rules/sent016.py": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291"
+  },
+  "corpus_observations": 0,
+  "profiles": 0,
+  "paid_calls": 0,
+  "target_execution": false
+}

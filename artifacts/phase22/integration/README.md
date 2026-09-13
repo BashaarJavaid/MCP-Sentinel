@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–84 and closeout audit
+# Integration evidence, batches 1–85 and closeout audit
+
+## Credential correction and regression proposal: evidence seal 85
+
+[Seal 85](evidence-v85.json) retains **495 members / 19,682,502 raw bytes**;
+archive SHA-256 `2f32de9a7e7abe02c0935213ea66c13aaa8b03f7ab2bd6bf65a8656af0883f8f`. All 84 preceding archives and every member
+verified. The approved credential join correction and canonical unknown bypass
+pass engineering at `dc73715`: 2,399 tests / 36 skips locally and in all 12 hosted
+suites, all 29 normal CI jobs and docs. All 308 audit rows, both original singleton
+failures and the separate unapproved 205-observation proposal are preserved.
+Restore seals 1–85 in order into safe separate staging; verify hashes and reject
+unsafe paths or unexplained conflicts. Prior v73 correction remains retained.
+Post-seal docs/delivery receipts are supplemental. **Phase 22 remains incomplete.**
 
 ## Failed canonical-bypass evidence seal 84
 
@@ -78,7 +90,39 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v56 canonical bypass: eviction failure retained
+## Current v57 joint correction: engineering passed, regression pending
+
+The approved equal-marker credential correction and canonical unknown bypass
+are verified at **`dc73715`**, source `4f3e5b2e9c89f61d179ac82db94ced06e83033f9cf1640644cefb53326e96eb9`.
+Across 4,050 correction cases, 552 marker and 552 derived cache-input deltas retain
+the explicitly revised join contract; guard results agree. The bypass then
+passes 2,430 complete Python/TypeScript state comparisons and two saturated-cache
+evictions against a preserved correction-only reference. Seven existing synthetic
+HTTP patterns preserve entire ordered rule output: four detections, three negatives.
+Both original singleton failures remain reproduced, closed and unaccepted.
+
+Local and all 12 hosted suites pass **2,399 tests / 36 skips**; all 29 normal CI jobs
+and docs pass in 34779741236 / 34779741226. Combined local coverage is
+89.98%, branch-only 85.86%. Packages, strict quality checks, six identical zero-call
+production requests and approved runtime bindings pass. Initial synthetic fixture,
+import-root and test-format check failures retain their individual corrections.
+
+`v57-credential-merge/evaluation-proposal.json` is **unapproved/unexecuted**:
+205 exposed observations on 110 inputs / 95 ordered pairs, comprising 24 four-source,
+94 TypeScript and 87 Python observations. 120-second target, 300-second whole/native
+maximum, 15-second cleanup, 1,150-minute outer sequence; zero retries, profiles,
+comparators, target execution or paid calls. No speedup or 300-second completion
+is established. All old timeouts, partial/invalid profiles and fresh failures
+remain source-bound; no partial subsets become new whole Linux batches.
+
+The audit retains **308 requirements (89 original + 219 added)**, including six
+unaccepted historical closure proposals and both failed singleton rows.
+**Phase 22 remains incomplete**, awaiting actual regression, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v56 canonical bypass: eviction failure retained
 
 The approved canonical `UNKNOWN_VALUE` bypass passes the two retained ordinary
 identity cases, then fails synthetic environment equivalence after LRU eviction.
