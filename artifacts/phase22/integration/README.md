@@ -1,4 +1,37 @@
-# Integration evidence, batches 1–76 and closeout audit
+# Integration evidence, batches 1–77 and closeout audit
+
+## Allocation regression evidence seal 77
+
+[Seal 77](evidence-v77.json) retains **111 members / 3,661,484 raw bytes**,
+archive SHA-256 `03424c5dff12327c13b56c17ee960d7b340ceecbb29e2143d1a622670410d37b`. All 76 earlier archives and every member
+verified. This retains the approved first-input timeout at `6e4fd67`, 204 closed
+unstarted observations, all 253 audit rows, the unapproved current-source profile,
+synthetic and approval-boundary checks, final docs/packages, verification ordering
+failures and their corrections, and supplemental v48 delivery/approval receipts.
+Restore after seals 1–76 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and delivery
+readback are supplemental. **Phase 22 remains incomplete.**
+
+## Current v49 allocation regression timeout: budget closed
+
+The approved 205-observation sequence at frozen `6e4fd67` stopped on its first
+FAF vulnerable input at the 300-second whole-input maximum: **one incomplete,
+zero completed reports, 204 unstarted closed, zero remaining**. Cleanup passed.
+No finding, guard, negative-path or ordered-repeat result is available; corrected
+four-repository and prior-language compatibility gates remain unestablished.
+The [review packet](v49-allocation-regression/summary.md) retains the failure and an **unapproved single
+300-second CPU-sampling diagnostic** on the same FAF input. No new retry, profile,
+target execution or paid call occurred in this sequence. The v47 profile remains
+bound to the earlier scanner; another optimization is not authorized. All original fresh failures and
+historical source-bound passes remain unchanged. Engineering retains `6e4fd67`:
+2,384 tests / 36 skips locally and in all 12 hosted suites, 29 normal CI jobs and
+docs passed; combined coverage 89.98%, branch-only 85.85%. The audit retains all
+253 requirements. **Phase 22 remains incomplete**; no failure/limitation or human
+technical acceptance is inferred. Git stays 312/1,040 incomplete; paid benchmark
+and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state change, release, outreach or Phase 23.
+
 
 ## Allocation candidate evidence seal 76
 
@@ -28,7 +61,7 @@ No active wrapper log was included in this seal. Owning docs and post-seal
 bindings/readback are supplemental. **Phase 22 remains incomplete**; no source
 optimization or technical acceptance is authorized by the profile approval.
 
-## Current v48 allocation candidate: regression approval pending
+## Historical v48 allocation candidate: regression approval pending
 
 The approved single source-only merge optimization is engineering-verified at
 **`6e4fd67`**. It avoids constructing unused record fallbacks; **10,944 synthetic

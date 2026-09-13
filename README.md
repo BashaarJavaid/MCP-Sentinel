@@ -1,6 +1,26 @@
 # PortunusMCP Sentinel
 
-## Current v48 allocation candidate: regression approval pending
+## Current v49 allocation regression timeout: budget closed
+
+The approved 205-observation sequence at frozen `6e4fd67` stopped on its first
+FAF vulnerable input at the 300-second whole-input maximum: **one incomplete,
+zero completed reports, 204 unstarted closed, zero remaining**. Cleanup passed.
+No finding, guard, negative-path or ordered-repeat result is available; corrected
+four-repository and prior-language compatibility gates remain unestablished.
+The [review packet](artifacts/phase22/integration/v49-allocation-regression/summary.md) retains the failure and an **unapproved single
+300-second CPU-sampling diagnostic** on the same FAF input. No new retry, profile,
+target execution or paid call occurred in this sequence. The v47 profile remains
+bound to the earlier scanner; another optimization is not authorized. All original fresh failures and
+historical source-bound passes remain unchanged. Engineering retains `6e4fd67`:
+2,384 tests / 36 skips locally and in all 12 hosted suites, 29 normal CI jobs and
+docs passed; combined coverage 89.98%, branch-only 85.85%. The audit retains all
+253 requirements. **Phase 22 remains incomplete**; no failure/limitation or human
+technical acceptance is inferred. Git stays 312/1,040 incomplete; paid benchmark
+and pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged. No merge,
+ready-state change, release, outreach or Phase 23.
+
+
+## Historical v48 allocation candidate: regression approval pending
 
 The approved single source-only merge optimization is engineering-verified at
 **`6e4fd67`**. It avoids constructing unused record fallbacks; **10,944 synthetic

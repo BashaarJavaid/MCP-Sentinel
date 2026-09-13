@@ -1,0 +1,13 @@
+{
+  "failed_checks": [
+    "v49-owned-cleanup",
+    "v49-assessment-preparation"
+  ],
+  "explanation": "The actual corpus attempt timed out and its budget closed. The first owned-work check correctly detected the concurrently running synthetic sampler helper, so its receipt was absent and the dependent assessment preparation failed before writing outputs. The sampler then exited successfully. The unchanged owned-work and preparation scripts passed serially under new labels. Both initial logs are preserved. These were offline verification ordering failures, not new corpus attempts or changed scanner semantics. Documentation, package and boundary checks passed.",
+  "corrected_checks": [
+    "v49-owned-cleanup-settled",
+    "v49-assessment-preparation-settled"
+  ],
+  "paid_calls": 0,
+  "corpus_retries": 0
+}
