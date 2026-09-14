@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–94 and closeout audit
+# Integration evidence, batches 1–95 and closeout audit
+
+## Invalidation regression timeout evidence seal 95
+
+[Seal 95](evidence-v95.json) retains **153 members / 11,083,981 raw bytes**,
+archive SHA-256 `2c18087b0de6b6fa391c9ce8b5fc1b68885cce2dc9ed5ba71a3dc6c8d2dabd60`. All 94 earlier archives and every member verified.
+The approved `4145d35` native timeout, closed 204-input remainder, all 383 audit rows,
+unapproved parent-and-worker diagnostic, source/timer/approval controls, final
+checks/packages and supplemental v66 delivery/approval receipts are preserved.
+Restore after seals 1–94 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase 22 remains incomplete.**
 
 ## Verified private invalidation contract evidence seal 94
 
@@ -201,7 +213,37 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v66 invalidation contract: engineering passed, regression approval pending
+## Current v67 invalidation regression: timed out, budget closed
+
+The approved 205-observation sequence at frozen **`4145d35`** stopped on its first
+FAF vulnerable input after **1800.008716 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining.** Cleanup
+passed within its separate 15-second allowance. Findings, detection, fixed/control
+support and ordered repeats remain unknown. No retry, profile or paid call ran.
+
+`v67-invalidation-regression/diagnostic-proposal.json` prepares **one unapproved,
+unexecuted parent-and-worker sampled FAF input**, maximum 1800 seconds plus
+15 seconds cleanup. It reuses the existing sampler and worker layout with actual
+source identities verified before timers/target access. Synthetic identity,
+completion/interruption, timer and missing-approval controls pass. The older
+`1948bf9` parent profile cannot establish residual costs after the accumulator
+change. No optimization, resource/deadline revision or native speedup is included.
+
+All **383 requirements (89 original + 294 added)** remain, including seven native
+timeouts, five valid partial profiles, invalid stale-root preparation, both
+singleton failures, the original strict invalidation failure and six unaccepted
+historical closure proposals. Product retains tested `4145d35`: **2,419 tests /
+36 skips** locally and all 12 hosted suites, 29 normal CI jobs and docs passed.
+Combined coverage is 90.08%, branch-only 85.92%; six zero-call production replays
+and approved runtime/image bindings remain compatible. This continuation adds
+outcome, preparation and docs/package checks, not another hosted code pass.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete, with
+728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15
+unchanged. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v66 invalidation contract: engineering passed, regression approval pending
 
 The explicitly approved private mutation-domain revision and one source-only If
 accumulator attempt are verified at **`4145d35`**, source
