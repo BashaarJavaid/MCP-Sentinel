@@ -713,6 +713,7 @@ class PythonProgram:
         return True
 
     def tools(self) -> tuple[ToolBinding, ...]:
+        from sentinel.static.module_dispatch import module_table_tools
         from sentinel.static.registration_flow import RegistrationFlow
 
         check_deadline(self.deadline)
@@ -722,6 +723,7 @@ class PythonProgram:
         found: list[ToolBinding] = []
         self.warnings.clear()
         for file in self.files:
+            found.extend(module_table_tools(self, file))
             for region in discover_tool_regions(file):
                 decorated = Symbol(file, region.function.name, region.function)
                 found.append(

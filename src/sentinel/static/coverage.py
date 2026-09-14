@@ -113,6 +113,8 @@ def inventory(
                 binding.registration.node, ast.Call
             ):
                 covered.add(binding.registration.node)
+                if binding.registration_decorator is not None:
+                    covered.add(binding.registration_decorator)
                 add(
                     "tool",
                     binding.name,

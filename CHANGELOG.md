@@ -12,6 +12,10 @@ new rule IDs.
 
 ### Fixed
 
+- Recover source-established Python module-table tool dispatch, preserving
+  unsupported status for ambiguous, replaced or escaped routing bindings.
+- Preserve global constructor instances when following nested bound methods,
+  retaining the actual receiver for filesystem guard analysis.
 - Follow supported TypeScript constructor parameter properties with the bound
   argument/default value, preserving receiver replacement and escape checks.
 - Preserve narrow initial URL guard evidence across trailing-slash removal and

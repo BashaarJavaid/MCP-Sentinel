@@ -1731,7 +1731,19 @@ class PathFlow:
             target = self.program.resolve_in(
                 Symbol(symbol.file, symbol.name, node), node.id
             )
-            if target and isinstance(target.node, (Function, ast.ClassDef)):
+            value_binding = (
+                self.program.resolve(symbol.file, node.id, value_binding=True)
+                if target and isinstance(target.node, ast.ClassDef)
+                else None
+            )
+            if (
+                target
+                and isinstance(target.node, (Function, ast.ClassDef))
+                and not (value_binding and isinstance(value_binding.node, ast.Call))
+            ):
+                # A global constructor result is an instance, not the class
+                # callable returned by source-name resolution. Initialize it
+                # below so nested bound methods retain their actual receiver.
                 binding_key = _key("callable", target.file.relative_path, target.name)
                 self.callables[binding_key] = target
                 return Value(key=binding_key)
