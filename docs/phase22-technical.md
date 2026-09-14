@@ -1,6 +1,40 @@
 # Phase 22 technical expansion
 
-## Current v68 invalidation profile: source-only decision pending
+## Current v70 uncapped experiment: complete run, two failed gates
+
+The user-approved **24-observation uncapped four-repository experiment** at
+**`4145d35`** completed, with **all 12 entire ordered report pairs equal**,
+verified cleanup and zero remaining budget. The 18 non-FAF observations took
+6.28–10.72 seconds each. FAF took **2212.221735–2341.484236
+seconds** per input. **6 observations exceeded the ordinary
+1,800-second policy**, which remains unchanged; no speedup is established.
+
+**No-bash and Engram pass their narrow exposed conditions**, retaining the exact
+lexical/physical and initial-home/reconstructed-use qualifiers. **Lightning
+fails fixed/safe qualification; FAF misses the vulnerable read and leaves both
+negative paths unsupported.** All 260 findings, 52,492 diagnostic occurrences,
+282 surfaces, 4,963 source contexts and full ordered reference differences are
+source-assessed. The original fresh failures remain source-bound and unchanged.
+
+The pending v68 literal-serialization optimization remains **unapproved and
+unimplemented**. No source tuning, profile, retry, comparator, target execution
+or paid call ran during this experiment. The earlier Python/TypeScript schedule's
+**181 observations are outside this approval**; current compatibility is pending.
+
+All **399 requirements (89 original + 310 added)** and all historical failures
+remain, including the explicit v68 audit-status correction. Unchanged engineering
+retains **2,419 tests / 36 skips** locally and in all 12 hosted suites, 29 normal
+jobs and docs passed; combined coverage 90.08%, branch-only 85.92%. Six zero-call
+production replays and approved runtime bindings remain. This is no new hosted
+code pass, broad accuracy result, accepted limitation or independent validation.
+
+**Phase 22 remains incomplete**, pending the failed current-source gates,
+earlier-language compatibility, explicit human technical acceptance and accepted
+closeout. Git stays 312/1,040 incomplete with 728 deferred; paid benchmark/pilots
+are deferred, Phase 21 is incomplete, and Phase 24/15 are unchanged. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v68 invalidation profile: source-only decision pending
 
 The approved FAF profile at frozen **`4145d35`** timed out after **1800.013225
 seconds**, retaining **148,001 verified parent samples** and no report. Cleanup
