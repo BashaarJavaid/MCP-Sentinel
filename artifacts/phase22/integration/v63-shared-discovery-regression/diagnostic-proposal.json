@@ -1,0 +1,172 @@
+{
+  "status": "prepared_not_approved_not_executed",
+  "scanner": {
+    "revision": "1948bf942babce155b701f5b22ed941eb16d99d0",
+    "source_sha256": "8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-1948bf9",
+  "input": {
+    "input": {
+      "id": "faf-read-root-vulnerable",
+      "family": "faf-read-root",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "language": "typescript",
+      "split": "held_out",
+      "variant": "original",
+      "label": "vulnerable",
+      "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+      "scan_root": ".",
+      "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+      "prerequisites": [
+        "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+        "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+        "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+      ],
+      "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+      "runtime_applicability": "unsupported",
+      "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+      "runtime_configuration": null,
+      "evidence": [
+        {
+          "path": "src/index.ts",
+          "start_line": 1,
+          "end_line": 18,
+          "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/server.ts",
+          "start_line": 1,
+          "end_line": 139,
+          "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/tools.ts",
+          "start_line": 1,
+          "end_line": 3302,
+          "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/fileHandler.ts",
+          "start_line": 1,
+          "end_line": 235,
+          "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/engine-adapter.ts",
+          "start_line": 1,
+          "end_line": 877,
+          "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "package.json",
+          "start_line": 1,
+          "end_line": 118,
+          "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "tsconfig.json",
+          "start_line": 1,
+          "end_line": 33,
+          "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        }
+      ],
+      "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+      "parent": null,
+      "transformation": null,
+      "overlay": null,
+      "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+    },
+    "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+    "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "assessment": null
+  },
+  "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+  "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+  "purpose": "Identify remaining scanner costs after shared discovery reuse still timed out on the first FAF input. Include the parent because discovery now occurs there before existing worker dispatch; prior worker-only samples cannot establish current costs. One sampled input only, no optimization or uninstrumented retry.",
+  "command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v63-shared-discovery-regression/diagnostic.py"
+  ],
+  "initial_cwd": "/private/tmp/mcp-phase22-options",
+  "output": "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v64-shared-discovery-sampling",
+  "bounds": {
+    "total_input_executions": 1,
+    "sampled_profiles": 1,
+    "uninstrumented_observations": 0,
+    "whole_input_maximum_seconds": 1800,
+    "normal_target_seconds": 120,
+    "cleanup_maximum_seconds": 15,
+    "periodic_snapshot_seconds": 15,
+    "maximum_stack_frames": 1024,
+    "optimization_attempts": 0,
+    "retries": 0,
+    "comparators": 0,
+    "paid_calls": 0,
+    "hosted_dispatches": 0,
+    "target_execution": false,
+    "cpu_timer_hz_per_process": 100,
+    "maximum_sampled_processes": 5,
+    "parent_processes": 1,
+    "existing_flow_workers_maximum": 4
+  },
+  "instrumentation": "Reuse the verified100Hz stdlib CPU-timer sampler in the existing parent around measure() and in each existing worker through its wrapped entry point. No scanner method replacement. Verify actual parent and worker imports, including TypeScript discovery/flow, full source/harness/lock identity before target source validation and before timer/worker snapshot access. Parent and each sampled worker retain separate identity and sample files. The attempted-input1800-second timer starts before child imports/preflight and includes configuration, materialization, analysis, reports and sampling overhead. Cleanup has its separate15-second allowance. Read-only launcher source/provenance preflight occurs before budget consumption; it performs no scan.",
+  "partial_output": "Retain atomic15-second snapshots and any incomplete temporary files. Parent and workers may lack final/restoration receipts if mandatory cleanup interrupts them. Do not weaken cleanup or claim complete intervals. The legacy rule=parent and worker_cpu_seconds/final_worker_snapshot fields describe the parent process in parent-cpu-samples.json; other rule names retain worker meaning.",
+  "interpretation": "Statistical CPU-timer sampling, GIL/native-code signal delivery, snapshot threads and serialization can bias attribution. Parent and worker shares have separate denominators and overlapping inclusive stacks; never add them as independent savings. Sampling only around parent measure() excludes prior source/approval verification from parent samples, but not from whole-input wall accounting. Require matching identities for every attributed process; missing or mismatched identities invalidate its attribution and are explicit diagnostic failures. Worker snapshots may be absent if discovery has not reached dispatch; absence alone does not prove workers never started. Parent-only evidence can identify parent costs but cannot establish worker costs or completeness. If a report completes, validate JSON/SARIF and compare the entire ordered report to the original2e0efb2 reference with only the established11 volatile exclusions, then assess every change. This is not a native speedup, regression pass or human acceptance.",
+  "stop": "At most one attempted input, including timeout, interruption or worker-identity failure. Fail before consumption on parent preflight mismatch. Preserve partial outputs and close the one-use budget on every attempted outcome. No automatic retry, optimization, resource/deadline change or reopened regression/profile budget.",
+  "environment": "Existing locked local macOS environment and frozen1948bf9. Product worker count, dependencies, resources and shared1800-second timeout remain unchanged. Diagnostic-only parent sampling adds one snapshot thread, matching the existing per-worker sampling design; its overhead is disclosed and inside the limit. No overlapping owned heavy work.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v62-shared-tool-discovery/evaluation-proposal.json": "c1407c3a8cb7ee78ebf4346ab1e36e112dcb1e830e4c8270c563d780f2861a9b",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/evaluation-authorization.json": "a7e38325dce8e580f56a10e18bef456640fc8f0f1e70598ccc40329dda4ff544",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/execution-consumed.json": "8757a83ba7c3a436ab3cde7575473c41611938279aa2b07223153d77797beb5a",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/evaluate.py": "54b7d1d80614637551cf0e72cc2e6518d3aa6ad3f8e3b87c89378812b88b38c4",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/authorization.json": "c40a6d85f99973de8b630b846864c3259598a5841321c760f66bff592df19da3",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/source-proof.json": "7712f8af6d2a5836ee062f1c682b387bd2f050ef4cc283629f0d5e9e627b1f25",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/freeze.json": "87d136fe8b2132406a6cae636ac02acdabcbf7b28cf8956ffee21c2bb1805b79",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/local-checks.json": "7c7731c7489b0bc0745b70cb56fa0cb0a5ddbe881f7761da8956c2d0e6756579",
+    "artifacts/phase22/integration/v62-shared-tool-discovery/discovery-equivalence.json": "64cb3e50b5f2b260cca2df61728d955b35ebffce0934c976c411616a0d7b0449",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/corrected-sampling-worker.py": "574e6be26f2b2e9b1ccfe3ff251ffb01c45746772af9ba2f217090b6218bd829",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/diagnostic.py": "a39b5fabe4252f671afabd6a9ea5a37a201b8420a22903155bd0450c80a3b4fe",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/sampler-selfcheck.py": "7e27beb0e1432843c8108af224e107a719045400472eee5c1cf253733a0c5d04",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/sampler-selfcheck/packet.json": "fc25d7663bbae86c3596eb024efa4de13a2768b87fab04b10653c832614b5e33",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/parent-sampler-selfcheck.py": "8320d5a84ce943488b560425b324fbae7ae830410bdb8ec3f7d12c3b42c4a680",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/parent-sampler-selfcheck/packet.json": "c49166f91d67866c47dfcd31476f001a5c33ff07494798670b19fe3bbb9acc5b",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/assessment.json": "aeab8e16dd7be7d8c12e77c6dee547a9ec54b3f17e8c0d0119cfed851706a210",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/validation.json": "6d514059e0398542eb4346c9b741092fb205eb524173ffc6877e2fbd961a140a",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/budget-closed.json": "c91c6e1ad70b5497c6b9fa8565e288ad275db71734b7ad026da50abca242ad79",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/raw/packet.json": "39ff4d56d32ab6893b279ddd8a05824a47a95acc06d7960490c06c60d303d155",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/execution.json": "735318c5c61b47e96800d9a37db12189d36be139428a829ee300d165ab7cd7a6",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/assess-and-prepare.py": "00b2b8a5723f8fae35cc7b29299e3bb34d23b0ce16dcec6b0b54a64056e08d3e",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v61-faf-long-timeout-sampling/assessment.json": "34b6c8a970372bd4f712d6fcebc83f9b30252e6f607a1d8abca9e66743ee0e22",
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json": "5f70268142fca7b6b26ee0ec953e8273ebecccc31e26b276d92fe556e92e06b1",
+    "artifacts/phase22/integration/v63-shared-discovery-regression/clarify-proposal.py": "7049ff87f4124e1b3fcf3f6dfc2548aec765a5a4e20e9e9ade2a337c7c43c522"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "sampler_reuse": {
+    "prior_proposal_sha256": "bf32e8dcd11870afcb2aa4ebe99085bc3f04433fba929501ba758441401801d5",
+    "prior_sampler_sha256": "3fd7b0eeb49c252067ee9d77b3b5074fa7afa0c202ee4e4963425eec5be6cb89",
+    "sampling_functions_ast_identical": [
+      "sample",
+      "snapshot",
+      "snapshots",
+      "start",
+      "finish"
+    ],
+    "allowed_changes": "Frozen root/source identity, explicit discovery-module import check and diagnostic output bindings; additionally wrap existing parent measure() with the same timer/snapshot/finally logic. Keep existing worker entry wrapper, cadence, stack cap, snapshot interval and signal restoration. Stale parent identity rejects before target access; stale worker root rejects before timer/snapshot access. No scanner method changes.",
+    "synthetic_parent_sha256": "c49166f91d67866c47dfcd31476f001a5c33ff07494798670b19fe3bbb9acc5b",
+    "synthetic_worker_sha256": "fc25d7663bbae86c3596eb024efa4de13a2768b87fab04b10653c832614b5e33"
+  }
+}

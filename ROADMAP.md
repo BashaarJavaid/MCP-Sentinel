@@ -1,6 +1,36 @@
 # PortunusMCP Sentinel Roadmap
 
-## Current v62 shared discovery: engineering passed, regression approval pending
+## Current v63 shared-discovery regression: timed out, budget closed
+
+The approved 205-observation sequence at frozen **`1948bf9`** stopped on its first
+FAF vulnerable input after **1800.010893 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining.** Cleanup passed
+in its separate 15-second allowance. Detection, findings, fixed/control support and
+ordered repeats remain unknown. No retry, profile, target execution or paid call ran.
+
+`v63-shared-discovery-regression/diagnostic-proposal.json` prepares **one unapproved,
+unexecuted parent-and-worker sampled FAF input**, maximum 1800 seconds plus 15 seconds
+cleanup. Completed discovery now runs in the parent before worker dispatch; old
+worker-only samples cannot establish current costs. Reuse the same CPU-timer sampler
+in the parent and existing workers, with actual source identities verified before
+timers/target access. Six-vector, stale-root, parent completion/interruption and
+missing-approval controls pass. Sampling overhead and incomplete intervals remain
+explicit; no optimization, resource/deadline change or speedup claim is included.
+
+All **352 requirements (89 original + 263 added)** remain, including six native timeouts,
+four valid partial profiles, invalid stale-root preparation, both singleton failures
+and six unaccepted historical closure proposals. Product retains tested `1948bf9`:
+**2,418 tests/36 skips** locally and all 12 hosted suites, 29 normal CI jobs and docs passed;
+combined coverage 90.08%, branch-only 85.92%. Six zero-call production replays and
+approved runtime/image bindings remain compatible; this adds outcome/preparation
+and final docs/package checks, not another hosted code pass.
+
+**Phase 22 remains incomplete**, pending actual current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete, 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge,
+ready-state, release, outreach or Phase 23 is authorized.
+
+## Historical v62 shared discovery: engineering passed, regression approval pending
 
 The approved single source-only discovery-reuse attempt is engineering-verified at
 **`1948bf9`**, source `8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408`.

@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–90 and closeout audit
+# Integration evidence, batches 1–91 and closeout audit
+
+## Shared-discovery timeout evidence seal 91
+
+[Seal 91](evidence-v91.json) retains **159 members / 6,050,145 raw bytes**,
+archive SHA-256 `530aed926d6bcbf313377c6db5155fb8befc643e0b1204f8a262eb6680eeda23`. All 90 earlier archives and every member verified.
+The approved `1948bf9` native timeout, closed 204-input remainder, all 352 audit rows,
+unapproved parent-and-worker diagnostic, source/timer/approval controls, final
+checks/packages and supplemental v62 delivery/approval receipts are preserved.
+Restore after seals 1–90 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase 22 remains incomplete.**
 
 ## Shared discovery evidence seal 90
 
@@ -152,7 +164,37 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v62 shared discovery: engineering passed, regression approval pending
+## Current v63 shared-discovery regression: timed out, budget closed
+
+The approved 205-observation sequence at frozen **`1948bf9`** stopped on its first
+FAF vulnerable input after **1800.010893 seconds** whole-input time.
+**One incomplete, zero reports, 204 unstarted closed, zero remaining.** Cleanup passed
+in its separate 15-second allowance. Detection, findings, fixed/control support and
+ordered repeats remain unknown. No retry, profile, target execution or paid call ran.
+
+`v63-shared-discovery-regression/diagnostic-proposal.json` prepares **one unapproved,
+unexecuted parent-and-worker sampled FAF input**, maximum 1800 seconds plus 15 seconds
+cleanup. Completed discovery now runs in the parent before worker dispatch; old
+worker-only samples cannot establish current costs. Reuse the same CPU-timer sampler
+in the parent and existing workers, with actual source identities verified before
+timers/target access. Six-vector, stale-root, parent completion/interruption and
+missing-approval controls pass. Sampling overhead and incomplete intervals remain
+explicit; no optimization, resource/deadline change or speedup claim is included.
+
+All **352 requirements (89 original + 263 added)** remain, including six native timeouts,
+four valid partial profiles, invalid stale-root preparation, both singleton failures
+and six unaccepted historical closure proposals. Product retains tested `1948bf9`:
+**2,418 tests/36 skips** locally and all 12 hosted suites, 29 normal CI jobs and docs passed;
+combined coverage 90.08%, branch-only 85.92%. Six zero-call production replays and
+approved runtime/image bindings remain compatible; this adds outcome/preparation
+and final docs/package checks, not another hosted code pass.
+
+**Phase 22 remains incomplete**, pending actual current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete, 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge,
+ready-state, release, outreach or Phase 23 is authorized.
+
+## Historical v62 shared discovery: engineering passed, regression approval pending
 
 The approved single source-only discovery-reuse attempt is engineering-verified at
 **`1948bf9`**, source `8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408`.
