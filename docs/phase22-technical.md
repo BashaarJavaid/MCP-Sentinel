@@ -1,6 +1,29 @@
 # Phase 22 technical expansion
 
-## Current v79 metadata correction: new evaluation approval pending
+## Current v81 technical review: unseen check complete, one failed gate
+
+The separately approved V80 check completed **12 observations / six equal ordered
+pairs** at **`cec0322`**, using normal 1,800s input / 10s Semgrep / 15s cleanup and
+four-worker limits. **Taskwarrior passes narrow shell discrimination; Proxmox misses
+the vulnerable upload read and leaves both negatives unsupported** on each pass.
+Its computed module-table dispatcher remains unsupported. All four findings,
+504 diagnostics, 12 surfaces, 18 contexts and 14 ordered comparisons are assessed.
+The initial V78 metadata failure remains one incomplete before analysis, zero reports,
+eleven unstarted closed. Both budgets are closed; zero new paid calls or target execution.
+
+All **448 requirements** and **26 unaccepted limitation proposals** remain explicit.
+Existing V73/V75 retain 205 exposed observations / 95 pairs; unchanged engineering
+retains 2,450 tests / 36 skips, all 12 hosted suites, 29 normal jobs/docs, six captured
+production requests and 19 runtime bindings. Normal FAF completion within 1,800s
+remains unestablished; V68 is unopened. Git stays 312/1,040 incomplete, 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged.
+
+**Phase 22 remains incomplete** until explicit human technical acceptance of
+`artifacts/phase22/integration/v81-technical-acceptance/`, including the failed
+Proxmox gate and all historical/practical limits, and verified accepted-closeout
+delivery. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v79 metadata correction: new evaluation approval pending
 
 The approved V77 sequence stopped in V78 before scanner analysis: **one incomplete,
 zero reports, eleven unstarted closed, zero remaining**, with verified cleanup.
@@ -2041,9 +2064,9 @@ exposing a case requires relabeling it and replacement holdout evidence.
 
 The deterministic tier must complete all 45 historical inputs, detect all 20
 vulnerable conditions and produce no condition-matched fixed/safe alerts in two
-entire batches. The original 120-second hard limit is superseded prospectively
-by the explicitly approved 120-second target and uniform 300-second native and
-whole-input maximum; see [the timing policy](phase22-timeout-policy.md).
+entire batches. The original 120-second and later 300-second hard limits are superseded
+prospectively by the explicitly approved 1,800-second native and whole-input
+maximum; 120 seconds remains informational; see [the timing policy](phase22-timeout-policy.md).
 Both whole historical batches now pass at `1f3f72f`; the complete 25-input
 development batch is reused only under the explicit scope amendment. Earlier
 failed measurements remain failed, and successes are not pooled across batches. The original requirement for the reviewed tier to match
@@ -2140,7 +2163,7 @@ untested remainders; exhausting a budget with eligible work remaining returns 3.
 Migrate 1.3–1.6 reports/baselines without changing Finding identities, suppression,
 nullable reviews or runtime proof; old outcomes become legacy attempts without
 invented historical coverage. SARIF stays 2.1.0. This integration emits 1.7.0;
-final migration/consumer verification and technical acceptance remain pending.
+migration/consumer engineering is verified at `cec0322`; explicit technical acceptance remains pending.
 Historical native reports retain their recorded schema versions.
 
 ## Delivery and outstanding decisions

@@ -1,6 +1,29 @@
 # PortunusMCP Sentinel Roadmap
 
-## Current v79 metadata correction: new evaluation approval pending
+## Current v81 technical review: unseen check complete, one failed gate
+
+The separately approved V80 check completed **12 observations / six equal ordered
+pairs** at **`cec0322`**, using normal 1,800s input / 10s Semgrep / 15s cleanup and
+four-worker limits. **Taskwarrior passes narrow shell discrimination; Proxmox misses
+the vulnerable upload read and leaves both negatives unsupported** on each pass.
+Its computed module-table dispatcher remains unsupported. All four findings,
+504 diagnostics, 12 surfaces, 18 contexts and 14 ordered comparisons are assessed.
+The initial V78 metadata failure remains one incomplete before analysis, zero reports,
+eleven unstarted closed. Both budgets are closed; zero new paid calls or target execution.
+
+All **448 requirements** and **26 unaccepted limitation proposals** remain explicit.
+Existing V73/V75 retain 205 exposed observations / 95 pairs; unchanged engineering
+retains 2,450 tests / 36 skips, all 12 hosted suites, 29 normal jobs/docs, six captured
+production requests and 19 runtime bindings. Normal FAF completion within 1,800s
+remains unestablished; V68 is unopened. Git stays 312/1,040 incomplete, 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged.
+
+**Phase 22 remains incomplete** until explicit human technical acceptance of
+`artifacts/phase22/integration/v81-technical-acceptance/`, including the failed
+Proxmox gate and all historical/practical limits, and verified accepted-closeout
+delivery. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v79 metadata correction: new evaluation approval pending
 
 The approved V77 sequence stopped in V78 before scanner analysis: **one incomplete,
 zero reports, eleven unstarted closed, zero remaining**, with verified cleanup.
@@ -3509,7 +3532,7 @@ are conditional/optional and do not block the required product path.
 | 19 | Visible coverage and actionable findings | Recognized/unknown surface, per-attempt coverage, evidence, and review states are accurate in all formats. |
 | 20 | Independent benchmark | Pinned vulnerable/fixed corpus, held-out cases, honest denominators, and reproducible tier comparisons. |
 | 21 | Maintainer problem validation | Five external pilots attempt their workflows and establish a bounded improvement priority. |
-| 22 | Broader useful MCP coverage | New threat controls, per-tool campaigns, and a pilot compatibility fix improve measured results. |
+| 22 | Broader useful MCP coverage | Verified controls/campaigns and source-assessed results; explicit acceptance of retained failures and limitations, then verified closeout. Pilots remain deferred. |
 | 23 | Maintained detection feedback | A report/advisory reaches a tested, reviewed, reproducible release with recorded timings. |
 | 24 | Retained adoption | Three of five pilots meet onboarding/30-day retention goals and an independent useful catch is verified. |
 | 25 | Independent AI discovery | Conditional; held-out incremental findings justify noise/cost, with advisory provenance and no execution. |

@@ -1,6 +1,42 @@
-# Integration evidence, batches 1–101 and closeout audit
+# Integration evidence, batches 1–102 and closeout audit
 
-## Current metadata-correction evidence seal 101
+## Current unseen-review evidence seal 102
+
+[Seal 102](evidence-v102.json) retains **203 members / 17,842,249 raw bytes**;
+archive SHA-256 `f68137feccf1f13d0f52b0877ced9ddb40d0c11ac871d65307e072e98da3aefa`. All 101 prior archives and every new member were verified.
+It includes the approved V80 twelve-observation run, six equal ordered pairs, complete source
+assessment, the initial V78 metadata failure, all 448 requirements and 26 proposed limitation
+rows. Taskwarrior passes narrowly; Proxmox's vulnerable read and negative support fail.
+Ordinary FAF timing and V68 remain explicitly qualified. No human acceptance has occurred.
+
+Restore after seals 1–101 in numeric order into separate staging, rejecting unsafe paths/symlinks,
+checking every member hash and stopping on unexplained conflicts. Post-seal documentation and
+actual draft delivery receipts are supplemental. **Phase 22 remains incomplete; zero new paid calls.**
+
+## Current v81 technical review: unseen check complete, one failed gate
+
+The separately approved V80 check completed **12 observations / six equal ordered
+pairs** at **`cec0322`**, using normal 1,800s input / 10s Semgrep / 15s cleanup and
+four-worker limits. **Taskwarrior passes narrow shell discrimination; Proxmox misses
+the vulnerable upload read and leaves both negatives unsupported** on each pass.
+Its computed module-table dispatcher remains unsupported. All four findings,
+504 diagnostics, 12 surfaces, 18 contexts and 14 ordered comparisons are assessed.
+The initial V78 metadata failure remains one incomplete before analysis, zero reports,
+eleven unstarted closed. Both budgets are closed; zero new paid calls or target execution.
+
+All **448 requirements** and **26 unaccepted limitation proposals** remain explicit.
+Existing V73/V75 retain 205 exposed observations / 95 pairs; unchanged engineering
+retains 2,450 tests / 36 skips, all 12 hosted suites, 29 normal jobs/docs, six captured
+production requests and 19 runtime bindings. Normal FAF completion within 1,800s
+remains unestablished; V68 is unopened. Git stays 312/1,040 incomplete, 728 deferred;
+paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged.
+
+**Phase 22 remains incomplete** until explicit human technical acceptance of
+`artifacts/phase22/integration/v81-technical-acceptance/`, including the failed
+Proxmox gate and all historical/practical limits, and verified accepted-closeout
+delivery. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical metadata-correction evidence seal 101
 
 [Seal 101](evidence-v101.json) retains **115 members / 15,732,287 raw bytes**;
 archive SHA-256 `baab76ea04c6595bbebe02c10867c23afd6dd012340f7a6796b512e58282b5ca`. All 100 prior archives and every new member were verified.
@@ -13,7 +49,7 @@ checking every member hash and stopping on unexplained conflicts. The six-input 
 also directly tracked. Post-seal documentation and actual draft delivery receipts are supplemental.
 **Phase 22 remains incomplete; numerical approval and later technical acceptance are separate.**
 
-## Current v79 metadata correction: new evaluation approval pending
+## Historical v79 metadata correction: new evaluation approval pending
 
 The approved V77 sequence stopped in V78 before scanner analysis: **one incomplete,
 zero reports, eleven unstarted closed, zero remaining**, with verified cleanup.
