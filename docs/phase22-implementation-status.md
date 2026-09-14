@@ -1,6 +1,41 @@
 # Phase 22 implementation status
 
-## Current v65 invalidation attempt: strict-equivalence failure retained
+## Current v66 invalidation contract: engineering passed, regression approval pending
+
+The explicitly approved private mutation-domain revision and one source-only If
+accumulator attempt are verified at **`4145d35`**, source
+`41dd31a167c454bd9db3d720ce75ce6287312ce0e7799bbda1b2e59c61f77ea6`. All seven shipped flow classes preserve
+monotone private invalidations and independent arm baselines. The candidate reuses
+the first completed arm; all guard, statement and conservative union work remains.
+The source-bound guard rejects removal/export/reflection mutations. Verification
+passes 256 ordinary, 766 complete production-flow and 252 production-boundary
+comparisons, 125 ordered discovery comparisons and six complete serial/parallel
+results. Only the two explicitly named injected scanner callbacks are outside the
+prospective domain; their exact deltas and **v65 strict failure remain retained**.
+No other failure is excluded; no native speedup or 1800-second completion is proved.
+
+Local and all 12 hosted suites pass **2,419 tests / 36 skips**; all **29 normal CI
+jobs** and docs pass in **34808261686 / 34808261635**. Combined coverage is
+**90.08%**, branch-only **85.92%**. Six complete production requests
+replay identically with zero model calls; approved runtime/image bindings remain.
+Verification-helper failures and their actual corrections remain preserved.
+
+`v66-invalidation-contract/evaluation-proposal.json` prepares **205 exposed
+observations on 110 inputs / 95 ordered pairs**, **unapproved and unexecuted**:
+24 four-source, 94 TypeScript and 87 Python. Bounds remain 1800 seconds per input,
+15 seconds cleanup and a 6275-minute worst-case outer cap, not an estimate.
+No retry/profile/comparator, new repository, target execution or paid call.
+
+All **376 requirements (89 original + 287 added)** retain every prior failed gate,
+six native timeouts, five separately bound partial profiles, invalid stale-root
+preparation, both singleton failures, the strict accumulator failure and six
+unaccepted historical closure proposals. **Phase 22 remains incomplete**, pending
+current-source gates, explicit human technical acceptance and accepted closeout.
+Git stays 312/1,040 incomplete, 728 deferred; paid benchmark/pilots deferred,
+Phase 21 incomplete and Phase 24/15 unchanged. No merge, ready-state, release,
+outreach or Phase 23 is authorized.
+
+## Historical v65 invalidation attempt: strict-equivalence failure retained
 
 The approved If invalidation-accumulator attempt passes **256 ordinary full-state
 comparisons**, then fails the required synthetic captured-arm alias and shrinking-arm

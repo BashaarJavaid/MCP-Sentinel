@@ -1,4 +1,17 @@
-# Integration evidence, batches 1–93 and closeout audit
+# Integration evidence, batches 1–94 and closeout audit
+
+## Verified private invalidation contract evidence seal 94
+
+[Seal 94](evidence-v94.json) retains **636 members / 43,422,168 raw bytes**,
+archive SHA-256 `bebc6cc3605b2888e0f4a968ca5ed36db6a771d4e8340382bcfc7d3cf506195f`. All 93 earlier archives and every member verified.
+The explicit revision, exact candidate, source/alias proof, complete comparisons,
+full local/hosted engineering at4145d35, six zero-call requests,376-row audit,
+unapproved regression, final checks/packages and supplemental v65 delivery remain.
+The original strict failure and both exact injected negative-control deltas remain.
+Restore after seals1–93 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify all hashes and stop on unexplained conflicts. The v73 log
+correction remains preserved. Post-seal documentation and draft readback are
+supplemental. **Phase22 remains incomplete.**
 
 ## Failed If accumulator attempt evidence seal 93
 
@@ -188,7 +201,42 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v65 invalidation attempt: strict-equivalence failure retained
+## Current v66 invalidation contract: engineering passed, regression approval pending
+
+The explicitly approved private mutation-domain revision and one source-only If
+accumulator attempt are verified at **`4145d35`**, source
+`41dd31a167c454bd9db3d720ce75ce6287312ce0e7799bbda1b2e59c61f77ea6`. All seven shipped flow classes preserve
+monotone private invalidations and independent arm baselines. The candidate reuses
+the first completed arm; all guard, statement and conservative union work remains.
+The source-bound guard rejects removal/export/reflection mutations. Verification
+passes 256 ordinary, 766 complete production-flow and 252 production-boundary
+comparisons, 125 ordered discovery comparisons and six complete serial/parallel
+results. Only the two explicitly named injected scanner callbacks are outside the
+prospective domain; their exact deltas and **v65 strict failure remain retained**.
+No other failure is excluded; no native speedup or 1800-second completion is proved.
+
+Local and all 12 hosted suites pass **2,419 tests / 36 skips**; all **29 normal CI
+jobs** and docs pass in **34808261686 / 34808261635**. Combined coverage is
+**90.08%**, branch-only **85.92%**. Six complete production requests
+replay identically with zero model calls; approved runtime/image bindings remain.
+Verification-helper failures and their actual corrections remain preserved.
+
+`v66-invalidation-contract/evaluation-proposal.json` prepares **205 exposed
+observations on 110 inputs / 95 ordered pairs**, **unapproved and unexecuted**:
+24 four-source, 94 TypeScript and 87 Python. Bounds remain 1800 seconds per input,
+15 seconds cleanup and a 6275-minute worst-case outer cap, not an estimate.
+No retry/profile/comparator, new repository, target execution or paid call.
+
+All **376 requirements (89 original + 287 added)** retain every prior failed gate,
+six native timeouts, five separately bound partial profiles, invalid stale-root
+preparation, both singleton failures, the strict accumulator failure and six
+unaccepted historical closure proposals. **Phase 22 remains incomplete**, pending
+current-source gates, explicit human technical acceptance and accepted closeout.
+Git stays 312/1,040 incomplete, 728 deferred; paid benchmark/pilots deferred,
+Phase 21 incomplete and Phase 24/15 unchanged. No merge, ready-state, release,
+outreach or Phase 23 is authorized.
+
+## Historical v65 invalidation attempt: strict-equivalence failure retained
 
 The approved If invalidation-accumulator attempt passes **256 ordinary full-state
 comparisons**, then fails the required synthetic captured-arm alias and shrinking-arm

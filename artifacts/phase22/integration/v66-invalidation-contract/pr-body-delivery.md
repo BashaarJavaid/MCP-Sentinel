@@ -1,0 +1,11 @@
+Candidate `4145d35` reuses the first completed TypeScript If arm's private invalidation set under the explicitly approved monotone mutation/no-export contract. Every arm still starts from an independent original-baseline copy; guard/statement analysis and conservative joins remain intact.
+
+[Review packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v66-invalidation-contract/summary.md) · [376-row audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v66-invalidation-contract/audit.json) · [exact regression proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v66-invalidation-contract/evaluation-proposal.json)
+
+The earlier strict-equivalence attempt remains failed. Only its two exact injected scanner callbacks are prospectively outside the approved domain; their original deltas remain unchanged. The source-bound guard and complete flow/error/alias/discovery/report comparisons pass. Full engineering passes: 2,419 tests / 36 skips locally and in all12 hosted suites; all29 normal jobs and docs pass. Six production requests replay unchanged with zero paid calls. No native speedup or1800-second completion is established.
+
+The separately gated regression remains unapproved/unexecuted:205 observations on110 inputs/95 ordered pairs (24 four-source+94 TypeScript+87 Python),1800-second input maximum,15-second cleanup and6275-minute worst-case outer cap. No retry/profile/comparator,new repository,target execution or paid call. All historical failures and closed budgets remain.
+
+Phase22 remains incomplete pending actual current-source gates, explicit human technical acceptance and accepted closeout. Git312/1040 remains incomplete; paid benchmark/pilots deferred,Phase21 incomplete,Phase24/15 unchanged. No merge,ready-state,release,outreach or Phase23.
+
+[Seal94](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/evidence-v94.json): 636 members, SHA-256 `bebc6cc3605b2888e0f4a968ca5ed36db6a771d4e8340382bcfc7d3cf506195f`; all93earlier archives verified. Final docs/packages pass with exact tested4145d35 product bytes.
