@@ -1,6 +1,20 @@
-# Integration evidence, batches 1–98 and closeout audit
+# Integration evidence, batches 1–99 and closeout audit
 
-## Current correctness-recovery evidence seal 98
+## Current technical-review evidence seal 99
+
+[Seal 99](evidence-v99.json) retains **2041 members / 1,145,987,585 raw bytes**;
+archive SHA-256 `16d4fa5d7ce47709161a82bdd54cef6a3cc0fe53901cd0c3b9dc3a134e9da04e`. All 98 prior archives and every new member were verified.
+It includes both approved current-source runs (24 four-source + 181 compatibility observations),
+95 equal ordered pairs, complete source assessments, exact approvals/closed budgets, all initial
+and corrected helpers, the complete 422-row audit and the explicit technical acceptance proposal.
+Ordinary 1,800-second FAF completion remains unestablished. Historical failures and scope limits
+are preserved; no human technical acceptance has been received.
+
+Restore after seals 1–98 in numeric order into separate staging, rejecting unsafe paths/symlinks,
+checking every member hash and stopping on unexplained conflicts. Post-seal documentation and
+actual draft delivery receipts are supplemental. **Phase 22 remains incomplete; zero new paid calls.**
+
+## Historical correctness-recovery evidence seal 98
 
 [Seal 98](evidence-v98.json) retains **855 members / 35,969,005 raw bytes**,
 archive SHA-256 `5537e8c6e7c115960ec17ba7302c2fd12506cf0c4a714b96dc6d8839c84d1a34`. All 97 earlier archives and every new member verified.
@@ -253,7 +267,43 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v72 correctness recovery: engineering passed, regression pending
+## Current v76 technical review: source gates passed, human acceptance pending
+
+At engineering-tested **`cec0322`**, the separately approved **24 four-repository
+observations and 181 prior-language observations are complete**, with **all 95
+entire ordered pairs equal**, verified cleanup and both budgets closed. No-bash,
+Lightning, Engram and FAF pass their narrow exposed conditions; TypeScript 94
+and Python 87 preserve compatibility, including caller-specific DDG CGNAT support
+and two retained nominal-fixed Meta operator errata. Calculator reports add two
+source-assessed findings outside the original metadata condition. Fourteen qualified
+Git repository-copy findings retain physical/identity uncertainty. Raw findings,
+unresolved surfaces and original fresh failures remain visible.
+
+**Normal FAF completion within 1,800 seconds remains unestablished.** Its six
+approved uncapped observations took **2,297.758–2,735.386 seconds**; the ordinary
+1,800-second policy remains unchanged. The 181 language observations used normal
+1,800-second input / 10-second Semgrep limits, 15-second cleanup and the existing
+four-worker maximum. No speedup, isolated benchmark or broader runtime safety is
+claimed. The V68 performance proposal remains unapproved and unimplemented.
+
+Unchanged `cec0322` engineering retains **2,450 tests / 36 skips** locally and in
+all 12 hosted suites, **29 normal CI jobs and docs**, combined coverage **90.11%**,
+branch-only **85.97%**, six zero-call production request replays and 19 approved
+runtime component bindings. This continuation adds static assessment and affected
+documentation/package checks, not a new hosted code pass. All **422 requirements
+(89 original + 333 added)** retain their previous states and exact evidence.
+Historical failures and practical limits are proposed for explicit acceptance.
+
+**Phase 22 remains incomplete** until explicit human technical acceptance of the
+review packet and subsequent verified accepted-closeout delivery. The packet is
+`artifacts/phase22/integration/v76-technical-acceptance/`; its summary, complete audit
+and acceptance proposal enumerate every proposed limitation. Git stays **312/1,040
+incomplete, 728 deferred**; the 396-request paid benchmark and pilots are deferred,
+Phase 21 is incomplete, and Phase 24/15 are unchanged. Historical paid spend stays
+**$0.071799; zero new paid calls**. No merge, ready-state change, release, outreach
+or Phase 23 is authorized.
+
+## Historical v72 correctness recovery: engineering passed, regression pending
 
 Ordinary approved-contract recovery is verified at **`cec0322`**. Supported
 TypeScript constructor parameter properties retain actual argument/default and
