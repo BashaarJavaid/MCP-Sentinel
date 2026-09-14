@@ -1,0 +1,85 @@
+{
+  "recorded_at": "2026-09-14T07:13:43.353441+00:00",
+  "user_authorization": "there is not enough space in my laptop that might be the reason. check Docker and free up space from there if you dont need more docker space.",
+  "selected": {
+    "saixwxlwwfhm4aafg0t1k47qf": {
+      "CreatedAt": "2026-09-04 23:16:34.891120133 +0000 UTC",
+      "Description": "mount / from exec /bin/sh -c pipx install /dist/portunusmcp_sentinel-1.2.1-py3-none-any.whl",
+      "ID": "saixwxlwwfhm4aafg0t1k47qf",
+      "LastUsedAt": "9 days ago",
+      "Mutable": false,
+      "Parents": [
+        "g2h5geiebjcouxtr1gofwrig3"
+      ],
+      "Reclaimable": true,
+      "Shared": false,
+      "Size": "752.1MB",
+      "Type": "regular",
+      "UsageCount": 1
+    },
+    "t98bj5uese43fmun0szgwbk85": {
+      "CreatedAt": "2026-09-05 00:33:29.91472518 +0000 UTC",
+      "Description": "mount / from exec /bin/sh -c pipx install portunusmcp-sentinel==1.2.1",
+      "ID": "t98bj5uese43fmun0szgwbk85",
+      "LastUsedAt": "9 days ago",
+      "Mutable": false,
+      "Parents": [
+        "kdbb5nplmwnu55nelbrrqkmn9"
+      ],
+      "Reclaimable": true,
+      "Shared": false,
+      "Size": "752.9MB",
+      "Type": "regular",
+      "UsageCount": 1
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "buildx",
+        "prune",
+        "--all",
+        "--force",
+        "--reserved-space",
+        "0",
+        "--filter",
+        "id=saixwxlwwfhm4aafg0t1k47qf"
+      ],
+      "stdout": "Total:\t0B\n",
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "buildx",
+        "prune",
+        "--all",
+        "--force",
+        "--reserved-space",
+        "0",
+        "--filter",
+        "id=t98bj5uese43fmun0szgwbk85"
+      ],
+      "stdout": "Total:\t0B\n",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Only two exact unused Sentinel pipx build-cache IDs, with all/filter and zero reserved-space policy for this prune invocation only. No global prune, image/container/volume deletion or daemon-policy change.",
+  "raw_allocated_bytes_before": 21128253440,
+  "host_available_bytes_before": 35173486592,
+  "paid_calls": 0,
+  "profiles": 0,
+  "passed": true,
+  "removed_ids": [],
+  "remaining_selected": [
+    "saixwxlwwfhm4aafg0t1k47qf",
+    "t98bj5uese43fmun0szgwbk85"
+  ],
+  "unselected_cache_records_preserved": true,
+  "all_images_containers_volumes_preserved": true,
+  "raw_allocated_bytes_after": 21128253440,
+  "host_available_bytes_after": 35170406400,
+  "docker_summary_after": "TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE\nImages          26        2         9.151GB   6.431GB (70%)\nContainers      7         0         5.14MB    5.14MB (100%)\nLocal Volumes   65        5         136.5MB   88.11kB (0%)\nBuild Cache     317       0         10.82GB   5.837GB\n",
+  "physical_docker_bytes_reclaimed": 0
+}

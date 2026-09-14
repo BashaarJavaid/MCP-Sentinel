@@ -1,6 +1,46 @@
 # AGENTS.md
 
-## Current v67 invalidation regression: timed out, budget closed
+## Current v68 invalidation profile: source-only decision pending
+
+The approved FAF profile at frozen **`4145d35`** timed out after **1800.013225
+seconds**, retaining **148,001 verified parent samples** and no report. Cleanup
+passed after forced termination; the periodic snapshot does not confirm final
+snapshot completion or timer restoration. No worker snapshot exists; worker
+launch history and costs are unestablished. The one-use budget is closed.
+Registration discovery is 99.86% inclusive; literal serialization is 3.85% of
+parent leaf samples. These overlapping partial shares establish no speedup,
+removable fraction, detection or compatibility.
+
+`v68-invalidation-sampling/optimization-proposal.json` prepares **one unapproved,
+unimplemented source-only literal serialization reuse attempt**: a bounded
+per-program cache for exact strings, with fresh Values and all analysis/state
+updates retained. Full identity, cold/warm/eviction, error/deadline and ordered
+report equivalence plus engineering are required. No corpus/profile/retry,
+resource/deadline revision, target execution or paid call is included.
+
+An initial read-only launch preflight failed before any input/token because files
+had disappeared. Verified recovery restored 25,941 tracked files, six worktree
+links, 7,667 expanded evidence files and two protected user documents without
+overwriting existing bytes. The cause remains unknown. User-authorized Docker
+cleanup removed five unused public base images; project images, all containers
+and volumes remain. Logical image storage fell 2.89GB; delayed physical recovery
+is separately recorded. The same unused profile approval then ran once.
+
+All **391 requirements (89 original + 302 added)** remain, including seven native
+timeouts, six valid partial profiles, invalid stale-root preparation, both
+singleton failures, the original strict invalidation failure and six unaccepted
+historical closure proposals. Product retains tested `4145d35`: **2,419 tests /
+36 skips** locally and all 12 hosted suites, 29 normal CI jobs and docs passed.
+Combined coverage is 90.08%, branch-only 85.92%; six zero-call production replays
+and approved runtime bindings remain. This continuation adds profile/recovery
+assessment and docs/package checks, not another hosted code pass.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete, with
+728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15
+unchanged. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v67 invalidation regression: timed out, budget closed
 
 The approved 205-observation sequence at frozen **`4145d35`** stopped on its first
 FAF vulnerable input after **1800.008716 seconds** whole-input time.
