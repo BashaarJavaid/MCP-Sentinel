@@ -40,6 +40,11 @@ def run_flow_rules(
     # Parse once in the parent. Workers rebuild identity-keyed indexes, and their
     # rule traversals launch no subprocesses, so each worker can be reaped directly.
     trees = context.typescript_program.trees if context.files.typescript_files else {}
+    discovery = (
+        context.typescript_program.tool_discovery
+        if context.files.typescript_files
+        else None
+    )
     check_deadline(context.deadline)
     processes: dict[str, subprocess.Popen[bytes]] = {}
     states = {}
@@ -52,7 +57,13 @@ def run_flow_rules(
             source = root / "input.pickle"
             source.write_bytes(
                 pickle.dumps(
-                    (context.configuration, context.files, context.deadline, trees)
+                    (
+                        context.configuration,
+                        context.files,
+                        context.deadline,
+                        trees,
+                        discovery,
+                    )
                 )
             )
             try:
@@ -121,8 +132,10 @@ def _worker() -> None:
 
     source, destination, rule = sys.argv[1:]
     try:
-        configuration, files, deadline, trees = pickle.loads(Path(source).read_bytes())
-        context = StaticContext(configuration, files, deadline, trees)
+        configuration, files, deadline, trees, discovery = pickle.loads(
+            Path(source).read_bytes()
+        )
+        context = StaticContext(configuration, files, deadline, trees, discovery)
         state = RuleRunState()
         _AST_DETECTORS[rule](context, state)
         result: RuleRunState | SentinelError = state

@@ -16,7 +16,10 @@ from sentinel.report.model import ReportWarning, StaticAnalysisSummary
 if TYPE_CHECKING:
     from sentinel.static.discovery import PythonProgram
     from sentinel.static.http_discovery import HTTPBinding, TypeScriptHTTPBinding
-    from sentinel.static.typescript_discovery import TypeScriptProgram
+    from sentinel.static.typescript_discovery import (
+        TypeScriptProgram,
+        TypeScriptToolDiscovery,
+    )
 
 
 class RuleEngine(str, Enum):
@@ -104,6 +107,7 @@ class StaticContext:
     files: StaticFileSet
     deadline: float = float("inf")
     typescript_trees: dict[str, dict[str, Any]] | None = None
+    typescript_discovery: TypeScriptToolDiscovery | None = None
 
     @cached_property
     def python_program(self) -> PythonProgram:
@@ -133,6 +137,7 @@ class StaticContext:
             self.files.typescript_files,
             deadline=self.deadline,
             trees=self.typescript_trees,
+            discovery=self.typescript_discovery,
             modules=TypeScriptModules(
                 self.configuration.scan_root,
                 self.files.config_files,

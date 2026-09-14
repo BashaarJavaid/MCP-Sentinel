@@ -37,6 +37,8 @@ new rule IDs.
 
 ### Changed
 
+- Reuse completed TypeScript tool discovery across rule workers and coverage,
+  preserving ordered warnings, source identities and the shared deadline.
 - Reuse equal, present TypeScript branch values before preparing record fallbacks,
   retaining conservative guard and missing-state merges.
 - Avoid constructing unused record fallbacks when merging TypeScript branches.

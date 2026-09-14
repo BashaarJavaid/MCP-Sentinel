@@ -17,12 +17,12 @@ from sentinel.static.traversal import collect_static_files
 from tests.conftest import NOW, SCAN_ID, make_target
 
 
-@pytest.mark.parametrize("language", ["python", "typescript"])
+@pytest.mark.parametrize("language", ["python", "typescript", "mixed"])
 def test_parallel_native_result_matches_serial_and_never_imports_target(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, language: str
 ) -> None:
     root = make_target(tmp_path / "target")
-    if language == "python":
+    if language in {"python", "mixed"}:
         (root / "server.py").write_text(
             "from mcp.server.fastmcp import FastMCP\n"
             "from helpers import read_file\nimport subprocess, requests\n"
@@ -35,11 +35,14 @@ def test_parallel_native_result_matches_serial_and_never_imports_target(
         (root / "helpers.py").write_text(
             "def read_file(path): return open(path).read()\n"
         )
-    else:
-        (root / "pyproject.toml").unlink()
-        (root / "server.py").unlink()
+    if language in {"typescript", "mixed"}:
+        if language == "typescript":
+            (root / "pyproject.toml").unlink()
+            (root / "server.py").unlink()
         (root / "package.json").write_text(
-            '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}'
+            '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}'
+            + (',"workspaces":["."]' if language == "mixed" else "")
+            + "}"
         )
         (root / "server.ts").write_bytes(
             (
@@ -67,7 +70,36 @@ def test_parallel_native_result_matches_serial_and_never_imports_target(
     monkeypatch.setattr(workers, "MIN_SOURCE_SIZE", 0)
     monkeypatch.setattr(os, "cpu_count", lambda: 4)
     monkeypatch.setattr(engine, "run_flow_rules", lambda *_: {})
+    from sentinel.static.typescript_discovery import TypeScriptProgram
+
+    cached_tools = TypeScriptProgram.tools
+    monkeypatch.setattr(TypeScriptProgram, "tools", TypeScriptProgram._discover_tools)
     serial = engine.run_static_scan(configuration, SCAN_ID, timestamp=NOW)
+    monkeypatch.setattr(TypeScriptProgram, "tools", cached_tools)
+    produced = []
+    discover = TypeScriptProgram._discover_tools
+
+    def producer(program: TypeScriptProgram) -> Any:
+        produced.append(program)
+        return discover(program)
+
+    monkeypatch.setattr(TypeScriptProgram, "_discover_tools", producer)
+    script = tmp_path / "trusted_reuse_worker.py"
+    script.write_text(
+        "import sys\nfrom pathlib import Path\n"
+        f"sys.path.insert(0, {str(workers.WORKER.parents[2])!r})\n"
+        "from sentinel.static import workers, engine\n"
+        "from sentinel.static.typescript_discovery import TypeScriptProgram\n"
+        "def duplicate(self):\n"
+        " raise AssertionError('worker repeated tool discovery')\n"
+        "TypeScriptProgram._discover_tools=duplicate\n"
+        "rule=sys.argv[3]\noriginal=engine._AST_DETECTORS[rule]\n"
+        "def detect(context,state):\n"
+        f" Path({str(tmp_path)!r}, rule+'.started').touch()\n"
+        " original(context,state)\n"
+        "engine._AST_DETECTORS[rule]=detect\nworkers._worker()\n"
+    )
+    monkeypatch.setattr(workers, "WORKER", script)
     observed = {}
 
     def parallel(
@@ -98,6 +130,8 @@ def test_parallel_native_result_matches_serial_and_never_imports_target(
 
     assert stable(concurrent) == stable(serial)
     assert not marker.exists()
+    assert len(produced) == (0 if language == "python" else 1)
+    assert all((tmp_path / (rule + ".started")).exists() for rule in workers.FLOW_RULES)
 
 
 @pytest.mark.parametrize(

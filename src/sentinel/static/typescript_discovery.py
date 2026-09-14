@@ -6,6 +6,7 @@ import posixpath
 from collections import OrderedDict, defaultdict
 from collections.abc import Iterator
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Any
 
 from sentinel.finding import SourceRange
@@ -73,6 +74,16 @@ class TypeScriptBinding:
     sdk_registration: TypeScriptSymbol | None = None
 
 
+@dataclass(frozen=True)
+class TypeScriptToolDiscovery:
+    files: tuple[TypeScriptSourceFile, ...]
+    trees: dict[str, dict[str, Any]]
+    bindings: dict[str, dict[str, list[dict[str, Any]]]]
+    tools: tuple[TypeScriptBinding, ...]
+    warnings: tuple[ReportWarning, ...]
+    options: dict[str, dict[str, Any] | None]
+
+
 class TypeScriptProgram:
     def __init__(
         self,
@@ -81,6 +92,7 @@ class TypeScriptProgram:
         deadline: float,
         modules: TypeScriptModules | None = None,
         trees: dict[str, dict[str, Any]] | None = None,
+        discovery: TypeScriptToolDiscovery | None = None,
     ) -> None:
         self.files = {file.relative_path: file for file in files}
         self.deadline = deadline
@@ -146,6 +158,22 @@ class TypeScriptProgram:
                         bindings[name.split(".")[0]].append({"rebound": True})
             self.bindings[file.relative_path] = dict(bindings)
             self.exports[file.relative_path] = exports
+        if discovery is not None:
+            # Private IPC must carry bindings, synthetic imports and trees in one
+            # graph. Integer identity indexes above are rebuilt in this process.
+            if len(files) != len(discovery.files) or any(
+                file is not original
+                or self.trees[file.relative_path]
+                is not discovery.trees[file.relative_path]
+                for file, original in zip(files, discovery.files, strict=True)
+            ):
+                from sentinel.errors import InfrastructureError
+
+                raise InfrastructureError(
+                    "TypeScript discovery source identity mismatch"
+                )
+            self.bindings = discovery.bindings
+            self.tool_discovery = discovery
 
     def property(
         self,
@@ -232,6 +260,42 @@ class TypeScriptProgram:
         return tuple(found)
 
     def tools(self) -> tuple[TypeScriptBinding, ...]:
+        check_deadline(self.deadline)
+        discovery = self.tool_discovery
+        check_deadline(self.deadline)
+        self.warnings.extend(w for w in discovery.warnings if w not in self.warnings)
+        if self.modules is not None:
+            self.modules.option_cache.update(discovery.options)
+        return discovery.tools
+
+    @cached_property
+    def tool_discovery(self) -> TypeScriptToolDiscovery:
+        """Prepare completed discovery without advancing a consumer's warnings."""
+        check_deadline(self.deadline)
+        warnings = self.warnings
+        options = self.modules.option_cache if self.modules is not None else {}
+        self.warnings = []
+        if self.modules is not None:
+            self.modules.warnings = self.warnings
+            self.modules.option_cache = {}
+        try:
+            tools = self._discover_tools()
+            check_deadline(self.deadline)
+            return TypeScriptToolDiscovery(
+                tuple(self.files.values()),
+                self.trees,
+                self.bindings,
+                tools,
+                tuple(self.warnings),
+                self.modules.option_cache if self.modules is not None else {},
+            )
+        finally:
+            self.warnings = warnings
+            if self.modules is not None:
+                self.modules.warnings = warnings
+                self.modules.option_cache = options
+
+    def _discover_tools(self) -> tuple[TypeScriptBinding, ...]:
         found: list[TypeScriptBinding] = []
         for file in self.files.values():
             for node in walk(self.trees[file.relative_path]):

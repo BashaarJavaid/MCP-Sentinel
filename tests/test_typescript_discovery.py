@@ -8,7 +8,12 @@ from unittest.mock import patch
 import pytest
 
 from sentinel.static.model import RuleRunState, TypeScriptSourceFile
-from sentinel.static.typescript_discovery import TypeScriptProgram
+from sentinel.static.typescript_discovery import (
+    TypeScriptBinding,
+    TypeScriptProgram,
+    TypeScriptSymbol,
+    walk,
+)
 
 
 @pytest.mark.parametrize("shared", [False, True])
@@ -694,6 +699,196 @@ def test_object_method_binding_replacement_and_escape(
         "const service={url, execute(){return fetch(this.url);}};\n" + call,
     )
     assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    "registration", ["direct", "factory", "class", "empty", "rebound"]
+)
+@pytest.mark.parametrize("warm", [False, True])
+def test_completed_tool_discovery_preserves_graph_warnings_and_rule_state(
+    tmp_path: Path, registration: str, warm: bool
+) -> None:
+    import dataclasses
+    import pickle
+
+    from sentinel.report.model import ReportWarning
+    from sentinel.static.engine import _AST_DETECTORS
+    from sentinel.static.model import StaticContext
+    from sentinel.static.typescript_modules import TypeScriptModules
+
+    declarations = {
+        "direct": 'const server=new McpServer({name:"test",version:"1"});'
+        'server.registerTool("fetch",{inputSchema:{}},handler);',
+        "factory": "export function create(){"
+        'const server=new McpServer({name:"test",version:"1"});'
+        'server.registerTool("fetch",{inputSchema:{}},handler);return server;}',
+        "class": "class Wrapper {constructor(){"
+        'this.server=new McpServer({name:"test",version:"1"});'
+        'this.server.registerTool("fetch",{inputSchema:{}},handler);}} new Wrapper();',
+        "empty": 'const unused="no registration";',
+        "rebound": 'let server=new McpServer({name:"test",version:"1"});server=unknown;'
+        'server.registerTool("fetch",{inputSchema:{}},handler);',
+    }
+    config = tmp_path / "tsconfig.json"
+    config.write_text(
+        '{"extends":"missing","compilerOptions":{"paths":{"local":["./handler"]}}}'
+    )
+    sources = {
+        "server.ts": (
+            'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";'
+            'import {handler} from "local";' + declarations[registration]
+        ),
+        "handler.ts": "export function handler(args){return fetch(args.url);}",
+    }
+    files = tuple(
+        TypeScriptSourceFile(tmp_path / name, name, source)
+        for name, source in sources.items()
+    )
+    program = TypeScriptProgram(
+        files,
+        deadline=time.monotonic() + 30,
+        modules=TypeScriptModules(tmp_path, (config,), (".",)),
+    )
+    reference = TypeScriptProgram(
+        files,
+        deadline=program.deadline,
+        trees=program.trees,
+        modules=TypeScriptModules(tmp_path, (config,), (".",)),
+    )
+    prior = ReportWarning(code="static_binding_unresolved", message="pre-existing")
+    for current in (program, reference):
+        current.warnings.append(prior)
+        if warm:
+            current.resolve(files[0], "handler")
+    before = list(program.warnings)
+    assert program.modules is not None and reference.modules is not None
+    options_before = dict(program.modules.option_cache)
+    snapshot = program.tool_discovery
+    assert program.warnings == before
+    assert program.modules.option_cache == options_before
+    expected = reference._discover_tools()
+    assert snapshot.tools == expected
+    assert program.tools() == expected
+    assert program.warnings == reference.warnings
+    assert program.modules.option_cache == reference.modules.option_cache
+    assert program.tools() is snapshot.tools
+    assert program.warnings == reference.warnings
+    restored_files, restored_trees, restored_snapshot = pickle.loads(
+        pickle.dumps((files, program.trees, snapshot))
+    )
+    restored = TypeScriptProgram(
+        restored_files,
+        deadline=program.deadline,
+        trees=restored_trees,
+        discovery=restored_snapshot,
+        modules=TypeScriptModules(tmp_path, (config,), (".",)),
+    )
+    assert not restored.warnings
+    assert not restored.source_ranges
+    bindings = restored.tools()
+    assert bindings == snapshot.tools
+    tree_nodes = {id(node) for tree in restored.trees.values() for node in walk(tree)}
+    for binding in bindings:
+        for field in dataclasses.fields(binding):
+            symbol = getattr(binding, field.name)
+            if not isinstance(symbol, TypeScriptSymbol):
+                continue
+            assert symbol.file is restored.files[symbol.file.relative_path]
+            if symbol.external is None:
+                assert id(symbol.node) in tree_nodes
+                assert restored.source_range(
+                    symbol.node, symbol.file
+                ) == program.source_range(
+                    getattr(snapshot.tools[bindings.index(binding)], field.name).node,
+                    program.files[symbol.file.relative_path],
+                )
+    for path, declarations_ in restored.bindings.items():
+        for nodes in declarations_.values():
+            for node in nodes:
+                if "import" in node:
+                    symbol = restored.resolve_node(restored.files[path], node)
+                    if symbol is not None and symbol.external is not None:
+                        assert symbol.node is node
+    from sentinel.config import load_configuration
+    from sentinel.static.model import StaticFileSet
+
+    (tmp_path / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}'
+    )
+    for file in files:
+        file.path.write_text(file.source)
+    configuration = load_configuration(
+        tmp_path,
+        environ={},
+        cli_overrides={"rules_only": True},
+    )
+    file_set = StaticFileSet((), files, (config,), 2, 0, ())
+    for rule in ("SENT-012", "SENT-013", "SENT-014", "SENT-015", "SENT-016"):
+        states = []
+        for cached in (False, True):
+            context = StaticContext(
+                configuration,
+                file_set,
+                program.deadline,
+                program.trees,
+                snapshot if cached else None,
+            )
+            current = context.typescript_program
+            if not cached:
+                current.tools = current._discover_tools  # type: ignore[method-assign]
+            state = RuleRunState()
+            _AST_DETECTORS[rule](context, state)
+            states.append(state)
+        assert states[0] == states[1]
+
+
+@pytest.mark.parametrize("failure", ["exception", "interrupt", "expired"])
+def test_incomplete_tool_discovery_is_not_cached(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    from sentinel.errors import InfrastructureError
+
+    program = TypeScriptProgram((), deadline=time.monotonic() + 10)
+
+    def fail() -> tuple[TypeScriptBinding, ...]:
+        if failure == "expired":
+            program.deadline = 0
+            return ()
+        raise (
+            KeyboardInterrupt
+            if failure == "interrupt"
+            else InfrastructureError("producer failed")
+        )
+
+    monkeypatch.setattr(program, "_discover_tools", fail)
+    with pytest.raises(
+        KeyboardInterrupt if failure == "interrupt" else InfrastructureError
+    ):
+        program.tools()
+    assert "tool_discovery" not in program.__dict__
+    assert program.warnings == []
+
+
+def test_empty_discovery_deadline_and_context_separation(tmp_path: Path) -> None:
+    from sentinel.errors import InfrastructureError
+
+    file = TypeScriptSourceFile(tmp_path / "empty.ts", "empty.ts", "")
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 10)
+    assert program.tools() == ()
+    snapshot = program.tool_discovery
+    other = TypeScriptProgram((file,), deadline=program.deadline, trees=program.trees)
+    assert other.tool_discovery is not snapshot
+    replacement = TypeScriptSourceFile(file.path, file.relative_path, file.source)
+    with pytest.raises(InfrastructureError, match="identity mismatch"):
+        TypeScriptProgram(
+            (replacement,),
+            deadline=program.deadline,
+            trees=program.trees,
+            discovery=snapshot,
+        )
+    program.deadline = 0
+    with pytest.raises(InfrastructureError, match="timeout"):
+        program.tools()
 
 
 def _object_url_flow(tmp_path: Path, body: str) -> RuleRunState:
