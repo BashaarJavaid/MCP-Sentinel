@@ -106,6 +106,12 @@ from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
             0,
         ),
         (
+            "constructor(private __proto__: any) {} "
+            "save(p) { return fs.writeFileSync(p, 'data'); }",
+            "new Writer({save: unknown}).save(args.path)",
+            0,
+        ),
+        (
             "constructor(readonly output: string) { this.output = '/fixed'; } "
             "save() { return fs.writeFileSync(this.output, 'data'); }",
             "new Writer(args.path).save()",

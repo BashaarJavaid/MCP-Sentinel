@@ -871,10 +871,14 @@ class TypeScriptPathFlow:
                     if not attrs:
                         continue
                     property_name = (param.get("pname") or {}).get("some", [None])[0]
-                    if not isinstance(property_name, str) or any(
-                        attr.get("KeywordAttr", [None])[0]
-                        not in {"Public", "Private", "Protected", "Readonly"}
-                        for attr in attrs
+                    if (
+                        not isinstance(property_name, str)
+                        or property_name == "__proto__"
+                        or any(
+                            attr.get("KeywordAttr", [None])[0]
+                            not in {"Public", "Private", "Protected", "Readonly"}
+                            for attr in attrs
+                        )
                     ):
                         return None
                     parameter_properties.append(property_name)
