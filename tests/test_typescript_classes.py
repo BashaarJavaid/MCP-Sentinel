@@ -64,6 +64,72 @@ from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
             1,
         ),
         (
+            "constructor(private output: string) {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            1,
+        ),
+        (
+            "constructor(public readonly output: string = '/fixed') {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer().save()",
+            0,
+        ),
+        (
+            "constructor(protected output: string = '/fixed') {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            1,
+        ),
+        (
+            "constructor(p: string, private output: string = p) {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            1,
+        ),
+        (
+            "constructor(private output: string, p = (output = '/fixed')) {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
+            "constructor(private output: string = '/fixed') {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "(new Writer(args.path), new Writer().save())",
+            0,
+        ),
+        (
+            "constructor(@unknown private output: string) {} "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
+            "constructor(readonly output: string) { this.output = '/fixed'; } "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
+            "constructor(private output: string) { unknown(this); } "
+            "save() { return fs.writeFileSync(this.output, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
+            "constructor(private save: unknown) {} "
+            "save() { return fs.writeFileSync(args.path, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
+            "snapshot = this.output; constructor(private output: string) {} "
+            "save() { return fs.writeFileSync(this.snapshot, 'data'); }",
+            "new Writer(args.path).save()",
+            0,
+        ),
+        (
             "set(p) { this.output = p; } "
             "save() { return fs.writeFileSync(this.output, 'data'); }",
             "(writer.set(args.path), writer.save())",

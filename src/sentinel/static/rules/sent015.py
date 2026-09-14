@@ -96,6 +96,7 @@ class URLFlow(PathFlow):
     def __init__(self, *args: Any) -> None:
         super().__init__(*args)
         self.parts: dict[str, tuple[str, str]] = {}
+        self.hostname_values: set[str] = set()
         self.networks: dict[str, ipaddress.IPv4Network | ipaddress.IPv6Network] = {}
         self.requests: set[str] = set()
         self.predicates: dict[str, tuple[Facts, Facts]] = {}
@@ -119,6 +120,7 @@ class URLFlow(PathFlow):
                 and result.key not in self.mapping_keys
                 and result.key not in self.record_keys
                 and result.key not in self.callables
+                and result.key not in self.parts
             ):
                 result = replace(
                     result,
@@ -359,6 +361,8 @@ class URLFlow(PathFlow):
                 result = replace(receiver, maybe_none=True)
             if self.parts.get(receiver.key, ("", ""))[1] == "parsed":
                 self.parts[result.key] = (self.parts[receiver.key][0], node.attr)
+                if node.attr == "hostname":
+                    self.hostname_values.add(result.key)
                 if "cgnat-ipv4" in receiver.url_checks and node.attr == "scheme":
                     # Qualification of the initially checked URL, not the new
                     # authority produced by later URL reconstruction.
@@ -385,7 +389,14 @@ class URLFlow(PathFlow):
                 else None
             )
             if (
-                restricted(first.url_checks)
+                (
+                    restricted(first.url_checks)
+                    or (
+                        first.url_checks >= IP_CHECKS | {"scheme", "hostname-present"}
+                        and isinstance(suffix, str)
+                        and suffix.startswith("/")
+                    )
+                )
                 and first.instance is None
                 and not (
                     isinstance(first_node, ast.FormattedValue)
@@ -463,6 +474,8 @@ class URLFlow(PathFlow):
         if isinstance(node, ast.Attribute):
             value = self.evaluated.get(node.value, UNKNOWN_VALUE)
             origin, part = self.parts.get(value.key, ("", ""))
+            if part == "parsed" and node.attr == "hostname" and truth:
+                return frozenset({(origin, "hostname-present")})
             if (
                 part == "ip"
                 and self.address_intact(value, env)
@@ -472,6 +485,13 @@ class URLFlow(PathFlow):
             return frozenset()
         if isinstance(node, (ast.Call, ast.Name)):
             result = self.evaluated.get(node, UNKNOWN_VALUE)
+            origin, part = self.parts.get(result.key, ("", ""))
+            if (
+                isinstance(node, ast.Name)
+                and result.key in self.hostname_values
+                and truth
+            ):
+                return frozenset({(origin, "hostname-present")})
             return self.predicates.get(result.key, (frozenset(), frozenset()))[
                 int(truth)
             ]
@@ -697,6 +717,25 @@ class URLFlow(PathFlow):
             and receiver.sources
         ):
             return receiver
+        if (
+            method == "rstrip"
+            and len(node.args) == 1
+            and isinstance(node.args[0], ast.Constant)
+            and node.args[0].value == "/"
+            and not node.keywords
+            and receiver.sources
+            and receiver.instance is None
+            and "scheme" in receiver.url_checks
+            and receiver.url_checks & {"host", "hostname-present"}
+        ):
+            # Removing the final slash may reopen the authority to later suffixes.
+            return replace(
+                receiver,
+                key=_key("url-rstrip-slash", receiver.key),
+                url_checks=receiver.url_checks - {"authority"},
+                locations=receiver.locations
+                | {(symbol.file.relative_path, node.lineno)},
+            )
         if (
             external == "getattr"
             and len(node.args) == 3

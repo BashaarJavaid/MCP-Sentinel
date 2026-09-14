@@ -465,6 +465,8 @@ class TypeScriptPathFlow:
         symbol: TypeScriptSymbol,
         args: list[Value],
         captured: dict[str, Value] | None = None,
+        *,
+        constructor: Value | None = None,
     ) -> Value:
         check_deadline(self.program.deadline)
         function = symbol.function
@@ -502,6 +504,12 @@ class TypeScriptPathFlow:
                     self.warning(
                         symbol.file, parameter, "unsupported parameter binding"
                     )
+            if constructor is not None:
+                for parameter in parameters:
+                    param = parameter.get("Param", {})
+                    if param.get("pattrs"):
+                        name = param["pname"]["some"][0]
+                        env[self.instance_marker(constructor, name)] = env[name]
             returned: list[Value] = []
             if self.statement(symbol.file, function["fbody"]["FBStmt"], env, returned):
                 exits.append(env.copy())
@@ -818,6 +826,7 @@ class TypeScriptPathFlow:
         ):
             return None
         members = {}
+        parameter_properties = []
         for field in definition["cbody"][1]:
             declaration = field.get("F", {}).get("DefStmt")
             if not declaration:
@@ -847,25 +856,39 @@ class TypeScriptPathFlow:
             key = (name, "Static" in attributes)
             if key in members:
                 return None
-            if (
-                name == "constructor"
-                and "FuncDef" in body
-                and (
-                    any(
-                        part.get("Return", [None, None])[1]
-                        for part in walk(
-                            body["FuncDef"]["fbody"],
-                            stop_at=("Lambda", "FuncDef", "ClassDef"),
-                        )
+            if name == "constructor" and "FuncDef" in body:
+                if any(
+                    part.get("Return", [None, None])[1]
+                    for part in walk(
+                        body["FuncDef"]["fbody"],
+                        stop_at=("Lambda", "FuncDef", "ClassDef"),
                     )
-                    or any(
-                        parameter.get("Param", {}).get("pattrs")
-                        for parameter in body["FuncDef"]["fparams"][1]
-                    )
-                )
-            ):
-                return None
+                ):
+                    return None
+                for parameter in body["FuncDef"]["fparams"][1]:
+                    param = parameter.get("Param", {})
+                    attrs = param.get("pattrs", [])
+                    if not attrs:
+                        continue
+                    property_name = (param.get("pname") or {}).get("some", [None])[0]
+                    if not isinstance(property_name, str) or any(
+                        attr.get("KeywordAttr", [None])[0]
+                        not in {"Public", "Private", "Protected", "Readonly"}
+                        for attr in attrs
+                    ):
+                        return None
+                    parameter_properties.append(property_name)
             members[key] = body
+        if parameter_properties and (
+            len(set(parameter_properties)) != len(parameter_properties)
+            or any((name, False) in members for name in parameter_properties)
+            or any(
+                not static and member.get("VarDef", {}).get("vinit")
+                for (_, static), member in members.items()
+            )
+        ):
+            # ponytail: field initializers need explicit emit-order modeling first.
+            return None
         return members
 
     def instance_marker(self, value: Value, name: str) -> str:
@@ -1232,6 +1255,7 @@ class TypeScriptPathFlow:
                             TypeScriptSymbol(symbol.file, constructor_body),
                             args,
                             captured,
+                            constructor=value,
                         )
                     finally:
                         self.call_sites.pop()

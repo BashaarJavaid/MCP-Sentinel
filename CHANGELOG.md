@@ -12,6 +12,10 @@ new rule IDs.
 
 ### Fixed
 
+- Follow supported TypeScript constructor parameter properties with the bound
+  argument/default value, preserving receiver replacement and escape checks.
+- Preserve narrow initial URL guard evidence across trailing-slash removal and
+  path suffixes only when the checked destination remains established.
 - Allow deterministic static scans a 30-minute shared deadline; retain the
   two-minute target as informational and preserve incomplete results on expiry.
 - Merge equal credential markers consistently regardless of cache interning, and

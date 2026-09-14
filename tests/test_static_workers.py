@@ -17,9 +17,21 @@ from sentinel.static.traversal import collect_static_files
 from tests.conftest import NOW, SCAN_ID, make_target
 
 
-@pytest.mark.parametrize("language", ["python", "typescript", "mixed"])
+@pytest.mark.parametrize(
+    ("language", "parameter_property"),
+    [
+        ("python", False),
+        ("typescript", False),
+        ("mixed", False),
+        ("typescript", True),
+        ("mixed", True),
+    ],
+)
 def test_parallel_native_result_matches_serial_and_never_imports_target(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, language: str
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    language: str,
+    parameter_property: bool,
 ) -> None:
     root = make_target(tmp_path / "target")
     if language in {"python", "mixed"}:
@@ -44,20 +56,32 @@ def test_parallel_native_result_matches_serial_and_never_imports_target(
             + (',"workspaces":["."]' if language == "mixed" else "")
             + "}"
         )
-        (root / "server.ts").write_bytes(
-            (
-                "// π: original UTF-8 source\r\n"
-                'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\r\n'
-                'import fs from "node:fs/promises";\r\n'
-                'import {spawnSync} from "node:child_process";\r\n'
-                'const server=new McpServer({name:"test",version:"1"});\r\n'
-                "class Reader { inspect(args) { fs.readFile(args.path);\r\n"
-                'spawnSync("git",["show",args.ref]); return fetch(args.url); }}\r\n'
-                "const reader=new Reader();\r\n"
-                'server.registerTool("inspect", {inputSchema:{}}, '
-                "(args)=>reader.inspect(args));\r\n"
-            ).encode()
+        source = (
+            "// π: original UTF-8 source\r\n"
+            'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\r\n'
+            'import fs from "node:fs/promises";\r\n'
+            'import {spawnSync} from "node:child_process";\r\n'
+            'const server=new McpServer({name:"test",version:"1"});\r\n'
+            "class Reader { inspect(args) { fs.readFile(args.path);\r\n"
+            'spawnSync("git",["show",args.ref]); return fetch(args.url); }}\r\n'
+            "const reader=new Reader();\r\n"
+            'server.registerTool("inspect", {inputSchema:{}}, '
+            "(args)=>reader.inspect(args));\r\n"
         )
+        if parameter_property:
+            source = (
+                source.replace(
+                    "class Reader { inspect(args)",
+                    "class Reader { constructor(private args: any) {} inspect()",
+                )
+                .replace("args.path", "this.args.path")
+                .replace("args.ref", "this.args.ref")
+                .replace("args.url", "this.args.url")
+                .replace(
+                    "(args)=>reader.inspect(args)", "(args)=>new Reader(args).inspect()"
+                )
+            )
+        (root / "server.ts").write_bytes(source.encode())
     marker = tmp_path / "target-imported"
     (root / "sentinel.py").write_text(
         f"from pathlib import Path\nPath({str(marker)!r}).touch()\n"

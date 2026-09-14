@@ -28,6 +28,73 @@ def report(root: Path, source: str) -> StaticScanResult:
     return run_static_scan(config, uuid4(), timestamp=NOW)
 
 
+@pytest.mark.parametrize(
+    ("check", "transform", "qualified"),
+    [
+        ("validate(url)", 'url.rstrip("/")', True),
+        ("validate(url)", 'url.rstrip("/") + "/info"', True),
+        ("validate(url)", 'url + "/info"', True),
+        ("validate(url)", 'f"{url}/info/{other}"', True),
+        ("validate(url)", 'f"{url!r}/info"', False),
+        ("validate(url)", 'f"{url:>20}/info"', False),
+        ("validate(url)", 'url.rstrip("/") + "//10.0.0.1"', True),
+        ("validate_fallback(url)", 'url.rstrip("/") + "//10.0.0.1"', False),
+        ("validate(url)", 'url.rstrip("/") + "@internal"', False),
+        ("validate(other)", 'url.rstrip("/")', False),
+        ("pass", 'url.rstrip("/")', False),
+        ("validate(url)", "url.rstrip(other)", False),
+        ("validate(url)", 'other.rstrip("/")', False),
+        ("validate(url)\n    url = other", 'url.rstrip("/")', False),
+        (
+            "try:\n        validate(url)\n    except ValueError:\n        pass",
+            'url.rstrip("/")',
+            False,
+        ),
+    ],
+)
+def test_initial_literal_guard_survives_only_proved_url_derivation(
+    tmp_path: Path, check: str, transform: str, qualified: bool
+) -> None:
+    result = report(
+        tmp_path,
+        PREFIX
+        + """
+def validate(url):
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError()
+    hostname = parsed.hostname
+    if not hostname:
+        raise ValueError()
+    ip = ip_address(hostname)
+    if (ip.is_private or ip.is_loopback or ip.is_link_local
+            or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+        raise ValueError()
+
+def validate_fallback(url):
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        raise ValueError()
+    hostname = parsed.hostname or "8.8.8.8"
+    if not hostname:
+        raise ValueError()
+    ip = ip_address(hostname)
+    if (ip.is_private or ip.is_loopback or ip.is_link_local
+            or ip.is_reserved or ip.is_multicast or ip.is_unspecified):
+        raise ValueError()
+
+@mcp.tool()
+def fetch(url: str, other: str):
+    """
+        + check
+        + "\n    return httpx.get("
+        + transform
+        + ")\n",
+    )
+    assert len(result.findings) == 1
+    assert ("private literal IPv4" in result.findings[0].description) == qualified
+
+
 @pytest.mark.parametrize("client", ["Client", "AsyncClient"])
 @pytest.mark.parametrize("keyword", [False, True])
 def test_prepared_request_is_analyzed_at_send(

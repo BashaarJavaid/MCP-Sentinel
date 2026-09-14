@@ -702,7 +702,8 @@ def test_object_method_binding_replacement_and_escape(
 
 
 @pytest.mark.parametrize(
-    "registration", ["direct", "factory", "class", "empty", "rebound"]
+    "registration",
+    ["direct", "factory", "class", "parameter-property", "empty", "rebound"],
 )
 @pytest.mark.parametrize("warm", [False, True])
 def test_completed_tool_discovery_preserves_graph_warnings_and_rule_state(
@@ -725,6 +726,9 @@ def test_completed_tool_discovery_preserves_graph_warnings_and_rule_state(
         "class": "class Wrapper {constructor(){"
         'this.server=new McpServer({name:"test",version:"1"});'
         'this.server.registerTool("fetch",{inputSchema:{}},handler);}} new Wrapper();',
+        "parameter-property": "class Wrapper {constructor(private server: McpServer){"
+        'this.server.registerTool("fetch",{inputSchema:{}},handler);}} '
+        'new Wrapper(new McpServer({name:"test",version:"1"}));',
         "empty": 'const unused="no registration";',
         "rebound": 'let server=new McpServer({name:"test",version:"1"});server=unknown;'
         'server.registerTool("fetch",{inputSchema:{}},handler);',
@@ -764,6 +768,8 @@ def test_completed_tool_discovery_preserves_graph_warnings_and_rule_state(
     assert program.modules is not None and reference.modules is not None
     options_before = dict(program.modules.option_cache)
     snapshot = program.tool_discovery
+    if registration == "parameter-property":
+        assert len(snapshot.tools) == 1
     assert program.warnings == before
     assert program.modules.option_cache == options_before
     expected = reference._discover_tools()
