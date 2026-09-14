@@ -1,0 +1,52 @@
+{
+  "id": "taskwarrior-shell",
+  "archive_label": "taskwarrior",
+  "repository": "awwaiid/mcp-server-taskwarrior",
+  "language": "typescript",
+  "rule_id": "SENT-002",
+  "tool": "mark_task_done",
+  "argument": "identifier",
+  "scan_root": ".",
+  "licenses": [
+    "LICENSE"
+  ],
+  "condition": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed.",
+  "safe_value": "1",
+  "flow": "index.ts imports SDK Server and CallToolRequestSchema, registers mark_task_done via ListToolsRequestSchema, and dispatches request.params through switch(name). markTaskDoneRequest only requires z.string(); safeParse failure throws. Vulnerable line146 interpolates parsed.data.identifier into child_process.execSync. Fixed lines151\u2013154 use execFileSync(task,[identifier,done]) with shell absent. The same parsed field reaches the fixed invocation.",
+  "prerequisites": [
+    "Operator starts the upstream stdio server with the declared SDK and a local configured task binary. The declared package omits a direct zod dependency; a compatible zod must be present for its source import. No installation/startup is performed.",
+    "Caller reaches the registered mark_task_done route with a string identifier; no unrecorded outer authorization or sanitizer.",
+    "POSIX shell interpretation for the vulnerable witness. Fixed subprocess creation uses Node shell=false default; no malicious replacement task binary or executable search path."
+  ],
+  "limits": [
+    "Named shell interpretation only; no claim about Taskwarrior option/filter semantics, authorization, stable task IDs, other tools, or Windows batch execution.",
+    "GitHub current repository language says JavaScript; both selected complete archives contain index.ts and tsconfig.json and no JavaScript source. Actual evaluated language is TypeScript.",
+    "Fixed/safe records share the full fixed tree; the static scanner is not specialized to the illustrative safe value."
+  ],
+  "evidence_files": [
+    "index.ts",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "witnesses": {
+    "vulnerable": {
+      "path": "index.ts",
+      "sink_line": 146
+    },
+    "fixed": {
+      "path": "index.ts",
+      "sink_line": 151
+    }
+  },
+  "license_assessment": "Both archives retain the complete MIT license. Repository API identity is non-fork; name matches absent from the pre-curation inventory.",
+  "vulnerable_revision": "d502ad2799d00ac2d879c6f279b0795fc3fdf02c",
+  "vulnerable_git_tree": "23d8c7870641da11651165611a0c31610f4535c8",
+  "fixed_revision": "29850c7a6991a35aea1402b6cba2cd01c7541205",
+  "fixed_git_tree": "287442ef81fd97c1f9849a723d735a3c333aabef",
+  "all_changed_files": [
+    "index.ts"
+  ],
+  "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+}

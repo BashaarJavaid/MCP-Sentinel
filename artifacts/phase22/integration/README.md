@@ -1,6 +1,41 @@
-# Integration evidence, batches 1–99 and closeout audit
+# Integration evidence, batches 1–100 and closeout audit
 
-## Current technical-review evidence seal 99
+## Current unseen-preparation evidence seal 100
+
+[Seal 100](evidence-v100.json) retains **185 members / 37,702,568 raw bytes**;
+archive SHA-256 `21be3d1c745772a0aff15602bad34d141d97ec02b3d829a137133164c8d8b19e`. All 99 prior archives and every new member were verified.
+It preserves the pre-curation freeze, novelty/source research and complete upstream pairs,
+the unapproved twelve-observation proposal, synthetic controls and corrections, affected checks,
+all 435 requirements and supplemental V76 delivery. Zero new corpus observations or paid calls.
+
+Restore after seals 1–99 in numeric order into separate staging, rejecting unsafe paths/symlinks,
+checking every member hash and stopping on unexplained conflicts. The six-input corpus packet is
+also directly tracked. Post-seal documentation and actual draft delivery receipts are supplemental.
+**Phase 22 remains incomplete; numerical approval and later technical acceptance are separate.**
+
+## Current v77 unseen-source preparation: exact evaluation approval pending
+
+Two previously unused repository cases are prepared at frozen **`cec0322`**:
+TypeScript Taskwarrior shell interpolation and Python Proxmox upload containment.
+The exact proposal is **6 source records × 2 passes = 12 observations**, unapproved
+and unexecuted, using normal **1,800-second input / 10-second Semgrep / 15-second
+cleanup**, four-worker maximum, **380-minute outer limit plus 15-second cleanup**.
+Source novelty, complete upstream pairs, license qualifications and synthetic
+approval/stop/cleanup checks are retained in
+`artifacts/phase22/integration/v77-unseen-preparation/`.
+
+All **435 requirements (422 retained + 13 new)** remain explicit. V73/V75 retain
+205 exposed observations and 95 equal entire ordered pairs; unchanged `cec0322`
+engineering remains 2,450 tests / 36 skips. The 23 historical/practical limitations
+remain unaccepted, including ordinary FAF completion within 1,800 seconds and
+leaving V68 unopened. Git stays 312/1,040 incomplete, 728 deferred; paid benchmark
+and pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. **Zero new paid calls.**
+
+**Phase 22 remains incomplete** pending the additional unseen check, a newly
+delivered complete review, explicit human technical acceptance and verified
+accepted closeout. No merge, ready-state, release, outreach or Phase 23.
+
+## Historical technical-review evidence seal 99
 
 [Seal 99](evidence-v99.json) retains **2041 members / 1,145,987,585 raw bytes**;
 archive SHA-256 `16d4fa5d7ce47709161a82bdd54cef6a3cc0fe53901cd0c3b9dc3a134e9da04e`. All 98 prior archives and every new member were verified.
@@ -267,7 +302,7 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v76 technical review: source gates passed, human acceptance pending
+## Historical v76 technical review: source gates passed, human acceptance pending
 
 At engineering-tested **`cec0322`**, the separately approved **24 four-repository
 observations and 181 prior-language observations are complete**, with **all 95

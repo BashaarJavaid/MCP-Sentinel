@@ -1,6 +1,28 @@
 # Four-repository corpus v2
 
-## Current v76 technical review: source gates passed, human acceptance pending
+## Current v77 unseen-source preparation: exact evaluation approval pending
+
+Two previously unused repository cases are prepared at frozen **`cec0322`**:
+TypeScript Taskwarrior shell interpolation and Python Proxmox upload containment.
+The exact proposal is **6 source records × 2 passes = 12 observations**, unapproved
+and unexecuted, using normal **1,800-second input / 10-second Semgrep / 15-second
+cleanup**, four-worker maximum, **380-minute outer limit plus 15-second cleanup**.
+Source novelty, complete upstream pairs, license qualifications and synthetic
+approval/stop/cleanup checks are retained in
+`artifacts/phase22/integration/v77-unseen-preparation/`.
+
+All **435 requirements (422 retained + 13 new)** remain explicit. V73/V75 retain
+205 exposed observations and 95 equal entire ordered pairs; unchanged `cec0322`
+engineering remains 2,450 tests / 36 skips. The 23 historical/practical limitations
+remain unaccepted, including ordinary FAF completion within 1,800 seconds and
+leaving V68 unopened. Git stays 312/1,040 incomplete, 728 deferred; paid benchmark
+and pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. **Zero new paid calls.**
+
+**Phase 22 remains incomplete** pending the additional unseen check, a newly
+delivered complete review, explicit human technical acceptance and verified
+accepted closeout. No merge, ready-state, release, outreach or Phase 23.
+
+## Historical v76 technical review: source gates passed, human acceptance pending
 
 At engineering-tested **`cec0322`**, the separately approved **24 four-repository
 observations and 181 prior-language observations are complete**, with **all 95

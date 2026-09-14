@@ -1,0 +1,126 @@
+{
+  "status": "proposed_not_approved_not_executed",
+  "cases": [
+    {
+      "id": "taskwarrior-shell",
+      "archive_label": "taskwarrior",
+      "repository": "awwaiid/mcp-server-taskwarrior",
+      "language": "typescript",
+      "rule_id": "SENT-002",
+      "tool": "mark_task_done",
+      "argument": "identifier",
+      "scan_root": ".",
+      "licenses": [
+        "LICENSE"
+      ],
+      "condition": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed.",
+      "safe_value": "1",
+      "flow": "index.ts imports SDK Server and CallToolRequestSchema, registers mark_task_done via ListToolsRequestSchema, and dispatches request.params through switch(name). markTaskDoneRequest only requires z.string(); safeParse failure throws. Vulnerable line146 interpolates parsed.data.identifier into child_process.execSync. Fixed lines151\u2013154 use execFileSync(task,[identifier,done]) with shell absent. The same parsed field reaches the fixed invocation.",
+      "prerequisites": [
+        "Operator starts the upstream stdio server with the declared SDK and a local configured task binary. The declared package omits a direct zod dependency; a compatible zod must be present for its source import. No installation/startup is performed.",
+        "Caller reaches the registered mark_task_done route with a string identifier; no unrecorded outer authorization or sanitizer.",
+        "POSIX shell interpretation for the vulnerable witness. Fixed subprocess creation uses Node shell=false default; no malicious replacement task binary or executable search path."
+      ],
+      "limits": [
+        "Named shell interpretation only; no claim about Taskwarrior option/filter semantics, authorization, stable task IDs, other tools, or Windows batch execution.",
+        "GitHub current repository language says JavaScript; both selected complete archives contain index.ts and tsconfig.json and no JavaScript source. Actual evaluated language is TypeScript.",
+        "Fixed/safe records share the full fixed tree; the static scanner is not specialized to the illustrative safe value."
+      ],
+      "evidence_files": [
+        "index.ts",
+        "package.json",
+        "tsconfig.json",
+        "README.md",
+        "LICENSE"
+      ],
+      "witnesses": {
+        "vulnerable": {
+          "path": "index.ts",
+          "sink_line": 146
+        },
+        "fixed": {
+          "path": "index.ts",
+          "sink_line": 151
+        }
+      },
+      "license_assessment": "Both archives retain the complete MIT license. Repository API identity is non-fork; name matches absent from the pre-curation inventory.",
+      "vulnerable_revision": "d502ad2799d00ac2d879c6f279b0795fc3fdf02c",
+      "vulnerable_git_tree": "23d8c7870641da11651165611a0c31610f4535c8",
+      "fixed_revision": "29850c7a6991a35aea1402b6cba2cd01c7541205",
+      "fixed_git_tree": "287442ef81fd97c1f9849a723d735a3c333aabef",
+      "all_changed_files": [
+        "index.ts"
+      ],
+      "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+    },
+    {
+      "id": "proxmox-upload-root",
+      "archive_label": "proxmox",
+      "repository": "nick-holmquist/proxmox-mcp",
+      "language": "python",
+      "rule_id": "SENT-012",
+      "tool": "pve_storage_upload",
+      "argument": "file_path",
+      "scan_root": ".",
+      "licenses": [
+        "README.md",
+        "pyproject.toml"
+      ],
+      "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "safe_value": "/srv/proxmox-upload/fixture.iso",
+      "flow": "server.py _MODULES/_build_dispatch_table derives tool ownership from get_tools; @server.call_tool dispatches the exact name to storage.handle_tool. tools/storage.py declares pve_storage_upload and forwards arguments[file_path] to imported singleton client.upload_to_storage. client=ProxmoxClient() is initialized with _api=None. Vulnerable client.py line436 open(file_path,rb); fixed helper415\u2013437 returns resolved and method457\u2013464 consumes it. API property/network upload occurs after opening; the named local read boundary does not require claiming successful remote exfiltration.",
+      "prerequisites": [
+        "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+        "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+        "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+        "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition."
+      ],
+      "limits": [
+        "Initial resolved filesystem containment only; no race/physical-use, downstream Proxmox authorization, successful exfiltration, API/DNS/TLS or other tool safety claim.",
+        "Module-table dispatch and imported singleton/helper support remain to be established in actual scanner output and source assessment; no-alert unsupported code fails discrimination.",
+        "Fixed/safe share complete source/configuration; safe caller value is an illustrative source prerequisite, not a specialization of static analysis."
+      ],
+      "evidence_files": [
+        "src/proxmox_mcp/server.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/__init__.py",
+        "pyproject.toml",
+        "README.md",
+        ".env.example"
+      ],
+      "witnesses": {
+        "vulnerable": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 436
+        },
+        "fixed": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 464
+        }
+      },
+      "license_assessment": "Both full archives declare MIT in README and pyproject.toml, including the MIT classifier. Neither contains a standalone license/full grant text; GitHub license metadata is null. All actual declarations are preserved; no absent grant text is fabricated. This qualification follows the retained no-bash declaration-only precedent.",
+      "vulnerable_revision": "3d6610be096f81a1e1257387591f6d77b893eb8b",
+      "vulnerable_git_tree": "cd9d0375773b617d462403180be85be67a3a36fb",
+      "fixed_revision": "39889d55990ad3c98620093c428ca00c1189734c",
+      "fixed_git_tree": "45884e181534b5dfd417eb475d7578e8be9983d1",
+      "all_changed_files": [
+        ".env.example",
+        "README.md",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "tests/test_client_smoke.py",
+        "tests/test_handlers_smoke.py",
+        "tests/test_upload_path_confinement.py"
+      ],
+      "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+    }
+  ],
+  "success": "Every named vulnerable condition detected on both passes; zero matching fixed/safe alerts with actual source-supported caller/guard/value/sink qualification; complete valid outputs within all bounds; all6 entire ordered repeats equal. Report per-repository gates and all support/completion/detection denominators. No population accuracy threshold.",
+  "full_source_assessment": "Assess every finding including unmatched candidates, every diagnostic, unresolved flow/surface, support denominator and full ordered difference against frozen source. File-only attribution where no literal source location exists. Raw candidates remain, even if unrelated to named conditions. Quiet unsupported negatives fail. Native output has no positive per-sink guard trace; combine truthful report/source evidence without inventing one.",
+  "safe_controls": "Each safe record uses the complete corresponding upstream fixed tree/configuration and its own illustrative caller value. Static analysis is not specialized to that value; shared variants/repeats are correlated.",
+  "collection_stop": "Cancellation or identity/infrastructure/execution/timeout/schema/cleanup/entire-ordered-repeat failure stops and closes all unused budget. Named detection misses, false alerts and unsupported negatives are retained failed gates while remaining approved collection continues. No tuning, retries, replacement, profiles or extra observations.",
+  "paid_calls": 0,
+  "target_execution": false,
+  "technical_acceptance_received": false
+}

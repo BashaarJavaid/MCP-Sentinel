@@ -1,0 +1,233 @@
+--- vulnerable/.env.example
++++ fixed/.env.example
+@@ -4,3 +4,10 @@
+ PROXMOX_TOKEN_NAME=mcp-token
+ PROXMOX_TOKEN_VALUE=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ PROXMOX_VERIFY_SSL=false
++
++# Optional: allowlisted directory for pve_storage_upload's file_path.
++# Unset by default - pve_storage_upload is disabled (fails closed) until this
++# is set, since file_path is caller-controlled and would otherwise allow
++# reading arbitrary files on this host. Only set this to a directory you're
++# comfortable having fully exposed to MCP tool callers.
++# PROXMOX_MCP_UPLOAD_DIR=/path/to/uploads
+--- vulnerable/README.md
++++ fixed/README.md
+@@ -187,6 +187,10 @@
+ background. Only use `pve_storage_upload` for small files or when a volume is
+ mounted directly into the MCP container (the Docker MCP Gateway does not
+ support volume mounts for custom servers — see project CLAUDE.md).
++`pve_storage_upload` is disabled by default: since its `file_path` argument
++is caller-controlled, it's confined to a directory you explicitly allowlist
++via `PROXMOX_MCP_UPLOAD_DIR` (see `.env.example`) rather than being able to
++read anywhere on the host.
+ 
+ Poll the task until it completes:
+ 
+@@ -374,6 +378,15 @@
+ (delete/force-stop/firewall changes) - the calling client is responsible for
+ confirming intent before invoking a destructive tool.
+ 
++**Host filesystem access:** Every other tool operates only on the Proxmox
++cluster via its API - the one exception is `pve_storage_upload`, whose
++`file_path` argument names a file on the machine running this MCP server.
++That's a capability beyond "do what the Proxmox token permits," so it fails
++closed: it's disabled until you set `PROXMOX_MCP_UPLOAD_DIR`, and `file_path`
++is confined to that directory (path traversal outside it is rejected). Only
++point that variable at a directory you're comfortable exposing to whatever
++can call this MCP's tools.
++
+ ## License
+ 
+ MIT
+--- vulnerable/src/proxmox_mcp/client.py
++++ fixed/src/proxmox_mcp/client.py
+@@ -412,6 +412,30 @@
+             kwargs["checksum-algorithm"] = checksum_algorithm or "sha256"
+         return self.api.nodes(node).storage(storage)("download-url").post(**kwargs)
+ 
++    def _resolve_upload_path(self, file_path: str) -> str:
++        """Resolve file_path and confine it to the PROXMOX_MCP_UPLOAD_DIR
++        allowlisted directory. Fails closed: if that env var isn't set,
++        local-file upload is disabled entirely rather than defaulting to
++        something permissive (e.g. the whole host filesystem). This exists
++        because file_path is caller-controlled - without confinement, an MCP
++        tool caller could read arbitrary files the server process can access
++        (SSH keys, this server's own .env, etc.) and exfiltrate them into
++        Proxmox storage."""
++        upload_dir = os.environ.get("PROXMOX_MCP_UPLOAD_DIR")
++        if not upload_dir:
++            raise PermissionError(
++                "Local file upload is disabled: set PROXMOX_MCP_UPLOAD_DIR to an "
++                "allowlisted directory to enable pve_storage_upload, or use "
++                "pve_storage_download_url instead."
++            )
++        base = os.path.realpath(upload_dir)
++        resolved = os.path.realpath(os.path.join(base, file_path) if not os.path.isabs(file_path) else file_path)
++        if os.path.commonpath([base, resolved]) != base:
++            raise PermissionError(
++                f"file_path must be inside the allowlisted upload directory ({base})"
++            )
++        return resolved
++
+     def upload_to_storage(
+         self,
+         node: str,
+@@ -426,14 +450,18 @@
+         to the source (e.g. a mounted volume) - the whole file streams through
+         this connection before the node moves it into place. For anything
+         multi-gigabyte or remote, prefer download_url_to_storage instead.
+-        Returns a task UPID to poll for completion."""
+-        if not os.path.isfile(file_path):
++
++        file_path must resolve inside PROXMOX_MCP_UPLOAD_DIR (see
++        _resolve_upload_path) - this tool is disabled unless that directory
++        is configured. Returns a task UPID to poll for completion."""
++        resolved_path = self._resolve_upload_path(file_path)
++        if not os.path.isfile(resolved_path):
+             raise FileNotFoundError(f"No such file: {file_path}")
+         kwargs: dict[str, Any] = {"content": content}
+         if checksum:
+             kwargs["checksum"] = checksum
+             kwargs["checksum-algorithm"] = checksum_algorithm or "sha256"
+-        with open(file_path, "rb") as fh:
++        with open(resolved_path, "rb") as fh:
+             return self.api.nodes(node).storage(storage).upload.post(
+                 filename=fh, **kwargs
+             )
+--- vulnerable/src/proxmox_mcp/tools/storage.py
++++ fixed/src/proxmox_mcp/tools/storage.py
+@@ -168,14 +168,19 @@
+                 "The whole file streams through this connection - only practical for "
+                 "small files or when a volume is mounted into the MCP container. For "
+                 "large qcow2 images, host them at a URL and use pve_storage_download_url "
+-                "instead. Returns a task UPID; poll it with pve_task_status."
++                "instead. Returns a task UPID; poll it with pve_task_status. Disabled "
++                "unless the server has PROXMOX_MCP_UPLOAD_DIR configured; file_path must "
++                "resolve inside that directory."
+             ),
+             inputSchema={
+                 "type": "object",
+                 "properties": {
+                     "node": {"type": "string", "description": "Node name"},
+                     "storage": {"type": "string", "description": "Target storage (must have the target content type enabled)"},
+-                    "file_path": {"type": "string", "description": "Path to the file on the MCP host's filesystem"},
++                    "file_path": {
++                        "type": "string",
++                        "description": "Path to the file, resolved relative to and confined within PROXMOX_MCP_UPLOAD_DIR",
++                    },
+                     "content": {
+                         "type": "string",
+                         "description": "Content type of the uploaded file",
+--- vulnerable/tests/test_client_smoke.py
++++ fixed/tests/test_client_smoke.py
+@@ -106,11 +106,14 @@
+ 
+ 
+ @pytest.mark.parametrize("method_name", [name for name, _ in _client_methods()])
+-def test_client_method_does_not_raise(mock_client, method_name, tmp_path):
++def test_client_method_does_not_raise(mock_client, method_name, tmp_path, monkeypatch):
+     method = getattr(ProxmoxClient, method_name)
+     kwargs = _build_args(method)
+ 
+     if method_name == "upload_to_storage":
++        # file_path is confined to PROXMOX_MCP_UPLOAD_DIR (see
++        # test_upload_path_confinement.py for the security-relevant cases).
++        monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
+         f = tmp_path / "test.qcow2"
+         f.write_bytes(b"fake-qcow2-contents")
+         kwargs["file_path"] = str(f)
+--- vulnerable/tests/test_handlers_smoke.py
++++ fixed/tests/test_handlers_smoke.py
+@@ -111,7 +111,9 @@
+ @pytest.mark.parametrize(
+     "module,tool", all_tool_cases(), ids=lambda x: x.name if hasattr(x, "name") else x.__name__
+ )
+-def test_handle_tool_does_not_raise(mock_client, module, tool, tmp_path):
++def test_handle_tool_does_not_raise(mock_client, module, tool, tmp_path, monkeypatch):
++    if tool.name == "pve_storage_upload":
++        monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
+     arguments = build_arguments(tool, tmp_path)
+     module.handle_tool(tool.name, arguments)  # smoke test: must not raise
+ 
+--- vulnerable/tests/test_upload_path_confinement.py
++++ fixed/tests/test_upload_path_confinement.py
+@@ -0,0 +1,78 @@
++"""Security regression tests for pve_storage_upload's file_path confinement.
++
++file_path is a caller-controlled argument naming a file on the MCP host's
++filesystem. Without confinement it's an arbitrary-file-read primitive (an
++MCP tool caller could read this server's own .env, SSH keys, etc. and
++exfiltrate them via Proxmox storage). ProxmoxClient.upload_to_storage fails
++closed - disabled unless PROXMOX_MCP_UPLOAD_DIR is set - and rejects any
++file_path that resolves outside that directory.
++"""
++
++from __future__ import annotations
++
++import pytest
++
++
++def test_upload_disabled_when_upload_dir_unset(mock_client, monkeypatch, tmp_path):
++    monkeypatch.delenv("PROXMOX_MCP_UPLOAD_DIR", raising=False)
++    f = tmp_path / "test.qcow2"
++    f.write_bytes(b"data")
++    with pytest.raises(PermissionError):
++        mock_client.upload_to_storage("pve", "local", str(f))
++
++
++def test_upload_allows_file_inside_allowlisted_dir(mock_client, monkeypatch, tmp_path):
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
++    f = tmp_path / "test.qcow2"
++    f.write_bytes(b"data")
++    # Should not raise.
++    mock_client.upload_to_storage("pve", "local", str(f))
++
++
++def test_upload_allows_relative_path_inside_allowlisted_dir(mock_client, monkeypatch, tmp_path):
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
++    (tmp_path / "sub").mkdir()
++    f = tmp_path / "sub" / "test.qcow2"
++    f.write_bytes(b"data")
++    mock_client.upload_to_storage("pve", "local", "sub/test.qcow2")
++
++
++def test_upload_rejects_absolute_path_outside_allowlisted_dir(mock_client, monkeypatch, tmp_path):
++    allowed = tmp_path / "allowed"
++    allowed.mkdir()
++    outside = tmp_path / "outside.qcow2"
++    outside.write_bytes(b"secret-data")
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(allowed))
++    with pytest.raises(PermissionError):
++        mock_client.upload_to_storage("pve", "local", str(outside))
++
++
++def test_upload_rejects_traversal_out_of_allowlisted_dir(mock_client, monkeypatch, tmp_path):
++    allowed = tmp_path / "allowed"
++    allowed.mkdir()
++    secret = tmp_path / "secret.env"
++    secret.write_bytes(b"PROXMOX_TOKEN_VALUE=leaked")
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(allowed))
++    with pytest.raises(PermissionError):
++        mock_client.upload_to_storage("pve", "local", "../secret.env")
++
++
++def test_upload_rejects_sibling_directory_with_shared_prefix(mock_client, monkeypatch, tmp_path):
++    # A naive `startswith` check (instead of os.path.commonpath) would let
++    # "/allowed-evil" pass a check against base "/allowed" since it shares a
++    # string prefix. Guard against that regression explicitly.
++    allowed = tmp_path / "allowed"
++    allowed.mkdir()
++    evil = tmp_path / "allowed-evil"
++    evil.mkdir()
++    f = evil / "test.qcow2"
++    f.write_bytes(b"data")
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(allowed))
++    with pytest.raises(PermissionError):
++        mock_client.upload_to_storage("pve", "local", str(f))
++
++
++def test_upload_missing_file_inside_allowed_dir_raises_file_not_found(mock_client, monkeypatch, tmp_path):
++    monkeypatch.setenv("PROXMOX_MCP_UPLOAD_DIR", str(tmp_path))
++    with pytest.raises(FileNotFoundError):
++        mock_client.upload_to_storage("pve", "local", str(tmp_path / "does-not-exist.qcow2"))
