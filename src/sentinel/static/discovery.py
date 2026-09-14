@@ -87,6 +87,7 @@ class PythonProgram:
         self._plain_instances: dict[tuple[ast.AST, bool], bool] = {}
         self._resolved: dict[tuple[str, str, bool], Symbol | None] = {}
         self._resolved_in: dict[tuple[ast.AST, str, str], Symbol | None] = {}
+        self._global_instances: dict[ast.AST, bool] = {}
         self.parents = {
             child: parent
             for file in files
@@ -823,3 +824,142 @@ class PythonProgram:
                     )
         self._tools = tuple(found)
         return self._tools
+
+    def stable_global_instance(self, target: Symbol) -> bool:
+        """A lazy global initializer cannot hide an instance escape or mutation."""
+        from sentinel.static.http_discovery import shadowed
+
+        check_deadline(self.deadline)
+        if target.node in self._global_instances:
+            return self._global_instances[target.node]
+        reachable = self.reachable_files(
+            {target.file.relative_path}
+            | {tool.registration.file.relative_path for tool in self.tools()}
+        )
+        constructor_name = (
+            qualified_name(target.node.func)
+            if isinstance(target.node, ast.Call)
+            else None
+        )
+        constructor = (
+            self.resolve(target.file, constructor_name) if constructor_name else None
+        )
+        stable = True
+        for file in self.files:
+            if file.relative_path not in reachable:
+                continue
+            for node in ast.walk(file.tree):
+                check_deadline(self.deadline)
+                if isinstance(node, (ast.Global, ast.Nonlocal)) and any(
+                    (binding := self.resolve(file, name, value_binding=True))
+                    and (
+                        binding.node is target.node
+                        or (constructor and binding.node is constructor.node)
+                    )
+                    for name in node.names
+                ):
+                    stable = False
+                if isinstance(node, ast.Call) and qualified_name(node.func) in {
+                    "globals",
+                    "locals",
+                    "vars",
+                    "exec",
+                    "eval",
+                }:
+                    stable = False
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    for imported in node.names:
+                        if imported.name == "*":
+                            stable = False
+                            continue
+                        binding = self.resolve_import(
+                            file,
+                            node,
+                            imported.asname or imported.name.split(".")[0],
+                            value_binding=True,
+                        )
+                        if (
+                            binding
+                            and (
+                                binding.node is target.node
+                                or (constructor and binding.node is constructor.node)
+                            )
+                            and self.parents.get(node) is not file.tree
+                        ):
+                            stable = False
+                if not isinstance(node, (ast.Name, ast.Attribute)):
+                    continue
+                text = qualified_name(node)
+                if not text or shadowed(self, node, text.split(".")[0]):
+                    continue
+                binding = self.resolve(file, text, value_binding=True)
+                if binding is None:
+                    continue
+                parent = self.parents.get(node)
+                if constructor and binding.node is constructor.node:
+                    if isinstance(parent, ast.Attribute):
+                        caller = self.parents.get(parent)
+                        if not (
+                            isinstance(parent.ctx, ast.Load)
+                            and isinstance(caller, ast.Call)
+                            and caller.func is parent
+                        ):
+                            stable = False
+                    elif isinstance(parent, (ast.Assign, ast.AnnAssign)):
+                        assignments = (
+                            parent.targets
+                            if isinstance(parent, ast.Assign)
+                            else [parent.target]
+                        )
+                        if not all(
+                            isinstance(item, ast.Name)
+                            and (
+                                alias := self.resolve(file, item.id, value_binding=True)
+                            )
+                            and alias.node is constructor.node
+                            for item in assignments
+                        ):
+                            stable = False
+                    elif not (isinstance(parent, ast.Call) and parent.func is node):
+                        stable = False
+                if binding.node is not target.node:
+                    continue
+                if isinstance(parent, ast.Attribute):
+                    if isinstance(parent.ctx, (ast.Store, ast.Del)) or parent.attr in {
+                        "__dict__",
+                        "__class__",
+                    }:
+                        stable = False
+                    elif constructor and self.instance_method(constructor, parent.attr):
+                        caller = self.parents.get(parent)
+                        owner: ast.AST | None = parent
+                        while owner is not None and not isinstance(owner, Function):
+                            owner = self.parents.get(owner)
+                        if not (
+                            isinstance(caller, ast.Call)
+                            and caller.func is parent
+                            and owner is not None
+                        ):
+                            stable = False
+                    continue
+                if isinstance(parent, (ast.Assign, ast.AnnAssign)):
+                    assignments = (
+                        parent.targets
+                        if isinstance(parent, ast.Assign)
+                        else [parent.target]
+                    )
+                    if (
+                        all(
+                            isinstance(item, ast.Name)
+                            and (
+                                alias := self.resolve(file, item.id, value_binding=True)
+                            )
+                            and alias.node is target.node
+                            for item in assignments
+                        )
+                        and self.parents.get(parent) is file.tree
+                    ):
+                        continue
+                stable = False
+        self._global_instances[target.node] = stable
+        return stable

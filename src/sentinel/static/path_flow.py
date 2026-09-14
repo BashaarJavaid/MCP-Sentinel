@@ -1681,9 +1681,25 @@ class PathFlow:
                 for name, value in env.items()
                 if name.startswith(self.helper_state_prefixes)
             }
-            self.globals[key] = self.expression(target, target.node, local)
+            self.globals[key] = self.global_instance(
+                target, self.expression(target, target.node, local)
+            )
             env.update(local)
         return self.globals[key]
+
+    def global_instance(self, target: Symbol, value: Value) -> Value:
+        if value.instance is not None and not self.program.stable_global_instance(
+            target
+        ):
+            self.unresolved(
+                target, target.node, "global instance escaped or was mutated"
+            )
+            return Value(
+                sources=value.sources,
+                key=_key("unresolved-global-instance", value.key),
+                locations=value.locations,
+            )
+        return value
 
     def expression(
         self, symbol: Symbol, node: ast.AST | None, env: dict[str, Value]
@@ -1768,12 +1784,15 @@ class PathFlow:
                         initial: dict[str, Value] = {}
                         self.globals[key] = self.source_value(imported, initial)
                         self.global_members.update(initial)
-                if len(declarations) == 1 and isinstance(
-                    declarations[0], (ast.Assign, ast.AnnAssign)
+                if (
+                    len(declarations) == 1
+                    and isinstance(declarations[0], (ast.Assign, ast.AnnAssign))
+                    and declarations[0].value is not None
                 ):
                     global_env: dict[str, Value] = {}
-                    self.globals[key] = self.expression(
-                        symbol, declarations[0].value, global_env
+                    self.globals[key] = self.global_instance(
+                        Symbol(symbol.file, node.id, declarations[0].value),
+                        self.expression(symbol, declarations[0].value, global_env),
                     )
                     self.global_members.update(
                         (name, value)

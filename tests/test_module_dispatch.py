@@ -366,6 +366,51 @@ def test_global_instance_retains_actual_nested_guard_receiver(
     assert bool(state.warnings) is (receiver != "self")
 
 
+@pytest.mark.parametrize("initialized", [False, True])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "reader.checked = unsafe",
+        "alias = reader\nalias.checked = unsafe",
+        "unknown(reader)",
+        "callback = reader.checked",
+        "Reader.checked = unsafe",
+        "Alias = Reader\nAlias.checked = unsafe",
+        "unknown(Reader)",
+        "holder.reader_class = Reader",
+        "def replace():\n    global Reader\n    Reader = unknown",
+        "globals()['reader'].checked = unsafe",
+        "reader.change()",
+    ],
+)
+def test_mutated_or_escaped_global_never_qualifies_original_guard(
+    mutation: str, initialized: bool
+) -> None:
+    source = (
+        "from pathlib import Path\n"
+        "class Reader:\n"
+        + ("    def __init__(self): self.api = None\n" if initialized else "")
+        + "    def checked(self, path):\n"
+        "        p = Path(path).resolve()\n"
+        "        p.relative_to(Path('/srv/data').resolve())\n"
+        "        return p\n"
+        "    def read(self, path): return open(self.checked(path))\n"
+        "    def change(self): self.checked = unsafe\n"
+        "def unsafe(path): return path\n"
+        "reader = Reader()\n" + mutation + "\n"
+        "@mcp.tool()\ndef load(path): return reader.read(path)\n"
+    )
+    state = RuleRunState()
+    analyze(program({"server.py": source}), state)
+    assert state.warnings
+    assert any(
+        "global instance escaped or was mutated" in w.message for w in state.warnings
+    )
+    # Unknown dynamic handlers may prevent reaching the sink. Such cases must
+    # remain unresolved, never quietly qualified by the old implementation.
+    assert state.matches or any("unresolved call" in w.message for w in state.warnings)
+
+
 @pytest.mark.parametrize("guarded", [False, True])
 @pytest.mark.parametrize("initialized", [False, True])
 def test_module_dispatch_complete_serial_parallel_result(
