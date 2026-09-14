@@ -1,6 +1,45 @@
 # Four-repository corpus v2
 
-## Current v70 uncapped experiment: complete run, two failed gates
+## Current v72 correctness recovery: engineering passed, regression pending
+
+Ordinary approved-contract recovery is verified at **`cec0322`**. Supported
+TypeScript constructor parameter properties retain actual argument/default and
+receiver identity; Python initial URL guard qualification survives only proved
+trailing-slash/path-suffix derivation. Wrong/escaped receivers, ambiguous field
+initialization, hostname fallbacks, formatting and authority changes remain
+conservative, including rejection of prototype-mutating `__proto__` properties.
+The first candidate `42d6c7c` failed that additional control; its local suite was
+interrupted after 1,408 passes/36 skips and CI 34845266890 cancelled. Initial five
+synthetic failures, subset-coverage configuration and helper-normalization failure
+also remain retained with their corrections; no partial suite becomes a pass.
+
+Local and all 12 hosted suites pass **2,450 tests / 36 skips**; all 29 normal CI
+jobs and docs pass in **34846514312 / 34846514328**. Combined coverage is
+**90.11%**, branch-only **85.97%**.
+Exact checkout/package bindings, six unchanged zero-call production requests and
+19 approved runtime component bindings pass. No speedup is established.
+
+The new **24-observation corrected four-repository proposal is unapproved and
+unexecuted**: 12 inputs twice, 12 entire ordered pairs, 18 non-FAF observations
+then six FAF. It proposes the previously tested experiment-only uncapped policy,
+with finite 15-second cleanup and unchanged normal **1,800-second** deadline.
+All 10 complete synthetic policy comparisons and cancellation/approval boundaries
+pass. **181 earlier Python/TypeScript observations remain outside this proposal.**
+
+The completed V70 experiment at `4145d35` remains unchanged: 24/24 complete,
+12/12 ordered pairs equal, FAF 2,212.22–2,341.48 seconds; no-bash/Engram narrow
+passes, FAF detection/support and Lightning negative-qualification failures.
+Those results do not establish current-source gates. All **407 requirements
+(89 original + 318 added)**, original fresh failures and six unaccepted historical
+closure proposals remain. V68 performance optimization stays unapproved and
+unimplemented. No new corpus/profile/comparator/target execution or paid call.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete with
+728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15
+unchanged. No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v70 uncapped experiment: complete run, two failed gates
 
 The user-approved **24-observation uncapped four-repository experiment** at
 **`4145d35`** completed, with **all 12 entire ordered report pairs equal**,
