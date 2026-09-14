@@ -1,6 +1,29 @@
 # Integration progress — not technical acceptance
 
-## Current v77 unseen-source preparation: exact evaluation approval pending
+## Current v79 metadata correction: new evaluation approval pending
+
+The approved V77 sequence stopped in V78 before scanner analysis: **one incomplete,
+zero reports, eleven unstarted closed, zero remaining**, with verified cleanup.
+Strict identity comparison caught three omitted optional null fields in the proposal.
+The corrected proposal binds complete validated inputs; all six source identities and
+36 negative controls pass. Scanner, source archives, configurations, conditions,
+order and normal limits remain unchanged. The original failed attempt remains visible.
+
+**Two repositories / six records / twelve proposed observations at `cec0322`** are
+separately unapproved: Taskwarrior TypeScript and Proxmox Python. Normal input 1,800s,
+Semgrep 10s, cleanup 15s, maximum four workers; outer 380 minutes plus 15s cleanup.
+See `artifacts/phase22/integration/v79-unseen-metadata-correction/`.
+All **440 requirements** remain; **24 proposed historical/practical limitations are
+unaccepted**. Existing 205 exposed observations / 95 pairs and unchanged 2,450 tests /
+36 skips retain their actual bindings. Normal FAF completion remains unestablished;
+V68 remains unopened. Git 312/1,040 incomplete, 728 deferred; paid benchmark/pilots
+deferred, Phase 21 incomplete, Phase 24/15 unchanged. Zero new paid calls.
+
+**Phase 22 is incomplete** pending the requested evaluation, updated delivered review,
+explicit human technical acceptance and verified accepted closeout. No merge,
+ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v77 unseen-source preparation: exact evaluation approval pending
 
 Two previously unused repository cases are prepared at frozen **`cec0322`**:
 TypeScript Taskwarrior shell interpolation and Python Proxmox upload containment.
