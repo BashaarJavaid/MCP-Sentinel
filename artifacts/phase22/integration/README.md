@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–92 and closeout audit
+# Integration evidence, batches 1–93 and closeout audit
+
+## Failed If accumulator attempt evidence seal 93
+
+[Seal 93](evidence-v93.json) retains **136 members / 14,242,390 raw bytes**,
+archive SHA-256 `2fcb35d719a08c2727833a5540cb95e86a92ff1ed0fae9093862b7960f45dad0`. All 92 earlier archives and every member verified.
+The approved candidate,256ordinary comparisons, two failed adversarial controls,
+helper correction, exact1948bf9 restoration,365-row audit, unapproved explicit
+contract revision, final checks/packages and supplemental v64 delivery are preserved.
+Restore after seals1–92 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase22 remains incomplete.**
 
 ## Parent-and-worker profile evidence seal 92
 
@@ -176,7 +188,37 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v64 parent-and-worker profile: source-only decision pending
+## Current v65 invalidation attempt: strict-equivalence failure retained
+
+The approved If invalidation-accumulator attempt passes **256 ordinary full-state
+comparisons**, then fails the required synthetic captured-arm alias and shrinking-arm
+controls. Error/interruption states agree. Shipped source has no matching removal or
+arm-set export; real-target reachability remains unestablished. The strict proposal
+still required these controls. **One failed attempt closed; exact tested `1948bf9`
+source restored.** The candidate and the initial helper-deadline correction remain.
+
+`v65-if-invalidation-accumulator/optimization-proposal.json` prepares an **unapproved
+explicit mutation-domain revision and one new source-only attempt**. Every shipped
+writer/reader/subclass must first prove monotone private sets with no escaping arm
+alias. Only the two named injected callbacks would become negative controls outside
+that prospective domain after explicit approval; their original failures stay failed.
+No current reclassification, implementation, corpus/profile/retry, paid call,
+resource change or timeout revision is authorized. Full engineering remains required
+if a later explicitly approved attempt passes its complete prerequisites.
+
+All **365 requirements (89 original + 276 added)** and every earlier failed gate
+remain. Restored `1948bf9` retains **2,418 tests / 36 skips** locally and in all 12
+hosted suites, 29 normal CI jobs and docs passed; combined coverage 90.08%,
+branch-only 85.92%. Six zero-call production replays and approved runtime bindings
+remain compatible. This adds failed-attempt/restoration and docs/package checks,
+not a new candidate engineering or hosted code pass.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v64 parent-and-worker profile: source-only decision pending
 
 The approved single FAF profile at frozen **`1948bf9`** timed out after
 **1800.010375 seconds**, retaining **148,764 partial samples**

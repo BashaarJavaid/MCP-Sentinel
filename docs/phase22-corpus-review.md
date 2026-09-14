@@ -1,6 +1,36 @@
 # Phase 22 independent corpus freeze packet
 
-## Current v64 parent-and-worker profile: source-only decision pending
+## Current v65 invalidation attempt: strict-equivalence failure retained
+
+The approved If invalidation-accumulator attempt passes **256 ordinary full-state
+comparisons**, then fails the required synthetic captured-arm alias and shrinking-arm
+controls. Error/interruption states agree. Shipped source has no matching removal or
+arm-set export; real-target reachability remains unestablished. The strict proposal
+still required these controls. **One failed attempt closed; exact tested `1948bf9`
+source restored.** The candidate and the initial helper-deadline correction remain.
+
+`v65-if-invalidation-accumulator/optimization-proposal.json` prepares an **unapproved
+explicit mutation-domain revision and one new source-only attempt**. Every shipped
+writer/reader/subclass must first prove monotone private sets with no escaping arm
+alias. Only the two named injected callbacks would become negative controls outside
+that prospective domain after explicit approval; their original failures stay failed.
+No current reclassification, implementation, corpus/profile/retry, paid call,
+resource change or timeout revision is authorized. Full engineering remains required
+if a later explicitly approved attempt passes its complete prerequisites.
+
+All **365 requirements (89 original + 276 added)** and every earlier failed gate
+remain. Restored `1948bf9` retains **2,418 tests / 36 skips** locally and in all 12
+hosted suites, 29 normal CI jobs and docs passed; combined coverage 90.08%,
+branch-only 85.92%. Six zero-call production replays and approved runtime bindings
+remain compatible. This adds failed-attempt/restoration and docs/package checks,
+not a new candidate engineering or hosted code pass.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v64 parent-and-worker profile: source-only decision pending
 
 The approved single FAF profile at frozen **`1948bf9`** timed out after
 **1800.010375 seconds**, retaining **148,764 partial samples**
