@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–89 and closeout audit
+# Integration evidence, batches 1–90 and closeout audit
+
+## Shared discovery evidence seal 90
+
+[Seal 90](evidence-v90.json) retains **504 members / 20,201,254 raw bytes**,
+archive SHA-256 `de7b4a097edbb2cc6f1aa6056eefa5f9592c8ad16e3fbb26105ff802094aa91f`. All 89 earlier archives and every member verified.
+The approved `1948bf9` source-only discovery change, complete synthetic/local/hosted
+engineering, six zero-call replays, all 345 audit rows, exact unapproved regression
+proposal, final docs/packages and supplemental v61 delivery receipts are preserved.
+Restore after seals 1–89 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase 22 remains incomplete.**
 
 ## Thirty-minute profile evidence seal 89
 
@@ -140,7 +152,39 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v61 thirty-minute profile: source-only decision pending
+## Current v62 shared discovery: engineering passed, regression approval pending
+
+The approved single source-only discovery-reuse attempt is engineering-verified at
+**`1948bf9`**, source `8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408`.
+The original traversal is preserved; completed TypeScript registration discovery is
+shared through the existing four-worker IPC and parent coverage. Ordered warnings,
+source-node aliases, option effects and all rule-specific analyses remain intact.
+Synthetic checks include 125 complete baseline comparisons, complete worker reports,
+empty/failed/deadline cases and one producer with every detector still invoked.
+No native speedup or 1800-second completion has been established.
+
+Local and all 12 hosted suites pass **2,418 tests / 36 skips**; all **29 normal CI
+jobs** and docs pass in **34793663094 / 34793663105**. Combined statement/branch
+coverage is **90.08%**, branch-only **85.92%**. Six complete production
+requests replay identically with zero paid calls; approved runtime/image bindings
+remain compatible. Initial fixture/import/format check errors retain their corrections.
+
+`v62-shared-tool-discovery/evaluation-proposal.json` prepares **205 exposed observations,
+110 inputs and 95 entire ordered pairs**, **unapproved and unexecuted**: 24 four-source,
+94 TypeScript and 87 Python. The shared 1800-second input limit, 15-second cleanup,
+120-second informational target and 6275-minute outer cap remain unchanged. The outer
+cap is a worst-case bound, not a duration estimate. No retry/profile/comparator,
+new repository, target execution or paid call is included.
+
+All **345 requirements (89 original + 256 added)** retain every earlier failed gate,
+five native timeouts, four valid partial profiles, invalid stale-root preparation,
+both singleton failures and six unaccepted historical closure proposals. No old budget
+is reopened. **Phase 22 remains incomplete**, pending current-source gates, separate
+explicit human technical acceptance and accepted closeout. Git stays **312/1,040
+incomplete**, 728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete and
+Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
+
+## Historical v61 thirty-minute profile: source-only decision pending
 
 The approved FAF profile at frozen **`7bf4c6e`** timed out after
 **1800.090669 seconds**, retaining **four verified worker identities
