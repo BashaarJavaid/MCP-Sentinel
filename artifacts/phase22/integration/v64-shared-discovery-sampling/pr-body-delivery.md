@@ -1,0 +1,11 @@
+The approved FAF parent-and-worker profile at `1948bf9` timed out after 1800.010 seconds, retaining 148,764 partial samples from parent. No report exists; cleanup passed and the one-use budget is closed. Detection and current-source compatibility remain unestablished.
+
+[Review packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v64-shared-discovery-sampling/summary.md) · [358-row audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v64-shared-discovery-sampling/audit.json) · [exact source-only proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v64-shared-discovery-sampling/optimization-proposal.json)
+
+The next proposal is unapproved and unimplemented: one change to avoid redundant If invalidation-accumulator construction while retaining the original baseline, independent per-arm copies and all guards/traversals/merges. Complete branch-isolation, alias/state and report equivalence plus full local/hosted engineering are required. No cache or interpreter memoization is proposed. No new corpus/profile/retry, paid call, resource change or timeout revision is included. Sample shares establish no speedup or completion guarantee.
+
+Product retains verified `1948bf9`: 2,418 tests / 36 skips locally and in all 12 hosted suites, 29 normal CI jobs and docs passed. Six complete requests retain zero-call replay evidence. All historical failed gates remain preserved; parent and worker coverage are assessed separately.
+
+Phase 22 remains incomplete pending current-source gates, explicit human technical acceptance and accepted closeout. Git 312/1,040 incomplete; paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge, ready-state, release, outreach or Phase 23.
+
+[Seal 92](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/evidence-v92.json): 132 members, SHA-256 `63fe5bd2f23eeb116701cd1125b2b1f7e8216adf7f7be730d87fafbba71aed08`; all 91 earlier archives verified. Final docs/packages pass with unchanged tested `1948bf9` product bytes.

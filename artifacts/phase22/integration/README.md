@@ -1,4 +1,16 @@
-# Integration evidence, batches 1–91 and closeout audit
+# Integration evidence, batches 1–92 and closeout audit
+
+## Parent-and-worker profile evidence seal 92
+
+[Seal 92](evidence-v92.json) retains **132 members / 156,974,145 raw bytes**,
+archive SHA-256 `63fe5bd2f23eeb116701cd1125b2b1f7e8216adf7f7be730d87fafbba71aed08`. All 91 earlier archives and every member verified.
+The approved `1948bf9` sampled timeout, actual process identities and partial samples,
+closed budget, complete 358-row audit, unapproved invalidation proposal, final checks
+and packages, and supplemental v63 delivery/diagnostic approval receipts are preserved.
+Restore after seals 1–91 in numeric order into safe separate staging; reject unsafe
+paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
+The v73 log correction remains preserved. Post-seal documentation and draft readback
+are supplemental. **Phase 22 remains incomplete.**
 
 ## Shared-discovery timeout evidence seal 91
 
@@ -164,7 +176,34 @@ paths/symlinks, verify archive/member hashes and stop on unexplained conflicts.
 The v73 log correction remains preserved. Post-seal documentation and delivery
 readback are supplemental. **Phase 22 remains incomplete.**
 
-## Current v63 shared-discovery regression: timed out, budget closed
+## Current v64 parent-and-worker profile: source-only decision pending
+
+The approved single FAF profile at frozen **`1948bf9`** timed out after
+**1800.010375 seconds**, retaining **148,764 partial samples**
+from **1 verified process snapshot(s): parent**. Cleanup passed;
+no report exists and the one-use budget is closed. Parent and worker denominators
+are separate. Missing worker snapshots do not prove workers never launched.
+Partial shares establish no native speedup, removable-cost fraction or detection.
+
+`v64-shared-discovery-sampling/optimization-proposal.json` prepares **one unapproved
+source-only attempt** to avoid redundant If invalidation-accumulator construction.
+The original baseline and every per-arm copy, guard, traversal and state update remain.
+Complete branch-isolation, alias/state and report equivalence plus full engineering
+are required. No implementation, corpus/profile/retry, paid call,
+resource change or timeout revision is included. The 1800-second policy remains.
+
+All **358 requirements (89 original + 269 added)** and every earlier failed gate
+remain. Product retains tested `1948bf9`: **2,418 tests / 36 skips** locally and in
+all 12 hosted suites, 29 normal CI jobs and docs passed. Combined coverage is
+90.08%, branch-only 85.92%; six zero-call replays and approved runtime bindings
+remain compatible. This continuation adds profile assessment and docs/package checks.
+
+**Phase 22 remains incomplete**, pending current-source gates, explicit human
+technical acceptance and accepted closeout. Git stays 312/1,040 incomplete;
+paid benchmark/pilots deferred, Phase 21 incomplete and Phase 24/15 unchanged.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical v63 shared-discovery regression: timed out, budget closed
 
 The approved 205-observation sequence at frozen **`1948bf9`** stopped on its first
 FAF vulnerable input after **1800.010893 seconds** whole-input time.
