@@ -667,7 +667,7 @@ class TypeScriptPathFlow:
             branches = []
             conditional_facts: list[Facts] = [None, None]
             initial_invalidated = self.invalidated_objects.copy()
-            invalidated = initial_invalidated.copy()
+            invalidated: set[str] | None = None
             for branch, truth in ((left, True), (right, False)):
                 if self.condition(value)[int(truth)] is None:
                     continue
@@ -679,8 +679,13 @@ class TypeScriptPathFlow:
                 if branch is None or self.statement(file, branch, local, returned):
                     branches.append(local)
                     conditional_facts[int(truth)] = self.enforced(local)
-                invalidated.update(self.invalidated_objects)
-            self.invalidated_objects = invalidated
+                if invalidated is None:
+                    invalidated = self.invalidated_objects
+                else:
+                    invalidated.update(self.invalidated_objects)
+            self.invalidated_objects = (
+                initial_invalidated.copy() if invalidated is None else invalidated
+            )
             if not branches:
                 return False
             self.merge(env, branches)
