@@ -1,6 +1,52 @@
-# Integration evidence, batches 1–104 and closeout audit
+# Integration evidence, batches 1–105 and closeout audit
 
-## Current literal metadata correction and regression evidence seal 104
+## Current failed Proxmox regression and disposition evidence seal 105
+
+[Seal 105](evidence-v105.json) retains **156 members / 22,678,140 raw bytes**;
+archive SHA-256 `aaeb0806fd387e5b7a09503d45039a1c1d66c341c62f4d9a8ea349a26df95611`. All 104 previous archives and every new member were verified.
+V90 completed six observations / three equal ordered pairs at `5142a3f`, with Proxmox still failing
+two vulnerable detections and all four negative support checks. Complete reports, source assessments,
+closed budget and cleanup remain. Unchanged engineering retains 2,596 tests / 36 skips locally and
+all 12 hosted suites. All 486 requirements and 30 unaccepted limitations are preserved.
+
+Restore after seals 1–104 in numeric order into separate staging; verify every member, reject unsafe
+paths and stop on unexplained conflicts. Post-seal documentation and actual draft-delivery receipts
+remain supplemental. **Failed-gate disposition and technical acceptance remain pending;
+Phase 22 incomplete; zero new paid calls.**
+
+## Current v91 Proxmox regression: failed gate, disposition pending
+
+The approved **six Proxmox observations** at engineering-tested **`5142a3f`**
+completed with **all three entire ordered pairs equal**, verified cleanup and
+zero remaining budget. **Both vulnerable reads were missed; all four fixed/safe
+observations remain unsupported.** All six complete reports equal their failed
+`884d376` references; zero findings, six metadata warnings and six unsupported
+registration surfaces are fully source-assessed. Raw failures remain unchanged.
+
+Source review identifies the conservative builtin-protection guard rejecting
+`importlib.metadata` package-version imports when literal dictionary copies occur.
+This is a sufficient source-visible rejection, not a runtime trace or proof that
+removing it establishes downstream support. No further correction, scan, profile,
+retry, comparator or paid call occurred during this continuation.
+
+Unchanged engineering retains **2,596 tests / 36 skips** locally and in all 12
+hosted suites, 29 normal jobs/docs, **90.28% combined / 86.23% branch coverage**,
+six zero-call production replays and 19 runtime bindings. The 105 unaffected V87
+observations retain their original source/report identities and compatibility
+proof. This continuation adds assessment and affected docs/package verification,
+not a new hosted code pass or speedup claim.
+
+All **486 requirements and 30 unaccepted limitation proposals** remain. The concrete
+next decision is whether to retain Proxmox as unsupported for Phase 22 or continue
+focused recovery. Neither is inferred from numerical approval. Ordinary FAF
+completion within 1,800 seconds remains unestablished; V68 is unapproved/unimplemented.
+**Phase 22 is incomplete:** failed-gate disposition, explicit human technical
+acceptance and verified accepted-closeout delivery remain. Git stays 312/1,040
+incomplete, 728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete,
+Phase 24/15 unchanged. Historical spend **$0.071799; zero new paid calls**.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical literal metadata correction and regression evidence seal 104
 
 [Seal 104](evidence-v104.json) retains **1415 members / 572,380,143 raw bytes**;
 archive SHA-256 `676c83112a58f1f1f539ab87543cdd74128e56e17dc23a247b885440e9e379d2`. All 103 previous archives and every new member were verified.
@@ -14,7 +60,7 @@ Restore after seals 1–103 in numeric order into separate staging; verify every
 reject unsafe paths and stop on unexplained conflicts. Post-seal documentation and actual
 draft-delivery receipts remain supplemental. **Phase 22 incomplete; zero new paid calls.**
 
-## Current v89 literal metadata correction: engineering passed, regression approval pending
+## Historical v89 literal metadata correction: engineering passed, regression approval pending
 
 The approved V87 regression at **`884d376`** completed **111 observations / 48 equal
 entire ordered pairs**, with verified cleanup and zero remaining budget. Taskwarrior,
