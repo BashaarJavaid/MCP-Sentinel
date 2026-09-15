@@ -898,13 +898,8 @@ class PythonProgram:
                 parent = self.parents.get(node)
                 if constructor and binding.node is constructor.node:
                     if isinstance(parent, ast.Attribute):
-                        caller = self.parents.get(parent)
-                        if not (
-                            isinstance(parent.ctx, ast.Load)
-                            and isinstance(caller, ast.Call)
-                            and caller.func is parent
-                        ):
-                            stable = False
+                        # Even a direct class method can replace an instance guard.
+                        stable = False
                     elif isinstance(parent, (ast.Assign, ast.AnnAssign)):
                         assignments = (
                             parent.targets

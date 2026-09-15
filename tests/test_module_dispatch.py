@@ -381,6 +381,8 @@ def test_global_instance_retains_actual_nested_guard_receiver(
         "def replace():\n    global Reader\n    Reader = unknown",
         "globals()['reader'].checked = unsafe",
         "reader.change()",
+        "Reader.poison()",
+        "Alias = Reader\nAlias.poison()",
     ],
 )
 def test_mutated_or_escaped_global_never_qualifies_original_guard(
@@ -396,6 +398,8 @@ def test_mutated_or_escaped_global_never_qualifies_original_guard(
         "        return p\n"
         "    def read(self, path): return open(self.checked(path))\n"
         "    def change(self): self.checked = unsafe\n"
+        "    @classmethod\n"
+        "    def poison(cls): cls.checked = lambda self, path: path\n"
         "def unsafe(path): return path\n"
         "reader = Reader()\n" + mutation + "\n"
         "@mcp.tool()\ndef load(path): return reader.read(path)\n"
