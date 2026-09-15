@@ -1,6 +1,51 @@
-# Integration evidence, batches 1–102 and closeout audit
+# Integration evidence, batches 1–103 and closeout audit
 
-## Current unseen-review evidence seal 102
+## Current Python-correction proposal evidence seal 103
+
+[Seal 103](evidence-v103.json) retains **1338 members / 55,070,194 raw bytes**;
+archive SHA-256 `f9ebebcb1ed7721f1909e4bee1d60943953a52d7bb3989326be6dfd5abb3596b`. All 102 prior archives and every new member were verified.
+It preserves failed `8f0639f`, corrected `884d376`, 2,553 tests / 36 skips locally and all
+12 hosted suites, 29 normal jobs/docs, six zero-call requests and 19 runtime bindings.
+The exact 111-observation exposed regression is prepared, unapproved and unexecuted.
+All 463 requirements and 26 unaccepted limitation proposals remain, including original
+unseen failures, ordinary FAF timing and unopened V68. No human acceptance has occurred.
+
+Restore after seals 1–102 in numeric order into separate staging; reject unsafe paths,
+verify every member and stop on unexplained conflicts. Post-seal documentation and
+actual draft-delivery receipts are supplemental. **Phase 22 incomplete; zero new paid calls.**
+
+## Current v86 correctness recovery: engineering passed, regression approval pending
+
+The approved Python module-dispatch and conservative global receiver correction
+is engineering-verified at **`884d376`**: **2,553 tests / 36 skips** locally and in
+all 12 hosted suites, **29 normal CI jobs plus docs**, combined coverage **90.26%**,
+branch-only **86.20%**. Six zero-call production requests and 19 approved
+runtime component bindings pass. The failed `8f0639f` candidate, its 45-pass
+interrupted local suite and cancelled CI remain preserved. Candidate `1ee96cb`
+passed its 2,549/36 local suite, then failed a class-call mutation control; its CI
+was cancelled. The final correction removes that unproved class-call exception. No speedup is claimed.
+
+The exact **111-observation exposed regression is unapproved and unexecuted**:
+12 Proxmox/Taskwarrior, 12 Lightning/Engram and 87 earlier Python observations,
+63 input records across 10 existing repositories, 48 entire ordered pairs and
+15 development singles. Normal
+1,800-second input / 10-second Semgrep / 15-second cleanup / four-worker limits
+remain; the 3,455-minute outer cap is a worst-case bound, not an estimate.
+No new repository, retry, profile, comparator, target execution or paid call.
+
+All **463 requirements** retain previous states and evidence; **26 limitation
+proposals remain unaccepted**. Original V80 Proxmox misses and unsupported
+negatives remain failed. Actual corrected-source support is pending regression.
+Historical V73/V75 results remain bound to `cec0322`; ordinary FAF completion
+within 1,800 seconds remains unestablished. V68 is unapproved and unimplemented.
+
+**Phase 22 remains incomplete**, pending actual affected regression, explicit human
+technical acceptance and verified accepted-closeout delivery. Git stays 312/1,040
+incomplete, 728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete,
+Phase 24/15 unchanged. Historical spend **$0.071799; zero new paid calls**.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical unseen-review evidence seal 102
 
 [Seal 102](evidence-v102.json) retains **203 members / 17,842,249 raw bytes**;
 archive SHA-256 `f68137feccf1f13d0f52b0877ced9ddb40d0c11ac871d65307e072e98da3aefa`. All 101 prior archives and every new member were verified.
@@ -13,7 +58,7 @@ Restore after seals 1–101 in numeric order into separate staging, rejecting un
 checking every member hash and stopping on unexplained conflicts. Post-seal documentation and
 actual draft delivery receipts are supplemental. **Phase 22 remains incomplete; zero new paid calls.**
 
-## Current v81 technical review: unseen check complete, one failed gate
+## Historical v81 technical review: unseen check complete, one failed gate
 
 The separately approved V80 check completed **12 observations / six equal ordered
 pairs** at **`cec0322`**, using normal 1,800s input / 10s Semgrep / 15s cleanup and

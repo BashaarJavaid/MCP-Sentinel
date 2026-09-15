@@ -1,0 +1,17 @@
+{
+  "source": "from pathlib import Path\ndef unsafe(self, path): return path\nclass Reader:\n    @classmethod\n    def poison(cls):\n        cls.checked = unsafe\n    def checked(self, path):\n        p = Path(path).resolve()\n        p.relative_to(Path('/srv/data').resolve())\n        return p\n    def read(self, path):\n        return open(self.checked(path))\nreader = Reader()\nReader.poison()\n@mcp.tool()\ndef load(path): return reader.read(path)\n",
+  "matches": 1,
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at server.py:13: global instance escaped or was mutated; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at server.py:12: unresolved call to self.checked; protection is not established"
+    }
+  ],
+  "passed": true,
+  "corpus_observations": 0,
+  "paid_calls": 0
+}
