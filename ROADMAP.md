@@ -3483,6 +3483,17 @@ while keeping the supported boundary explicit.
 
 ## 26. Phase 23 — Maintained feedback and regression releases
 
+Current continuation: second hosted attempt at `f42df80` passed 26 CI jobs and docs;
+all 8 Linux/macOS suites passed 2,765/36. Four Windows jobs failed 24 POSIX type errors.
+The seven-input isolated regression now has verified retained reports, with 3
+vulnerable detections and 4 supported negatives; all complete references agree.
+Local Windows-guard/checkout correction passes full `make check`: 2,766 / 36,
+90.52% combined/86.58% branch coverage, 49 focused checks and Windows-targeted
+mypy. A forced-CRLF check verifies all 56 frozen corpus files retain exact bytes.
+Both failed hosted attempts remain preserved; all 127 local observations are
+unstarted. A new exact execution review is required. See
+`artifacts/phase23/windows-review-v1/` and `hosted-verification-v2/`.
+
 **Status: in progress; narrow advisory gate and CI references reviewed;
 CI engineering, historical compatibility and release verification remain.**
 The approved metadata candidate completed **14 observations / seven equal entire

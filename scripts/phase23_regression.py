@@ -227,6 +227,8 @@ def execution_identity() -> dict[str, Any]:
 
 
 def _alarm(seconds: float) -> None:
+    if sys.platform == "win32":
+        raise ValueError("Regression supervision requires POSIX")
     signal.setitimer(signal.ITIMER_REAL, max(0.001, seconds))
 
 
@@ -240,6 +242,8 @@ def _cancelled(signum: int, frame: Any) -> None:
 
 def _cleanup(process: subprocess.Popen[bytes] | None, source: Path) -> None:
     """Kill the scanner-owned session and require that its process group vanishes."""
+    if sys.platform == "win32":
+        raise ValueError("Regression supervision requires POSIX")
     _alarm(15)
     try:
         if process is not None:
@@ -266,6 +270,8 @@ def _observe(
     outer_deadline: float,
     expected_configuration: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    if sys.platform == "win32":
+        raise ValueError("Regression supervision requires POSIX")
     from sentinel.report.json_report import report_model_input
     from sentinel.report.model import ScanReport
     from sentinel.report.sarif import render_sarif
@@ -383,6 +389,8 @@ def run_stage(proposal_path: Path, approval_path: Path, output: Path) -> int:
         "proposal_sha256"
     ) != digest(proposal_bytes):
         raise ValueError("exact regression execution approval missing")
+    if sys.platform == "win32":
+        raise ValueError("Regression supervision requires POSIX")
     proposal = json.loads(proposal_bytes)
     case_id = proposal.get("case_id", "GHSA-5w57-2ccq-8w95")
     if (
@@ -600,6 +608,8 @@ def ci_report_difference(
 
 def run_ci(output: Path) -> int:
     """Seven current-candidate observations, once; retain failures without retry."""
+    if sys.platform == "win32":
+        raise ValueError("Regression supervision requires POSIX")
     if os.name != "posix":
         raise ValueError("CI supervision requires POSIX process groups")
     manifest, references = ci_references()

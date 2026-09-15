@@ -1,0 +1,105 @@
+"""Read-only preparation: original validators, source bytes and configurations."""
+
+import importlib.util
+import json
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+from scripts import phase20_corpus, phase22_corpus  # noqa: E402
+from scripts.phase20_measurements import LLM  # noqa: E402
+from sentinel.config import load_configuration  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
+proposal = json.loads((HERE / "evaluation-proposal-revised-v2.json").read_text())
+spec = importlib.util.spec_from_file_location(
+    "unseen",
+    ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py",
+)
+unseen = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(unseen)
+records = []
+for group, details in proposal["groups"].items():
+    approval = details.get("source_freeze_approval")
+    if details.get("corpus_kind") == "unseen_v1_exposed":
+        manifest = unseen.frozen(approval_path=ROOT / approval)
+    elif approval:
+        manifest = phase22_corpus.frozen(approval_path=ROOT / approval)
+    else:
+        manifest = phase20_corpus.validate()
+    items = {item.id: item for item in manifest.inputs}
+    snapshots = {snapshot.revision: snapshot for snapshot in manifest.snapshots}
+    for input_id in details["input_ids"]:
+        expected = details["inputs"][input_id]
+        item = items[input_id]
+        assert item.model_dump(mode="json") == expected["input"], input_id
+        with tempfile.TemporaryDirectory(
+            prefix="phase23-source-preflight-"
+        ) as temporary:
+            root = phase20_corpus.materialize(
+                item,
+                snapshots[item.snapshot],
+                Path(temporary).resolve() / "source",
+                manifest.packet,
+            )
+            config = load_configuration(
+                root,
+                environ={},
+                static_only=True,
+                cli_overrides={
+                    "rules_only": True,
+                    "ignore_paths": [".phase20/**"],
+                    "max_findings_per_scan": 500,
+                },
+                llm_cli_overrides={
+                    "model": LLM.model,
+                    "reasoning_effort": "medium",
+                    "retries": 0,
+                    "max_concurrency": 1,
+                    "cache_enabled": False,
+                },
+            )
+            payload = {
+                "scanner": config.scanner.model_dump(mode="json"),
+                "target": config.target.model_dump(mode="json")
+                if config.target
+                else None,
+                "static_only": config.static_only,
+                "language": config.language.value,
+            }
+            actual = phase20_corpus.digest(
+                (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+            )
+            assert actual == expected["configuration_sha256"], (
+                input_id,
+                actual,
+                expected["configuration_sha256"],
+            )
+        records.append(
+            {
+                "group": group,
+                "input_id": input_id,
+                "source_and_input_equal": True,
+                "configuration_sha256": actual,
+            }
+        )
+(HERE / "source-validation-revised-v2.json").write_text(
+    json.dumps(
+        {
+            "status": "passed",
+            "inputs": records,
+            "count": len(records),
+            "scanner_calls": 0,
+            "target_executions": 0,
+            "paid_calls": 0,
+        },
+        indent=2,
+    )
+    + "\n"
+)
+print(
+    f"{len(records)} historical source and exact configuration bindings verified; "
+    "zero scans."
+)

@@ -16,8 +16,8 @@ from unittest.mock import patch
 
 ASSETS = Path(__file__).resolve().parent
 ROOT = ASSETS.parents[2]
-PROPOSAL = ASSETS / "evaluation-proposal-revised-v2.json"
-APPROVAL = ASSETS / "evaluation-authorization-revised-v2.json"
+PROPOSAL = ASSETS / "evaluation-proposal-revised-v3.json"
+APPROVAL = ASSETS / "evaluation-authorization-revised-v3.json"
 spec = importlib.util.spec_from_file_location(
     "prior", ROOT / "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py"
 )

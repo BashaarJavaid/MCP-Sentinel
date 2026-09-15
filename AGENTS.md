@@ -1,6 +1,34 @@
 # AGENTS.md
 
-## Current Phase 23: draft delivered; hosted failure retained; correction review pending
+## Current Phase 23: offline CI verified; Windows correction review pending
+
+Approved draft PR #40 revision `f42df80` completed its second hosted attempt:
+**26 CI jobs passed / four failed / four optional skips**, and docs passed.
+All eight Linux/macOS quality suites passed **2,765 tests /36 skips**. The four
+Windows suites stopped at **24 POSIX-API type errors**, before tests. The seven
+isolated advisory reports were retained, schema/SARIF validated and equal to the
+reviewed complete references: **three vulnerable detections /four supported
+negatives**, 31 findings /4,377 warnings, 91.592541 seconds. Hosted wheel/sdist
+match all 134 scanner files. Original lint/upload failures and missing reports stay
+failed/unavailable. All127 local observations remain unstarted; no automatic retry.
+
+Five explicit Windows guards now reject unsupported supervision before effects;
+portable validators remain available. A new boundary test covers all five paths.
+The POSIX helper AST is unchanged after removing only those guards. A separate
+forced-CRLF check exposed frozen-byte conversion; one Git attribute now preserves
+all 56 corpus files exactly. No detector, public report contract, dependency,
+comparison condition or resource limit changed. Original packets remain; separate
+revised filenames bind the new helper/test bytes and prevent stale approval reuse.
+
+Local full `make check` passes **2,766 tests /36 skips**, **90.52% combined /
+86.58% branch coverage**. Windows-targeted mypy passes all 154 configured files;
+49 focused checks pass. Native Windows verification needs a new approved hosted
+attempt. Evidence: `artifacts/phase23/windows-review-v1/` and
+`artifacts/phase23/hosted-verification-v2/`. Final technical acceptance and release
+remain pending. Phase22 acceptance and all deferrals stay unchanged. Zero paid
+calls or advisory-target executions.
+
+## Historical Phase 23: draft delivered; hosted failure retained; correction review pending
 
 Draft PR #40 delivered approved `f015c005` at the exact reviewed merge tree.
 Original CI `35019572654` completed with **17 passed / 13 failed / four optional

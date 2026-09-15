@@ -1,0 +1,519 @@
+﻿2026-09-15T20:47:54.0837695Z Current runner version: '2.337.0'
+2026-09-15T20:47:54.0862250Z ##[group]Runner Image Provisioner
+2026-09-15T20:47:54.0863066Z Hosted Compute Agent
+2026-09-15T20:47:54.0863638Z Version: 20260828.587
+2026-09-15T20:47:54.0864227Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-15T20:47:54.0864933Z Build Date: 2026-08-28T16:44:25Z
+2026-09-15T20:47:54.0865575Z Worker ID: {051508c9-2fd0-45ab-a156-f2ec3702c338}
+2026-09-15T20:47:54.0866229Z Azure Region: westus
+2026-09-15T20:47:54.0866793Z ##[endgroup]
+2026-09-15T20:47:54.0868195Z ##[group]Operating System
+2026-09-15T20:47:54.0868881Z Microsoft Windows Server 2025
+2026-09-15T20:47:54.0869466Z 10.0.26100
+2026-09-15T20:47:54.0869950Z Datacenter
+2026-09-15T20:47:54.0870448Z ##[endgroup]
+2026-09-15T20:47:54.0870951Z ##[group]Runner Image
+2026-09-15T20:47:54.0871498Z Image: windows-2025-vs2026
+2026-09-15T20:47:54.0873077Z Version: 20260907.229.1
+2026-09-15T20:47:54.0875679Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260907.229/images/windows/Windows2025-VS2026-Readme.md
+2026-09-15T20:47:54.0878738Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260907.229
+2026-09-15T20:47:54.0880508Z ##[endgroup]
+2026-09-15T20:47:54.0882419Z ##[group]GITHUB_TOKEN Permissions
+2026-09-15T20:47:54.0884883Z Contents: read
+2026-09-15T20:47:54.0885792Z Metadata: read
+2026-09-15T20:47:54.0886633Z ##[endgroup]
+2026-09-15T20:47:54.0889474Z Secret source: Actions
+2026-09-15T20:47:54.0890824Z Cache mode: write
+2026-09-15T20:47:54.0892573Z Prepare workflow directory
+2026-09-15T20:47:54.1230698Z Prepare all required actions
+2026-09-15T20:47:54.1280236Z Getting action download info
+2026-09-15T20:47:54.4771522Z Download action repository 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-09-15T20:47:54.6198106Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-15T20:47:54.7786250Z Download action repository 'astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e' (SHA:d0cc045d04ccac9d8b7881df0226f9e82c39688e)
+2026-09-15T20:47:55.3386361Z Complete job name: Quality (windows-latest, Python 3.11)
+2026-09-15T20:47:55.4880856Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:47:55.4890624Z ##[group]Run actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+2026-09-15T20:47:55.4891597Z with:
+2026-09-15T20:47:55.4892072Z   repository: BashaarJavaid/MCP-Sentinel
+2026-09-15T20:47:55.4896410Z   token: ***
+2026-09-15T20:47:55.4896853Z   ssh-strict: true
+2026-09-15T20:47:55.4897297Z   ssh-user: git
+2026-09-15T20:47:55.4897757Z   persist-credentials: true
+2026-09-15T20:47:55.4898283Z   clean: true
+2026-09-15T20:47:55.4898740Z   sparse-checkout-cone-mode: true
+2026-09-15T20:47:55.4899268Z   fetch-depth: 1
+2026-09-15T20:47:55.4899737Z   fetch-tags: false
+2026-09-15T20:47:55.4900184Z   show-progress: true
+2026-09-15T20:47:55.4900664Z   lfs: false
+2026-09-15T20:47:55.4901077Z   submodules: false
+2026-09-15T20:47:55.4901523Z   set-safe-directory: true
+2026-09-15T20:47:55.4902226Z ##[endgroup]
+2026-09-15T20:47:55.6302183Z Syncing repository: BashaarJavaid/MCP-Sentinel
+2026-09-15T20:47:55.6304116Z ##[group]Getting Git version info
+2026-09-15T20:47:55.6304864Z Working directory is 'D:\a\MCP-Sentinel\MCP-Sentinel'
+2026-09-15T20:47:55.7532809Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-09-15T20:47:56.1832689Z git version 2.55.0.windows.5
+2026-09-15T20:47:56.1884024Z ##[endgroup]
+2026-09-15T20:47:56.1906705Z Temporarily overriding HOME='D:\a\_temp\f5ee82d4-6675-45e7-9482-cc7b2e59ee25' before making global git config changes
+2026-09-15T20:47:56.1912800Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-15T20:47:56.1918922Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:47:56.2728297Z Deleting the contents of 'D:\a\MCP-Sentinel\MCP-Sentinel'
+2026-09-15T20:47:56.2734259Z ##[group]Initializing the repository
+2026-09-15T20:47:56.2742829Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:47:56.3739147Z Initialized empty Git repository in D:/a/MCP-Sentinel/MCP-Sentinel/.git/
+2026-09-15T20:47:56.3787406Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-15T20:47:56.4521742Z ##[endgroup]
+2026-09-15T20:47:56.4523588Z ##[group]Disabling automatic garbage collection
+2026-09-15T20:47:56.4531150Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-09-15T20:47:56.4821945Z ##[endgroup]
+2026-09-15T20:47:56.4823732Z ##[group]Setting up auth
+2026-09-15T20:47:56.4834069Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-09-15T20:47:56.5149051Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-09-15T20:47:58.2054763Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-15T20:47:58.2402045Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-09-15T20:47:58.7664381Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-15T20:47:58.7971695Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-09-15T20:47:59.3517875Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-09-15T20:47:59.3825125Z ##[endgroup]
+2026-09-15T20:47:59.3826007Z ##[group]Fetching the repository
+2026-09-15T20:47:59.3840432Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +82b6eb6c83f0a98fc56b9ce3dd724ac242612854:refs/remotes/pull/40/merge
+2026-09-15T20:48:18.1886914Z From https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-15T20:48:18.1887914Z  * [new ref]         82b6eb6c83f0a98fc56b9ce3dd724ac242612854 -> pull/40/merge
+2026-09-15T20:48:18.1929646Z ##[endgroup]
+2026-09-15T20:48:18.1930377Z ##[group]Determining the checkout info
+2026-09-15T20:48:18.1932877Z ##[endgroup]
+2026-09-15T20:48:18.1943802Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-09-15T20:48:18.2419067Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-09-15T20:48:18.2718268Z ##[group]Checking out the ref
+2026-09-15T20:48:18.2727977Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/40/merge
+2026-09-15T20:48:19.3628371Z Updating files:  32% (2569/7821)
+2026-09-15T20:48:19.3952664Z Updating files:  33% (2581/7821)
+2026-09-15T20:48:19.5177080Z Updating files:  34% (2660/7821)
+2026-09-15T20:48:19.5766318Z Updating files:  35% (2738/7821)
+2026-09-15T20:48:19.6845618Z Updating files:  36% (2816/7821)
+2026-09-15T20:48:19.7429795Z Updating files:  37% (2894/7821)
+2026-09-15T20:48:19.8301841Z Updating files:  38% (2972/7821)
+2026-09-15T20:48:19.9251401Z Updating files:  39% (3051/7821)
+2026-09-15T20:48:19.9779034Z Updating files:  40% (3129/7821)
+2026-09-15T20:48:20.0104833Z Updating files:  41% (3207/7821)
+2026-09-15T20:48:20.0411344Z Updating files:  42% (3285/7821)
+2026-09-15T20:48:20.0784453Z Updating files:  43% (3364/7821)
+2026-09-15T20:48:20.1054530Z Updating files:  44% (3442/7821)
+2026-09-15T20:48:20.2328997Z Updating files:  45% (3520/7821)
+2026-09-15T20:48:20.2816217Z Updating files:  46% (3598/7821)
+2026-09-15T20:48:20.3034290Z Updating files:  47% (3676/7821)
+2026-09-15T20:48:20.3441201Z Updating files:  48% (3755/7821)
+2026-09-15T20:48:20.3470695Z Updating files:  49% (3833/7821)
+2026-09-15T20:48:20.4103410Z Updating files:  49% (3844/7821)
+2026-09-15T20:48:21.1954741Z Updating files:  50% (3911/7821)
+2026-09-15T20:48:21.3837823Z Updating files:  51% (3989/7821)
+2026-09-15T20:48:21.9405961Z Updating files:  51% (4012/7821)
+2026-09-15T20:48:22.4291924Z Updating files:  52% (4067/7821)
+2026-09-15T20:48:22.4461586Z Updating files:  52% (4118/7821)
+2026-09-15T20:48:22.4682594Z Updating files:  53% (4146/7821)
+2026-09-15T20:48:22.4886517Z Updating files:  54% (4224/7821)
+2026-09-15T20:48:22.5171357Z Updating files:  55% (4302/7821)
+2026-09-15T20:48:22.5862229Z Updating files:  56% (4380/7821)
+2026-09-15T20:48:22.6103835Z Updating files:  57% (4458/7821)
+2026-09-15T20:48:22.6390736Z Updating files:  58% (4537/7821)
+2026-09-15T20:48:22.6919564Z Updating files:  59% (4615/7821)
+2026-09-15T20:48:22.7166303Z Updating files:  60% (4693/7821)
+2026-09-15T20:48:22.7452842Z Updating files:  61% (4771/7821)
+2026-09-15T20:48:22.7717502Z Updating files:  62% (4850/7821)
+2026-09-15T20:48:22.7947031Z Updating files:  63% (4928/7821)
+2026-09-15T20:48:22.8184802Z Updating files:  64% (5006/7821)
+2026-09-15T20:48:22.8440726Z Updating files:  65% (5084/7821)
+2026-09-15T20:48:22.8680982Z Updating files:  66% (5162/7821)
+2026-09-15T20:48:22.8928863Z Updating files:  67% (5241/7821)
+2026-09-15T20:48:22.9187624Z Updating files:  68% (5319/7821)
+2026-09-15T20:48:22.9838889Z Updating files:  69% (5397/7821)
+2026-09-15T20:48:23.0168946Z Updating files:  70% (5475/7821)
+2026-09-15T20:48:23.0376433Z Updating files:  71% (5553/7821)
+2026-09-15T20:48:23.0789457Z Updating files:  72% (5632/7821)
+2026-09-15T20:48:23.1141295Z Updating files:  73% (5710/7821)
+2026-09-15T20:48:23.1941836Z Updating files:  74% (5788/7821)
+2026-09-15T20:48:23.3107040Z Updating files:  75% (5866/7821)
+2026-09-15T20:48:23.3531713Z Updating files:  76% (5944/7821)
+2026-09-15T20:48:23.3655021Z Updating files:  77% (6023/7821)
+2026-09-15T20:48:23.3998217Z Updating files:  77% (6027/7821)
+2026-09-15T20:48:23.4438427Z Updating files:  78% (6101/7821)
+2026-09-15T20:48:23.5192394Z Updating files:  79% (6179/7821)
+2026-09-15T20:48:23.5889748Z Updating files:  80% (6257/7821)
+2026-09-15T20:48:23.6647754Z Updating files:  81% (6336/7821)
+2026-09-15T20:48:23.6979033Z Updating files:  82% (6414/7821)
+2026-09-15T20:48:23.7191155Z Updating files:  83% (6492/7821)
+2026-09-15T20:48:23.7562630Z Updating files:  84% (6570/7821)
+2026-09-15T20:48:23.7908786Z Updating files:  85% (6648/7821)
+2026-09-15T20:48:23.8118767Z Updating files:  86% (6727/7821)
+2026-09-15T20:48:23.8327700Z Updating files:  87% (6805/7821)
+2026-09-15T20:48:23.8904472Z Updating files:  88% (6883/7821)
+2026-09-15T20:48:23.9175067Z Updating files:  89% (6961/7821)
+2026-09-15T20:48:23.9406791Z Updating files:  90% (7039/7821)
+2026-09-15T20:48:23.9625005Z Updating files:  91% (7118/7821)
+2026-09-15T20:48:23.9933170Z Updating files:  92% (7196/7821)
+2026-09-15T20:48:24.0249957Z Updating files:  93% (7274/7821)
+2026-09-15T20:48:24.0462995Z Updating files:  94% (7352/7821)
+2026-09-15T20:48:24.0727322Z Updating files:  95% (7430/7821)
+2026-09-15T20:48:24.0954234Z Updating files:  96% (7509/7821)
+2026-09-15T20:48:24.1219518Z Updating files:  97% (7587/7821)
+2026-09-15T20:48:24.1532537Z Updating files:  98% (7665/7821)
+2026-09-15T20:48:24.1775854Z Updating files:  99% (7743/7821)
+2026-09-15T20:48:24.1776323Z Updating files: 100% (7821/7821)
+2026-09-15T20:48:24.1776601Z Updating files: 100% (7821/7821), done.
+2026-09-15T20:48:24.1981574Z Note: switching to 'refs/remotes/pull/40/merge'.
+2026-09-15T20:48:24.1982433Z 
+2026-09-15T20:48:24.1982773Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-15T20:48:24.1983621Z changes and commit them, and you can discard any commits you make in this
+2026-09-15T20:48:24.1984387Z state without impacting any branches by switching back to a branch.
+2026-09-15T20:48:24.1985045Z 
+2026-09-15T20:48:24.1985467Z If you want to create a new branch to retain commits you create, you may
+2026-09-15T20:48:24.1986138Z do so (now or later) by using -c with the switch command. Example:
+2026-09-15T20:48:24.1986509Z 
+2026-09-15T20:48:24.1986676Z   git switch -c <new-branch-name>
+2026-09-15T20:48:24.1986918Z 
+2026-09-15T20:48:24.1987050Z Or undo this operation with:
+2026-09-15T20:48:24.1987266Z 
+2026-09-15T20:48:24.1987379Z   git switch -
+2026-09-15T20:48:24.1987545Z 
+2026-09-15T20:48:24.1987835Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-15T20:48:24.1988283Z 
+2026-09-15T20:48:24.1988794Z HEAD is now at 82b6eb6 Merge f42df80d6191479e250dc1ddadc91bbed65d8695 into dd9101ddfead19d65b7a84b374e4cf7e85462ff7
+2026-09-15T20:48:24.2994567Z ##[endgroup]
+2026-09-15T20:48:24.3380713Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-09-15T20:48:24.3634537Z 82b6eb6c83f0a98fc56b9ce3dd724ac242612854
+2026-09-15T20:48:24.4115191Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:48:24.4117315Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+2026-09-15T20:48:24.4117695Z with:
+2026-09-15T20:48:24.4117887Z   python-version: 3.11
+2026-09-15T20:48:24.4118111Z   check-latest: false
+2026-09-15T20:48:24.4120934Z   token: ***
+2026-09-15T20:48:24.4121146Z   update-environment: true
+2026-09-15T20:48:24.4121735Z   allow-prereleases: false
+2026-09-15T20:48:24.4122074Z   freethreaded: false
+2026-09-15T20:48:24.4122285Z ##[endgroup]
+2026-09-15T20:48:24.5900579Z ##[group]Installed versions
+2026-09-15T20:48:24.6254707Z (node:5704) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-15T20:48:24.6255994Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-15T20:48:24.6256754Z Successfully set up CPython (3.11.9)
+2026-09-15T20:48:24.6257508Z ##[endgroup]
+2026-09-15T20:48:24.6627526Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:48:24.6629076Z ##[group]Run astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+2026-09-15T20:48:24.6629467Z with:
+2026-09-15T20:48:24.6629649Z   version: 0.8.22
+2026-09-15T20:48:24.6629844Z   enable-cache: true
+2026-09-15T20:48:24.6630069Z   activate-environment: false
+2026-09-15T20:48:24.6630354Z   working-directory: D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:48:24.6630668Z   server-url: https://github.com
+2026-09-15T20:48:24.6633521Z   github-token: ***
+2026-09-15T20:48:24.6634102Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-09-15T20:48:24.6634762Z   restore-cache: true
+2026-09-15T20:48:24.6634970Z   save-cache: true
+2026-09-15T20:48:24.6635165Z   prune-cache: true
+2026-09-15T20:48:24.6635374Z   ignore-nothing-to-cache: false
+2026-09-15T20:48:24.6635626Z   ignore-empty-workdir: false
+2026-09-15T20:48:24.6635867Z   add-problem-matchers: true
+2026-09-15T20:48:24.6636082Z env:
+2026-09-15T20:48:24.6636341Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:24.6637015Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:24.6637476Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:24.6637884Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:24.6638284Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:24.6638615Z ##[endgroup]
+2026-09-15T20:48:24.8724613Z (node:5536) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-15T20:48:24.8725534Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-15T20:48:24.8747290Z manifest-file not provided, reading from local file.
+2026-09-15T20:48:24.8794209Z manifest-file does not contain version 0.8.22, arch x86_64, platform pc-windows-msvc. Falling back to GitHub releases.
+2026-09-15T20:48:24.8795633Z Downloading uv from "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-pc-windows-msvc.zip" ...
+2026-09-15T20:48:25.4572474Z [command]"C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.ZipFile } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\a\_temp\95956b19-6fc9-4a50-ae63-87f38d797790.zip', 'D:\a\_temp\15f56f2c-29a7-48c9-b0db-0c8905a31da3', $true) } catch { if (($_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or ($_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath 'D:\a\_temp\95956b19-6fc9-4a50-ae63-87f38d797790.zip' -DestinationPath 'D:\a\_temp\15f56f2c-29a7-48c9-b0db-0c8905a31da3' -Force } else { throw $_ } } ;"
+2026-09-15T20:48:26.1073021Z Set UV_TOOL_BIN_DIR to D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:26.1076624Z Added D:\a\_temp\uv-tool-bin-dir to the path
+2026-09-15T20:48:26.1083959Z Added C:\hostedtoolcache\windows\uv\0.8.22\x86_64 to the path
+2026-09-15T20:48:26.1086430Z Set UV_TOOL_DIR to D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:26.1095979Z Set UV_CACHE_DIR to D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:26.1096393Z Successfully installed uv version 0.8.22
+2026-09-15T20:48:26.1100745Z Searching files using cache dependency glob: D:\a\MCP-Sentinel\MCP-Sentinel\**\*requirements*.txt,D:\a\MCP-Sentinel\MCP-Sentinel\**\*requirements*.in,D:\a\MCP-Sentinel\MCP-Sentinel\**\*constraints*.txt,D:\a\MCP-Sentinel\MCP-Sentinel\**\*constraints*.in,D:\a\MCP-Sentinel\MCP-Sentinel\**\pyproject.toml,D:\a\MCP-Sentinel\MCP-Sentinel\**\uv.lock,D:\a\MCP-Sentinel\MCP-Sentinel\**\*.py.lock
+2026-09-15T20:48:27.3511424Z D:\a\MCP-Sentinel\MCP-Sentinel\artifacts\phase22\git-environment-v1-tested\requirements.txt
+2026-09-15T20:48:28.1157208Z D:\a\MCP-Sentinel\MCP-Sentinel\artifacts\phase23\dependency-audit-review-v1\requirements.txt
+2026-09-15T20:48:28.1768999Z D:\a\MCP-Sentinel\MCP-Sentinel\pyproject.toml
+2026-09-15T20:48:28.2707758Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\clean_server\pyproject.toml
+2026-09-15T20:48:28.2746503Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\gpt_review_eval\pyproject.toml
+2026-09-15T20:48:28.2809378Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\vulnerable_server\pyproject.toml
+2026-09-15T20:48:28.2820154Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\vulnerable_server\requirements.txt
+2026-09-15T20:48:28.2936532Z D:\a\MCP-Sentinel\MCP-Sentinel\uv.lock
+2026-09-15T20:48:28.2959081Z Found 8 files to hash.
+2026-09-15T20:48:30.8755505Z Trying to restore uv cache from GitHub Actions cache with key: setup-uv-1-x86_64-pc-windows-msvc-3.12.10-pruned-b39e5a7eed198718415546d501e88c020aa04af1e73d72ca029c92eb17ebe66c
+2026-09-15T20:48:31.3000158Z Cache hit for: setup-uv-1-x86_64-pc-windows-msvc-3.12.10-pruned-b39e5a7eed198718415546d501e88c020aa04af1e73d72ca029c92eb17ebe66c
+2026-09-15T20:48:31.3117509Z (node:5536) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-15T20:48:32.0569128Z Received 974 of 974 (100.0%), 0.0 MBs/sec
+2026-09-15T20:48:32.0570901Z Cache Size: ~0 MB (974 B)
+2026-09-15T20:48:32.0597389Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/5c65a53c-e3da-4fda-b076-f70830230ea0/cache.tzst -P -C D:/a/MCP-Sentinel/MCP-Sentinel --force-local --use-compress-program "zstd -d"
+2026-09-15T20:48:32.2235712Z Cache restored successfully
+2026-09-15T20:48:32.2243052Z uv cache restored from GitHub Actions cache with key: setup-uv-1-x86_64-pc-windows-msvc-3.12.10-pruned-b39e5a7eed198718415546d501e88c020aa04af1e73d72ca029c92eb17ebe66c
+2026-09-15T20:48:32.2589302Z ##[group]Run uv sync --frozen --extra dev --python 3.11
+2026-09-15T20:48:32.2589787Z [36;1muv sync --frozen --extra dev --python 3.11[0m
+2026-09-15T20:48:32.3117351Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:48:32.3117933Z env:
+2026-09-15T20:48:32.3118371Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:32.3119143Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:32.3119897Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:32.3120586Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:32.3121262Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:32.3121841Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:32.3122730Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:32.3123160Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:32.3123601Z ##[endgroup]
+2026-09-15T20:48:32.6222264Z Using CPython 3.11.9 interpreter at: C:\hostedtoolcache\windows\Python\3.11.9\x64\python3.exe
+2026-09-15T20:48:32.6223836Z Creating virtual environment at: .venv
+2026-09-15T20:48:32.6941478Z    Building portunusmcp-sentinel @ file:///D:/a/MCP-Sentinel/MCP-Sentinel
+2026-09-15T20:48:32.7523745Z Downloading cryptography (3.7MiB)
+2026-09-15T20:48:32.7547647Z Downloading pip (1.7MiB)
+2026-09-15T20:48:32.7573678Z Downloading openai (1.6MiB)
+2026-09-15T20:48:32.7580681Z Downloading virtualenv (5.1MiB)
+2026-09-15T20:48:32.7587269Z Downloading pygments (1.2MiB)
+2026-09-15T20:48:32.7592783Z Downloading mypy (10.3MiB)
+2026-09-15T20:48:32.7602186Z Downloading pywin32 (9.1MiB)
+2026-09-15T20:48:32.7607787Z Downloading pydantic-core (2.0MiB)
+2026-09-15T20:48:32.7628870Z Downloading uv (23.5MiB)
+2026-09-15T20:48:32.7643290Z Downloading ruff (11.4MiB)
+2026-09-15T20:48:32.7649431Z Downloading semgrep (55.4MiB)
+2026-09-15T20:48:33.6671024Z  Downloading pydantic-core
+2026-09-15T20:48:34.0248098Z  Downloading virtualenv
+2026-09-15T20:48:34.0839580Z  Downloading cryptography
+2026-09-15T20:48:34.2222557Z  Downloading pygments
+2026-09-15T20:48:34.3614083Z  Downloading ruff
+2026-09-15T20:48:34.5518205Z  Downloading uv
+2026-09-15T20:48:34.5536692Z  Downloading pip
+2026-09-15T20:48:34.8699550Z  Downloading pywin32
+2026-09-15T20:48:35.3685449Z       Built portunusmcp-sentinel @ file:///D:/a/MCP-Sentinel/MCP-Sentinel
+2026-09-15T20:48:35.4329110Z  Downloading semgrep
+2026-09-15T20:48:35.4481176Z  Downloading openai
+2026-09-15T20:48:35.4846717Z  Downloading mypy
+2026-09-15T20:48:35.4855414Z Prepared 121 packages in 2.82s
+2026-09-15T20:48:36.2457521Z Installed 121 packages in 759ms
+2026-09-15T20:48:36.2460777Z  + annotated-doc==0.0.4
+2026-09-15T20:48:36.2462068Z  + annotated-types==0.7.0
+2026-09-15T20:48:36.2463698Z  + anyio==4.14.2
+2026-09-15T20:48:36.2465101Z  + attrs==26.1.0
+2026-09-15T20:48:36.2466239Z  + boltons==21.0.0
+2026-09-15T20:48:36.2467760Z  + boolean-py==5.0
+2026-09-15T20:48:36.2468929Z  + bracex==3.0
+2026-09-15T20:48:36.2470684Z  + build==1.5.0
+2026-09-15T20:48:36.2471895Z  + cachecontrol==0.14.4
+2026-09-15T20:48:36.2473334Z  + certifi==2026.6.17
+2026-09-15T20:48:36.2474937Z  + cffi==2.1.0
+2026-09-15T20:48:36.2476962Z  + cfgv==3.5.0
+2026-09-15T20:48:36.2478466Z  + charset-normalizer==3.4.9
+2026-09-15T20:48:36.2479970Z  + click==8.4.2
+2026-09-15T20:48:36.2481253Z  + click-option-group==0.5.9
+2026-09-15T20:48:36.2482634Z  + colorama==0.4.6
+2026-09-15T20:48:36.2483750Z  + coverage==7.15.2
+2026-09-15T20:48:36.2485448Z  + cryptography==50.0.1
+2026-09-15T20:48:36.2486338Z  + cyclonedx-python-lib==11.11.0
+2026-09-15T20:48:36.2488104Z  + defusedxml==0.7.1
+2026-09-15T20:48:36.2489401Z  + distlib==0.4.3
+2026-09-15T20:48:36.2490625Z  + distro==1.9.0
+2026-09-15T20:48:36.2491707Z  + exceptiongroup==1.2.2
+2026-09-15T20:48:36.2493361Z  + face==26.0.1
+2026-09-15T20:48:36.2494889Z  + filelock==3.30.3
+2026-09-15T20:48:36.2496051Z  + glom==25.12.0
+2026-09-15T20:48:36.2499952Z  + googleapis-common-protos==1.75.0
+2026-09-15T20:48:36.2500303Z  + h11==0.16.0
+2026-09-15T20:48:36.2501012Z  + httpcore==1.0.9
+2026-09-15T20:48:36.2502720Z  + httpx==0.28.1
+2026-09-15T20:48:36.2504001Z  + httpx-sse==0.4.3
+2026-09-15T20:48:36.2505149Z  + identify==2.6.19
+2026-09-15T20:48:36.2506789Z  + idna==3.18
+2026-09-15T20:48:36.2507926Z  + importlib-metadata==8.7.1
+2026-09-15T20:48:36.2509501Z  + iniconfig==2.3.0
+2026-09-15T20:48:36.2510313Z  + jiter==0.16.0
+2026-09-15T20:48:36.2511958Z  + jsonschema==4.25.1
+2026-09-15T20:48:36.2513390Z  + jsonschema-specifications==2025.9.1
+2026-09-15T20:48:36.2514901Z  + librt==0.13.0
+2026-09-15T20:48:36.2516071Z  + license-expression==30.4.4
+2026-09-15T20:48:36.2517256Z  + markdown-it-py==4.2.0
+2026-09-15T20:48:36.2518353Z  + mcp==1.29.0
+2026-09-15T20:48:36.2519658Z  + mdurl==0.1.2
+2026-09-15T20:48:36.2520827Z  + msgpack==1.2.1
+2026-09-15T20:48:36.2522174Z  + mypy==1.20.2
+2026-09-15T20:48:36.2523416Z  + mypy-extensions==1.1.0
+2026-09-15T20:48:36.2524824Z  + nodeenv==1.10.0
+2026-09-15T20:48:36.2526125Z  + openai==2.46.0
+2026-09-15T20:48:36.2527430Z  + opentelemetry-api==1.37.0
+2026-09-15T20:48:36.2528697Z  + opentelemetry-exporter-otlp-proto-common==1.37.0
+2026-09-15T20:48:36.2530080Z  + opentelemetry-exporter-otlp-proto-http==1.37.0
+2026-09-15T20:48:36.2531329Z  + opentelemetry-instrumentation==0.58b0
+2026-09-15T20:48:36.2532888Z  + opentelemetry-instrumentation-requests==0.58b0
+2026-09-15T20:48:36.2534255Z  + opentelemetry-instrumentation-threading==0.58b0
+2026-09-15T20:48:36.2536016Z  + opentelemetry-proto==1.37.0
+2026-09-15T20:48:36.2537235Z  + opentelemetry-sdk==1.37.0
+2026-09-15T20:48:36.2538637Z  + opentelemetry-semantic-conventions==0.58b0
+2026-09-15T20:48:36.2539895Z  + opentelemetry-util-http==0.58b0
+2026-09-15T20:48:36.2541180Z  + packageurl-python==0.17.6
+2026-09-15T20:48:36.2542329Z  + packaging==25.0
+2026-09-15T20:48:36.2543540Z  + pathspec==1.1.1
+2026-09-15T20:48:36.2544881Z  + pbr==7.0.3
+2026-09-15T20:48:36.2546092Z  + peewee==3.19.0
+2026-09-15T20:48:36.2547182Z  + pip==26.2
+2026-09-15T20:48:36.2548440Z  + pip-api==0.0.34
+2026-09-15T20:48:36.2549893Z  + pip-audit==2.10.1
+2026-09-15T20:48:36.2551186Z  + pip-requirements-parser==32.0.1
+2026-09-15T20:48:36.2552412Z  + platformdirs==4.10.0
+2026-09-15T20:48:36.2553678Z  + pluggy==1.6.0
+2026-09-15T20:48:36.2555548Z  + portunusmcp-sentinel==1.3.0 (from file:///D:/a/MCP-Sentinel/MCP-Sentinel)
+2026-09-15T20:48:36.2557064Z  + pre-commit==4.6.2
+2026-09-15T20:48:36.2558357Z  + protobuf==6.33.6
+2026-09-15T20:48:36.2559592Z  + py-serializable==2.1.0
+2026-09-15T20:48:36.2560715Z  + pycparser==3.0
+2026-09-15T20:48:36.2561935Z  + pydantic==2.13.4
+2026-09-15T20:48:36.2563180Z  + pydantic-core==2.46.4
+2026-09-15T20:48:36.2564546Z  + pydantic-settings==2.14.2
+2026-09-15T20:48:36.2565792Z  + pygments==2.20.0
+2026-09-15T20:48:36.2567083Z  + pyjwt==2.13.0
+2026-09-15T20:48:36.2568331Z  + pyparsing==3.3.2
+2026-09-15T20:48:36.2569601Z  + pyproject-hooks==1.2.0
+2026-09-15T20:48:36.2570835Z  + pytest==9.0.3
+2026-09-15T20:48:36.2572104Z  + pytest-cov==6.3.0
+2026-09-15T20:48:36.2573353Z  + python-discovery==1.6.0
+2026-09-15T20:48:36.2574595Z  + python-dotenv==1.2.2
+2026-09-15T20:48:36.2576417Z  + python-multipart==0.0.32
+2026-09-15T20:48:36.2577845Z  + pywin32==311
+2026-09-15T20:48:36.2579096Z  + pyyaml==6.0.3
+2026-09-15T20:48:36.2580394Z  + referencing==0.37.0
+2026-09-15T20:48:36.2581622Z  + regex==2026.7.10
+2026-09-15T20:48:36.2582855Z  + requests==2.34.2
+2026-09-15T20:48:36.2584143Z  + rich==15.0.0
+2026-09-15T20:48:36.2585433Z  + rpds-py==2026.6.3
+2026-09-15T20:48:36.2586717Z  + ruamel-yaml==0.19.1
+2026-09-15T20:48:36.2587984Z  + ruamel-yaml-clib==0.2.15
+2026-09-15T20:48:36.2589269Z  + ruff==0.15.22
+2026-09-15T20:48:36.2590605Z  + sarif-om==1.0.4
+2026-09-15T20:48:36.2591830Z  + semantic-version==2.10.0
+2026-09-15T20:48:36.2593018Z  + semgrep==1.176.0
+2026-09-15T20:48:36.2594301Z  + setuptools==83.0.0
+2026-09-15T20:48:36.2596329Z  + shellingham==1.5.4
+2026-09-15T20:48:36.2597658Z  + sniffio==1.3.1
+2026-09-15T20:48:36.2598731Z  + sortedcontainers==2.4.0
+2026-09-15T20:48:36.2599976Z  + sse-starlette==3.4.5
+2026-09-15T20:48:36.2601218Z  + starlette==1.3.1
+2026-09-15T20:48:36.2602516Z  + tiktoken==0.13.0
+2026-09-15T20:48:36.2603806Z  + tomli==2.4.1
+2026-09-15T20:48:36.2605038Z  + tomli-w==1.2.0
+2026-09-15T20:48:36.2606289Z  + tqdm==4.69.0
+2026-09-15T20:48:36.2607706Z  + typer==0.27.0
+2026-09-15T20:48:36.2609163Z  + types-jsonschema==4.26.0.20260518
+2026-09-15T20:48:36.2610514Z  + types-pyyaml==6.0.12.20260518
+2026-09-15T20:48:36.2611756Z  + typing-extensions==4.16.0
+2026-09-15T20:48:36.2613045Z  + typing-inspection==0.4.2
+2026-09-15T20:48:36.2614307Z  + urllib3==2.7.0
+2026-09-15T20:48:36.2615644Z  + uv==0.11.15
+2026-09-15T20:48:36.2617158Z  + uvicorn==0.51.0
+2026-09-15T20:48:36.2618383Z  + virtualenv==21.7.8
+2026-09-15T20:48:36.2619689Z  + wcmatch==8.5.2
+2026-09-15T20:48:36.2620928Z  + wrapt==1.17.3
+2026-09-15T20:48:36.2622159Z  + zipp==4.1.0
+2026-09-15T20:48:36.4196450Z ##[group]Run uv lock --check
+2026-09-15T20:48:36.4196916Z [36;1muv lock --check[0m
+2026-09-15T20:48:36.4267265Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:48:36.4267608Z env:
+2026-09-15T20:48:36.4267888Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.4268368Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:36.4268822Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.4269645Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.4270104Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.4270464Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:36.4270748Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:36.4271006Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:36.4271265Z ##[endgroup]
+2026-09-15T20:48:36.7985862Z Using CPython 3.12.10 interpreter at: C:\hostedtoolcache\windows\Python\3.12.10\x64\python3.exe
+2026-09-15T20:48:36.8069688Z Resolved 139 packages in 1ms
+2026-09-15T20:48:36.9392275Z ##[group]Run uv run --python 3.11 ruff check .
+2026-09-15T20:48:36.9392722Z [36;1muv run --python 3.11 ruff check .[0m
+2026-09-15T20:48:36.9465151Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:48:36.9465772Z env:
+2026-09-15T20:48:36.9466230Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.9467041Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:36.9467852Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.9468606Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.9469327Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:36.9469970Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:36.9470472Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:36.9470942Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:36.9471434Z ##[endgroup]
+2026-09-15T20:48:37.4750091Z All checks passed!
+2026-09-15T20:48:37.5992195Z ##[group]Run uv run --python 3.11 ruff format --check .
+2026-09-15T20:48:37.5992863Z [36;1muv run --python 3.11 ruff format --check .[0m
+2026-09-15T20:48:37.6063346Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:48:37.6063705Z env:
+2026-09-15T20:48:37.6063980Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:37.6064440Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:37.6065368Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:37.6065825Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:37.6066253Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:37.6066615Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:37.6066899Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:37.6067162Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:37.6067455Z ##[endgroup]
+2026-09-15T20:48:38.0803537Z 165 files already formatted
+2026-09-15T20:48:38.2072855Z ##[group]Run uv run --python 3.11 mypy
+2026-09-15T20:48:38.2073226Z [36;1muv run --python 3.11 mypy[0m
+2026-09-15T20:48:38.2152481Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:48:38.2153051Z env:
+2026-09-15T20:48:38.2153489Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:38.2154277Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:48:38.2155062Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:38.2155755Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:38.2156466Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:48:38.2157069Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:48:38.2157557Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:48:38.2158002Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:48:38.2158447Z ##[endgroup]
+2026-09-15T20:48:56.1681392Z scripts\phase23_regression.py:230: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.1682642Z scripts\phase23_regression.py:230: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.1683657Z scripts\phase23_regression.py:247: error: Module has no attribute "killpg"  [attr-defined]
+2026-09-15T20:48:56.1684751Z scripts\phase23_regression.py:247: error: Module has no attribute "SIGKILL"; maybe "SIGILL"?  [attr-defined]
+2026-09-15T20:48:56.1685885Z scripts\phase23_regression.py:251: error: Module has no attribute "killpg"  [attr-defined]
+2026-09-15T20:48:56.1686940Z scripts\phase23_regression.py:258: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.1687986Z scripts\phase23_regression.py:258: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.1689012Z scripts\phase23_regression.py:316: error: Module has no attribute "SIGALRM"  [attr-defined]
+2026-09-15T20:48:56.1690108Z scripts\phase23_regression.py:317: error: Module has no attribute "pthread_sigmask"  [attr-defined]
+2026-09-15T20:48:56.1690793Z scripts\phase23_regression.py:317: error: Module has no attribute "SIG_BLOCK"  [attr-defined]
+2026-09-15T20:48:56.1691455Z scripts\phase23_regression.py:330: error: Module has no attribute "pthread_sigmask"  [attr-defined]
+2026-09-15T20:48:56.1692095Z scripts\phase23_regression.py:330: error: Module has no attribute "SIG_SETMASK"  [attr-defined]
+2026-09-15T20:48:56.1692700Z scripts\phase23_regression.py:360: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.1693307Z scripts\phase23_regression.py:360: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.1693905Z scripts\phase23_regression.py:428: error: Module has no attribute "SIGALRM"  [attr-defined]
+2026-09-15T20:48:56.1694520Z scripts\phase23_regression.py:511: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.1696576Z scripts\phase23_regression.py:511: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.1697213Z scripts\phase23_regression.py:632: error: Module has no attribute "SIGALRM"  [attr-defined]
+2026-09-15T20:48:56.1697815Z scripts\phase23_regression.py:667: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.1698412Z scripts\phase23_regression.py:667: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.5213609Z tests\test_phase23.py:331: error: Module has no attribute "SIGALRM"  [attr-defined]
+2026-09-15T20:48:56.5214677Z tests\test_phase23.py:349: error: Module has no attribute "setitimer"  [attr-defined]
+2026-09-15T20:48:56.5215705Z tests\test_phase23.py:349: error: Module has no attribute "ITIMER_REAL"  [attr-defined]
+2026-09-15T20:48:56.5216739Z tests\test_phase23.py:350: error: Module has no attribute "SIGALRM"  [attr-defined]
+2026-09-15T20:48:56.7193668Z Found 24 errors in 2 files (checked 154 source files)
+2026-09-15T20:48:56.8503014Z ##[error]Process completed with exit code 1.
+2026-09-15T20:48:56.8772410Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:48:56.8774545Z Post job cleanup.
+2026-09-15T20:48:57.0744222Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-09-15T20:48:57.1018061Z git version 2.55.0.windows.5
+2026-09-15T20:48:57.1087805Z Temporarily overriding HOME='D:\a\_temp\b034c816-515f-4347-b5b4-6d84aa2cddb8' before making global git config changes
+2026-09-15T20:48:57.1089113Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-15T20:48:57.1098841Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:48:57.1404868Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-09-15T20:48:57.1706027Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-09-15T20:48:57.7374723Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-15T20:48:57.7622665Z http.https://github.com/.extraheader
+2026-09-15T20:48:57.7663653Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-09-15T20:48:57.7952163Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-09-15T20:48:58.3259992Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-15T20:48:58.3549925Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-09-15T20:48:58.8930986Z Cleaning up orphan processes
+2026-09-15T20:48:58.8965600Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

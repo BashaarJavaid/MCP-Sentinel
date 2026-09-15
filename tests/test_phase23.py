@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from scripts.phase20_corpus import ROOT
+from scripts.phase20_corpus import ROOT, digest
 from scripts.phase23_regression import CORPORA, MANIFEST, source_files, validate
 
 
@@ -256,6 +256,8 @@ def test_observation_completion_and_cleanup(
     monkeypatch: pytest.MonkeyPatch,
     mode: str,
 ) -> None:
+    if sys.platform == "win32":
+        pytest.skip("baseline supervision uses POSIX process groups")
     from scripts import phase23_regression as helper
     from sentinel.report.json_report import render_json
     from sentinel.report.model import (
@@ -488,3 +490,30 @@ def test_finding_match_requires_rule_and_both_source_ranges() -> None:
         assert matching_indexes({"findings": [changed]}, item) == []
     finding["rule_id"] = "SENT-014"
     assert matching_indexes({"findings": [finding]}, item) == []
+
+
+def test_windows_supervision_rejects_before_side_effects(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import phase23_regression as helper
+
+    proposal = tmp_path / "proposal.json"
+    proposal.write_text("{}")
+    approval = tmp_path / "approval.json"
+    approval.write_text(
+        json.dumps({"decision": "approved", "proposal_sha256": digest(b"{}")})
+    )
+    monkeypatch.setattr(sys, "platform", "win32")
+    output = tmp_path / "output"
+    calls = (
+        lambda: helper._alarm(1),
+        lambda: helper._cleanup(None, output),
+        lambda: helper._observe({}, output, output, {}, 1, {}),
+        lambda: helper.run_stage(proposal, approval, output),
+        lambda: helper.run_ci(output),
+    )
+    for call in calls:
+        with pytest.raises(ValueError, match="requires POSIX"):
+            call()
+    assert not output.exists()
+    assert not approval.with_suffix(".used.json").exists()
