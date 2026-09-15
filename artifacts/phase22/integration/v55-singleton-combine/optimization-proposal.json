@@ -1,0 +1,54 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-13T19:29:19.446057+00:00",
+  "starting_delivery": "029bef12f71fd507be168fc7731b3b63d20b3ae5",
+  "scanner": {
+    "revision": "a36f696c504e4e8d1f90de5dc84e8942d06316ca",
+    "source_sha256": "2f4a49aeb2173ca2174b984b8108174d96d6df42cec93e58522caf713efbaeab",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "profile_assessment_sha256": "2c91538a793e5527690098941a949d9887b6dccb84807988b5e37194f1454e49",
+  "target": "src/sentinel/static/path_flow.py:combine",
+  "target_source_sha256": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+  "purpose": "Avoid tuple/cache dispatch only for the canonical all-empty UNKNOWN_VALUE singleton; exclude every other Value and key override.",
+  "proposed_change": "One source-only attempt in combine: if len(values)==1 and values[0] is UNKNOWN_VALUE and not key, return UNKNOWN_VALUE. All other inputs use the unchanged _combine(tuple(values), key), preserving the4096-entry LRU. Do not broaden eligibility to equal-but-distinct Values, nonempty sources/metadata, keys or multiple inputs.",
+  "evidence": {
+    "prior_profile": "v54-faf-fastpath-sampling/assessment.json",
+    "combine_cache_call_leaf_share_percent": [
+      7.403855859493287,
+      7.637088733798604
+    ],
+    "failure_assessment": "v55-singleton-combine/assessment.json",
+    "source_only_basis": "UNKNOWN_VALUE is the exact module-level frozen Value() with all empty/default fields. This proposed guard tests object identity, not equality. The failed tainted contained=False marker is ineligible. Potential cache interning differences among entirely empty Values still require full-state verification; neither Value immutability nor equality alone proves the change safe.",
+    "eligibility_frequency": "Not captured by the approved profile; neither frequency nor removable cost is known."
+  },
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Preserve a36f696 baseline. Reproduce the retained broad-bypass failure using its preserved source; the proposed narrow candidate must match the baseline on that same input and every retained identity case. No relabeling of the broad failure.",
+    "Compare complete Value fields and Python/TypeScript environment and full flow state structurally, including RegistrationFlow and HTTPContext backreferences. Cold/warm caches, canonical UNKNOWN_VALUE, distinct equal empty Values, tainted contained=False/True markers, mixed branch identities, source-free safety flags, all key overrides, null/missing/undefined, empty/one/two/many inputs and existing path/URL/credential/array/record metadata must agree. Preserve inputs.",
+    "Count tuple/cache entry synthetically: only canonical UNKNOWN_VALUE singleton with empty requested key may bypass. All other inputs use the existing dispatch; no new cache or identity registry. Stop and close the one attempt at the first verified semantic or avoided-work failure; no other optimization target.",
+    "If the prerequisite passes, complete affected/full local and hosted engineering, static/package/schema/lock/docs checks and source-bound zero-call production/runtime compatibility. Freeze the candidate and prepare a separate regression proposal covering both languages. No corpus/profile execution follows from this source-only approval."
+  ],
+  "retention_and_limits": "The broad singleton attempt is closed after a synthetic internal environment mismatch; real-target reachability of that adversarial marker remains unestablished. Initial full-flow comparison false flags were a verification-helper defect, corrected structurally without erasing the retained failure. This narrower eligibility is a new attempt, not repair within the spent budget. No speedup or300-second completion is promised. All native/profile/fresh failures retain their source bindings.",
+  "not_authorized": [
+    "another optimization target or attempt",
+    "new cache or analysis truncation",
+    "new resource, parallelism or deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "failure_assessment_sha256": "939815ff5b5e5614039762ba57ba79699d6df1700db417ff86f7a443754c4076"
+}

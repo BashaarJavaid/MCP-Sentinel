@@ -1,0 +1,129 @@
+{
+  "assessment": {
+    "input_id": "kubernetes-shell-vulnerable-mutation",
+    "treatment": "rules",
+    "condition": "kubectl_get input cannot cause shell metacharacter execution while constructing the kubectl command",
+    "prerequisites": [
+      "kubectl on PATH and initialized Kubernetes configuration; tool input carrying a shell metacharacter; benchmark never uses a real cluster"
+    ],
+    "tree_sha256": "8761edde89098b050989586b70bcdf1fbaa1ede8a86c16bb268da6c21e4b6d41",
+    "report_sha256": "a3d0d9ddff347b5f749087a1431ec8eb668c8aa8238d91413782090e1f56c4ad",
+    "candidate_identity": "dd6796a5945c58595f5ada6ba6602769d9e157bc8406ff9bd2018875d039689f",
+    "matches": [
+      "b800a785ed841de18d45550a9ef28974a3313dcc26de3413e0dff6cc8d45b5f6"
+    ],
+    "rationale": "Source review: index.ts tools/call dispatch passes actual request.params.arguments to kubectlGet; resourceType/name/namespace/selectors become command text and execSync invokes a shell. The candidate cites that sink and cross-file caller source. Current1f3f72f source review: preserve the same kubectl_get match; the added kubectl_logs cronjob command finding is a separate source-grounded condition and remains unmatched here.",
+    "prior_assessment": "integration/kubernetes-development-shared/condition-adjudication.json",
+    "source_evidence": [
+      {
+        "path": "src/tools/helm-operations.ts",
+        "sha256": "958bd5ed85fd681cdb091ba081d03b95c66769ede343d2b22f8afc351edffd38"
+      },
+      {
+        "path": "src/tools/kubectl-apply.ts",
+        "sha256": "634b3b9fcf94759941b95957bca555c17f829b02cbc24dce540b539587fce455"
+      },
+      {
+        "path": "src/tools/kubectl-context.ts",
+        "sha256": "63672a4a87b1855c08d5bdd100e56d0c9d9dc23b5d02ab86f24bd8a1b6346aa5"
+      },
+      {
+        "path": "src/tools/kubectl-create.ts",
+        "sha256": "91dd3b4585c33a465c6595f7fc2065b201bdbecafa6b1e60eff4a7f3eb081052"
+      },
+      {
+        "path": "src/tools/kubectl-delete.ts",
+        "sha256": "682b8b036b34417265bcee29e0d090eff49746c8632b2f0872e1e060ab06ea12"
+      },
+      {
+        "path": "src/tools/kubectl-describe.ts",
+        "sha256": "a28d020df7ea001140f7b77f94a5d49b690136cb934628119a4a4009dd1c88ee"
+      },
+      {
+        "path": "src/tools/kubectl-generic.ts",
+        "sha256": "e21380fd69cf5dd1b461dbb345744435c9f0eb27dad72a4b9171ab178c2f04d5"
+      },
+      {
+        "path": "src/tools/kubectl-get.ts",
+        "sha256": "0f8c1e30395bfeb9bbce68a6f1505eb2b171857c83364a9c7252088c8162c14e"
+      },
+      {
+        "path": "src/tools/kubectl-logs.ts",
+        "sha256": "184244dd1e8c0bf5ea06903bfc2fdcd3f1a89d92ed3daa3f16740b85f21f417a"
+      },
+      {
+        "path": "src/tools/kubectl-operations.ts",
+        "sha256": "a1effcdc4c47f340213c4b84c71ef2c15d840255ac7cbdf17d74334be1356d39"
+      },
+      {
+        "path": "src/tools/kubectl-patch.ts",
+        "sha256": "2aae41b229d7077ce6c081f9e345fc732f8db45da722235b38d5095025f204fb"
+      },
+      {
+        "path": "src/tools/kubectl-rollout.ts",
+        "sha256": "28cc610bf0379f49b73cf630e7da34c6ad6c76b1a7939b6bacd49ba76774f8de"
+      },
+      {
+        "path": "src/tools/kubectl-scale.ts",
+        "sha256": "1de35ac2f980d744dc11fe3c1f9e81f81407c29401395845ae32828b1ba1addf"
+      },
+      {
+        "path": "src/utils/sse.ts",
+        "sha256": "b674b204b547d6d5a7ac27c4b530e7545756baf958583273665e401984f0242c"
+      },
+      {
+        "path": "tests/sse.test.ts",
+        "sha256": "0f38b135a3a9a45876331a9308ec4e1387a86bfdd0f2e5e2d07cdc8dc26095db"
+      }
+    ]
+  },
+  "report_sha256": "8382963ab8eb31a9e9eb9c07e4820382acfe7aee8ce6a2d9d8e49e88cb4b6579",
+  "original_assessment_sha256": "55e4782e605aedc508ddc119422d9939cc7c59086fdc20bee7a39383b231b050",
+  "source_review_only": true,
+  "old_gate_passed": false,
+  "native_rerun_authorized": true,
+  "score": {
+    "state": "completed",
+    "candidate_count": 25,
+    "duplicate_count": 0,
+    "condition_adjudicated": true,
+    "matched_keys": [
+      "b800a785ed841de18d45550a9ef28974a3313dcc26de3413e0dff6cc8d45b5f6"
+    ],
+    "unadjudicated_keys": [
+      "071da962962e0ff3adb28101db9aac7f991b39ebcfd5784bde67f56f7adb5214",
+      "218c02b615303db6fa819234f865e9c5a5c486110e3d634a15c167769d3257c1",
+      "24f139b08770a2a662a85a342521b9d8ebdd3c45c5307b3e296b4c54da5f7bfe",
+      "2c47b152e5fb81314afedeb24e06d06a4095f0f49867bc2c615afaa6a7551472",
+      "334e12769cfb6a4ee9aa2b2d15f27a45035a2a3823747b84974eb63e3fb0855c",
+      "35bf7494aad3bfe13f51c5a6c10e5bd6025ca6d13f16a447f0f50a66b324cb5b",
+      "39d18a2174d8354a376b82641e1655e0e4ee6304fec2546c9608a05d9702d118",
+      "4277b1cd100254d1161e72386404f3026d7456053f3dbab1cb2f59d04f6960b3",
+      "535178d9480941edf5622a395fa4ea3b535fcf37fd188784eae34d4b9d172622",
+      "5a82751ebd98333e4e75b985f1ad47b91dc2739c199a510b167cb010043e7571",
+      "5c66922c8c5cb9a46af397b3aa442807c6421fdbf7633f4b065ec42af2fda671",
+      "5dfbaf46420319f3376ce5a0a9e6491b18daedf7c06e4fc4dc441cdc0bc8813d",
+      "840befac09a91233e0e43e95031d5d6b0e30a9a9b1c196272475508369e3441b",
+      "8ea035f021b7520fa30cbda553233f1196e80c74a201f244b43c26eb5e837004",
+      "a0b737348916eefb88e595969209f1d9f4d02993ae1585c1eff7dad9af1836ac",
+      "be147899ebb35f4fcfd3a70fb74b4fe7c2879c7545ce5c25ef1141b2ad17732a",
+      "bf7257a16cb2649e50dd73e11bb5e8f521565f9734a252e36bd1190c0d3acf03",
+      "cd434f85e04f18fe08b25efade0e1ac32511ebe28c94cdc879b9cd0d2c28ee9e",
+      "e0468e3cb6a83b84593540f648b4ed9054feea7c931cadc52157f8c4fe7f8fa6",
+      "e283b652a6f0dc97f7c64a5ac45dcfafe9d11deb667443f2b4d123067758810c",
+      "ecebfc09ef2199d1c8c0f92a70e95c94d4e31eeacdd580fe49f4070a2560f998",
+      "f4e19ac2905448d5dba51dc62e7c4e8f053795c4c0d3cc471e365fa715e81b4e",
+      "f60442433f2d81126aabc9b333d21b2bd7e8424cf712d33dcdc119a011f9213c",
+      "fbbf3777812e6f3f522066bce2a0c66156ce8423272aa4d948d37d120bce85d0"
+    ],
+    "review_decisions_all_candidates": {},
+    "candidate_detected": true,
+    "retained_detected": true,
+    "confirmed_detected": false,
+    "completed_miss": false,
+    "false_alarm": null,
+    "abstentions": 0,
+    "incorrect_suppressions": 0,
+    "runtime_confirmations": 0
+  }
+}

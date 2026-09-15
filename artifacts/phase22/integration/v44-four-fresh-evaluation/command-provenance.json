@@ -1,0 +1,58 @@
+{
+  "qualification": "Commands and observed exit codes recorded after completion from this session; exact execution argv/cwd/environment/timing and output hashes are additionally in launch/execution/raw and authorization records. No invented per-command start timestamps.",
+  "commands": [
+    {
+      "helper": "v43-four-fresh-preparation/record-approval.py",
+      "exit_code": 0,
+      "scope": "source-only authorization/identity preflight"
+    },
+    {
+      "helper": "v43-four-fresh-preparation/launch.py",
+      "exit_code": 0,
+      "scope": "single approved24observation sequence; all budget closed"
+    },
+    {
+      "helper": "validate.py",
+      "exit_code": 0,
+      "scope": "retained report validation"
+    },
+    {
+      "helper": "inventory.py",
+      "exit_code": 1,
+      "scope": "source-only report-root lookup failed before output; preserved"
+    },
+    {
+      "helper": "inventory-corrected.py",
+      "exit_code": 0
+    },
+    {
+      "helper": "assess.py",
+      "exit_code": 0
+    },
+    {
+      "helper": "diagnose.py",
+      "exit_code": 1,
+      "scope": "strict source excerpt bound failed before output; preserved"
+    },
+    {
+      "helper": "diagnose-corrected.py",
+      "exit_code": 0
+    },
+    {
+      "helper": "reconcile.py",
+      "exit_code": 1,
+      "scope": "retained integration-relative reference lookup failed before writes; preserved"
+    },
+    {
+      "helper": "reconcile-corrected.py",
+      "exit_code": 0
+    }
+  ],
+  "failed_checks": [
+    "inventory-path-correction.json",
+    "diagnosis-range-correction.json",
+    "reconciliation-path-correction.json"
+  ],
+  "paid_calls": 0,
+  "additional_observations_after_closed_sequence": 0
+}

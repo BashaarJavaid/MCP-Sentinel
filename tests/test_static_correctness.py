@@ -16,7 +16,7 @@ import pytest
 
 from scripts.capture_gpt_reviews import historical_eval_findings
 from sentinel.config import LlmConfig, ReasoningEffort, load_configuration
-from sentinel.finding import FileLocation, FindingStatus
+from sentinel.finding import FileLocation, FindingStatus, StaticEvidence
 from sentinel.llm.cache import ReviewCache
 from sentinel.llm.semantic_reviewer import SemanticReviewer
 from sentinel.llm.tools import extract_tool_catalog
@@ -26,6 +26,26 @@ from tests.conftest import NOW, make_target
 
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = ("python", "typescript")
+
+
+def test_prompt_analysis_completes_branch_heavy_non_sink_functions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("sentinel.static.engine.STATIC_TIMEOUT_SECONDS", 1)
+    branches = "".join(f"    if flags[{i}]:\n        value = {i}\n" for i in range(30))
+    result = _scan(
+        tmp_path,
+        "python",
+        "SENT-004",
+        "def bookkeeping(flags):\n" + branches + "    return value\n\n"
+        "def actual_sink(tool, client):\n"
+        "    content = tool.description\n"
+        "    return client.responses.create(input=content)\n",
+    )
+    assert len(result.findings) == 1
+    assert isinstance(result.findings[0].evidence, StaticEvidence)
+    assert "responses.create" in result.findings[0].evidence.snippet
+
 
 # Locally generated public test vectors signing b"{}"; no private keys retained.
 SIGNATURE_VECTORS = {
@@ -1138,7 +1158,7 @@ def test_helper_sink_alias_and_call_site_dedup(tmp_path: Path, language: str) ->
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
-def test_helper_context_limit_is_explicit(tmp_path: Path, language: str) -> None:
+def test_distant_helper_context_is_supplied(tmp_path: Path, language: str) -> None:
     helper = (
         "def execute(raw):\n    return eval(raw)\n"
         if language == "python"
@@ -1157,7 +1177,21 @@ def test_helper_context_limit_is_explicit(tmp_path: Path, language: str) -> None
         _tool(language, "return forward(value)", helper),
     )
     assert len(result.findings) == 1
-    assert any(w.code == "static_review_context_incomplete" for w in result.warnings)
+    from sentinel.llm.context import build_finding_context
+
+    finding = result.findings[0]
+    assert isinstance(finding.evidence, StaticEvidence)
+    assert finding.evidence.flow_locations
+    context = build_finding_context(tmp_path / "target", finding)
+    assert all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in finding.evidence.flow_locations
+    )
+    assert sum(b.end_line - b.start_line + 1 for b in context.blocks) <= 160
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
+    )
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
@@ -1233,7 +1267,7 @@ def test_execution_traversal_obeys_scan_deadline() -> None:
     from sentinel.static.execution import Summary, emit
     from sentinel.static.model import RuleRunState
 
-    with pytest.raises(InfrastructureError, match="120-second timeout"):
+    with pytest.raises(InfrastructureError, match="deadline"):
         emit(Summary(("value",)), {}, RuleRunState(), deadline=0)
 
 
@@ -1253,9 +1287,7 @@ def test_typescript_distinguishes_helper_calls_on_one_line(tmp_path: Path) -> No
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
-def test_return_flow_outside_review_context_warns(
-    tmp_path: Path, language: str
-) -> None:
+def test_distant_return_flow_context_is_supplied(tmp_path: Path, language: str) -> None:
     helper = (
         "def identity(raw):\n    return raw\n"
         if language == "python"
@@ -1274,7 +1306,21 @@ def test_return_flow_outside_review_context_warns(
         _tool(language, "return eval(forward(value))", helper),
     )
     assert len(result.findings) == 1
-    assert any(w.code == "static_review_context_incomplete" for w in result.warnings)
+    from sentinel.llm.context import build_finding_context
+
+    finding = result.findings[0]
+    assert isinstance(finding.evidence, StaticEvidence)
+    assert finding.evidence.flow_locations
+    context = build_finding_context(tmp_path / "target", finding)
+    assert all(
+        context.contains(item.path, item.range.start_line, item.range.end_line)
+        for item in finding.evidence.flow_locations
+    )
+    assert sum(b.end_line - b.start_line + 1 for b in context.blocks) <= 160
+    assert not context.omitted_flow_locations
+    assert not any(
+        w.code == "static_review_context_incomplete" for w in result.warnings
+    )
 
 
 @pytest.mark.parametrize("language", LANGUAGES)
@@ -1360,7 +1406,7 @@ def test_direct_sink_in_unsupported_control_flow_stays_visible(
     assert any(w.code == "static_flow_unresolved" for w in result.warnings)
 
 
-def test_typescript_direct_member_sink_keeps_historical_location(
+def test_typescript_direct_member_sink_keeps_source_snippet(
     tmp_path: Path,
 ) -> None:
     result = _scan(
@@ -1378,7 +1424,11 @@ def test_typescript_direct_member_sink_keeps_historical_location(
     expected = "runInContext(value);"
     assert finding.evidence.model_dump()["snippet"] == expected
     assert isinstance(finding.location, FileLocation)
-    assert finding.location.range.end_column == len(expected) + 1
+    source = (tmp_path / "target" / finding.location.path).read_text(encoding="utf-8")
+    location = finding.location.range
+    line = source.splitlines()[location.start_line - 1]
+    assert line[location.start_column - 1 : location.end_column - 1] == expected
+    assert location.start_line == location.end_line
 
 
 @pytest.mark.parametrize("language", LANGUAGES)

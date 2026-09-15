@@ -1,0 +1,105 @@
+{
+  "recorded_at": "2026-09-10T20:50:57.843968+00:00",
+  "scanner": {
+    "revision": "127763c09ea23ca2f1c5bbc4871f364cab4a1411",
+    "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "assessment_sha256": "3846a4f8bf5dff142f41ff73bdebba287a323ee74ce55fc38b13d2e5fb7bd5bb",
+  "reviewed_scanner_files_sha256": {
+    "src/sentinel/static/path_flow.py": "322aa43e4af1fbdc3ab30e2c1ff81037e146f0347c87f522e855153755a2524c",
+    "src/sentinel/static/execution.py": "5adfcd8ec9e228d8ad5c4f9c011a12110181f6b2a8392c3465c97110df6102d6",
+    "src/sentinel/static/discovery.py": "b2991b0b8c92f0c80e54405337ace271604f0e77801be3ecbbb6c53b79b62082",
+    "src/sentinel/static/workers.py": "99a68483d278658b14250e334b69c1cabc3b29ea0c9c2028253db395b8dba9c9",
+    "src/sentinel/static/rules/sent012.py": "d161f035b6460f76b0934d48d4826daabaa0e6d6be9277f6b286c9702786efee",
+    "src/sentinel/static/rules/sent015.py": "ec3f68cb930f948f660613de379f359be4ce2c09e2b1bddc7a35554792b9e4dc",
+    "src/sentinel/static/rules/sent016.py": "4a1f81c6f92aae2d0b5de1b78066646e91ba954335991272922fd6ec7f3c6a20"
+  },
+  "quantitative_observations": [
+    {
+      "rule": "SENT-012",
+      "samples": 4220,
+      "base_expression_leaf_fraction": 0.11658767772511848,
+      "base_expression_entry_line_fraction": 0.09028436018957346,
+      "entry_line_fraction_of_expression_leaf_samples": 0.774390243902439,
+      "base_merge_inclusive_fraction": 0.2481042654028436
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 5093,
+      "base_expression_leaf_fraction": 0.15923817003730611,
+      "base_expression_entry_line_fraction": 0.14588651089731003,
+      "entry_line_fraction_of_expression_leaf_samples": 0.9161528976572133,
+      "base_merge_inclusive_fraction": 0.19183192617317887
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 4903,
+      "base_expression_leaf_fraction": 0.14276973281664287,
+      "base_expression_entry_line_fraction": 0.1293085865796451,
+      "entry_line_fraction_of_expression_leaf_samples": 0.9057142857142857,
+      "base_merge_inclusive_fraction": 0.22578013461146237
+    }
+  ],
+  "source_review": [
+    {
+      "operation": "Shared recursive expression/helper traversal",
+      "locations": [
+        "path_flow.py:1520",
+        "path_flow.py:1927",
+        "path_flow.py:556",
+        "path_flow.py:640"
+      ],
+      "finding": "The inclusive expression/helper stacks account for about90% of each active worker, but overlap almost entirely. This is the existing interpreter, not a newly isolated removable operation. Base expression leaf shares are11.66%,15.92%,14.28%; most of those samples are at the definition line. That entry-line concentration limits actionable line-level attribution; it does not establish that dispatch or the immediately following deadline call alone consumes the entire share.",
+      "semantic_constraints": "Expression evaluation mutates environments, globals, callable/closure/member identities and branch facts; rule overrides retain URL/credential evaluated state. Prior helper-context diagnostics found no safely reusable complete result. No helper-result cache or skipped traversal is justified."
+    },
+    {
+      "operation": "Branch/environment merging",
+      "locations": [
+        "path_flow.py:1243",
+        "path_flow.py:609",
+        "path_flow.py:791",
+        "path_flow.py:832",
+        "path_flow.py:834",
+        "path_flow.py:877",
+        "path_flow.py:884",
+        "path_flow.py:895",
+        "path_flow.py:1798",
+        "sent015.py:149",
+        "sent016.py:159"
+      ],
+      "finding": "Shared merge has24.81%,19.18%,22.58% inclusive sample shares, including combination and guard normalization. Retained v15 counters recorded19.01million multi-branch key visits with about85% already taking direct reuse. Those counts are not time percentages; the new sample shares are not wholly removable cost.",
+      "semantic_constraints": "Every union key can require member defaults, missing/None treatment, instance combination, path normalization or removal of untainted guard exemptions. Branch equality/direct reuse already exist. A delta environment would change mutation/alias/default/order semantics across callers and needs a separately specified design; the samples do not prove a safe skip condition."
+    },
+    {
+      "operation": "Rule-local checks and deadline enforcement",
+      "locations": [
+        "sent015.py:73",
+        "sent015.py:307",
+        "sent016.py:93",
+        "sent016.py:251",
+        "discovery.py:124",
+        "execution.py:29"
+      ],
+      "finding": "URL classification/lexical resolution and credential conditioning contribute rule-local work. The largest rule-local leaf is credential conditioning8.40% in SENT-016; URL fixed-destination4.59% and lexical resolve4.83% in SENT-015. None explains all three slow workers. Lexical resolution and credential guard facts already have scoped caches.",
+      "semantic_constraints": "Credential conditioning reads current branch markers; URL classification participates in actual guard decisions. Deadline checks enforce the unchanged120-second contract. No deadline reduction/removal, broad cache, blind cache growth or unrelated classifier tweak is proposed."
+    }
+  ],
+  "sampling_limitations": {
+    "delivered_rate": "Requested100Hz; active workers delivered85.06\u201387.38 samples per sampled CPU second. SENT-014 delivered90.45Hz but only107samples and1.183CPU seconds. Counts are statistical, not an exact CPU partition.",
+    "accounting": "All four final snapshots restored the previous signal handler/timer; no recorded truncated, empty or reentrant-lost stacks. Snapshot-thread CPU, sampler overhead, native-code/GIL/signal delays and main-frame attribution remain. Inclusive callers overlap and are not summed.",
+    "no_speedup_claim": "69.906seconds native and71.578seconds outer are one sampled observation on macOS. Prior instrumented/native observations had different overhead/load. The lower wall time is not evidence of a retained optimization or a Linux timing pass."
+  },
+  "disposition": "Approved diagnostic complete; no evidence-backed larger safe optimization identified. No product/test changes, no next experiment dispatched and no remaining profile budget. Preserve failed candidates and retain the timing gate. Do not automatically enter another speculative micro-optimization/profile loop.",
+  "next_checkpoint": {
+    "default": "Retain the existing timing gate. Any further experiment needs a source-grounded strategy, exact bounded proposal and separate approval. A broader shared-flow redesign would first need a correctness-preserving design; no implementation or measurement of that redesign is authorized by this sampling approval.",
+    "alternative_requiring_explicit_user_decision": "A timing-scope revision could defer the full25+45+45 completion requirement while prominently retaining the15/25 Linux result and ten Meta timeouts. Such a revision would not establish execution reliability; fresh evaluation, all other gates and final human acceptance would still be required. No revision is applied or accepted here.",
+    "unchanged_failed_gate": "Retained Linux34435283462 at7555a9d:15/25 development complete, all ten Meta inputs time out and both45-input historical batches are skipped. Timing/fresh evaluation/final human acceptance remain unmet. No gate or runner/deadline waiver.",
+    "full_retry_approved": false,
+    "fresh_freeze_evaluation_approved": false,
+    "final_technical_acceptance_requested": false
+  },
+  "scope_stopped": true,
+  "new_paid_calls": 0,
+  "phase22_complete": false
+}

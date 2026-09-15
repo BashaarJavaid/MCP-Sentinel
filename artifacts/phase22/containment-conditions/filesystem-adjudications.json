@@ -1,0 +1,383 @@
+{
+  "scope": "Four exposed filesystem-prefix inputs only; source review by implementation agent, not independent human acceptance",
+  "scanner": {
+    "harness_sha256": "1d61153aac2ee1c7932bc0129c4fd94f19fc0b9e19653bf1b0f2eb5a9faf172e",
+    "revision": "276722a274acffd5de95d5f019b886a759ec2d42",
+    "source_sha256": "2e8bc633d3a9c382c09506e18841d859f0d7fcbd5d08769a121fb2ff1298821c"
+  },
+  "assessments": [
+    {
+      "input_id": "filesystem-prefix-vulnerable",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "candidate_identity": "a9d870f5825e54642375e3af4d5e5251d0928af52b3a33fa40bb4367713c5716",
+      "matches": [
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f",
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3"
+      ],
+      "rationale": "Caller path reaches filesystem sinks after bare prefix checks in the path helper; a readable same-prefix sibling satisfies those checks. The mutation only renames that helper.",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "start_line": 1,
+          "end_line": 853,
+          "sha256": "42f6394698ff225c4cc97587a2d0d9942e6f1b53a2af2b8c9ff307bfb5b80036",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        }
+      ]
+    },
+    {
+      "input_id": "filesystem-prefix-vulnerable-mutation",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "candidate_identity": "a9d870f5825e54642375e3af4d5e5251d0928af52b3a33fa40bb4367713c5716",
+      "matches": [
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f",
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3"
+      ],
+      "rationale": "Caller path reaches filesystem sinks after bare prefix checks in the path helper; a readable same-prefix sibling satisfies those checks. The mutation only renames that helper.",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "start_line": 1,
+          "end_line": 853,
+          "sha256": "88c452aa5ca21b404226b4675f722e5cd8e67dee3fbe707794fa219de7cb18c8",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        }
+      ]
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "candidate_identity": "ec4cc4e263c72c9ffb918567451215ef4e95cf4ce198f7a62210365b206217cf",
+      "matches": [],
+      "rationale": "The caller path is resolved and checked by the enforced component-aware helper, including real-path and parent handling. Remaining candidates concern appended temporary-file suffixes after successful validation, not acceptance of the specified same-prefix sibling input.",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "start_line": 1,
+          "end_line": 904,
+          "sha256": "bf476e9b722dd9c09e430024bf5853b15e0b7c0357a25b947d6a9a165819d2ba",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        },
+        {
+          "path": "src/filesystem/path-validation.ts",
+          "start_line": 1,
+          "end_line": 77,
+          "sha256": "90e62491f1e9c3fca09d16647eb98b950eac67b061ed8dbcc9102c7dc9573898",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        }
+      ]
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "treatment": "rules",
+      "condition": "A configured directory /workspace/allowed does not authorize sibling /workspace/allowed-other via string-prefix collision",
+      "candidate_identity": "ec4cc4e263c72c9ffb918567451215ef4e95cf4ce198f7a62210365b206217cf",
+      "matches": [],
+      "rationale": "The caller path is resolved and checked by the enforced component-aware helper, including real-path and parent handling. Remaining candidates concern appended temporary-file suffixes after successful validation, not acceptance of the specified same-prefix sibling input.",
+      "source_evidence": [
+        {
+          "path": "src/filesystem/index.ts",
+          "start_line": 1,
+          "end_line": 904,
+          "sha256": "89d1bacb7f29509bf035dfa597ee8dc10d78fd7bcb8363b09ea52f39b297bcba",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        },
+        {
+          "path": "src/filesystem/path-validation.ts",
+          "start_line": 1,
+          "end_line": 77,
+          "sha256": "90e62491f1e9c3fca09d16647eb98b950eac67b061ed8dbcc9102c7dc9573898",
+          "role": "Read the named condition's input, enforcement, and sink in context; file overlap alone is never a hit."
+        }
+      ]
+    }
+  ],
+  "scores": [
+    {
+      "input_id": "filesystem-prefix-vulnerable",
+      "state": "completed",
+      "candidate_count": 12,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3",
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f"
+      ],
+      "unadjudicated_keys": [],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": true,
+      "retained_detected": true,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": null,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "filesystem-prefix-vulnerable-mutation",
+      "state": "completed",
+      "candidate_count": 12,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [
+        "183cd690f29465cadf1947aff3cd44ad290f4e79fb3ee81fa27f5d4cc978179d",
+        "44906b7f6d993e76856800f12587409a0c28e02423a9df32c6d82427cb068002",
+        "4bfc7ed50d1c62aedf3eb85b4738fae02c1e1e3b22b8a4999425ce2c532e2699",
+        "5fcb0111de83118d9dc95e5a4f54132eb68b2f8b8754a4b38b4a9790e9c21bb5",
+        "6c993e7efab5ff8679863e8381569985f94dbdcae7799ccc347e483bbfc323fd",
+        "72a95f877e90c0ec30b2932bbab3842f14658dc9a0b3b828462e6a87a1714e60",
+        "77a044c4316dae0d67b8644901696a418c508ffe6da39a961bf37c968ce85d1d",
+        "7ca9a0821bb9b6e2183c9e5d2bd9aadc8d00f32e3aeb555aea63adb5e6af92b3",
+        "a1f9729d25f0562af291ea4ae97894f6a946da18e6be463b1d78d3a6ea77a4a6",
+        "a472e3518525a24d0d2b8b662630f0934b8733e58c603115b8a0f5bff01d192c",
+        "a4ccee6c4a8a7ecadf27be0f507004694784e2fd4f0ad2fbd4f5a15b724e8fda",
+        "f0df4ae2458e60b53b391f4bf6df41f150f2026ee3c500db6a5055339828ee4f"
+      ],
+      "unadjudicated_keys": [],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": true,
+      "retained_detected": true,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": null,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "state": "completed",
+      "candidate_count": 4,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [],
+      "unadjudicated_keys": [
+        "5745e68b16daab686dff2bcc353b909e46c12252f7813ef7e802d41cebd372e9",
+        "5a3c8421a8efbe368c94a59c081d197eb44f833e8572ef2f944e6c6c544190db",
+        "7a2249eebd8dbabdd851efe7f48313f107c3038314f2cd3ca6753024f2f60af6",
+        "b1e4b73ae2402793f25a4661813f63929ace894dca4c5f8626e91c113853e58d"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": false,
+      "retained_detected": false,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": false,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "state": "completed",
+      "candidate_count": 4,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [],
+      "unadjudicated_keys": [
+        "5745e68b16daab686dff2bcc353b909e46c12252f7813ef7e802d41cebd372e9",
+        "5a3c8421a8efbe368c94a59c081d197eb44f833e8572ef2f944e6c6c544190db",
+        "7a2249eebd8dbabdd851efe7f48313f107c3038314f2cd3ca6753024f2f60af6",
+        "b1e4b73ae2402793f25a4661813f63929ace894dca4c5f8626e91c113853e58d"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": false,
+      "retained_detected": false,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": false,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    }
+  ],
+  "reviewed_unrelated": [
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "dedup_key": "5745e68b16daab686dff2bcc353b909e46c12252f7813ef7e802d41cebd372e9",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 61,
+          "end_line": 354,
+          "start_column": 13,
+          "start_line": 354
+        }
+      },
+      "condition_match": false,
+      "assessment": "abstention: platform-dependent reachability of temporary-path operation",
+      "rationale": "The edit helper reads the requested file before appending a temporary suffix. Directory-read behavior is platform-specific, so a root-directory input does not establish this path on every supported host. Retain the candidate with this limitation; it is not a hit for the frozen sibling-input condition.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "dedup_key": "b1e4b73ae2402793f25a4661813f63929ace894dca4c5f8626e91c113853e58d",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 34,
+          "end_line": 358,
+          "start_column": 15,
+          "start_line": 358
+        }
+      },
+      "condition_match": false,
+      "assessment": "abstention: platform-dependent reachability of temporary-path operation",
+      "rationale": "The edit helper reads the requested file before appending a temporary suffix. Directory-read behavior is platform-specific, so a root-directory input does not establish this path on every supported host. Retain the candidate with this limitation; it is not a hit for the frozen sibling-input condition.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "dedup_key": "5a3c8421a8efbe368c94a59c081d197eb44f833e8572ef2f944e6c6c544190db",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 73,
+          "end_line": 667,
+          "start_column": 21,
+          "start_line": 667
+        }
+      },
+      "condition_match": false,
+      "assessment": "source-supported separate temporary-path candidate",
+      "rationale": "The exclusive-create EEXIST branch appends a random suffix to a validated path. An allowed root supplied as the path can enter this branch and form a sibling temporary name. The source supports a separate possible out-of-root write/cleanup condition; no runtime proof is claimed.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed",
+      "dedup_key": "7a2249eebd8dbabdd851efe7f48313f107c3038314f2cd3ca6753024f2f60af6",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 42,
+          "end_line": 671,
+          "start_column": 23,
+          "start_line": 671
+        }
+      },
+      "condition_match": false,
+      "assessment": "source-supported separate temporary-path candidate",
+      "rationale": "The exclusive-create EEXIST branch appends a random suffix to a validated path. An allowed root supplied as the path can enter this branch and form a sibling temporary name. The source supports a separate possible out-of-root write/cleanup condition; no runtime proof is claimed.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "dedup_key": "5745e68b16daab686dff2bcc353b909e46c12252f7813ef7e802d41cebd372e9",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 61,
+          "end_line": 354,
+          "start_column": 13,
+          "start_line": 354
+        }
+      },
+      "condition_match": false,
+      "assessment": "abstention: platform-dependent reachability of temporary-path operation",
+      "rationale": "The edit helper reads the requested file before appending a temporary suffix. Directory-read behavior is platform-specific, so a root-directory input does not establish this path on every supported host. Retain the candidate with this limitation; it is not a hit for the frozen sibling-input condition.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "dedup_key": "b1e4b73ae2402793f25a4661813f63929ace894dca4c5f8626e91c113853e58d",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 34,
+          "end_line": 358,
+          "start_column": 15,
+          "start_line": 358
+        }
+      },
+      "condition_match": false,
+      "assessment": "abstention: platform-dependent reachability of temporary-path operation",
+      "rationale": "The edit helper reads the requested file before appending a temporary suffix. Directory-read behavior is platform-specific, so a root-directory input does not establish this path on every supported host. Retain the candidate with this limitation; it is not a hit for the frozen sibling-input condition.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "dedup_key": "5a3c8421a8efbe368c94a59c081d197eb44f833e8572ef2f944e6c6c544190db",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 73,
+          "end_line": 667,
+          "start_column": 21,
+          "start_line": 667
+        }
+      },
+      "condition_match": false,
+      "assessment": "source-supported separate temporary-path candidate",
+      "rationale": "The exclusive-create EEXIST branch appends a random suffix to a validated path. An allowed root supplied as the path can enter this branch and form a sibling temporary name. The source supports a separate possible out-of-root write/cleanup condition; no runtime proof is claimed.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    },
+    {
+      "input_id": "filesystem-prefix-fixed-mutation",
+      "dedup_key": "7a2249eebd8dbabdd851efe7f48313f107c3038314f2cd3ca6753024f2f60af6",
+      "location": {
+        "kind": "file",
+        "path": "index.ts",
+        "range": {
+          "end_column": 42,
+          "end_line": 671,
+          "start_column": 23,
+          "start_line": 671
+        }
+      },
+      "condition_match": false,
+      "assessment": "source-supported separate temporary-path candidate",
+      "rationale": "The exclusive-create EEXIST branch appends a random suffix to a validated path. An allowed root supplied as the path can enter this branch and form a sibling temporary name. The source supports a separate possible out-of-root write/cleanup condition; no runtime proof is claimed.",
+      "reference": "https://nodejs.org/api/fs.html",
+      "runtime_proof": false
+    }
+  ],
+  "historical_backlog": "Unchanged findings outside this measured family remain unadjudicated."
+}

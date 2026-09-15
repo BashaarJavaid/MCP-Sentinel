@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-09-11T02:50:54.002756+00:00",
+  "selection": "First newly reviewed independent server repository with a relevant upstream fixed SSRF advisory from the post-freeze search. Exposed Fetch-MCP, Meta, SearXNG, OpenWebSearch and Atlassian excluded as already exposed. No scanner outcome or predictor was used.",
+  "source_searches": [
+    "site.github.com/advisories MCP SSRF fixed server",
+    "site:github.com/security/advisories MCP SSRF URL fetch"
+  ],
+  "first_reviewed_advisory": "https://github.com/ymw0407/auth-fetch-mcp/security/advisories/GHSA-pvrj-8cg3-j5f8",
+  "pre_curation_freeze": "artifacts/phase22/integration/v21-scanner-freeze-before-curation.json",
+  "commands": [
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/ymw0407/auth-fetch-mcp/security-advisories/GHSA-pvrj-8cg3-j5f8"
+      ],
+      "exit_code": 0,
+      "record": "advisory-upstream.json"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/ymw0407/auth-fetch-mcp/commits?path=src/security.ts&per_page=100"
+      ],
+      "exit_code": 0,
+      "record": "security-history.json"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/ymw0407/auth-fetch-mcp/tags?per_page=100"
+      ],
+      "exit_code": 0,
+      "record": "tags.json"
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/ymw0407/auth-fetch-mcp"
+      ],
+      "exit_code": 0,
+      "record": "repository.json"
+    }
+  ],
+  "new_scanner_runs": 0,
+  "new_comparator_runs": 0,
+  "new_paid_calls": 0,
+  "target_execution": false
+}

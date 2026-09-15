@@ -1,0 +1,31 @@
+{
+  "id": "meta-operator-fallback",
+  "rule": "SENT-016",
+  "repository": "pipeboard-co/meta-ads-mcp",
+  "split": "development",
+  "language": "python",
+  "before": "9cbd8aa4c5235a5ae2f01c60eaf464c0b60ccf6a",
+  "after": "14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+  "root": ".",
+  "files": [
+    "meta_ads_mcp/core/http_auth_integration.py",
+    "meta_ads_mcp/core/auth.py",
+    "meta_ads_mcp/core/api.py",
+    "meta_ads_mcp/core/accounts.py"
+  ],
+  "condition": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+  "prerequisites": [
+    "Streamable HTTP deployment reachable by an untrusted caller; META_ACCESS_TOKEN configured; neither caller bearer nor Pipeboard token supplied.",
+    "The condition excludes invalid-but-present credentials, deployment proxies, and separate URL-secret-redaction behavior."
+  ],
+  "safe": "A valid per-request caller token may authenticate that caller's request to Meta; relevant caller-token use is not operator fallback",
+  "review": "The vulnerable middleware warns and forwards when both caller tokens are absent; token resolution can then use META_ACCESS_TOKEN. The fixed middleware returns 401 before forwarding in that same absence condition. URL redaction is an additional change and cannot stand in for this enforcement.",
+  "provenance": [
+    "meta-auth-advisory.json",
+    "meta-auth-fixed-commit.json"
+  ],
+  "rename": {
+    "env_token": "phase22OperatorToken"
+  },
+  "safe_prerequisites": "HTTP request includes a valid caller-owned Meta access token, which is injected into this request's context and takes priority over the operator environment."
+}

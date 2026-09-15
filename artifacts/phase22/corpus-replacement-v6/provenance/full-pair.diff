@@ -1,0 +1,1031 @@
+--- vulnerable/Dockerfile
++++ fixed/Dockerfile
+@@ -11,10 +11,12 @@
+     && apt-get install -y --no-install-recommends ca-certificates \
+     && rm -rf /var/lib/apt/lists/*
+ 
++COPY requirements-lock.txt ./
++RUN pip install --no-cache-dir -r requirements-lock.txt
++
+ COPY pyproject.toml README.md LICENSE ./
+ COPY src ./src
+-
+-RUN pip install --no-cache-dir .
++RUN pip install --no-cache-dir --no-deps .
+ 
+ RUN useradd --uid 10001 --create-home --shell /usr/sbin/nologin mcp \
+     && mkdir -p /data/cache \
+@@ -22,4 +24,7 @@
+ 
+ USER 10001:10001
+ 
+-ENTRYPOINT ["python", "-m", "mcp_ddg_research.server"]
++HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
++    CMD python -c "import socket,sys; s=socket.socket(); s.settimeout(4); s.connect(('127.0.0.1', int(__import__('os').getenv('MCP_PORT','8000'))))" || exit 1
++
++ENTRYPOINT ["python", "-m", "mcp_ddg_research.server"]--- vulnerable/README.md
++++ fixed/README.md
+@@ -505,17 +505,19 @@
+ DDGS_BACKEND: duckduckgo
+ ```
+ 
+-The checked-in compose token is the placeholder `change-me-now`. It is
+-acceptable for local smoke tests only. Replace `MCP_AUTH_TOKEN` in
+-`docker-compose.yml` before using LAN, VPN, reverse-proxy, or Cloudflare Tunnel
+-deployments.
++The compose file requires a real `MCP_AUTH_TOKEN` (it uses `${MCP_AUTH_TOKEN:?}`
++and the server refuses to start with the known placeholder `change-me-now`).
++Generate one with `openssl rand -hex 32` before starting the stack. The bind
++mount used for `/data` must be writable by the container uid 10001:
++`sudo chown -R 10001:10001 ~/docker/docker-data/mcp-ddg-research`.
+ 
+ The server defaults `MCP_ALLOWED_HOSTS=*` and `MCP_ALLOWED_ORIGINS=*` so the
+ same container can run behind a LAN IP, hostname, domain, reverse proxy, or
+ HTTPS endpoint. The compose file documents these optional variables as commented
+-examples. In MCP SDK `1.27.2`, wildcard Host/Origin validation is not supported
+-by the DNS rebinding middleware, so wildcard mode disables the SDK Host/Origin
+-allowlist and relies on the bearer token. To enable strict Host/Origin checks,
++examples. The MCP SDK Host/Origin allowlist does not support bare wildcards,
++so wildcard mode disables the SDK rebinding checks and relies on the bearer
++token. Prefer exact comma-separated values and keep the default loopback-only
++port mapping. To enable strict Host/Origin checks,
+ uncomment the variables in `docker-compose.yml` and set exact comma-separated
+ values such as:
+ 
+@@ -705,9 +707,9 @@
+ | `MCP_TRANSPORT` | `stdio` | MCP transport. `stdio` is the default. `http` uses streamable HTTP when supported by the installed SDK. |
+ | `MCP_HOST` | `0.0.0.0` | Host used for optional streamable HTTP mode. |
+ | `MCP_PORT` | `8000` | Port used for optional streamable HTTP mode. |
+-| `MCP_AUTH_TOKEN` | unset | Bearer token for HTTP mode. The included compose file sets this to `change-me-now`; replace it before real deployments. If unset, HTTP mode logs a warning and runs without auth. |
+-| `MCP_ALLOWED_HOSTS` | `*` | Comma-separated Host allowlist for HTTP mode. `*` supports arbitrary deployment hosts by disabling SDK Host/Origin rebinding checks. |
+-| `MCP_ALLOWED_ORIGINS` | `*` | Comma-separated Origin allowlist for HTTP mode. `*` supports arbitrary origins by disabling SDK Host/Origin rebinding checks. |
++| `MCP_AUTH_TOKEN` | unset | Bearer token for HTTP mode. HTTP mode refuses to start without it (unless `MCP_ALLOW_UNAUTHENTICATED_HTTP=1`) and rejects known placeholder values. |
++| `MCP_ALLOWED_HOSTS` | `*` | Comma-separated Host allowlist for HTTP mode. `*` supports arbitrary deployment hosts by disabling SDK Host/Origin rebinding checks; prefer exact values. |
++| `MCP_ALLOWED_ORIGINS` | `*` | Comma-separated Origin allowlist for HTTP mode. `*` supports arbitrary origins by disabling SDK Host/Origin rebinding checks; prefer exact values. |
+ | `CACHE_PRUNE_ON_START` | `true` | Run cache pruning once when the MCP server starts. |
+ | `CACHE_PRUNE_INTERVAL_SECONDS` | `3600` | Minimum interval between opportunistic runtime prune attempts triggered by cache access/write. |
+ | `CACHE_MAX_AGE_SECONDS` | unset | Optional maximum cache file age in seconds. If unset, invalid, or `0`, max-age pruning is disabled. The compose file sets `604800` (7 days). |
+--- vulnerable/docker-compose.yml
++++ fixed/docker-compose.yml
+@@ -5,8 +5,13 @@
+     container_name: mcp-ddg-research
+     restart: unless-stopped
+     ports:
+-      - "49317:8000"
++      # Loopback only by default; the MCP_AUTH_TOKEN below gates the service.
++      - "127.0.0.1:49317:8000"
+     volumes:
++      # The container runs as uid 10001:10001. On first run, make the bind
++      # mount writable by that uid:
++      #   mkdir -p ~/docker/docker-data/mcp-ddg-research
++      #   sudo chown -R 10001:10001 ~/docker/docker-data/mcp-ddg-research
+       - ~/docker/docker-data/mcp-ddg-research:/data
+     environment:
+       # Required for Docker/LAN HTTP mode. The image defaults to stdio, so
+@@ -19,9 +24,10 @@
+       SEARCH_PROVIDER: duckduckgo_html
+       DDGS_BACKEND: duckduckgo
+ 
+-      # Required for HTTP mode in this compose file. Replace before exposing
+-      # the service outside a trusted local network.
+-      MCP_AUTH_TOKEN: change-me-now
++      # Required. The server refuses to start without a real random token and
++      # rejects known placeholders at boot, so provide your own:
++      #   MCP_AUTH_TOKEN=$(openssl rand -hex 32) docker compose up -d
++      MCP_AUTH_TOKEN: ${MCP_AUTH_TOKEN:?set MCP_AUTH_TOKEN to a strong random token}
+ 
+       # Cache pruning defaults for long-running deployments.
+       CACHE_PRUNE_ON_START: "true"
+--- vulnerable/pyproject.toml
++++ fixed/pyproject.toml
+@@ -13,11 +13,11 @@
+   { name = "mcp-ddg-research contributors" }
+ ]
+ dependencies = [
+-  "beautifulsoup4",
+-  "ddgs",
+-  "httpx",
+-  "mcp[cli]",
+-  "pydantic",
++  "beautifulsoup4>=4.12",
++  "ddgs>=9.0",
++  "httpx>=0.27",
++  "mcp>=1.27.2,<2",
++  "pydantic>=2.7",
+ ]
+ 
+ [project.optional-dependencies]
+--- vulnerable/requirements-lock.txt
++++ fixed/requirements-lock.txt
+@@ -0,0 +1,47 @@
++annotated-doc==0.0.5
++annotated-types==0.8.0
++anyio==4.15.1
++attrs==26.1.0
++beautifulsoup4==4.15.0
++certifi==2026.7.22
++cffi==2.1.1
++click==8.5.0
++cryptography==50.0.1
++ddgs==9.16.0
++h11==0.16.0
++httpcore==1.0.9
++httpcore2==2.12.0
++httpx==0.28.1
++httpx-sse==0.4.3
++httpx2==2.12.0
++idna==3.19
++jsonschema==4.26.0
++jsonschema-specifications==2025.9.1
++lxml==6.1.3
++markdown-it-py==4.2.0
++mcp==1.30.0
++mcp-types==2.2.0
++mdurl==0.1.2
++opentelemetry-api==1.44.0
++primp==2.0.0
++pycparser==3.0
++pydantic==2.13.5
++pydantic-settings==2.15.0
++pydantic_core==2.46.5
++PyJWT==2.14.0
++pytest==9.1.1
++python-dotenv==1.2.3
++python-multipart==0.0.32
++referencing==0.37.0
++rich==15.0.0
++rpds-py==2026.6.3
++ruff==0.16.7
++shellingham==1.5.4
++soupsieve==2.9.2
++sse-starlette==3.4.11
++starlette==1.6.0
++truststore==0.10.4
++typer==0.27.2
++typing-inspection==0.4.4
++typing_extensions==4.16.0
++uvicorn==0.52.4
+--- vulnerable/src/mcp_ddg_research/cache.py
++++ fixed/src/mcp_ddg_research/cache.py
+@@ -447,12 +447,35 @@
+         self.namespace = namespace
+         self.ttl_seconds = ttl_seconds
+         self.cache_dir = self.root_dir / namespace
+-        self.cache_dir.mkdir(parents=True, exist_ok=True)
++        self.disabled_reason: str | None = None
++        try:
++            if self.cache_dir.is_symlink():
++                raise OSError(
++                    f"cache namespace {str(self.cache_dir)!r} must not be a symlink"
++                )
++            self.cache_dir.mkdir(parents=True, exist_ok=True)
++        except OSError as exc:
++            # A cache that cannot be created must never take down the tools:
++            # degrade to a no-op cache with a single logged warning.
++            self.disabled_reason = str(exc)
++            LOGGER.warning("Cache namespace %r is disabled: %s", namespace, exc)
+ 
+     def path_for(self, payload: Any) -> Path:
+         return self.cache_dir / f"{stable_cache_key(payload)}.json"
+ 
++    def delete(self, payload: Any) -> bool:
++        if self.disabled_reason is not None:
++            return False
++        path = self.path_for(payload)
++        try:
++            path.unlink(missing_ok=True)
++        except OSError:
++            return False
++        return True
++
+     def get(self, payload: Any) -> dict[str, Any] | None:
++        if self.disabled_reason is not None:
++            return None
+         maybe_prune_cache(root_dir=self.root_dir)
+         path = self.path_for(payload)
+         try:
+@@ -470,6 +493,8 @@
+         return value
+ 
+     def set(self, payload: Any, value: dict[str, Any]) -> None:
++        if self.disabled_reason is not None:
++            return
+         maybe_prune_cache(root_dir=self.root_dir)
+         self.cache_dir.mkdir(parents=True, exist_ok=True)
+         path = self.path_for(payload)
+--- vulnerable/src/mcp_ddg_research/fetch.py
++++ fixed/src/mcp_ddg_research/fetch.py
+@@ -4,7 +4,7 @@
+ 
+ import asyncio
+ from typing import Any
+-from urllib.parse import urljoin
++from urllib.parse import urljoin, urlparse, urlunparse
+ 
+ import httpx
+ 
+@@ -18,12 +18,18 @@
+     FetchResponse,
+ )
+ from mcp_ddg_research.search import ddg_search
+-from mcp_ddg_research.security import UnsafeUrlError, validate_fetch_url, validate_url_shape
++from mcp_ddg_research.security import (
++    UnsafeUrlError,
++    resolve_safe_address,
++    validate_fetch_url,
++    validate_url_shape,
++)
+ from mcp_ddg_research.text import extract_html_text, is_plain_text_content, truncate_text
+ 
+ DEFAULT_FETCH_TIMEOUT_SECONDS = 15
+ DEFAULT_MAX_CONCURRENCY = 5
+ MAX_REDIRECTS = 5
++DEFAULT_MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+ FETCH_HEADERS = {
+     "User-Agent": (
+         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+@@ -37,6 +43,10 @@
+ 
+ def get_fetch_timeout_seconds() -> int:
+     return get_env_int("FETCH_TIMEOUT_SECONDS", DEFAULT_FETCH_TIMEOUT_SECONDS)
++
++
++def get_fetch_max_bytes() -> int:
++    return get_env_int("FETCH_MAX_BYTES", DEFAULT_MAX_RESPONSE_BYTES)
+ 
+ 
+ def get_max_concurrency(max_concurrency: int | None = None) -> int:
+@@ -66,33 +76,104 @@
+     )
+ 
+ 
++class RawFetchedResponse:
++    """Fully-read response body with the logical (pre-pinning) URL."""
++
++    def __init__(
++        self,
++        status_code: int,
++        headers: httpx.Headers,
++        content: bytes,
++        logical_url: str,
++        charset: str | None,
++    ) -> None:
++        self.status_code = status_code
++        self.headers = headers
++        self.content = content
++        self.logical_url = logical_url
++        self.charset = charset
++
++
++def _pinned_request_url(url: str, safe_ip: str) -> str:
++    parsed = urlparse(url)
++    host_part = f"[{safe_ip}]" if ":" in safe_ip else safe_ip
++    port = parsed.port
++    default_port = port in (None, 80) and parsed.scheme == "http"
++    default_port = default_port or (port in (None, 443) and parsed.scheme == "https")
++    netloc = host_part if default_port else f"{host_part}:{port}"
++    path = parsed.path or "/"
++    return urlunparse((parsed.scheme, netloc, path, parsed.params, parsed.query, parsed.fragment))
++
++
++def _original_host_header(url: str) -> str:
++    parsed = urlparse(url)
++    return parsed.netloc
++
++
+ async def _get_with_validated_redirects(
+     client: httpx.AsyncClient,
+     url: str,
+-) -> httpx.Response:
++    max_bytes: int,
++) -> RawFetchedResponse:
++    """Fetch while validating every hop and pinning the connection to the IP
++    resolved during validation, so a rebinding DNS answer cannot redirect the
++    connection to an internal address. The body is streamed and hard-capped."""
++
+     current_url = url
++    response: httpx.Response | None = None
+     for _ in range(MAX_REDIRECTS + 1):
+         await validate_fetch_url(current_url)
+-        response = await client.get(current_url)
+-        if response.status_code not in {301, 302, 303, 307, 308}:
+-            return response
+-
+-        location = response.headers.get("location")
+-        if not location:
+-            return response
+-        next_url = urljoin(str(response.url), location)
+-        validate_url_shape(next_url)
+-        current_url = next_url
+-
++        safe_ip, _port = await resolve_safe_address(current_url)
++        parsed = urlparse(current_url)
++        hostname = parsed.hostname or ""
++        request = client.build_request(
++            "GET",
++            _pinned_request_url(current_url, safe_ip),
++            headers={**FETCH_HEADERS, "host": _original_host_header(current_url)},
++            extensions={"sni_hostname": hostname} if parsed.scheme == "https" else None,
++        )
++        response = await client.send(request, stream=True)
++
++        if response.status_code in {301, 302, 303, 307, 308}:
++            location = response.headers.get("location")
++            if location:
++                await response.aclose()
++                next_url = urljoin(current_url, location)
++                validate_url_shape(next_url)
++                current_url = next_url
++                continue
++            break
++
++        chunks: list[bytes] = []
++        total = 0
++        async for chunk in response.aiter_bytes():
++            total += len(chunk)
++            if total > max_bytes:
++                await response.aclose()
++                raise UnsafeUrlError(
++                    f"Response body exceeds the {max_bytes} byte safety limit"
++                )
++            chunks.append(chunk)
++        await response.aclose()
++        return RawFetchedResponse(
++            status_code=response.status_code,
++            headers=response.headers,
++            content=b"".join(chunks),
++            logical_url=current_url,
++            charset=response.encoding,
++        )
++
++    if response is not None:
++        await response.aclose()
+     raise UnsafeUrlError(f"Too many redirects; maximum is {MAX_REDIRECTS}")
+ 
+ 
+ def _response_to_fetch_response(
+     request_url: str,
+-    response: httpx.Response,
++    response: RawFetchedResponse,
+     max_chars: int,
+ ) -> FetchResponse:
+-    final_url = str(response.url)
++    final_url = response.logical_url
+     content_type = response.headers.get("content-type", "")
+     if response.status_code >= 400:
+         return FetchResponse(
+@@ -106,9 +187,12 @@
+             error=f"HTTP {response.status_code}",
+         )
+ 
++    charset = response.charset or "utf-8"
++    text = response.content.decode(charset, errors="replace")
++
+     lowered_content_type = content_type.lower()
+     if "html" in lowered_content_type:
+-        extracted = extract_html_text(response.text, max_chars)
++        extracted = extract_html_text(text, max_chars)
+         return FetchResponse(
+             url=request_url,
+             final_url=final_url,
+@@ -125,7 +209,7 @@
+             url=request_url,
+             final_url=final_url,
+             title="",
+-            content=truncate_text(response.text, max_chars),
++            content=truncate_text(text, max_chars),
+             content_type=content_type,
+             cached=False,
+             success=True,
+@@ -161,7 +245,12 @@
+     payload = _cache_payload(request)
+     cached_value = cache.get(payload)
+     if cached_value is not None:
+-        return FetchResponse.model_validate(cached_value).model_copy(update={"cached": True})
++        try:
++            return FetchResponse.model_validate(cached_value).model_copy(
++                update={"cached": True}
++            )
++        except Exception:  # noqa: BLE001 - poisoned/stale cache must not break the tool.
++            cache.delete(payload)
+ 
+     try:
+         async with httpx.AsyncClient(
+@@ -169,8 +258,12 @@
+             follow_redirects=False,
+             headers=FETCH_HEADERS,
+         ) as client:
+-            response = await _get_with_validated_redirects(client, request.url)
+-        fetch_response = _response_to_fetch_response(request.url, response, request.max_chars)
++            response = await _get_with_validated_redirects(
++                client, request.url, get_fetch_max_bytes()
++            )
++        fetch_response = _response_to_fetch_response(
++            request.url, response, request.max_chars
++        )
+         if fetch_response.success:
+             cache.set(payload, _cacheable_fetch_response(fetch_response))
+         return fetch_response
+@@ -247,4 +340,5 @@
+         pages=pages,
+         failed_pages=failed_pages,
+         cached=bool(cached_flags) and all(cached_flags),
+-    )
++        search_error=search_response.error,
++    )
+--- vulnerable/src/mcp_ddg_research/models.py
++++ fixed/src/mcp_ddg_research/models.py
+@@ -216,3 +216,4 @@
+     pages: list[DeepSearchPage]
+     failed_pages: list[FailedPage]
+     cached: bool
++    search_error: str | None = None
+--- vulnerable/src/mcp_ddg_research/search.py
++++ fixed/src/mcp_ddg_research/search.py
+@@ -7,7 +7,7 @@
+ import inspect
+ import logging
+ import os
+-from typing import Any
++from typing import Any, cast
+ from urllib.parse import parse_qs, urlencode, urljoin, urlparse, urlunparse
+ 
+ import httpx
+@@ -15,7 +15,12 @@
+ 
+ from mcp_ddg_research.cache import JsonFileCache, build_search_cache, get_env_int
+ from mcp_ddg_research.domains import apply_domain_controls
+-from mcp_ddg_research.models import SearchRequest, SearchResponse, SearchResult
++from mcp_ddg_research.models import (
++    SearchProvider,
++    SearchRequest,
++    SearchResponse,
++    SearchResult,
++)
+ from mcp_ddg_research.text import normalize_whitespace
+ 
+ DUCKDUCKGO_HTML_URL = "https://html.duckduckgo.com/html/"
+@@ -262,7 +267,13 @@
+     request: SearchRequest,
+     timeout_seconds: int,
+ ) -> list[SearchResult]:
+-    params = {"q": request.query, "kp": HTML_SAFE_SEARCH[request.safe_search]}
++    params: dict[str, str | int] = {
++        "q": request.query,
++        "kp": HTML_SAFE_SEARCH[request.safe_search],
++    }
++    time_filter_code = TIME_FILTERS.get(request.time_filter or "")
++    if time_filter_code:
++        params["df"] = time_filter_code
+     async with httpx.AsyncClient(
+         timeout=httpx.Timeout(timeout_seconds),
+         follow_redirects=False,
+@@ -327,12 +338,17 @@
+         preferred_domains=preferred_domains or [],
+     )
+     cache = cache or build_search_cache()
+-    provider = get_search_provider()
++    provider = cast(SearchProvider, get_search_provider())
+     ddgs_backend = get_ddgs_backend() if provider in {"ddgs", "auto"} else None
+     payload = _cache_payload(request, provider=provider, ddgs_backend=ddgs_backend)
+     cached_value = cache.get(payload)
+     if cached_value is not None:
+-        return SearchResponse.model_validate(cached_value).model_copy(update={"cached": True})
++        try:
++            return SearchResponse.model_validate(cached_value).model_copy(
++                update={"cached": True}
++            )
++        except Exception:  # noqa: BLE001 - poisoned/stale cache must not break the tool.
++            cache.delete(payload)
+ 
+     timeout_seconds = get_ddg_timeout_seconds()
+     provider_errors: list[str] = []
+@@ -381,7 +397,7 @@
+ 
+     return SearchResponse(
+         query=request.query,
+-        provider="duckduckgo_html",
++        provider=provider,
+         results=[],
+         cached=False,
+         error="; ".join(provider_errors) or "Search failed",
+--- vulnerable/src/mcp_ddg_research/security.py
++++ fixed/src/mcp_ddg_research/security.py
+@@ -12,6 +12,7 @@
+ BLOCKED_NETWORKS: tuple[IPv4Network | IPv6Network, ...] = (
+     ip_network("0.0.0.0/8"),
+     ip_network("10.0.0.0/8"),
++    ip_network("100.64.0.0/10"),
+     ip_network("127.0.0.0/8"),
+     ip_network("169.254.0.0/16"),
+     ip_network("172.16.0.0/12"),
+@@ -100,3 +101,22 @@
+ async def validate_fetch_url(url: str) -> None:
+     validate_url_shape(url)
+     await asyncio.to_thread(validate_resolved_addresses, url)
++
++
++async def resolve_safe_address(url: str) -> tuple[str, int]:
++    """Resolve the hostname once and return a validated (ip, port) pair.
++
++    The caller must connect to this IP directly instead of letting the HTTP
++    client re-resolve DNS, otherwise a short-TTL rebinding record can pass
++    validation and point the connection at an internal address.
++    """
++    parsed = urlparse(url)
++    hostname = parsed.hostname
++    if hostname is None:
++        raise UnsafeUrlError("URL must include a hostname")
++    port = parsed.port or (443 if parsed.scheme == "https" else 80)
++    addresses = await asyncio.to_thread(_resolve_hostname, hostname, port)
++    for address in addresses:
++        if not is_unsafe_ip(address):
++            return address, port
++    raise UnsafeUrlError(f"DNS resolved only unsafe IP addresses for {hostname}")
+--- vulnerable/src/mcp_ddg_research/server.py
++++ fixed/src/mcp_ddg_research/server.py
+@@ -12,6 +12,7 @@
+ from pydantic import Field
+ 
+ from mcp_ddg_research import cache as cache_ops
++from mcp_ddg_research.cache import _get_env_bool
+ from mcp_ddg_research.fetch import ddg_deep_search as perform_deep_search
+ from mcp_ddg_research.fetch import web_fetch as perform_web_fetch
+ from mcp_ddg_research.models import (
+@@ -33,6 +34,13 @@
+ )
+ 
+ 
++class KnownPlaceholderTokenError(RuntimeError):
++    """Raised when MCP_AUTH_TOKEN is a publicly known placeholder."""
++
++
++KNOWN_PLACEHOLDER_TOKENS = {"change-me-now", "changeme", "secret", "token"}
++
++
+ class BearerTokenAuthMiddleware:
+     """ASGI middleware that requires one configured bearer token."""
+ 
+@@ -41,19 +49,31 @@
+         self.expected_authorization = f"Bearer {token}"
+ 
+     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+-        if scope.get("type") != "http":
++        scope_type = scope.get("type")
++        if scope_type == "lifespan":
+             await self.app(scope, receive, send)
+             return
++        if scope_type != "http":
++            # Fail closed: unknown or websocket scopes never bypass the token.
++            raise RuntimeError(
++                f"BearerTokenAuthMiddleware refuses to serve scope type {scope_type!r}"
++            )
+ 
+         authorization = _authorization_header(scope)
+-        if authorization is None or not compare_digest(
+-            authorization,
+-            self.expected_authorization,
++        if authorization is None or not _safe_token_match(
++            authorization, self.expected_authorization
+         ):
+             await _send_unauthorized(send)
+             return
+ 
+         await self.app(scope, receive, send)
++
++
++def _safe_token_match(left: str, right: str) -> bool:
++    try:
++        return compare_digest(left.encode("utf-8"), right.encode("utf-8"))
++    except (TypeError, UnicodeEncodeError):
++        return False
+ 
+ 
+ def _authorization_header(scope: dict[str, Any]) -> str | None:
+@@ -110,7 +130,15 @@
+ 
+ def _configure_http_settings() -> None:
+     host = os.getenv("MCP_HOST", "0.0.0.0")
+-    port = int(os.getenv("MCP_PORT", "8000"))
++    raw_port = os.getenv("MCP_PORT", "8000")
++    try:
++        port = int(raw_port)
++    except ValueError as exc:
++        raise RuntimeError(
++            f"Invalid MCP_PORT={raw_port!r}; expected an integer port number"
++        ) from exc
++    if not 1 <= port <= 65535:
++        raise RuntimeError(f"Invalid MCP_PORT={raw_port!r}; out of range")
+     allowed_hosts = _csv_env("MCP_ALLOWED_HOSTS", ["*"])
+     allowed_origins = _csv_env("MCP_ALLOWED_ORIGINS", ["*"])
+ 
+@@ -127,9 +155,20 @@
+ 
+     auth_token = _http_auth_token()
+     if auth_token is None:
++        if not _get_env_bool("MCP_ALLOW_UNAUTHENTICATED_HTTP", False):
++            raise RuntimeError(
++                "MCP HTTP transport requires MCP_AUTH_TOKEN to be set. "
++                "Set a strong random token, or set MCP_ALLOW_UNAUTHENTICATED_HTTP=1 "
++                "to explicitly run without authentication."
++            )
+         LOGGER.warning(
+             "MCP HTTP transport is running without MCP_AUTH_TOKEN; "
+             "all HTTP requests are unauthenticated."
++        )
++    elif auth_token.lower() in KNOWN_PLACEHOLDER_TOKENS:
++        raise KnownPlaceholderTokenError(
++            f"MCP_AUTH_TOKEN is set to the publicly known placeholder {auth_token!r}. "
++            "Set a strong random token before exposing the server over HTTP."
+         )
+ 
+     starlette_app = mcp.streamable_http_app()
+@@ -146,7 +185,7 @@
+     await server.serve()
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+ async def ddg_search(
+     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+     max_results: Annotated[
+@@ -193,7 +232,7 @@
+     return response.model_dump(mode="json")
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+ async def web_fetch(
+     url: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["url"])],
+     max_chars: Annotated[
+@@ -207,7 +246,7 @@
+     return response.model_dump(mode="json")
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+ async def ddg_deep_search(
+     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+     max_results: Annotated[
+@@ -269,14 +308,14 @@
+     return response.model_dump(mode="json")
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"readOnlyHint": True})
+ async def cache_stats() -> dict:
+     """Return cache file counts and byte totals for each cache namespace."""
+ 
+     return cache_ops.get_cache_stats().to_dict()
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"destructiveHint": True, "idempotentHint": True})
+ async def cache_prune(
+     expired_only: Annotated[
+         bool,
+@@ -292,7 +331,7 @@
+     return cache_ops.prune_cache(expired_only=expired_only, dry_run=dry_run).to_dict()
+ 
+ 
+-@mcp.tool()
++@mcp.tool(annotations={"destructiveHint": True})
+ async def cache_clear(
+     namespace: Annotated[
+         CacheNamespace,
+@@ -325,12 +364,16 @@
+ def main() -> None:
+     _prune_cache_on_startup()
+     transport = os.getenv("MCP_TRANSPORT", "stdio").strip().lower()
+-    if transport == "http":
++    if transport in {"http", "streamable-http"}:
+         import asyncio
+ 
+         _configure_http_settings()
+         asyncio.run(_run_http_async())
+         return
++    if transport != "stdio":
++        raise RuntimeError(
++            f"Invalid MCP_TRANSPORT={transport!r}; accepted values are 'stdio' and 'http'"
++        )
+ 
+     mcp.run(transport="stdio")
+ 
+--- vulnerable/src/mcp_ddg_research/text.py
++++ fixed/src/mcp_ddg_research/text.py
+@@ -72,6 +72,8 @@
+ 
+     if len(best_text) < 600:
+         body = soup.body if soup.body else soup
+-        best_text = _tag_text(body)
++        body_text = _tag_text(body)
++        if len(body_text) > len(best_text):
++            best_text = body_text
+ 
+     return ExtractedText(title=title, content=truncate_text(best_text, max_chars))
+--- vulnerable/tests/test_audit_fixes.py
++++ fixed/tests/test_audit_fixes.py
+@@ -0,0 +1,303 @@
++"""Tests for the audit fixes: time filter, cache poisoning, byte cap, auth, CGNAT."""
++
++import asyncio
++from types import SimpleNamespace
++from unittest.mock import patch
++
++import httpx
++import pytest
++
++import mcp_ddg_research.fetch as fetch_module
++import mcp_ddg_research.search as search_module
++import mcp_ddg_research.server as server_module
++from mcp_ddg_research.cache import JsonFileCache
++from mcp_ddg_research.models import FetchRequest, SearchRequest
++from mcp_ddg_research.search import _search_with_duckduckgo_html, ddg_search
++from mcp_ddg_research.text import extract_html_text
++
++REAL_ASYNC_CLIENT = httpx.AsyncClient
++
++
++def _html_transport(captured: dict) -> httpx.MockTransport:
++    def handler(request: httpx.Request) -> httpx.Response:
++        captured["url"] = str(request.url)
++        return httpx.Response(
++            200,
++            content=(
++                "<html><body>"
++                "<div class='result'><a class='result__a' href='https://example.com/1'>One</a>"
++                "<a class='result__snippet'>snippet one</a></div>"
++                "<div class='result'><a class='result__a' href='https://example.com/2'>Two</a>"
++                "<a class='result__snippet'>snippet two</a></div>"
++                "</body></html>"
++            ),
++        )
++
++    return httpx.MockTransport(handler)
++
++
++# --- search: time_filter now reaches the HTML endpoint ------------------------
++
++
++def test_html_search_sends_df_time_filter() -> None:
++    captured: dict = {}
++    with patch.object(
++        search_module.httpx, "AsyncClient", return_value=REAL_ASYNC_CLIENT
++    ) as factory:
++        factory.return_value = REAL_ASYNC_CLIENT(
++            transport=_html_transport(captured), timeout=10
++        )
++        request = SearchRequest(query="test query", time_filter="day", safe_search="strict")
++        asyncio.run(_search_with_duckduckgo_html(request, timeout_seconds=10))
++
++    assert "df=d" in captured["url"], captured["url"]
++
++
++def test_html_search_omits_df_when_no_time_filter() -> None:
++    captured: dict = {}
++    with patch.object(search_module.httpx, "AsyncClient") as factory:
++        factory.return_value = REAL_ASYNC_CLIENT(
++            transport=_html_transport(captured), timeout=10
++        )
++        request = SearchRequest(query="test query", safe_search="strict")
++        asyncio.run(_search_with_duckduckgo_html(request, timeout_seconds=10))
++
++    assert "df=" not in captured["url"], captured["url"]
++
++
++# --- search + fetch: poisoned cache is invalidated, not fatal -----------------
++
++
++def _search_payload_for(query: str) -> dict:
++    request = SearchRequest(
++        query=query,
++        max_results=10,
++        search_window=None,
++        safe_search="off",
++        time_filter=None,
++        blocked_domains=[],
++        allowed_domains=[],
++        preferred_domains=[],
++    )
++    return search_module._cache_payload(
++        request, provider="duckduckgo_html", ddgs_backend=None
++    )
++
++
++def test_search_poisoned_cache_is_invalidated(tmp_path) -> None:
++    cache = JsonFileCache(tmp_path, "search", 3600)
++    cache.set(
++        _search_payload_for("needle"),
++        {"totally": "wrong shape", "not": "a SearchResponse"},
++    )
++    assert list(tmp_path.glob("search/*.json"))
++
++    with patch.object(search_module, "build_search_cache", return_value=cache), patch.object(
++        search_module, "_search_with_duckduckgo_html", side_effect=AssertionError
++    ), patch.object(search_module, "_search_with_ddgs", side_effect=AssertionError):
++        result = asyncio.run(ddg_search(query="needle", cache=cache))
++
++    assert result.results == []
++    assert result.error
++    # the poisoning file is gone, so a later real search can repopulate
++    assert not list(tmp_path.glob("search/*.json"))
++
++
++def test_fetch_poisoned_cache_is_invalidated(tmp_path) -> None:
++    cache = JsonFileCache(tmp_path, "fetch", 3600)
++    cache.set(
++        FetchRequest(url="https://example.com/", max_chars=12000).model_dump(mode="json"),
++        {"wrong": True},
++    )
++    assert list(tmp_path.glob("fetch/*.json"))
++
++    async def fake_validate(url: str) -> None:
++        return None
++
++    async def fake_resolve(url: str) -> tuple[str, int]:
++        return "127.0.0.1", 80
++
++    def handler(request: httpx.Request) -> httpx.Response:
++        return httpx.Response(500, content="boom", headers={"content-type": "text/html"})
++
++    with patch.object(fetch_module, "validate_fetch_url", fake_validate), patch.object(
++        fetch_module, "resolve_safe_address", fake_resolve
++    ), patch.object(fetch_module.httpx, "AsyncClient") as factory:
++        factory.return_value = REAL_ASYNC_CLIENT(
++            transport=httpx.MockTransport(handler), timeout=15
++        )
++        result = asyncio.run(
++            fetch_module.web_fetch(url="https://example.com/", cache=cache)
++        )
++
++    assert result.error  # structured provider error, no ValidationError escapes
++    assert not list(tmp_path.glob("fetch/*.json"))
++
++
++# --- fetch: byte cap + IP pinning ---------------------------------------------
++
++
++def test_fetch_byte_cap_aborts_large_body() -> None:
++    captured: dict = {}
++
++    def handler(request: httpx.Request) -> httpx.Response:
++        captured["host"] = request.headers.get("host")
++        return httpx.Response(
++            200, content=b"x" * (2 * 1024 * 1024), headers={"content-type": "text/html"}
++        )
++
++    async def fake_validate(url: str) -> None:
++        return None
++
++    async def fake_resolve(url: str) -> tuple[str, int]:
++        return "127.0.0.1", 80
++
++    with patch.object(fetch_module, "get_fetch_max_bytes", return_value=1024 * 1024), patch.object(
++        fetch_module, "validate_fetch_url", fake_validate
++    ), patch.object(fetch_module, "resolve_safe_address", fake_resolve), patch.object(
++        fetch_module.httpx, "AsyncClient", return_value=REAL_ASYNC_CLIENT
++    ) as factory:
++        factory.return_value = REAL_ASYNC_CLIENT(
++            transport=httpx.MockTransport(handler), timeout=15
++        )
++        result = asyncio.run(fetch_module.web_fetch(url="https://example.com/", max_chars=1000))
++
++    assert not result.success
++    assert "safety limit" in (result.error or "")
++    assert captured["host"] == "example.com"  # Host header preserved during pinning
++
++
++def test_small_body_succeeds_with_host_preserved_in_pin() -> None:
++    captured: dict = {}
++
++    def handler(request: httpx.Request) -> httpx.Response:
++        captured["host"] = request.headers.get("host")
++        captured["url"] = str(request.url)
++        return httpx.Response(
++            200,
++            content="<html><body><article>Hello world content</article></body></html>",
++            headers={"content-type": "text/html"},
++        )
++
++    async def fake_validate(url: str) -> None:
++        return None
++
++    async def fake_resolve(url: str) -> tuple[str, int]:
++        return "127.0.0.1", 80
++
++    with patch.object(fetch_module, "validate_fetch_url", fake_validate), patch.object(
++        fetch_module, "resolve_safe_address", fake_resolve
++    ), patch.object(
++        fetch_module.httpx, "AsyncClient", return_value=REAL_ASYNC_CLIENT
++    ) as factory:
++        factory.return_value = REAL_ASYNC_CLIENT(
++            transport=httpx.MockTransport(handler), timeout=15
++        )
++        result = asyncio.run(fetch_module.web_fetch(url="https://example.com/page"))
++
++    assert result.success
++    assert captured["host"] == "example.com"
++    assert "127.0.0.1" in captured["url"]  # connection pinned to the validated IP
++
++
++# --- security: CGNAT now blocked -----------------------------------------------
++
++
++def test_cgnat_range_is_blocked() -> None:
++    from mcp_ddg_research.security import is_unsafe_ip
++
++    assert is_unsafe_ip("100.64.0.1")
++    assert is_unsafe_ip("100.100.200.200")
++    assert not is_unsafe_ip("100.63.255.255")  # just outside the range stays public
++
++
++# --- auth middleware: non-ASCII header returns 401 ------------------------------
++
++
++async def _run_middleware(middleware, scope) -> int:
++    status: list[int] = []
++
++    async def send(message: dict) -> None:
++        if message["type"] == "http.response.start":
++            status.append(message["status"])
++
++    async def receive() -> dict:
++        return {}
++
++    await middleware(scope, receive, send)
++    return status[0]
++
++
++def test_middleware_non_ascii_authorization_is_401() -> None:
++    middleware = server_module.BearerTokenAuthMiddleware(
++        SimpleNamespace(__call__=lambda *a, **k: None), token="real-token"
++    )
++    scope = {"type": "http", "headers": [(b"authorization", b"Bearer s\xe9cret")]}
++    status = asyncio.run(_run_middleware(middleware, scope))
++    assert status == 401
++
++
++def test_middleware_unknown_scope_is_rejected() -> None:
++    middleware = server_module.BearerTokenAuthMiddleware(
++        SimpleNamespace(__call__=lambda *a, **k: None), token="real-token"
++    )
++    with pytest.raises(RuntimeError):
++        asyncio.run(_run_middleware(middleware, {"type": "websocket", "headers": []}))
++
++
++# --- server startup validation ----------------------------------------------------
++
++
++def test_placeholder_token_is_rejected(monkeypatch) -> None:
++    monkeypatch.setenv("MCP_AUTH_TOKEN", "change-me-now")
++    with pytest.raises(server_module.KnownPlaceholderTokenError):
++        asyncio.run(server_module._run_http_async())
++
++
++def test_http_mode_without_token_is_rejected(monkeypatch) -> None:
++    monkeypatch.delenv("MCP_AUTH_TOKEN", raising=False)
++    monkeypatch.delenv("MCP_ALLOW_UNAUTHENTICATED_HTTP", raising=False)
++    with pytest.raises(RuntimeError, match="MCP_AUTH_TOKEN"):
++        asyncio.run(server_module._run_http_async())
++
++
++def test_invalid_transport_is_rejected(monkeypatch) -> None:
++    monkeypatch.setenv("MCP_TRANSPORT", "sse")
++    with pytest.raises(RuntimeError, match="MCP_TRANSPORT"):
++        server_module.main()
++
++
++def test_invalid_port_is_rejected(monkeypatch) -> None:
++    monkeypatch.setenv("MCP_PORT", "not-a-port")
++    with pytest.raises(RuntimeError, match="MCP_PORT"):
++        server_module._configure_http_settings()
++
++
++# --- text extraction: fallback keeps the longer candidate -------------------------
++
++
++def test_text_fallback_keeps_longer_body_candidate() -> None:
++    candidate = "<main>" + "p " * 300 + "</main>"  # ~600 chars
++    html = f"<html><head><title>T</title></head>{candidate}<body><p>tiny</p></body></html>"
++    extracted = extract_html_text(html, max_chars=2000)
++    assert len(extracted.content) > 500
++
++
++# --- deep search reports provider failure -------------------------------------------
++
++
++def test_deep_search_surfaces_search_error() -> None:
++    with patch.object(
++        fetch_module,
++        "ddg_search",
++        return_value=SimpleNamespace(
++            query="anything",
++            provider="duckduckgo_html",
++            results=[],
++            cached=False,
++            error="provider exploded",
++        ),
++    ):
++        result = asyncio.run(fetch_module.ddg_deep_search(query="anything"))
++    assert result.search_error == "provider exploded"
++    assert result.sources == []

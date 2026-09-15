@@ -1,0 +1,454 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 87307a8..ef41270 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -78,19 +78,34 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
+ 
+ ## Current phase
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
+ 
+ ### Historical v18 throughput probe at `0b71a29`
+ 
+diff --git a/ROADMAP.md b/ROADMAP.md
+index f9e1456..9dfa0db 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -1154,21 +1154,34 @@ helps solve and identify the obstacles to voluntary CI adoption.
+ 
+ ### Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-[Static timing policy](docs/phase22-timeout-policy.md)
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
+ 
+ ### Historical v18 throughput probe at `0b71a29`
+ 
+diff --git a/artifacts/phase22/integration/README.md b/artifacts/phase22/integration/README.md
+index 5ebeb71..d8f7906 100644
+--- a/artifacts/phase22/integration/README.md
++++ b/artifacts/phase22/integration/README.md
+@@ -1,22 +1,35 @@
+-# Integration evidence, batches 1–47 and closeout audit
++# Integration evidence, batches 1–48 and closeout audit
+ 
+ ## Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-Policy: `docs/phase22-timeout-policy.md`.
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
+ 
+ ## Historical v18 throughput probe at `0b71a29`
+ 
+@@ -412,6 +425,15 @@ proposals are prepared and unapproved; no automatic dispatch is authorized.
+ 
+ ## Evidence archives
+ 
++Batch 48 is sealed: **356 files**, SHA-256
++`595aee05cda6debf4aab85accae532156a1e830b4c6f0272e21ec2a1a19015e9`. Every member and all 47 prior archives are verified. Restore
++after batches 1–47 in separate staging using `evidence-v48.json`, requiring existing
++destinations to match identical bytes or their recorded previous hash. Stop on
++unexpected conflicts. This batch retains the policy approval, candidate, all
++local/hosted checks and artifacts, original regression failures and corrections,
++production replay/runtime compatibility, prepared diagnostic and helper sources.
++Final audit/documentation/delivery bindings are tracked directly after sealing.
++
+ Batch 47 is sealed: **446 files**, SHA-256
+ `8b458443e193d91b1780c252877107e38392dac05683b58fbac21b167ef678d6`. Every member and all 46 prior archive hashes are verified.
+ Restore after batches 1–46 in separate staging using `evidence-v47.json`; existing
+diff --git a/artifacts/phase22/integration/progress.md b/artifacts/phase22/integration/progress.md
+index 2012fd4..4f0fa5a 100644
+--- a/artifacts/phase22/integration/progress.md
++++ b/artifacts/phase22/integration/progress.md
+@@ -2,21 +2,34 @@
+ 
+ ## Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-Policy: `docs/phase22-timeout-policy.md`.
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
+ 
+ ## Historical v18 throughput probe at `0b71a29`
+ 
+@@ -3332,3 +3345,14 @@ unexpected conflicts. This batch retains Stage0 approval/implementation, all raw
+ observations and logs, fresh CI/docs artifacts, the failed premise, verification,
+ preparation failures/corrections and helper sources. Final audit/docs/delivery
+ bindings are tracked directly after the seal.
++
++### Evidence batch 48
++
++Batch 48 is sealed: **356 files**, SHA-256
++`595aee05cda6debf4aab85accae532156a1e830b4c6f0272e21ec2a1a19015e9`. Every member and all 47 prior archives are verified. Restore
++after batches 1–47 in separate staging using `evidence-v48.json`, requiring existing
++destinations to match identical bytes or their recorded previous hash. Stop on
++unexpected conflicts. This batch retains the policy approval, candidate, all
++local/hosted checks and artifacts, original regression failures and corrections,
++production replay/runtime compatibility, prepared diagnostic and helper sources.
++Final audit/documentation/delivery bindings are tracked directly after sealing.
+diff --git a/artifacts/phase22/integration/requirements.md b/artifacts/phase22/integration/requirements.md
+index d6fbe1d..84051e7 100644
+--- a/artifacts/phase22/integration/requirements.md
++++ b/artifacts/phase22/integration/requirements.md
+@@ -2,12 +2,14 @@
+ 
+ ## Current v19 timeout-policy transition
+ 
+-The user approved the 120-second target / 300-second maximum. This changes the
+-prospective timing criterion; original failed observations remain unchanged.
+-The original 89 rows retain their IDs. The v18 dispositions apply to their
+-recorded source; engineering checks and current-source measurement status will
+-be rebound in the v19 audit. Timing, fresh evaluation and final acceptance remain
+-unmet. No additional corpus run or paid call is approved.
++All 89 original requirements are mapped in `v19-closeout-audit/packet.json`:
++**70 passed, 2 explicitly user-deferred, 17 unresolved**. R63 keeps its ID and
++records its original wording plus the user-approved prospective 300-second
++maximum/120-second target. Original failed measurements remain unchanged.
++All 33 added rows retain **32 passed, 1 unresolved** (historical v14 retention).
++Five v19 rows cover policy, deadline controls, verification, proposal and delivery.
++The diagnostic itself is not approved or run. No current-source timing or fresh
++evaluation pass, paid call or human acceptance is inferred.
+ 
+ ## Historical v18 source-bound audit
+ 
+diff --git a/docs/phase22-implementation-status.md b/docs/phase22-implementation-status.md
+index 39e2cc4..03bd1ea 100644
+--- a/docs/phase22-implementation-status.md
++++ b/docs/phase22-implementation-status.md
+@@ -2,21 +2,36 @@
+ 
+ ## Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-[Static timing policy](phase22-timeout-policy.md)
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
++
++[Timing policy](phase22-timeout-policy.md)
+ 
+ ## Historical v18 throughput probe at `0b71a29`
+ 
+diff --git a/docs/phase22-ssrf-follow-up.md b/docs/phase22-ssrf-follow-up.md
+index 297a58a..6e73c9a 100644
+--- a/docs/phase22-ssrf-follow-up.md
++++ b/docs/phase22-ssrf-follow-up.md
+@@ -2,21 +2,36 @@
+ 
+ ## Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-[Static timing policy](phase22-timeout-policy.md)
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
++
++[Timing policy](phase22-timeout-policy.md)
+ 
+ ## Historical v18 throughput probe at `0b71a29`
+ 
+diff --git a/docs/phase22-technical.md b/docs/phase22-technical.md
+index 6ff4317..75b66a7 100644
+--- a/docs/phase22-technical.md
++++ b/docs/phase22-technical.md
+@@ -2,21 +2,36 @@
+ 
+ ## Current v19 timeout policy
+ 
+-The user approved a uniform **120-second performance target / 300-second static
+-maximum** with “okay go ahead with this.” The implementation changes the shared
+-static deadline and the TypeScript parser's remaining-budget handling, preserves
+-shorter caller deadlines, and checks final coverage/report assembly. It makes no
+-speedup claim and changes no detector rules, model budget or dynamic budget.
+-
+-The original 15/25 Linux result, ten Meta timeouts and skipped historical pair
+-remain preserved. The 120-second hard completion requirement is prospectively
+-revised; future assessments must separate completion within 120 seconds from
+-completion using extended time up to 300 seconds. Phase 22 remains incomplete.
+-Engineering verification is pending on this candidate; no new corpus run, full
+-Linux retry, fresh evaluation or paid call is authorized. A four-observation
+-Linux diagnostic proposal will bind the frozen candidate before approval.
+-
+-[Static timing policy](phase22-timeout-policy.md)
++The approved **120-second performance target / 300-second static maximum** is
++implemented and verified at `1f3f72f`. The same deadline applies to every input;
++fast scans return immediately. The TypeScript parser and source-flow workers use
++the remaining shared budget, shorter caller deadlines are honored, and coverage/
++report assembly checks expiry. No detector rules or model/dynamic budgets change.
++
++Local full verification passes **2,194 tests / 36 skipped**, with **89.68%**
++branch coverage. Fresh CI **34545976337** passes all **29 normal jobs**; each of
++12 suites passes **2,194 / 36**. Docs **34545976336** and the final local docs build
++pass. Six production requests regenerate/replay with **zero paid calls**; Git
++runtime components/image remain compatible with the retained incomplete campaigns.
++Initial failing deadline regressions, lint/type-check corrections and all earlier
++failures are preserved. The scanner bytes now differ from `592a9cd` and `2ac39aa`;
++prior exposed detections remain source-bound regressions with deadline-only
++compatibility explained in `v19-source-verification.json`.
++
++**No new corpus timing run has occurred.** The original Linux result remains
++15/25 development complete, ten Meta timeouts at 120 seconds and both historical
++batches skipped. The user approved revising the prospective hard timing criterion
++to 300 seconds; completion within the original 120-second target must still be
++reported separately. This is no speedup or completed timing-gate claim.
++
++`v19-linux-timeout-diagnostic-proposal.json` is prepared and **unapproved**:
++two named slow Meta inputs twice each, four native observations, 300 seconds each,
++one 30-minute standard Linux job, no profiles/retries/paid calls. Stop at the first
++incomplete or mismatching result. Full 25+45+45 verification, fresh evaluation and
++human acceptance remain separate checkpoints. **Phase 22 remains incomplete.**
++Paid benchmark/pilots remain deferred; Phase 21 incomplete and Phase 24/15 unchanged.
++
++[Timing policy](phase22-timeout-policy.md)
+ 
+ ## Historical v18 throughput probe at `0b71a29`
+ 
+diff --git a/docs/phase22-timeout-policy.md b/docs/phase22-timeout-policy.md
+index 32b4ef8..b0706c8 100644
+--- a/docs/phase22-timeout-policy.md
++++ b/docs/phase22-timeout-policy.md
+@@ -72,3 +72,9 @@ the next proposal must bound each sequential job and the total run budget.
+ Fresh evaluation after stabilization, final human acceptance, and complete
+ evidence/draft delivery remain required. Phase 22 is not complete. The policy
+ approval does not authorize new paid calls, a runner upgrade, merge or release.
++
++## Candidate verification
++
++Candidate `1f3f72f` passes the local full suite (2,194 passed, 36 skipped), all 29
++normal hosted CI jobs and docs. The four-observation diagnostic proposal remains
++unapproved and unexecuted. See the [integration evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).

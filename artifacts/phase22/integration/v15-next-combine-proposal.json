@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "status": "prepared_not_approved",
+  "recorded_at": "2026-09-10T20:11:32.311266+00:00",
+  "verified_scanner": {
+    "revision": "77ea21fa1f8c52f1f1ab11eba4d1cc8f2c24c7ef",
+    "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "source_review_sha256": "16bcd9594da450034c66106dfdb33966fc035155fb39a23557e906b4ac4c84a9",
+  "diagnostic_assessment_sha256": "9b18c0d8bef77a279a554c6d37791512f22ef17e58a26bafee9b88b439a33e6d",
+  "performance_inputs": [
+    {
+      "manifest_sha256": "f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682",
+      "prior_measurement_sha256": "f70a29136570ead48eb20f77920251c3f074b1fafac562ec5983ba17779677c3",
+      "input_id": "atlassian-upload-fixed",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd"
+    },
+    {
+      "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+      "prior_measurement_sha256": "6174a07921b1ff9ec75914c50668ac6c536e6f8e9e6db1b06f63cbc3aad7ec77",
+      "input_id": "meta-image-ssrf-vulnerable",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd"
+    },
+    {
+      "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+      "prior_measurement_sha256": "d7172374ea2ddcd017f6cc8445d6f818100e0b2fbb1c8f105badf2e9d227fc68",
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd"
+    }
+  ],
+  "counter_input": "meta-operator-fallback-fixed-mutation",
+  "purpose": "Determine whether repeated operand references make the expensive generic Value-combination path reducible to its existing two-value implementation, then permit only one justified attempt.",
+  "diagnostic": "One instrumented normal native profile of the named Meta operator input. Preserve production logic; record aggregate cache-miss/generic-combine counts, operand and distinct-identity cardinalities and eligible generic-body CPU time. Measure per-worker total CPU, distinguish nested inclusive/exclusive time, validate instrumentation on small synthetic controls first, and compare any completed ordered report with the retained v14 baseline. No target execution or evaluator-injected bindings.",
+  "proceed_condition": {
+    "completed_ordered_report_matches": true,
+    "minimum_generic_cache_miss_calls_per_active_worker": 10000,
+    "minimum_exactly_two_distinct_reference_fraction_of_generic_cache_misses_per_active_worker": 0.5,
+    "minimum_eligible_generic_body_exclusive_cpu_fraction_of_worker_cpu_per_active_worker": 0.1,
+    "active_workers": [
+      "SENT-012",
+      "SENT-015",
+      "SENT-016"
+    ],
+    "interpretation": "All conditions must hold independently in all three workers. Timer/counter overhead is disclosed; failure or partial/timeout stops before optimization and closes unused maxima."
+  },
+  "one_optimization_attempt": "Only after the proceed condition: add a narrow shortcut inside existing _combine after identical-value and missing/None processing. For >2 operands with precisely two distinct object identities, reuse the existing two-value implementation with the original explicit key. Do not change Value fields, generic reductions, combined identity meaning, rule semantics, branch traversal, worker count, cache capacity or deadlines. No second optimization if unsuccessful.",
+  "semantic_verification": "Before/after durable small controls compare every Value field and explicit/generated keys with the unmodified implementation for duplicate positions, tainted/source-free facts, None/missing, credentials/opt-in, path-parent qualification and instances. Verify combine_instances side effects, relevant rules/guard regressions and configured quality checks. Do not call full-source measurements unit tests.",
+  "native_plan": "After a passing diagnostic, execute two baseline observations per named input on unchanged source, then two candidate observations per input: 12 total. Compare full ordered reports with only existing volatile exclusions. Use the unchanged child CPU resource metric and environment. Baseline failure or candidate retention failure stops, reverts the attempt and closes unused maxima.",
+  "retention_condition": "Every named input must achieve at least 5% reduction in BOTH paired median wall time and child CPU, with no candidate observation above its corresponding baseline maximum; all observations complete within 120 seconds and full ordered reports match. No local result implies Linux improvement.",
+  "conditional_exposed_regressions": "Only if retained: all original exposed SearXNG, fetch-mcp and openwebsearch five-input families twice each (30 native observations), preserving correlated condition gates, ordered repeats, JSON/SARIF and source assessments. Any failed discrimination or report-semantic gate stops and requires reversion/explicit new decision.",
+  "bounds": {
+    "maximum_counter_profiles": 1,
+    "maximum_optimization_attempts": 1,
+    "maximum_performance_native_observations": 12,
+    "maximum_conditional_exposed_native_observations": 30,
+    "maximum_total_input_executions": 43,
+    "per_input_native_and_end_to_end_seconds": 120,
+    "maximum_nominal_input_seconds": 5160,
+    "comparator_observations": 0,
+    "paid_calls": 0,
+    "full_benchmark_retries": 0,
+    "new_hosted_measurement_dispatches": 0,
+    "target_execution": false
+  },
+  "environment": "Existing locked macOS Python3.12.13/Semgrep1.176.0, same normal native workers. No overlapping owned heavy work. Necessary final engineering/hosted/Docker replay checks remain ordinary authorized verification, with live transport forbidden.",
+  "stopping_condition": "Count every attempted input including partial/timeout/interruption. Stop after the one profile if its predicate fails, after any irrecoverable retention failure, or after the bounded successful sequence. Unused maxima are closed, never an open budget. No alternative attempt or retry.",
+  "checkpoints_unchanged": [
+    "A full standard Linux25+45+45 retry requires a separate exact proposal and approval after demonstrated native improvement.",
+    "Fresh post-stabilization freeze/evaluation remains separately approved; no fresh source is curated here.",
+    "Paid calls, different runtime/resources and runner/deadline/gate changes remain separately approved.",
+    "Final human Phase22 acceptance is not requested; no merge/release/outreach or next phase."
+  ],
+  "new_paid_calls": 0,
+  "authorization_requested": false,
+  "execution_started": false
+}

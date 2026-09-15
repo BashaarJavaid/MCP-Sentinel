@@ -1,0 +1,120 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-14T07:55:13.130407+00:00",
+  "starting_delivery": "c60b7a858497c355326044b959d9f6ad8d755a80",
+  "scanner": {
+    "revision": "4145d3559c5300a5003ca8e3368c8da49fb51f91",
+    "source_sha256": "41dd31a167c454bd9db3d720ce75ce6287312ce0e7799bbda1b2e59c61f77ea6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-4145d35",
+  "profile_assessment_sha256": "6892dbcf2151dabbfdf579349ee173ce8988c8b0280c2884dc45c318b3b35611",
+  "source_assessment_sha256": "04f9ead2c1d2bda0c7df0fef31c9bb1116b791c69b99015a86e496c9856ead76",
+  "target": "Reuse only the exact serialized JSON key for an immutable TypeScript literal node within its existing source program.",
+  "target_files": [
+    "src/sentinel/static/typescript_discovery.py",
+    "src/sentinel/static/typescript_path_flow.py"
+  ],
+  "source_files_sha256": {
+    "src/sentinel/static/path_flow.py": "5eeeb6973abeb45d96b20efd4c4a73d4bfc7da4eb723e8153dc18a955cc7f337",
+    "src/sentinel/static/typescript_discovery.py": "c46f8f65a40190bb2f722bd1daaa5ffc1bf06db789de60079d053684718afdd3",
+    "src/sentinel/static/typescript_registration_flow.py": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+    "src/sentinel/static/model.py": "0ea4efa4e80a056c3972d4a2da35910673bf050c3f3f9d032985fffc8460d0c5",
+    "src/sentinel/static/workers.py": "ecefa91292fbd863fed600b339a8cdf4f94b1a93ba4b7a245941e01f9c692afc",
+    "src/sentinel/static/typescript_modules.py": "c3a151781808f6b59c17637a760a41bcae4114efd864f2726685834bce811926",
+    "src/sentinel/static/typescript_path_flow.py": "376b9ba27bddc3add96bfa88fab4d231850b0737daa465ce5db098c85a83e18a",
+    "src/sentinel/static/coverage.py": "1608202fa6cc681caf806e8c5a1e92c1acc8f4e5348e6d8f75de4cba471b1cfc",
+    "tests/test_static_workers.py": "f2ac9514a59079fd28743a6adc7a1b54cc1ccd728fad92f159665cfd96c786d2",
+    "tests/test_typescript_discovery.py": "c86d3918b0a980bd9c2a4d8a189a9a37906fdad9dfb8e15f54161d6a9396ac08",
+    "tests/test_typescript_classes.py": "1f3df66a5522b36ce5e8d743108dd23edeea9cad8575882ac0b3f5d768495e64"
+  },
+  "purpose": "Avoid repeating json.dumps(node[\"L\"], sort_keys=True) on revisits to unchanged literal nodes in RegistrationFlow and other TypeScriptPathFlow consumers. Actual parent JSON-encoder leaf samples at that call site are retained below. Revisit counts, cache hits and achievable savings are unmeasured; this is not a promise of1800-second completion.",
+  "proposed_change": "One source-only implementation of a bounded per-TypeScriptProgram cache for exact literal serialization strings, following the existing OrderedDict source_range identity-cache pattern. Maximum4096 entries, LRU eviction, retaining node/file objects with identity keys so synthetic object-id reuse cannot return another node result. Produce keys lazily only at the existing non-null/non-undefined literal expression branch; retain exact json.dumps input and sort_keys=True options. Recomputed evicted entries must return identical string content. New programs/workers reconstruct empty caches; no global cache or transported integer-id keys.",
+  "identity_and_warning_contract": "Only a pure serialized string is reusable. Every expression still allocates its original fresh Value, updates nonnull_literals/string_literals/string_prefixes/mobilecli_paths/conditions, calls program.literal and executes subclass/RegistrationFlow bookkeeping. Preserve full Value fields, cache interning semantics, source-node aliases, all flow environments and side effects, ordered warnings, discovery bindings and reports. Do not cache a Value, function result, environment, security fact, warning, discovery result or HTTP result. Existing completed tool discovery and same-graph IPC remain unchanged.",
+  "implementation_limit": "Use the existing stdlib OrderedDict pattern and one cache with4096 entries. No cache warming traversal, changed JSON options, literal/key normalization, negative/error caching, AST mutation, node/module/function pruning, function memoization, detector bypass, new dependency, worker/resource/deadline change or another optimization target. Preserve deadline checks and error behavior. If complete equivalence or avoided-serialization checks fail, preserve and close this one attempt; do not switch optimizations.",
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Preserve exact tested4145d35 source and trace all TypeScript literal-expression consumers, subclasses, generated/synthetic node lifetimes, string-key equality/identity consumers, and existing source_range cache behavior before implementation.",
+    "Use existing scanner-owned synthetic ASTs to compare the complete original expression Value and entire flow state for strings/booleans/numbers and other supported literal shapes, null/undefined bypasses, same-content distinct nodes/files/programs, generated nodes, imported aliases, and all registration/security/HTTP consumers. Repeated calls must still rebuild deleted/mutated per-flow metadata exactly. No exposed-corpus fixture or timing measurement.",
+    "Verify cold/warm paths and more than4096 entries through eviction against the preserved baseline. Keep complete equality and relevant Value/interning/source-node identity relations. Retain node/file references to prevent stale integer-id reuse, and verify fresh/pickle-reconstructed contexts do not share stale cache state.",
+    "Synthetic invocation accounting must show fewer exact JSON serialization calls on retained repeated literal nodes while every original expression/metadata/subclass path runs. Verify zero caching of incomplete/error production, expired deadline rejection on warm cache, unsupported serialization error behavior, and unchanged input nodes. No throughput or native speedup claim.",
+    "Compare complete ordered discovery results/warnings/options, all five rule outputs and full serial/parallel Python/TypeScript/mixed reports using existing tests; retain source/file aliases and all shared discovery/deadline/worker cleanup controls. This cache must not change worker IPC or bypass any rule-specific analysis.",
+    "If one attempt passes full equivalence and avoided-work prerequisites, complete affected and full local/hosted engineering under the user prompt section8: strict whole-scope quality, schemas/lock/notices/advisories/offline artifacts, docs/packages/installed-wheel matrix, Docker/isolation/Action/hooks and all required CI. Regenerate/revalidate six complete production requests and approved runtime/image compatibility with live transport forbidden. Freeze the actual tested candidate and prepare separately approved affected regression. No corpus/profile/retry or paid call follows from this source-only approval."
+  ],
+  "profile_metrics": [
+    {
+      "rule": "parent",
+      "samples": 148001,
+      "snapshot_worker_cpu_seconds": 1691.265082,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 147799,
+      "registration_inclusive_percent": 99.86351443571327,
+      "merge_inclusive_percent": 24.325511314112745,
+      "maximum_observed_depth": 202,
+      "sampling_started_cpu_seconds": 1.77432,
+      "sampling_ended_cpu_seconds": null,
+      "retained_cpu_interval_seconds": 1689.490762,
+      "registration_callsite_samples": {
+        "85": 147798,
+        "67": 1
+      },
+      "literal_json_encoder_leaf_samples": 5697,
+      "literal_json_encoder_leaf_percent": 3.8492983155519216,
+      "leaf_samples": {
+        "json_encoder": 8004,
+        "merge_equal_predicate": 5551,
+        "combine_entry": 6354
+      },
+      "leaf_percent": {
+        "json_encoder": 5.408071567084006,
+        "merge_equal_predicate": 3.7506503334436925,
+        "combine_entry": 4.293214235038953
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-4145d35/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1057,
+          "samples": 5697
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-4145d35/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1956
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-4145d35/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 917,
+          "samples": 351
+        }
+      ]
+    }
+  ],
+  "uncertainty": "Only the retained sampled JSON encoder leaf work at the literal call site is measured. Its percentage is not a removable-cost estimate; cache hits/evictions/overhead and unsampled work remain unknown. Module traversal, merges, registrations, all later detectors and coverage still run. Even eliminating all of this sampled leaf cost might be insufficient for1800-second completion; no duration or savings guarantee is offered.",
+  "retention": "The approved v68 sampled budget and all seven historical native regression budgets stay closed. Original four fresh failures, invalid v50 attribution/V49 preparation, both singleton failures and every earlier source-bound result remain unchanged and unaccepted where applicable. The1800-second shared policy remains retained. The v65 strict invalidation failure and explicit v66 private-domain revision remain distinct and unchanged.",
+  "not_authorized": [
+    "another source-only optimization target or attempt",
+    "any corpus/profile/retry/comparator execution",
+    "new dependency/resource/parallelism/deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase 23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "implementation_prerequisites": "Prove which source and generated nodes remain immutable before caching. Preserve error behavior and reject or bypass any ineligible mutable/unsupported node according to the existing contract; no silent newly narrowed domain. Inspect all string-key identity comparisons and shared Value interning across cold/warm/evicted cache states. A source-only attempt may change only the two target source files plus required scanner-owned tests and release notes. If strict equivalence cannot hold, retain the counterexample and restore the exact baseline; any contract revision requires separate approval.",
+  "prior_preparation": "The v64 preliminary literal-key preparation was never delivered as the selected optimization or approved/implemented. This is a separately bound current-source proposal after the v66 accumulator revision and v68 profile. Earlier raw metrics are not reused as current evidence."
+}

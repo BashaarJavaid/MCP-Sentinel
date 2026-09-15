@@ -1,0 +1,382 @@
+1: """FastMCP server entrypoint."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import logging
+6: import os
+7: from hmac import compare_digest
+8: from typing import Annotated, Any
+9: 
+10: from mcp.server.fastmcp import FastMCP
+11: from mcp.server.transport_security import TransportSecuritySettings
+12: from pydantic import Field
+13: 
+14: from mcp_ddg_research import cache as cache_ops
+15: from mcp_ddg_research.cache import _get_env_bool
+16: from mcp_ddg_research.fetch import ddg_deep_search as perform_deep_search
+17: from mcp_ddg_research.fetch import web_fetch as perform_web_fetch
+18: from mcp_ddg_research.models import (
+19:     ARGUMENT_DESCRIPTIONS,
+20:     CacheNamespace,
+21:     SafeSearch,
+22:     TimeFilter,
+23: )
+24: from mcp_ddg_research.search import ddg_search as perform_ddg_search
+25: 
+26: LOGGER = logging.getLogger(__name__)
+27: 
+28: mcp = FastMCP(
+29:     name="mcp-ddg-research",
+30:     instructions=(
+31:         "Deterministic DuckDuckGo search and safe webpage fetching tools. "
+32:         "This server does not call LLMs, summarize, or generate reports."
+33:     ),
+34: )
+35: 
+36: 
+37: class KnownPlaceholderTokenError(RuntimeError):
+38:     """Raised when MCP_AUTH_TOKEN is a publicly known placeholder."""
+39: 
+40: 
+41: KNOWN_PLACEHOLDER_TOKENS = {"change-me-now", "changeme", "secret", "token"}
+42: 
+43: 
+44: class BearerTokenAuthMiddleware:
+45:     """ASGI middleware that requires one configured bearer token."""
+46: 
+47:     def __init__(self, app: Any, token: str) -> None:
+48:         self.app = app
+49:         self.expected_authorization = f"Bearer {token}"
+50: 
+51:     async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+52:         scope_type = scope.get("type")
+53:         if scope_type == "lifespan":
+54:             await self.app(scope, receive, send)
+55:             return
+56:         if scope_type != "http":
+57:             # Fail closed: unknown or websocket scopes never bypass the token.
+58:             raise RuntimeError(
+59:                 f"BearerTokenAuthMiddleware refuses to serve scope type {scope_type!r}"
+60:             )
+61: 
+62:         authorization = _authorization_header(scope)
+63:         if authorization is None or not _safe_token_match(
+64:             authorization, self.expected_authorization
+65:         ):
+66:             await _send_unauthorized(send)
+67:             return
+68: 
+69:         await self.app(scope, receive, send)
+70: 
+71: 
+72: def _safe_token_match(left: str, right: str) -> bool:
+73:     try:
+74:         return compare_digest(left.encode("utf-8"), right.encode("utf-8"))
+75:     except (TypeError, UnicodeEncodeError):
+76:         return False
+77: 
+78: 
+79: def _authorization_header(scope: dict[str, Any]) -> str | None:
+80:     for name, value in scope.get("headers", []):
+81:         if name.lower() == b"authorization":
+82:             return value.decode("latin-1")
+83:     return None
+84: 
+85: 
+86: async def _send_unauthorized(send: Any) -> None:
+87:     body = b"Unauthorized"
+88:     await send(
+89:         {
+90:             "type": "http.response.start",
+91:             "status": 401,
+92:             "headers": [
+93:                 (b"content-type", b"text/plain; charset=utf-8"),
+94:                 (b"www-authenticate", b"Bearer"),
+95:                 (b"content-length", str(len(body)).encode("ascii")),
+96:             ],
+97:         }
+98:     )
+99:     await send({"type": "http.response.body", "body": body})
+100: 
+101: 
+102: def _csv_env(name: str, default: list[str]) -> list[str]:
+103:     raw_value = os.getenv(name, "")
+104:     values = [value.strip() for value in raw_value.split(",") if value.strip()]
+105:     return values or default
+106: 
+107: 
+108: def _has_wildcard(values: list[str]) -> bool:
+109:     return "*" in values
+110: 
+111: 
+112: def _http_auth_token() -> str | None:
+113:     token = os.getenv("MCP_AUTH_TOKEN")
+114:     if token is None or not token.strip():
+115:         return None
+116:     return token.strip()
+117: 
+118: 
+119: def _build_transport_security_settings(
+120:     allowed_hosts: list[str],
+121:     allowed_origins: list[str],
+122: ) -> TransportSecuritySettings:
+123:     wildcard_requested = _has_wildcard(allowed_hosts) or _has_wildcard(allowed_origins)
+124:     return TransportSecuritySettings(
+125:         enable_dns_rebinding_protection=not wildcard_requested,
+126:         allowed_hosts=allowed_hosts,
+127:         allowed_origins=allowed_origins,
+128:     )
+129: 
+130: 
+131: def _configure_http_settings() -> None:
+132:     host = os.getenv("MCP_HOST", "0.0.0.0")
+133:     raw_port = os.getenv("MCP_PORT", "8000")
+134:     try:
+135:         port = int(raw_port)
+136:     except ValueError as exc:
+137:         raise RuntimeError(
+138:             f"Invalid MCP_PORT={raw_port!r}; expected an integer port number"
+139:         ) from exc
+140:     if not 1 <= port <= 65535:
+141:         raise RuntimeError(f"Invalid MCP_PORT={raw_port!r}; out of range")
+142:     allowed_hosts = _csv_env("MCP_ALLOWED_HOSTS", ["*"])
+143:     allowed_origins = _csv_env("MCP_ALLOWED_ORIGINS", ["*"])
+144: 
+145:     mcp.settings.host = host
+146:     mcp.settings.port = port
+147:     mcp.settings.transport_security = _build_transport_security_settings(
+148:         allowed_hosts=allowed_hosts,
+149:         allowed_origins=allowed_origins,
+150:     )
+151: 
+152: 
+153: async def _run_http_async() -> None:
+154:     import uvicorn
+155: 
+156:     auth_token = _http_auth_token()
+157:     if auth_token is None:
+158:         if not _get_env_bool("MCP_ALLOW_UNAUTHENTICATED_HTTP", False):
+159:             raise RuntimeError(
+160:                 "MCP HTTP transport requires MCP_AUTH_TOKEN to be set. "
+161:                 "Set a strong random token, or set MCP_ALLOW_UNAUTHENTICATED_HTTP=1 "
+162:                 "to explicitly run without authentication."
+163:             )
+164:         LOGGER.warning(
+165:             "MCP HTTP transport is running without MCP_AUTH_TOKEN; "
+166:             "all HTTP requests are unauthenticated."
+167:         )
+168:     elif auth_token.lower() in KNOWN_PLACEHOLDER_TOKENS:
+169:         raise KnownPlaceholderTokenError(
+170:             f"MCP_AUTH_TOKEN is set to the publicly known placeholder {auth_token!r}. "
+171:             "Set a strong random token before exposing the server over HTTP."
+172:         )
+173: 
+174:     starlette_app = mcp.streamable_http_app()
+175:     if auth_token is not None:
+176:         starlette_app.add_middleware(BearerTokenAuthMiddleware, token=auth_token)
+177: 
+178:     config = uvicorn.Config(
+179:         starlette_app,
+180:         host=mcp.settings.host,
+181:         port=mcp.settings.port,
+182:         log_level=mcp.settings.log_level.lower(),
+183:     )
+184:     server = uvicorn.Server(config)
+185:     await server.serve()
+186: 
+187: 
+188: @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+189: async def ddg_search(
+190:     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+191:     max_results: Annotated[
+192:         int,
+193:         Field(ge=1, le=30, description=ARGUMENT_DESCRIPTIONS["max_results"]),
+194:     ] = 10,
+195:     search_window: Annotated[
+196:         int | None,
+197:         Field(ge=1, le=100, description=ARGUMENT_DESCRIPTIONS["search_window"]),
+198:     ] = None,
+199:     safe_search: Annotated[
+200:         SafeSearch,
+201:         Field(description=ARGUMENT_DESCRIPTIONS["safe_search"]),
+202:     ] = "off",
+203:     time_filter: Annotated[
+204:         TimeFilter | None,
+205:         Field(description=ARGUMENT_DESCRIPTIONS["time_filter"]),
+206:     ] = None,
+207:     blocked_domains: Annotated[
+208:         list[str] | None,
+209:         Field(description=ARGUMENT_DESCRIPTIONS["blocked_domains"]),
+210:     ] = None,
+211:     allowed_domains: Annotated[
+212:         list[str] | None,
+213:         Field(description=ARGUMENT_DESCRIPTIONS["allowed_domains"]),
+214:     ] = None,
+215:     preferred_domains: Annotated[
+216:         list[str] | None,
+217:         Field(description=ARGUMENT_DESCRIPTIONS["preferred_domains"]),
+218:     ] = None,
+219: ) -> dict:
+220:     """Search DuckDuckGo using the configured provider mode."""
+221: 
+222:     response = await perform_ddg_search(
+223:         query=query,
+224:         max_results=max_results,
+225:         search_window=search_window,
+226:         safe_search=safe_search,
+227:         time_filter=time_filter,
+228:         blocked_domains=blocked_domains,
+229:         allowed_domains=allowed_domains,
+230:         preferred_domains=preferred_domains,
+231:     )
+232:     return response.model_dump(mode="json")
+233: 
+234: 
+235: @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+236: async def web_fetch(
+237:     url: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["url"])],
+238:     max_chars: Annotated[
+239:         int,
+240:         Field(ge=1000, le=50000, description=ARGUMENT_DESCRIPTIONS["max_chars"]),
+241:     ] = 12000,
+242: ) -> dict:
+243:     """Fetch one HTTP(S) page safely and return extracted text."""
+244: 
+245:     response = await perform_web_fetch(url=url, max_chars=max_chars)
+246:     return response.model_dump(mode="json")
+247: 
+248: 
+249: @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": True})
+250: async def ddg_deep_search(
+251:     query: Annotated[str, Field(min_length=1, description=ARGUMENT_DESCRIPTIONS["query"])],
+252:     max_results: Annotated[
+253:         int,
+254:         Field(ge=1, le=30, description=ARGUMENT_DESCRIPTIONS["max_results"]),
+255:     ] = 10,
+256:     search_window: Annotated[
+257:         int | None,
+258:         Field(ge=1, le=100, description=ARGUMENT_DESCRIPTIONS["search_window"]),
+259:     ] = None,
+260:     max_pages: Annotated[
+261:         int,
+262:         Field(ge=1, le=10, description=ARGUMENT_DESCRIPTIONS["max_pages"]),
+263:     ] = 5,
+264:     max_chars_per_page: Annotated[
+265:         int,
+266:         Field(ge=1000, le=50000, description=ARGUMENT_DESCRIPTIONS["max_chars_per_page"]),
+267:     ] = 12000,
+268:     safe_search: Annotated[
+269:         SafeSearch,
+270:         Field(description=ARGUMENT_DESCRIPTIONS["safe_search"]),
+271:     ] = "off",
+272:     time_filter: Annotated[
+273:         TimeFilter | None,
+274:         Field(description=ARGUMENT_DESCRIPTIONS["time_filter"]),
+275:     ] = None,
+276:     blocked_domains: Annotated[
+277:         list[str] | None,
+278:         Field(description=ARGUMENT_DESCRIPTIONS["blocked_domains"]),
+279:     ] = None,
+280:     allowed_domains: Annotated[
+281:         list[str] | None,
+282:         Field(description=ARGUMENT_DESCRIPTIONS["allowed_domains"]),
+283:     ] = None,
+284:     preferred_domains: Annotated[
+285:         list[str] | None,
+286:         Field(description=ARGUMENT_DESCRIPTIONS["preferred_domains"]),
+287:     ] = None,
+288:     max_concurrency: Annotated[
+289:         int | None,
+290:         Field(ge=1, le=12, description=ARGUMENT_DESCRIPTIONS["max_concurrency"]),
+291:     ] = None,
+292: ) -> dict:
+293:     """Search once, fetch top pages in parallel, and return raw page text."""
+294: 
+295:     response = await perform_deep_search(
+296:         query=query,
+297:         max_results=max_results,
+298:         search_window=search_window,
+299:         max_pages=max_pages,
+300:         max_chars_per_page=max_chars_per_page,
+301:         safe_search=safe_search,
+302:         time_filter=time_filter,
+303:         blocked_domains=blocked_domains,
+304:         allowed_domains=allowed_domains,
+305:         preferred_domains=preferred_domains,
+306:         max_concurrency=max_concurrency,
+307:     )
+308:     return response.model_dump(mode="json")
+309: 
+310: 
+311: @mcp.tool(annotations={"readOnlyHint": True})
+312: async def cache_stats() -> dict:
+313:     """Return cache file counts and byte totals for each cache namespace."""
+314: 
+315:     return cache_ops.get_cache_stats().to_dict()
+316: 
+317: 
+318: @mcp.tool(annotations={"destructiveHint": True, "idempotentHint": True})
+319: async def cache_prune(
+320:     expired_only: Annotated[
+321:         bool,
+322:         Field(description=ARGUMENT_DESCRIPTIONS["expired_only"]),
+323:     ] = False,
+324:     dry_run: Annotated[
+325:         bool,
+326:         Field(description=ARGUMENT_DESCRIPTIONS["dry_run"]),
+327:     ] = False,
+328: ) -> dict:
+329:     """Prune expired, corrupt, temporary, and oversized cache files."""
+330: 
+331:     return cache_ops.prune_cache(expired_only=expired_only, dry_run=dry_run).to_dict()
+332: 
+333: 
+334: @mcp.tool(annotations={"destructiveHint": True})
+335: async def cache_clear(
+336:     namespace: Annotated[
+337:         CacheNamespace,
+338:         Field(description=ARGUMENT_DESCRIPTIONS["namespace"]),
+339:     ],
+340:     confirm: Annotated[
+341:         bool,
+342:         Field(description=ARGUMENT_DESCRIPTIONS["confirm"]),
+343:     ],
+344: ) -> dict:
+345:     """Clear one cache namespace, or all namespaces, when confirm is true."""
+346: 
+347:     return cache_ops.clear_cache(namespace=namespace, confirm=confirm).to_dict()
+348: 
+349: 
+350: def _prune_cache_on_startup() -> None:
+351:     try:
+352:         stats = cache_ops.prune_cache_on_startup()
+353:     except Exception:  # noqa: BLE001 - cache pruning must not block server startup.
+354:         LOGGER.warning("Startup cache pruning failed", exc_info=True)
+355:         return
+356:     if stats is not None and stats.deleted_files:
+357:         LOGGER.info(
+358:             "Pruned %s cache files on startup (%s bytes)",
+359:             stats.deleted_files,
+360:             stats.deleted_bytes,
+361:         )
+362: 
+363: 
+364: def main() -> None:
+365:     _prune_cache_on_startup()
+366:     transport = os.getenv("MCP_TRANSPORT", "stdio").strip().lower()
+367:     if transport in {"http", "streamable-http"}:
+368:         import asyncio
+369: 
+370:         _configure_http_settings()
+371:         asyncio.run(_run_http_async())
+372:         return
+373:     if transport != "stdio":
+374:         raise RuntimeError(
+375:             f"Invalid MCP_TRANSPORT={transport!r}; accepted values are 'stdio' and 'http'"
+376:         )
+377: 
+378:     mcp.run(transport="stdio")
+379: 
+380: 
+381: if __name__ == "__main__":
+382:     main()

@@ -1,0 +1,56 @@
+{
+  "recorded_at": "2026-09-15T03:56:51.304324+00:00",
+  "scanner": {
+    "revision": "5142a3fbd5bcff63719df6cce3a30543214e7d27",
+    "source_sha256": "b1f044ed710e9997a9572ad3a28dcce01254dc0134bb638a53334541160a8f77",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "scanner_file_sha256": "f4c97d46948ed01290af179564620e4d3ba3f9de4e3e3286f1cb441dbab133bb",
+  "stable_bindings_complete_source": "def stable_bindings(\n    program: PythonProgram,\n    registration_file: ParsedPythonFile,\n    modules: list[tuple[Symbol, ast.expr, Symbol, Symbol]],\n    protected: set[ast.AST],\n    allowed: set[ast.AST],\n) -> bool:\n    \"\"\"Reject replacement/escape in the included production import closure.\"\"\"\n    reachable = program.reachable_files({registration_file.relative_path})\n    copies = any(\n        isinstance(part, ast.Call) and name(part.func, \"dict\") for part in allowed\n    )\n    module_nodes = {module.node for module, _, _, _ in modules}\n    references = {reference for _, reference, _, _ in modules}\n    members = {\n        symbol.node\n        for _, _, provider, handler in modules\n        for symbol in (provider, handler)\n    }\n    member_names = {\n        symbol.name\n        for _, _, provider, handler in modules\n        for symbol in (provider, handler)\n    }\n    namespaces = {registration_file.tree}\n    for module, _, _, _ in modules:\n        namespaces.update(\n            file.tree\n            for file in program.files\n            if file.path.name == \"__init__.py\"\n            and file.path.parent in module.file.path.parents\n        )\n    for file in program.files:\n        if file.relative_path not in reachable:\n            continue\n        for part in ast.walk(file.tree):\n            check_deadline(program.deadline)\n            if isinstance(part, (ast.Import, ast.ImportFrom)):\n                for imported in part.names:\n                    if imported.name == \"*\":\n                        return False\n                    external = program.external_import(\n                        part, imported.asname or imported.name.split(\".\")[0]\n                    )\n                    if copies and external.split(\".\")[0] in {\"builtins\", \"importlib\"}:\n                        return False\n                    if program.parents.get(part) is file.tree:\n                        continue\n                    binding = program.resolve_import(\n                        file,\n                        part,\n                        imported.asname or imported.name.split(\".\")[0],\n                        value_binding=True,\n                    )\n                    if binding and binding.node in (\n                        module_nodes | members | protected | namespaces\n                    ):\n                        return False\n            if isinstance(\n                part, (ast.Global, ast.Nonlocal)\n            ) and member_names.intersection(part.names):\n                return False\n            if isinstance(part, (ast.Global, ast.Nonlocal)) and any(\n                (copies and identifier == \"dict\")\n                or (\n                    (binding := program.resolve(file, identifier, value_binding=True))\n                    is not None\n                    and binding.node in protected\n                )\n                for identifier in part.names\n            ):\n                return False\n            if copies and (\n                name(part, \"__builtins__\")\n                or (\n                    name(part, \"dict\")\n                    and isinstance(part, ast.Name)\n                    and isinstance(part.ctx, ast.Del)\n                )\n                or (isinstance(part, ast.Attribute) and part.attr == \"__dict__\")\n                or program.external(Symbol(file, \"\", file.tree), part) == \"sys.modules\"\n            ):\n                return False\n            if copies and program.external(Symbol(file, \"\", file.tree), part) == \"sys\":\n                parent = program.parents.get(part)\n                if not (\n                    isinstance(parent, ast.Attribute)\n                    and isinstance(parent.ctx, ast.Load)\n                    and not parent.attr.startswith(\"_\")\n                    and parent.attr != \"modules\"\n                ):\n                    return False\n            if isinstance(part, ast.Call) and qualified_name(part.func) in {\n                \"globals\",\n                \"locals\",\n                \"vars\",\n                \"exec\",\n                \"eval\",\n            }:\n                return False\n            if not isinstance(part, (ast.Name, ast.Attribute)) or part in references:\n                continue\n            text = qualified_name(part)\n            if not text or shadowed(program, part, text.split(\".\")[0]):\n                continue\n            resolved = program.resolve(file, text, value_binding=True)\n            if resolved is None:\n                continue\n            parent = program.parents.get(part)\n            grandparent = program.parents.get(parent) if parent else None\n            if resolved.node in namespaces and not (\n                isinstance(parent, ast.Attribute) and isinstance(parent.ctx, ast.Load)\n            ):\n                return False\n            if (\n                resolved.node in protected\n                and part not in allowed\n                and not (\n                    isinstance(part.ctx, ast.Store)\n                    and isinstance(parent, (ast.Assign, ast.AnnAssign))\n                    and program.parents.get(parent) is file.tree\n                    and assignment(parent)[1] in protected\n                )\n            ):\n                return False\n            if resolved.node in module_nodes and not (\n                isinstance(parent, ast.Attribute)\n                and parent.attr in member_names\n                and isinstance(parent.ctx, ast.Load)\n                and isinstance(grandparent, ast.Call)\n                and grandparent.func is parent\n            ):\n                return False\n            if resolved.node in members and not (\n                isinstance(parent, ast.Call) and parent.func is part\n            ):\n                return False\n    return True",
+  "retained_complete_source_packet": "artifacts/phase22/integration/v87-regression-results/proxmox-source-boundary.json",
+  "retained_complete_source_packet_sha256": "5ba5844b0750154cc8c668fae1623c9ff9d496c8955af31219d48f288d5f293c",
+  "source_contexts": [
+    {
+      "snapshot": "3d6610be096f81a1e1257387591f6d77b893eb8b",
+      "path": "src/proxmox_mcp/server.py",
+      "source_sha256": "caac2b6b6941dbe6f3c95b219d4d2fceb6fec1af3c82ec62bcc0aba41412d74f",
+      "line": 5,
+      "source": "from importlib.metadata import PackageNotFoundError, version as _pkg_version",
+      "uses": [
+        {
+          "line": 21,
+          "source": "PackageNotFoundError"
+        },
+        {
+          "line": 20,
+          "source": "_pkg_version"
+        }
+      ]
+    },
+    {
+      "snapshot": "39889d55990ad3c98620093c428ca00c1189734c",
+      "path": "src/proxmox_mcp/server.py",
+      "source_sha256": "caac2b6b6941dbe6f3c95b219d4d2fceb6fec1af3c82ec62bcc0aba41412d74f",
+      "line": 5,
+      "source": "from importlib.metadata import PackageNotFoundError, version as _pkg_version",
+      "uses": [
+        {
+          "line": 21,
+          "source": "PackageNotFoundError"
+        },
+        {
+          "line": 20,
+          "source": "_pkg_version"
+        }
+      ]
+    }
+  ],
+  "source_assessed_rejection": "The metadata-copy path sets copies=True. stable_bindings then rejects every import whose external root is importlib, including from importlib.metadata import PackageNotFoundError, version as _pkg_version in the registration file. The server uses these for package-version discovery and fallback. This sufficient conservative source-level rejection remains after literal mapping support; the actual reports establish unsupported registration, not which rejection executes first. No extra scanner/profile/support trace was run.",
+  "correction_tradeoff": "Do not simply remove the importlib guard: import_module and namespace escapes can replace builtin or protected metadata state. Any further correction should distinguish exact harmless metadata imports from dynamic import/namespace mutation, preserve all existing mutation controls and prove sibling import forms. Full source closure and downstream flow still require verification.",
+  "implementation_changed": false,
+  "gate_passed": false,
+  "new_observations": 0,
+  "paid_calls": 0,
+  "target_execution": false,
+  "runtime_rejection_trace_claimed": false
+}

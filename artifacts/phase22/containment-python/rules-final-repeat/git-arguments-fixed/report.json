@@ -1,0 +1,2291 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-07T06:05:13.945996Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "71e2015a39db95de68a3d9d5eb3d3c2a07f66b0bc6958a11b54c9359a26f682e",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 40,
+          "end_line": 373,
+          "start_column": 18,
+          "start_line": 373
+        },
+        "snippet": "            case GitTools.DIFF_UNSTAGED:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "97e7851b-40a9-49ae-ac96-2430f27d0042",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 40,
+          "end_line": 373,
+          "start_column": 18,
+          "start_line": 373
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 40,
+              "end_line": 373,
+              "start_column": 18,
+              "start_line": 373
+            },
+            "snippet": "            case GitTools.DIFF_UNSTAGED:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "9318ddfb726bc753d6af9c0a8f56208cff341b943fcdb24a05ca19af66230db7",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 38,
+          "end_line": 380,
+          "start_column": 18,
+          "start_line": 380
+        },
+        "snippet": "            case GitTools.DIFF_STAGED:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "5df32c8c-e8f4-47d8-b71c-047a80a1d971",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 38,
+          "end_line": 380,
+          "start_column": 18,
+          "start_line": 380
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 38,
+              "end_line": 380,
+              "start_column": 18,
+              "start_line": 380
+            },
+            "snippet": "            case GitTools.DIFF_STAGED:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "099caabe8ed02b2162905dabd2c50c004e0b568faed14f028f08bbd6299663b2",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 58,
+          "end_line": 388,
+          "start_column": 39,
+          "start_line": 388
+        },
+        "snippet": "                diff = git_diff(repo, arguments[\"target\"], arguments.get(\"context_lines\", DEFAULT_CONTEXT_LINES))"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "8a8da166-d929-4353-87d4-4785ba47e661",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 58,
+          "end_line": 388,
+          "start_column": 39,
+          "start_line": 388
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 58,
+              "end_line": 388,
+              "start_column": 39,
+              "start_line": 388
+            },
+            "snippet": "                diff = git_diff(repo, arguments[\"target\"], arguments.get(\"context_lines\", DEFAULT_CONTEXT_LINES))"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "7fc3083132168a7d1afea60c19b7c820584bd4e69b02efd474d71a88c882f64b",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 63,
+          "end_line": 395,
+          "start_column": 43,
+          "start_line": 395
+        },
+        "snippet": "                result = git_commit(repo, arguments[\"message\"])"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "87d7524a-6300-4085-b0f5-48e36c8a311c",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 63,
+          "end_line": 395,
+          "start_column": 43,
+          "start_line": 395
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 63,
+              "end_line": 395,
+              "start_column": 43,
+              "start_line": 395
+            },
+            "snippet": "                result = git_commit(repo, arguments[\"message\"])"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "2ef14e8dfceb621cab3c43d742614baba5de3aa805c5c10c374444f3f5d1ac32",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 58,
+          "end_line": 402,
+          "start_column": 40,
+          "start_line": 402
+        },
+        "snippet": "                result = git_add(repo, arguments[\"files\"])"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "f5276db9-0b46-43d0-bc37-9f23a5f20f78",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 58,
+          "end_line": 402,
+          "start_column": 40,
+          "start_line": 402
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 58,
+              "end_line": 402,
+              "start_column": 40,
+              "start_line": 402
+            },
+            "snippet": "                result = git_add(repo, arguments[\"files\"])"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "a6afa9d21ee8b4c41867247f0d21bd80f36ed2a75c9488c8c52b6ca8b3418e81",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 30,
+          "end_line": 416,
+          "start_column": 18,
+          "start_line": 416
+        },
+        "snippet": "            case GitTools.LOG:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "e0670a1a-5bfc-4152-839c-e1611caab8ec",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 30,
+          "end_line": 416,
+          "start_column": 18,
+          "start_line": 416
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 30,
+              "end_line": 416,
+              "start_column": 18,
+              "start_line": 416
+            },
+            "snippet": "            case GitTools.LOG:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "0f25bffc9dbd93f9aa523ad928dc366b31a4e13534e5caae46e9cac88090cdfe",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 45,
+          "end_line": 431,
+          "start_column": 21,
+          "start_line": 431
+        },
+        "snippet": "                    arguments[\"branch_name\"],"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "730ad0e5-75cc-454d-a31b-d212248bb79a",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 45,
+          "end_line": 431,
+          "start_column": 21,
+          "start_line": 431
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 45,
+              "end_line": 431,
+              "start_column": 21,
+              "start_line": 431
+            },
+            "snippet": "                    arguments[\"branch_name\"],"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "384f9a5baffa8605c6eac608c99facc4fd50bf66f05dc2bb13f18d64a5b29ef5",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 69,
+          "end_line": 440,
+          "start_column": 45,
+          "start_line": 440
+        },
+        "snippet": "                result = git_checkout(repo, arguments[\"branch_name\"])"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "bae81a06-91b4-436d-9397-0bd1bd97df01",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 69,
+          "end_line": 440,
+          "start_column": 45,
+          "start_line": 440
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 69,
+              "end_line": 440,
+              "start_column": 45,
+              "start_line": 440
+            },
+            "snippet": "                result = git_checkout(repo, arguments[\"branch_name\"])"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "84b47a65b69a6ed670116899f8ea765562ce54b42d4d4abef7c64a6350a11b4f",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 62,
+          "end_line": 447,
+          "start_column": 41,
+          "start_line": 447
+        },
+        "snippet": "                result = git_show(repo, arguments[\"revision\"])"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "78306c7e-e9d0-4e16-a572-bf05cac0c789",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 62,
+          "end_line": 447,
+          "start_column": 41,
+          "start_line": 447
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 62,
+              "end_line": 447,
+              "start_column": 41,
+              "start_line": 447
+            },
+            "snippet": "                result = git_show(repo, arguments[\"revision\"])"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "6cb4aaf24a8820ed0b52daa464d00286e26f0863720db8da943552009877b2d6",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 33,
+          "end_line": 453,
+          "start_column": 18,
+          "start_line": 453
+        },
+        "snippet": "            case GitTools.BRANCH:"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "398d68ee-2ee8-4296-8db7-a7f5c9acdad2",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 33,
+          "end_line": 453,
+          "start_column": 18,
+          "start_line": 453
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 33,
+              "end_line": 453,
+              "start_column": 18,
+              "start_line": 453
+            },
+            "snippet": "            case GitTools.BRANCH:"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Missing tool input validation"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "afd6e6abee87a8dde4d7c5f73a1492f036398417322ed6a83dbe38623b57a352",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 30,
+          "end_line": 134,
+          "start_column": 9,
+          "start_line": 134
+        },
+        "snippet": "        repo.index.add(files)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "aa318f22-3d00-485c-b292-4a02fd09dca6",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 30,
+          "end_line": 134,
+          "start_column": 9,
+          "start_line": 134
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 30,
+              "end_line": 134,
+              "start_column": 9,
+              "start_line": 134
+            },
+            "snippet": "        repo.index.add(files)"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "44e8a6d74dedd6baa1a7bf5030ea5a2ad36656def56a3e3a1d52781080961a46",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "evidence": {
+        "fingerprint": null,
+        "kind": "static",
+        "range": {
+          "end_column": 35,
+          "end_line": 363,
+          "start_column": 16,
+          "start_line": 363
+        },
+        "snippet": "        repo = git.Repo(repo_path)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "33cd9e22-9519-427f-9e77-bbbee5f5ec68",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/mcp_server_git/server.py",
+        "range": {
+          "end_column": 35,
+          "end_line": 363,
+          "start_column": 16,
+          "start_line": 363
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "kind": "static",
+            "range": {
+              "end_column": 35,
+              "end_line": 363,
+              "start_column": 16,
+              "start_line": 363
+            },
+            "snippet": "        repo = git.Repo(repo_path)"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-07T06:05:13.945996Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-07T06:05:13.945996Z",
+      "title": "Path containment failure"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 12,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 12
+    }
+  },
+  "scan_id": "56020925-a766-4cea-b302-f8d32a058d7b",
+  "schema_version": "1.6.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-07T06:05:13.945873Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 366,
+              "start_column": 18,
+              "start_line": 366
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 366,
+              "start_column": 18,
+              "start_line": 366
+            }
+          },
+          "name": "git_status",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 40,
+              "end_line": 373,
+              "start_column": 18,
+              "start_line": 373
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 40,
+              "end_line": 373,
+              "start_column": 18,
+              "start_line": 373
+            }
+          },
+          "name": "git_diff_unstaged",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 38,
+              "end_line": 380,
+              "start_column": 18,
+              "start_line": 380
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 38,
+              "end_line": 380,
+              "start_column": 18,
+              "start_line": 380
+            }
+          },
+          "name": "git_diff_staged",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 31,
+              "end_line": 387,
+              "start_column": 18,
+              "start_line": 387
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 31,
+              "end_line": 387,
+              "start_column": 18,
+              "start_line": 387
+            }
+          },
+          "name": "git_diff",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 394,
+              "start_column": 18,
+              "start_line": 394
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 394,
+              "start_column": 18,
+              "start_line": 394
+            }
+          },
+          "name": "git_commit",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 30,
+              "end_line": 401,
+              "start_column": 18,
+              "start_line": 401
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 30,
+              "end_line": 401,
+              "start_column": 18,
+              "start_line": 401
+            }
+          },
+          "name": "git_add",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 32,
+              "end_line": 408,
+              "start_column": 18,
+              "start_line": 408
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 32,
+              "end_line": 408,
+              "start_column": 18,
+              "start_line": 408
+            }
+          },
+          "name": "git_reset",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 30,
+              "end_line": 416,
+              "start_column": 18,
+              "start_line": 416
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 30,
+              "end_line": 416,
+              "start_column": 18,
+              "start_line": 416
+            }
+          },
+          "name": "git_log",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 40,
+              "end_line": 428,
+              "start_column": 18,
+              "start_line": 428
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 40,
+              "end_line": 428,
+              "start_column": 18,
+              "start_line": 428
+            }
+          },
+          "name": "git_create_branch",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 35,
+              "end_line": 439,
+              "start_column": 18,
+              "start_line": 439
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 35,
+              "end_line": 439,
+              "start_column": 18,
+              "start_line": 439
+            }
+          },
+          "name": "git_checkout",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 31,
+              "end_line": 446,
+              "start_column": 18,
+              "start_line": 446
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 31,
+              "end_line": 446,
+              "start_column": 18,
+              "start_line": 446
+            }
+          },
+          "name": "git_show",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-001",
+            "SENT-002",
+            "SENT-003",
+            "SENT-012"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 453,
+              "start_column": 18,
+              "start_line": 453
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 33,
+              "end_line": 453,
+              "start_column": 18,
+              "start_line": 453
+            }
+          },
+          "name": "git_branch",
+          "reasons": [],
+          "status": "recognized"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 366,
+              "start_column": 1,
+              "start_line": 366
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:366: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 373,
+              "start_column": 1,
+              "start_line": 373
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:373: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 380,
+              "start_column": 1,
+              "start_line": 380
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:380: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 387,
+              "start_column": 1,
+              "start_line": 387
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:387: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 394,
+              "start_column": 1,
+              "start_line": 394
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:394: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 401,
+              "start_column": 1,
+              "start_line": 401
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:401: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 408,
+              "start_column": 1,
+              "start_line": 408
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:408: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 416,
+              "start_column": 1,
+              "start_line": 416
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:416: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 428,
+              "start_column": 1,
+              "start_line": 428
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:428: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 439,
+              "start_column": 1,
+              "start_line": 439
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:439: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 446,
+              "start_column": 1,
+              "start_line": 446
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:446: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 453,
+              "start_column": 1,
+              "start_line": 453
+            }
+          },
+          "message": "SENT-002 at src/mcp_server_git/server.py:453: unsupported match_case flow; this flow is not established as safe."
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 110,
+              "start_column": 1,
+              "start_line": 110
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:110: unresolved call to repo.git.status; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 368,
+              "start_column": 1,
+              "start_line": 368
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:368: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 113,
+              "start_column": 1,
+              "start_line": 113
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:113: unresolved call to repo.git.diff; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 375,
+              "start_column": 1,
+              "start_line": 375
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:375: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 116,
+              "start_column": 1,
+              "start_line": 116
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:116: unresolved call to repo.git.diff; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 382,
+              "start_column": 1,
+              "start_line": 382
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:382: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 123,
+              "start_column": 1,
+              "start_line": 123
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:123: unresolved call to repo.rev_parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 124,
+              "start_column": 1,
+              "start_line": 124
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:124: unresolved call to repo.git.diff; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 389,
+              "start_column": 1,
+              "start_line": 389
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:389: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:127: unresolved call to repo.index.commit; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 396,
+              "start_column": 1,
+              "start_line": 396
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:396: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:132: unresolved call to repo.git.add; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 138,
+              "start_column": 1,
+              "start_line": 138
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:138: unresolved call to repo.index.reset; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 146,
+              "start_column": 1,
+              "start_line": 146
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:146: unresolved call to args.extend; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 148,
+              "start_column": 1,
+              "start_line": 148
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:148: unresolved call to args.extend; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 151,
+              "start_column": 1,
+              "start_line": 151
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:151: unresolved call to repo.git.log; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 151,
+              "start_column": 1,
+              "start_line": 151
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:151: unresolved call to split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:155: unresolved call to len; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:155: unresolved call to range; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 156,
+              "start_column": 1,
+              "start_line": 156
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:156: unresolved call to len; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 157,
+              "start_column": 1,
+              "start_line": 157
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:157: unresolved call to log.append; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 166,
+              "start_column": 1,
+              "start_line": 166
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:166: unresolved call to repo.iter_commits; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 166,
+              "start_column": 1,
+              "start_line": 166
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:166: unresolved call to list; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 169,
+              "start_column": 1,
+              "start_line": 169
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:169: unresolved call to log.append; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:183: unresolved call to repo.create_head; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 434,
+              "start_column": 1,
+              "start_line": 434
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:434: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 191,
+              "start_column": 1,
+              "start_line": 191
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:191: unresolved call to repo.rev_parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 192,
+              "start_column": 1,
+              "start_line": 192
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:192: unresolved call to repo.git.checkout; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 441,
+              "start_column": 1,
+              "start_line": 441
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:441: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 198,
+              "start_column": 1,
+              "start_line": 198
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:198: unresolved call to repo.commit; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 207,
+              "start_column": 1,
+              "start_line": 207
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:207: unresolved call to parent.diff; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 209,
+              "start_column": 1,
+              "start_line": 209
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:209: unresolved call to commit.diff; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 211,
+              "start_column": 1,
+              "start_line": 211
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:211: unresolved call to output.append; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 214,
+              "start_column": 1,
+              "start_line": 214
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:214: unresolved call to isinstance; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 215,
+              "start_column": 1,
+              "start_line": 215
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:215: unresolved call to d.diff.decode; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 215,
+              "start_column": 1,
+              "start_line": 215
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:215: unresolved call to output.append; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 217,
+              "start_column": 1,
+              "start_line": 217
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:217: unresolved call to output.append; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 218,
+              "start_column": 1,
+              "start_line": 218
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:218: unresolved call to join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 448,
+              "start_column": 1,
+              "start_line": 448
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:448: unresolved call to TextContent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:244: unresolved call to repo.git.branch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/mcp_server_git/server.py",
+            "range": {
+              "end_column": 2,
+              "end_line": 460,
+              "start_column": 1,
+              "start_line": 460
+            }
+          },
+          "message": "SENT-012 at src/mcp_server_git/server.py:460: unresolved call to TextContent; protection is not established"
+        }
+      ]
+    },
+    "duration_ms": 6485,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {
+          "justified_filesystem.read": 12,
+          "justified_filesystem.write": 12
+        },
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {
+          "validated_before_use": 2
+        },
+        "match_count": 10,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 2,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 7,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012"
+    ],
+    "total_matches": 12
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 10,
+      "Medium": 2
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 12,
+      "suppressed": 0
+    },
+    "total": 12
+  },
+  "target": {
+    "display_name": "git-arguments-fixed",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:366: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:373: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:380: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:387: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:394: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:401: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:408: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:416: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:428: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:439: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:446: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/mcp_server_git/server.py:453: unsupported match_case flow; this flow is not established as safe."
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:110: unresolved call to repo.git.status; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:368: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:113: unresolved call to repo.git.diff; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:375: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:116: unresolved call to repo.git.diff; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:382: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:123: unresolved call to repo.rev_parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:124: unresolved call to repo.git.diff; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:389: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:127: unresolved call to repo.index.commit; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:396: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:132: unresolved call to repo.git.add; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:138: unresolved call to repo.index.reset; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:146: unresolved call to args.extend; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:148: unresolved call to args.extend; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:151: unresolved call to repo.git.log; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:151: unresolved call to split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:155: unresolved call to len; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:155: unresolved call to range; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:156: unresolved call to len; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:157: unresolved call to log.append; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:166: unresolved call to repo.iter_commits; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:166: unresolved call to list; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:169: unresolved call to log.append; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:183: unresolved call to repo.create_head; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:434: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:191: unresolved call to repo.rev_parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:192: unresolved call to repo.git.checkout; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:441: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:198: unresolved call to repo.commit; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:207: unresolved call to parent.diff; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:209: unresolved call to commit.diff; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:211: unresolved call to output.append; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:214: unresolved call to isinstance; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:215: unresolved call to d.diff.decode; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:215: unresolved call to output.append; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:217: unresolved call to output.append; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:218: unresolved call to join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:448: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:244: unresolved call to repo.git.branch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/mcp_server_git/server.py:460: unresolved call to TextContent; protection is not established"
+    },
+    {
+      "code": "static_review_context_incomplete",
+      "message": "SENT-012 at src/mcp_server_git/server.py:134: resolved source/guard/sink evidence extends beyond the supplied review context."
+    }
+  ]
+}

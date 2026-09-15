@@ -1,0 +1,126 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-13T18:59:51.532323+00:00",
+  "starting_delivery": "c33721112efac7d9e776b97db84e2d92359b8001",
+  "scanner": {
+    "revision": "a36f696c504e4e8d1f90de5dc84e8942d06316ca",
+    "source_sha256": "2f4a49aeb2173ca2174b984b8108174d96d6df42cec93e58522caf713efbaeab",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "profile_assessment_sha256": "2c91538a793e5527690098941a949d9887b6dccb84807988b5e37194f1454e49",
+  "source_assessment_sha256": "3aea4ec93c420cdb89b0bed86265f231bc3b0b333e3b3ffa9d11b42cca8e2020",
+  "target": "src/sentinel/static/path_flow.py:combine",
+  "target_source_sha256": "7db58122b8b5dd11e20e2624d2dada031357fc8393e03e973c2bf8a2c26fd80d",
+  "purpose": "Avoid entering the existing tuple-keyed LRU for the established eligible singleton case, without changing value or analysis semantics.",
+  "proposed_change": "One source-only optimization: before tuple conversion/_combine dispatch, return the sole input Value only when len(values)==1, the requested key is empty or equals its key, and the existing source-free contained/checked_path_parent/option_safe/url_checks stripping condition does not apply. Preserve all fields and all other paths through unchanged _combine and its4096-entry LRU. No new cache, dependency, multi-value shortcut or traversal change.",
+  "evidence": [
+    {
+      "rule": "SENT-012",
+      "samples": 19498,
+      "snapshot_worker_cpu_seconds": 225.2758,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.09057339214279,
+      "merge_fallback_constructor_leaf_percent": 0.025643655759565082,
+      "registration_inclusive_percent": 99.62047389475843,
+      "leaf_samples": {
+        "json_encoder_leaf": 1279,
+        "merge_equal_predicate_leaf": 1490,
+        "combine_cache_call_leaf": 1450
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.559647143296749,
+        "merge_equal_predicate_leaf": 7.641809416350395,
+        "combine_cache_call_leaf": 7.436660170273875
+      }
+    },
+    {
+      "rule": "SENT-014",
+      "samples": 19397,
+      "snapshot_worker_cpu_seconds": 223.582121,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.32989637572821,
+      "merge_fallback_constructor_leaf_percent": 0.05670980048461102,
+      "registration_inclusive_percent": 99.62365314223848,
+      "leaf_samples": {
+        "json_encoder_leaf": 1396,
+        "merge_equal_predicate_leaf": 1453,
+        "combine_cache_call_leaf": 1463
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 7.196989225137908,
+        "merge_equal_predicate_leaf": 7.490849100376347,
+        "combine_cache_call_leaf": 7.542403464453266
+      }
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 20060,
+      "snapshot_worker_cpu_seconds": 229.034095,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.48953140578265,
+      "merge_fallback_constructor_leaf_percent": 0.03988035892323031,
+      "registration_inclusive_percent": 99.64606181455633,
+      "leaf_samples": {
+        "json_encoder_leaf": 1332,
+        "merge_equal_predicate_leaf": 1482,
+        "combine_cache_call_leaf": 1532
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.640079760717846,
+        "merge_equal_predicate_leaf": 7.387836490528414,
+        "combine_cache_call_leaf": 7.637088733798604
+      }
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 19814,
+      "snapshot_worker_cpu_seconds": 228.764967,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 33.73372362975674,
+      "merge_fallback_constructor_leaf_percent": 0.050469365095387096,
+      "registration_inclusive_percent": 99.63662057131322,
+      "leaf_samples": {
+        "json_encoder_leaf": 1375,
+        "merge_equal_predicate_leaf": 1427,
+        "combine_cache_call_leaf": 1467
+      },
+      "leaf_percent": {
+        "json_encoder_leaf": 6.939537700615726,
+        "merge_equal_predicate_leaf": 7.201978399111739,
+        "combine_cache_call_leaf": 7.403855859493287
+      }
+    }
+  ],
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Preserve the exacta36f696 combine/_combine baseline before editing. Trace shared Python/TypeScript callers and is/id/cache observations; no identity-dependent semantic change may be accepted. Existing warm-cache interning versus direct input identity must be explicitly covered, including distinct equal Values.",
+    "Use the existing scanner-owned synthetic helpers plus complete Value-field and Python/TypeScript flow-state comparisons for empty/singleton/two/many inputs; empty/equal/different key overrides; source-free and tainted safety combinations; None/#missing/#ts:undefined; credentials/options/path/URL/record/array metadata. Verify cold and warm caches, repeated equal-but-distinct inputs and unchanged inputs. Preserve all needed stripping/key override/fallback behavior.",
+    "Count cache entry calls synthetically: eligible singleton cases must avoid tuple/cache dispatch; all ineligible/multi-value cases retain the existing path. This is no timing claim. Stop and close the single attempt if equivalence or avoided-work checks fail, without another target.",
+    "Complete affected and full local/hosted engineering, whole-scope static/package/schema/lock/docs checks and source-bound production/runtime compatibility with zero paid calls. Freeze the verified candidate and prepare separate current-source regression approval; both languages are affected. No corpus/profile execution follows from this source-only approval."
+  ],
+  "retention_and_limits": "Current singleton frequency and cache-hit prevalence are unknown. The measured cache-call sample share is motivation, not a promised speedup or300-second completion. All three native timeouts, prior partial profiles and invalid stale-root attempt remain unchanged. Any further attempt requires a separate decision.",
+  "not_authorized": [
+    "another optimization target or attempt",
+    "new cache or analysis truncation",
+    "new resource, parallelism or deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

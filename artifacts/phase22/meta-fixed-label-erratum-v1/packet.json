@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "recorded_at": "2026-09-09T14:08:44.422662+00:00",
+  "approved": true,
+  "user_decision": "continue with your recommendation. and if you need to make more paid calls ask me first.",
+  "decision": "Retain frozen condition, prerequisites, labels, original manifest and raw scores. Add a separate fixed-label erratum for the SSE-response configuration; do not narrow the condition.",
+  "original_manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+  "proposal_sha256": "50c052d907e6030d19125e9036728d9ea2ab3523190819b3f754666b56239afe",
+  "prior_raw_score_sha256": "a2343c659ad6dfb853ac8659bc94395e103ee39bf29c83109302a1135da78f57",
+  "current_report_bindings_sha256": "7d34d47660f408f73396c14bbaff93f6652218a91c58472b4dcd31fcefde5312",
+  "source_level_evidence": [
+    {
+      "absent_caller_headers": true,
+      "case": "vulnerable",
+      "continuations": 1,
+      "json_response": true,
+      "scope": "bounded source interpretation with explicit missing caller headers; no target or SDK execution",
+      "served_apps": [
+        {
+          "layers": 1,
+          "source": "meta_ads_mcp/core/server.py"
+        }
+      ]
+    },
+    {
+      "absent_caller_headers": true,
+      "case": "vulnerable",
+      "continuations": 1,
+      "json_response": false,
+      "scope": "bounded source interpretation with explicit missing caller headers; no target or SDK execution",
+      "served_apps": [
+        {
+          "layers": 0,
+          "source": "meta_ads_mcp/core/server.py"
+        }
+      ]
+    },
+    {
+      "absent_caller_headers": true,
+      "case": "fixed",
+      "continuations": 0,
+      "json_response": true,
+      "scope": "bounded source interpretation with explicit missing caller headers; no target or SDK execution",
+      "served_apps": [
+        {
+          "layers": 1,
+          "source": "meta_ads_mcp/core/server.py"
+        }
+      ]
+    },
+    {
+      "absent_caller_headers": true,
+      "case": "fixed",
+      "continuations": 1,
+      "json_response": false,
+      "scope": "bounded source interpretation with explicit missing caller headers; no target or SDK execution",
+      "served_apps": [
+        {
+          "layers": 0,
+          "source": "meta_ads_mcp/core/server.py"
+        }
+      ]
+    }
+  ],
+  "affected_inputs": [
+    "meta-operator-fallback-fixed",
+    "meta-operator-fallback-fixed-mutation"
+  ],
+  "raw_metrics_unchanged": {
+    "inputs": 25,
+    "states": {
+      "completed": 25
+    },
+    "vulnerable_total": 10,
+    "vulnerable_applicable": 10,
+    "vulnerable_completed_adjudicated": 10,
+    "safe_completed_adjudicated": 15,
+    "false_alarm_conditions": 2,
+    "unadjudicated_findings": 554,
+    "abstentions": 0,
+    "incorrect_suppressions": 0,
+    "runtime_confirmations": 0,
+    "review_decisions_all_candidates": {},
+    "candidate": {
+      "observed_detections": 10,
+      "total_corpus_observed_fraction": 1.0,
+      "completed_recall": 1.0,
+      "completed_detections": 10
+    },
+    "retained": {
+      "observed_detections": 10,
+      "total_corpus_observed_fraction": 1.0,
+      "completed_recall": 1.0,
+      "completed_detections": 10
+    },
+    "confirmed": {
+      "observed_detections": 0,
+      "total_corpus_observed_fraction": 0.0,
+      "completed_recall": 0.0,
+      "completed_detections": 0
+    }
+  },
+  "adjusted_fixed_side_gate": {
+    "all_development_inputs_completed": 25,
+    "vulnerable_conditions_detected": 10,
+    "vulnerable_conditions_total": 10,
+    "nominal_fixed_safe_inputs": 15,
+    "erratum_affected_inputs": 2,
+    "valid_fixed_safe_denominator": 13,
+    "condition_false_alarms_on_valid_fixed_safe_inputs": 0,
+    "erratum_condition_alerts": 2,
+    "erratum_matched_finding_instances": 4,
+    "passed_for_source_assessed_valid_controls": true
+  },
+  "interpretation": "The two original fixed labels cannot assert safety over the entire frozen configuration scope. Their four matched finding instances remain visible as source counterexamples; they are not accepted detector false alarms and are not added to the vulnerable recall denominator. The separately safe caller-owned-credential control remains in the 13 valid controls.",
+  "runtime_confirmed": false,
+  "independent_human_validation": false,
+  "source_or_detector_changes": false,
+  "model_calls": 0,
+  "limitations": [
+    "Source interpretation under successful startup and absent caller credentials; no target/SDK execution or endpoint tested.",
+    "This approved erratum is a corpus interpretation decision, not independent technical verification or a product acceptance gate.",
+    "Original 25-input raw metrics still display two nominal fixed-side alerts. All 554 unrelated source-assessed instances and uncertainties remain."
+  ]
+}

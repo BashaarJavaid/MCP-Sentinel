@@ -1,0 +1,29 @@
+{
+  "id": "solver-vector-path",
+  "rule": "SENT-012",
+  "repository": "ruvnet/sublinear-time-solver",
+  "split": "held_out",
+  "language": "typescript",
+  "before": "ea9a212b69e4449ec443fe088a7aec7546f70b4a",
+  "after": "a701296e363192be863e79d788fa268095e3d229",
+  "root": ".",
+  "files": [
+    "src/mcp/server.ts",
+    "src/mcp/safe-path.ts"
+  ],
+  "condition": "saveVectorToFile must not write a caller-chosen traversal or absolute destination outside the dedicated vector directory",
+  "prerequisites": [
+    "A valid generated vector and supported output format; caller-selected file_path; destination is writable by the server process.",
+    "The configured vector directory and its ancestors are operator-controlled ordinary directories; the condition excludes directory-symlink races and unsupported platform O_NOFOLLOW behavior."
+  ],
+  "safe": "A non-hidden basename such as vector.json with a supported format may be written inside the operator-controlled vector directory",
+  "review": "The registered saveVectorToFile dispatch forwards file_path to a class method that previously resolved and wrote the supplied path. The fix routes the same value into safeWriteVector, whose basename restriction and directory-relative resolution constrain the write. The scoped archive omits only a large generated session-memory JSON dataset, not source.",
+  "provenance": [
+    "solver-advisory.json",
+    "solver-fix.json"
+  ],
+  "rename": {
+    "absolutePath": "phase22AbsolutePath"
+  },
+  "safe_prerequisites": "Valid vector and supported format; a non-hidden basename; an operator-controlled ordinary vector directory and ancestors with no path replacement."
+}

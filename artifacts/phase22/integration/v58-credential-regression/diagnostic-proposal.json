@@ -1,0 +1,158 @@
+{
+  "status": "prepared_not_approved_not_executed",
+  "scanner": {
+    "revision": "dc7371513a065457af566f4b589b9ed147130d64",
+    "source_sha256": "4f3e5b2e9c89f61d179ac82db94ced06e83033f9cf1640644cefb53326e96eb9",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-dc73715",
+  "input": {
+    "input": {
+      "id": "faf-read-root-vulnerable",
+      "family": "faf-read-root",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "language": "typescript",
+      "split": "held_out",
+      "variant": "original",
+      "label": "vulnerable",
+      "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+      "scan_root": ".",
+      "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+      "prerequisites": [
+        "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+        "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+        "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+      ],
+      "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+      "runtime_applicability": "unsupported",
+      "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+      "runtime_configuration": null,
+      "evidence": [
+        {
+          "path": "src/index.ts",
+          "start_line": 1,
+          "end_line": 18,
+          "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/server.ts",
+          "start_line": 1,
+          "end_line": 139,
+          "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/tools.ts",
+          "start_line": 1,
+          "end_line": 3302,
+          "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/fileHandler.ts",
+          "start_line": 1,
+          "end_line": 235,
+          "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/engine-adapter.ts",
+          "start_line": 1,
+          "end_line": 877,
+          "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "package.json",
+          "start_line": 1,
+          "end_line": 118,
+          "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "tsconfig.json",
+          "start_line": 1,
+          "end_line": 33,
+          "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        }
+      ],
+      "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+      "parent": null,
+      "transformation": null,
+      "overlay": null,
+      "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+    },
+    "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+    "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "assessment": null
+  },
+  "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+  "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+  "purpose": "Identify remaining scanner costs on the same FAF vulnerable input after the approved credential-join correction and canonical UNKNOWN_VALUE bypass still reached 300 seconds without a report. Earlier v54 samples measure a36f696 before these two changes. This native attempt has no stack or stage attribution. Propose one current-source diagnostic, with zero optimization attempts or uninstrumented regression observations.",
+  "command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v58-credential-regression/diagnostic.py"
+  ],
+  "initial_cwd": "/private/tmp/mcp-phase22-options",
+  "output": "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v59-faf-credential-sampling",
+  "bounds": {
+    "total_input_executions": 1,
+    "sampled_profiles": 1,
+    "uninstrumented_observations": 0,
+    "whole_input_maximum_seconds": 300,
+    "normal_target_seconds": 120,
+    "cleanup_maximum_seconds": 15,
+    "cpu_timer_hz_per_worker": 100,
+    "periodic_snapshot_seconds": 15,
+    "maximum_stack_frames": 1024,
+    "optimization_attempts": 0,
+    "retries": 0,
+    "comparators": 0,
+    "paid_calls": 0,
+    "hosted_dispatches": 0,
+    "target_execution": false
+  },
+  "instrumentation": "Reuse the validated 100Hz stdlib CPU-timer worker sampler, existing rule set, worker layout and 300-second limit. Bind imports to frozen dc73715 and verify actual worker/flow paths plus complete source/harness/revision before timer setup or target snapshot access. Parent preflight checks an isolated worker before consuming a token; every real worker retains its identity receipt. No scanner method replacement, locals or source values. Identity and sampling overhead remain inside the unchanged limit.",
+  "partial_output": "Retain atomic15-second snapshots even if workers are killed by the unchanged timeout cleanup. A killed worker may lack a final/restored-state snapshot; report that fact. Do not weaken cleanup, extend deadlines or claim a complete profile interval.",
+  "interpretation": "Signal/GIL/native-code delivery and snapshot overhead bias attribution. Overlapping stack shares are not additive costs or guaranteed savings; this profile does not establish native speedup or regression success. If a report completes, validate JSON/SARIF, compare the entire ordered report with the original 2e0efb2 reference after only the established 11 exclusions, and source-assess every change. The current native dc73715 timeout has no report baseline. Every worker must bind dc73715; absent or mismatched identities invalidate attribution. Earlier profiles retain their actual 17b4784/6e4fd67/a36f696 identities; the stale-root v50 attempt remains unusable.",
+  "stop": "At most one attempted input, including timeout, interruption or worker-identity failure. Fail before consumption on parent preflight mismatch. Preserve partial outputs and close the one-use budget on every attempted outcome. No automatic retry, optimization, resource/deadline change or reopened regression/profile budget.",
+  "environment": "Existing locked local macOS environment and frozen dc73715 source. No dependency, resource, parallelism or deadline change; no overlapping owned heavy work.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v57-credential-merge/evaluation-proposal.json": "987379ede197b27da159fc0ef11eca6782c0535a66bf8fba061ffe1786e5c03a",
+    "artifacts/phase22/integration/v57-credential-merge/evaluation-authorization.json": "81675e75e172778d379c46eb297a009f5155a07da518311aff7bdcfc0a192db5",
+    "artifacts/phase22/integration/v57-credential-merge/execution-consumed.json": "7e9960918871fc28407abaae5a4860c0e5c53bd2b820e56feeedc0a5a14f6b28",
+    "artifacts/phase22/integration/v57-credential-merge/evaluate.py": "9d9c5b53845a422d675556be5d0d4bc61c56fd149834293dce97709a03dc3be9",
+    "artifacts/phase22/integration/v57-credential-merge/authorization.json": "f6fd092660f200779c74b65cb2629a88f02a7c37663177807f0e8a3c17c574a9",
+    "artifacts/phase22/integration/v57-credential-merge/correction-validation.json": "b36d218b3e2f07ea63e4d1755e28b29b12ab3191590cfa37f768064b47cf2de9",
+    "artifacts/phase22/integration/v57-credential-merge/synthetic-validation.json": "02f4cd094d92dda0c8910375ee668857d8fd75eadf4782a5197dd70a479514c0",
+    "artifacts/phase22/integration/v57-credential-merge/source-recovery-assessment.json": "2c1d24b4f779e5d9d81dafe433927e94564a0397faedbff097a752344f390a16",
+    "artifacts/phase22/integration/v57-credential-merge/optimization-budget-closed.json": "18f4bc4c972fc0bc6a55625b97a5298cc6bae64c0424c594cf1336cc6cf40281",
+    "artifacts/phase22/integration/v58-credential-regression/corrected-sampling-worker.py": "40651d959402b5cc4f6239d4e1e4bfd16cb150dc3b2671c41388751e1a3ece87",
+    "artifacts/phase22/integration/v58-credential-regression/diagnostic.py": "35f08a1743ee9ae58684ea16f2fa041abae19af5074c4f5f877cf87fb6cf165e",
+    "artifacts/phase22/integration/v58-credential-regression/sampler-selfcheck.py": "a95ea66583d8c188e52ee5ed64b1cd62fb9448dba87740d8f030724e3a13a54a",
+    "artifacts/phase22/integration/v58-credential-regression/sampler-selfcheck/packet.json": "ac1b956d9018bf16e3034aa187ee4ee2be7a6f31ec6734b8a26723dc8107dc4d",
+    "artifacts/phase22/integration/v58-credential-regression/assessment.json": "66e34703e96e629cc25615879816581893f2c35b0cc54723dc4b182ff6a71fbb",
+    "artifacts/phase22/integration/v58-credential-regression/validation.json": "8f5289f7ac85e86817e8d1e9dc7475371ddefc3a5229c66e81c7d9a5d5144a33",
+    "artifacts/phase22/integration/v58-credential-regression/budget-closed.json": "573c6c549b21582f810a091c4ee7480937311b806cada4cbe8b734ccc52cd5b2",
+    "artifacts/phase22/integration/v58-credential-regression/raw/packet.json": "73e185c5b94d28904e4f1414cb18935ad37c369639c55cfbe9e40e97afad7c2e",
+    "artifacts/phase22/integration/v58-credential-regression/execution.json": "296aab9252940cdb4133b5b14af4794fa6a98f8e4b061cfe9e16010be58a21cc",
+    "artifacts/phase22/integration/v58-credential-regression/assess-and-prepare.py": "345360b7b3140b54565dc7422173a4b58e9fb0d159412d254e7f32089c7441cb",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v54-faf-fastpath-sampling/assessment.json": "2c91538a793e5527690098941a949d9887b6dccb84807988b5e37194f1454e49",
+    "artifacts/phase22/integration/v54-faf-fastpath-sampling/source-assessment.json": "3aea4ec93c420cdb89b0bed86265f231bc3b0b333e3b3ffa9d11b42cca8e2020",
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json": "5f70268142fca7b6b26ee0ec953e8273ebecccc31e26b276d92fe556e92e06b1"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "sampler_reuse": {
+    "prior_proposal_sha256": "9d3d83da8e6c3295dd98c9462a3bf9809bd8dbf9da442f27cc698ca7ce90f925",
+    "prior_sampler_sha256": "36ad09ed42e232b8da8ae7f47e95b920563501b7092749a709e581e98fe6f001",
+    "allowed_changes": "Only frozen root/revision/source identity and output/asset paths. Sampling, snapshot, timer restoration, bounds and identity-before-target logic unchanged. A stale a36f696 control rejects before timer or target access."
+  }
+}

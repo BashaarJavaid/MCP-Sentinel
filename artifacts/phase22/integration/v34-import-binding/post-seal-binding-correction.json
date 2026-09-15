@@ -1,0 +1,43 @@
+{
+  "initial_command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "artifacts/phase22/integration/v34-import-binding/bind-delivery.py"
+  ],
+  "initial_exit_code": 1,
+  "observed_failure": "bind-delivery.py line38: AssertionError: ARCHITECTURE.md while comparing every audit source/test/document hash to final working-tree bytes. No final binding was written and no delivery was attempted.",
+  "reason": "Audit document hashes describe the tested8a3db58 checkpoint before final status edits. Final owning-document hashes belong in the post-seal binding; product/test hashes remain unchanged.",
+  "changed_document_bindings": {
+    "ARCHITECTURE.md": {
+      "tested_workflow_document_sha256": "0e6102d4002681ea83ac0bd4b47be7b958878b096c7f062ce83a41b123365a27",
+      "final_document_sha256": "35d57d108cfcee9e2aeeff76a653e2c1c047472195aff9f37d8fde08478bbeda"
+    },
+    "README.md": {
+      "tested_workflow_document_sha256": "2c37ab25eeb9fa7c3c52e64b6b3e05bc713f90036918d1d89ec594ecd3ffdb4c",
+      "final_document_sha256": "ac5668707d434541cb86383827f41883adb11ec4fcb98c588e48515f803e5f76"
+    },
+    "ROADMAP.md": {
+      "tested_workflow_document_sha256": "62e84160ba5ef9811c4db7501c737b460ad098bd0b05254f4a1a492b614903a9",
+      "final_document_sha256": "2a0e6f628829fab47b1f4cf0abe0ca1521c56457a259aa27253c9f5c790fd4e4"
+    },
+    "docs/phase22-implementation-status.md": {
+      "tested_workflow_document_sha256": "f6cec3957a02111af191ad8d9d6f9249757b9e275bf2e7db5841760b7989ca30",
+      "final_document_sha256": "1353f14bdbd3299cf04e4c22431d3148d6dd6fdf8d02ba19230fd8c0d98d97da"
+    },
+    "docs/phase22-timeout-policy.md": {
+      "tested_workflow_document_sha256": "fa55ea840ab2bbd8f7540fa55a5f46238f8f7eaa88301290e9483fb2fcb783c0",
+      "final_document_sha256": "f0abc036c52d38a6b46e6d86bf34b8982365c42bab6fee8fa5f4dea07f59361d"
+    },
+    "docs/rules.md": {
+      "tested_workflow_document_sha256": "e8d981a4f7999587cc939eae7f9bb513fc0ad63145a44b95a1299c8e8ff99142",
+      "final_document_sha256": "ab6ce35268da6b2f899564dac16e906a1a79f34947de46939690a45a4d1a6014"
+    }
+  },
+  "corrected_helpers_sha256": {
+    "bind-delivery-final.py": "c07e2628e3e493f5fca6cde134ce5988fa2acd95a16008174c10c94f04d969d6",
+    "deliver-final.py": "92697f4aebfed4934b16728c9d864decd6648a7f1f786e48a30d24d57fc6ef32"
+  },
+  "seal61_and_all_members_unchanged": true,
+  "new_corpus_observations": 0,
+  "new_paid_calls": 0,
+  "qualification": "Directly tracked post-seal correction. The original failing binder, sealed audit and all prior verification are preserved."
+}

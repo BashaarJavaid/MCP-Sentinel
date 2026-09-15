@@ -99,12 +99,16 @@ def test_historical_coverage_is_unavailable_without_mutation() -> None:
     old = {
         "schema_version": "1.5.0",
         "static_analysis": {},
-        "dynamic_analysis": {"probe_outcomes": [{"probe_id": "SENT-008"}]},
+        "dynamic_analysis": {
+            "probe_outcomes": [
+                {"probe_id": f"SENT-{number:03}"} for number in range(8, 12)
+            ]
+        },
     }
     original = copy.deepcopy(old)
     migrated = migrate_report_data(old)
     assert old == original
-    assert migrated["schema_version"] == "1.6.0"
+    assert migrated["schema_version"] == "1.7.0"
     assert migrated["static_analysis"]["coverage"] is None
     assert migrated["review_activity"] == {"static": None, "dynamic": None}
     assert migrated["dynamic_analysis"]["probe_outcomes"][0]["attack_attempted"] is None
@@ -549,6 +553,7 @@ def test_missing_historical_baseline_control_stays_unknown() -> None:
             "dynamic_analysis": DynamicAnalysisSummary(
                 probe_outcomes=tuple(
                     DynamicProbeOutcome(
+                        attempt_id=f"test:{probe}",
                         probe_id=probe,
                         status="untested",
                         verdict=None,

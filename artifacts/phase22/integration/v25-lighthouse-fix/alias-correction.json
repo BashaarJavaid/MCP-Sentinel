@@ -1,0 +1,15 @@
+{
+  "context": "Final source review before evaluation found two separately imported names for the same SDK constructor can share a mutated prototype. This is within the user's existing fix-it authorization; no corpus or paid-call budget is inferred.",
+  "superseded_scanner": "b8300271baadf41621aeb10fb2f4ce6fb865fd7d",
+  "superseded_workflow": "f9b1102b1cbfc31619528f7a24ce143f9bdc7b6a",
+  "superseded_unapproved_proposal": "evaluation-proposal.json",
+  "superseded_proposal_sha256": "c70f9555fc9ed70c3cbea095a7cc72ec61bda680eec6b6c213e14e3ce41e83fb",
+  "before": {"log": "alias-regression-before.log", "failed": 1, "passed": 35, "observation": "unknown(Alias) was followed by new Server with a second import name, and incorrectly retained a source-established registration."},
+  "correction": "Invalidation now records the canonical SDK constructor identity as well as the local Value key. Constructor/prototype lookup, instance method lookup and saved setter forwarding respect that shared identity. Existing per-branch invalidation handling is retained.",
+  "after": {"log": "alias-regression-after.log", "passed": 458, "new_regression_cases_total": 36},
+  "verification": "Fresh full engineering verification is required for the final corrected revision; the earlier2229-test pass remains bound to b830027 and is not substituted for it.",
+  "first_frozen_miss_unchanged": true,
+  "new_corpus_observations": 0,
+  "paid_calls": 0,
+  "phase22_complete": false
+}

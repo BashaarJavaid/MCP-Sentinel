@@ -1,0 +1,89 @@
+{
+  "source": {
+    "revision": "7292abbc48fa376658e0ce9b2d56b83e37ac3e87",
+    "source_sha256": "5474f014ed29ef435dda5ce0722987f222d801928ad35287f2672dbd8f9a2b7d",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "outcomes": [
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "state": "completed",
+      "reason": null,
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "exit_code": 0,
+      "finding_count": 50,
+      "report_sha256": "74c2142bfbc05819527ca1f41edce5608ffcb36554fc92450f3a622f06a7a8ac",
+      "stable_sha256": "c187bace7a8e0bb938f53663d505fe7d656b2dde3efc62f68d75fa0b0280070c",
+      "wall_duration_ms": 75182
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "state": "completed",
+      "reason": null,
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "exit_code": 0,
+      "finding_count": 49,
+      "report_sha256": "ad9efa83f42c905fe7dfb44f134001b36b23a10b4577bdb5aaf486ac71216811",
+      "stable_sha256": "f69d806e1453a028d6420a4f21e59277e2c4837258d09d90bd28a30bf246487d",
+      "wall_duration_ms": 78030
+    },
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "state": "completed",
+      "reason": null,
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "exit_code": 0,
+      "finding_count": 50,
+      "report_sha256": "9e35cebb42be2369b693176176402e0cf223450b08930738e13b8b256b0180db",
+      "stable_sha256": "c187bace7a8e0bb938f53663d505fe7d656b2dde3efc62f68d75fa0b0280070c",
+      "wall_duration_ms": 82543
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "state": "completed",
+      "reason": null,
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "exit_code": 0,
+      "finding_count": 49,
+      "report_sha256": "37caa040b729d9fdd9a84220510525c475acc010673613db0ee690002780bf9c",
+      "stable_sha256": "f69d806e1453a028d6420a4f21e59277e2c4837258d09d90bd28a30bf246487d",
+      "wall_duration_ms": 86251
+    },
+    {
+      "input_id": "atlassian-auth-fixed-mutation",
+      "state": "incomplete",
+      "reason": "InfrastructureError: static analysis exceeded its 120-second timeout",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "wall_duration_ms": 120148
+    },
+    {
+      "input_id": "atlassian-upload-fixed",
+      "state": "incomplete",
+      "reason": "InfrastructureError: static analysis exceeded its 120-second timeout",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "wall_duration_ms": 120278
+    },
+    {
+      "input_id": "atlassian-auth-fixed-mutation",
+      "state": "incomplete",
+      "reason": "InfrastructureError: static analysis exceeded its 120-second timeout",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "wall_duration_ms": 120354
+    },
+    {
+      "input_id": "atlassian-upload-fixed",
+      "state": "incomplete",
+      "reason": "InfrastructureError: static analysis exceeded its 120-second timeout",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "wall_duration_ms": 120361
+    }
+  ],
+  "completed_ordered_reports_equal": true,
+  "ordered_reports_compared": 4,
+  "baseline_child_cpu_seconds": 699.8934899999999,
+  "after_child_cpu_seconds_per_repetition": 1003.6784875,
+  "baseline_parent_cpu_seconds": 33.859395,
+  "after_parent_cpu_seconds_per_repetition": 14.448610500000001,
+  "decision": "Unsuccessful: remove the hash-based credential-context cache and literal cache. Preserve all four historical timeouts, completed Meta reports, source commit, profile data and useful guard-state regression. Inspect one bounded actual cache-counter profile before the final planned four-input alternative.",
+  "limitations": "Only completed reports can be compared; missing historical reports remain incomplete, not equivalent or passed. Shared-host background CPU was recorded, not assumed to explain failure."
+}

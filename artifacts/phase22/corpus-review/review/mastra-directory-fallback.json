@@ -1,0 +1,30 @@
+{
+  "id": "mastra-directory-fallback",
+  "rule": "SENT-012",
+  "repository": "mastra-ai/mastra",
+  "split": "development",
+  "language": "typescript",
+  "before": "9e4abde7cef33e3f5cb1e71bee70c6556ef394cd",
+  "after": "7f2b528ba82db512d68832d2f8ad6cbc8bb46cd4",
+  "root": "packages/mcp-docs-server",
+  "files": [
+    "packages/mcp-docs-server/src/tools/docs.ts",
+    "packages/mcp-docs-server/src/utils.ts",
+    "packages/mcp-docs-server/src/index.ts"
+  ],
+  "condition": "mastraDocs must not list an existing directory outside docsBaseDir through findNearestDirectory after readMdxContent rejects a traversal path",
+  "prerequisites": [
+    "A caller supplies a parent traversal whose resolved directory exists outside docsBaseDir and does not share its string prefix; ordinary directories without symlinks or concurrent replacement.",
+    "The documentation tool is registered and its preliminary available-path computation succeeds."
+  ],
+  "safe": "An ordinary existing documentation child path inside docsBaseDir may be read/listed; this is not an out-of-bound directory disclosure",
+  "review": "The tool forwards caller paths to readMdxContent, then falls back to findNearestDirectory on found=false. listDirContents reaches fs.readdir. The upstream fix propagates isSecurityViolation and returns before fallback. This label excludes colliding-prefix and symlink conditions, which this patch does not establish as fixed.",
+  "provenance": [
+    "mastra-advisory.json",
+    "mastra-fix.json"
+  ],
+  "rename": {
+    "docsBaseDir": "phase22DocsRoot"
+  },
+  "safe_prerequisites": "Existing registered documentation tool; existing ordinary documentation child path; no symlinks, prefix collision or concurrent replacement."
+}

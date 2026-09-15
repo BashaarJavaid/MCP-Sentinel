@@ -1,0 +1,39 @@
+{
+  "recorded_at": "2026-09-10T18:55:42.569622+00:00",
+  "state": "interrupted",
+  "input_id": "atlassian-upload-fixed",
+  "stage": "candidate",
+  "repeat": "2",
+  "attempt_sha256": "57379f10e2dd80204ae39cce6398a08b55f74433f5716f99c4df4ef1606088e5",
+  "stop_receipt_sha256": "67ce621f195dae99280911fbff3e5771a4cc12760feebfb1a3b3c6ba76d74714",
+  "queue_command_sha256": "4a000e7d104ea46aeb081efa8352146b1dbc061b22882a084f7d24c51740ced9",
+  "queue_exit_code": -15,
+  "observation": "Stopping only the owned queue was intended to allow its in-flight child to finish. After queue exit, no matching queue/native process remains and the child has neither execution.json nor a completed command record. The in-flight observation therefore counts as interrupted; it is not labelled completed, timeout, or zero-duration.",
+  "process_probe": {
+    "command": [
+      "pgrep",
+      "-fl",
+      "phase22-v14-performance-(queue|run).py"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "duration_and_cpu": null,
+  "native_retries": 0,
+  "remaining_observations_cancelled": 2,
+  "conditional_exposed_budget_activated": false,
+  "retained_partial_files": [
+    {
+      "path": "artifacts/phase22/integration/v14-performance/candidate-atlassian-upload-fixed-2/attempt.json",
+      "sha256": "57379f10e2dd80204ae39cce6398a08b55f74433f5716f99c4df4ef1606088e5",
+      "bytes": 1005
+    },
+    {
+      "path": "artifacts/phase22/integration/v14-performance/candidate-atlassian-upload-fixed-2/measurement/atlassian-upload-fixed/configuration.json",
+      "sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "bytes": 904
+    }
+  ],
+  "new_paid_calls": 0
+}

@@ -38,6 +38,7 @@ class TypeScriptTool:
     handler_start: int
     parameters: tuple[str, ...]
     aliases: tuple[tuple[str, str], ...]
+    source: str
 
 
 def tools_in_file(file: TypeScriptSourceFile) -> tuple[TypeScriptTool, ...]:
@@ -102,6 +103,7 @@ def tools_in_file(file: TypeScriptSourceFile) -> tuple[TypeScriptTool, ...]:
                 handler_start=handler_offset,
                 parameters=parameters,
                 aliases=tuple(sorted(aliases.items())),
+                source=source,
             )
         )
     return tuple(found)
@@ -240,7 +242,7 @@ def _sent001(
                 state.exempt(f"justified_{name}")
                 continue
             state.matches.append(
-                _tool_match("SENT-001", tool, f"broad-{name}", offsets.get(name, 0))
+                _tool_match("SENT-001", tool, f"broad-{name}", offsets.get(name))
             )
 
 
@@ -809,23 +811,14 @@ def _line(source: str, offset: int) -> int:
 
 
 def _tool_match(
-    rule_id: str, tool: TypeScriptTool, kind: str, offset: int = 0
+    rule_id: str, tool: TypeScriptTool, kind: str, offset: int | None = None
 ) -> StaticMatch:
-    line = tool.handler[:offset].count("\n") + tool.start_line
-    snippet = (
-        tool.handler[offset:].splitlines()[0][:400]
-        if tool.handler[offset:]
-        else tool.name or "tool"
-    )
+    start = tool.start if offset is None else tool.handler_start + offset
+    snippet = tool.source[start:].splitlines()[0][:400]
     return StaticMatch(
         rule_id=rule_id,
         path=tool.path,
-        range=SourceRange(
-            start_line=line,
-            start_column=1,
-            end_line=line,
-            end_column=max(2, len(snippet) + 1),
-        ),
+        range=offset_range(tool.source, start, start + len(snippet)),
         snippet=snippet,
         match_kinds=(kind,),
     )

@@ -1,0 +1,95 @@
+{
+  "recorded_at": "2026-09-10T04:23:04.915382+00:00",
+  "current_assessment_sha256": "29dc7d31b3ab6ebf9b71e369bb7d22b46da072f6c3dc1cd6bad8f50cb0bba200",
+  "prior_assessment_sha256": "04fd920a6a0dc895020315ab5c82d51f97ae58ed1eae80e9e463a34bb8900cc4",
+  "scanner": {
+    "revision": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+    "source_sha256": "b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "run_id": 34435283462,
+  "states": {
+    "completed": 15,
+    "incomplete": 10
+  },
+  "changes_versus_prior_linux": [
+    {
+      "input_id": "meta-operator-fallback-vulnerable",
+      "prior_state": "completed",
+      "current_state": "incomplete",
+      "prior_wall_ms": 115918,
+      "current_wall_ms": 120033
+    },
+    {
+      "input_id": "meta-operator-fallback-vulnerable-mutation",
+      "prior_state": "completed",
+      "current_state": "incomplete",
+      "prior_wall_ms": 116461,
+      "current_wall_ms": 120041
+    }
+  ],
+  "all_timeouts": [
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "wall_duration_ms": 120043
+    },
+    {
+      "input_id": "meta-image-ssrf-vulnerable-mutation",
+      "wall_duration_ms": 120045
+    },
+    {
+      "input_id": "meta-image-ssrf-fixed",
+      "wall_duration_ms": 120044
+    },
+    {
+      "input_id": "meta-image-ssrf-fixed-mutation",
+      "wall_duration_ms": 120041
+    },
+    {
+      "input_id": "meta-image-ssrf-safe",
+      "wall_duration_ms": 120043
+    },
+    {
+      "input_id": "meta-operator-fallback-vulnerable",
+      "wall_duration_ms": 120033
+    },
+    {
+      "input_id": "meta-operator-fallback-vulnerable-mutation",
+      "wall_duration_ms": 120041
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed",
+      "wall_duration_ms": 120052
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "wall_duration_ms": 120043
+    },
+    {
+      "input_id": "meta-operator-fallback-safe",
+      "wall_duration_ms": 120041
+    }
+  ],
+  "completed_vulnerable_conditions": 6,
+  "total_vulnerable_inputs": 10,
+  "completed_valid_negatives": 9,
+  "total_valid_negatives": 13,
+  "matching_valid_negative_alerts": 0,
+  "completed_raw_negatives": 9,
+  "total_raw_negatives": 15,
+  "raw_meta_erratum_inputs_completed": 0,
+  "entire_ordered_completed_reports_equal_to_current_local": 15,
+  "unresolved_report_deltas": 0,
+  "historical_batches_executed": 0,
+  "dispatch_count": 1,
+  "retries": 0,
+  "deadline_seconds": 120,
+  "new_paid_calls": 0,
+  "decision": "The newly authorized final sequence failed. Preserve both skipped historical batches and all prior measurements. Phase22 remains incomplete; no further full retry, runner change or gate exception is authorized.",
+  "limits": [
+    "Two additional vulnerable operator-fallback timeouts reduce observed Linux detections from8/10 to6/10; incomplete execution is not a completed miss or proof of defense.",
+    "All15 completed reports match current local entire ordered reports except recorded volatile fields.",
+    "The retained optimization has focused local gains but did not establish whole-batch reliability. Shared-host/OS/CPU/interpreter differences do not isolate a causal variable.",
+    "The current Linux job retains native timeouts and environment, not worker CPU profiles. Earlier local profiles identify costly traversal but cannot establish the exact current Linux hotspot."
+  ]
+}

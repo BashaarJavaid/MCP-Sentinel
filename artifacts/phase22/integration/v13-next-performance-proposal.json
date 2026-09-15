@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "status": "prepared_not_approved",
+  "recorded_at": "2026-09-10T17:12:32.519481+00:00",
+  "baseline_scanner": {
+    "revision": "2ac39aa9331818fd7e3a86c8323ee8307522c98c",
+    "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "prior_attempt": {
+    "path": "artifacts/phase22/integration/v13-performance-disposition.json",
+    "sha256": "373bb52121903b4510712135429f6a300c44bb22b50f41422488fbc1bc42ff58",
+    "status": "One value-reconstruction optimization reverted;14 executions consumed. This proposal does not reopen that approval."
+  },
+  "retained_profile": {
+    "path": "artifacts/phase22/integration/v10-hosted-05309f9/artifacts/linux/phase22-linux-diagnostic/profile-meta-image-ssrf-vulnerable-1-workers/SENT-015.prof",
+    "sha256": "0fa2d507a1c078bd0fb40af29463cf19cf9a0d8bff44203143423d5bdabed2e5",
+    "call_cost": [
+      {
+        "function": [
+          "/home/runner/work/MCP-Sentinel/MCP-Sentinel/src/sentinel/static/path_flow.py",
+          1927,
+          "call"
+        ],
+        "primitive_calls": 398,
+        "total_calls": 63729,
+        "self_seconds": 6.103771265000001,
+        "cumulative_seconds": 83.96798858400001
+      }
+    ]
+  },
+  "demonstrated_operation": "PathFlow.call materializes bound_values from all helper bindings, then traverses that list three more times to collect containment, option and URL facts. The retained SENT-015 call profile has63,729 calls,6.104s exclusive and83.968s cumulative; cumulative time includes interpreted helpers and is not all extraction work.",
+  "specific_unknown": "The number of bindings traversed at this exact extraction block and the fraction with all three relevant guard fields empty are not yet measured. This proposal tests that narrower hypothesis; no material gain is asserted.",
+  "safe_strategy": "First one counter-only profile at the helper-return fact-extraction block on meta-operator-fallback-fixed-mutation, recording aggregate binding/eligible/fact-bearing counts without source values. If the counters do not establish substantial repeated empty-fact work, stop without editing. Otherwise one bounded attempt: collect the same three fact structures in one dictionary-order pass, first skipping Values with contained, option_safe and url_checks all empty; retain every existing key/missing/None/internal-marker filter, exact URL union/replacement order and caller propagation. No helper-result cache, Value reconstruction change, branch/mutation skipping, source/rule omission or limit change.",
+  "source_scope": "Only the helper-return fact-extraction block of Python PathFlow.call and a durable semantic control. Inspect all Python SENT-012/014/015/016 callers and preserve TypeScript/Value/combine behavior.",
+  "measurement_plan": "After the diagnostic and before any edit, take two new sequential native baselines on each named input; keep v13 observations separate as historical variability. After the one candidate passes affected tests, run each input twice natively in alternating input order. Record immutable commits, source/harness/lock/input/config/environment identities, all complete ordered reports excluding only established volatile fields, worker-inclusive CPU and wall time. No overlapping owned heavy work.",
+  "inputs": [
+    "meta-image-ssrf-vulnerable",
+    "meta-operator-fallback-fixed-mutation",
+    "atlassian-upload-fixed"
+  ],
+  "bounds": {
+    "maximum_counter_profiles": 1,
+    "maximum_optimization_attempts": 1,
+    "maximum_performance_native_observations": 12,
+    "maximum_conditional_exposed_regressions": 30,
+    "maximum_total_input_executions": 43,
+    "per_input_native_and_end_to_end_seconds": 120,
+    "maximum_nominal_input_seconds": 5160,
+    "maximum_nominal_input_minutes": 86,
+    "paid_calls": 0,
+    "comparator_observations": 0,
+    "full_benchmark_retries": 0,
+    "new_hosted_measurement_dispatches": 0,
+    "target_execution": false
+  },
+  "retention_condition": "All six candidate observations complete within both deadlines and every whole ordered comparison agrees. Require at least5% lower median wall and worker-inclusive CPU on every named input, with neither candidate observation exceeding the corresponding baseline maximum for either metric; retain and report both samples and their variability. This is a prospective experiment stopping criterion, not a detection-accuracy or Linux gate change. Otherwise revert, retain the test/evidence and stop.",
+  "conditional_final_verification": "Only if the candidate is retained, up to30 native observations revalidate the three already exposed SSRF families, five inputs twice each on that immutable source, with their unchanged condition/deadline/provenance/repeat gates. This prevents a subsequent retained edit from silently invalidating the v13 final-run evidence or borrowing its consumed budget.",
+  "environment": "Existing locked macOS Python3.12.13/Semgrep1.176.0 environment; unchanged normal rules-only pipeline and worker selection. Standard shared desktop, no isolated-host or Linux speed claim.",
+  "checkpoints_unchanged": [
+    "Full standard Linux25+45+45 remains separately approved only after demonstrated improvement.",
+    "Fresh post-stabilization freeze/evaluation requires exact separate approval.",
+    "No paid call, different Git runtime environment, runner/deadline waiver, final technical acceptance, merge, release, outreach or next phase is authorized."
+  ],
+  "existing_failed_gate": "Linux34435283462 at7555a9d completes15/25; all10Meta inputs time out and both historical batches are skipped. Phase22 remains incomplete.",
+  "authorization_requested": false,
+  "execution_started": false
+}

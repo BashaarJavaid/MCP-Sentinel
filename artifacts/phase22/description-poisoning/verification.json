@@ -1,0 +1,80 @@
+{
+  "status": "local_verified_hosted_pending",
+  "scanner": {
+    "harness_sha256": "11f7a126f46719f82c4f8a6e6f23893b0c3f7e906480b1fa1ce627f02cf96bb7",
+    "revision": "fe40322176242312d1a9777b94b17b26fde8820b",
+    "source_sha256": "d27369ac845fcc9c33257e5470d6481aac6ec41c43ff420d1496156fd94513bd"
+  },
+  "full_suite": {
+    "command": "PYTHONPATH=src /Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python -m pytest --junitxml=artifacts/phase22/description-poisoning/junit.xml --cov-report=json:artifacts/phase22/description-poisoning/coverage.json",
+    "exit_code": 0,
+    "passed": 823,
+    "skipped": 36,
+    "coverage_percent": 86.74,
+    "log": "pytest.log"
+  },
+  "checks": [
+    {
+      "command": "ruff check .",
+      "exit_code": 0,
+      "log": "ruff.log"
+    },
+    {
+      "command": "ruff format --check .",
+      "exit_code": 0,
+      "log": "format.log"
+    },
+    {
+      "command": "mypy",
+      "exit_code": 0,
+      "log": "mypy.log"
+    },
+    {
+      "command": "python -m sentinel.schema check",
+      "exit_code": 0,
+      "log": "schema.log"
+    },
+    {
+      "command": "python scripts/generate_third_party_notices.py --check",
+      "exit_code": 0,
+      "log": "notices.log"
+    },
+    {
+      "command": "PYTHONPATH=src mkdocs build --strict --site-dir /private/tmp/phase22-description-site",
+      "exit_code": 0,
+      "log": "docs.log"
+    }
+  ],
+  "measurement": {
+    "input_ids": [
+      "integsec-calculator-poisoning-vulnerable",
+      "integsec-calculator-poisoning-vulnerable-mutation",
+      "integsec-calculator-poisoning-fixed",
+      "integsec-calculator-poisoning-fixed-mutation",
+      "integsec-calculator-poisoning-safe"
+    ],
+    "completed_count": 5,
+    "model_calls": 0,
+    "per_input_deadline_seconds": 120,
+    "exit_code": 0,
+    "reproduction": "docs/phase22-description-poisoning.md",
+    "log": "development-rules.log"
+  },
+  "adjudication": "adjudications.json",
+  "archive": {
+    "path": "measurements.tar.gz",
+    "sha256": "8129f4a949cea56fc1a14bdd198073adc5c453dd451d65128167f7e7068ec6ba",
+    "files": "measurement-files.json",
+    "file_count": 16
+  },
+  "failed_exploration": {
+    "report": "phase22-description-vulnerable-first.json",
+    "observation": "Initial detector missed this.server metadata registration; shared name recovery corrected before measured source fe40322.",
+    "corrected_report": "phase22-description-vulnerable-this.json"
+  },
+  "limitations": [
+    "Five development inputs only, not final 45-input repeat or fresh holdout.",
+    "26 unrelated candidate instances separately reviewed; no live credential or runtime proof.",
+    "Paid reviewed-tier, campaign, schema and external acceptance gates remain pending."
+  ]
+}

@@ -1,0 +1,665 @@
+{
+  "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+  "scanner": {
+    "harness_sha256": "11f7a126f46719f82c4f8a6e6f23893b0c3f7e906480b1fa1ce627f02cf96bb7",
+    "revision": "fe40322176242312d1a9777b94b17b26fde8820b",
+    "source_sha256": "d27369ac845fcc9c33257e5470d6481aac6ec41c43ff420d1496156fd94513bd"
+  },
+  "reviewer": "implementation agent source adjudication; independent human acceptance pending",
+  "assessments": [
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "treatment": "rules",
+      "candidate_identity": "b0b8af12a6eb5b70c239d517b831bfb7b40db3087666f0556fa70f16b2cf2f06",
+      "matches": [
+        "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d"
+      ],
+      "rationale": "The registered helpful_calculator literal directs secret disclosure and get_environment redirection; the mutation preserves the same directive."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "treatment": "rules",
+      "candidate_identity": "b0b8af12a6eb5b70c239d517b831bfb7b40db3087666f0556fa70f16b2cf2f06",
+      "matches": [
+        "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d"
+      ],
+      "rationale": "The registered helpful_calculator literal directs secret disclosure and get_environment redirection; the mutation preserves the same directive."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "treatment": "rules",
+      "candidate_identity": "ce87790e2b4a2d18057ec2febf4f31eb535f6e66632d10a7e876df144e5f739b",
+      "matches": [],
+      "rationale": "The description overlay removes the helpful_calculator directive."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "treatment": "rules",
+      "candidate_identity": "ce87790e2b4a2d18057ec2febf4f31eb535f6e66632d10a7e876df144e5f739b",
+      "matches": [],
+      "rationale": "The description overlay removes the helpful_calculator directive."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "treatment": "rules",
+      "candidate_identity": "b0b8af12a6eb5b70c239d517b831bfb7b40db3087666f0556fa70f16b2cf2f06",
+      "matches": [],
+      "rationale": "The safe_calculator arithmetic metadata has no override, disclosure or unrelated redirection. The separate helpful_calculator remains poisoned in this shared snapshot, as the frozen prerequisites explicitly disclose."
+    }
+  ],
+  "outcomes": [
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "label": "vulnerable",
+      "state": "completed",
+      "candidate_count": 6,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [
+        "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d"
+      ],
+      "unadjudicated_keys": [
+        "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+        "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+        "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+        "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+        "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": true,
+      "retained_detected": true,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": null,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "label": "vulnerable",
+      "state": "completed",
+      "candidate_count": 6,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [
+        "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d"
+      ],
+      "unadjudicated_keys": [
+        "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+        "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+        "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+        "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+        "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": true,
+      "retained_detected": true,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": null,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "label": "fixed",
+      "state": "completed",
+      "candidate_count": 5,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [],
+      "unadjudicated_keys": [
+        "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+        "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+        "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+        "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+        "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": false,
+      "retained_detected": false,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": false,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "label": "fixed",
+      "state": "completed",
+      "candidate_count": 5,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [],
+      "unadjudicated_keys": [
+        "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+        "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+        "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+        "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+        "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": false,
+      "retained_detected": false,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": false,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "label": "safe",
+      "state": "completed",
+      "candidate_count": 6,
+      "duplicate_count": 0,
+      "condition_adjudicated": true,
+      "matched_keys": [],
+      "unadjudicated_keys": [
+        "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+        "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+        "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+        "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+        "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+        "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d"
+      ],
+      "review_decisions_all_candidates": {},
+      "candidate_detected": false,
+      "retained_detected": false,
+      "confirmed_detected": false,
+      "completed_miss": false,
+      "false_alarm": false,
+      "abstentions": 0,
+      "incorrect_suppressions": 0,
+      "runtime_confirmations": 0
+    }
+  ],
+  "metrics": {
+    "inputs": 5,
+    "states": {
+      "completed": 5
+    },
+    "vulnerable_total": 2,
+    "vulnerable_applicable": 2,
+    "vulnerable_completed_adjudicated": 2,
+    "safe_completed_adjudicated": 3,
+    "false_alarm_conditions": 0,
+    "unadjudicated_findings": 26,
+    "abstentions": 0,
+    "incorrect_suppressions": 0,
+    "runtime_confirmations": 0,
+    "review_decisions_all_candidates": {},
+    "candidate": {
+      "observed_detections": 2,
+      "total_corpus_observed_fraction": 1.0,
+      "completed_recall": 1.0,
+      "completed_detections": 2
+    },
+    "retained": {
+      "observed_detections": 2,
+      "total_corpus_observed_fraction": 1.0,
+      "completed_recall": 1.0,
+      "completed_detections": 2
+    },
+    "confirmed": {
+      "observed_detections": 0,
+      "total_corpus_observed_fraction": 0.0,
+      "completed_recall": 0.0,
+      "completed_detections": 0
+    }
+  },
+  "reviewed_unrelated": [
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "dedup_key": "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": ".env.example",
+        "range": {
+          "end_column": 36,
+          "end_line": 10,
+          "start_column": 9,
+          "start_line": 10
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "dedup_key": "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 50,
+          "end_line": 20,
+          "start_column": 19,
+          "start_line": 20
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "dedup_key": "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 54,
+          "end_line": 21,
+          "start_column": 21,
+          "start_line": 21
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "dedup_key": "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 48,
+          "end_line": 22,
+          "start_column": 17,
+          "start_line": 22
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable",
+      "dedup_key": "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "src/resources/config-resource.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 33,
+          "start_column": 40,
+          "start_line": 33
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "dedup_key": "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": ".env.example",
+        "range": {
+          "end_column": 36,
+          "end_line": 10,
+          "start_column": 9,
+          "start_line": 10
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "dedup_key": "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 50,
+          "end_line": 20,
+          "start_column": 19,
+          "start_line": 20
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "dedup_key": "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 54,
+          "end_line": 21,
+          "start_column": 21,
+          "start_line": 21
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "dedup_key": "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 48,
+          "end_line": 22,
+          "start_column": 17,
+          "start_line": 22
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-vulnerable-mutation",
+      "dedup_key": "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "src/resources/config-resource.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 33,
+          "start_column": 40,
+          "start_line": 33
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "dedup_key": "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": ".env.example",
+        "range": {
+          "end_column": 36,
+          "end_line": 10,
+          "start_column": 9,
+          "start_line": 10
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "dedup_key": "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 50,
+          "end_line": 20,
+          "start_column": 19,
+          "start_line": 20
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "dedup_key": "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 54,
+          "end_line": 21,
+          "start_column": 21,
+          "start_line": 21
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "dedup_key": "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 48,
+          "end_line": 22,
+          "start_column": 17,
+          "start_line": 22
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed",
+      "dedup_key": "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "src/resources/config-resource.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 33,
+          "start_column": 40,
+          "start_line": 33
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "dedup_key": "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": ".env.example",
+        "range": {
+          "end_column": 36,
+          "end_line": 10,
+          "start_column": 9,
+          "start_line": 10
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "dedup_key": "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 50,
+          "end_line": 20,
+          "start_column": 19,
+          "start_line": 20
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "dedup_key": "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 54,
+          "end_line": 21,
+          "start_column": 21,
+          "start_line": 21
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "dedup_key": "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 48,
+          "end_line": 22,
+          "start_column": 17,
+          "start_line": 22
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-fixed-mutation",
+      "dedup_key": "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "src/resources/config-resource.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 33,
+          "start_column": 40,
+          "start_line": 33
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "9ca58f5b34e493cd0b3c95166b7a91cc9bc42f9a638b32e6d9ce0c92aa594f0c",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": ".env.example",
+        "range": {
+          "end_column": 36,
+          "end_line": 10,
+          "start_column": 9,
+          "start_line": 10
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "919976e1ef8bce8cfc969c611fae44e1529b293b171ee49d1f55fa0293302ecf",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 50,
+          "end_line": 20,
+          "start_column": 19,
+          "start_line": 20
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "a9f7c57cd0fe276d966ffff5912e4e266993275b08d2736a3e05819dd661db41",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 54,
+          "end_line": 21,
+          "start_column": 21,
+          "start_line": 21
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "a9f7aa1613de749110d55fce840b8f37918a433bc79ef919310817ce2a657498",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "config/server-config.json",
+        "range": {
+          "end_column": 48,
+          "end_line": 22,
+          "start_column": 17,
+          "start_line": 22
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "dc9ecc9a7036a24389141cd2bb1ad4e92609ca8e27a42fe87e43f1af9b05a9c3",
+      "rule_id": "SENT-005",
+      "location": {
+        "kind": "file",
+        "path": "src/resources/config-resource.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 33,
+          "start_column": 40,
+          "start_line": 33
+        }
+      },
+      "decision": "synthetic_credential_literal_not_verified_live_secret",
+      "rationale": "Source contains an explicitly synthetic sk- credential in an educational vulnerable-server example/configuration or fallback. The literal match is supported; validity as a live credential is not established. No credential was tested. This is unrelated to metadata poisoning."
+    },
+    {
+      "input_id": "integsec-calculator-poisoning-safe",
+      "dedup_key": "fcc57cfeb498c9567275a9061bde574c9ff4538161490b1393fde7983d12656d",
+      "rule_id": "SENT-013",
+      "location": {
+        "kind": "file",
+        "path": "src/tools/poisoned-tool.ts",
+        "range": {
+          "end_column": 90,
+          "end_line": 21,
+          "start_column": 16,
+          "start_line": 15
+        }
+      },
+      "decision": "source_supported_unrelated_condition",
+      "rationale": "The separate helpful_calculator description contains the same active secret-disclosure directive as the vulnerable input; the safe condition covers only safe_calculator."
+    }
+  ],
+  "notes": [
+    "The reused scorer names all unmatched keys unadjudicated; reviewed_unrelated records their separate source review.",
+    "Historical Phase 20 70-warning backlog unchanged and unadjudicated.",
+    "This five-input family is not whole-repository precision, holdout evaluation or final Phase 22 acceptance."
+  ]
+}

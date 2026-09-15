@@ -1,0 +1,39 @@
+{
+  "rows": [
+    {
+      "mutation": "",
+      "source": "from pathlib import Path\nclass Reader:\n    def checked(self, path):\n        p = Path(path).resolve()\n        p.relative_to(Path('/srv/data').resolve())\n        return p\n    def read(self, path):\n        return open(self.checked(path))\ndef unsafe(path): return path\nreader = Reader()\n\n@mcp.tool()\ndef load(path): return reader.read(path)\n",
+      "matches": 0,
+      "warnings": [],
+      "expected_alert": false,
+      "passed": true
+    },
+    {
+      "mutation": "reader.checked = unsafe",
+      "source": "from pathlib import Path\nclass Reader:\n    def checked(self, path):\n        p = Path(path).resolve()\n        p.relative_to(Path('/srv/data').resolve())\n        return p\n    def read(self, path):\n        return open(self.checked(path))\ndef unsafe(path): return path\nreader = Reader()\nreader.checked = unsafe\n@mcp.tool()\ndef load(path): return reader.read(path)\n",
+      "matches": 0,
+      "warnings": [],
+      "expected_alert": true,
+      "passed": false
+    },
+    {
+      "mutation": "alias = reader\nalias.checked = unsafe",
+      "source": "from pathlib import Path\nclass Reader:\n    def checked(self, path):\n        p = Path(path).resolve()\n        p.relative_to(Path('/srv/data').resolve())\n        return p\n    def read(self, path):\n        return open(self.checked(path))\ndef unsafe(path): return path\nreader = Reader()\nalias = reader\nalias.checked = unsafe\n@mcp.tool()\ndef load(path): return reader.read(path)\n",
+      "matches": 0,
+      "warnings": [],
+      "expected_alert": true,
+      "passed": false
+    },
+    {
+      "mutation": "unknown(reader)",
+      "source": "from pathlib import Path\nclass Reader:\n    def checked(self, path):\n        p = Path(path).resolve()\n        p.relative_to(Path('/srv/data').resolve())\n        return p\n    def read(self, path):\n        return open(self.checked(path))\ndef unsafe(path): return path\nreader = Reader()\nunknown(reader)\n@mcp.tool()\ndef load(path): return reader.read(path)\n",
+      "matches": 0,
+      "warnings": [],
+      "expected_alert": true,
+      "passed": false
+    }
+  ],
+  "all_passed": false,
+  "corpus_observations": 0,
+  "paid_calls": 0
+}

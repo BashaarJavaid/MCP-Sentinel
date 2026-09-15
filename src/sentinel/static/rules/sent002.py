@@ -306,7 +306,13 @@ class _Analyzer:
                 }
                 or (
                     resolved
-                    in {"subprocess.run", "subprocess.call", "subprocess.Popen"}
+                    in {
+                        "subprocess.run",
+                        "subprocess.call",
+                        "subprocess.Popen",
+                        "subprocess.check_call",
+                        "subprocess.check_output",
+                    }
                     and any(
                         kw.arg == "shell"
                         and isinstance(kw.value, ast.Constant)

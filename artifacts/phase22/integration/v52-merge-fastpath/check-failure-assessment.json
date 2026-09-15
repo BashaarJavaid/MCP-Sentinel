@@ -1,0 +1,30 @@
+{
+  "failed_checks": {
+    "v52-format": {
+      "receipt_sha256": "0e6df78086eeb1bbc3605e25685d6af37a1f0c2abf87d0303f54a65266f2a79e",
+      "log_sha256": "47cf331217a4041e7f096019bf53b73c76df6d2c170ab0957133ae9f89bc5722",
+      "assessment": "Initial Ruff format check found only the new test list-comprehension layout. Ruff format changed test whitespace before candidate commit; corrected format check passed. No product semantic change and no corpus/profile retry.",
+      "corrected_receipt_sha256": "bc1e6bd9e34bc66a0ab1e54ca7a897b14baec756ed8e0d1b5c97da52de554f6c"
+    }
+  },
+  "prior_failures": "All earlier failures retain their original packets and closed budgets, including v48 environment deletion, v50 stale worker root and v51 metadata-client failure followed by verified REST correction. This continuation does not relabel them.",
+  "helper_syntax_validation": {
+    "passed": true,
+    "initial_check": {
+      "exit_code": 1,
+      "error": "IndentationError: unexpected indent at baseline-merge.py:1",
+      "cause": "Preparation check treated the preserved indented method excerpt as a standalone module. Baseline bytes were correct and unchanged."
+    },
+    "correction": "Only the compiler input for the baseline method excerpt was dedented; all other helper files compile directly. No artifact/source change or scanner execution.",
+    "runner_byte_identical_to_v48": true,
+    "supervisor_output_directory_only_change": true,
+    "protected_user_files": 8,
+    "owning_doc_anchors_verified": 16,
+    "paid_calls": 0
+  },
+  "helper_syntax_validation_sha256": "cc37c9c66f7f02054cd19bbe44ec5b9b9b353f2b9ea974fb40f89bbda38c2353",
+  "source_only_attempts": 1,
+  "corpus_observations": 0,
+  "profiles": 0,
+  "paid_calls": 0
+}

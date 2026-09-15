@@ -1,0 +1,794 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index bc02594..b9eb54f 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -78,7 +78,22 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
+ 
+ ## Current phase
+ 
+-Latest continuation: the user said “start with 1 and 2.” The exact approved
++Latest bounded follow-up: both v10 proposals were approved with “go ahead”.
++Candidate `6eb482c` adds shared factory/else discovery and narrow loopback/default
++URL guard facts. One helper-context profile found no safely reusable result;
++no optimization or further full timing retry occurred. Both five-input exposed
++SearXNG native batches complete and detect both vulnerable variants, but both
++fixed variants retain unqualified SSRF alerts; the correction gate fails.
++All ten authorized SearXNG observations are consumed. Original frozen misses,
++failed attempts and exposed regression evidence remain preserved. The earlier
++premature guard-contract checkpoint was corrected in
++`v12-scope-interpretation-correction.json`; the real next checkpoint is an
++additional bounded SearXNG diagnostic/final-run budget in the unapproved
++`v12-next-searxng-proposal.json`. Timing, fresh current-source evaluation and final
++human acceptance remain unmet/separately gated. No paid call is authorized.
++The next paragraph is the historical v10 checkpoint.
++
++Historical v10 continuation: the user said “start with 1 and 2.” The exact approved
+ SearXNG at 7555a9d evaluation is complete: 5/5 inputs twice native and once Semgrep,
+ but both tiers miss both vulnerable variants. No source tuning occurred; preserve
+ all first frozen results. Its MCP tool surface is missed, and all unrelated
+@@ -120,26 +135,30 @@ replacement detection gap was returned after the completed audit; the user then
+ authorized bounded offline investigation and a fix. The five replacement cases
+ are now exposed regressions; preserve their first frozen results. See
+ `artifacts/phase22/corpus-replacement-v1/exposure-and-fix-authorization.json`.
+-Both exposed SSRF families now pass their final native repeat gates at `7555a9d`:
+-5/5 complete per run, 2/2 vulnerable condition matches and zero matching negative
+-alerts. Original misses, raw residual findings and source assessments remain
+-preserved. The finite performance investigation retained per-flow pure guard
+-snapshot reuse; focused gains do not establish the full timing gate. The separately
+-authorized final Linux run 34435283462 completes 15/25: all ten Meta inputs time
+-out, and both historical batches are skipped. Local development completes 22/25;
+-original held-out results remain 10 completed/10 unsupported/5 incomplete and
+-0/4 completed-vulnerable hits. All 15 completed Linux reports match current local
+-reports except recorded volatile fields. All 29 normal jobs and docs pass at
+-`bbb5fbc`; scanner/package bytes equal 7555a9d with one added guard regression.
+-Each of 12 hosted suites passes 2,141 tests with 36 skips and 89.63–89.66% branch
+-coverage; local coverage is 89.64%. Current source-compatible capture/runtime
+-and package evidence is bound under v10; `05309f9` checks are also retained.
+-The fresh SearXNG evaluation and one Linux diagnostic authority are consumed.
+-The fresh miss and timing failures remain visible and unaccepted. Further full
+-retry, runner change, gate exception and paid calls require explicit approval;
+-final acceptance cannot be requested while timing is unmet. The two prepared
+-v10 follow-up proposals are unapproved. All earlier implementation, source,
+-measurements, failures, worktrees and sealed evidence remain preserved.
++Both existing exposed SSRF families pass their final native repeat gates at
++`6eb482c`: 5/5 complete per run, 2/2 vulnerable matches and zero matching negative
++alerts. Original misses and source assessments remain preserved. The SearXNG
++source now reaches an SSRF candidate but flags both fixed variants, so its
++correction gate fails. Its ten authorized observations are consumed.
++
++The retained full Linux result at `7555a9d` completes 15/25: all ten Meta inputs
++time out and both historical batches are skipped. Earlier local development
++22/25 and original held-out 10 completed/10 unsupported/5 incomplete with 0/4
++completed-vulnerable hits retain their measured source. No current-source full
++benchmark or fresh generalization result is claimed. One newly approved
++helper-context profile established no safe reuse; no optimization or full retry
++was attempted.
++
++All 29 normal jobs and docs pass at `6eb482c`; the local full suite and 12 hosted
++quality suites each pass 2,169 tests with 36 skips and no expected failures. Local
++branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++Both approved production requests are regenerated/replayed and Git runtime
++compatibility is verified without additional paid calls. Intermediate failures
++remain preserved. See the 89-row v12 closeout audit and evidence index. The v10
++proposals were approved; only the new v12 diagnostic/run proposal is unapproved.
++Further SearXNG observations, full timing retry, fresh freeze/evaluation, paid
++calls and final human acceptance retain separate checkpoints. Phase 22 remains
++incomplete, with timing and fixed discrimination unmet.
+ Resume pilots when feasible. Phase 24 adoption and Phase 15 launch gates remain
+ unchanged; see `ROADMAP.md` §1 for the scope exception.
+ 
+@@ -165,7 +184,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
+ - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
+ - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
+ - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
+-- [ ] Phase 22 — MCP coverage and compatibility expansion (both exposed SSRF gates pass; final Linux timing fails; fresh evaluation misses; timing and acceptance pending; paid benchmark/pilots deferred)
++- [ ] Phase 22 — MCP coverage and compatibility expansion (existing exposed SSRF gates pass; SearXNG fixed discrimination and timing fail; acceptance pending; paid benchmark/pilots deferred)
+ - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
+ - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
+ - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)
+diff --git a/ARCHITECTURE.md b/ARCHITECTURE.md
+index a892463..a16a8fd 100644
+--- a/ARCHITECTURE.md
++++ b/ARCHITECTURE.md
+@@ -17,6 +17,12 @@ establish this protection. The scanner does not read the target environment or
+ suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
+ unestablished; this is source analysis, not runtime proof.
+ 
++These bounded facts pass their focused controls, but the full exposed SearXNG
++source still loses the narrow qualifier and flags both fixed variants. Its
++correction gate remains unmet; the implementation does not establish complete
++source-default or redirect coverage. See the current Phase 22 status and audit.
++
++
+ ## 1. Purpose and status
+ 
+ This document is the approved architecture baseline for PortunusMCP Sentinel. It is concrete enough to guide implementation across sessions, but paths marked **planned** do not exist until their roadmap phase is complete.
+diff --git a/ROADMAP.md b/ROADMAP.md
+index 530d9a3..43973d5 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -1152,6 +1152,66 @@ helps solve and identify the obstacles to voluntary CI adoption.
+ 
+ ## 25. Phase 22 — MCP coverage and compatibility expansion
+ 
++### Current bounded follow-up at `6eb482c`
++
++Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
++`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
++One helper-context counter profile found no safely reusable result. No
++optimization, native timing comparison or further full Linux retry occurred;
++the retained timing failure remains authoritative.
++
++Shared TypeScript factory/else discovery and narrow loopback/default guard
++facts are implemented. The canonical finding/review contract is unchanged.
++All 18 focused guard controls pass, but the full SearXNG correction gate fails:
++both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
++fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
++retains a broad candidate, separately assessed outside its exact public-input
++condition. That distinction does not waive the two fixed false alerts. The
++new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
++are consumed; original frozen native/comparator 0/2 results are preserved.
++
++The earlier draft guard-contract stop was premature: existing URL evidence can
++represent these narrow facts within the approved correction. Its correction is
++recorded in `v12-scope-interpretation-correction.json`. The actual remaining
++boundary is loss of that qualification in the complete source flow, not a
++request for another ordinary editing approval. The exact cause is not established
++by the native report; no callback or unknown effect is assumed harmless.
++
++See `v12-searxng-assessment/packet.json` and the prepared, unapproved
++`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
++retry, new fresh freeze/evaluation or paid calls require their separate approval.
++Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
++the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++
++### Historical v10 checkpoint
++
+ **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
+ incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+ correlated vulnerable variants and have zero matching fixed/control alerts.
+diff --git a/artifacts/phase22/corpus-replacement-v3/README.md b/artifacts/phase22/corpus-replacement-v3/README.md
+index 84a0c50..6db0709 100644
+--- a/artifacts/phase22/corpus-replacement-v3/README.md
++++ b/artifacts/phase22/corpus-replacement-v3/README.md
+@@ -1,5 +1,17 @@
+ # Fresh SSRF replacement proposal v3
+ 
++These five cases became exposed regressions through the user's “go ahead”,
++recorded in `../integration/v11-follow-up-authorization.json` and normalized in
++`exposure-and-fix-authorization-v1.json`. All first frozen results remain unchanged.
++At `6eb482c`, both five-input native batches finish and identify both vulnerable
++paths, but both fixed variants retain the same unqualified SSRF candidate.
++The correction gate fails; narrow guard evidence from unit controls does not
++survive this complete source flow. All ten authorized final observations are
++consumed. See `../integration/v12-searxng-assessment/packet.json` and the prepared,
++unapproved `../integration/v12-next-searxng-proposal.json`. No new fresh evaluation
++or final acceptance is implied by this exposed-source work.
++
++
+ The user approved the exact `7555a9d` freeze and bounded evaluation with
+ “start with 1 and 2.” See `authorization-7555a9d.json`. The two native
+ five-input runs and one comparator run are complete, with both tiers missing
+diff --git a/artifacts/phase22/integration/README.md b/artifacts/phase22/integration/README.md
+index 790d503..eb6e8dc 100644
+--- a/artifacts/phase22/integration/README.md
++++ b/artifacts/phase22/integration/README.md
+@@ -1,4 +1,64 @@
+-# Integration evidence, batches 1–40 and closeout audit
++# Integration evidence, batches 1–41 and closeout audit
++
++## Current bounded follow-up at `6eb482c`
++
++Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
++`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
++One helper-context counter profile found no safely reusable result. No
++optimization, native timing comparison or further full Linux retry occurred;
++the retained timing failure remains authoritative.
++
++Shared TypeScript factory/else discovery and narrow loopback/default guard
++facts are implemented. The canonical finding/review contract is unchanged.
++All 18 focused guard controls pass, but the full SearXNG correction gate fails:
++both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
++fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
++retains a broad candidate, separately assessed outside its exact public-input
++condition. That distinction does not waive the two fixed false alerts. The
++new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
++are consumed; original frozen native/comparator 0/2 results are preserved.
++
++The earlier draft guard-contract stop was premature: existing URL evidence can
++represent these narrow facts within the approved correction. Its correction is
++recorded in `v12-scope-interpretation-correction.json`. The actual remaining
++boundary is loss of that qualification in the complete source flow, not a
++request for another ordinary editing approval. The exact cause is not established
++by the native report; no callback or unknown effect is assumed harmless.
++
++See `v12-searxng-assessment/packet.json` and the prepared, unapproved
++`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
++retry, new fresh freeze/evaluation or paid calls require their separate approval.
++Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
++the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++
++## Historical v10 checkpoint
+ 
+ **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
+ incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+@@ -68,13 +128,28 @@ No full benchmark retry, deadline waiver or runner change occurred. Further
+ execution decisions and final human acceptance remain separate; Phase 22 stays
+ incomplete while the timing gate is unmet.
+ 
+-Current closeout: `v10-closeout-audit/packet.json` preserves all 88 requirements:
++Historical v10 closeout: `v10-closeout-audit/packet.json` preserves all 88 requirements:
+ **71 passed, two user-deferred and 15 unresolved**. The prior v9 audit is
+ unchanged. Fresh measurement completion does not accept the actual 0/2 detection
+ result. Linux diagnostics and the reverted local experiment remain separate
+ from failed whole development/historical timing gates. Both v10 follow-up
+ proposals are prepared and unapproved; no automatic dispatch is authorized.
+ 
++## Evidence archives
++
++Batch 41 is sealed: **1,002 files**, 103,057,714 raw bytes and
++10,920,410 compressed bytes, SHA-256
++`ac47a7684f21db98175ddf5fe909e7a18eef1a5399b10c20431230d597032c91`.
++Every member was read back and all 40 previous archive hashes reverified after
++measurement, check and collector writers stopped. Restore after batches 1–40
++into separate staging; validate the archive and each member against
++`evidence-v41.json` before copying. Existing destinations must match identical
++bytes or their prior numbered-manifest hashes; stop on unexpected conflicts.
++Current source/test/hosted proofs, approved bounded follow-ups, one counter profile, exposed regression runs,
++source assessments and the failed SearXNG fixed discrimination and unapproved next diagnostic/run budget are retained.
++Final documentation/delivery bindings are also retained directly in Git. This
++seal is evidence delivery, not a timing pass or final technical acceptance.
++
+ Batch 40 is sealed: **794 files**, 66,259,015 raw bytes and
+ 10,545,389 compressed bytes, SHA-256
+ `a65cfd1dd40d21ef1d02b22386dda21790018a1da7c2558433319d9f342a2cd0`.
+diff --git a/artifacts/phase22/integration/progress.md b/artifacts/phase22/integration/progress.md
+index 7fc40ba..59bf703 100644
+--- a/artifacts/phase22/integration/progress.md
++++ b/artifacts/phase22/integration/progress.md
+@@ -2924,3 +2924,48 @@ Current source/test/hosted proofs, approved evaluation and diagnostic results,
+ reverted experiment, source assessments and unapproved follow-ups are retained.
+ Final documentation/delivery bindings are also retained directly in Git. This
+ seal is evidence delivery, not a timing pass or final technical acceptance.
++
++### Approved bounded follow-ups at `6eb482c`
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++Both v10 proposals were approved with “go ahead”. One counter profile found no safely reusable helper result and no optimization was attempted. Shared factory/else discovery and narrow guard evidence were added. Native SearXNG results still alert both fixed variants; all ten authorized observations are consumed. The next diagnostic/final-run budget is prepared but unapproved. No additional paid model calls, full timing retry or fresh evaluation occurred. All intermediate failures and the corrected premature guard-contract interpretation are retained.
++
++### Evidence batch 41
++
++Batch 41 is sealed: **1,002 files**, 103,057,714 raw bytes and
++10,920,410 compressed bytes, SHA-256
++`ac47a7684f21db98175ddf5fe909e7a18eef1a5399b10c20431230d597032c91`.
++Every member was read back and all 40 previous archive hashes reverified after
++measurement, check and collector writers stopped. Restore after batches 1–40
++into separate staging; validate the archive and each member against
++`evidence-v41.json` before copying. Existing destinations must match identical
++bytes or their prior numbered-manifest hashes; stop on unexpected conflicts.
++Current source/test/hosted proofs, approved bounded follow-ups, one counter profile, exposed regression runs,
++source assessments and the failed SearXNG fixed discrimination and unapproved next diagnostic/run budget are retained.
++Final documentation/delivery bindings are also retained directly in Git. This
++seal is evidence delivery, not a timing pass or final technical acceptance.
+diff --git a/artifacts/phase22/integration/requirements.md b/artifacts/phase22/integration/requirements.md
+index a1fa30b..2cd8332 100644
+--- a/artifacts/phase22/integration/requirements.md
++++ b/artifacts/phase22/integration/requirements.md
+@@ -1,109 +1,111 @@
+ # Consolidated Phase 22 requirement checklist
+ 
+-Current scanner bytes remain `7555a9d`; the approved diagnostic workflow is
+-`05309f9`. All 86 original requirements plus R87/R88 remain. Both exposed SSRF
+-repeat gates pass on that unchanged scanner. Fresh SearXNG evaluation completes
+-but misses both vulnerable variants; all source assessments are retained. The
+-Linux diagnostic adds four native timeouts and two partial profiles, without a
+-whole-batch retry. A local merge experiment was reverted for inconclusive gains.
+-Phase 22 stays incomplete; no final acceptance or new paid call is inferred.
++Current tested scanner is `6eb482c`. All 86 original requirements, R87/R88 and
++new exposed SearXNG requirement R89 are retained. Both existing SSRF families
++pass their final exposed repeat gates; SearXNG completes but fails fixed
++discrimination. Timing and fresh current-source evaluation remain unmet.
++Phase 22 is incomplete. No final acceptance or paid call is inferred.
+ 
+-## Current 88-row audit at unchanged scanner `7555a9d`
++## Current 89-row audit
+ 
+-**71 passed, 2 user-deferred, 15 unresolved.** Fresh measurement completion preserves the substantive 0/2 detection limitation; it is not human acceptance. Whole-batch timing gates remain failed.
++**69 passed, 2 user-deferred,
++18 unresolved.** Exact current executed tests,
++source hashes, prior dispositions and measurement/evidence references for every
++row are in `v12-closeout-audit/packet.json` and
++`v12-current-source-test-bindings/packet.json`. Historical first measurements
++and sealed evidence remain unchanged.
+ 
+-`v10-closeout-audit/packet.json` preserves all 86 original rows plus R87/R88, prior dispositions, current source/test executions, exact reused evidence and new outcomes. The preceding v9 audit remains unchanged.
+-
+-| ID | Requirement | Current disposition and evidence |
++| ID | Requirement | Current disposition |
+ | --- | --- | --- |
+-| R01 | Correct dirty worktree and packet identities | **passed** — Integration ancestry, immutable scanner and existing draft base verified; user prompt files, main checkout and all earlier worktrees/seals preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-delivery-precommit.json`, `v9-linux-dispatch.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R02 | Source-established constructors, fields, aliases and replacement invalidation | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R03 | Read-only builtin dictionary inspection with shadowing controls | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R04 | Reflection, unknown mutation, custom hooks and constructor/decorator ambiguity | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R05 | Imported handlers and schemas | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R06 | Aliases/re-exports, local imports and package exports | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R07 | Statically bound helpers, factories, inherited/bound methods | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R08 | Cross-file caller/guard/sink evidence and binding identity | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R09 | Genuine SDK context vs caller/fake/rebound/local SDK | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R10 | Low-level registration and dispatch | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R11 | uv/npm/pnpm members and exclusions | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R12 | TS aliases/inherited local compiler configuration, inaccessible parents | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R13 | Aggregate root vs individual config, nested config disclosure | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R14 | Per-member counts without shared-file duplication | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R15 | Inaccessible/unsupported members, ambiguity/import/reflection/schema gaps | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R16 | Repository escapes and symlinks; dynamic single Python package | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R17 | Helm original bytes/text secrets and explicit YAML omission | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R18 | Historical atlassian-auth condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R19 | Historical atlassian-ssrf condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R20 | Historical atlassian-upload condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R21 | Historical excel-boundary condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R22 | Historical filesystem-prefix condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R23 | Historical git-arguments condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R24 | Historical git-repository condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R25 | Historical git-staging condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R27 | Historical mobile-output condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R28 | Mastra failure-return flags and unsafe directory fallback | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R29 | Explicit description override, exfiltration, cross-tool redirection | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R30 | Benign instructions and quoted warnings; parameter/low-level metadata | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R31 | dbt selector options through nested factories/mutable argv | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R32 | Git option positions, rejection, command-specific terminators, object APIs | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R33 | Meta image caller URL request and scheme/private/loopback checks | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R34 | Fixed public authority plus caller suffix; enforced actual return value | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-development-source-deltas/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R35 | Meta ContextVar/HTTP authentication/operator fallback | **unresolved** — Final Linux development fails with15/25 completed and10 Meta timeouts:6/10 vulnerable detections and9/13 valid negatives completed with zero matching alerts; both raw erratum negatives are incomplete. Local development also completes22/25 with three Meta operator-fallback timeouts. Raw erratum labels and valid-negative denominators are separate; missing execution is not improved scoring. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v9-final-corpus-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-linux-diagnostic-assessment/packet.json`, `v10-local-performance-disposition.json`. |
+-| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R37 | Applicable Python and TypeScript positives/negatives for every new rule | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R38 | Rule defaults, selection, inline suppression, baseline/severity identities | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R39 | Canonical Finding, evidence/provenance/remediation/OWASP and limitations | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R40 | Traversal/absolute/prefix/symlink and unrelated/discarded/replaced controls | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R42 | Candidate-bound 160 unique SOURCE lines across files | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. Evidence: `v9-current-source-test-bindings/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R44 | Unchanged request/cache compatibility and capture reuse | **passed** — Actual production construction revalidates both approved captures and six replay batches. Compatible source/request/model/settings/fingerprint/ledger identities are retained. Original paid total is71799 micro-USD; no new paid call. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R45 | Nullable reviews/Finding identities and all runtime proof through review | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R47 | Fair rounds and rule/argument rotation; bounded GPT priorities | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R48 | Stable attempt ID independent of scan/time/schema identity | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R49 | 24 STARTED attempts / 120s; timing after image and before discovery | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R50 | CLI > env > file > default positive settings; rules-only bypass; Action config | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R51 | Fresh baseline/attack; invalid baseline prevents attack | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R52 | Discovery/baseline/attack schema drift | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R53 | Unsupported/inconclusive/startup/execution/interruption states; cleanup | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R54 | Planned/unstarted records, no fabricated empty/incomplete coverage, exit 3 | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R55 | Preserve every repeated observable proof through merge/review/output | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R56 | Native 1.7 unique IDs and matching ordered binding/discovery/outcome references | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R57 | Actual planned/eligible/started/tested totals and remainder/budget invariants | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R58 | Legacy 1.3/1.4/1.5/1.6 reports/baselines, honest unknown coverage | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R59 | Workspace structured coverage validates against inventory | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R60 | Console/native/SARIF and every rule-keyed consumer | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R61 | Packaged Finding/report schemas, SARIF 2.1.0 validation | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R62 | Owning architecture/schema/rule/compatibility/config/onboarding/Action docs | **passed** — Owning documents expose the failed timing gate, approved fresh0/2 result, completed diagnostic, reverted experiment and remaining decisions. Strict local docs passes; no acceptance is inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-closeout-docs.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R63 | Historical 45-input deterministic repeat pair, 120s deadline | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-linux-diagnostic-assessment/packet.json`, `v10-local-performance-disposition.json`. |
+-| R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-linux-diagnostic-assessment/packet.json`, `v10-local-performance-disposition.json`. |
+-| R65 | All five Phase 22 development pairs, paired mutations, controls | **unresolved** — Final Linux development fails with15/25 completed and10 Meta timeouts:6/10 vulnerable detections and9/13 valid negatives completed with zero matching alerts; both raw erratum negatives are incomplete. Local development also completes22/25 with three Meta operator-fallback timeouts. Raw erratum labels and valid-negative denominators are separate; missing execution is not improved scoring. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-assessment/packet.json`, `v9-final-corpus-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-linux-diagnostic-assessment/packet.json`, `v10-local-performance-disposition.json`. |
+-| R66 | Fresh holdout outside tuning, separate results/no invented threshold | **passed** — Exact fresh-v3 freeze approved and all five inputs complete twice native and once Semgrep, with full ordered repeat equivalence and source assessments. BOTH tiers miss both correlated vulnerable variants; zero matching negative alerts. Native MCP tool surface is missed. This passes measurement completion only; the substantive fresh limitation is not protection or human-accepted. Original first frozen results remain unchanged, and source-informed fixing is not yet approved. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json`, `v9-fresh-staging-preflight.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v9-fresh-assessment/packet.json`, `v10-fresh-review.md`. |
+-| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | **passed** — Current exposed/original/Linux report comparisons retain every ordered delta and source assessment. Missing reports remain missing. The original historical70-warning unadjudicated backlog is preserved separately from open-webSearch70 source-assessed auth warnings. Unmatched scorer keys are not automatically false positives or new unassessed warnings. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-linux-assessment/packet.json`, `v9-fetchmcp-assessment-v2/packet.json`, `v9-openwebsearch-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | **passed** — Exact fresh-v3 freeze approved and all five inputs complete twice native and once Semgrep, with full ordered repeat equivalence and source assessments. BOTH tiers miss both correlated vulnerable variants; zero matching negative alerts. Native MCP tool surface is missed. This passes measurement completion only; the substantive fresh limitation is not protection or human-accepted. Original first frozen results remain unchanged, and source-informed fixing is not yet approved. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json`, `v9-fresh-staging-preflight.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v9-fresh-assessment/packet.json`, `v10-fresh-review.md`. |
+-| R69 | Per-input statuses/support/completion denominators, repeated differences | **passed** — All actual support/completion states, condition denominators, correlated variants, misses, repeats and incomplete remainders are retained. No pooling or relabeling of original labels. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-corpus-assessment/packet.json`, `v9-linux-assessment/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | **passed** — Retained scanner bytes match7555a9d; one branch-guard regression is added. Local2141/36 suite and required source-compatible engineering checks are rebound; all29 normal hosted jobs and docs pass atbbb5fbc, with12 quality suites2141/36, source-verified153wheel/166sdist members, Docker/isolation and historical reproduction evidence. Historical reproductions retain their original scanner and are not current timing passes. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-full-suite.json`, `v9-hosted-a4766a9/packet.json`, `v9-current-hosted-audit/packet.json`, `v9-closeout-docs.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-hosted-bbb5fbc/packet.json`, `v10-final-hosted-audit/packet.json`. |
+-| R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | **passed** — Retained scanner bytes match7555a9d; one branch-guard regression is added. Local2141/36 suite and required source-compatible engineering checks are rebound; all29 normal hosted jobs and docs pass atbbb5fbc, with12 quality suites2141/36, source-verified153wheel/166sdist members, Docker/isolation and historical reproduction evidence. Historical reproductions retain their original scanner and are not current timing passes. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-full-suite.json`, `v9-hosted-a4766a9/packet.json`, `v9-current-hosted-audit/packet.json`, `v9-closeout-docs.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-hosted-bbb5fbc/packet.json`, `v10-final-hosted-audit/packet.json`. |
+-| R73 | Docker/Action/rules-only network isolation and supported fixtures | **passed** — Retained scanner bytes match7555a9d; one branch-guard regression is added. Local2141/36 suite and required source-compatible engineering checks are rebound; all29 normal hosted jobs and docs pass atbbb5fbc, with12 quality suites2141/36, source-verified153wheel/166sdist members, Docker/isolation and historical reproduction evidence. Historical reproductions retain their original scanner and are not current timing passes. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-full-suite.json`, `v9-hosted-a4766a9/packet.json`, `v9-current-hosted-audit/packet.json`, `v9-closeout-docs.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-hosted-bbb5fbc/packet.json`, `v10-final-hosted-audit/packet.json`. |
+-| R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | **passed** — Retained scanner bytes match7555a9d; one branch-guard regression is added. Local2141/36 suite and required source-compatible engineering checks are rebound; all29 normal hosted jobs and docs pass atbbb5fbc, with12 quality suites2141/36, source-verified153wheel/166sdist members, Docker/isolation and historical reproduction evidence. Historical reproductions retain their original scanner and are not current timing passes. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-final-full-suite.json`, `v9-hosted-a4766a9/packet.json`, `v9-current-hosted-audit/packet.json`, `v9-closeout-docs.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v10-hosted-bbb5fbc/packet.json`, `v10-final-hosted-audit/packet.json`. |
+-| R75 | Concrete paid packet: actual config/model, exact cases/requests/purpose/reuse/replacements | **passed** — Actual production construction revalidates both approved captures and six replay batches. Compatible source/request/model/settings/fingerprint/ledger identities are retained. Original paid total is71799 micro-USD; no new paid call. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | **passed** — Actual production construction revalidates both approved captures and six replay batches. Compatible source/request/model/settings/fingerprint/ledger identities are retained. Original paid total is71799 micro-USD; no new paid call. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-production-capture-revalidation/packet.json`, `v9-compatible-evidence-binding/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | **explicitly user-deferred** — The full396-request reviewed benchmark/holdout is deferred for cost. No full reviewed accuracy, suppression, latency or retention result is claimed; more paid calls require separate approval. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/completion-scope-v1/decision.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | **explicitly user-deferred** — The full396-request reviewed benchmark/holdout is deferred for cost. No full reviewed accuracy, suppression, latency or retention result is claimed; more paid calls require separate approval. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/completion-scope-v1/decision.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `evidence-v38.json`, `v9-linux-dispatch.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `evidence-v38.json`, `v9-linux-dispatch.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R81 | Reviewable local commits on single integration branch; preserve old drafts | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `evidence-v38.json`, `v9-linux-dispatch.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `evidence-v38.json`, `v9-linux-dispatch.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. Evidence: `v9-current-source-test-bindings/packet.json`, `evidence-v38.json`, `v9-linux-dispatch.json`, `v9-hosted-a4766a9/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R84 | Human technical acceptance and external pilot-dependent gate | **unresolved** — Final human acceptance is not requested or received: timing remains unmet and the fresh0/2 limitation remains unaccepted. Further performance and fresh-source correction proposals are explicit unapproved options; pilots/paid evaluation remain deferred and Phase21/24/15 gates unchanged. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/completion-scope-v1/decision.json`, `v9-linux-execution-authorization.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | **passed** — Source-only evaluation and existing approved Docker boundaries preserved. Zero new paid calls. The authorized fresh15runs and one Linux diagnostic with4native+2profiles are consumed; one bounded local8native+1counterprofile experiment was reverted. No further full retry, runner/gate change, merge, release, outreach or next phase. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-dispatch.json`, `v9-compatible-evidence-binding/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R86 | No paid calls, merge/release/outreach/source sharing without approval | **passed** — Source-only evaluation and existing approved Docker boundaries preserved. Zero new paid calls. The authorized fresh15runs and one Linux diagnostic with4native+2profiles are consumed; one bounded local8native+1counterprofile experiment was reverted. No further full retry, runner/gate change, merge, release, outreach or next phase. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-linux-dispatch.json`, `v9-compatible-evidence-binding/packet.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R87 | Final fetch-mcp exposed correction: two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts, source-assessed deltas | **passed** — Both fetch-mcp native five-input runs complete on7555a9d, detecting2/2 correlated vulnerable initial-IPv4 conditions with zero matching fixed/control alerts. Scoped residual findings and every diagnostic/delta are source-assessed. Original frozen0/2 results and exposure authorization remain unchanged. Evidence: `v9-current-source-test-bindings/packet.json`, `v9-fetchmcp-assessment-v2/packet.json`, `artifacts/phase22/corpus-replacement-v2/exposure-and-fix-authorization-v1.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`. |
+-| R88 | Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments | **passed** — Exact fresh-v3 freeze approved and all five inputs complete twice native and once Semgrep, with full ordered repeat equivalence and source assessments. BOTH tiers miss both correlated vulnerable variants; zero matching negative alerts. Native MCP tool surface is missed. This passes measurement completion only; the substantive fresh limitation is not protection or human-accepted. Original first frozen results remain unchanged, and source-informed fixing is not yet approved. Evidence: `v9-current-source-test-bindings/packet.json`, `artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json`, `v9-fresh-staging-preflight.json`, `v10-current-source-test-bindings/packet.json`, `v10-source-compatibility.json`, `v9-fresh-assessment/packet.json`, `v10-fresh-review.md`. |
++| R01 | Correct dirty worktree and packet identities | **passed** — Integration ancestry, immutable scanner and existing draft base verified; user prompt files, main checkout and all earlier worktrees/seals preserved. |
++| R02 | Source-established constructors, fields, aliases and replacement invalidation | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R03 | Read-only builtin dictionary inspection with shadowing controls | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R04 | Reflection, unknown mutation, custom hooks and constructor/decorator ambiguity | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R05 | Imported handlers and schemas | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R06 | Aliases/re-exports, local imports and package exports | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R07 | Statically bound helpers, factories, inherited/bound methods | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R08 | Cross-file caller/guard/sink evidence and binding identity | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R09 | Genuine SDK context vs caller/fake/rebound/local SDK | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R10 | Low-level registration and dispatch | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R11 | uv/npm/pnpm members and exclusions | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R12 | TS aliases/inherited local compiler configuration, inaccessible parents | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R13 | Aggregate root vs individual config, nested config disclosure | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R14 | Per-member counts without shared-file duplication | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R15 | Inaccessible/unsupported members, ambiguity/import/reflection/schema gaps | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R16 | Repository escapes and symlinks; dynamic single Python package | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R17 | Helm original bytes/text secrets and explicit YAML omission | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R18 | Historical atlassian-auth condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R19 | Historical atlassian-ssrf condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R20 | Historical atlassian-upload condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R21 | Historical excel-boundary condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R22 | Historical filesystem-prefix condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R23 | Historical git-arguments condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R24 | Historical git-repository condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R25 | Historical git-staging condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R26 | Historical kubernetes-shell condition under unchanged SENT-002 meaning | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R27 | Historical mobile-output condition | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. |
++| R28 | Mastra failure-return flags and unsafe directory fallback | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R29 | Explicit description override, exfiltration, cross-tool redirection | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R30 | Benign instructions and quoted warnings; parameter/low-level metadata | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R31 | dbt selector options through nested factories/mutable argv | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R32 | Git option positions, rejection, command-specific terminators, object APIs | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R33 | Meta image caller URL request and scheme/private/loopback checks | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R34 | Fixed public authority plus caller suffix; enforced actual return value | **passed** — The four relevant original development families complete all20 local inputs on7555a9d, with8/8 vulnerable condition matches and zero matching negatives. Source-bound candidate identities and ordered report/delta comparisons preserve prior judgments. The separate entire25-input gate remains governed by R35/R65. |
++| R35 | Meta ContextVar/HTTP authentication/operator fallback | **unresolved** — Final Linux development fails with15/25 completed and10 Meta timeouts:6/10 vulnerable detections and9/13 valid negatives completed with zero matching alerts; both raw erratum negatives are incomplete. Local development also completes22/25 with three Meta operator-fallback timeouts. Raw erratum labels and valid-negative denominators are separate; missing execution is not improved scoring. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. The approved helper/context investigation found fewer than 0.6% repeated recorded signatures, all changing bindings. No safe reusable result or optimization was established; no native timing comparison or full retry. Existing timing gate remains unmet. |
++| R36 | Atlassian lifespan/operator origin, real SDK request, service/client construction and enforcement | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R37 | Applicable Python and TypeScript positives/negatives for every new rule | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R38 | Rule defaults, selection, inline suppression, baseline/severity identities | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R39 | Canonical Finding, evidence/provenance/remediation/OWASP and limitations | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R40 | Traversal/absolute/prefix/symlink and unrelated/discarded/replaced controls | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R41 | Helper execution, ineffective auth, unrelated validation, untrusted hashing | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R42 | Candidate-bound 160 unique SOURCE lines across files | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R43 | Overlap dedup/omissions, exact references, redaction LF/CRLF/CR, boundaries/symlinks | **passed** — Supported source contract and current actual regression executions verified. Unsupported forms remain explicit; test coverage is not detection accuracy. |
++| R44 | Unchanged request/cache compatibility and capture reuse | **passed** — Both approved production request fingerprints/hashes were regenerated from final source and replayed through the owned isolated Docker demo without live calls; exact approved cassette bytes and 71799 historical microUSD remain unchanged. New source does not imply reuse for unrelated benchmark requests. |
++| R45 | Nullable reviews/Finding identities and all runtime proof through review | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R46 | Runtime enumeration of every supported tool/path/mutation under SENT-008–011 | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R47 | Fair rounds and rule/argument rotation; bounded GPT priorities | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R48 | Stable attempt ID independent of scan/time/schema identity | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R49 | 24 STARTED attempts / 120s; timing after image and before discovery | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R50 | CLI > env > file > default positive settings; rules-only bypass; Action config | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R51 | Fresh baseline/attack; invalid baseline prevents attack | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R52 | Discovery/baseline/attack schema drift | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R53 | Unsupported/inconclusive/startup/execution/interruption states; cleanup | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R54 | Planned/unstarted records, no fabricated empty/incomplete coverage, exit 3 | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R55 | Preserve every repeated observable proof through merge/review/output | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R56 | Native 1.7 unique IDs and matching ordered binding/discovery/outcome references | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R57 | Actual planned/eligible/started/tested totals and remainder/budget invariants | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R58 | Legacy 1.3/1.4/1.5/1.6 reports/baselines, honest unknown coverage | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R59 | Workspace structured coverage validates against inventory | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R60 | Console/native/SARIF and every rule-keyed consumer | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R61 | Packaged Finding/report schemas, SARIF 2.1.0 validation | **passed** — Current contract tests, actual20/20 controlled Docker replay with14 findings, compatible approved Git evidence and hosted consumer/isolation checks are retained. Git remains1040 planned,312 tested,728 remaining across13 incomplete exit3 campaigns with cleanup; no complete Git coverage or defense claim. |
++| R62 | Owning architecture/schema/rule/compatibility/config/onboarding/Action docs | **passed** — Owning docs distinguish implemented factory/else/guard facts from the failed full SearXNG correction, preserved existing-family passes, bounded performance stop, exhausted ten-run budget and next explicit measurement checkpoints. Phase 22 remains incomplete. |
++| R63 | Historical 45-input deterministic repeat pair, 120s deadline | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. The approved helper/context investigation found fewer than 0.6% repeated recorded signatures, all changing bindings. No safe reusable result or optimization was established; no native timing comparison or full retry. Existing timing gate remains unmet. |
++| R64 | All 20 vulnerable condition hits; zero fixed/safe condition alerts | **unresolved** — Final immutable historical pair does not pass. Skipped/incomplete inputs cannot be relabeled as current detections or defenses. Earlier source-specific passes remain historical; the newly authorized sequence and stopping condition are preserved. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. The approved helper/context investigation found fewer than 0.6% repeated recorded signatures, all changing bindings. No safe reusable result or optimization was established; no native timing comparison or full retry. Existing timing gate remains unmet. |
++| R65 | All five Phase 22 development pairs, paired mutations, controls | **unresolved** — Final Linux development fails with15/25 completed and10 Meta timeouts:6/10 vulnerable detections and9/13 valid negatives completed with zero matching alerts; both raw erratum negatives are incomplete. Local development also completes22/25 with three Meta operator-fallback timeouts. Raw erratum labels and valid-negative denominators are separate; missing execution is not improved scoring. The later single approved Linux diagnostic adds four native timeouts and two partial worker profiles at120seconds. No full-batch retry occurred. The local duplicate-merge experiment was reverted for small/inconsistent gains; original timing gates remain unmet. The approved helper/context investigation found fewer than 0.6% repeated recorded signatures, all changing bindings. No safe reusable result or optimization was established; no native timing comparison or full retry. Existing timing gate remains unmet. |
++| R66 | Fresh holdout outside tuning, separate results/no invented threshold | **unresolved** — The first frozen SearXNG evaluation remains complete with 0/2 native/comparator hits at7555a9d. User approved exposure/fix; current source changed and these are exposed regressions. No fresh current-source evaluation is claimed. A new freeze/evaluation remains separately gated after actual stabilization; no new corpus is curated or scanned. |
++| R67 | All new/changed unrelated findings adjudicated; historical 70 unchanged | **passed** — All new/changed exposed findings and diagnostics are source-bound in v12-searxng-assessment and v12-exposed-assessment. Four SearXNG HTTP findings per input retain exact ordered bytes and prior judgments. Its safe-input broad SSRF candidate is separately assessed; the unchanged scorer label unadjudicated_findings counts 21 unmatched keys per batch, all source-assessed, not a new backlog. Original historical 70-warning backlog remains unchanged. |
++| R68 | Pinned comparable Semgrep rerun; Snyk/Cisco unmeasured | **passed** — Pinned comparator inputs/configuration/engine/harness remain unchanged and verified in v12-compatible-evidence/packet.json. Original comparator misses retain their source and assessments; no new comparator result or superiority claim. |
++| R69 | Per-input statuses/support/completion denominators, repeated differences | **passed** — All 30 final exposed native observations complete within 120s native/end-to-end with actual per-input identities/statuses. Complete ordered repeats match except recorded volatile fields. SearXNG2/2 vulnerable matches coexist with two fixed false alerts and unresolved dispatch; no pooled timing or broad coverage claim. |
++| R70 | Git mcp==1.29.0 image/environment identity and Docker startup/discovery/campaigns | **passed** — Current Git catalogs/campaign/sandbox rows,19 runtime component files and the approved environment match retained evidence. Reuses 13 incomplete campaigns 1,040 planned/312 tested/728 remaining with cleanup; the current production demo replay is separate, not completion of the Git campaigns. |
++| R71 | Full Ruff/format/strict mypy/lock/schema/native/SARIF/pytest >=80% branch | **passed** — Final-source full local suite and 12 hosted quality suites each pass 2,169 tests with 36 skips and no expected failures, above 80% branch coverage. All 29 normal CI jobs and docs pass at 6eb482c, including12 wheel combinations, source-verified distributions, Docker replay/isolation, dependency and historical reproduction checks. Ruff/format/strict 146-file mypy/schema/notices/offline artifacts and current production capture replay pass. Intermediate02e8ef7 local socket failures and three hosted dependency-download failures remain preserved; they are not rewritten green. Pinned historical reproductions retain their original source and are not current timing passes. |
++| R72 | Audit/notices/generated artifacts offline/strict docs/build/installed wheel | **passed** — Final-source full local suite and 12 hosted quality suites each pass 2,169 tests with 36 skips and no expected failures, above 80% branch coverage. All 29 normal CI jobs and docs pass at 6eb482c, including12 wheel combinations, source-verified distributions, Docker replay/isolation, dependency and historical reproduction checks. Ruff/format/strict 146-file mypy/schema/notices/offline artifacts and current production capture replay pass. Intermediate02e8ef7 local socket failures and three hosted dependency-download failures remain preserved; they are not rewritten green. Pinned historical reproductions retain their original source and are not current timing passes. |
++| R73 | Docker/Action/rules-only network isolation and supported fixtures | **passed** — Final-source full local suite and 12 hosted quality suites each pass 2,169 tests with 36 skips and no expected failures, above 80% branch coverage. All 29 normal CI jobs and docs pass at 6eb482c, including12 wheel combinations, source-verified distributions, Docker replay/isolation, dependency and historical reproduction checks. Ruff/format/strict 146-file mypy/schema/notices/offline artifacts and current production capture replay pass. Intermediate02e8ef7 local socket failures and three hosted dependency-download failures remain preserved; they are not rewritten green. Pinned historical reproductions retain their original source and are not current timing passes. |
++| R74 | Hosted Linux/macOS/Windows Python 3.10–3.13 | **passed** — Final-source full local suite and 12 hosted quality suites each pass 2,169 tests with 36 skips and no expected failures, above 80% branch coverage. All 29 normal CI jobs and docs pass at 6eb482c, including12 wheel combinations, source-verified distributions, Docker replay/isolation, dependency and historical reproduction checks. Ruff/format/strict 146-file mypy/schema/notices/offline artifacts and current production capture replay pass. Intermediate02e8ef7 local socket failures and three hosted dependency-download failures remain preserved; they are not rewritten green. Pinned historical reproductions retain their original source and are not current timing passes. |
++| R75 | Concrete paid packet: actual config/model, exact cases/requests/purpose/reuse/replacements | **passed** — Actual production construction revalidates both approved captures and six replay batches. Compatible source/request/model/settings/fingerprint/ledger identities are retained. Original paid total is71799 micro-USD; no new paid call. |
++| R76 | Token/request/dollar ceilings, identities, retries/failure/stopping policy | **passed** — Actual production construction revalidates both approved captures and six replay batches. Compatible source/request/model/settings/fingerprint/ledger identities are retained. Original paid total is71799 micro-USD; no new paid call. |
++| R77 | Reviewed 45/45 completion/retention on identical inputs; abstention/needs_review/suppression accounting | **explicitly user-deferred** — The full396-request reviewed benchmark/holdout is deferred for cost. No full reviewed accuracy, suppression, latency or retention result is claimed; more paid calls require separate approval. |
++| R78 | Separate reviewed holdout, latency/tokens/cache reuse/cost | **explicitly user-deferred** — The full396-request reviewed benchmark/holdout is deferred for cost. No full reviewed accuracy, suppression, latency or retention result is claimed; more paid calls require separate approval. |
++| R79 | Lossless numbered evidence batch after v3; per-file hash readback/extraction | **passed** — All 40 prior sealed archives retain their hashes. The closing v41 delta is subject to full member readback and prior-seal verification; its actual seal and final-documentation binding complete the delivery evidence. No original source/approval/measurement/failure record is overwritten. |
++| R80 | Complete command/source/harness/corpus/config/environment identities; failures/limitations | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. |
++| R81 | Reviewable local commits on single integration branch; preserve old drafts | **passed** — Reviewable commits and the consolidated existing draft preserve its parent. Numbered seals, commands/failures/source/test/harness/input/config/environment records and owning docs are retained. This final packet is included in the next incremental evidence seal; README/index and delivered Git bindings identify the actual verified archive. No technical acceptance inferred. |
++| R82 | Inspect real ancestry/bases and deliver one consolidated final draft | **passed** — Existing draftPR37 base/head/ancestry and unchanged separate main worktree are verified before final delivery. Final documentation/evidence-only delivery is bound separately from the actual6eb482c hosted source. No merge or release. |
++| R83 | ROADMAP/status separate delivered code, technical/paid/human/pilot gates | **passed** — Owning docs distinguish implemented factory/else/guard facts from the failed full SearXNG correction, preserved existing-family passes, bounded performance stop, exhausted ten-run budget and next explicit measurement checkpoints. Phase 22 remains incomplete. |
++| R84 | Human technical acceptance and external pilot-dependent gate | **unresolved** — No final human acceptance requested or received. Timing remains unmet; SearXNG correction fails fixed discrimination and the ten-run budget is exhausted; no current-source fresh evaluation. Pilots/paid benchmark remain user-deferred, Phase 21 incomplete and Phase 24/15 unchanged. |
++| R85 | Preserve static no-execution/no-symlinks/no-tooling; Docker-only runtime | **passed** — Both exact bounded proposals were approved by go ahead. One source-only counter profile and 30 final exposed native observations completed, plus 20 intermediate existing-family regressions. No comparator/model call, benchmark target execution, optional hosted measurement dispatch, full retry, runner/gate change, merge, release or outreach. Normal owned engineering fixture/Docker jobs remain within original authorization. |
++| R86 | No paid calls, merge/release/outreach/source sharing without approval | **passed** — Both exact bounded proposals were approved by go ahead. One source-only counter profile and 30 final exposed native observations completed, plus 20 intermediate existing-family regressions. No comparator/model call, benchmark target execution, optional hosted measurement dispatch, full retry, runner/gate change, merge, release or outreach. Normal owned engineering fixture/Docker jobs remain within original authorization. |
++| R87 | Final fetch-mcp exposed correction: two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts, source-assessed deltas | **passed** — Final source 6eb482c completes both five-input native fetch-mcp runs, detects 2/2 vulnerable variants and has zero condition-matched fixed/control alerts. Whole ordered repeats match; retained ordered findings and every diagnostic delta are source-assessed. Open-webSearch independently passes the same gate. |
++| R88 | Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments | **unresolved** — The first frozen SearXNG evaluation remains complete with 0/2 native/comparator hits at7555a9d. User approved exposure/fix; current source changed and these are exposed regressions. No fresh current-source evaluation is claimed. A new freeze/evaluation remains separately gated after actual stabilization; no new corpus is curated or scanned. |
++| R89 | Final exposed SearXNG correction: source-bound default loopback condition, two complete five-input native runs, 2/2 vulnerable matches and zero matching fixed/control alerts | **unresolved** — Factory/else and narrow guard facts pass durable controls, but both final native SearXNG batches flag both vulnerable and fixed revisions without the narrow qualifier.2/2 vulnerable hits and two fixed false alerts per batch; five inputs complete twice within deadlines. The MCP dispatch inventory remains unresolved. All ten authorized SearXNG observations are consumed; new exact diagnostic/final-run proposal prepared, unapproved. |
+ 
+ ## Historical v8 checkpoint at scanner `62987a6`
+ 
+diff --git a/docs/phase22-implementation-status.md b/docs/phase22-implementation-status.md
+index 9268aa0..4cb7410 100644
+--- a/docs/phase22-implementation-status.md
++++ b/docs/phase22-implementation-status.md
+@@ -1,5 +1,65 @@
+ # Phase 22 implementation status
+ 
++## Current bounded follow-up at `6eb482c`
++
++Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
++`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
++One helper-context counter profile found no safely reusable result. No
++optimization, native timing comparison or further full Linux retry occurred;
++the retained timing failure remains authoritative.
++
++Shared TypeScript factory/else discovery and narrow loopback/default guard
++facts are implemented. The canonical finding/review contract is unchanged.
++All 18 focused guard controls pass, but the full SearXNG correction gate fails:
++both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
++fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
++retains a broad candidate, separately assessed outside its exact public-input
++condition. That distinction does not waive the two fixed false alerts. The
++new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
++are consumed; original frozen native/comparator 0/2 results are preserved.
++
++The earlier draft guard-contract stop was premature: existing URL evidence can
++represent these narrow facts within the approved correction. Its correction is
++recorded in `v12-scope-interpretation-correction.json`. The actual remaining
++boundary is loss of that qualification in the complete source flow, not a
++request for another ordinary editing approval. The exact cause is not established
++by the native report; no callback or unknown effect is assumed harmless.
++
++See `v12-searxng-assessment/packet.json` and the prepared, unapproved
++`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
++retry, new fresh freeze/evaluation or paid calls require their separate approval.
++Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
++the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++
++## Historical v10 checkpoint
++
+ **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
+ incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+ correlated vulnerable variants and have zero matching fixed/control alerts.
+diff --git a/docs/phase22-ssrf-follow-up.md b/docs/phase22-ssrf-follow-up.md
+index 04d020f..45e4b37 100644
+--- a/docs/phase22-ssrf-follow-up.md
++++ b/docs/phase22-ssrf-follow-up.md
+@@ -1,5 +1,65 @@
+ # Replacement SSRF follow-up
+ 
++## Current bounded follow-up at `6eb482c`
++
++Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
++`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
++One helper-context counter profile found no safely reusable result. No
++optimization, native timing comparison or further full Linux retry occurred;
++the retained timing failure remains authoritative.
++
++Shared TypeScript factory/else discovery and narrow loopback/default guard
++facts are implemented. The canonical finding/review contract is unchanged.
++All 18 focused guard controls pass, but the full SearXNG correction gate fails:
++both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
++fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
++retains a broad candidate, separately assessed outside its exact public-input
++condition. That distinction does not waive the two fixed false alerts. The
++new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
++are consumed; original frozen native/comparator 0/2 results are preserved.
++
++The earlier draft guard-contract stop was premature: existing URL evidence can
++represent these narrow facts within the approved correction. Its correction is
++recorded in `v12-scope-interpretation-correction.json`. The actual remaining
++boundary is loss of that qualification in the complete source flow, not a
++request for another ordinary editing approval. The exact cause is not established
++by the native report; no callback or unknown effect is assumed harmless.
++
++See `v12-searxng-assessment/packet.json` and the prepared, unapproved
++`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
++retry, new fresh freeze/evaluation or paid calls require their separate approval.
++Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
++the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++
++## Historical v10 checkpoint
++
+ **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
+ incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+ correlated vulnerable variants and have zero matching fixed/control alerts.
+diff --git a/docs/phase22-technical.md b/docs/phase22-technical.md
+index 5c544ac..3ad8d4b 100644
+--- a/docs/phase22-technical.md
++++ b/docs/phase22-technical.md
+@@ -1,5 +1,65 @@
+ # Phase 22 technical expansion
+ 
++## Current bounded follow-up at `6eb482c`
++
++Phase 22 remains incomplete. The user's “go ahead” approved both v10 proposals;
++`v11-follow-up-authorization.json` preserves their exact hashes and bounds.
++One helper-context counter profile found no safely reusable result. No
++optimization, native timing comparison or further full Linux retry occurred;
++the retained timing failure remains authoritative.
++
++Shared TypeScript factory/else discovery and narrow loopback/default guard
++facts are implemented. The canonical finding/review contract is unchanged.
++All 18 focused guard controls pass, but the full SearXNG correction gate fails:
++both native batches complete 5/5 and detect 2/2 vulnerable variants, while both
++fixed variants retain an unqualified SSRF alert. The public-IPv4 control also
++retains a broad candidate, separately assessed outside its exact public-input
++condition. That distinction does not waive the two fixed false alerts. The
++new MCP dispatch surface remains unresolved. All ten authorized SearXNG runs
++are consumed; original frozen native/comparator 0/2 results are preserved.
++
++The earlier draft guard-contract stop was premature: existing URL evidence can
++represent these narrow facts within the approved correction. Its correction is
++recorded in `v12-scope-interpretation-correction.json`. The actual remaining
++boundary is loss of that qualification in the complete source flow, not a
++request for another ordinary editing approval. The exact cause is not established
++by the native report; no callback or unknown effect is assumed harmless.
++
++See `v12-searxng-assessment/packet.json` and the prepared, unapproved
++`v12-next-searxng-proposal.json`. Any additional SearXNG observations, full timing
++retry, new fresh freeze/evaluation or paid calls require their separate approval.
++Final human acceptance is not requested. Phase 21 remains incomplete; pilots and
++the full paid benchmark are user-deferred, and Phase 24/15 gates are unchanged.
++
++Final-source verification at `6eb482c`: the local full suite and all 12 hosted
++quality suites each pass **2,169 tests with 36 skips and no expected failures**.
++Local branch coverage is 89.66%; hosted coverage is 89.65–89.67%.
++All 29 normal hosted jobs and docs pass ([CI](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040679),
++[docs](https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/34492040778)).
++Wheel/sdist source members match Git; ordinary Docker replay, network isolation,
++dependency checks, Ruff/format/strict mypy, schemas, notices and offline generated
++artifacts pass. Both approved production review requests were regenerated and
++replayed without paid calls. The approved Git environment and 13 incomplete
++campaigns retain exact compatibility; no complete Git coverage is claimed.
++Intermediate local socket failures and hosted dependency-download failures remain
++preserved with their actual source; they are not relabeled as successful runs.
++
++Fetch-mcp and open-webSearch each pass both five-input native regression batches:
++2/2 vulnerable matches and zero matching fixed/control alerts per batch. Entire
++ordered repeats match except recorded volatile fields; retained findings and
++all changed diagnostics are source-assessed. SearXNG's two fixed false alerts
++remain a separate failed correction gate. There is no final whole-corpus timing
++pass, new fresh-source evaluation or final human acceptance.
++
++The **89-row** current audit records **69 passed,
++2 user-deferred and
++18 unresolved** requirements. See
++`v12-closeout-audit/packet.json`, `v12-current-source-test-bindings/packet.json`,
++`v12-exposed-assessment/packet.json` and `v12-hosted-audit/packet.json`.
++
++
++## Historical v10 checkpoint
++
+ **Current scanner: `7555a9d`; tested regression delivery: `bbb5fbc`. Phase 22 remains
+ incomplete.** Both exposed SSRF families complete five inputs twice, detect both
+ correlated vulnerable variants and have zero matching fixed/control alerts.
+diff --git a/docs/rules.md b/docs/rules.md
+index 0e84e6c..ba557ec 100644
+--- a/docs/rules.md
++++ b/docs/rules.md
+@@ -37,6 +37,12 @@ establish this protection. The scanner does not read the target environment or
+ suppress the broader candidate. DNS, redirects, IPv6 and other destinations remain
+ unestablished; this is source analysis, not runtime proof.
+ 
++These bounded facts pass their focused controls, but the full exposed SearXNG
++source still loses the narrow qualifier and flags both fixed variants. Its
++correction gate remains unmet; the implementation does not establish complete
++source-default or redirect coverage. See the current Phase 22 status and audit.
++
++
+ ## SENT-001 { #sent-001 }
+ 
+ ### Overly broad tool permission scope

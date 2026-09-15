@@ -57,3 +57,10 @@ review or ordinary upload requirements still fail closed.
 `BashaarJavaid/MCP-Sentinel@v1` follows the compatible v1 Action line. Consumers
 that require an immutable supply-chain reference should pin the Action to the
 full commit SHA of the selected release.
+
+The Phase 22 integration reads `[sandbox].max_probe_attempts` and
+`[sandbox].campaign_timeout_seconds` from the selected repository configuration
+(defaults 24 started attempts / 120 seconds including runtime discovery).
+Matching `SENTINEL_MAX_PROBE_ATTEMPTS` and
+`SENTINEL_CAMPAIGN_TIMEOUT_SECONDS` environment variables override the file.
+Rules-only bypasses these runtime settings. No additional Action input is needed.

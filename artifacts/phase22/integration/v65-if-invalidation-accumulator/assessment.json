@@ -1,0 +1,227 @@
+{
+  "recorded_at": "2026-09-14T03:40:52.098756+00:00",
+  "scanner": {
+    "revision": "1948bf942babce155b701f5b22ed941eb16d99d0",
+    "source_sha256": "8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "approved_proposal_sha256": "d8b425ba9bc7546c1f8dfa0cee9172447617b28e02da25ec89af694654f5077e",
+  "authorization_sha256": "ab8e751aac3cd4a4e53b7eb1aee40a47d9766c863c6bf962ebecfb481daf7485",
+  "attempts": 1,
+  "remaining": 0,
+  "budget_closed": true,
+  "ordinary_complete_state_comparisons": 256,
+  "ordinary_avoided_work": "One accumulator baseline copy and first-arm update avoided per ordinary evaluated If; zero-arm fallback unchanged. No timing or throughput measurement.",
+  "adversarial_controls": {
+    "alias": {
+      "equivalent": false,
+      "baseline_invalidations": [
+        "baseline",
+        "left",
+        "right"
+      ],
+      "candidate_invalidations": [
+        "baseline",
+        "left",
+        "right"
+      ],
+      "baseline_retained_arm_sets": [
+        [
+          "baseline",
+          "left"
+        ],
+        [
+          "baseline",
+          "right"
+        ]
+      ],
+      "candidate_retained_arm_sets": [
+        [
+          "baseline",
+          "left",
+          "right"
+        ],
+        [
+          "baseline",
+          "right"
+        ]
+      ],
+      "baseline_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": [
+          false,
+          false
+        ]
+      },
+      "candidate_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": [
+          true,
+          false
+        ]
+      }
+    },
+    "shrink": {
+      "equivalent": false,
+      "baseline_invalidations": [
+        "baseline"
+      ],
+      "candidate_invalidations": [],
+      "baseline_retained_arm_sets": [],
+      "candidate_retained_arm_sets": [],
+      "baseline_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      },
+      "candidate_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      }
+    },
+    "interrupt": {
+      "equivalent": true,
+      "baseline_invalidations": [
+        "baseline",
+        "right"
+      ],
+      "candidate_invalidations": [
+        "baseline",
+        "right"
+      ],
+      "baseline_retained_arm_sets": [],
+      "candidate_retained_arm_sets": [],
+      "baseline_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      },
+      "candidate_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      }
+    },
+    "error": {
+      "equivalent": true,
+      "baseline_invalidations": [
+        "baseline",
+        "right"
+      ],
+      "candidate_invalidations": [
+        "baseline",
+        "right"
+      ],
+      "baseline_retained_arm_sets": [],
+      "candidate_retained_arm_sets": [],
+      "baseline_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      },
+      "candidate_aliases": {
+        "arrays_is_original": true,
+        "invalidated_is_original": false,
+        "final_is_retained_arm": []
+      }
+    }
+  },
+  "actual_failure": "Adopting the first completed arm set lets a later union mutate an instrumented retained alias. If an instrumented arm clears the set, adopting it can omit the preexisting baseline. Both violate the explicitly approved adversarial contract, so the attempt fails despite ordinary passes.",
+  "reachability": "Both counterexamples use scanner-owned synthetic leaf overrides to export or clear the private set. The current shipped source only initializes/adds/updates or resets/unions private branch sets; no production clear/export is found in the full occurrence inventory. Real-target reachability or detection impact of the synthetic cases is not established. This observation does not waive the original failed prerequisite.",
+  "preparation_error": "The delivered optimization proposal demanded equivalence even for injected alias export/shrinking while the proposed adoption relies on those behaviors being absent. That overbroad proposal/implementation premise is retained as an agent preparation failure, not reclassified as a pass.",
+  "source_uses": {
+    "src/sentinel/static/rules/sent014.py": {
+      "sha256": "b59017ed36b51beb0120f4ef8b3931f447cac844f4e676e351751eb0bfd64d16",
+      "lines": {
+        "22": "from sentinel.static.typescript_path_flow import TypeScriptPathFlow",
+        "400": "class TypeScriptOptionFlow(TypeScriptPathFlow):"
+      }
+    },
+    "src/sentinel/static/rules/sent015.py": {
+      "sha256": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+      "lines": {
+        "32": "from sentinel.static.typescript_path_flow import TypeScriptPathFlow",
+        "947": "class TypeScriptURLFlow(TypeScriptPathFlow):",
+        "1149": "            if {self.process.key, self.environment.key} & self.invalidated_objects:",
+        "1153": "        if part == \"parsed\" and value.key not in self.invalidated_objects:",
+        "1208": "            if receiver.key in self.invalidated_objects:"
+      }
+    },
+    "src/sentinel/static/rules/sent016.py": {
+      "sha256": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291",
+      "lines": {
+        "33": "from sentinel.static.typescript_path_flow import TypeScriptPathFlow",
+        "675": "class TypeScriptCredentialFlow(TypeScriptPathFlow):",
+        "716": "            & self.invalidated_objects"
+      }
+    },
+    "src/sentinel/static/typescript_execution.py": {
+      "sha256": "e8fd343a646beaee105c3007d1c1074da97ba9bac35d5fa661e131fcd8722fe2",
+      "lines": {
+        "43": "from sentinel.static.typescript_path_flow import TypeScriptPathFlow",
+        "237": "class ShellFlow(TypeScriptPathFlow):"
+      }
+    },
+    "src/sentinel/static/typescript_path_flow.py": {
+      "sha256": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+      "lines": {
+        "42": "class TypeScriptPathFlow:",
+        "62": "        self.invalidated_objects: set[str] = set()",
+        "218": "            value.key in self.invalidated_objects",
+        "378": "            value.key in self.objects and value.key not in self.invalidated_objects",
+        "422": "        if value.key in self.invalidated_objects:",
+        "669": "            initial_invalidated = self.invalidated_objects.copy()",
+        "676": "                self.invalidated_objects = initial_invalidated.copy()",
+        "682": "                invalidated.update(self.invalidated_objects)",
+        "683": "            self.invalidated_objects = invalidated",
+        "895": "        self.invalidated_objects.update(",
+        "904": "            self.invalidated_objects.add(symbol.external)",
+        "967": "                } & self.invalidated_objects:",
+        "997": "            & self.invalidated_objects",
+        "1004": "        if depth >= 64 or schema.key in self.invalidated_objects:",
+        "1172": "                and class_value.key not in self.invalidated_objects",
+        "1173": "                and binding.external not in self.invalidated_objects",
+        "1199": "                and class_value.key not in self.invalidated_objects",
+        "1337": "                and parent.key not in self.invalidated_objects",
+        "1338": "                and binding.external not in self.invalidated_objects",
+        "1344": "                if parent.key in self.invalidated_objects:",
+        "1355": "                if {parent.key, class_key} & self.invalidated_objects:",
+        "1380": "            if parent.key not in self.invalidated_objects:",
+        "1512": "                and value.key not in self.invalidated_objects",
+        "1571": "            and receiver.key not in self.invalidated_objects",
+        "1630": "            and receiver.key not in self.invalidated_objects",
+        "1637": "            and sdk_class not in self.invalidated_objects",
+        "1638": "            and sdk_receiver.key not in self.invalidated_objects",
+        "1720": "                    and args[0].key not in self.invalidated_objects",
+        "1723": "                        and v.key not in self.invalidated_objects",
+        "1732": "                        and v.key not in self.invalidated_objects",
+        "1741": "            and receiver.key not in self.invalidated_objects",
+        "2450": "                and callback.key not in self.invalidated_objects",
+        "2499": "        if conditional is not None and value.key not in self.invalidated_objects:",
+        "2548": "    flow: TypeScriptPathFlow | None = None,",
+        "2551": "    flow = flow or TypeScriptPathFlow(program, state)"
+      }
+    },
+    "src/sentinel/static/typescript_registration_flow.py": {
+      "sha256": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+      "lines": {
+        "18": "from sentinel.static.typescript_path_flow import TypeScriptPathFlow",
+        "21": "class RegistrationFlow(TypeScriptPathFlow):",
+        "179": "class HTTPRegistrationFlow(TypeScriptPathFlow):"
+      }
+    }
+  },
+  "source_restored_exactly": true,
+  "restoration_sha256": "f87b86321f3f75201d99a69331805d1545c484a59862d5a3321881cb481285b8",
+  "candidate_preserved_sha256": "376b9ba27bddc3add96bfa88fab4d231850b0737daa465ce5db098c85a83e18a",
+  "initial_check_failure": "v65-equivalence failed before comparison because the helper supplied deadline=None; corrected to a finite synthetic deadline. Original log/helper archive preserved. v65-equivalence-corrected then completed and independently failed the two actual adversarial comparisons.",
+  "required_followups_not_run": "Full discovery/report/local/hosted engineering gates were conditional on the complete equivalence prerequisite, which failed; no new candidate code pass is claimed. Exact restored1948bf9 retains its existing verified engineering through byte bindings.",
+  "corpus_observations": 0,
+  "profiles": 0,
+  "paid_calls": 0,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

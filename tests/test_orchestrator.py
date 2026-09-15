@@ -147,6 +147,10 @@ def test_full_orchestration_orders_both_reviews_and_merge(
             response={"isError": False},
             logs=(),
             vulnerable=True,
+            attempt_id=ProbeBinding(
+                "SENT-008", "ungranted_echo", None, None
+            ).attempt_id,
+            mutation="out_of_scope",
         ),
         SCAN_ID,
         NOW,
@@ -210,16 +214,38 @@ def test_full_orchestration_orders_both_reviews_and_merge(
         assert timestamp == NOW
         calls.append("dynamic")
         bindings = {
-            rule_id: ProbeBinding(rule_id, None, None, None)
+            rule_id: ProbeBinding(
+                rule_id,
+                "ungranted_echo" if rule_id == "SENT-008" else "test",
+                None,
+                None,
+            )
             for rule_id in DEFAULT_ORDER
         }
         return DynamicScanResult(
             findings=(dynamic,),
             warnings=(),
             image=DependencyImage("deps:test", "cache-key", True),
-            campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+            campaign=ProbeCampaign(
+                DEFAULT_ORDER,
+                tuple(bindings.values()),
+                None,
+                True,
+                enumeration_complete=True,
+            ),
             observations=tuple(
-                _Observation(rule_id, "test", None, {}, {}, (), False)
+                _Observation(
+                    rule_id,
+                    bindings[rule_id].target_tool or "",
+                    None,
+                    {},
+                    {},
+                    (),
+                    rule_id == "SENT-008",
+                    started=True,
+                    attempt_id=bindings[rule_id].attempt_id,
+                    mutation=bindings[rule_id].mutation,
+                )
                 for rule_id in DEFAULT_ORDER
             ),
         )

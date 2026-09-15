@@ -1,0 +1,156 @@
+{
+  "status": "prepared_not_approved_not_executed",
+  "scanner": {
+    "revision": "a36f696c504e4e8d1f90de5dc84e8942d06316ca",
+    "source_sha256": "2f4a49aeb2173ca2174b984b8108174d96d6df42cec93e58522caf713efbaeab",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-a36f696",
+  "input": {
+    "input": {
+      "id": "faf-read-root-vulnerable",
+      "family": "faf-read-root",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "language": "typescript",
+      "split": "held_out",
+      "variant": "original",
+      "label": "vulnerable",
+      "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+      "scan_root": ".",
+      "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+      "prerequisites": [
+        "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+        "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+        "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+      ],
+      "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+      "runtime_applicability": "unsupported",
+      "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+      "runtime_configuration": null,
+      "evidence": [
+        {
+          "path": "src/index.ts",
+          "start_line": 1,
+          "end_line": 18,
+          "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/server.ts",
+          "start_line": 1,
+          "end_line": 139,
+          "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/tools.ts",
+          "start_line": 1,
+          "end_line": 3302,
+          "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/fileHandler.ts",
+          "start_line": 1,
+          "end_line": 235,
+          "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/engine-adapter.ts",
+          "start_line": 1,
+          "end_line": 877,
+          "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "package.json",
+          "start_line": 1,
+          "end_line": 118,
+          "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "tsconfig.json",
+          "start_line": 1,
+          "end_line": 33,
+          "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        }
+      ],
+      "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+      "parent": null,
+      "transformation": null,
+      "overlay": null,
+      "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+    },
+    "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+    "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "assessment": null
+  },
+  "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+  "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+  "purpose": "Determine remaining scanner costs on the same FAF vulnerable input after the approved equal-value fast-path candidate still reached300seconds without a report. Earlier v51 samples measure6e4fd67 before this reorder; the current native outcome has no stack or stage attribution. This proposes one new current-source diagnostic, not another optimization or regression retry.",
+  "command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v53-fastpath-regression/diagnostic.py"
+  ],
+  "initial_cwd": "/private/tmp/mcp-phase22-options",
+  "output": "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v54-faf-fastpath-sampling",
+  "bounds": {
+    "total_input_executions": 1,
+    "sampled_profiles": 1,
+    "uninstrumented_observations": 0,
+    "whole_input_maximum_seconds": 300,
+    "normal_target_seconds": 120,
+    "cleanup_maximum_seconds": 15,
+    "cpu_timer_hz_per_worker": 100,
+    "periodic_snapshot_seconds": 15,
+    "maximum_stack_frames": 1024,
+    "optimization_attempts": 0,
+    "retries": 0,
+    "comparators": 0,
+    "paid_calls": 0,
+    "hosted_dispatches": 0,
+    "target_execution": false
+  },
+  "instrumentation": "Reuse the previously validated100Hz stdlib CPU-timer worker sampler, same rule set, worker layout and300-second limit. Bind import root to frozena36f696; verify actual worker/flow paths and complete scanner source/harness/revision before starting the timer or reading target snapshots. Parent preflight runs an isolated worker identity check before consuming the token; every real worker retains its identity receipt. No scanner method replacement, locals or source values. Identity checks and sampling overhead remain inside the unchanged limit.",
+  "partial_output": "Retain atomic15-second snapshots even if workers are killed by the unchanged timeout cleanup. A killed worker may lack a final/restored-state snapshot; report that fact. Do not weaken cleanup, extend deadlines or claim a complete profile interval.",
+  "interpretation": "CPU-timer/GIL/native-code delivery and snapshot overhead bias attribution. Overlapping stack shares are not independent/additive costs or guaranteed savings; this profile cannot establish native speedup or regression success. If a report completes, validate JSON/SARIF and compare the complete ordered report with the original2e0efb2 reference after only11established volatile exclusions; source-assess all changes. This nativea36f696 timeout produced no report baseline. Per-worker receipts must all bind a36f696; absent or mismatched identities invalidate attribution. Earlier v47/v51 partial samples retain17b4784/6e4fd67; the invalid v50 attempt remains unusable.",
+  "stop": "At most one attempted input, including timeout, interruption or worker-identity failure. Fail before consumption on parent preflight mismatch. Preserve partial outputs and close the one-use budget on every attempted outcome. No automatic retry, optimization, resource/deadline change or reopened regression/profile budget.",
+  "environment": "Existing locked local macOS environment and frozena36f696 source; no dependency, resource, parallelism or deadline change and no overlapping owned heavy work.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v52-merge-fastpath/evaluation-proposal.json": "d7dbe81c25e0ea4ef5ad60608a1f78ed11408db8853eb8abe55e33e90d89b913",
+    "artifacts/phase22/integration/v52-merge-fastpath/evaluation-authorization.json": "a78301bb1386f5a5c2a89935ae0bea235aadc6f7c7a3355464486f2e0874956d",
+    "artifacts/phase22/integration/v52-merge-fastpath/execution-consumed.json": "3e4abb9e035050744acabbac2772419eb67ff34aa6fe0751cc2a3a1995a8384b",
+    "artifacts/phase22/integration/v52-merge-fastpath/evaluate.py": "9d9c5b53845a422d675556be5d0d4bc61c56fd149834293dce97709a03dc3be9",
+    "artifacts/phase22/integration/v52-merge-fastpath/authorization.json": "2478f37f653e2b1566f35b73d69f21fc1ea935897d6531622ad7c4bded2eeb72",
+    "artifacts/phase22/integration/v52-merge-fastpath/synthetic-validation.json": "03cfe60a47046cad9fe9c5cc1b4499061299dbfc017ed5cb34d540105845bed0",
+    "artifacts/phase22/integration/v52-merge-fastpath/optimization-budget-closed.json": "c849b470d4d2417c7cbcbf2cfedd4f070f0b430213fa4dacbf7ca7d94ec5d22c",
+    "artifacts/phase22/integration/v53-fastpath-regression/corrected-sampling-worker.py": "36ad09ed42e232b8da8ae7f47e95b920563501b7092749a709e581e98fe6f001",
+    "artifacts/phase22/integration/v53-fastpath-regression/diagnostic.py": "e4ead3ccac2920ba16a38426a273a545f8a9811272e123635fdedc4478046034",
+    "artifacts/phase22/integration/v53-fastpath-regression/sampler-selfcheck.py": "a43928b93c3d0f04d6f1e67e65492e788ee1a6b693dd11ab3ea773f21a8cfde9",
+    "artifacts/phase22/integration/v53-fastpath-regression/sampler-selfcheck/packet.json": "b885fdb80d7c700ebbe5260cb1324a8beb0adc678ccec55a627e28f62daaa98d",
+    "artifacts/phase22/integration/v53-fastpath-regression/assessment.json": "12960f327494a854d783be35eb66374b7a3d92e7ecf6b7142289b9b2ce4695e7",
+    "artifacts/phase22/integration/v53-fastpath-regression/validation.json": "b0673cd6403cd887c1c01186b4c840c47792de3f7bce342808f80e4be556d40d",
+    "artifacts/phase22/integration/v53-fastpath-regression/budget-closed.json": "a2fcced1157bac4b3a4d8fa9081b698bf8f9141478a0b06e8e10b51035dacb44",
+    "artifacts/phase22/integration/v53-fastpath-regression/raw/packet.json": "a13c5c68673d0c74cdaf5bc20ab8157ea7c35bc113325a5a4a1459d8c93f06cc",
+    "artifacts/phase22/integration/v53-fastpath-regression/execution.json": "de21096d399c5f490d53af04d899384f955146df871beed9b84ce641139fba25",
+    "artifacts/phase22/integration/v53-fastpath-regression/assess-and-prepare.py": "aeeea7fb74188c6bf3533579ce3ca77a9daf1e93438ce1a6f58c9f81ff129cb1",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v51-faf-bound-sampling/assessment.json": "f613f91ebb34d5983f84e5eb566477937f1dddd23c6973c7d2cd4ab406953341",
+    "artifacts/phase22/integration/v51-faf-bound-sampling/source-assessment.json": "d1dcb29a089575660b5cb39e30524ff82e91430ed49bcf1f3cd01d64db6bacb7",
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json": "5f70268142fca7b6b26ee0ec953e8273ebecccc31e26b276d92fe556e92e06b1"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "sampler_reuse": {
+    "prior_proposal_sha256": "1d29e88e926c574cb0dbfff32108b4b961966bebe259dc75e53cf2ee776b175b",
+    "prior_sampler_sha256": "f8a91ac1d33e9c2569803b2a16fa14a97b0f9da7c6c77c9f02e29168df411425",
+    "allowed_changes": "Only current frozen root/revision/source identity and output/asset paths. All sampling, snapshot, timer restoration, bounds and identity-before-target logic unchanged. Stale6e4fd67 negative control rejects before timer/target access."
+  }
+}

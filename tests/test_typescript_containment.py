@@ -1,0 +1,1009 @@
+"""Containment checks follow the actual TypeScript path and enforced branches."""
+
+import time
+from pathlib import Path
+from uuid import uuid4
+
+import pytest
+
+from sentinel.config import load_configuration
+from sentinel.finding import FileLocation
+from sentinel.static.engine import run_static_scan
+from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+from sentinel.static.typescript_discovery import TypeScriptProgram
+from sentinel.static.typescript_path_flow import analyze
+from tests.conftest import NOW
+
+
+@pytest.mark.parametrize("failure", ["throw new Error();", "process.exit(1);"])
+@pytest.mark.parametrize(
+    ("change", "expected"),
+    [
+        ("none", 0),
+        ("raw-prefix", 1),
+        ("replaced-read", 1),
+        ("later-root-write", 1),
+        ("callback-root-write", 1),
+        ("caller-root", 1),
+        ("destructured-root-write", 1),
+        ("loop-root-write", 1),
+        ("evaluated-root-write", 1),
+        ("operator-root-and-metadata", 0),
+    ],
+)
+def test_checked_import_after_canonical_root_initialization(
+    tmp_path: Path, failure: str, change: str, expected: int
+) -> None:
+    source = """
+import {Server} from '@modelcontextprotocol/sdk/server/index.js';
+import {CallToolRequestSchema} from '@modelcontextprotocol/sdk/types.js';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+let root: string;
+try { root = fs.realpathSync('/allowed'); }
+catch { FAILURE }
+function checked(input: string): string {
+  let resolved: string;
+  try { resolved = fs.realpathSync(path.resolve(root, input)); }
+  catch { throw new Error(); }
+  const inside = resolved === root || resolved.startsWith(root + path.sep);
+  if (!inside) throw new Error();
+  return resolved;
+}
+const server = new Server({name: 'unit', version: '1'});
+server.setRequestHandler(CallToolRequestSchema, request => {
+  let safe: string;
+  try { safe = checked(request.params.arguments.file); }
+  catch { return {content: []}; }
+  return fs.readFileSync(safe);
+});
+""".replace("FAILURE", failure)
+    changes = {
+        "none": ("", ""),
+        "raw-prefix": ("root + path.sep", "root"),
+        "replaced-read": (
+            "fs.readFileSync(safe)",
+            "fs.readFileSync(request.params.arguments.file)",
+        ),
+        "later-root-write": ("function checked", "root = unknown;\nfunction checked"),
+        "callback-root-write": (
+            "function checked",
+            "unknown(() => { root = unknown; });\nfunction checked",
+        ),
+        "caller-root": (
+            "let safe: string;",
+            "root = fs.realpathSync(request.params.arguments.root);\nlet safe: string;",
+        ),
+        "destructured-root-write": (
+            "function checked",
+            "[root] = unknown;\nfunction checked",
+        ),
+        "loop-root-write": (
+            "function checked",
+            "for (root of unknown) {}\nfunction checked",
+        ),
+        "evaluated-root-write": ("function checked", "eval(code);\nfunction checked"),
+        "operator-root-and-metadata": (
+            "fs.realpathSync('/allowed')",
+            "fs.realpathSync(path.resolve(process.env.ROOT || '/allowed'))",
+        ),
+    }
+    old, new = changes[change]
+    if old:
+        source = source.replace(old, new)
+    if change == "operator-root-and-metadata":
+        source = source.replace(
+            "try { resolved = fs.realpathSync(path.resolve(root, input)); }",
+            "let stats; try { resolved = fs.realpathSync(path.resolve(root, input)); "
+            "stats = fs.statSync(resolved); }",
+        ).replace(
+            "return resolved;",
+            "if (!stats.isFile() || stats.size > 1024) throw new Error(); "
+            "return resolved;",
+        )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    "setup, failure, catch_binding",
+    [
+        ("", "unknown();", ""),
+        ("", "if (unknown) process.exit(1);", ""),
+        ("const process = {exit: unknown};", "process.exit(1);", ""),
+        ("process.exit = unknown;", "process.exit(1);", ""),
+        ("process['exit'] = unknown;", "process.exit(1);", ""),
+        ("const alias = process; alias.exit = unknown;", "process.exit(1);", ""),
+        ("const exit = process.exit; unknown(exit);", "process.exit(1);", ""),
+        ("unknown(process);", "process.exit(1);", ""),
+        ("globalThis.process.exit = unknown;", "process.exit(1);", ""),
+        ("eval(code);", "process.exit(1);", ""),
+        (
+            "import other from 'node:process'; other.exit = unknown;",
+            "process.exit(1);",
+            "",
+        ),
+        (
+            "const other = require('node:process'); other.exit = unknown;",
+            "process.exit(1);",
+            "",
+        ),
+        ("import('node:process').then(unknown);", "process.exit(1);", ""),
+        ("", "process.exit(1);", "(process)"),
+    ],
+)
+def test_global_root_requires_a_proven_terminal_failure_branch(
+    tmp_path: Path, setup: str, failure: str, catch_binding: str
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        + setup
+        + '\nlet root; try { root = fs.realpathSync("/allowed"); } '
+        + f"catch {catch_binding} {{ {failure} }}\n"
+        + 'const server = new McpServer({name:"unit",version:"1"});\n'
+        + 'server.registerTool("read", {}, ({file}) => {\n'
+        + "const p = fs.realpathSync(file);\n"
+        + "if (!(p === root || p.startsWith(root + path.sep))) throw new Error();\n"
+        + "return fs.readFileSync(p); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["server.registerTool = unknown;", "unknown(server);", "unknown({server});"],
+)
+def test_factory_registration_rejects_replaced_or_escaped_server(
+    tmp_path: Path, mutation: str
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        "export function createServer() {\n"
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        + mutation
+        + '\nserver.registerTool("read", {}, async (args) => args);\n'
+        "return server;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    assert not program.tools()
+
+
+@pytest.mark.parametrize("cast", [False, True])
+@pytest.mark.parametrize(
+    ("dispatch", "expected"),
+    [
+        ("return await callback(args);", 1),
+        ('return await callback({path:"/srv/data/fixed"});', 0),
+        ('callback = async () => "fixed"; return await callback(args);', 0),
+    ],
+)
+def test_factory_registration_wrapper_preserves_callback_binding(
+    tmp_path: Path, dispatch: str, expected: int, cast: bool
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs";\n'
+        "export function createServer() {\n"
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "const register = (name, schema, callback) => {\n"
+        "server.registerTool(name, {inputSchema:schema}, (async (args) => {\n"
+        + dispatch
+        + "\n})"
+        + (" as any" if cast else "")
+        + ");\n};\n"
+        'register("read", {path:z.string()}, '
+        "async ({path}) => fs.readFileSync(path));\n"
+        "return server;\n}\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    tools = program.tools()
+    assert [tool.name for tool in tools] == ["read"]
+    assert program.text(
+        tools[0].registration.file, tools[0].registration.node
+    ).startswith("register(")
+    state = RuleRunState()
+    analyze(program, state)
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize("local", [False, True])
+def test_imported_factory_wrapper_keeps_each_registration_and_metadata(
+    tmp_path: Path,
+    local: bool,
+) -> None:
+    (tmp_path / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}', encoding="utf-8"
+    )
+    (tmp_path / "wrapper.ts").write_text(
+        "export function register(server, name, schema, description, callback) {\n"
+        "server.registerTool(name, {inputSchema:schema, description}, "
+        "async args => callback(args));\n}\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "server.ts").write_text(
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {register} from "./wrapper.js"; import fs from "node:fs";\n'
+        'import {z} from "zod";\nexport function createServer() {\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'register(server, "read", {path:z.string()}, "Read a file", '
+        "async ({path}) => fs.readFileSync(path));\n"
+        'register(server, "fixed", {}, "Read the fixed file", '
+        'async () => fs.readFileSync("/srv/fixed"));\nreturn server;\n}\n',
+        encoding="utf-8",
+    )
+    if local:
+        path = tmp_path / "server.ts"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                'import {register} from "./wrapper.js";', ""
+            )
+            + (tmp_path / "wrapper.ts").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        (tmp_path / "wrapper.ts").unlink()
+    configuration = load_configuration(
+        tmp_path, environ={}, static_only=True, cli_overrides={"rules": ("SENT-012",)}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert not result.incomplete
+    assert len(result.findings) == 1
+    assert result.summary.coverage is not None
+    assert len(result.summary.coverage.surfaces) == 2
+    surfaces = [
+        item
+        for item in result.summary.coverage.surfaces
+        if item.name in {"read", "fixed"}
+    ]
+    assert [(item.name, item.location.range.start_line) for item in surfaces] == [
+        ("read", 6),
+        ("fixed", 7),
+    ]
+    assert all(
+        item.status == "recognized" and "SENT-012" in item.examined_rule_ids
+        for item in surfaces
+    )
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("return fs.readFile(input);", 1),
+        ("const read = fs.readFile; return read(input);", 1),
+        ("const files = fs; return files.readFile(input);", 1),
+        ("const p = path.resolve(ROOT, input); return fs.readFile(p);", 1),
+        (
+            "const p = await fs.realpath(input); "
+            "if (!p.startsWith(ROOT)) throw new Error(); return fs.readFile(p);",
+            1,
+        ),
+        (
+            "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+            "const rel = path.relative(root, p); "
+            'if (rel.startsWith("..") || path.isAbsolute(rel)) throw new Error(); '
+            "return fs.readFile(p);",
+            0,
+        ),
+        (
+            "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+            "const rel = path.relative(root, p); "
+            'const outside = rel.startsWith("..") || path.isAbsolute(rel); '
+            "if (outside) throw new Error(); return fs.readFile(p);",
+            0,
+        ),
+        (
+            "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+            'const rel = path.relative(root, p); rel.startsWith(".."); '
+            "path.isAbsolute(rel); return fs.readFile(p);",
+            1,
+        ),
+        (
+            'const p = await fs.realpath("/other"); '
+            "const root = await fs.realpath(ROOT); const rel = path.relative(root, p); "
+            'if (rel.startsWith("..") || path.isAbsolute(rel)) throw new Error(); '
+            "return fs.readFile(input);",
+            1,
+        ),
+        (
+            "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+            "const rel = path.relative(root, p); "
+            'if (rel.startsWith("..") || path.isAbsolute(rel)) throw new Error(); '
+            "return fs.readFile(input);",
+            1,
+        ),
+    ],
+)
+def test_enforced_relevant_containment(
+    tmp_path: Path, body: str, expected: int
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises"; import path from "node:path";\n'
+        'const ROOT = "/workspace"; '
+        'const server = new McpServer({name:"test", version:"1"});\n'
+        f"async function read(input: string) {{ {body} }}\n"
+        'server.registerTool("read", {inputSchema: {input: z.string()}}, read);\n'
+        'throw new Error("never execute target source");\n'
+    )
+    file = tmp_path / "server.ts"
+    file.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(file, file.name, source),), deadline=time.monotonic() + 15
+    )
+    state = RuleRunState()
+    analyze(program, state)
+    assert len(state.matches) == expected
+    for match in state.matches:
+        assert match.rule_id == "SENT-012" and match.path == "server.ts"
+        assert "read" in match.snippet or "writeFile" in match.snippet
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "return paths.map(async (p) => fs.readFile(p));",
+        "for (const p of paths) { await fs.readFile(p); }",
+        "try { const p = paths[0]; return await fs.readFile(p); } "
+        'catch { return "missing"; }',
+        'try { return "ok"; } finally { await fs.readFile(paths[0]); }',
+    ],
+)
+def test_destructured_collection_callbacks_and_exception_paths(
+    tmp_path: Path, body: str
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("read", {inputSchema: {paths: z.array(z.string())}}, '
+        f"async ({{paths}}) => {{ {body} }});\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 15
+    )
+    state = RuleRunState()
+    analyze(program, state)
+    assert len(state.matches) == 1
+
+
+def test_low_level_dispatch_follows_destructured_request(tmp_path: Path) -> None:
+    source = (
+        'import { Server } from "@modelcontextprotocol/sdk/server/index.js";\n'
+        'import { CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";\n'
+        'import fs from "node:fs/promises";\n'
+        'const server = new Server({name:"test",version:"1"}, '
+        "{capabilities:{tools:{}}});\n"
+        "server.setRequestHandler(CallToolRequestSchema, async (request) => {\n"
+        "const { name, arguments: args } = request.params;\n"
+        'switch(name) { case "read": { const p = args.path; return fs.readFile(p); }\n'
+        "default: throw new Error(); } });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 15
+    )
+    state = RuleRunState()
+    analyze(program, state)
+    assert len(state.matches) == 1
+
+
+@pytest.mark.parametrize("newline", ["\n", "\r\n"])
+def test_scan_preserves_imported_handler_and_sink_locations(
+    tmp_path: Path, newline: str
+) -> None:
+    (tmp_path / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"^1"}}'
+    )
+    (tmp_path / "server.ts").write_text(
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import { read, schema } from "./handler.js";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("read", {inputSchema:schema}, read);\n'
+    )
+    (tmp_path / "handler.ts").write_text(
+        'import fs from "node:fs/promises"; import { z } from "zod";\n'
+        "export const schema = {path:z.string()};\n"
+        "export async function read({path}: {path:string}): Promise<string> {\n"
+        'return fs.readFile(path, "utf8");\n}\n'
+    )
+    for path in tmp_path.glob("*.ts"):
+        source = path.read_text(encoding="utf-8")
+        source = "// π and 😀 preserve source coordinates\n" + source
+        path.write_bytes(source.replace("\n", newline).encode("utf-8"))
+    configuration = load_configuration(
+        tmp_path, environ={}, static_only=True, cli_overrides={"rules": ("SENT-012",)}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert len(result.findings) == 1
+    assert isinstance(result.findings[0].location, FileLocation)
+    assert result.findings[0].location.path == "handler.ts"
+    assert result.findings[0].location.range.start_line == 5
+    assert result.summary.coverage is not None
+    surface = next(
+        item for item in result.summary.coverage.surfaces if item.name == "read"
+    )
+    assert surface.location.path == "server.ts"
+    assert surface.handler is not None and surface.handler.path == "handler.ts"
+    assert surface.location.range.start_line == 5
+    assert surface.handler.range.start_line == 4
+    assert surface.status == "recognized" and surface.examined_rule_ids == ("SENT-012",)
+
+
+@pytest.mark.parametrize("guarded", ["p", "unrelated"])
+def test_imported_boolean_guard_tracks_argument_identity(
+    tmp_path: Path, guarded: str
+) -> None:
+    sources = {
+        "server.ts": "import { McpServer } "
+        'from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import { isInside } from "./guard.js"; import fs from "node:fs/promises";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("read", {inputSchema:{input:z.string()}}, '
+        "async ({input}) => {\n"
+        "const p = await fs.realpath(input); "
+        'const root = await fs.realpath("/allowed");\n'
+        'const unrelated = await fs.realpath("/allowed/fixed");\n'
+        f"if (!isInside({guarded}, root)) throw new Error(); "
+        "return fs.readFile(p); });\n",
+        "guard.ts": 'import path from "node:path";\n'
+        "export function isInside(value: string, root: string) {\n"
+        "const rel = path.relative(root, value);\n"
+        'return !rel.startsWith("..") && !path.isAbsolute(rel); }\n',
+    }
+    files = []
+    for name, source in sources.items():
+        path = tmp_path / name
+        path.write_text(source)
+        files.append(TypeScriptSourceFile(path, name, source))
+    program = TypeScriptProgram(tuple(files), deadline=time.monotonic() + 15)
+    state = RuleRunState()
+    analyze(program, state)
+    assert bool(state.matches) == (guarded == "unrelated")
+
+
+def test_sdk_second_argument_is_injected_context(tmp_path: Path) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("read", {inputSchema:{path:z.string()}}, '
+        "async ({path}, ctx) => { fs.readFile(ctx.sessionId); "
+        "return fs.readFile(path); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert state.matches[0].snippet == "fs.readFile(path)"
+
+
+@pytest.mark.parametrize(
+    "check,expected",
+    [
+        ("p.startsWith(root + path.sep)", 0),
+        ("p === root || p.startsWith(root + path.sep)", 0),
+        ("p.startsWith(root)", 1),
+        ('p.startsWith(root + "suffix")', 1),
+        ("other.startsWith(root + path.sep)", 1),
+    ],
+)
+def test_normalizing_helper_and_component_safe_prefix(
+    tmp_path: Path, check: str, expected: int
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs/promises"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function normalize(p: string) { return path.normalize(p); }\n"
+        "function inside(p: string, root: string, other: string) { return "
+        + check
+        + "; }\n"
+        'server.registerTool("read", {inputSchema:{input:z.string()}}, '
+        "async ({input}) => {\n"
+        "const p = await fs.realpath(input); "
+        'const root = await fs.realpath("/allowed");\n'
+        'const other = await fs.realpath("/allowed/fixed");\n'
+        "if (!inside(normalize(p), normalize(root), other)) throw new Error();\n"
+        "return fs.readFile(p); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 15,
+        ),
+        state,
+    )
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("method", "expected"),
+    [("some", 0), ("every", 1), ("map", 1), ("filter", 1), ("find", 1)],
+)
+def test_collection_guard_requires_successful_member(
+    tmp_path: Path, method: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); "
+        "const roots = [await fs.realpath(ROOT)]; "
+        f"const allowed = roots.{method}(root => "
+        "p === root || p.startsWith(root + path.sep)); "
+        "if (!allowed) throw new Error(); return fs.readFile(p);",
+        expected,
+    )
+
+
+@pytest.mark.parametrize("boundary", ["component", "bare", "unrelated", "discarded"])
+def test_normalized_collection_helper_protects_exact_real_path(
+    tmp_path: Path,
+    boundary: str,
+) -> None:
+    predicate = "p === root || p.startsWith(root + path.sep)"
+    if boundary == "bare":
+        predicate = "p.startsWith(root)"
+    checked = 'await fs.realpath("/other")' if boundary == "unrelated" else "p"
+    check = f"within({checked}, roots)"
+    enforcement = (
+        check + ";" if boundary == "discarded" else f"if (!{check}) throw new Error();"
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "function within(value, dirs) { "
+        "const p = path.resolve(path.normalize(value)); "
+        "return dirs.some(dir => { const root = path.resolve(path.normalize(dir)); "
+        f"return {predicate};" + " }); } "
+        "const roots = [path.resolve(ROOT)]; "
+        "const p = await fs.realpath(input); "
+        + enforcement
+        + " return fs.readFile(p);",
+        0 if boundary == "component" else 1,
+    )
+
+
+@pytest.mark.parametrize("parent", ["checked", "unchecked", "unrelated", "replaced"])
+def test_new_file_requires_lexical_and_real_parent_containment(
+    tmp_path: Path,
+    parent: str,
+) -> None:
+    checked = (
+        'await fs.realpath("/other")'
+        if parent == "unrelated"
+        else "await fs.realpath(path.dirname(p))"
+    )
+    guard = (
+        (
+            "if (!parent.startsWith(root + path.sep) && parent !== root) "
+            "throw new Error();"
+        )
+        if parent != "unchecked"
+        else ""
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); "
+        "let p = path.resolve(ROOT, input); "
+        "if (!p.startsWith(root + path.sep) && p !== root) throw new Error(); "
+        f"const parent = {checked}; "
+        + guard
+        + ("p = input;" if parent == "replaced" else "")
+        + 'return fs.writeFile(p, "safe test content");',
+        0 if parent == "checked" else 1,
+    )
+
+
+@pytest.mark.parametrize("root_branch", ["guarded", "unguarded"])
+def test_root_directory_special_case_requires_the_matching_allowed_root(
+    tmp_path: Path,
+    root_branch: str,
+) -> None:
+    branch = (
+        "if (root === path.sep) return p.startsWith(path.sep);"
+        if root_branch == "guarded"
+        else "return p.startsWith(path.sep);"
+    )
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); const root = await fs.realpath(ROOT); "
+        "const within = () => { "
+        + branch
+        + "return p === root || p.startsWith(root + path.sep); }; "
+        "if (!within()) throw new Error(); return fs.readFile(p);",
+        0 if root_branch == "guarded" else 1,
+    )
+
+
+def test_replaced_captured_root_cannot_exempt_path(tmp_path: Path) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const p = await fs.realpath(input); let root = await fs.realpath(ROOT); "
+        "function within() { return p === root || p.startsWith(root + path.sep); } "
+        "root = p; if (!within()) throw new Error(); return fs.readFile(p);",
+        1,
+    )
+
+
+def test_parent_guard_for_different_root_cannot_exempt_path(tmp_path: Path) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); "
+        'const other = await fs.realpath("/else"); '
+        "const p = path.resolve(ROOT, input); "
+        "if (!p.startsWith(root + path.sep)) throw new Error(); "
+        "const parent = await fs.realpath(path.dirname(p)); "
+        "if (!parent.startsWith(other + path.sep)) throw new Error(); "
+        'return fs.writeFile(p, "test");',
+        1,
+    )
+
+
+@pytest.mark.parametrize(
+    ("body", "call", "expected"),
+    [
+        ("if (!p.startsWith(root + path.sep)) throw new Error();", "check(p);", 0),
+        (
+            "if (!p.startsWith(root + path.sep)) throw new Error(); return;",
+            "check(p);",
+            0,
+        ),
+        ("return p.startsWith(root + path.sep);", "check(p);", 1),
+        ("if (!p.startsWith(root + path.sep)) return;", "check(p);", 1),
+        ("if (!p.startsWith(root + path.sep)) throw new Error();", "check(root);", 1),
+        (
+            "if (!p.startsWith(root + path.sep)) throw new Error();",
+            "try { check(p); } catch {}",
+            1,
+        ),
+        (
+            "if (!p.startsWith(root + path.sep)) throw new Error();",
+            "check(p); p = input;",
+            1,
+        ),
+        (
+            "if (!p.startsWith(root + path.sep)) throw new Error();",
+            "unknown && check(p);",
+            1,
+        ),
+    ],
+)
+def test_successful_void_guard_requires_all_normal_exits(
+    tmp_path: Path, body: str, call: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); let p = await fs.realpath(input); "
+        "function check(p) { " + body + " } " + call + " return fs.readFile(p);",
+        expected,
+    )
+
+
+@pytest.mark.parametrize("enforce", [True, False])
+def test_lexical_output_guard_discloses_remaining_physical_path_gap(
+    tmp_path: Path, enforce: bool
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function inside(p, root) { const rel = path.relative(root, p); "
+        'if (path.isAbsolute(rel) || rel.startsWith("..")) return false; '
+        "return true; }\n"
+        "function check(input) { const p = path.resolve(input); "
+        'const roots = [path.resolve("/srv/data")]; '
+        'const windows = process.platform === "win32"; '
+        "const allowed = roots.some(root => { if (windows) "
+        "return inside(p.toLowerCase(), root.toLowerCase()); "
+        "return inside(p, root); }); "
+        + ("if (!allowed) throw new Error();" if enforce else "")
+        + "}\n"
+        'server.registerTool("write", {inputSchema:{input:z.string()}}, '
+        'async ({input}) => {check(input); fs.writeFileSync(input, "x");});\n'
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (state.matches[0].captures.get("containment_gap") == "physical") is enforce
+
+
+@pytest.mark.parametrize(
+    ("call", "expected"),
+    [
+        ("const result = check(p); if (result.denied) return null;", 0),
+        ("const result = check(root); if (result.denied) return null;", 1),
+        ("const result = check(p);", 1),
+        (
+            "const result = check(p); result.denied = false; "
+            "if (result.denied) return null;",
+            1,
+        ),
+        (
+            "const result = check(p); unknown(result); if (result.denied) return null;",
+            1,
+        ),
+        (
+            "const result = check(p); unknown({result}); "
+            "if (result.denied) return null;",
+            1,
+        ),
+        ("const result = check(p); if (result.denied) return null; p = input;", 1),
+    ],
+)
+def test_returned_record_guard_requires_relevant_unmodified_field(
+    tmp_path: Path, call: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(
+        tmp_path,
+        "const root = await fs.realpath(ROOT); let p = await fs.realpath(input); "
+        "function check(p) { if (!p.startsWith(root + path.sep)) "
+        "return {denied:true}; return {denied:false}; } "
+        + call
+        + " return fs.readFile(p);",
+        expected,
+    )
+
+
+@pytest.mark.parametrize("loop", [False, True])
+@pytest.mark.parametrize(
+    ("checked", "enforce", "expected"),
+    [("input", True, True), ("input", False, False), ("other", True, False)],
+)
+def test_fallback_records_relevant_initial_prefix_precondition(
+    tmp_path: Path, checked: str, enforce: bool, expected: bool, loop: bool
+) -> None:
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function check(input) { const root = path.resolve('/srv/docs'); "
+        "const p = path.resolve(path.join(root, input)); "
+        "if (!p.startsWith(root)) return {denied:true}; "
+        "return {denied:false}; }\n"
+        "function fallback(input) { const parts = input.split('/'); "
+        + ("while (parts.length > 0) { " if loop else "")
+        + "const fullPath = path.join('/srv/docs', parts.join('/')); "
+        "return fs.readdirSync(fullPath); " + ("} return ''; " if loop else "") + "}\n"
+        'server.registerTool("read", {}, ({input, other}) => { '
+        f"const result = check({checked}); "
+        + ("if (result.denied) return null; " if enforce else "")
+        + "return fallback(input); });\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("containment_gap") == "after-prefix"
+    ) is expected
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("while (false) { return fs.readFile(input); } return null;", 0),
+        ("while (true) { return fs.readFile(input); } return fs.readFile(input);", 1),
+        (
+            "const root = await fs.realpath(ROOT); const p = await fs.realpath(input); "
+            "while (unknown) { if (!p.startsWith(root + path.sep)) "
+            "throw new Error(); } "
+            "return fs.readFile(p);",
+            1,
+        ),
+    ],
+)
+def test_while_return_and_zero_iteration_guards(
+    tmp_path: Path, body: str, expected: int
+) -> None:
+    test_enforced_relevant_containment(tmp_path, body, expected)
+
+
+@pytest.mark.parametrize(
+    ("binary", "command", "setup", "expected"),
+    [
+        ('"mobilecli"', '"screenrecord"', "", 1),
+        (
+            'path.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${process.platform}-${process.arch}`)",
+            '"screenrecord"',
+            "",
+            1,
+        ),
+        (
+            'unknown.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${process.platform}-${process.arch}`)",
+            '"screenrecord"',
+            "",
+            0,
+        ),
+        (
+            'path.join("/opt/node_modules", "@mobilenext", "mobilecli", "bin", '
+            "`mobilecli-${args.binary}`)",
+            '"screenrecord"',
+            "",
+            0,
+        ),
+        ('["mobilecli"]', '"screenrecord"', "", 0),
+        ('"unrelated"', '"screenrecord"', "", 0),
+        ('"mobilecli"', '"devices"', "", 0),
+        ("args.binary", '"screenrecord"', "", 0),
+        ('"mobilecli"', '"screenrecord"', "cp.spawn = unknown;", 0),
+        ('"mobilecli"', '"screenrecord"', 'output = "/srv/fixed.mp4";', 0),
+        (
+            '"mobilecli"',
+            '"screenrecord"',
+            'const base = fs.realpathSync("/srv/data"); '
+            "output = fs.realpathSync(output); "
+            "if (!output.startsWith(base + path.sep)) throw new Error();",
+            0,
+        ),
+        (
+            '"mobilecli"',
+            '"screenrecord"',
+            'const base = fs.realpathSync("/srv/data"); '
+            "const other = fs.realpathSync(args.other); "
+            "if (!other.startsWith(base + path.sep)) throw new Error();",
+            1,
+        ),
+    ],
+)
+def test_mobile_recording_requires_actual_executable_and_output_flow(
+    tmp_path: Path, binary: str, command: str, setup: str, expected: int
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import cp from "node:child_process"; import fs from "node:fs"; '
+        'import path from "node:path";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("record", {inputSchema:{output:z.string()}}, args => {'
+        "let output = args.output; "
+        + setup
+        + " const argv = ["
+        + command
+        + ', "--device", args.device, "--output", output, "--silent"]; '
+        'if (args.duration) argv.push("--time-limit", String(args.duration)); '
+        "return cp.spawn(" + binary + ", argv);});\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert bool(state.matches) is bool(expected)
+    assert all(
+        m.captures.get("cli_output") == "mobilecli screenrecord --output"
+        for m in state.matches
+    )
+
+
+@pytest.mark.parametrize(
+    ("setup", "physical"),
+    [
+        ('if (input) check(input); const output = input || "/srv/data/fixed";', True),
+        ('if (other) check(input); const output = input || "/srv/data/fixed";', False),
+        ('if (input) check(other); const output = input || "/srv/data/fixed";', False),
+        (
+            "if (input) check(input); input = other; "
+            'const output = input || "/srv/data/fixed";',
+            False,
+        ),
+        ("if (input) check(input); const output = other || input;", False),
+    ],
+)
+def test_optional_path_guard_only_protects_its_truthy_returned_value(
+    tmp_path: Path, setup: str, physical: bool
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs"; import path from "node:path";\n'
+        "function check(input) { const target = path.resolve(input); "
+        'const relative = path.relative(path.resolve("/srv/data"), target); '
+        'if (path.isAbsolute(relative) || relative.startsWith("..")) throw Error(); }\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("write", {}, ({input, other}) => { '
+        + setup
+        + ' fs.writeFileSync(output, "data"); });\n'
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert len(state.matches) == 1
+    assert (state.matches[0].captures.get("containment_gap") == "physical") is physical
+
+
+@pytest.mark.parametrize(
+    ("argv", "expected"),
+    [
+        ('["screenrecord", "--device", "--output", "--output", args.output]', True),
+        ('["screenrecord", "--output", args.output, "--output", "/fixed"]', False),
+        ('["screenrecord", "--unknown", args.output, "--output", args.output]', False),
+        ('["screenrecord", "--device", args.output]', False),
+    ],
+)
+def test_recording_output_is_an_option_value_not_a_matching_token(
+    tmp_path: Path, argv: str, expected: bool
+) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {spawn} from "node:child_process";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        'server.registerTool("record", {}, args => spawn("mobilecli", ' + argv + "));"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    state = RuleRunState()
+    analyze(
+        TypeScriptProgram(
+            (TypeScriptSourceFile(path, path.name, source),),
+            deadline=time.monotonic() + 20,
+        ),
+        state,
+    )
+    assert bool(state.matches) is expected
+    if '"--unknown"' in argv or '", "/fixed"' in argv:
+        assert any("unresolved" in warning.message for warning in state.warnings)

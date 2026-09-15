@@ -328,16 +328,33 @@ def test_static_only_gpt_failure_is_fatal_or_explicitly_degraded(
         nonlocal dynamic_calls
         dynamic_calls += 1
         bindings = {
-            rule_id: ProbeBinding(rule_id, None, None, None)
+            rule_id: ProbeBinding(rule_id, "test", None, None)
             for rule_id in DEFAULT_ORDER
         }
         return DynamicScanResult(
             findings=(),
             warnings=(),
             image=DependencyImage("deps:test", "cache-key", True),
-            campaign=ProbeCampaign(DEFAULT_ORDER, bindings, None, True),
+            campaign=ProbeCampaign(
+                DEFAULT_ORDER,
+                tuple(bindings.values()),
+                None,
+                True,
+                enumeration_complete=True,
+            ),
             observations=tuple(
-                _Observation(rule_id, "test", None, {}, {}, (), False)
+                _Observation(
+                    rule_id,
+                    "test",
+                    None,
+                    {},
+                    {},
+                    (),
+                    False,
+                    started=True,
+                    attempt_id=bindings[rule_id].attempt_id,
+                    mutation=bindings[rule_id].mutation,
+                )
                 for rule_id in DEFAULT_ORDER
             ),
         )
@@ -499,6 +516,23 @@ def test_rules_only_prohibited_paths_and_reports(
     def checked_process(
         command: list[str], **kwargs: Any
     ) -> subprocess.CompletedProcess[str]:
+        if Path(command[0]).stem.lower() == "semgrep-core":
+            assert command[1:6] == [
+                "-lang",
+                "typescript",
+                "-json",
+                "-full_token_info",
+                "-dump_ast",
+            ]
+            snapshot = Path(command[-1])
+            assert snapshot.read_bytes() in {
+                path.read_text(encoding="utf-8").encode("utf-8")
+                for path in root.rglob("*.ts")
+                if not path.is_symlink()
+            }
+            assert kwargs["env"]["SEMGREP_SEND_METRICS"] == "off"
+            assert kwargs["env"]["SEMGREP_ENABLE_VERSION_CHECK"] == "0"
+            return run_process(command, **kwargs)
         assert Path(command[0]).stem.lower() == "semgrep"
         assert command[1] == "scan"
         assert command[command.index("--metrics") + 1] == "off"

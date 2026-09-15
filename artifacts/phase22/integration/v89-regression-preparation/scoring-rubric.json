@@ -1,0 +1,82 @@
+{
+  "status": "proposed_not_approved_not_executed",
+  "prior_rubric_sha256": "34bda0b197138f656e34a945ed08a83d2780f3cc0cba3a6eae259b8c2cf0c49d",
+  "proxmox_original_case": [
+    {
+      "id": "proxmox-upload-root",
+      "archive_label": "proxmox",
+      "repository": "nick-holmquist/proxmox-mcp",
+      "language": "python",
+      "rule_id": "SENT-012",
+      "tool": "pve_storage_upload",
+      "argument": "file_path",
+      "scan_root": ".",
+      "licenses": [
+        "README.md",
+        "pyproject.toml"
+      ],
+      "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "safe_value": "/srv/proxmox-upload/fixture.iso",
+      "flow": "server.py _MODULES/_build_dispatch_table derives tool ownership from get_tools; @server.call_tool dispatches the exact name to storage.handle_tool. tools/storage.py declares pve_storage_upload and forwards arguments[file_path] to imported singleton client.upload_to_storage. client=ProxmoxClient() is initialized with _api=None. Vulnerable client.py line436 open(file_path,rb); fixed helper415\u2013437 returns resolved and method457\u2013464 consumes it. API property/network upload occurs after opening; the named local read boundary does not require claiming successful remote exfiltration.",
+      "prerequisites": [
+        "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+        "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+        "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+        "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition."
+      ],
+      "limits": [
+        "Initial resolved filesystem containment only; no race/physical-use, downstream Proxmox authorization, successful exfiltration, API/DNS/TLS or other tool safety claim.",
+        "Module-table dispatch and imported singleton/helper support remain to be established in actual scanner output and source assessment; no-alert unsupported code fails discrimination.",
+        "Fixed/safe share complete source/configuration; safe caller value is an illustrative source prerequisite, not a specialization of static analysis."
+      ],
+      "evidence_files": [
+        "src/proxmox_mcp/server.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/__init__.py",
+        "pyproject.toml",
+        "README.md",
+        ".env.example"
+      ],
+      "witnesses": {
+        "vulnerable": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 436
+        },
+        "fixed": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 464
+        }
+      },
+      "license_assessment": "Both full archives declare MIT in README and pyproject.toml, including the MIT classifier. Neither contains a standalone license/full grant text; GitHub license metadata is null. All actual declarations are preserved; no absent grant text is fabricated. This qualification follows the retained no-bash declaration-only precedent.",
+      "vulnerable_revision": "3d6610be096f81a1e1257387591f6d77b893eb8b",
+      "vulnerable_git_tree": "cd9d0375773b617d462403180be85be67a3a36fb",
+      "fixed_revision": "39889d55990ad3c98620093c428ca00c1189734c",
+      "fixed_git_tree": "45884e181534b5dfd417eb475d7578e8be9983d1",
+      "all_changed_files": [
+        ".env.example",
+        "README.md",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "tests/test_client_smoke.py",
+        "tests/test_handlers_smoke.py",
+        "tests/test_upload_path_confinement.py"
+      ],
+      "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+    }
+  ],
+  "original_conditions": {
+    "proxmox-upload-root": {
+      "proxmox-upload-root-vulnerable": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "proxmox-upload-root-fixed": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "proxmox-upload-root-safe": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value. Safe caller value: /srv/proxmox-upload/fixture.iso"
+    }
+  },
+  "success": "Both vulnerable observations require the actual registered pve_storage_upload path through the source-bound module table and local file read. Both fixed and both safe observations require source-supported terminal upload-root guard/value/sink handling and no matching condition alert; quiet unsupported negatives fail. Preserve the original stable operator root, path witness, ordinary-file/no-race prerequisites and physical/identity limits. All3entire ordered report pairs agree after only11original volatile exclusions. Source-assess every finding, diagnostic, unresolved flow/surface, denominator, source context and full ordered reference difference. No automatic stale-key refresh or label changes.",
+  "collection_stop": "Stop and close all unused observations on user cancellation or identity, infrastructure, execution, whole/native timeout, schema, process-cleanup or entire ordered-repeat failure. Named detection misses, false alerts and unsupported negatives remain failed outcomes for complete source assessment while collection continues. One attempt per slot; no retry, profile, source tuning during collection, extra observation, comparator or replacement. Same collection policy as the separately approved and closed V87 sequence.",
+  "timing": "Normal1800-second native/whole input,10-second Semgrep,15-second cleanup,existing4workers and one serial input.120seconds informational;200-minute outer cap plus15seconds outer cleanup is a worst-case bound, not an estimate.",
+  "assessment": "Complete raw outputs, exact source contexts, source-supported negatives, unchanged11volatile exclusions and full ordered differences. Correlated variants/repeats are not population accuracy or independent validation.",
+  "technical_acceptance_received": false,
+  "paid_calls": 0,
+  "target_execution": false
+}

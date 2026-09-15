@@ -24,14 +24,13 @@ from sentinel.llm.semantic_reviewer import (
 )
 from sentinel.llm.tools import extract_tool_catalog
 from sentinel.report.coverage import (
+    DiscoverySnapshot,
     DynamicCoverage,
     ReviewActivity,
     StageReviewActivity,
 )
 from sentinel.report.model import (
-    PROBE_IDS,
     DynamicAnalysisSummary,
-    DynamicProbeOutcome,
     GptReviewSummary,
     ReportWarning,
     ScanContext,
@@ -73,7 +72,7 @@ def run_scan(
 
     deadline = time.monotonic() + STATIC_TIMEOUT_SECONDS
     catalog = None
-    if configuration.language is TargetLanguage.TYPESCRIPT:
+    if configuration.language in {TargetLanguage.TYPESCRIPT, TargetLanguage.WORKSPACE}:
         files = collect_static_files(
             configuration.scan_root,
             configuration.scanner.scanner.ignore_paths,
@@ -91,7 +90,7 @@ def run_scan(
             configuration.language,
             typescript_candidates=tuple(candidates),
         )
-    if configuration.language is TargetLanguage.TYPESCRIPT:
+    if configuration.language in {TargetLanguage.TYPESCRIPT, TargetLanguage.WORKSPACE}:
         if forced_ignored_paths:
             static_result = run_static_scan(
                 configuration,
@@ -130,6 +129,7 @@ def run_scan(
         findings=static_result.findings,
         warnings=_unique_warnings((*static_result.warnings, *catalog.warnings)),
         summary=static_result.summary,
+        incomplete=static_result.incomplete,
     )
     if configuration.scanner.scanner.rules_only:
         return _static_only_outcome(
@@ -304,7 +304,9 @@ def _static_only_outcome(
     review: ReviewOutcome | None,
     baseline: LoadedBaseline | None,
 ) -> ScanOutcome:
-    static_only_complete = review is None or not review.fatal
+    static_only_complete = (
+        review is None or not review.fatal
+    ) and not static_result.incomplete
     later_reason = (
         "rules-only scan requested" if review is None else "static-only scan requested"
     )
@@ -316,7 +318,15 @@ def _static_only_outcome(
         else StageStatus.SUCCEEDED
     )
     stages = (
-        StageRecord(name=StageName.STATIC, status=StageStatus.SUCCEEDED),
+        StageRecord(
+            name=StageName.STATIC,
+            status=StageStatus.FAILED
+            if static_result.incomplete
+            else StageStatus.SUCCEEDED,
+            reason="workspace members could not be fully discovered"
+            if static_result.incomplete
+            else None,
+        ),
         StageRecord(
             name=StageName.GPT_STATIC,
             status=gpt_status,
@@ -428,21 +438,19 @@ def _failed_dynamic_outcome(
         ),
         gpt_review=review.summary,
         dynamic_analysis=DynamicAnalysisSummary(
-            coverage=DynamicCoverage(discovery=()),
-            probe_outcomes=tuple(
-                DynamicProbeOutcome(
-                    probe_id=probe_id,
-                    status="untested",
-                    verdict=None,
-                    tool=None,
-                    field=None,
-                    reason=reason,
-                    execution_successful=False,
-                    baseline_attempted=False,
-                    attack_attempted=False,
+            coverage=DynamicCoverage(
+                discovery=(
+                    DiscoverySnapshot(
+                        probe_id="campaign",
+                        role="discovery",
+                        tools=(),
+                        more_pages=None,
+                        tool_total=None,
+                        reason=reason,
+                    ),
                 )
-                for probe_id in PROBE_IDS
             ),
+            probe_outcomes=(),
         )
         if dynamic_started
         else None,

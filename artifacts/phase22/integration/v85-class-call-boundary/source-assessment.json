@@ -1,0 +1,103 @@
+{
+  "source": "884d3763d8d63786e1726932951fd859cb6071c2",
+  "source_files_sha256": {
+    "src/sentinel/static/coverage.py": "841f0e043c8353c62bf234830adf9c0f17772081cdc328e58eed20bc18732f90",
+    "src/sentinel/static/discovery.py": "0424fb44079504c710af667f4760e653fc6ae686f46aa399de7a311524b9f9e3",
+    "src/sentinel/static/module_dispatch.py": "051ad6cd93e4a26c3dceb061d1c2246183a4ab09b7219cc0499a72548e148188",
+    "src/sentinel/static/path_flow.py": "d03ef4e6a20332cb9622db068a2a52e75ef8ff1ee73e84f8d95e26e4989615ef"
+  },
+  "locations": {
+    "src/sentinel/static/coverage.py": [],
+    "src/sentinel/static/discovery.py": [
+      {
+        "name": "tools",
+        "line": 716,
+        "end_line": 826
+      },
+      {
+        "name": "stable_global_instance",
+        "line": 828,
+        "end_line": 960
+      }
+    ],
+    "src/sentinel/static/module_dispatch.py": [
+      {
+        "name": "declarations",
+        "line": 52,
+        "end_line": 92
+      },
+      {
+        "name": "module_table_tools",
+        "line": 95,
+        "end_line": 107
+      },
+      {
+        "name": "dispatch_tools",
+        "line": 110,
+        "end_line": 371
+      },
+      {
+        "name": "stable_bindings",
+        "line": 374,
+        "end_line": 473
+      }
+    ],
+    "src/sentinel/static/path_flow.py": [
+      {
+        "name": "source_value",
+        "line": 1662,
+        "end_line": 1688
+      },
+      {
+        "name": "global_instance",
+        "line": 1690,
+        "end_line": 1702
+      },
+      {
+        "name": "expression",
+        "line": 1704,
+        "end_line": 2131
+      }
+    ]
+  },
+  "root_cause": "Shared Python tool discovery did not resolve literal module lists through pure get_tools metadata, a private table builder and direct lookup/forwarding. Consequently shared flow rules did not enter the Proxmox handler. A plain global constructor was also resolved as a class callable before its actual instance initializer, hiding nested guard receiver identity.",
+  "correction": "Reuse existing import resolution, ToolBinding, cached shared discovery, handler analysis and instance initialization. The bounded recognizer proves each module/provider/handler/name and unchanged lookup/arguments; no schema or negative-result safety inference. The normal coverage surface marks recognized dispatch only after actual binding; failed recognition retains unsupported coverage.",
+  "guard_boundary": "Lazy global instances retain guard identity only if their included production import closure proves no instance/class mutation, escape, bound-method capture, unproved constructor-class attribute access including direct class calls, local protected import or reflective namespace access. Direct and global-alias receiver/class changes invalidate identity with an explicit unresolved diagnostic. Unknown runtime behavior is not a safe negative. No exclusions or accepted source contract are weakened.",
+  "limits": [
+    "Only the explicit bounded builder/provider/forwarding form is supported; arbitrary computed registrations, dynamic names, package impersonation, duplicate names, mutated selectors and opaque aliases remain unsupported.",
+    "Complete module handler analysis retains conservative taint; names are not used to invent per-tool branch safety.",
+    "Source proofs cover the included production import closure. External runtime monkey patching, filesystem races, physical identity, successful exfiltration and arbitrary Python execution are not proved.",
+    "New current-source corpus support, positive detection and fixed/safe qualification remain unestablished pending separately approved regression. Original V80 Proxmox 0/2 detections and 0/4 supported negatives remain failures."
+  ],
+  "earlier_failed_predecessor": {
+    "source": "8f0639fabb389f2fa64067db6cbd5f73c91703c0",
+    "controls_sha256": "0d9e02f97e67346717eea5dd4af7fefe09942d75fa48d32a7a42a9c932f3aadc",
+    "reason": "Guard/member identity survived global receiver replacement or escape in synthetic controls. First engineering candidate was stopped; 45 local passes are partial and hosted CI34910063570 is cancelled.",
+    "preserved": true
+  },
+  "failed_class_call_predecessor": {
+    "source": "1ee96cb42ce06601138ffeee35799978f14b1f1e",
+    "control_sha256": "2cefc00e785b6f87dec3917e388e78e6f5dd6c855f5a8d1f1b32d8d8aa46b9f2",
+    "local_full_suite": "2549passed/36skips, combined90.2579/branch86.1886; later safety control failed",
+    "hosted": "CI34910945759cancelled; no complete hosted pass",
+    "correction": "Remove direct constructor-class attribute call exception; unproved class methods can replace receiver guards and must invalidate qualification."
+  },
+  "current_controls": {
+    "focused_tests_passed": 470,
+    "checks_sha256": {
+      "v85-final-focused": "0586ef87a6bd80b04f5039f0f84b00a0fa144c6b3d9e0ed1a7ca5b917eb011c3",
+      "v85-final-lint": "2de8e5a186c8ccaca645e1fc3ed2c8fd42c7a803f23adf0a20e73c3114126009",
+      "v85-final-format": "827905376534b4f59a0daf4b439654694edfd44c34a7d50d1b04add04fadcfad",
+      "v85-final-types": "f254d14d87aa1556c5ce85b6c2f53456afdf2b5259317114d9dc787e36979839"
+    },
+    "receiver_controls_sha256": "3ab1672d14d5c4c822312b50ae713a65f193b4a1307d7962f39cbe518af7dc93",
+    "scope": "Owned synthetic fixtures, mutation/name/alias/unknown controls, full serial/parallel reports and unchanged AST/deadline checks; not corpus observations."
+  },
+  "typescript_scope": "All other TypeScript groups use explicit typescript configuration, which traversal excludes from Python parsing. Changes are confined to Python discovery/flow and Python coverage. Existing TypeScript source, engine, workers, harness, runtime and configuration bytes are unchanged. Taskwarrior remains included as the paired new evaluation control; omitted TypeScript observations are not relabeled as new-source scans.",
+  "full_engineering": "Pending actual local and hosted completion; later receipts must establish it.",
+  "retention_label_erratum": "The historical V83 hosted retention helper has a stale prose suffix at8f0639f; its cancelled run remains bound to1ee96cb. The current V85 helper uses the correct884d376 suffix. Its actual candidate_product_scanner, source argument, verified workflow head and checkout binding identify1ee96cb. The helper bytes and literal label are preserved; no results are attributed to the failed predecessor.",
+  "paid_calls": 0,
+  "corpus_observations": 0,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

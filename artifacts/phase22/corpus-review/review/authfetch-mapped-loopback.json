@@ -1,0 +1,30 @@
+{
+  "id": "authfetch-mapped-loopback",
+  "rule": "SENT-015",
+  "repository": "ymw0407/auth-fetch-mcp",
+  "split": "held_out",
+  "language": "typescript",
+  "before": "98f381d1298b6b7e7ff29d7a7851f18ea5f2364c",
+  "after": "d4dedaf55c1d39228dbed58807ea1f9fac1328e1",
+  "root": ".",
+  "files": [
+    "src/tools.ts",
+    "src/browser.ts",
+    "src/security.ts"
+  ],
+  "condition": "auth_fetch must reject an IPv4-mapped IPv6 loopback URL after the URL parser canonicalizes its hostname",
+  "prerequisites": [
+    "The caller supplies a literal mapped loopback URL to auth_fetch under the default restrictive URL policy; the browser navigation path is selected.",
+    "No DNS rebinding or attacker-controlled name resolution is involved."
+  ],
+  "safe": "An ordinary public literal IPv4 HTTP(S) URL passes the restricted-address predicate without being mistaken for loopback",
+  "review": "The tool passes url to navigateTo, which calls assertSafeUrl before page.goto. The upstream compare adds canonical mapped-address handling in the relevant private-address predicate. The fixed label covers this mapped-loopback condition, not all browser navigation, redirects, or future IP representations.",
+  "provenance": [
+    "authfetch-advisory.json",
+    "authfetch-pair-compare.json"
+  ],
+  "rename": {
+    "isPrivateV4": "isRestrictedV4"
+  },
+  "safe_prerequisites": "Default restrictive URL policy; an ordinary public IPv4 HTTP(S) literal without redirects; the control concerns the URL predicate, not a successful browser response."
+}

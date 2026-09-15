@@ -6,7 +6,13 @@ import ast
 import re
 
 from sentinel.finding import FileLocation, SourceRange
-from sentinel.report.coverage import RecognitionReason, StaticCoverage, StaticSurface
+from sentinel.report.coverage import (
+    RecognitionReason,
+    StaticCoverage,
+    StaticSurface,
+    WorkspaceCoverage,
+    WorkspaceMemberCoverage,
+)
 from sentinel.static import typescript as ts
 from sentinel.static.ast_utils import (
     decorator_call,
@@ -21,6 +27,8 @@ from sentinel.static.ast_utils import (
 from sentinel.static.catalog import RULE_IDS
 from sentinel.static.execution import check_deadline
 from sentinel.static.model import RuleRunState, StaticContext
+from sentinel.static.semgrep_ast import source_range as ts_source_range
+from sentinel.static.typescript_discovery import TypeScriptBinding
 from sentinel.static.typescript_execution import _mask
 
 
@@ -28,6 +36,20 @@ def inventory(
     context: StaticContext, states: dict[str, RuleRunState]
 ) -> StaticCoverage:
     surfaces: list[StaticSurface] = []
+    bindings = context.python_program.tools()
+
+    def schema_supported(binding: TypeScriptBinding | None) -> bool:
+        return bool(
+            binding
+            and binding.schema
+            and ts._zod_object_schema(
+                context.typescript_program.text(
+                    binding.schema.file, binding.schema.node
+                ),
+                ts._constant_expressions(binding.schema.file.source),
+            )
+            is not None
+        )
 
     def add(
         kind: str,
@@ -39,6 +61,7 @@ def inventory(
         message: str = "",
         *,
         unsupported: bool = False,
+        handler_path: str | None = None,
     ) -> None:
         check_deadline(context.deadline)
         where = FileLocation(path=path, range=location)
@@ -65,7 +88,9 @@ def inventory(
                 kind=kind,  # type: ignore[arg-type]
                 name=name,
                 location=where,
-                handler=FileLocation(path=path, range=handler) if handler else None,
+                handler=FileLocation(path=handler_path or path, range=handler)
+                if handler
+                else None,
                 status="unsupported"
                 if unsupported
                 else "unresolved"
@@ -83,6 +108,21 @@ def inventory(
         path = file.relative_path
         covered: set[ast.AST] = set()
         imports = import_aliases(file)
+        for binding in bindings:
+            if binding.registration.file is file and isinstance(
+                binding.registration.node, ast.Call
+            ):
+                covered.add(binding.registration.node)
+                if binding.registration_decorator is not None:
+                    covered.add(binding.registration_decorator)
+                add(
+                    "tool",
+                    binding.name,
+                    path,
+                    range_for_node(binding.registration.node),
+                    range_for_node(binding.handler.node),
+                    handler_path=binding.handler.file.relative_path,
+                )
         for region in discover_tool_regions(file):
             # A dispatcher branch is its own registration location.
             if region.node is not region.function:
@@ -303,37 +343,99 @@ def inventory(
                     unsupported=not imported,
                 )
 
+    resolved_ts = (
+        context.typescript_program.tools() if context.files.typescript_files else ()
+    )
+    resolved_http = (
+        context.typescript_http_handlers if context.files.typescript_files else ()
+    )
     for ts_file in context.files.typescript_files:
         check_deadline(context.deadline)
         source = ts_file.source
         masked = _mask(source)
+        local_bindings = [
+            ts_binding
+            for ts_binding in resolved_ts
+            if ts_binding.registration.file == ts_file
+        ]
+        handled: set[tuple[int, int]] = set()
         for tool in ts.tools_in_file(ts_file):
             if not masked[tool.start : tool.start + 1].strip():
                 continue
             reasons = []
+            registration = ts.offset_range(source, tool.start, tool.end)
+            key = (registration.start_line, registration.start_column)
+            if any(
+                item.sdk_registration is not None
+                and item.sdk_registration.node is not item.registration.node
+                and item.sdk_registration.file == ts_file
+                and (
+                    ts_source_range(item.sdk_registration.node, ts_file).start_line,
+                    ts_source_range(item.sdk_registration.node, ts_file).start_column,
+                )
+                == key
+                for item in resolved_ts
+            ):
+                continue
+            handled.add(key)
+            ts_binding = next(
+                (
+                    item
+                    for item in local_bindings
+                    if (
+                        ts_source_range(item.registration.node, ts_file).start_line,
+                        ts_source_range(item.registration.node, ts_file).start_column,
+                    )
+                    == key
+                ),
+                None,
+            )
+            handler_symbol = (
+                ts_binding.handler
+                if ts_binding and ts_binding.handler and ts_binding.handler.function
+                else None
+            )
+            handler_location = (
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None
+            )
+            schema_resolved = schema_supported(ts_binding)
             if tool.name is None:
                 reasons.append(("computed_name", "tool name is computed"))
-            if not tool.handler_start:
+            if not tool.handler_start and handler_symbol is None:
                 reasons.append(
                     (
                         "unresolved_handler",
                         "imported or unsupported handler implementation",
                     )
                 )
-            if tool.schema_present and tool.input_schema is None:
+            if (
+                tool.schema_present
+                and tool.input_schema is None
+                and not schema_resolved
+            ):
                 reasons.append(("unresolved_schema", "imported or unsupported schema"))
             add(
                 "tool",
                 tool.name,
                 ts_file.relative_path,
-                ts.offset_range(source, tool.start, tool.end),
-                ts.offset_range(
-                    source, tool.handler_start, tool.handler_start + len(tool.handler)
-                )
-                if tool.handler
-                else None,
+                registration,
+                handler_location
+                or (
+                    ts.offset_range(
+                        source,
+                        tool.handler_start,
+                        tool.handler_start + len(tool.handler),
+                    )
+                    if tool.handler
+                    else None
+                ),
                 reasons[0][0] if reasons else None,
                 reasons[0][1] if reasons else "",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
             )
             if len(reasons) > 1:
                 surfaces[-1] = surfaces[-1].model_copy(
@@ -348,6 +450,79 @@ def inventory(
                         )
                     }
                 )
+        for ts_binding in local_bindings:
+            registration = ts_source_range(ts_binding.registration.node, ts_file)
+            key = (registration.start_line, registration.start_column)
+            if key in handled:
+                continue
+            handler_symbol = (
+                ts_binding.handler
+                if ts_binding.handler and ts_binding.handler.function
+                else None
+            )
+            reason = (
+                "ambiguous_dispatch"
+                if ts_binding.name is None
+                else "unresolved_handler"
+                if handler_symbol is None
+                else "unresolved_schema"
+                if not schema_supported(ts_binding)
+                else None
+            )
+            add(
+                "tool",
+                ts_binding.name,
+                ts_file.relative_path,
+                registration,
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None,
+                reason,
+                "tool dispatch, handler or schema cannot be fully resolved"
+                if reason
+                else "",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
+            )
+        http_locations: set[tuple[int, int]] = set()
+        http_bindings: set[tuple[int, int, str | None]] = set()
+        for http_binding in resolved_http:
+            if http_binding.registration.file != ts_file:
+                continue
+            handler_symbol = (
+                http_binding.handler
+                if http_binding.handler and http_binding.handler.function
+                else None
+            )
+            identity = (
+                id(http_binding.registration.node),
+                id(handler_symbol.node) if handler_symbol else 0,
+                http_binding.name,
+            )
+            if identity in http_bindings:
+                continue
+            http_bindings.add(identity)
+            registration = ts_source_range(http_binding.registration.node, ts_file)
+            http_locations.add((registration.start_line, registration.start_column))
+            add(
+                "http_route",
+                http_binding.name,
+                ts_file.relative_path,
+                registration,
+                ts_source_range(handler_symbol.node, handler_symbol.file)
+                if handler_symbol
+                else None,
+                "computed_route"
+                if http_binding.name is None
+                else "unresolved_handler"
+                if handler_symbol is None
+                else None,
+                "route name or source handler cannot be fully resolved",
+                handler_path=handler_symbol.file.relative_path
+                if handler_symbol
+                else None,
+            )
         receivers = ts._http_receivers(source)
         mcp = ts._mcp_server_receivers(source)
         pattern = re.compile(rf"\b({ts._IDENTIFIER})\s*\.\s*({ts._IDENTIFIER})\s*\(")
@@ -360,6 +535,22 @@ def inventory(
                 "setRequestHandler",
             }
             if not route and not unsupported:
+                continue
+            match_location = ts.offset_range(source, match.start(), match.end())
+            if (
+                route
+                and (match_location.start_line, match_location.start_column)
+                in http_locations
+            ):
+                continue
+            if method == "setRequestHandler" and any(
+                (
+                    ts_source_range(item.registration.node, ts_file).start_line,
+                    ts_source_range(item.registration.node, ts_file).start_column,
+                )
+                == (match_location.start_line, match_location.start_column)
+                for item in local_bindings
+            ):
                 continue
             close = ts._matching(source, match.end() - 1, "(", ")")
             if close is None:
@@ -415,6 +606,7 @@ def inventory(
                 )
     check_deadline(context.deadline)
     return StaticCoverage(
+        workspace=_workspace_coverage(context, surfaces),
         surfaces=tuple(
             sorted(
                 surfaces,
@@ -434,3 +626,81 @@ def inventory(
         ),
         unresolved_flows=tuple(flows),
     )
+
+
+def _workspace_coverage(
+    context: StaticContext, surfaces: list[StaticSurface]
+) -> WorkspaceCoverage | None:
+    layout = context.configuration.workspace
+    if layout is None:
+        return None
+
+    def owner(path: str) -> str:
+        return max(
+            (
+                member
+                for member in layout.members
+                if member == "." or path.startswith(member + "/")
+            ),
+            key=len,
+        )
+
+    members = []
+    for member in layout.members:
+        observed = [
+            surface for surface in surfaces if owner(surface.location.path) == member
+        ]
+        python_count = sum(
+            owner(file.relative_path) == member for file in context.files.python_files
+        )
+        typescript_count = sum(
+            owner(file.relative_path) == member
+            for file in context.files.typescript_files
+        )
+        included = bool(python_count or typescript_count) or member == "."
+        members.append(
+            WorkspaceMemberCoverage(
+                path=member,
+                status="included" if included else "unsupported",
+                python_file_count=python_count,
+                typescript_file_count=typescript_count,
+                recognized_surface_count=sum(
+                    item.status == "recognized" for item in observed
+                ),
+                unresolved_surface_count=sum(
+                    item.status == "unresolved" for item in observed
+                ),
+                unsupported_surface_count=sum(
+                    item.status == "unsupported" for item in observed
+                ),
+                reasons=()
+                if included
+                else ("No supported source files were included for this member.",),
+                nested_configurations=tuple(
+                    path.relative_to(context.configuration.scan_root).as_posix()
+                    for path in context.files.config_files
+                    if path.parent != context.configuration.scan_root
+                    and path.name.startswith("sentinel.")
+                    and owner(
+                        path.relative_to(context.configuration.scan_root).as_posix()
+                    )
+                    == member
+                ),
+            )
+        )
+    for path in sorted({issue.path for issue in layout.issues}):
+        members.append(
+            WorkspaceMemberCoverage(
+                path=path,
+                status="incomplete",
+                python_file_count=None,
+                typescript_file_count=None,
+                recognized_surface_count=None,
+                unresolved_surface_count=None,
+                unsupported_surface_count=None,
+                reasons=tuple(
+                    issue.reason for issue in layout.issues if issue.path == path
+                ),
+            )
+        )
+    return WorkspaceCoverage(declarations=layout.declarations, members=tuple(members))

@@ -1,0 +1,1680 @@
+"""Outbound requests require enforced checks on the actual caller URL."""
+
+import time
+from pathlib import Path
+from uuid import uuid4
+
+import pytest
+
+from sentinel.config import load_configuration
+from sentinel.finding import Finding
+from sentinel.static.engine import run_static_scan
+from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+from sentinel.static.typescript_discovery import TypeScriptProgram
+from sentinel.static.typescript_path_flow import analyze
+from tests.conftest import NOW, make_target
+
+
+def scan(root: Path, source: str) -> tuple[Finding, ...]:
+    make_target(root, target_yaml="")
+    (root / "server.py").write_text(source, encoding="utf-8")
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-015"]}
+    )
+    return run_static_scan(configuration, uuid4(), timestamp=NOW).findings
+
+
+PREFIX = """from mcp.server.fastmcp import FastMCP
+import requests
+import httpx
+from urllib.parse import urlparse
+mcp = FastMCP("test")
+"""
+
+
+@pytest.mark.parametrize(
+    ("guard", "protected"),
+    [
+        ("if (privateIP(url)) throw new Error();", False),
+        ("if (privateIP(new URL(url).hostname)) throw new Error();", True),
+        ("privateIP(new URL(url).hostname);", False),
+        ("if (privateIP(new URL(other).hostname)) throw new Error();", False),
+        ("if (privateIP(new URL(url).hostname)) console.log('blocked');", False),
+        (
+            "if (privateIP(new URL(url).hostname)) throw new Error(); url = other;",
+            False,
+        ),
+        (
+            "const parsed = new URL(url); parsed.hostname = 'example.com'; "
+            "if (privateIP(parsed.hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const parsed = new URL(url); unknown(parsed); "
+            "if (privateIP(parsed.hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const privateIP = () => false; "
+            "if (privateIP(new URL(url).hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const URL = custom; "
+            "if (privateIP(new URL(url).hostname)) throw new Error();",
+            False,
+        ),
+        (
+            "const isPrivate = privateIP; const destination = new URL(url); "
+            "if (isPrivate(destination.hostname)) return 'blocked';",
+            True,
+        ),
+        (
+            "const parsed = new URL(url); const destination = parsed.hostname; "
+            "if (privateIP(destination)) throw new Error();",
+            True,
+        ),
+        (
+            "const parsed = new URL(url); const destination = parsed.hostname; "
+            "unknown(parsed); if (privateIP(destination)) throw new Error();",
+            True,
+        ),
+    ],
+)
+def test_typescript_private_ip_guard_has_only_literal_ipv4_scope(
+    tmp_path: Path, guard: str, protected: bool
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = (
+        'import {Server} from "@modelcontextprotocol/sdk/server/index.js";\n'
+        'import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";\n'
+        'import privateIP from "private-ip";\n'
+        'const server = new Server({name:"test",version:"1"});\n'
+        "server.setRequestHandler(CallToolRequestSchema, async request => {\n"
+        "let {url, other} = request.params.arguments;\n"
+        + guard
+        + "\nreturn fetch(url);\n});\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    # IPv4 rejection cannot establish scheme, IPv6, DNS or redirect protection.
+    assert len(state.matches) == 1
+    assert (
+        state.matches[0].captures.get("url_guard_scope") == "literal-ipv4"
+    ) == protected
+
+
+CHECK = """parsed = urlparse(url)
+    if parsed.scheme not in ("https", "http"):
+        raise ValueError()
+    if parsed.hostname not in ("images.example.com",):
+        raise ValueError()
+"""
+
+
+@pytest.mark.parametrize(
+    ("client", "operation"),
+    [
+        ("Jira", "myself()"),
+        ("Confluence", "get('rest/api/user/current')"),
+    ],
+)
+@pytest.mark.parametrize(
+    ("guard", "change", "expected"),
+    [
+        ("", "pass", 1),
+        (CHECK, "pass", 0),
+        ("", "service.url = 'https://images.example.com'", 0),
+        (CHECK, "service.url = other", 1),
+        ("", "service = unknown", 0),
+        ("", "unknown(service)", 0),
+    ],
+)
+def test_atlassian_service_requests_use_current_base_url(
+    tmp_path: Path, client: str, operation: str, guard: str, change: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + f"from atlassian import {client} as Service\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        + ("    " + guard if guard else "")
+        + f"    service = Service(url=url)\n    {change}\n"
+        f"    return service.{operation}\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("service = Confluence(url=url)", 0),
+        (
+            "service = Confluence(url=url)\n    service.get = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url)",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url, absolute=True)",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    service.get('https://images.example.com', absolute=True)",
+            0,
+        ),
+        (
+            "service = Confluence(url='https://images.example.com')\n"
+            "    service.get(url, absolute=other)",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    service.request('GET', path='rest/api/user/current')",
+            1,
+        ),
+        ("service = Confluence(url=url)\n    service.unknown_method()", 0),
+        (
+            "service = Confluence(url=url, session=unknown)\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url, session=requests.Session())\n"
+            "    service.get('rest/api/user/current')",
+            1,
+        ),
+        (
+            "service = Confluence(url=url)\n    service._session.request = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n    service._session = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "Confluence = unknown\n"
+            "    Confluence(url=url).get('rest/api/user/current')",
+            0,
+        ),
+        ("service = Confluence(url=url)\n    service.get()", 0),
+        (
+            "service = Confluence(url=url)\n    service.request = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n    service.url_joiner = unknown\n"
+            "    service.get('rest/api/user/current')",
+            0,
+        ),
+        (
+            "service = Confluence(url=url)\n"
+            "    def prepare():\n        service._session = unknown\n"
+            "        return 'rest/api/user/current'\n    service.get(prepare())",
+            0,
+        ),
+        ("service = Confluence(url=url)\n    service.get('path', path='duplicate')", 0),
+    ],
+)
+def test_service_url_contract_requires_a_reachable_request(
+    tmp_path: Path, source: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "from atlassian import Confluence\n"
+        "@mcp.tool()\ndef fetch(url: str, other: bool):\n    " + source + "\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+@pytest.mark.parametrize("replace_url", [False, True])
+def test_sdk_http_getter_retains_the_current_tool_request_state(
+    tmp_path: Path, guard: str, replace_url: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from urllib.parse import urlparse\nimport requests\nmcp = FastMCP('test')\n"
+        "def downstream():\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    request = get_http_request()\n"
+        "    url = request.query_params.get('url')\n"
+        + ("    " + guard if guard else "")
+        + "    request.state.url = url\n"
+        + (
+            "    request.state.url = request.query_params.get('other')\n"
+            if replace_url
+            else ""
+        )
+        + "    return downstream()\n",
+    )
+    assert len(findings) == (0 if guard and not replace_url else 1)
+
+
+def test_sdk_http_request_state_does_not_leak_between_tools(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "import requests\nmcp = FastMCP('test')\n"
+        "def downstream():\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef first():\n"
+        "    get_http_request().state.url = 'https://images.example.com'\n"
+        "    return downstream()\n"
+        "@mcp.tool()\ndef second():\n    return downstream()\n",
+    )
+    assert len(findings) == 1
+
+
+def test_repeated_middleware_state_keeps_handler_mutations_local(
+    tmp_path: Path,
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "import requests\n"
+        "class Inject:\n"
+        "    def __init__(self, app): self.app=app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request=Request(scope)\n"
+        "        request.state.url=request.headers.get('X-URL')\n"
+        "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Inject)], **kwargs)\n"
+        "mcp=App('test')\n"
+        "@mcp.tool()\ndef first():\n"
+        "    get_http_request().state.url='https://images.example.com/fixed'\n"
+        "    return requests.get(get_http_request().state.url)\n"
+        "@mcp.tool()\ndef second():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == 1
+
+
+def test_repeated_startup_state_keeps_handler_mutations_local(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX.replace('mcp = FastMCP("test")\n', "")
+        + "from mcp.server.fastmcp import Context\n"
+        "from contextlib import asynccontextmanager\n"
+        "from dataclasses import dataclass\n"
+        "@dataclass\nclass Config:\n    url: str\n"
+        "@asynccontextmanager\nasync def startup(app):\n"
+        "    yield {'config': Config('https://images.example.com/fixed')}\n"
+        "mcp=FastMCP('test', lifespan=startup)\n"
+        "@mcp.tool()\ndef first(url: str, ctx: Context):\n"
+        "    config=ctx.request_context.lifespan_context['config']\n"
+        "    config.url=url\n    return requests.get(config.url)\n"
+        "@mcp.tool()\ndef second(other: str, ctx: Context):\n"
+        "    url=ctx.request_context.lifespan_context['config'].url\n"
+        "    if url != 'https://images.example.com/fixed':\n"
+        "        return requests.get(other)\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+@pytest.mark.parametrize("attach", [False, True])
+@pytest.mark.parametrize(
+    ("replacement", "intact"),
+    [
+        ("", True),
+        ("mcp.http_app = unknown", False),
+        ("App.http_app = unknown", False),
+        ("unknown(mcp)", False),
+        ("def poison():\n    mcp.http_app = unknown", True),
+        ("def poison():\n    mcp.http_app = unknown\npoison()", False),
+    ],
+)
+def test_registered_asgi_middleware_state_reaches_its_tool(
+    tmp_path: Path, guard: str, attach: bool, replacement: str, intact: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "from urllib.parse import urlparse\nimport requests\n"
+        "class Guard:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        "        url = request.headers.get('X-URL')\n"
+        + ("        " + guard.replace("\n", "\n    ").rstrip() + "\n" if guard else "")
+        + "        request.state.url = url\n"
+        "        hasattr(request.state, 'url')\n"
+        "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "unrelated = App('other')\n"
+        + ("mcp = App('target')\n" if attach else "mcp = FastMCP('target')\n")
+        + replacement
+        + "\n"
+        + "@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (0 if guard and attach and intact else 1)
+
+
+@pytest.mark.parametrize(
+    ("body", "getter", "expected"),
+    [
+        ("return", "    get_http_request()\n", 0),
+        ("return", "", 1),
+        ("return", "    requests.get(url)\n    get_http_request()\n", 1),
+        ("await self.app(scope, receive, send)", "    get_http_request()\n", 1),
+        (
+            "await unknown(lambda: self.app(scope, receive, send))",
+            "    get_http_request()\n",
+            1,
+        ),
+        (
+            "await unknown(self.app, scope, receive, send)",
+            "    get_http_request()\n",
+            1,
+        ),
+        (
+            "self.app = unknown\nawait self.app(scope, receive, send)",
+            "    get_http_request()\n",
+            1,
+        ),
+    ],
+)
+def test_unknown_middleware_continuation_cannot_prove_refusal(
+    tmp_path: Path, body: str, getter: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\nimport requests\n"
+        "class Guard:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n        "
+        + body.replace("\n", "\n        ")
+        + "\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "mcp = App('test')\n@mcp.tool()\ndef fetch(url: str):\n"
+        + getter
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+def test_returned_ip_error_checks_the_mapped_address_of_the_requested_url(
+    tmp_path: Path, checked: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n"
+        "def ip_error(hostname):\n"
+        "    try: addr = ipaddress.ip_address(hostname)\n"
+        "    except ValueError: return None\n"
+        "    if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped:\n"
+        "        addr = addr.ipv4_mapped\n"
+        "    if not addr.is_global: return 'blocked address'\n"
+        "    return None\n"
+        "def url_error(url):\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): return 'blocked scheme'\n"
+        "    error = ip_error(parsed.hostname)\n"
+        "    if error: return error\n"
+        "    return None\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        f"    error = url_error({checked})\n"
+        "    if error: raise ValueError(error)\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == (0 if checked == "url" else 1)
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+@pytest.mark.parametrize("replace_url", [False, True])
+def test_optional_url_guard_applies_when_the_same_value_is_later_used(
+    tmp_path: Path, checked: str, replace_url: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "@mcp.tool()\ndef fetch(url: str | None, other: str):\n"
+        f"    if {checked}:\n"
+        "        "
+        + CHECK.replace("urlparse(url)", f"urlparse({checked})")
+        .replace("\n", "\n    ")
+        .rstrip()
+        + "\n"
+        + ("    url = other\n" if replace_url else "")
+        + "    if url: return requests.get(url)\n",
+    )
+    assert len(findings) == (0 if (checked == "other") == replace_url else 1)
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+def test_conditionally_assigned_mapping_retains_its_member_guards(
+    tmp_path: Path, guard: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def prepare(state, url):\n"
+        "    if not url: return\n"
+        + ("    " + guard if guard else "")
+        + "    state['headers'] = {'url': url}\n"
+        "@mcp.tool()\ndef fetch(url: str | None):\n"
+        "    state = {}\n    prepare(state, url)\n"
+        "    headers = state.get('headers')\n"
+        "    if headers: return requests.get(headers['url'])\n",
+    )
+    assert len(findings) == (0 if guard else 1)
+
+
+@pytest.mark.parametrize("guard", ["", CHECK])
+def test_reading_dictionary_keys_does_not_escape_its_validated_values(
+    tmp_path: Path, guard: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str):\n"
+        + ("    " + guard if guard else "")
+        + "    options = {'url': url}\n"
+        "    log(list(options.keys()))\n"
+        "    return requests.get(options['url'])\n",
+    )
+    assert len(findings) == (0 if guard else 1)
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+@pytest.mark.parametrize("escaped", [False, True])
+def test_known_dictionary_membership_preserves_nested_state(
+    tmp_path: Path, enabled: bool, escaped: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + "    scope = {'state': {'url': url}}\n"
+        + ("    unknown(scope)\n" if escaped else "")
+        + "    scope = dict(scope)\n"
+        + (
+            "    if 'state' not in scope:\n"
+            if enabled
+            else "    if 'state' in scope:\n"
+        )
+        + "        scope['state'] = {'url': other}\n"
+        + "    return requests.get(scope['state']['url'])\n",
+    )
+    assert len(findings) == (0 if enabled and not escaped else 1)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "",
+        "headers['url'] = other",
+        "original['url'] = other",
+        "headers.update({'url': other})",
+        "unknown(headers, other)",
+    ],
+)
+def test_optional_mapping_with_empty_default_preserves_alias_writes(
+    tmp_path: Path, mutation: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str, selected: bool):\n    "
+        + CHECK
+        + "    original = {'url': url}\n    state = {}\n"
+        + "    if selected: state['headers'] = original\n"
+        + "    headers = state.get('headers', {})\n"
+        + ("    " + mutation + "\n" if mutation else "")
+        + "    return requests.get(headers.get('url'))\n",
+    )
+    assert len(findings) == bool(mutation)
+
+
+@pytest.mark.parametrize("validate_last", [False, True])
+@pytest.mark.parametrize("setter", [False, True])
+def test_registered_middleware_order_controls_the_requested_value(
+    tmp_path: Path, validate_last: bool, setter: bool
+) -> None:
+    layers = "Overwrite, Validate" if validate_last else "Validate, Overwrite"
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.requests import Request\n"
+        "from urllib.parse import urlparse\nimport requests\n"
+        "class Validate:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        "        url = request.state.url\n        "
+        + CHECK.replace("\n", "\n    ").rstrip()
+        + "\n"
+        "        await self.app(scope, receive, send)\n"
+        "class Overwrite:\n"
+        "    def __init__(self, app): self.app = app\n"
+        "    async def __call__(self, scope, receive, send):\n"
+        "        request = Request(scope)\n"
+        + (
+            "        setattr(request.state, 'url', request.headers.get('X-URL'))\n"
+            if setter
+            else "        request.state.url = request.headers.get('X-URL')\n"
+        )
+        + "        await self.app(scope, receive, send)\n"
+        "class App(FastMCP):\n"
+        "    def http_app(self, middleware=None, **kwargs):\n"
+        "        return super().http_app(middleware=["
+        + ", ".join(f"Middleware({name})" for name in layers.split(", "))
+        + "], **kwargs)\n"
+        "mcp = App('test')\n@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (0 if validate_last else 1)
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_plain_boolean_helper_preserves_request_reachability(
+    tmp_path: Path, enabled: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + f"def enabled(): return {enabled!r}\n"
+        + "@mcp.tool()\ndef fetch(url: str):\n"
+        "    if enabled(): return requests.get(url)\n",
+    )
+    assert len(findings) == enabled
+
+
+def test_plain_true_helper_does_not_validate_the_requested_url(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def permitted(url): return True\n"
+        "@mcp.tool()\ndef fetch(url: str):\n"
+        "    if not permitted(url): raise ValueError('rejected')\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    ("guard", "expected"),
+    [
+        ("", 1),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error();',
+            0,
+        ),
+        (
+            'const u = new URL(req.query.other); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error();',
+            1,
+        ),
+    ],
+)
+def test_typescript_http_url_boundary(
+    tmp_path: Path, guard: str, expected: int
+) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "package.json").write_text(
+        '{"dependencies":{"@modelcontextprotocol/sdk":"1.0.0"}}',
+        encoding="utf-8",
+    )
+    (root / "server.ts").write_text(
+        'import express from "express"; const app = express();\n'
+        'app.get("/image", async (req, res) => {\n'
+        "const url = req.query.url;\n" + guard + "\nreturn fetch(url);\n});\n",
+        encoding="utf-8",
+    )
+    configuration = load_configuration(
+        root, environ={}, static_only=True, cli_overrides={"rules": ["SENT-015"]}
+    )
+    assert (
+        len(run_static_scan(configuration, uuid4(), timestamp=NOW).findings) == expected
+    )
+
+
+@pytest.mark.parametrize(
+    ("condition", "replace_value", "expected", "expected_calls"),
+    [
+        ("allowed(url)", False, 0, ["allowed"]),
+        ("allowed(url)", True, 1, ["allowed"]),
+        ("True or allowed(url)", False, 1, []),
+    ],
+)
+def test_url_guard_interprets_its_validator_once(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    condition: str,
+    replace_value: bool,
+    expected: int,
+    expected_calls: list[str],
+) -> None:
+    from sentinel.static.discovery import Symbol
+    from sentinel.static.path_flow import Value
+    from sentinel.static.rules.sent015 import URLFlow
+
+    original = URLFlow.function
+    calls = []
+
+    def traced(self: URLFlow, symbol: Symbol, bindings: dict[str, Value]) -> Value:
+        if symbol.name == "allowed":
+            calls.append(symbol.name)
+        return original(self, symbol, bindings)
+
+    monkeypatch.setattr(URLFlow, "function", traced)
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def allowed(value):\n"
+        "    parsed = urlparse(value)\n"
+        "    return parsed.scheme == 'https' and "
+        "parsed.hostname == 'images.example.com'\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str):\n"
+        f"    if not ({condition}): raise ValueError('rejected')\n"
+        + ("    url = other\n" if replace_value else "")
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+    assert calls == expected_calls
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("return requests.get(url)", 1),
+        ("return httpx.get(url=url)", 1),
+        ('return requests.get("https://images.example.com/fixed")', 0),
+        ('return requests.get("https://images.example.com/" + url)', 0),
+        ('return requests.get("https://images.example.com" + url)', 1),
+        ('return requests.get("http://127.0.0.1/" + url)', 1),
+        ('return requests.get(f"https://images.example.com/{url}")', 0),
+        ('return requests.get(f"https://{url}/image")', 1),
+        (CHECK + "    return requests.get(url)", 0),
+        (
+            CHECK.replace("urlparse(url)", "urlparse(other)")
+            + "    return requests.get(url)",
+            1,
+        ),
+        (CHECK + "    url = other\n    return requests.get(url)", 1),
+        (
+            CHECK.replace('("https", "http")', '("https", "file")')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("localhost",)')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("127.0.0.1",)')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("10.0.0.1",)')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("::1",)')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("169.254.169.254",)')
+            + "    return requests.get(url)",
+            1,
+        ),
+        (
+            CHECK.replace('("images.example.com",)', '("8.8.8.8",)')
+            + "    return requests.get(url)",
+            0,
+        ),
+        (
+            "parsed = urlparse(url)\n    parsed.scheme in ('https',)\n "
+            "   parsed.hostname in ('images.example.com',)\n    return"
+            " requests.get(url)",
+            1,
+        ),
+    ],
+)
+def test_python_request_boundary(tmp_path: Path, body: str, expected: int) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "@mcp.tool()\ndef fetch(url: str, other: str):\n    " + body + "\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+@pytest.mark.parametrize("client", ["httpx.Client", "requests.Session"])
+def test_imported_enforced_guard(tmp_path: Path, checked: str, client: str) -> None:
+    root = tmp_path / "target"
+    root.mkdir()
+    (root / "guard.py").write_text(
+        "from urllib.parse import urlparse\ndef validate(url):\n    " + CHECK,
+        encoding="utf-8",
+    )
+    findings = scan(
+        root,
+        PREFIX
+        + "from guard import validate\n@mcp.tool()\ndef fetch(url:str, other:str):\n"
+        f"    validate({checked})\n    with {client}() as client:\n"
+        "        return client.get(url)\n",
+    )
+    assert len(findings) == (checked != "url")
+
+
+def test_caught_guard_does_not_protect_request(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "def validate(url):\n    "
+        + CHECK
+        + "\n@mcp.tool()\ndef fetch(url:str):\n"
+        "    try:\n        validate(url)\n    except ValueError:\n        pass\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    ("check", "expected"),
+    [
+        # Six negative flags still admit shared address space (100.64/10).
+        ("if blocked(ip): raise ValueError()", 1),
+        ("blocked(ip)", 1),
+        (
+            "if blocked(ipaddress.ip_address(urlparse(other).hostname"
+            ")): raise ValueError()",
+            1,
+        ),
+        ("if blocked(ip): raise ValueError()\n    url = other", 1),
+        ("if not ip.is_global or ip.is_multicast: raise ValueError()", 0),
+        ("if ip.is_multicast: raise ValueError()", 1),
+    ],
+)
+def test_literal_address_predicates(tmp_path: Path, check: str, expected: int) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n"
+        "def blocked(ip):\n"
+        "    return ip.is_private or ip.is_loopback or ip.is_link"
+        "_local or ip.is_reserved or ip.is_multicast or ip.is_uns"
+        "pecified\n"
+        "@mcp.tool()\ndef fetch(url:str, other:str):\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('http', 'https'): raise ValueError()\n"
+        "    ip = ipaddress.ip_address(parsed.hostname)\n    " + check + "\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize(
+    "use", ["if not allowed(url): raise ValueError()", "allowed(url)"]
+)
+def test_returned_boolean_is_enforced(tmp_path: Path, use: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def allowed(url):\n    parsed = urlparse(url)\n"
+        "    return parsed.scheme in ('https',) and parsed.hostna"
+        "me in ('images.example.com',)\n"
+        "@mcp.tool()\ndef fetch(url:str):\n    "
+        + use
+        + "\n    return requests.get(url)\n",
+    )
+    assert len(findings) == (use == "allowed(url)")
+
+
+@pytest.mark.parametrize("mutation", ["", "ips.clear()", "ips = []"])
+def test_literal_ip_validation_loop(tmp_path: Path, mutation: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\nimport socket\n"
+        "def blocked(ip):\n"
+        "    mapped = getattr(ip, 'ipv4_mapped', None)\n"
+        "    if mapped is not None: ip = mapped\n"
+        "    return not ip.is_global or ip.is_multicast\n"
+        "def validate(url):\n"
+        "    parsed = urlparse(url.strip())\n"
+        "    scheme = (parsed.scheme or '').lower()\n"
+        "    if scheme not in ('https', 'http'): raise ValueError()\n"
+        "    try:\n        ips = [ipaddress.ip_address(parsed.hostname)]\n"
+        "    except ValueError:\n        ips = []\n"
+        f"    {mutation or 'pass'}\n"
+        "    for ip in ips:\n        if blocked(ip): raise ValueError()\n"
+        "@mcp.tool()\ndef fetch(url:str):\n"
+        "    validate(url)\n    return requests.get(url)\n",
+    )
+    assert len(findings) == bool(mutation)
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        ("return fetch(url);", 1),
+        ("return axios.get(url);", 1),
+        ("return http.get(url);", 1),
+        ('return fetch("https://images.example.com/fixed");', 0),
+        ('return fetch("https://images.example.com/" + url);', 0),
+        ('return fetch("https://images.example.com" + url);', 1),
+        ('return fetch("http://127.0.0.1/" + url);', 1),
+        (
+            'const u = new URL(url); unknown(u); if (u.protocol !== "https:" || '
+            'u.hostname !== "images.example.com") throw new Error(); '
+            "return fetch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || u'
+            '.hostname !== "images.example.com") throw new Error(); r'
+            "eturn fetch(url);",
+            0,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:") thr'
+            "ow new Error(); return fetch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(other); if (u.protocol !== "https:" ||'
+            ' u.hostname !== "images.example.com") throw new Error();'
+            " return fetch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || u'
+            '.hostname !== "images.example.com") throw new Error(); u'
+            "rl = other; return fetch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(url); u.protocol === "https:" && u.hos'
+            'tname === "images.example.com"; return fetch(url);',
+            1,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "file:" || u.'
+            'hostname !== "images.example.com") throw new Error(); re'
+            "turn fetch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || u'
+            '.hostname !== "127.0.0.1") throw new Error(); return fet'
+            "ch(url);",
+            1,
+        ),
+        (
+            'const u = new URL(url); if (u.protocol !== "https:" || u'
+            '.hostname !== "[::1]") throw new Error(); return fetch(u'
+            "rl);",
+            1,
+        ),
+        (
+            'const u = new URL(url); if (!["https:", "http:"].include'
+            's(u.protocol) || !["images.example.com"].includes(u.host'
+            "name)) throw new Error(); return fetch(url);",
+            0,
+        ),
+    ],
+)
+def test_typescript_request_boundary(tmp_path: Path, body: str, expected: int) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = (
+        'import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import axios from "axios"; import http from "node:http";\n'
+        'const server = new McpServer({name:"test", version:"1"});\n'
+        "async function fetchImage({url, other}: {url: string; other: string}) { "
+        + body
+        + " }\n"
+        'server.registerTool("fetch", {inputSchema: {url: z.strin'
+        "g(), other: z.string()}}, fetchImage);\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source, encoding="utf-8")
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("normalize", "enforcement", "expected"),
+    [
+        (True, "if (!allowed(url)) throw new Error();", 0),
+        (False, "if (!allowed(url)) throw new Error();", 1),
+        (True, "allowed(url);", 1),
+        (True, "if (!allowed(other)) throw new Error();", 1),
+        (True, "if (!allowed(url)) console.log('rejected');", 1),
+        (True, "if (!allowed(url)) throw new Error(); url=other;", 1),
+    ],
+)
+@pytest.mark.parametrize("catch", [False, True])
+@pytest.mark.parametrize("fallible", [False, True])
+def test_typescript_literal_ip_guard_requires_normalization_and_enforcement(
+    tmp_path: Path,
+    normalize: bool,
+    enforcement: str,
+    expected: int,
+    catch: bool,
+    fallible: bool,
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    classify = "return ipaddr.parse(host).range() !== 'unicast';"
+    if fallible:
+        classify = "unknown(); " + classify
+        if catch:
+            expected = 1
+    if catch:
+        classify = "try { " + classify + " } catch { return false; }"
+    host = "strip(hostname.trim().toLowerCase())" if normalize else "hostname"
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {isIP} from "node:net"; import ipaddr from "ipaddr.js";\n'
+        'const server=new McpServer({name:"test",version:"1"});\n'
+        "function strip(host) { return host.startsWith('[') && host.endsWith(']')"
+        " ? host.slice(1,-1) : host; }\n"
+        f"function denied(hostname) {{ const host={host};\n"
+        " if (isIP(host) === 0) return false;\n"
+        f" {classify}\n}}\n"
+        "function allowed(url) { const parsed=new URL(url);\n"
+        " if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') "
+        "return false;\n"
+        " return !denied(parsed.hostname);\n}\n"
+        'server.registerTool("fetch",{inputSchema:{}},({url,other})=>{\n'
+        f" {enforcement} return fetch(url);\n}});\n"
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected"),
+    [
+        ("", 0),
+        ("parsed.hostname=other;", 1),
+        ("parsed.toString=()=>other;", 1),
+        # An unknown replacement cannot establish the returned URL's origin.
+        ("parsed.toString=unknown;", 0),
+    ],
+)
+def test_typescript_checked_url_serialization_rejects_mutation(
+    tmp_path: Path, mutation: str, expected: int
+) -> None:
+    test_typescript_request_boundary(
+        tmp_path,
+        'const parsed=new URL(url); if (parsed.protocol!=="https:" || '
+        'parsed.hostname!=="example.com") throw new Error(); '
+        + mutation
+        + " return fetch(parsed.toString());",
+        expected,
+    )
+
+
+@pytest.mark.parametrize(
+    ("validation", "expected"),
+    [
+        ("error = validate(url)\n    if error: raise ValueError(error)", 0),
+        ("validate(url)", 1),
+        ("error = validate(other)\n    if error: raise ValueError(error)", 1),
+        (
+            "error = validate(url)\n    if error: raise ValueError(error)\n"
+            "    url = other",
+            1,
+        ),
+    ],
+)
+def test_returned_validation_error_requires_enforcement(
+    tmp_path: Path, validation: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n"
+        "def check_ip(host):\n"
+        "    try:\n        ip = ipaddress.ip_address(host)\n"
+        "    except ValueError:\n        return None\n"
+        "    if not ip.is_global: return 'Blocked address'\n"
+        "    return None\n"
+        "def validate(url):\n    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): return 'Blocked scheme'\n"
+        "    error = check_ip(parsed.hostname)\n"
+        "    if error: return error\n    return None\n"
+        "@mcp.tool()\ndef fetch(url:str, other:str):\n    "
+        + validation
+        + "\n    return requests.get(url)\n",
+    )
+    assert len(findings) == expected
+
+
+@pytest.mark.parametrize("fallback", ["None", "url"])
+def test_guarded_url_in_optional_state(tmp_path: Path, fallback: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "def prepare(url):\n    state = {}\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme != 'https': return state\n"
+        "    if parsed.hostname != 'images.example.com': return state\n"
+        "    state['url'] = url\n    return state\n"
+        "@mcp.tool()\ndef fetch(url:str):\n    state = prepare(url)\n"
+        f"    return requests.get(state.get('url', {fallback}))\n",
+    )
+    assert len(findings) == (fallback == "url")
+
+
+@pytest.mark.parametrize("checked", ["url", "other"])
+def test_http_request_url_boundary(tmp_path: Path, checked: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastapi import FastAPI, Request\nimport requests\n"
+        "from urllib.parse import urlparse\napp=FastAPI()\n"
+        '@app.get("/fetch")\ndef fetch(request: Request):\n'
+        '    url=request.query_params.get("url")\n'
+        '    other=request.query_params.get("other")\n    '
+        + CHECK.replace("urlparse(url)", f"urlparse({checked})")
+        + "    return requests.get(url)\n",
+    )
+    assert len(findings) == (checked != "url")
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+@pytest.mark.parametrize("nested", [False, True])
+def test_alternative_service_instances_retain_their_destination_fields(
+    tmp_path: Path, guarded: bool, nested: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Config:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "class Client:\n"
+        + (
+            "    def __init__(self, url): self.config = Config(url)\n"
+            "    def fetch(self): return requests.get(self.config.url)\n"
+            if nested
+            else "    def __init__(self, url): self.url = url\n"
+            "    def fetch(self): return requests.get(self.url)\n"
+        )
+        + "def choose(url, selected):\n"
+        + ("    " + CHECK if guarded else "")
+        + "    if selected: return Client(url)\n"
+        "    return Client('https://images.example.com/fixed')\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    return choose(url, selected).fetch()\n",
+    )
+    assert len(findings) == (not guarded)
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["", "original.url = other", "chosen.url = other", "unknown(chosen, other)"],
+)
+def test_alternative_service_fields_observe_alias_mutation(
+    tmp_path: Path, mutation: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "@mcp.tool()\ndef fetch(url: str, other: str, selected: bool):\n    "
+        + CHECK
+        + "    original = Client(url)\n"
+        "    chosen = original if selected else Client('https://images.example.com/fixed')\n"
+        + ("    " + mutation + "\n" if mutation else "")
+        + "    return requests.get(chosen.url)\n",
+    )
+    assert len(findings) == bool(mutation)
+
+
+def test_writing_an_alternative_service_does_not_protect_every_original(
+    tmp_path: Path,
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self, url): self.url=url\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    original = Client(url)\n"
+        "    chosen = original if selected else Client('https://images.example.com/fixed')\n"
+        "    chosen.url = 'https://images.example.com/other'\n"
+        "    return requests.get(original.url)\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize("change", ["unknown(chosen)", "del chosen.url"])
+def test_service_field_removal_keeps_caller_default_visible(
+    tmp_path: Path, change: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self): self.url='https://images.example.com/fixed'\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    original = Client()\n"
+        "    chosen = original if selected else Client()\n"
+        f"    {change}\n"
+        "    return requests.get(getattr(original, 'url', url))\n",
+    )
+    assert len(findings) == 1
+
+
+def test_nullable_service_keeps_caller_default_visible(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "class Client:\n"
+        "    def __init__(self): self.url='https://images.example.com/fixed'\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    chosen = Client() if selected else None\n"
+        "    return requests.get(getattr(chosen, 'url', url))\n",
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize("guarded", [False, True])
+def test_rejecting_missing_parent_or_child_preserves_dataclass_fields(
+    tmp_path: Path, guarded: bool
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "from dataclasses import dataclass, replace\n"
+        "@dataclass\nclass Config:\n    url: str\n"
+        "class Box:\n    def __init__(self, config): self.config=config\n"
+        "def choose(url, selected):\n"
+        + ("    " + CHECK if guarded else "")
+        + "    if selected: return Box(Config(url))\n    return None\n"
+        "@mcp.tool()\ndef fetch(url: str, selected: bool):\n"
+        "    box = choose(url, selected)\n"
+        "    if not box or not box.config: raise ValueError()\n"
+        "    config = replace(box.config)\n"
+        "    return requests.get(config.url)\n",
+    )
+    assert len(findings) == (not guarded)
+
+
+@pytest.mark.parametrize(
+    ("destination", "expected"),
+    [
+        ("f'{url}/path'", 0),
+        ("url + '/path'", 0),
+        ("url + '/' + endpoint", 0),
+        ("f'{url}{endpoint}'", 1),
+        ("f'{endpoint}{url}/path'", 1),
+        ("f'{url!r}/path'", 1),
+        ("(url * 2) + '/path'", 1),
+    ],
+)
+def test_appending_a_path_to_a_checked_url_preserves_its_authority(
+    tmp_path: Path, destination: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, endpoint: str):\n    "
+        + CHECK
+        + f"    return requests.get({destination})\n",
+    )
+    assert len(findings) == expected
+
+
+def test_unknown_mutator_cannot_preserve_url_member_guard(tmp_path: Path) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    mutate(state,other)\n'
+        '    return requests.get(state["url"])\n',
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    "inspection",
+    [
+        "len(state)",
+        "isinstance(state, dict)",
+        "state.keys()",
+        "state.items()",
+        "state.values()",
+    ],
+)
+def test_builtin_dictionary_inspection_preserves_url_guard(
+    tmp_path: Path, inspection: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + "@mcp.tool()\ndef fetch(url: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    '
+        + inspection
+        + "\n"
+        + '    return requests.get(state["url"])\n',
+    )
+    assert not findings
+
+
+@pytest.mark.parametrize("name", ["len", "isinstance"])
+def test_shadowed_inspection_is_not_a_builtin(tmp_path: Path, name: str) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX
+        + name
+        + " = unknown_inspection\n"
+        + "@mcp.tool()\ndef fetch(url: str, other: str):\n    "
+        + CHECK
+        + '    state={"url":url}\n    '
+        + name
+        + "(state, other)\n"
+        + '    return requests.get(state["url"])\n',
+    )
+    assert len(findings) == 1
+
+
+@pytest.mark.parametrize(
+    ("declarations", "body", "expected"),
+    [
+        (
+            "VERSION = 'v24.0'\nBASE = f'https://graph.example.com/{VERSION}'",
+            "url = f'{BASE}/{endpoint}'",
+            0,
+        ),
+        (
+            "VERSION = 'v24.0'\nBASE = 'https://graph.example.com/' + VERSION",
+            "url = BASE + '/' + endpoint",
+            0,
+        ),
+        (
+            "BASE = 'https://graph.example.com/'",
+            "base = BASE\nurl = f'{base}{endpoint}'",
+            0,
+        ),
+        (
+            "BASE = 'https://graph.example.com/'",
+            "base = endpoint\nurl = f'{base}/image'",
+            1,
+        ),
+        (
+            "HOST = '127.0.0.1'\nBASE = f'http://{HOST}/'",
+            "url = f'{BASE}{endpoint}'",
+            1,
+        ),
+        (
+            "SCHEME = 'https'\nBASE = f'{SCHEME}://'",
+            "url = f'{BASE}{endpoint}/image'",
+            1,
+        ),
+        ("BASE = 'https://graph.example.com'", "url = f'{BASE}{endpoint}'", 1),
+        ("BASE = 'https://graph.example.com/'", "url = f'{BASE!r}{endpoint}'", 1),
+    ],
+)
+def test_python_composed_url_authority(
+    declarations: str, body: str, expected: int
+) -> None:
+    from sentinel.static.rules.sent012 import analyze as analyze_python
+    from sentinel.static.rules.sent015 import URLFlow
+    from tests.test_python_discovery import program
+
+    source = PREFIX + declarations + "\n@mcp.tool()\ndef fetch(endpoint: str):\n"
+    source += "\n".join("    " + line for line in body.splitlines())
+    source += "\n    return requests.get(url)\n"
+    index = program({"server.py": source})
+    state = RuleRunState()
+    analyze_python(index, state, flow=URLFlow(index, state, time.monotonic() + 10))
+    assert len(state.matches) == expected
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        (
+            "request.state.url = request.headers.get('X-URL')\n"
+            "return await call_next(request)",
+            1,
+        ),
+        (
+            "request.state.url = 'https://images.example.com/fixed'\n"
+            "return await call_next(request)",
+            0,
+        ),
+        ("return None", 0),
+        ("call_next = unknown\nreturn await call_next(request)", 1),
+        ("return await unknown(call_next, request)", 1),
+    ],
+)
+@pytest.mark.parametrize("custom_call", [False, True])
+@pytest.mark.parametrize(
+    "replacement", ["", "Guard.dispatch = unknown", "unknown(Guard)"]
+)
+def test_base_http_dispatch_continuation_and_replacement(
+    tmp_path: Path, body: str, expected: int, custom_call: bool, replacement: str
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        "from fastmcp import FastMCP\n"
+        "from fastmcp.server.dependencies import get_http_request\n"
+        "from starlette.middleware import Middleware\n"
+        "from starlette.middleware.base import BaseHTTPMiddleware\n"
+        "import requests\n"
+        "class Guard(BaseHTTPMiddleware):\n"
+        "    async def dispatch(self, request, call_next):\n        "
+        + body.replace("\n", "\n        ")
+        + "\n"
+        + (
+            "    async def __call__(self, scope, receive, send):\n"
+            "        return await unknown(scope, receive, send)\n"
+            if custom_call
+            else ""
+        )
+        + replacement
+        + "\n"
+        + "class App(FastMCP):\n"
+        "    def http_app(self, **kwargs):\n"
+        "        return super().http_app(middleware=[Middleware(Guard)], **kwargs)\n"
+        "mcp=App('test')\n"
+        "@mcp.tool()\ndef fetch():\n"
+        "    return requests.get(get_http_request().state.url)\n",
+    )
+    assert len(findings) == (1 if custom_call or replacement else expected)
+
+
+@pytest.mark.parametrize(
+    ("bypass", "scope"),
+    [
+        ("", "loopback-ipv4"),
+        ("if (enabled(process.env.ALLOW_PRIVATE)) return;", "loopback-ipv4-default"),
+        ("if (!enabled(process.env.HARDEN)) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE) || "
+            "!enabled(process.env.HARDEN)) return;",
+            None,
+        ),
+        ("if (enabled(unknown)) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE) && unknown) return;",
+            "loopback-ipv4-default",
+        ),
+        ("if (enabled(process.env.ALLOW_PRIVATE) || unknown) return;", None),
+        (
+            "if (enabled(process.env.ALLOW_PRIVATE)) { unknown(); return; }",
+            "loopback-ipv4-default",
+        ),
+        ("url = new URL('https://example.com');", None),
+        ("unknown(url);", None),
+        (
+            "const process = unknown; if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+        ("unknown(process.env); if (enabled(process.env.ALLOW_PRIVATE)) return;", None),
+        (
+            "process.env.ALLOW_PRIVATE = unknown; "
+            "if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+        (
+            "process.on('event', () => {process.env.ALLOW_PRIVATE = 'true';}); "
+            "if (enabled(process.env.ALLOW_PRIVATE)) return;",
+            None,
+        ),
+    ],
+)
+def test_local_loopback_guard_requires_source_bound_scope(
+    tmp_path: Path, bypass: str, scope: str | None
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    source = """import {Server} from "@modelcontextprotocol/sdk/server/index.js";
+import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";
+import {isIP} from "node:net";
+import {fetch as requestURL} from "undici";
+const server = new Server({name: "test", version: "1"});
+function privateAddress(host: string) {
+ if (isIP(host) !== 4) return false;
+ return host.startsWith("127.");
+}
+function enabled(value: string | undefined) { return value === "true"; }
+function guard(url: URL) {
+ BYPASS
+ if (privateAddress(url.hostname)) throw new Error();
+}
+server.setRequestHandler(CallToolRequestSchema, async request => {
+ const url = new URL(request.params.arguments.url);
+ guard(url);
+ return (requestURL as typeof fetch)(url.toString());
+});
+"""
+    source = source.replace("BYPASS", bypass)
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    # The guard rejects literal loopback only. Keeping a broad SSRF candidate is
+    # appropriate, but it must carry narrower source-grounded protection evidence.
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope") == scope for match in state.matches
+    )
+
+
+@pytest.mark.parametrize("harden_required", [True, False])
+@pytest.mark.parametrize("redirect_loop", [False, True])
+def test_imported_configuration_and_local_loopback_guard(
+    tmp_path: Path, harden_required: bool, redirect_loop: bool
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    sources = {
+        "config.ts": """function enabled(value: string | undefined) {
+ return value === "true";
+}
+export function configuration() {
+ return {harden: enabled(process.env.HARDEN),
+         allowPrivate: enabled(process.env.ALLOW_PRIVATE)};
+}
+""",
+        "reader.ts": """import {configuration} from "./config.js";
+import {isIP} from "node:net";
+import {fetch as requestURL} from "undici";
+function privateAddress(host: string) {
+ if (isIP(host) !== 4) return false;
+ return host.startsWith("10.") || host.startsWith("127.") || unknown(host);
+}
+function guard(url: URL) {
+ const config = configuration();
+ if (BYPASSconfig.allowPrivate) return;
+ if (unknown(url.hostname) || privateAddress(url.hostname)) throw new Error();
+}
+export async function read(input: string) {
+ const url = new URL(input);
+ guard(url);
+ return (requestURL as typeof fetch)(url.toString());
+}
+""".replace("BYPASS", "!config.harden || " if harden_required else ""),
+        "server.ts": """
+import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
+import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";
+import {read} from "./reader.js";
+function create() {
+ const mcp = new McpServer({name: "test", version: "1"});
+ const server = mcp.server;
+ server.setRequestHandler(CallToolRequestSchema, async request => {
+  const {name, arguments: args} = request.params;
+  if (name === "search") return [];
+  else if (name === "read") return read(args.url);
+ });
+ return mcp;
+}
+async function main() { create(); }
+main().catch(console.error);
+""",
+    }
+    if redirect_loop:
+        sources["reader.ts"] = sources["reader.ts"].replace(
+            "return (requestURL as typeof fetch)(url.toString());",
+            "let current = url;\n"
+            "for (let count = 0; count <= 5; count++) {\n"
+            " const response = await (requestURL as typeof fetch)"
+            "(current.toString());\n"
+            " if (!unknown(response)) break;\n"
+            " const next = new URL(unknown(response), current);\n"
+            " guard(next);\n current = next;\n}\n",
+        )
+    files = []
+    for name, source in sources.items():
+        path = tmp_path / name
+        path.write_text(source)
+        files.append(TypeScriptSourceFile(path, name, source))
+    program = TypeScriptProgram(tuple(files), deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope")
+        == (None if harden_required else "loopback-ipv4-default")
+        for match in state.matches
+    )
+
+
+@pytest.mark.parametrize(
+    "effect",
+    [
+        "process.exit(1);",
+        "unknown(process.env);",
+        "process.env.ALLOW_PRIVATE = unknown;",
+        "process.on('event', () => {process.env.ALLOW_PRIVATE = 'true';});",
+    ],
+)
+@pytest.mark.parametrize("placement", ["sibling", "before", "joined"])
+def test_environment_escape_is_local_to_exclusive_branch(
+    tmp_path: Path, effect: str, placement: str
+) -> None:
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+
+    handler = """
+ const url = new URL(request.params.arguments.url);
+ guard(url);
+ return fetch(url.toString());
+"""
+    register = (
+        "const server = new Server({name: 'test', version: '1'});\n"
+        "server.setRequestHandler(CallToolRequestSchema, async request => {"
+        + handler
+        + "});"
+    )
+    startup = (
+        f"if (unknown) {{ {effect} }} else {{ {register} }}"
+        if placement == "sibling"
+        else f"{effect} {register}"
+        if placement == "before"
+        else f"if (unknown) {{ {effect} }} {register}"
+    )
+    source = (
+        'import {Server} from "@modelcontextprotocol/sdk/server/index.js";\n'
+        'import {CallToolRequestSchema} from "@modelcontextprotocol/sdk/types.js";\n'
+        "function guard(url: URL) {\n"
+        " if (process.env.ALLOW_PRIVATE === 'true') return;\n"
+        " if (url.hostname.startsWith('127.')) throw new Error();\n"
+        "}\n"
+        f"function main() {{ {startup} }}\nmain();\n"
+    )
+    path = tmp_path / "server.ts"
+    path.write_text(source)
+    program = TypeScriptProgram(
+        (TypeScriptSourceFile(path, path.name, source),), deadline=time.monotonic() + 20
+    )
+    state = RuleRunState()
+    analyze(program, state, flow=TypeScriptURLFlow(program, state))
+    if placement == "before" and effect == "process.exit(1);":
+        assert not program.tools()
+        assert not state.matches
+        return
+    assert state.matches
+    assert all(
+        match.captures.get("url_guard_scope")
+        == ("loopback-ipv4-default" if placement == "sibling" else None)
+        for match in state.matches
+    )
+
+
+@pytest.mark.parametrize(
+    ("setup", "inspection", "expected"),
+    [
+        ("", "isinstance(ip, ipaddress.IPv6Address)", 0),
+        ("", "isinstance(ip, ipaddress.IPv4Address)", 0),
+        (
+            "from ipaddress import IPv6Address as Address\n",
+            "isinstance(ip, Address)",
+            0,
+        ),
+        ("", "isinstance(ip, unknown_class)", 1),
+        ("isinstance = unknown\n", "isinstance(ip, ipaddress.IPv6Address)", 1),
+        (
+            "import builtins\nbuiltins.isinstance = unknown\n",
+            "isinstance(ip, ipaddress.IPv6Address)",
+            1,
+        ),
+        (
+            "ipaddress.IPv6Address = unknown\n",
+            "isinstance(ip, ipaddress.IPv6Address)",
+            1,
+        ),
+    ],
+)
+def test_ip_type_inspection_requires_known_unreplaced_builtin_and_class(
+    tmp_path: Path, setup: str, inspection: str, expected: int
+) -> None:
+    findings = scan(
+        tmp_path / "target",
+        PREFIX + "import ipaddress\n" + setup + "@mcp.tool()\ndef fetch(url: str):\n"
+        "    parsed = urlparse(url)\n"
+        "    if parsed.scheme not in ('https', 'http'): raise ValueError()\n"
+        "    ip = ipaddress.ip_address(parsed.hostname)\n"
+        f"    {inspection}\n"
+        "    if not ip.is_global: raise ValueError()\n"
+        "    return requests.get(url)\n",
+    )
+    assert len(findings) == expected

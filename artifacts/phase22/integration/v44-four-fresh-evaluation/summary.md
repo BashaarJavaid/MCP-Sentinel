@@ -1,0 +1,49 @@
+# Four-repository first-frozen evaluation result
+
+**All 24 observations complete and all 12 entire ordered report pairs agree. All four fresh repository gates fail. Phase 22 remains incomplete.**
+
+The user's exact “approved.” decision binds the [delivered proposal](../v43-four-fresh-preparation/evaluation-proposal.json), SHA-256 `f14463b709be246621cf82c08d01978dafea72bc0c1defb5f6044de53ed1d983`, at preparation delivery `84f89a7308ffdf209981f1791e3fa06f16bf3c18`. [Authorization](../v43-four-fresh-preparation/evaluation-authorization.json) and four per-manifest receipts bind one serial local macOS sequence, frozen scanner `2e0efb268b733a14d7eca87555fdd87f134ba78c`, source SHA-256 `0eac8832012e213744d752c6c33a0ba6a2e378f6230e273030f5043f00cf6ebb`, unchanged harness/lock, twelve original vulnerable/fixed/safe records twice. Approval did not include technical acceptance.
+
+| Repository / actual language | Named vulnerable hits per pass | Matching fixed/safe alerts per pass | Actual named sink / fixed guard support | Repeats | Gate |
+| --- | --- | --- | --- | --- | --- |
+| Wolfe-Jam/faf-mcp / TypeScript | 0/1 | 0/2 | No tool surfaces; named read and fixed guard unsupported | 3/3 equal | Fail |
+| RobertBergman/no-bash-mcp / TypeScript | 1/1 | 2/2 | Actual overwrite found; fixed guard recognition fails; unnamed dispatch unresolved | 3/3 equal | Fail |
+| refined-element/lightning-enable-mcp Python member / Python | 0/1 | 0/2 | Tool recognized; actual HTTPX client.get unresolved; fixed guard support unestablished | 3/3 equal | Fail |
+| petersimmons1972/engram / Python | 0/1 | 0/2 | Tool recognized; actual manifest write and local Path unresolved | 3/3 equal | Fail |
+
+Every repository completed 6/6 observations. **None of the eight fixed/safe input records establishes supported, correctly guarded discrimination.** Quiet negatives in FAF, Lightning and Engram do not count as successful discrimination. Four repositories are four narrow conditions, not 24 independent discoveries or population accuracy. All complete archives, configurations, illustrative caller values, prerequisites and frozen labels remain unchanged. Safe records use their fixed tree; static analysis is not specialized by the illustrative caller value. Eight format-required mutations and all prior manifest records remain unexecuted in this scope.
+
+| Input | First whole / native seconds | Repeat whole / native seconds | Matching keys first / repeat | Ordered pair |
+| --- | --- | --- | --- | --- |
+| `faf-read-root-vulnerable` | 48.130 / 42.089 | 51.378 / 45.063 | 0 / 0 | Equal |
+| `faf-read-root-fixed` | 46.960 / 40.761 | 47.770 / 40.144 | 0 / 0 | Equal |
+| `faf-read-root-safe` | 47.534 / 40.671 | 43.188 / 37.852 | 0 / 0 | Equal |
+| `no-bash-write-prefix-vulnerable` | 8.828 / 4.191 | 7.645 / 3.911 | 1 / 1 | Equal |
+| `no-bash-write-prefix-fixed` | 9.931 / 5.800 | 7.995 / 4.529 | 1 / 1 | Equal |
+| `no-bash-write-prefix-safe` | 8.905 / 4.953 | 7.793 / 4.496 | 1 / 1 | Equal |
+| `lightning-discover-linklocal-vulnerable` | 10.773 / 6.811 | 8.117 / 4.740 | 0 / 0 | Equal |
+| `lightning-discover-linklocal-fixed` | 11.389 / 7.097 | 8.488 / 4.864 | 0 / 0 | Equal |
+| `lightning-discover-linklocal-safe` | 10.522 / 6.163 | 8.662 / 5.091 | 0 / 0 | Equal |
+| `engram-export-home-vulnerable` | 7.282 / 4.422 | 5.939 / 3.555 | 0 / 0 | Equal |
+| `engram-export-home-fixed` | 7.206 / 4.575 | 5.813 / 3.476 | 0 / 0 | Equal |
+| `engram-export-home-safe` | 6.878 / 4.139 | 5.881 / 3.550 | 0 / 0 | Equal |
+
+All **24/24 observations meet the 120-second target**, with zero extended allowances. Maximum whole input is **51.378262 seconds**, native **45.063 seconds**; the serial sequence took **455.321356 seconds** (7 minutes 35 seconds), within 150 minutes. [Validation](validation.json) checks exact identities, native/SARIF schemas, 300-second whole/native limits, cleanup and all ordered reports after only the established eleven volatile exclusions. **One sequence and 24 observations consumed; zero budget remains.** Zero retries, profiles, comparators, replacements, target executions, dependency installations or paid calls. No owned evaluation work remains.
+
+The [source assessments](assessment.json) bind all **236 findings, 46,486 diagnostic occurrences and 270 surfaces** to exact reports and retained source. There are 4,314 unique source contexts; repeated occurrences share explicit source judgments. Unresolved operations remain unresolved. Recognized surfaces do not imply complete sink coverage, and native reports have no positive per-sink guard trace. FAF has zero surfaces; no-bash has one unnamed unresolved dispatch per report; Lightning and Engram recognize 26 and 18 tool surfaces respectively. Total possible surfaces remains unknown; no coverage percentage is inferred.
+
+No-bash's actual overwrite candidate binds caller, helper and write, but its vulnerable “after-prefix” wording is imprecise: sibling-prefix bypass needs no further path derivation. The report still asserts containment failure and requests component-aware checking, so the candidate is counted with that explanation defect disclosed. Its fixed separator-prefix-or-root guard returns a checked value, yet all four fixed/safe occurrences falsely assert missing containment. Other raw findings remain separately adjudicated: a vulnerable Git shell concern; ordinary ESM project-script/read reachability false positives; a fixed Git `-m` operand false positive; and other filesystem candidates outside the overwrite condition.
+
+Lightning's validation alerts are conditional false positives under ordinary compatible SDK schema validation; its manifest parsing findings do not establish actual tool registration, including mocked test data. Engram's related markdown/directory/README findings remain visible but cannot substitute for the frozen `manifest_path.write_text` sink. Source prerequisites retain PostgreSQL/NullEmbedder and stable filesystem assumptions. No upstream tests or runtime services ran.
+
+[Source diagnosis](source-diagnosis.json) identifies FAF's imported class startup/discovery gap, Lightning's optional HTTPX import identity loss, Engram's function-local pathlib identity gap, and no-bash's failed compound path-guard propagation. The exact no-bash loss point and downstream support after any repair remain to be localized with synthetic controls. **No scanner correction has been made and no failed measurement has been relabeled.** The [focused recovery proposal](recovery-proposal.json) requests a source-only correction/engineering stage for these four gaps, followed by a separate exact exposed-regression/affected-compatibility proposal. It authorizes no new observation, paid call, target execution, comparator, profile or replacement. A documented failed-gate scope decision is an explicit alternative requiring the user's decision; none is accepted now.
+
+The [full audit](audit.json) retains all **89 original and 115 earlier added requirements**, plus all ten preparation rows, and adds six result/decision/delivery rows. Original dispositions remain 84 passed, two user-deferred, two proposed documented limitations and one unresolved human acceptance. The six older proposed failed-attempt closures remain awaiting decision. Execution and assessment requirements pass; the four-repository result and recovery decision remain unresolved. Technical acceptance readiness is false until the actual failed gate is explicitly handled. Subsequent human acceptance and verified closeout remain separate.
+
+All **301 engineering inputs** still equal tested `2e0efb2`; retained local and all twelve hosted suites pass **2,317 tests / 36 skips**, local branch coverage **89.915%**, all **29 normal jobs** in CI `34712751779` and docs `34712751789`. This continuation adds report/source validation and affected docs/package checks, not a new hosted code pass. Six zero-call production replays and existing Git image/runtime bindings remain compatible.
+
+Historical evidence remains unchanged: exposed TypeScript 94/94 and 47 repeats at `2e0efb2`; Python 87 measured at `8c62567`; whole 25 development reuse and 45+45 historical Linux evidence at `1f3f72f`, with the Meta operator erratum. Language subsets are not pooled into a new whole batch. Memorykeeper's original fixed/control false alerts, DDG's initially unsupported fixed send and frozen manifest TypeScript-label error despite actual Python configuration, Lighthouse's original misses, all earlier failed optimizations/stops and their later exposed corrections remain source-bound. Original holdout stays ten completed, ten unsupported and five incomplete, zero hits among four completed vulnerable inputs out of ten vulnerable inputs total. The historical 70-warning backlog remains separate.
+
+Novelty remains relative to recorded project source exposure: nine prior manifests, 104 effective trees and 2,910 retained archives were checked before any scan. Same-owner FAF catalog references and Engram's fork ancestry are disclosed. FAF's actual fix/tag discrepancy and no-bash's MIT declarations without a standalone/full grant text remain visible. Same-agent curation/review is not independent human validation or training-data novelty. These results establish neither broad accuracy nor runtime safety.
+
+Git campaigns remain **312/1,040 incomplete**, with 728 attempts deferred. Paid benchmark and pilots remain user-deferred/nonblocking; Phase 21 remains incomplete and Phase 24/15 gates are unchanged. Historical Phase 22 paid cost remains **$0.071799**; this continuation adds **$0**. No merge, ready-state change, release, outreach or Phase 23 is authorized. After an actual recovery/disposition decision, continue through a separately delivered technical acceptance packet and explicit acceptance, then verified closeout to draft PR #37.

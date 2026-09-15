@@ -1,0 +1,63 @@
+{
+  "recorded_at": "2026-09-11T07:13:55.108114+00:00",
+  "delivery_parent": "61b19aeb56e087ebfeb52a7865aea50deb35e4bd",
+  "tested_source": "61b19aeb56e087ebfeb52a7865aea50deb35e4bd",
+  "remote_before": {
+    "baseRefName": "phase22/description-poisoning",
+    "body": "The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,\nrun **34555414891**, **does not pass**. It consumed\n**62/115 native observations**: **40** completed within\nthe 120-second target and **22** used extended time within the uniform\n300-second native/whole-input maximum. Raw durations, cleanup, reports, condition\nscores and source-assessed deltas are retained in `v21-sequence-assessment/` and\n`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,\nsource tuning, target execution or paid call occurred.\n\nDevelopment passes **25/25**. All **37 attempted** historical inputs also complete within\n300 seconds; there are **zero timeouts among 62 attempts**. The run stops on\n`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and\nthe current scanner produces 25. Source review confirms the added `kubectl_logs`\ncronjob command-injection suspicion is separate from the named `kubectl_get`\ncondition, whose existing hit remains. Post-run source review records **19/19**\nobserved vulnerable condition hits and **0 matching alerts on 18 observed** negatives.\nThe original gate stays failed, **8 inputs** in the first historical batch remain\nunstarted, and the entire 45-input repeat is skipped. All **53 unused** observations\nare closed; these are not timeout failures or permission to resume.\n\nThe next exact proposal is **unapproved**:\n`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native\nobservations**, two dispatches: 8 preparatory inputs to freeze complete source-bound\nassessments, then two **whole 45-input historical batches**. It explicitly asks\nto reuse the already passed whole 25-input development batch at identical `1f3f72f`\nbytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The\nlimits remain 300 seconds per whole input and 120 seconds as the target, with\n60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and\nno detector/label change. A failing or unresolved preparatory condition closes\nthe 90-run final budget. Strict identity and ordered-repeat checks remain in the\nfinal pair. See the disposition for exact source evidence and timing.\n\nThis is a completion result under the approved timing policy, not a speedup.\nThe original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts\nat 120 seconds and both historical batches skipped**. Scanner/test/package bytes\nremain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one\nof 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**\npasses. Prior local coverage, six zero-call production replays and Git runtime\ncompatibility retain their exact source bindings. Git campaigns remain incomplete;\nall three exposed SSRF families retain their passing regressions at `2ac39aa`.\n\nA later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in\n`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source\npair was curated after the scanner freeze, without running a detector/comparator.\nThe proposal permits **10 native and 5 Semgrep observations** in one standard\nLinux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job\nlimit and zero paid calls. Source exposure and correlated variants are disclosed;\nthere is no independent human or unseen-source review claim.\n\nAll 89 original requirements are **72 passed, 2 user-deferred,\n15 unresolved**. **Phase 22 remains incomplete** pending the\nremaining gates and explicit final human acceptance. The original held-out result\nremains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed\nvulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain\ndeferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.\n\n[Sequence assessment](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v21-sequence-assessment/packet.json), [audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v21-closeout-audit/packet.json), [historical refresh proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v21-historical-assessment-refresh-proposal.json), [later fresh proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/corpus-replacement-v4/README.md), [evidence1\u201350](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).\n\nFinal docs/evidence delivery uses authorized CI skip after proving code/test/workflow/package inputs equal tested e7131f0; it is not a new hosted code pass.\n",
+    "headRefName": "phase22/integration",
+    "headRefOid": "61b19aeb56e087ebfeb52a7865aea50deb35e4bd",
+    "isDraft": true,
+    "number": 37,
+    "state": "OPEN",
+    "title": "Integrate Phase 22 detection, compatibility and bounded probe campaigns"
+  },
+  "parent_before": {
+    "headRefName": "phase22/description-poisoning",
+    "headRefOid": "8b6b0ddf1d6f6cf5a8da3ab9421471865b801455"
+  },
+  "tested_inputs_identical_to_candidate": [
+    "src",
+    "tests",
+    "scripts",
+    ".github",
+    "schemas",
+    "Makefile",
+    "pyproject.toml",
+    "uv.lock",
+    "action.yml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md",
+    ".pre-commit-hooks.yaml",
+    ".python-version",
+    ".gitattributes",
+    "demo",
+    "sentinel.toml"
+  ],
+  "documents": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "ROADMAP.md",
+    "docs/rules.md",
+    "docs/phase22-technical.md",
+    "docs/phase22-implementation-status.md",
+    "docs/phase22-ssrf-follow-up.md",
+    "artifacts/phase22/integration/requirements.md",
+    "artifacts/phase22/integration/README.md",
+    "artifacts/phase22/integration/progress.md",
+    "artifacts/phase22/corpus-replacement-v3/README.md",
+    "docs/phase22-corpus-review.md",
+    "docs/phase22-timeout-policy.md",
+    "README.md"
+  ],
+  "binding_sha256": "a4f7de654ceb2245dcedd09212b12422bcf704efc7d7e2a61ee51428069162e0",
+  "raw_docs_patch_sha256": "a28e0b958da6567fb4a02ff6935b3074d4aa545b0225ed3ba1ed780af9c3f520",
+  "archive_sha256": "f807e90d33215b8956b11c527eab0c516e1a368326a6dbe72920549988dd58b3",
+  "scope_amendment_approved": true,
+  "new_corpus_runs": 98,
+  "new_paid_calls": 0,
+  "phase22_complete": false,
+  "delivery_binding": "Binds verified pre-commit tree. Resulting commit and remote readback are a supplemental local receipt; no self-referential hash."
+}

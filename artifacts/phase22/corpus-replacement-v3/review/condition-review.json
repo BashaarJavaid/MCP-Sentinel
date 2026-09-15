@@ -1,0 +1,51 @@
+{
+  "reviewer": "Implementation agent after freezing scanner 7555a9d. No independent human or unseen-source review is claimed.",
+  "freeze": {
+    "path": "artifacts/phase22/integration/v9-scanner-freeze-before-curation.json",
+    "sha256": "dfb3316ff5a189d97e8f4ab65c7c5bb10190a65ca9f650c91e523c4afee3c2e5"
+  },
+  "scanner_identity": {
+    "revision": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+    "source_sha256": "b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "condition": "The registered web_url_read tool rejects a caller-supplied http://127.0.0.1/ URL before the initial outbound request when private reads have not been opted into",
+  "prerequisites": [
+    "Run the normal upstream CLI over stdio with MCP_HTTP_PORT, MCP_HTTP_HARDEN and MCP_HTTP_ALLOW_PRIVATE_URLS unset. This is a source-only evaluation; no CLI or target code is executed.",
+    "Call web_url_read with url=http://127.0.0.1/ and optional pagination fields omitted, on a fresh server or empty URL cache. The ordinary source entrypoint creates the MCP server and registers CallToolRequestSchema; the string type guard accepts this input.",
+    "No global or URL_READER HTTP/HTTPS proxy configuration, custom dispatcher, monkeypatch or external service override. Source locks @modelcontextprotocol/sdk 1.29.0 and undici 7.24.6; dependencies are retained as source, not installed.",
+    "The scored condition is initial IPv4-loopback rejection before invoking the outbound fetch. DNS/rebinding, redirects, IPv6, HTTP transport authentication, remote availability, HTML conversion and successful exfiltration are outside this label."
+  ],
+  "flow": "Normal main -> createMcpServer -> mcpServer.server.setRequestHandler(CallToolRequestSchema) -> request.params.arguments -> enforced isWebUrlReadArgs -> imported fetchAndConvertToMarkdown -> empty cache -> new URL(url) -> local policy with source default config -> imported undiciFetch cast -> outbound request.",
+  "difference_from_exposed": "Independent SearXNG repository; factory-created low-level server and structural argument type guard, module configuration controlling a local policy, and casted imported undici fetch. No fetch-mcp private static Fetcher/schema.parse chain and no open-webSearch default-service construction. The initial IPv4 condition remains narrow and shares the general SSRF family.",
+  "source_judgment": "Source establishes a default-disabled guard, not absence of a named validator. Fixed rejection is before request/response work. The original and fixed variants are correlated; they are not two independently discovered vulnerabilities.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v3/mutations/vulnerable-local-policy-rename.tar.gz",
+        "sha256": "395e7df435ccebc250ac71c56680aa772ac48bf9bda4a08dbe06b2b852198f08"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "2e3c05059ece3d7dee7a128138f752b9f1a831a61bd712d8a6d8ab2dcd8addfc",
+      "mutated_tree_sha256": "a8eccb58ceb788395cc04acb9b2d8161418a237ef381a8f176fd4b9df6218af2"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v3/mutations/fixed-local-policy-rename.tar.gz",
+        "sha256": "aaf2cb8b46ac62ec51dcdf07d925859104a4c1d8b24515a47e3ef6e43381d729"
+      },
+      "identifier_occurrences": 3,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "c6d7163c697bbdf3d716761bb40f4c026b71485f0830ca018e8e8b2aee023848",
+      "mutated_tree_sha256": "a1af485dabce1f9a53d70b3d877b4313630fb8c067296a409480e1b764d7c31c"
+    }
+  ],
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "detector_tuning_after_curation": false,
+  "target_execution": false,
+  "model_calls": 0
+}

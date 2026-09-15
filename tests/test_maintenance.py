@@ -150,17 +150,26 @@ def test_public_surfaces_reject_unscoped_legacy_branding() -> None:
 
 
 @pytest.mark.parametrize(
-    ("interfaces", "routes", "accepted"),
+    ("interfaces", "routes", "flags", "ipv6_routes", "accepted"),
     (
-        ("lo: 0", "", True),
-        ("lo: 0", "Iface Destination\n\n", True),
-        ("lo: 0", "Iface Destination\nlo 00000000\n", True),
-        ("eth0: 0", "Iface Destination\n", False),
-        ("lo: 0", "Iface Destination\neth0 00000000\n", False),
+        ("lo: 0", "", "0x1", "", True),
+        ("lo: 0", "Iface Destination\n\n", "0x1", "", True),
+        ("lo: 0", "Iface Destination\nlo 00000000\n", "0x1", "", True),
+        ("eth0: 0", "Iface Destination\n", "0x1", "", False),
+        ("lo: 0", "Iface Destination\neth0 00000000\n", "0x1", "", False),
+        ("lo: 0\ngre0: 0", "Iface Destination\n", "0x80", "", True),
+        ("lo: 0", "Iface Destination\n", "0x1", "0000 00 lo\n", True),
+        ("lo: 0", "Iface Destination\n", "0x1", "0000 00 eth0\n", False),
+        ("eth0: 0", "Iface Destination\neth0 00000000\n", "0x0", "", False),
     ),
 )
 def test_offline_gate_checks_network_state_not_route_file_length(
-    monkeypatch: pytest.MonkeyPatch, interfaces: str, routes: str, accepted: bool
+    monkeypatch: pytest.MonkeyPatch,
+    interfaces: str,
+    routes: str,
+    flags: str,
+    ipv6_routes: str,
+    accepted: bool,
 ) -> None:
     from scripts import smoke_wheel
 
@@ -169,7 +178,12 @@ def test_offline_gate_checks_network_state_not_route_file_length(
     monkeypatch.setattr(smoke_wheel, "_check_rules_only_scans", scans.append)
 
     def read_text(path: Path, *args: object, **kwargs: object) -> str:
-        return "header\nheader\n" + interfaces if path.name == "dev" else routes
+        return {
+            "dev": "header\nheader\n" + interfaces,
+            "route": routes,
+            "ipv6_route": ipv6_routes,
+            "flags": flags,
+        }[path.name]
 
     monkeypatch.setattr(Path, "read_text", read_text)
     if accepted:

@@ -1,0 +1,230 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-13T23:52:52.870770+00:00",
+  "starting_delivery": "777c7526f18733b7ca4b49e3caf690f02d25adf6",
+  "scanner": {
+    "revision": "7bf4c6e1cf0c8d83229b1273f80737e7cacc5b82",
+    "source_sha256": "40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "profile_assessment_sha256": "34b6c8a970372bd4f712d6fcebc83f9b30252e6f607a1d8abca9e66743ee0e22",
+  "source_assessment_sha256": "01c29976337141552b9d082178afb01883ffbfe6234874ba57e31fd5349d15ec",
+  "target": "Reuse one completed TypeScript MCP tool-discovery result within the existing source context and across its existing rule workers.",
+  "target_files": [
+    "src/sentinel/static/typescript_discovery.py",
+    "src/sentinel/static/model.py",
+    "src/sentinel/static/workers.py"
+  ],
+  "source_files_sha256": {
+    "src/sentinel/static/typescript_discovery.py": "5e58ee0d249fe446ef943dc4fa280ba00ca3b27ca2996b0e3ae3ed4a7a6d1ae7",
+    "src/sentinel/static/typescript_registration_flow.py": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+    "src/sentinel/static/model.py": "0e982d3b14b0e12d20ed150e5a6ef5ce0fb3f98fcacd5b1fcedb945391cb327b",
+    "src/sentinel/static/workers.py": "cc97d0b9bb3fae9f2c8205162137e0ae0ae2fd164d681ec24e27c0a4140b113c",
+    "src/sentinel/static/typescript_modules.py": "c3a151781808f6b59c17637a760a41bcae4114efd864f2726685834bce811926",
+    "src/sentinel/static/typescript_path_flow.py": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+    "src/sentinel/static/coverage.py": "1608202fa6cc681caf806e8c5a1e92c1acc8f4e5348e6d8f75de4cba471b1cfc",
+    "tests/test_static_workers.py": "8206e73a45f16b655f5683e59dd465578042d8e3c611895043fcf67e0e69a906",
+    "tests/test_typescript_discovery.py": "ca8dedf04095d9b45f03f3391a2411ec654c1b29bc1c9fb8110c627fc38e7b6f",
+    "tests/test_typescript_classes.py": "1f3df66a5522b36ce5e8d743108dd23edeea9cad8575882ac0b3f5d768495e64"
+  },
+  "purpose": "Remove repeated identical registration discovery before rule-specific analysis and later parent coverage. The sampled factory traversal is expensive in all four verified workers. This is source-established duplicate work, not a measured achievable speedup or a promise of 30-minute completion.",
+  "proposed_change": "One source-only reuse implementation: retain a successfully completed ordered tools() result for one immutable TypeScriptProgram, and provide it together with its discovery warning effects to the existing large-input workers through the SAME private pickle graph as the parsed trees and files. Reuse it for parent coverage. Preserve the tools() call contract and deadline check. Every rule-specific analysis, HTTP discovery and coverage interpretation still executes; no node, module, function, candidate or diagnostic is skipped.",
+  "identity_and_warning_contract": "Serialized tool symbols must reference the same reloaded nodes and files as the worker trees; reconstruct identity-keyed program indexes from those reloaded objects. Do not copy old integer id() keys. Bind reuse only to the current immutable source/configuration context, with no process-global or cross-scan cache. Reproduce ordered discovery warnings at their original consumption point, including module-option-cache effects, pre-existing warnings and repeated-call deduplication. Empty completed results are reusable; incomplete/failed/interrupted results never are.",
+  "implementation_limit": "Use existing cached-property/private-IPC patterns. Only the TypeScript discovery result and its required warning/state effects are reused. No additional HTTP-result cache, general interpreter memoization, new dependency, pruning, worker-count change, new resources or timeout revision. If full ordered equivalence or source-node identity cannot be preserved within this one attempt, stop and close it; do not switch to another optimization.",
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Preserve exact 7bf4c6e source before editing. Trace all tools() callers and program/Module warning and option-cache effects; preserve complete source-node aliases through a single IPC graph and rebuild identity indexes.",
+    "Extend existing synthetic TypeScript discovery and worker serial/parallel equivalence checks. Compare all ordered binding fields, factory/SDK registrations, file/source ranges, node/file alias identities, complete rule state, warnings, unresolved flows, coverage/surfaces and final reports. Cover constructors and saved setters, imported aliases/workspace exports, unsupported/rebound registrations, empty discovery, repeated calls and pre-existing/module warnings. Use fresh contexts and a pickle round trip; identical-looking different source/configuration contexts must not share results.",
+    "Synthetic call accounting must show one producer discovery reused by the existing four workers and coverage in the eligible path, while rule-specific detectors still run fully. Preserve small-input, selected-rule, Python-only and mixed-language behavior. No timing or source-corpus observation is part of this check.",
+    "Check deadline expiration before reuse and during production, failed/incomplete producer behavior, existing scanner-owned IPC validation, target-import prohibition and all owned-process cleanup paths. Never cache a partial result as completed.",
+    "If the one attempt passes complete equivalence and avoided-work checks, complete affected/full local and hosted engineering under section 7: strict types/lint/format, schemas/lock/notices/advisories/offline artifacts, docs/packages/installed wheels, Docker/isolation/Action/hooks and production/runtime compatibility with zero paid calls. Freeze the actual tested source and prepare a separately approved current-source regression. No corpus/profile execution follows from this source-only approval."
+  ],
+  "profile_metrics": [
+    {
+      "rule": "SENT-012",
+      "samples": 108817,
+      "snapshot_worker_cpu_seconds": 1287.040558,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108743,
+      "registration_inclusive_percent": 99.9319959197552,
+      "merge_inclusive_percent": 29.872170708620892,
+      "maximum_observed_depth": 195,
+      "leaf_samples": {
+        "json_encoder": 4736,
+        "merge_equal_predicate": 7033,
+        "combine_entry": 6010
+      },
+      "leaf_percent": {
+        "json_encoder": 4.35226113566814,
+        "merge_equal_predicate": 6.463144545429482,
+        "combine_entry": 5.5230340847477875
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2706
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1613
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 417
+        }
+      ]
+    },
+    {
+      "rule": "SENT-014",
+      "samples": 106531,
+      "snapshot_worker_cpu_seconds": 1260.195426,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 106459,
+      "registration_inclusive_percent": 99.93241403910599,
+      "merge_inclusive_percent": 29.497517154631048,
+      "maximum_observed_depth": 196,
+      "leaf_samples": {
+        "json_encoder": 4663,
+        "combine_entry": 5918,
+        "merge_equal_predicate": 6794
+      },
+      "leaf_percent": {
+        "json_encoder": 4.3771296617885875,
+        "combine_entry": 5.55519050792727,
+        "merge_equal_predicate": 6.377486365471084
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2690
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1623
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 350
+        }
+      ]
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 108677,
+      "snapshot_worker_cpu_seconds": 1285.183914,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108604,
+      "registration_inclusive_percent": 99.93282847336603,
+      "merge_inclusive_percent": 29.27666387552104,
+      "maximum_observed_depth": 199,
+      "leaf_samples": {
+        "json_encoder": 4663,
+        "merge_equal_predicate": 6599,
+        "combine_entry": 6077
+      },
+      "leaf_percent": {
+        "json_encoder": 4.290696283482245,
+        "merge_equal_predicate": 6.072121976131104,
+        "combine_entry": 5.591799552803261
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2697
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1563
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 403
+        }
+      ]
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 108731,
+      "snapshot_worker_cpu_seconds": 1278.389948,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108657,
+      "registration_inclusive_percent": 99.93194213241854,
+      "merge_inclusive_percent": 29.847053738124362,
+      "maximum_observed_depth": 198,
+      "leaf_samples": {
+        "merge_equal_predicate": 6622,
+        "json_encoder": 4658,
+        "combine_entry": 6267
+      },
+      "leaf_percent": {
+        "merge_equal_predicate": 6.0902594476276315,
+        "json_encoder": 4.283966853979086,
+        "combine_entry": 5.763765623419264
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2667
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1582
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 409
+        }
+      ]
+    }
+  ],
+  "uncertainty": "Sampling does not establish total invocation counts, the single-producer completion time, or the later rule-specific/HTTP/coverage costs. Concurrent worker CPU shares overlap and include sampling effects. Removing repeated discovery may expose another bottleneck or still fail at 1800 seconds. No savings percentage or completion guarantee is claimed.",
+  "retention": "The approved v61 profile budget and every earlier native/profile/optimization budget remain closed. Original fresh four gates, singleton failures, invalid v50 profile and all prior source-bound results remain unchanged. The 1800-second product policy remains retained.",
+  "not_authorized": [
+    "another source-only optimization target or attempt",
+    "any corpus/profile/retry/comparator execution",
+    "new dependency/resource/parallelism/deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase 23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

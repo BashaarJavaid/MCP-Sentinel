@@ -1,0 +1,155 @@
+[
+  {
+    "id": "faf-read-root",
+    "archive_label": "faf",
+    "repository": "Wolfe-Jam/faf-mcp",
+    "language": "typescript",
+    "rule_id": "SENT-012",
+    "scan_root": ".",
+    "licenses": [
+      "LICENSE"
+    ],
+    "tool": "faf_read",
+    "argument": "path",
+    "outside": "/srv/faf-outside/fixture.txt",
+    "inside": "/srv/faf-project/fixture.txt",
+    "operator_root": "/srv/faf-project",
+    "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+    "flow": "package bin dist/src/index.js -> new FafMcpServer -> official Server.setRequestHandler(CallToolRequestSchema) -> FafToolHandler.callTool -> fileHandlers.faf_read -> handleFafRead. Vulnerable PathValidator rejects selected system prefixes and normalized '..' only; the absolute outside path passes. Fixed confineFileOp -> confinePath with requireFafFile=false and fileOpRoots -> allowedRoots from operator FAF_ALLOWED_ROOTS -> canonicalized roots and withinRoots component-bounded some() check -> throws PathConfinementError caught as an error return, otherwise returns resolved to filePath -> Promise.race includes fs.readFile(filePath, 'utf8').",
+    "prerequisites": [
+      "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+      "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+      "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+    ],
+    "evidence_files": [
+      "src/index.ts",
+      "src/server.ts",
+      "src/handlers/tools.ts",
+      "src/handlers/fileHandler.ts",
+      "src/handlers/engine-adapter.ts",
+      "src/utils/safe-path.ts",
+      "package.json",
+      "tsconfig.json"
+    ],
+    "mutation_file": "src/handlers/fileHandler.ts",
+    "mutation_start": "export async function handleFafRead(",
+    "mutation_end": "export async function handleFafWrite(",
+    "mutation_identifier": "startTime",
+    "mutation_replacement": "phase22StartTime",
+    "provenance_notes": "Actual fix ae4a501 has package version 2.1.2; the v2.1.3 tag points to a later changelog commit. The advisory/release chronology and exact direct-parent pair are retained. Prior archive README catalog links name Wolfe-Jam/claude-faf-mcp, a distinct repository ID, not faf-mcp; no source from that repository was part of a prior selected input. Same-owner relationship disclosed, not hidden."
+  },
+  {
+    "id": "no-bash-write-prefix",
+    "archive_label": "no-bash",
+    "repository": "RobertBergman/no-bash-mcp",
+    "language": "typescript",
+    "rule_id": "SENT-012",
+    "scan_root": ".",
+    "licenses": [
+      "README.md",
+      "package.json"
+    ],
+    "tool": "write_file",
+    "argument": "path",
+    "outside": "/srv/no-bash-project-archive/fixture.txt",
+    "inside": "/srv/no-bash-project/fixture.txt",
+    "operator_root": "/srv/no-bash-project",
+    "condition": "write_file caller path must not reach fs.writeFileSync in the sibling directory /srv/no-bash-project-archive outside operator WORKSPACE_ROOT=/srv/no-bash-project.",
+    "flow": "src/index.ts official Server.setRequestHandler(CallToolRequestSchema) -> write_file Zod parse -> executeTool callback -> fileSystem.writeFile(path, config.WORKSPACE_ROOT, content, mode) -> resolveSafePath -> check validation.safe -> fs.writeFileSync(validation.absolutePath, content, 'utf8') in overwrite mode. Vulnerable path.resolve then raw startsWith(root) admits sibling-prefix paths. Fixed requires root + path.sep or exact root equality, returns safe=false for sibling; checked helper result prevents the write.",
+    "prerequisites": [
+      "Unmodified declared Node/TypeScript package stdio startup succeeds with compatible declared dependencies. WORKSPACE_ROOT=/srv/no-bash-project is set by the operator before startup, is an existing directory, and remains unchanged.",
+      "Caller supplies path=/srv/no-bash-project-archive/fixture.txt, content=phase22 fixture, mode=overwrite. Zod admits the string fields and explicit enum. Parent directories exist and are writable, file is writable or absent, no symlinks/races/NULs or custom fs hooks. The safe control uses /srv/no-bash-project/fixture.txt.",
+      "Only the initial workspace boundary for the actual writeFileSync is labeled. Later audit logging success, content correctness, append/create-only modes, network/git tools and symlink escape are separate. The read_file path was not selected: vulnerable validateFileSize uses require('fs') in native ESM and can return invalid before the read; no runtime shim is assumed."
+    ],
+    "evidence_files": [
+      "src/index.ts",
+      "src/fileSystem.ts",
+      "src/security.ts",
+      "src/audit.ts",
+      "package.json",
+      "tsconfig.json",
+      "README.md"
+    ],
+    "mutation_file": "src/fileSystem.ts",
+    "mutation_start": "export function writeFile(",
+    "mutation_end": "export function searchContent(",
+    "mutation_identifier": "validation",
+    "mutation_replacement": "phase22Validation",
+    "provenance_notes": "Both complete upstream trees retain README's MIT declaration and package.json license=MIT. Upstream has no standalone LICENSE or complete MIT grant text and GitHub reports license=null. No upstream license file is omitted and no fabricated license/copyright text is added. The fix changes other security and audit behavior; those full changes remain outside this single named condition."
+  },
+  {
+    "id": "lightning-discover-linklocal",
+    "archive_label": "lightning",
+    "repository": "refined-element/lightning-enable-mcp",
+    "language": "python",
+    "rule_id": "SENT-015",
+    "scan_root": "python/lightning-enable-mcp",
+    "licenses": [
+      "LICENSE",
+      "python/lightning-enable-mcp/LICENSE"
+    ],
+    "tool": "discover_api",
+    "argument": "url",
+    "outside": "http://169.254.169.254/fixture.json",
+    "inside": "http://93.184.216.34/fixture.json",
+    "condition": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+    "flow": "Python package entry point -> LightningEnableServer -> official self.server.call_tool handler -> name == discover_api -> imported discover_api(url=arguments.get('url')) -> explicit URL branch -> _fetch_and_format_manifest -> HTTPX AsyncClient -> _fetch_manifest strips trailing slash, .json branch -> _try_fetch -> await client.get(url). Fixed _fetch_and_format_manifest first awaits validate_url_allowed(url); urlsplit.hostname -> ipaddress.ip_address -> is_blocked_ip literal has is_link_local/is_private -> raises SsrfError -> caller returns before client creation/request. Actual fixed get remains present. Literal public control is permitted by this initial guard. Fixed redirects are surfaced, not followed.",
+    "prerequisites": [
+      "Select the actual Python member python/lightning-enable-mcp and its pyproject entry point, Python>=3.11 and declared official MCP SDK/httpx available under ordinary unmodified startup. The repository is mixed C#/Python; GitHub's dominant C# label is not the execution language.",
+      "Invoke discover_api with url=http://169.254.169.254/fixture.json, query/category absent, budget_aware=false. No wallet or API credentials/configuration are set. Service initialization returns without a wallet and discover_api is explicitly in the wallet-exempt producer_tools set. httpx import succeeds. Environment proxy variables are absent and normal request construction reaches client.get; no network access is performed in this evaluation.",
+      "Safe control substitutes initial literal public host 93.184.216.34. No hostname/DNS behavior, redirects, manifest response validity, registry mode, payments, authentication, successful connection or disclosure is claimed. The fixed helper explicitly documents its DNS rebinding window and allows resolution exceptions; neither becomes a claim of complete SSRF protection."
+    ],
+    "evidence_files": [
+      "python/lightning-enable-mcp/pyproject.toml",
+      "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+      "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+      "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/_ssrf_guard.py",
+      "python/lightning-enable-mcp/src/lightning_enable_mcp/config.py"
+    ],
+    "mutation_file": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+    "mutation_start": "async def _try_fetch(",
+    "mutation_end": "async def _fetch_manifest(",
+    "mutation_identifier": "response",
+    "mutation_replacement": "phase22_response",
+    "provenance_notes": "Full mixed-language archives retained, with both MIT licenses. Exact merge commit and first parent selected; no assertion that the dominant repository language or a tag establishes the selected Python behavior. Broader .NET, payment and redirect changes are retained without becoming additional discoveries."
+  },
+  {
+    "id": "engram-export-home",
+    "archive_label": "engram",
+    "repository": "petersimmons1972/engram",
+    "language": "python",
+    "rule_id": "SENT-012",
+    "scan_root": ".",
+    "licenses": [
+      "LICENSE"
+    ],
+    "tool": "memory_export_all",
+    "argument": "output_path",
+    "outside": "/home/operator-exports",
+    "inside": "/home/operator/exports",
+    "operator_root": "/home/operator",
+    "condition": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+    "flow": "pyproject entry point -> server.main -> genuine FastMCP mcp.run -> @mcp.tool memory_export_all(output_path). Vulnerable _get_engine('global') -> base_path=Path(output_path) -> export_dir=base_path / generated export name -> dump_all_projects creates output directory -> create_export_readme -> manifest_path=export_dir / 'manifest.json' -> manifest_path.write_text. Fixed resolves caller path and Path.home, requires resolved.relative_to(home), catches ValueError with return before engine/export. Later sink rebuilds Path(output_path); under stable cwd/environment and no symlink/race prerequisites this is the checked location, not a claim of value-identity tracking by the scanner.",
+    "prerequisites": [
+      "Ordinary unmodified Python package stdio startup with declared FastMCP and compatible dependencies succeeds. Operator home is /home/operator; stable cwd/environment. ENGRAM_EMBEDDER=none selects NullEmbedder. DATABASE_URL is operator-set for a healthy PostgreSQL database with the normal schema/connection privileges; create_database requires it in BOTH revisions. Database connection/migrations and _get_engine('global') complete under this source prerequisite. No database, target startup, network or model call is performed by this evaluation.",
+      "Caller output_path=/home/operator-exports, an existing writable directory outside home with no symlinks/races/permission denial or conflicting generated timestamp directory. Database is healthy with zero or valid exportable records; dump_all_projects and create_export_readme complete so manifest_path.write_text is reachable. Safe control uses /home/operator/exports with the same prerequisites.",
+      "The condition is this initial export write boundary only. Complete zip/archive behavior, all memory tools, confidentiality of exported data, database access controls and protection against path changes are not labeled. The fixed source resolves a path for checking but later reconstructs the original argument; source equivalence under stated prerequisites is distinguished from actual scanner guard recognition."
+    ],
+    "evidence_files": [
+      "src/engram/server.py",
+      "src/engram/markdown_io.py",
+      "src/engram/db.py",
+      "src/engram/embeddings.py",
+      "pyproject.toml",
+      "LICENSE",
+      "src/engram/db_postgres.py",
+      "src/engram/search.py"
+    ],
+    "mutation_file": "src/engram/server.py",
+    "mutation_start": "def memory_export_all(",
+    "mutation_end": "def memory_import_claudemd(",
+    "mutation_identifier": "export_dir_name",
+    "mutation_replacement": "phase22_export_dir_name",
+    "provenance_notes": "Selected upstream repository is a fork of ubidev/engram; both parent/source family identities are checked against prior project records and source fingerprints. The security fix is an upstream merge with its actual first parent. Fork status is disclosed; no claim of independent human authorship/review or training-data novelty."
+  }
+]

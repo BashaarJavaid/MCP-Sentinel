@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "status": "prepared_not_approved",
+  "recorded_at": "2026-09-10T16:20:34.887866+00:00",
+  "starting_scanner": {
+    "revision": "8a991500682c46c95fa3a4e4092cee1ee7f3b7d0",
+    "source_sha256": "519e706e349a1a0125746c787861a497cf4f6a273dde51d81e1e9ef2945558f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "retained_profile": {
+    "path": "artifacts/phase22/integration/v10-hosted-05309f9/artifacts/linux/phase22-linux-diagnostic/profile-meta-image-ssrf-vulnerable-1-workers/SENT-015.prof",
+    "sha256": "0fa2d507a1c078bd0fb40af29463cf19cf9a0d8bff44203143423d5bdabed2e5",
+    "replace_cost": [
+      {
+        "function": [
+          "/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/dataclasses.py",
+          1540,
+          "replace"
+        ],
+        "primitive_calls": 430980,
+        "total_calls": 430980,
+        "self_seconds": 4.369605968,
+        "cumulative_seconds": 9.371215840000001
+      }
+    ]
+  },
+  "expensive_operation": "Repeated construction of frozen 17-field Value objects through dataclasses.replace during expression/call interpretation and helper safety propagation. The retained SENT-015 worker profile has 430,980 calls, 4.37 seconds self and 9.371 seconds cumulative; these profiled times are not native gain.",
+  "source_examples": [
+    "path_flow.py keyword binding clears maybe_missing even when already false",
+    "path_flow.py helper return unions locations then replaces even if the union equals the existing locations",
+    "path_flow.py helper propagation reconstructs caller Values even when guard and location fields already match",
+    "sent015.py expression and call delegation reconstruct safety fields even when unchanged"
+  ],
+  "safe_strategy": "One bounded approach: identify no-op Value replacements at these existing call sites using a counter-only profile; guard the largest proven no-op sites with exact equality of every field being changed and return the existing frozen Value when all match. Keep ordinary dataclasses.replace otherwise. No helper-result cache, mutable-state/copy skipping, custom Value constructor, source/rule omission or traversal-limit change. Inspect all identity-sensitive consumers before adopting. If no material safe opportunity is measured, stop.",
+  "inputs": [
+    "meta-image-ssrf-vulnerable",
+    "meta-operator-fallback-fixed-mutation",
+    "atlassian-upload-fixed"
+  ],
+  "measurement_plan": "On a fixed baseline after the SearXNG correction, each of the three inputs twice natively, sequentially. Up to one instrumented worker-inclusive counter profile on each Meta input. One correction attempt, then each same input twice natively, preferably alternating input order. Compare complete ordered reports against baseline, excluding only established volatile fields; retain failures and warning order. No final exposed-family observations until both changes stabilize.",
+  "bounds": {
+    "maximum_optimization_attempts": 1,
+    "maximum_counter_profiles": 2,
+    "maximum_native_input_runs": 12,
+    "maximum_total_input_executions": 14,
+    "per_input_native_and_end_to_end_seconds": 120,
+    "maximum_nominal_input_seconds": 1680,
+    "new_hosted_dispatches": 0,
+    "full_benchmark_retries": 0,
+    "paid_calls": 0,
+    "target_execution": false
+  },
+  "environment": "Existing locked macOS Python 3.12.13 environment, active-worktree imports, Semgrep 1.176.0, unchanged native rules-only runner and worker selection, no overlapping owned heavy work. No Linux or isolated-host speed claim.",
+  "baseline_binding": "Record immutable baseline and candidate commits, scanner/harness/lock/input/config/environment hashes before each stage. SearXNG authorization is separate and unchanged.",
+  "stopping_condition": "Stop after one attempt or earlier if counters show no safe opportunity. Retain only if all complete ordered comparisons agree and repeated unprofiled wall/CPU results show improvement across the named inputs with reported variability; otherwise revert code, retain evidence and tests. Any incomplete observation remains incomplete. A further full standard Linux development/historical sequence requires a separate exact candidate approval.",
+  "existing_failed_gates_unchanged": "Linux 15/25 development and skipped historical pair remain failed; this experiment does not waive them. No final acceptance requested."
+}

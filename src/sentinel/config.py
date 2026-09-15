@@ -24,13 +24,14 @@ from pydantic import AliasChoices, Field, JsonValue, field_validator, model_vali
 from sentinel.errors import ConfigurationError, TargetError
 from sentinel.finding import ContractModel, FindingStatus, Severity
 from sentinel.permissions import load_permissions_manifest
+from sentinel.workspaces import WorkspaceLayout, discover_workspace
 
 if sys.version_info >= (3, 11):
     import tomllib
 else:  # pragma: no cover - exercised on the Python 3.10 CI job
     import tomli as tomllib
 
-SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 12))
+SUPPORTED_RULES = frozenset(f"SENT-{number:03d}" for number in range(1, 17))
 DEFAULT_IGNORES = (
     ".venv/",
     "venv/",
@@ -95,6 +96,7 @@ class EndpointMode(str, Enum):
 class TargetLanguage(str, Enum):
     PYTHON = "python"
     TYPESCRIPT = "typescript"
+    WORKSPACE = "workspace"
 
 
 class ScannerConfig(ContractModel):
@@ -194,6 +196,8 @@ class LlmConfig(ContractModel):
 
 
 class SandboxConfig(ContractModel):
+    max_probe_attempts: int = Field(default=24, ge=1)
+    campaign_timeout_seconds: int = Field(default=120, ge=1)
     allowed_registries: tuple[str, ...] = (
         "pypi.org",
         "files.pythonhosted.org",
@@ -399,6 +403,7 @@ class LoadedConfiguration(ContractModel):
     target: TargetConfig | None
     static_only: bool
     language: TargetLanguage = TargetLanguage.PYTHON
+    workspace: WorkspaceLayout | None = None
 
 
 ENV_OVERRIDES: dict[str, tuple[str, str]] = {
@@ -417,6 +422,8 @@ ENV_OVERRIDES: dict[str, tuple[str, str]] = {
     "SENTINEL_LLM_MAX_CONCURRENCY": ("llm", "max_concurrency"),
     "SENTINEL_LLM_CACHE_ENABLED": ("llm", "cache_enabled"),
     "SENTINEL_ALLOWED_REGISTRIES": ("sandbox", "allowed_registries"),
+    "SENTINEL_MAX_PROBE_ATTEMPTS": ("sandbox", "max_probe_attempts"),
+    "SENTINEL_CAMPAIGN_TIMEOUT_SECONDS": ("sandbox", "campaign_timeout_seconds"),
 }
 LIST_ENV_VARS = {
     "SENTINEL_RULES",
@@ -424,6 +431,8 @@ LIST_ENV_VARS = {
     "SENTINEL_ALLOWED_REGISTRIES",
 }
 INTEGER_ENV_VARS = {
+    "SENTINEL_MAX_PROBE_ATTEMPTS",
+    "SENTINEL_CAMPAIGN_TIMEOUT_SECONDS",
     "SENTINEL_MAX_FINDINGS",
     "SENTINEL_LLM_TIMEOUT_SECONDS",
     "SENTINEL_LLM_RETRIES",
@@ -438,6 +447,7 @@ def load_configuration(
     environ: Mapping[str, str] | None = None,
     cli_overrides: Mapping[str, Any] | None = None,
     llm_cli_overrides: Mapping[str, Any] | None = None,
+    sandbox_cli_overrides: Mapping[str, Any] | None = None,
     trust_llm_endpoint: bool = False,
     target_launch_cmd: str | None = None,
     static_only: bool = False,
@@ -467,13 +477,16 @@ def load_configuration(
         raise ConfigurationError(f"invalid scanner configuration: {error}") from error
     if rules_only:
         config_data.pop("llm", None)
+        config_data.pop("sandbox", None)
         environment = {
             key: value
             for key, value in environment.items()
             if not key.startswith("SENTINEL_LLM_")
             and key != "SENTINEL_TRUST_LLM_ENDPOINT"
+            and not (key in ENV_OVERRIDES and ENV_OVERRIDES[key][0] == "sandbox")
         }
         llm_cli_overrides = {}
+        sandbox_cli_overrides = {}
         trust_llm_endpoint = False
         project_base_url = None
         static_only = True
@@ -483,6 +496,16 @@ def load_configuration(
     merged = _apply_environment(merged, environment)
     merged = _apply_cli(merged, cli_overrides or {})
     merged = _apply_llm_cli(merged, llm_cli_overrides or {})
+    merged = _deep_merge(
+        merged,
+        {
+            "sandbox": {
+                key: value
+                for key, value in (sandbox_cli_overrides or {}).items()
+                if value is not None
+            }
+        },
+    )
     try:
         scanner = SentinelConfig.model_validate(merged)
     except Exception as error:
@@ -509,7 +532,15 @@ def load_configuration(
     if trust_enabled and not repository_compatible_url:
         raise ConfigurationError("LLM endpoint trust acknowledgment is unused")
 
-    language = _detect_target_language(scan_root, scanner.scanner.ignore_paths)
+    workspace = discover_workspace(scan_root)
+    language = _detect_target_language(
+        scan_root, scanner.scanner.ignore_paths, workspace
+    )
+    if workspace is not None and not static_only:
+        raise TargetError(
+            "workspace scans are static only; "
+            "select one Python package for dynamic analysis"
+        )
     if language is TargetLanguage.TYPESCRIPT and not static_only:
         raise TargetError(
             "TypeScript targets support static analysis only; "
@@ -557,6 +588,7 @@ def load_configuration(
         target=target,
         static_only=static_only,
         language=language,
+        workspace=workspace,
     )
 
 
@@ -941,9 +973,20 @@ def _validate_relative_text_path(value: str, label: str) -> str:
 
 
 def _detect_target_language(
-    root: Path, ignore_paths: tuple[str, ...]
+    root: Path, ignore_paths: tuple[str, ...], workspace: WorkspaceLayout | None = None
 ) -> TargetLanguage:
     from sentinel.static.traversal import has_included_source
+
+    if workspace is not None:
+        if any(
+            _python_package_roots(root / member)
+            or _typescript_dependency(root / member)
+            for member in workspace.members
+        ):
+            return TargetLanguage.WORKSPACE
+        raise TargetError(
+            "workspace has no accessible member declaring a supported MCP dependency"
+        )
 
     # Python classification historically depended on the declared dependency alone.
     python = bool(_python_package_roots(root))

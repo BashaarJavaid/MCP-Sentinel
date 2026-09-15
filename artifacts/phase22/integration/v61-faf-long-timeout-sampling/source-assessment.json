@@ -1,0 +1,344 @@
+{
+  "scanner": {
+    "revision": "7bf4c6e1cf0c8d83229b1273f80737e7cacc5b82",
+    "source_sha256": "40c194dcd47a152f78c9b9dc57b40e5e77026f6052035841c0af63b83f234af6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "source_context": {
+    "src/sentinel/static/workers.py": {
+      "sha256": "cc97d0b9bb3fae9f2c8205162137e0ae0ae2fd164d681ec24e27c0a4140b113c",
+      "definitions": [
+        {
+          "name": "run_flow_rules",
+          "line": 23,
+          "end_line": 111,
+          "source": "def run_flow_rules(\n    context: StaticContext, selected: tuple[str, ...]\n) -> dict[str, RuleRunState]:\n    from sentinel.errors import InfrastructureError, SentinelError\n    from sentinel.static.execution import check_deadline\n    from sentinel.static.model import RuleRunState\n\n    rules = tuple(rule for rule in selected if rule in FLOW_RULES)\n    # ponytail: four workers only for large inputs; small scans avoid spawn cost.\n    if (\n        len(rules) < 2\n        or (os.cpu_count() or 1) < 2\n        or sum(len(file.source) for file in context.files.python_files)\n        + sum(len(file.source) for file in context.files.typescript_files)\n        < MIN_SOURCE_SIZE\n    ):\n        return {}\n    # Parse once in the parent. Workers rebuild identity-keyed indexes, and their\n    # rule traversals launch no subprocesses, so each worker can be reaped directly.\n    trees = context.typescript_program.trees if context.files.typescript_files else {}\n    check_deadline(context.deadline)\n    processes: dict[str, subprocess.Popen[bytes]] = {}\n    states = {}\n    try:\n        with (\n            TemporaryDirectory(prefix=\"sentinel-static-\") as directory,\n            ExitStack() as stack,\n        ):\n            root = Path(directory)\n            source = root / \"input.pickle\"\n            source.write_bytes(\n                pickle.dumps(\n                    (context.configuration, context.files, context.deadline, trees)\n                )\n            )\n            try:\n                for rule in rules:\n                    check_deadline(context.deadline)\n                    log = stack.enter_context((root / f\"{rule}.log\").open(\"wb\"))\n                    processes[rule] = subprocess.Popen(\n                        [\n                            sys.executable,\n                            \"-I\",\n                            str(WORKER),\n                            str(source),\n                            str(root / f\"{rule}.pickle\"),\n                            rule,\n                        ],\n                        cwd=WORKER.parent,\n                        stdin=subprocess.DEVNULL,\n                        stdout=log,\n                        stderr=subprocess.STDOUT,\n                    )\n                for rule, process in processes.items():\n                    process.wait(\n                        timeout=max(0.001, context.deadline - time.monotonic())\n                    )\n                    if process.returncode:\n                        detail = (root / f\"{rule}.log\").read_text(errors=\"replace\")[\n                            -2000:\n                        ]\n                        raise InfrastructureError(\n                            f\"{rule} static worker exited {process.returncode}: \"\n                            f\"{detail}\"\n                        )\n                    # Both files are private IPC produced by this scanner, never target\n                    # inputs. Pickle retains the existing canonical internal types.\n                    result = pickle.loads((root / f\"{rule}.pickle\").read_bytes())\n                    if isinstance(result, SentinelError):\n                        raise result\n                    if not isinstance(result, RuleRunState):\n                        raise InfrastructureError(\n                            f\"{rule} static worker returned invalid state\"\n                        )\n                    states[rule] = result\n                check_deadline(context.deadline)\n            finally:\n                for process in processes.values():\n                    if process.poll() is None:\n                        process.kill()\n                for process in processes.values():\n                    process.wait()\n    except subprocess.TimeoutExpired as error:\n        raise InfrastructureError(\n            \"static analysis timeout: deadline exceeded\"\n        ) from error\n    except (OSError, pickle.UnpicklingError, EOFError) as error:\n        raise InfrastructureError(\"static worker communication failed\") from error\n    return states"
+        },
+        {
+          "name": "_worker",
+          "line": 114,
+          "end_line": 133,
+          "source": "def _worker() -> None:\n    # Isolated Python ignores target CWD/PYTHONPATH. Only this installed scanner's\n    # package root is added, including when checking an uninstalled source tree.\n    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))\n    from sentinel.errors import InfrastructureError, SentinelError\n    from sentinel.static.engine import _AST_DETECTORS\n    from sentinel.static.model import RuleRunState, StaticContext\n\n    source, destination, rule = sys.argv[1:]\n    try:\n        configuration, files, deadline, trees = pickle.loads(Path(source).read_bytes())\n        context = StaticContext(configuration, files, deadline, trees)\n        state = RuleRunState()\n        _AST_DETECTORS[rule](context, state)\n        result: RuleRunState | SentinelError = state\n    except SentinelError as error:\n        result = error\n    except Exception as error:\n        result = InfrastructureError(f\"{rule} static worker failed: {error}\")\n    Path(destination).write_bytes(pickle.dumps(result))"
+        }
+      ]
+    },
+    "src/sentinel/static/model.py": {
+      "sha256": "0e982d3b14b0e12d20ed150e5a6ef5ce0fb3f98fcacd5b1fcedb945391cb327b",
+      "definitions": [
+        {
+          "name": "StaticContext",
+          "line": 102,
+          "end_line": 141,
+          "source": "class StaticContext:\n    configuration: LoadedConfiguration\n    files: StaticFileSet\n    deadline: float = float(\"inf\")\n    typescript_trees: dict[str, dict[str, Any]] | None = None\n\n    @cached_property\n    def python_program(self) -> PythonProgram:\n        from sentinel.static.discovery import PythonProgram\n\n        return PythonProgram(self.files.python_files, deadline=self.deadline)\n\n    @cached_property\n    def python_http_handlers(self) -> tuple[HTTPBinding, ...]:\n        from sentinel.static.http_discovery import handlers\n\n        return handlers(self.python_program)\n\n    @cached_property\n    def typescript_http_handlers(self) -> tuple[TypeScriptHTTPBinding, ...]:\n        from sentinel.static.http_discovery import typescript_handlers\n\n        return typescript_handlers(self.typescript_program)\n\n    @cached_property\n    def typescript_program(self) -> TypeScriptProgram:\n        from sentinel.static.typescript_discovery import TypeScriptProgram\n        from sentinel.static.typescript_modules import TypeScriptModules\n\n        workspace = self.configuration.workspace\n        return TypeScriptProgram(\n            self.files.typescript_files,\n            deadline=self.deadline,\n            trees=self.typescript_trees,\n            modules=TypeScriptModules(\n                self.configuration.scan_root,\n                self.files.config_files,\n                workspace.members if workspace else (\".\",),\n            ),\n        )"
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_discovery.py": {
+      "sha256": "5e58ee0d249fe446ef943dc4fa280ba00ca3b27ca2996b0e3ae3ed4a7a6d1ae7",
+      "definitions": [
+        {
+          "name": "TypeScriptProgram",
+          "line": 76,
+          "end_line": 498,
+          "source": "class TypeScriptProgram:\n    def __init__(\n        self,\n        files: tuple[TypeScriptSourceFile, ...],\n        *,\n        deadline: float,\n        modules: TypeScriptModules | None = None,\n        trees: dict[str, dict[str, Any]] | None = None,\n    ) -> None:\n        self.files = {file.relative_path: file for file in files}\n        self.deadline = deadline\n        self.modules = modules\n        self.trees: dict[str, dict[str, Any]] = {}\n        self.bindings: dict[str, dict[str, list[dict[str, Any]]]] = {}\n        self.exports: dict[str, set[str]] = {}\n        self.class_attributes: dict[int, list[dict[str, Any]]] = {}\n        self.source_ranges: OrderedDict[\n            tuple[int, int], tuple[Any, TypeScriptSourceFile, SourceRange]\n        ] = OrderedDict()\n        self.warnings: list[ReportWarning] = modules.warnings if modules else []\n        for file in files:\n            tree = (\n                parse_typescript(file, deadline=deadline)\n                if trees is None\n                else trees[file.relative_path]\n            )\n            self.trees[file.relative_path] = tree\n            bindings: dict[str, list[dict[str, Any]]] = defaultdict(list)\n            exports: set[str] = set()\n            for node in tree[\"Pr\"]:\n                if \"DefStmt\" in node:\n                    entity, definition = node[\"DefStmt\"]\n                    if \"ClassDef\" in definition:\n                        self.class_attributes[id(definition)] = entity.get(\"attrs\", [])\n                    name = name_of(entity[\"name\"])\n                    if name:\n                        variable = definition.get(\"VarDef\", {})\n                        bindings[name].append(\n                            (variable.get(\"vinit\") or {}).get(\"some\", definition)\n                        )\n                directive = node.get(\"DirectiveStmt\", {}).get(\"d\", {})\n                if \"ImportFrom\" in directive:\n                    _, module, names = directive[\"ImportFrom\"]\n                    for item in names:\n                        if \"Aliased\" in item:\n                            original, alias = item[\"Aliased\"]\n                            local = alias[0][0]\n                        elif \"Direct\" in item:\n                            original, _ = item[\"Direct\"]\n                            local = original[0]\n                        else:\n                            continue\n                        bindings[local].append(\n                            {\"import\": (module[\"FileName\"][0], original[0])}\n                        )\n                elif \"ImportAs\" in directive:\n                    _, module, alias = directive[\"ImportAs\"]\n                    if alias:\n                        bindings[alias[\"some\"][0][0]].append(\n                            {\"import\": (module[\"FileName\"][0], \"\")}\n                        )\n                other = directive.get(\"OtherDirective\")\n                if other and other[0][0] == \"Export\":\n                    exports.update(item[\"I\"][0] for item in other[1] if \"I\" in item)\n            # A write anywhere can rebind a module-level handler at runtime.\n            for node in walk(tree):\n                assignment = node.get(\"Assign\", node.get(\"AssignOp\"))\n                if assignment:\n                    name = name_of(assignment[0])\n                    if name and name.split(\".\")[0] in bindings:\n                        bindings[name.split(\".\")[0]].append({\"rebound\": True})\n            self.bindings[file.relative_path] = dict(bindings)\n            self.exports[file.relative_path] = exports\n\n    def property(\n        self,\n        symbol: TypeScriptSymbol,\n        name: str,\n        seen: frozenset[tuple[str, str]] = frozenset(),\n    ) -> TypeScriptSymbol | None:\n        if \"Record\" not in symbol.node:\n            return None\n        matches = []\n        for field in symbol.node[\"Record\"][1]:\n            definition = field.get(\"F\", {}).get(\"DefStmt\")\n            if not definition or name_of(definition[0][\"name\"]) is None:\n                self.unresolved(symbol.file, \"computed or spread object member\")\n                return None\n            if name_of(definition[0][\"name\"]) == name:\n                matches.append(definition[1])\n        if len(matches) != 1:\n            return None\n        definition = matches[0]\n        value = (definition.get(\"FieldDefColon\", {}).get(\"vinit\") or {}).get(\n            \"some\", definition\n        )\n        return self.resolve_node(symbol.file, value, seen=seen)\n\n    def literal(self, symbol: TypeScriptSymbol | None, depth: int = 0) -> str | None:\n        if symbol is None or depth >= 64:\n            return None\n        string = symbol.node.get(\"L\", {}).get(\"String\")\n        if string:\n            return str(string[1][0])\n        call = symbol.node.get(\"Call\")\n        if call:\n            operation = call[0].get(\"Special\", [{}])[0]\n            if isinstance(operation, dict) and (\n                \"ConcatString\" in operation or operation.get(\"Op\") == \"Plus\"\n            ):\n                values = [\n                    self.literal(self.resolve_node(symbol.file, arg[\"Arg\"]), depth + 1)\n                    for arg in call[1][1]\n                    if \"Arg\" in arg\n                ]\n                if values and all(value is not None for value in values):\n                    return \"\".join(value for value in values if value is not None)\n        return None\n\n    def listed_tools(self) -> tuple[TypeScriptSymbol, ...]:\n        \"\"\"Recover metadata returned to the SDK's low-level tools/list schema.\"\"\"\n        found = []\n        for file in self.files.values():\n            for node in walk(self.trees[file.relative_path]):\n                call = node.get(\"Call\")\n                if not call or not (name_of(call[0]) or \"\").endswith(\n                    \".setRequestHandler\"\n                ):\n                    continue\n                args = [item[\"Arg\"] for item in call[1][1] if \"Arg\" in item]\n                if len(args) != 2:\n                    continue\n                schema = self.resolve_node(file, args[0])\n                if not schema or schema.external != (\n                    \"@modelcontextprotocol/sdk/types.js.ListToolsRequestSchema\"\n                ):\n                    continue\n                handler = self.resolve_node(file, args[1])\n                if not handler or not handler.function:\n                    self.unresolved(file, \"tools/list handler\")\n                    continue\n                for returned in walk(handler.function[\"fbody\"]):\n                    if \"Return\" not in returned:\n                        continue\n                    value = (returned[\"Return\"][1] or {}).get(\"some\")\n                    result = self.resolve_node(handler.file, value) if value else None\n                    listing = self.property(result, \"tools\") if result else None\n                    if listing is None or \"Container\" not in listing.node:\n                        self.unresolved(file, \"tools/list metadata\")\n                        continue\n                    for item in listing.node[\"Container\"][1][1]:\n                        metadata = self.resolve_node(listing.file, item)\n                        if metadata and \"Record\" in metadata.node:\n                            found.append(metadata)\n                        else:\n                            self.unresolved(listing.file, \"tools/list entry\")\n        return tuple(found)\n\n    def tools(self) -> tuple[TypeScriptBinding, ...]:\n        found: list[TypeScriptBinding] = []\n        for file in self.files.values():\n            for node in walk(self.trees[file.relative_path]):\n                check_deadline(self.deadline)\n                if \"New\" in node:\n                    _, type_, _, arguments = node[\"New\"]\n                    constructor_name = name_of(type_.get(\"t\", {}).get(\"TyExpr\", {}))\n                    if (\n                        not constructor_name\n                        or constructor_name.split(\".\")[0]\n                        not in self.bindings[file.relative_path]\n                    ):\n                        continue\n                    constructor = self.resolve_node(\n                        file, type_.get(\"t\", {}).get(\"TyExpr\", {})\n                    )\n                    if (\n                        not constructor\n                        or constructor.external != \"@mastra/mcp.MCPServer\"\n                    ):\n                        continue\n                    args = [item[\"Arg\"] for item in arguments[1] if \"Arg\" in item]\n                    config = self.resolve_node(file, args[0]) if args else None\n                    tools = self.property(config, \"tools\") if config else None\n                    if tools and \"Record\" in tools.node:\n                        for field in tools.node[\"Record\"][1]:\n                            definition = field.get(\"F\", {}).get(\"DefStmt\")\n                            name = (\n                                name_of(definition[0][\"name\"]) if definition else None\n                            )\n                            tool = self.property(tools, name) if name else None\n                            if tool:\n                                found.append(\n                                    TypeScriptBinding(\n                                        name,\n                                        TypeScriptSymbol(file, node),\n                                        self.property(tool, \"execute\"),\n                                        self.property(tool, \"parameters\"),\n                                        self.property(tool, \"description\"),\n                                    )\n                                )\n                    else:\n                        self.unresolved(file, \"MCPServer tools\")\n                if \"Call\" not in node:\n                    continue\n                callee, arguments = node[\"Call\"]\n                name = name_of(callee)\n                if not name or not name.endswith(\n                    (\".registerTool\", \".tool\", \".setRequestHandler\")\n                ):\n                    continue\n                receiver_name, _, method = name.rpartition(\".\")\n                receiver = self.resolve(file, receiver_name)\n                if not receiver or \"New\" not in receiver.node:\n                    continue\n                constructor_expression = (\n                    receiver.node[\"New\"][1].get(\"t\", {}).get(\"TyExpr\", {})\n                )\n                constructor = self.resolve_node(receiver.file, constructor_expression)\n                if not constructor or constructor.external not in {\n                    \"@modelcontextprotocol/sdk/server/mcp.js.McpServer\",\n                    \"@modelcontextprotocol/sdk/server/index.js.Server\",\n                }:\n                    continue\n                args = [\n                    self.resolve_node(file, item[\"Arg\"]) if \"Arg\" in item else None\n                    for item in arguments[1]\n                ]\n                if len(args) < 2:\n                    self.unresolved(file, name)\n                    continue\n                if method == \"setRequestHandler\":\n                    if (\n                        args[0]\n                        and args[0].external\n                        == \"@modelcontextprotocol/sdk/types.js.CallToolRequestSchema\"\n                    ):\n                        found.append(\n                            TypeScriptBinding(\n                                None, TypeScriptSymbol(file, node), args[1], None, None\n                            )\n                        )\n                    continue\n                tool_name = self.literal(args[0])\n                config = args[1]\n                if method == \"registerTool\":\n                    schema = self.property(config, \"inputSchema\") if config else None\n                    description = (\n                        self.property(config, \"description\") if config else None\n                    )\n                    handler = args[2] if len(args) == 3 else None\n                else:\n                    middle = args[1:-1]\n                    description = (\n                        middle.pop(0)\n                        if middle and self.literal(middle[0]) is not None\n                        else None\n                    )\n                    schema = middle[0] if middle else None\n                    handler = args[-1]\n                found.append(\n                    TypeScriptBinding(\n                        tool_name,\n                        TypeScriptSymbol(file, node),\n                        handler,\n                        schema,\n                        description,\n                    )\n                )\n        from sentinel.static.typescript_registration_flow import factory_tools\n\n        wrapped = factory_tools(self)\n        registrations = {id(tool.registration.node) for tool in wrapped}\n        return (\n            tuple(\n                tool\n                for tool in found\n                if id(tool.registration.node) not in registrations\n            )\n            + wrapped\n        )\n\n    def source_range(self, node: Any, file: TypeScriptSourceFile) -> SourceRange:\n        check_deadline(self.deadline)\n        # Source syntax stays immutable within a program. Retain both objects so\n        # identity reuse cannot confuse a synthetic node or another source snapshot.\n        key = (id(node), id(file))\n        if key not in self.source_ranges:\n            self.source_ranges[key] = (node, file, source_range(node, file))\n            # ponytail: bound retained locations; evicted nodes are revalidated.\n            if len(self.source_ranges) > 4096:\n                self.source_ranges.popitem(last=False)\n        self.source_ranges.move_to_end(key)\n        return self.source_ranges[key][2]\n\n    def text(self, file: TypeScriptSourceFile, node: Any) -> str:\n        location = self.source_range(node, file)\n        lines = file.source.splitlines(keepends=True)\n        start = (\n            sum(map(len, lines[: location.start_line - 1])) + location.start_column - 1\n        )\n        end = sum(map(len, lines[: location.end_line - 1])) + location.end_column - 1\n        return file.source[start:end]\n\n    def unresolved(self, file: TypeScriptSourceFile, name: str) -> None:\n        warning = ReportWarning(\n            code=\"static_binding_unresolved\",\n            message=f\"{file.relative_path}: cannot resolve TypeScript binding {name!r}\",\n        )\n        if warning not in self.warnings:\n            self.warnings.append(warning)\n\n    def resolve(\n        self,\n        file: TypeScriptSourceFile,\n        name: str,\n        seen: frozenset[tuple[str, str]] = frozenset(),\n    ) -> TypeScriptSymbol | None:\n        check_deadline(self.deadline)\n        key = (file.relative_path, name)\n        if key in seen or len(seen) >= 64:\n            self.unresolved(file, name)\n            return None\n        first, _, rest = name.partition(\".\")\n        nodes = self.bindings[file.relative_path].get(first, [])\n        if len(nodes) != 1:\n            self.unresolved(file, name)\n            return None\n        return self.resolve_node(file, nodes[0], rest, seen | {key})\n\n    def resolve_node(\n        self,\n        file: TypeScriptSourceFile,\n        node: dict[str, Any],\n        rest: str = \"\",\n        seen: frozenset[tuple[str, str]] = frozenset(),\n    ) -> TypeScriptSymbol | None:\n        check_deadline(self.deadline)\n        if \"Await\" in node:\n            return self.resolve_node(file, node[\"Await\"][1], rest, seen)\n        call = node.get(\"Call\")\n        if call and name_of(call[0]) == \"import\" and len(call[1][1]) == 1:\n            module = self.literal(TypeScriptSymbol(file, call[1][1][0].get(\"Arg\", {})))\n            if module is None or not module.startswith(\".\"):\n                self.unresolved(file, \"nonliteral or external dynamic import\")\n                return None\n            return self.resolve_node(file, {\"import\": (module, \"\")}, rest, seen)\n        if \"import\" in node:\n            module, imported = node[\"import\"]\n            target = \".\".join(part for part in (imported, rest) if part)\n            local, bases = (\n                self.modules.resolve(file.relative_path, module)\n                if self.modules is not None\n                else (\n                    module.startswith(\".\"),\n                    (\n                        posixpath.normpath(\n                            posixpath.join(\n                                posixpath.dirname(file.relative_path), module\n                            )\n                        ),\n                    ),\n                )\n            )\n            if not local:\n                # These Node default exports are the built-in module object.\n                if imported == \"default\" and module.removeprefix(\"node:\") in {\n                    \"fs\",\n                    \"fs/promises\",\n                    \"path\",\n                    \"path/posix\",\n                    \"path/win32\",\n                    \"child_process\",\n                    \"net\",\n                }:\n                    target = rest\n                return TypeScriptSymbol(\n                    file, node, module + (\".\" + target if target else \"\")\n                )\n            included_paths = set()\n            for base in bases:\n                if base == \"..\" or base.startswith(\"../\") or base.startswith(\"/\"):\n                    self.unresolved(file, module)\n                    return None\n                stem, extension = posixpath.splitext(base)\n                candidates = {base}\n                if extension in {\".js\", \".mjs\", \".cjs\"}:\n                    candidates.update(\n                        stem + ext for ext in (\".ts\", \".mts\", \".cts\", \".tsx\")\n                    )\n                elif not extension:\n                    candidates.update(\n                        base + ext for ext in (\".ts\", \".mts\", \".cts\", \".tsx\")\n                    )\n                    candidates.update(\n                        base + \"/index\" + ext for ext in (\".ts\", \".mts\", \".cts\", \".tsx\")\n                    )\n                matches = candidates.intersection(self.files)\n                if len(matches) != 1:\n                    self.unresolved(file, module + \":\" + target)\n                    return None\n                included_paths.update(matches)\n            included = [self.files[path] for path in sorted(included_paths)]\n            if len(included) != 1:\n                self.unresolved(file, module + \":\" + target)\n                return None\n            if not target:\n                return TypeScriptSymbol(file, node)\n            if target.split(\".\")[0] not in self.exports[included[0].relative_path]:\n                self.unresolved(file, module + \":\" + target)\n                return None\n            return self.resolve(included[0], target, seen)\n        alias = name_of(node)\n        if alias:\n            return self.resolve(file, alias + (\".\" + rest if rest else \"\"), seen)\n        if rest and \"Record\" in node:\n            first, _, tail = rest.partition(\".\")\n            member = self.property(TypeScriptSymbol(file, node), first, seen)\n            if member:\n                return self.resolve_node(member.file, member.node, tail, seen)\n        if not rest:\n            return TypeScriptSymbol(file, node)\n        self.unresolved(file, rest)\n        return None"
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_registration_flow.py": {
+      "sha256": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+      "definitions": [
+        {
+          "name": "RegistrationFlow",
+          "line": 21,
+          "end_line": 59,
+          "source": "class RegistrationFlow(TypeScriptPathFlow):\n    def __init__(self, program: TypeScriptProgram, factory: TypeScriptSymbol) -> None:\n        super().__init__(program, RuleRunState())\n        self.factory = factory\n        self.values: dict[str, TypeScriptSymbol] = {}\n        self.found: list[TypeScriptBinding] = []\n\n    def expression(\n        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]\n    ) -> Value:\n        result = super().expression(file, node, env)\n        if isinstance(node, dict) and any(\n            key in node for key in (\"L\", \"Record\", \"Call\")\n        ):\n            self.values.setdefault(result.key, TypeScriptSymbol(file, node))\n        return result\n\n    def registered(\n        self,\n        file: TypeScriptSourceFile,\n        node: dict[str, Any],\n        args: list[Value],\n        env: dict[str, Value],\n    ) -> None:\n        if len(args) != 3:\n            self.program.unresolved(file, \"factory registration arguments\")\n            return\n        config = self.object_fields(args[1], env)\n        self.found.append(\n            TypeScriptBinding(\n                self.program.literal(self.values.get(args[0].key)),\n                self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node),\n                self.callables.get(args[2].key),\n                self.values.get(config.get(\"inputSchema\", Value()).key),\n                self.values.get(config.get(\"description\", Value()).key),\n                self.factory,\n                TypeScriptSymbol(file, node),\n            )\n        )"
+        },
+        {
+          "name": "factory_tools",
+          "line": 62,
+          "end_line": 176,
+          "source": "def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:\n    found = []\n    for path, tree in program.trees.items():\n        # Follow actual module construction of included classes. Merely declaring\n        # an unused class does not register a tool.\n        if not any(\n            \"ClassDef\" in node\n            or (\n                \"New\" in node\n                and (\n                    constructor := program.resolve_node(\n                        program.files[path],\n                        node[\"New\"][1].get(\"t\", {}).get(\"TyExpr\", {}),\n                    )\n                )\n                is not None\n                and \"ClassDef\" in constructor.node\n            )\n            for node in walk(tree)\n        ):\n            continue\n        initializer = TypeScriptSymbol(program.files[path], tree)\n        flow = RegistrationFlow(program, initializer)\n        flow.initialize(initializer)\n        found.extend(flow.found)\n        program.warnings.extend(\n            w for w in flow.state.warnings if w not in program.warnings\n        )\n    functions = {\n        id(declarations[0]): TypeScriptSymbol(program.files[path], declarations[0])\n        for path, bindings in program.bindings.items()\n        for declarations in bindings.values()\n        if len(declarations) == 1\n        and TypeScriptSymbol(program.files[path], declarations[0]).function is not None\n    }\n    calls: dict[int, set[int]] = {}\n    roots: list[TypeScriptSymbol] = []\n    for identity, symbol in functions.items():\n        check_deadline(program.deadline)\n        calls[identity] = {\n            id(target.node)\n            for node in walk(symbol.node)\n            if \"Call\" in node\n            and (name_of(node[\"Call\"][0]) or \"\").split(\".\")[0]\n            in program.bindings[symbol.file.relative_path]\n            for target in [program.resolve_node(symbol.file, node[\"Call\"][0])]\n            if target and target.function\n        }\n    for path, tree in program.trees.items():\n        for statement in tree[\"Pr\"]:\n            if \"ExprStmt\" not in statement:\n                continue\n            for node in walk(statement):\n                call = node.get(\"Call\")\n                if not call or call[1][1]:\n                    continue\n                name = name_of(call[0])\n                if not name or name not in program.bindings[path]:\n                    continue\n                resolved = program.resolve(program.files[path], name)\n                if (\n                    resolved\n                    and resolved.function\n                    and not resolved.function[\"fparams\"][1]\n                ):\n                    roots.append(resolved)\n    reachable: dict[int, set[int]] = {}\n    for root in roots:\n        pending = [id(root.node)]\n        seen: set[int] = set()\n        while pending:\n            check_deadline(program.deadline)\n            identity = pending.pop()\n            if identity not in seen:\n                seen.add(identity)\n                pending.extend(calls.get(identity, ()))\n        reachable[id(root.node)] = seen\n    for path, bindings in program.bindings.items():\n        file = program.files[path]\n        for declarations in bindings.values():\n            if len(declarations) != 1:\n                continue\n            factory = TypeScriptSymbol(file, declarations[0])\n            if factory.function is None:\n                continue\n            constructors = [\n                program.resolve_node(\n                    file, node[\"New\"][1].get(\"t\", {}).get(\"TyExpr\", {})\n                )\n                for node in walk(factory.node)\n                if \"New\" in node\n            ]\n            if not any(\n                constructor\n                and constructor.external\n                in {\n                    \"@modelcontextprotocol/sdk/server/mcp.js.McpServer\",\n                    \"@modelcontextprotocol/sdk/server/index.js.Server\",\n                }\n                for constructor in constructors\n            ):\n                continue\n            initializers = [\n                root for root in roots if id(factory.node) in reachable[id(root.node)]\n            ] or [factory]\n            for initializer in initializers:\n                flow = RegistrationFlow(program, initializer)\n                flow.function(initializer, [])\n                found.extend(flow.found)\n                program.warnings.extend(\n                    warning\n                    for warning in flow.state.warnings\n                    if warning not in program.warnings\n                )\n    return tuple(found)"
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_path_flow.py": {
+      "sha256": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+      "definitions": [
+        {
+          "name": "analyze",
+          "line": 2544,
+          "end_line": 2600,
+          "source": "def analyze(\n    program: TypeScriptProgram,\n    state: RuleRunState,\n    *,\n    flow: TypeScriptPathFlow | None = None,\n    entries: tuple[TypeScriptBinding | TypeScriptHTTPBinding, ...] | None = None,\n) -> None:\n    flow = flow or TypeScriptPathFlow(program, state)\n    factories: set[tuple[bool, int]] = set()\n    for tool in program.tools() if entries is None else entries:\n        initializer = (\n            tool.initializer\n            if isinstance(tool, TypeScriptHTTPBinding)\n            else tool.factory\n        )\n        if initializer is not None:\n            identity = (isinstance(tool, TypeScriptHTTPBinding), id(initializer.node))\n            if identity not in factories:\n                factories.add(identity)\n                if isinstance(tool, TypeScriptHTTPBinding):\n                    type(flow)(program, state).http_initialize(initializer)\n                else:\n                    flow.initialize(initializer)\n            continue\n        location = program.source_range(tool.registration.node, tool.registration.file)\n        state.visit(tool.registration.file.relative_path, location)\n        handler = tool.handler\n        if handler is None or handler.function is None:\n            flow.warning(\n                tool.registration.file,\n                tool.registration.node,\n                \"unresolved tool handler\",\n            )\n            continue\n        state.visit(\n            handler.file.relative_path, program.source_range(handler.node, handler.file)\n        )\n        args = [\n            Value(\n                sources=frozenset(\n                    {\n                        \"http:request\"\n                        if isinstance(tool, TypeScriptHTTPBinding)\n                        else str(index)\n                    }\n                )\n                if index == 0\n                else frozenset(),\n                key=f\"{handler.file.relative_path}:{location}:{index}\",\n                locations=frozenset(\n                    {(tool.registration.file.relative_path, location.start_line)}\n                ),\n            )\n            for index, _ in enumerate(handler.function[\"fparams\"][1])\n        ]\n        flow.function(handler, args)\n    state.warnings.extend(program.warnings)"
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_modules.py": {
+      "sha256": "c3a151781808f6b59c17637a760a41bcae4114efd864f2726685834bce811926",
+      "definitions": [
+        {
+          "name": "TypeScriptModules",
+          "line": 43,
+          "end_line": 230,
+          "source": "class TypeScriptModules:\n    def __init__(\n        self, root: Path, configs: tuple[Path, ...], members: tuple[str, ...]\n    ) -> None:\n        self.packages: dict[str, list[tuple[str, dict[str, Any]]]] = {}\n        self.warnings: list[ReportWarning] = []\n        self.config_paths = {\n            path.relative_to(root).as_posix(): path for path in configs\n        }\n        self.option_cache: dict[str, dict[str, Any] | None] = {}\n        for path in configs:\n            if path.name not in {\"package.json\", \"tsconfig.json\"}:\n                continue\n            relative = path.relative_to(root).as_posix()\n            directory = posixpath.dirname(relative) or \".\"\n            try:\n                value = json.loads(_devcontainer_json(path.read_text(encoding=\"utf-8\")))\n            except (OSError, ValueError) as error:\n                raise ConfigurationError(\n                    f\"cannot parse configuration {relative}\"\n                ) from error\n            if not isinstance(value, dict):\n                raise ConfigurationError(f\"configuration {relative} must be an object\")\n            if (\n                path.name == \"package.json\"\n                and directory in members\n                and isinstance(value.get(\"name\"), str)\n            ):\n                self.packages.setdefault(value[\"name\"], []).append((directory, value))\n\n    def _options(\n        self, name: str, seen: frozenset[str] = frozenset()\n    ) -> dict[str, Any] | None:\n        if name in seen or len(seen) >= 64 or name not in self.config_paths:\n            return None\n        if name in self.option_cache:\n            return self.option_cache[name]\n        path = self.config_paths[name]\n        try:\n            config = json.loads(_devcontainer_json(path.read_text(encoding=\"utf-8\")))\n        except (OSError, ValueError) as error:\n            raise ConfigurationError(f\"cannot parse configuration {name}\") from error\n        if not isinstance(config, dict):\n            raise ConfigurationError(f\"configuration {name} must be an object\")\n        directory = posixpath.dirname(name) or \".\"\n        merged: dict[str, Any] = {}\n        parents = config.get(\"extends\", [])\n        parents = [parents] if isinstance(parents, str) else parents\n        if not isinstance(parents, list):\n            return None\n        for parent in parents:\n            if not isinstance(parent, str):\n                return None\n            target = local_path(directory, parent) if parent.startswith(\".\") else None\n            if (\n                target not in self.config_paths\n                and target is not None\n                and target + \".json\" in self.config_paths\n            ):\n                target += \".json\"\n            if target not in self.config_paths:\n                warning = ReportWarning(\n                    code=\"static_typescript_configuration_unresolved\",\n                    message=(\n                        f\"{name}: inherited configuration {parent!r} was not applied \"\n                        \"because it is outside included source; imports use only \"\n                        \"available local settings and declared package names\"\n                    ),\n                )\n                if warning not in self.warnings:\n                    self.warnings.append(warning)\n                continue\n            assert target is not None\n            options = self._options(target, seen | {name})\n            if options is None:\n                return None\n            merged.update(options)\n        options = config.get(\"compilerOptions\", {})\n        if not isinstance(options, dict):\n            return None\n        if \"baseUrl\" in options:\n            base = options[\"baseUrl\"]\n            origin = local_path(directory, base) if isinstance(base, str) else None\n            if origin is None:\n                return None\n            merged[\"baseUrl\"] = origin\n        if \"paths\" in options:\n            merged.update(paths=options[\"paths\"], paths_origin=directory)\n        self.option_cache[name] = merged\n        return merged\n\n    def resolve(self, source: str, module: str) -> tuple[bool, tuple[str, ...]]:\n        \"\"\"Return local ownership and candidate paths; an empty local set is unknown.\"\"\"\n        if module.startswith(\".\"):\n            path = local_path(posixpath.dirname(source), module)\n            return True, (path,) if path is not None else ()\n        directory = posixpath.dirname(source) or \".\"\n        while True:\n            config_path = posixpath.normpath(posixpath.join(directory, \"tsconfig.json\"))\n            if config_path in self.config_paths:\n                options = self._options(config_path)\n                if options is None:\n                    return True, ()\n                mappings = options.get(\"paths\", {})\n                if not isinstance(mappings, dict):\n                    return True, ()\n                mapped = _mapped(mappings, module)\n                origin = options.get(\"baseUrl\", options.get(\"paths_origin\", directory))\n                if mapped:\n                    targets, wildcard = mapped\n                    if (\n                        origin is None\n                        or not isinstance(targets, list)\n                        or not all(isinstance(target, str) for target in targets)\n                    ):\n                        return True, ()\n                    paths = [\n                        local_path(origin, target.replace(\"*\", wildcard))\n                        for target in targets\n                    ]\n                    if any(path is None for path in paths):\n                        return True, ()\n                    return True, tuple(path for path in paths if path is not None)\n                break\n            if directory == \".\":\n                break\n            directory = posixpath.dirname(directory) or \".\"\n        parts = module.split(\"/\")\n        count = 2 if module.startswith(\"@\") else 1\n        name, subpath = \"/\".join(parts[:count]), \"/\".join(parts[count:])\n        packages = self.packages.get(name)\n        if packages is None:\n            return False, ()\n        if len(packages) != 1:\n            return True, ()\n        directory, package = packages[0]\n        if \"exports\" in package:\n            exports = package[\"exports\"]\n            key = \"./\" + subpath if subpath else \".\"\n            if isinstance(exports, dict) and any(k.startswith(\".\") for k in exports):\n                mapped = _mapped(exports, key)\n                if mapped is None:\n                    return True, ()\n                exported, wildcard = mapped\n            elif not subpath:\n                exported, wildcard = exports, \"\"\n            else:\n                return True, ()\n            targets = self._export_targets(exported)\n            if targets is None:\n                return True, ()\n            targets = [target.replace(\"*\", wildcard) for target in targets]\n            if any(\n                not target.startswith(\"./\")\n                or \"..\" in target.split(\"/\")\n                or \"node_modules\" in target.split(\"/\")\n                for target in targets\n            ):\n                return True, ()\n        elif subpath:\n            targets = [\"./\" + subpath]\n        else:\n            targets = [package.get(\"main\", \"./index\")]\n            if not all(isinstance(target, str) for target in targets):\n                return True, ()\n        paths = [local_path(directory, target) for target in targets]\n        if any(path is None for path in paths):\n            return True, ()\n        return True, tuple(dict.fromkeys(path for path in paths if path is not None))\n\n    @staticmethod\n    def _export_targets(value: Any) -> list[str] | None:\n        if isinstance(value, str):\n            return [value]\n        if isinstance(value, dict):\n            # Do not use declaration-only `types` as executable handler evidence.\n            targets = []\n            for key, child in value.items():\n                if key in {\"types\", \"require\"}:\n                    continue\n                if key not in {\"import\", \"node\", \"default\"}:\n                    return None\n                resolved = TypeScriptModules._export_targets(child)\n                if resolved is None:\n                    return None\n                targets.extend(resolved)\n            return targets or None\n        return None"
+        }
+      ]
+    }
+  },
+  "all_static_tools_call_sites": {
+    "src/sentinel/static/coverage.py": {
+      "sha256": "1608202fa6cc681caf806e8c5a1e92c1acc8f4e5348e6d8f75de4cba471b1cfc",
+      "calls": [
+        {
+          "line": 39,
+          "expression": "context.python_program.tools()"
+        },
+        {
+          "line": 345,
+          "expression": "context.typescript_program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent012.py": {
+      "sha256": "d161f035b6460f76b0934d48d4826daabaa0e6d6be9277f6b286c9702786efee",
+      "calls": [
+        {
+          "line": 26,
+          "expression": "program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent013.py": {
+      "sha256": "6982dd68d4151e35da228300cf79691922b0d5c84a605c8ed527a0f2ef37fb38",
+      "calls": [
+        {
+          "line": 113,
+          "expression": "program.tools()"
+        },
+        {
+          "line": 161,
+          "expression": "program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent014.py": {
+      "sha256": "b59017ed36b51beb0120f4ef8b3931f447cac844f4e676e351751eb0bfd64d16",
+      "calls": [
+        {
+          "line": 46,
+          "expression": "self.program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent015.py": {
+      "sha256": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+      "calls": [
+        {
+          "line": 933,
+          "expression": "context.python_program.tools()"
+        },
+        {
+          "line": 941,
+          "expression": "context.typescript_program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/rules/sent016.py": {
+      "sha256": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291",
+      "calls": [
+        {
+          "line": 661,
+          "expression": "program.tools()"
+        },
+        {
+          "line": 669,
+          "expression": "context.typescript_program.tools()"
+        }
+      ]
+    },
+    "src/sentinel/static/typescript_path_flow.py": {
+      "sha256": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+      "calls": [
+        {
+          "line": 2553,
+          "expression": "program.tools()"
+        }
+      ]
+    }
+  },
+  "frame_contexts_sha256": "3f2f3a7f7c66ebbf05d872a74eacd0add376041581a6f731b65aabe59e0af56d",
+  "sample_metrics": [
+    {
+      "rule": "SENT-012",
+      "samples": 108817,
+      "snapshot_worker_cpu_seconds": 1287.040558,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108743,
+      "registration_inclusive_percent": 99.9319959197552,
+      "merge_inclusive_percent": 29.872170708620892,
+      "maximum_observed_depth": 195,
+      "leaf_samples": {
+        "json_encoder": 4736,
+        "merge_equal_predicate": 7033,
+        "combine_entry": 6010
+      },
+      "leaf_percent": {
+        "json_encoder": 4.35226113566814,
+        "merge_equal_predicate": 6.463144545429482,
+        "combine_entry": 5.5230340847477875
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2706
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1613
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 417
+        }
+      ]
+    },
+    {
+      "rule": "SENT-014",
+      "samples": 106531,
+      "snapshot_worker_cpu_seconds": 1260.195426,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 106459,
+      "registration_inclusive_percent": 99.93241403910599,
+      "merge_inclusive_percent": 29.497517154631048,
+      "maximum_observed_depth": 196,
+      "leaf_samples": {
+        "json_encoder": 4663,
+        "combine_entry": 5918,
+        "merge_equal_predicate": 6794
+      },
+      "leaf_percent": {
+        "json_encoder": 4.3771296617885875,
+        "combine_entry": 5.55519050792727,
+        "merge_equal_predicate": 6.377486365471084
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2690
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1623
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 350
+        }
+      ]
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 108677,
+      "snapshot_worker_cpu_seconds": 1285.183914,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108604,
+      "registration_inclusive_percent": 99.93282847336603,
+      "merge_inclusive_percent": 29.27666387552104,
+      "maximum_observed_depth": 199,
+      "leaf_samples": {
+        "json_encoder": 4663,
+        "merge_equal_predicate": 6599,
+        "combine_entry": 6077
+      },
+      "leaf_percent": {
+        "json_encoder": 4.290696283482245,
+        "merge_equal_predicate": 6.072121976131104,
+        "combine_entry": 5.591799552803261
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2697
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1563
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 403
+        }
+      ]
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 108731,
+      "snapshot_worker_cpu_seconds": 1278.389948,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "registration_inclusive_samples": 108657,
+      "registration_inclusive_percent": 99.93194213241854,
+      "merge_inclusive_percent": 29.847053738124362,
+      "maximum_observed_depth": 198,
+      "leaf_samples": {
+        "merge_equal_predicate": 6622,
+        "json_encoder": 4658,
+        "combine_entry": 6267
+      },
+      "leaf_percent": {
+        "merge_equal_predicate": 6.0902594476276315,
+        "json_encoder": 4.283966853979086,
+        "combine_entry": 5.763765623419264
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 2667
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 1582
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-7bf4c6e/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 409
+        }
+      ]
+    }
+  ],
+  "source_fact": "run_flow_rules already parses TypeScript once and sends trees in private scanner-owned pickle IPC, then each of four workers creates a fresh StaticContext/TypeScriptProgram. Each flow detector calls tools(), which includes the same factory_tools traversal before rule-specific analysis. The parent coverage inventory later calls tools() again. Source syntax is immutable within a program; identity-keyed class/location indexes are rebuilt in workers. The current tools method has no retained result cache.",
+  "measured_scope": "The current verified worker samples include factory_tools stacks. The exact shares and leaf/caller counts are retained per worker above; no parent-stage profile or completed later rule-specific traversal is inferred.",
+  "reuse_constraints": "A future source-only attempt could retain completed tool bindings within the source program and pass them alongside the SAME parsed tree/file graph through existing private IPC. Preserve node/file alias identities, all ordered bindings, factory/SDK registrations and ordered warning behavior. Replay discovery warnings at the original tools() point rather than moving them earlier in worker-visible reports. Respect module option-cache warning effects and repeated-call deduplication. Rebuild identity-keyed indexes; never transport stale id() keys or use a global/cross-input cache. Empty completed discovery differs from missing discovery. An incomplete/failed discovery must never become a cached success.",
+  "remaining_work": "Rule-specific security flow, HTTP discovery and coverage interpretation must still execute fully. They may remain expensive; this profile has not measured their complete future cost. Earlier source-only optimizations and every native/profile failure remain unchanged.",
+  "limits": "Partial CPU snapshots, signal/GIL/native-code delivery, snapshot-thread overhead, generated frames and unprofiled parent/final intervals limit attribution. Inclusive stack shares overlap; neither their sum nor cross-version percentage changes are speedups or wholly removable costs. No new measurement, optimization or scanner mutation occurred during this assessment.",
+  "optimization_attempts": 0,
+  "source_modified": false,
+  "paid_calls": 0,
+  "target_execution": false
+}

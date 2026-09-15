@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "recorded_at": "2026-09-11T00:22:44.376177+00:00",
+  "status": "prepared_not_approved_not_dispatched",
+  "scanner": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "policy_authorization": {
+    "path": "artifacts/phase22/integration/v19-timeout-policy-authorization.json",
+    "sha256": "57a86cd58ca95ede94c6dda43a16ac87af9c37fa549b205c95584870b2beb0b8"
+  },
+  "purpose": "Determine whether two repeatedly slow Meta inputs complete correctly on standard Linux under the newly approved 300-second policy. This is not an optimization or proof that all ten Meta inputs or the whole corpus complete.",
+  "inputs": [
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "manifest_input": {
+        "id": "meta-image-ssrf-vulnerable",
+        "family": "meta-image-ssrf",
+        "repository": "pipeboard-co/meta-ads-mcp",
+        "language": "python",
+        "split": "development",
+        "variant": "original",
+        "label": "vulnerable",
+        "snapshot": "95e852793b7ff8604a8132e85d5facd08c91a36e",
+        "scan_root": ".",
+        "condition": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+        "prerequisites": [
+          "HTTP tool caller can supply image_url and reach the image fetch before downstream Meta API success; a literal private/loopback destination is available to the server.",
+          "The label excludes DNS rebinding, hostname races, and whole-network egress-policy completeness."
+        ],
+        "static_applicability": "Source-only Python/TypeScript condition, independent of current recognizer success. Unsupported or unresolved recognition stays in the denominator.",
+        "runtime_applicability": "unsupported",
+        "runtime_reason": "Unsupported targeted runtime treatment: This source-only freeze packet does not provide the condition-specific host-model, HTTP service, or command environment required to test this property with the four fixed templates. Startup and tool discovery are untested, not demonstrated failures or defenses.",
+        "runtime_configuration": null,
+        "evidence": [
+          {
+            "path": "meta_ads_mcp/core/ads.py",
+            "start_line": 1,
+            "end_line": 3533,
+            "sha256": "22b2a830c6f0ff161009ea98e2bd4486f8cc89ecbffa5d8ecdabae0c838e47cb",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          },
+          {
+            "path": "meta_ads_mcp/core/utils.py",
+            "start_line": 1,
+            "end_line": 261,
+            "sha256": "cad8f8d720b94aa76e2eb02265805277a394c252516880a54f09e760aa4d15db",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          }
+        ],
+        "matching": "Require a finding to describe this exact metadata instruction or violated caller/guard/sink boundary, with relevant repository-relative evidence. Rule ID or source-file overlap alone is insufficient. Record unmatched findings separately as unadjudicated; fixed/safe labels cover only the named condition.",
+        "parent": null,
+        "transformation": null,
+        "overlay": null,
+        "tree_sha256": "fc515a9f5176cd0b58dea17a6d7676b272834534e88ab104e5b21e821d77aad7"
+      },
+      "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "reference_scanner": {
+        "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add",
+        "revision": "424c443d810099ba0fe8e83d1612765682ad33b6",
+        "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647"
+      },
+      "reference_report": "artifacts/phase22/integration/v14-performance/baseline-meta-image-ssrf-vulnerable-1/measurement/meta-image-ssrf-vulnerable/report.json",
+      "reference_report_sha256": "dfd78aa3144bb63da46e557a89106eb0dfaf0e9c3a281877db27de7be0a29650",
+      "reference_outcome": {
+        "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+        "exit_code": 0,
+        "finding_count": 50,
+        "input_id": "meta-image-ssrf-vulnerable",
+        "reason": null,
+        "report_sha256": "dfd78aa3144bb63da46e557a89106eb0dfaf0e9c3a281877db27de7be0a29650",
+        "stable_sha256": "c187bace7a8e0bb938f53663d505fe7d656b2dde3efc62f68d75fa0b0280070c",
+        "state": "completed",
+        "wall_duration_ms": 74581
+      }
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "manifest_input": {
+        "id": "meta-operator-fallback-fixed-mutation",
+        "family": "meta-operator-fallback",
+        "repository": "pipeboard-co/meta-ads-mcp",
+        "language": "python",
+        "split": "development",
+        "variant": "mutation",
+        "label": "fixed",
+        "snapshot": "14d7371d4ed77b1e9bb04ff1d00e94e00eba32a7",
+        "scan_root": ".",
+        "condition": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+        "prerequisites": [
+          "Streamable HTTP deployment reachable by an untrusted caller; META_ACCESS_TOKEN configured; neither caller bearer nor Pipeboard token supplied.",
+          "The condition excludes invalid-but-present credentials, deployment proxies, and separate URL-secret-redaction behavior."
+        ],
+        "static_applicability": "Source-only Python/TypeScript condition, independent of current recognizer success. Unsupported or unresolved recognition stays in the denominator.",
+        "runtime_applicability": "unsupported",
+        "runtime_reason": "Unsupported targeted runtime treatment: This source-only freeze packet does not provide the condition-specific host-model, HTTP service, or command environment required to test this property with the four fixed templates. Startup and tool discovery are untested, not demonstrated failures or defenses.",
+        "runtime_configuration": null,
+        "evidence": [
+          {
+            "path": "meta_ads_mcp/core/http_auth_integration.py",
+            "start_line": 1,
+            "end_line": 329,
+            "sha256": "34ccc9ef38a8841ceee2f2f66e278cfb9d677e3fd6f1d7b4e3c7223df9c0b979",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          },
+          {
+            "path": "meta_ads_mcp/core/auth.py",
+            "start_line": 1,
+            "end_line": 567,
+            "sha256": "6bee3423fbffa56bf63fd43c8ed14397203627812fcb60ad15bc8b184662c4f0",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          },
+          {
+            "path": "meta_ads_mcp/core/api.py",
+            "start_line": 1,
+            "end_line": 462,
+            "sha256": "79631ad10e97720094b6cc882e6c71f641d5fce0a0f446bdc32edb20896c975e",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          },
+          {
+            "path": "meta_ads_mcp/core/accounts.py",
+            "start_line": 1,
+            "end_line": 158,
+            "sha256": "0527c031498e92550c3945a70109d9d14eb8163b5a102e7698170a03b8de124e",
+            "role": "Review the registered metadata or caller/guard/sink flow for this condition; nearby warnings and overlapping lines alone are not a match."
+          }
+        ],
+        "matching": "Require a finding to describe this exact metadata instruction or violated caller/guard/sink boundary, with relevant repository-relative evidence. Rule ID or source-file overlap alone is insufficient. Record unmatched findings separately as unadjudicated; fixed/safe labels cover only the named condition.",
+        "parent": "meta-operator-fallback-fixed",
+        "transformation": "Paired identifier rename {\"env_token\": \"phase22OperatorToken\"}; Python token-aware, TypeScript bounded identifier replacement; behavior and boundary unchanged.",
+        "overlay": {
+          "path": "artifacts/phase22/corpus-review/mutations/meta-operator-fallback-fixed-mutation.tar.gz",
+          "sha256": "e1aec19cd1f9ab2f76ad4047973c8c35edab1d5a6bcbec564287cb4a033f71e4"
+        },
+        "tree_sha256": "5ba4a3853c06e5511923003375545c7b1d17e84074b9c744e43949ddfedca2bf"
+      },
+      "manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "reference_scanner": {
+        "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add",
+        "revision": "424c443d810099ba0fe8e83d1612765682ad33b6",
+        "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647"
+      },
+      "reference_report": "artifacts/phase22/integration/v14-performance/baseline-meta-operator-fallback-fixed-mutation-1/measurement/meta-operator-fallback-fixed-mutation/report.json",
+      "reference_report_sha256": "d7938896adcb59c2d6f75696a6b561fbaabee126b308e158685ab1d1f4c81acf",
+      "reference_outcome": {
+        "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+        "exit_code": 0,
+        "finding_count": 49,
+        "input_id": "meta-operator-fallback-fixed-mutation",
+        "reason": null,
+        "report_sha256": "d7938896adcb59c2d6f75696a6b561fbaabee126b308e158685ab1d1f4c81acf",
+        "stable_sha256": "f69d806e1453a028d6420a4f21e59277e2c4837258d09d90bd28a30bf246487d",
+        "state": "completed",
+        "wall_duration_ms": 75134
+      }
+    }
+  ],
+  "order": [
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "repeat": 1
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "repeat": 1
+    },
+    {
+      "input_id": "meta-image-ssrf-vulnerable",
+      "repeat": 2
+    },
+    {
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "repeat": 2
+    }
+  ],
+  "bounds": {
+    "dispatches": 1,
+    "native_observations": 4,
+    "native_limit_seconds": 300,
+    "whole_input_limit_seconds": 300,
+    "normal_target_seconds": 120,
+    "nominal_input_seconds": 1200,
+    "job_minutes": 30,
+    "internal_job_stop_minutes": 28,
+    "cleanup_upload_reserve_minutes": 2,
+    "profiles": 0,
+    "retries": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "source_tuning": false,
+    "comparator_runs": 0
+  },
+  "environment": "Existing standard ubuntu-latest runner, pinned setup-python action selecting Python3.12, uv0.8.22 and unchanged uv.lock. Record actual Python patch version, Semgrep version, CPU/topology, memory, load, source/lock/harness and workflow identity. No larger or paid runner. No overlapping owned benchmark work.",
+  "execution_mechanism": [
+    "Prepare a versioned optional CI job patch and minimal supervisor using the existing measure()/frozen() machinery; ordinary implementation/selfchecks are included if this exact proposal is approved. Normal jobs remain unchanged. Bind actual workflow/supervisor hashes in a pre-dispatch receipt before the single dispatch.",
+    "Check out the scanner at the exact candidate revision above. Verify source/lock/harness and frozen manifest/configuration hashes before each observation. Never patch STATIC_TIMEOUT_SECONDS at runtime or change scanner bytes.",
+    "Record the consumed dispatch before invoking workflow_dispatch; reject a job rerun (GITHUB_RUN_ATTEMPT must be1). Record each observation before launch and close unused budget on stop.",
+    "Each isolated measurement child executes one input through production rules-only measure(), with model transport forbidden. Its entire process group gets one300-second deadline from before process launch, including interpreter/manifest setup, source materialization, configuration, scan, validation and writing.",
+    "A supervisor terminates the owned process group on deadline or failure, gives bounded cleanup grace inside the job reserve, kills remaining owned descendants and retains partial output. Cleanup time never converts an over-limit observation to a pass. Do not start an observation without its full300-second allowance plus cleanup reserve.",
+    "Use cooperative child termination so existing worker finally blocks reap children where possible; verify forced-cleanup paths with tiny scanner-owned dummy children before any corpus observation. No target execution."
+  ],
+  "timing_classification": {
+    "completed_within_target": "Analysis complete, valid reports, native and whole-input elapsed <=120seconds.",
+    "completed_using_extended_time": "Analysis complete, valid reports, both elapsed <=300seconds and at least one>120seconds.",
+    "incomplete": "Timeout, interruption, invalid report, other incomplete execution, or either elapsed>300seconds. Preserve exact underlying cause and any raw late report.",
+    "comparison_rule": "Classify with raw elapsed values, without rounding tolerances; retain native summary duration_ms, whole measurement duration and supervisor elapsed separately. Report timing classes separately from detection correctness."
+  },
+  "correctness": {
+    "ordered_report_equality": "Entire report compared to each named retained baseline and between repeats, recursively excluding only the established volatile keys. Preserve every array order, finding, capture, warning and coverage field. Report mismatch separately from execution completion; stop.",
+    "excluded_volatile_fields": [
+      "applied_at",
+      "completed_at",
+      "duration_ms",
+      "execution_latency_ms",
+      "finding_id",
+      "latency_ms",
+      "origin_latency_ms",
+      "reviewed_at",
+      "scan_id",
+      "started_at",
+      "timestamp"
+    ],
+    "schema": "Validate native JSON and SARIF2.1.0 offline.",
+    "meta_erratum": "Preserve the approved raw fixed-label Meta operator alert and its source erratum. Do not reinterpret the fixed-mutation reference as an expected zero-alert case, suppress its finding or relabel raw truth.",
+    "speed_claim": "No speedup is expected or claimed. Comparisons establish preserved output, not a faster scanner or physical host equivalence."
+  },
+  "pass": "All four observations complete within both300-second limits, reports valid and whole ordered reference/repeat equality holds. Report separately how many met120seconds. This supports preparing the separately approved full25+45+45 sequence, not declaring it passed.",
+  "stop": "Stop on the first incomplete observation, correctness/schema/hash mismatch, infrastructure failure, or job allowance shortage; preserve the attempted result, do not retry and close unstarted observations. No profile, optimization, automatic cap increase or full sequence follows.",
+  "remaining_checkpoints": [
+    "Exact approval of this four-observation diagnostic before any new corpus run.",
+    "Separate full25+45+45 proposal with revised300-second caps and feasible per-job/total ceilings.",
+    "Fresh post-stabilization freeze/evaluation, any additional paid calls and final human acceptance."
+  ],
+  "original_gate_preserved": {
+    "run": 34435283462,
+    "scanner": "7555a9d",
+    "hard_limit_seconds": 120,
+    "completed": 15,
+    "total": 25,
+    "meta_timeouts": 10,
+    "historical_batches_skipped": 2
+  },
+  "phase22_complete": false
+}

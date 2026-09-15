@@ -1,0 +1,344 @@
+1: """Safe webpage fetching and clean text extraction."""
+2: 
+3: from __future__ import annotations
+4: 
+5: import asyncio
+6: from typing import Any
+7: from urllib.parse import urljoin, urlparse, urlunparse
+8: 
+9: import httpx
+10: 
+11: from mcp_ddg_research.cache import JsonFileCache, build_fetch_cache, get_env_int
+12: from mcp_ddg_research.models import (
+13:     DeepSearchPage,
+14:     DeepSearchRequest,
+15:     DeepSearchResponse,
+16:     FailedPage,
+17:     FetchRequest,
+18:     FetchResponse,
+19: )
+20: from mcp_ddg_research.search import ddg_search
+21: from mcp_ddg_research.security import (
+22:     UnsafeUrlError,
+23:     resolve_safe_address,
+24:     validate_fetch_url,
+25:     validate_url_shape,
+26: )
+27: from mcp_ddg_research.text import extract_html_text, is_plain_text_content, truncate_text
+28: 
+29: DEFAULT_FETCH_TIMEOUT_SECONDS = 15
+30: DEFAULT_MAX_CONCURRENCY = 5
+31: MAX_REDIRECTS = 5
+32: DEFAULT_MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+33: FETCH_HEADERS = {
+34:     "User-Agent": (
+35:         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+36:         "AppleWebKit/537.36 (KHTML, like Gecko) "
+37:         "Chrome/120.0.0.0 Safari/537.36"
+38:     ),
+39:     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,text/plain;q=0.8,*/*;q=0.5",
+40:     "Accept-Language": "en-US,en;q=0.9",
+41: }
+42: 
+43: 
+44: def get_fetch_timeout_seconds() -> int:
+45:     return get_env_int("FETCH_TIMEOUT_SECONDS", DEFAULT_FETCH_TIMEOUT_SECONDS)
+46: 
+47: 
+48: def get_fetch_max_bytes() -> int:
+49:     return get_env_int("FETCH_MAX_BYTES", DEFAULT_MAX_RESPONSE_BYTES)
+50: 
+51: 
+52: def get_max_concurrency(max_concurrency: int | None = None) -> int:
+53:     if max_concurrency is not None:
+54:         return max_concurrency
+55:     return min(get_env_int("MAX_CONCURRENCY", DEFAULT_MAX_CONCURRENCY), 12)
+56: 
+57: 
+58: def _cache_payload(request: FetchRequest) -> dict[str, Any]:
+59:     return request.model_dump(mode="json")
+60: 
+61: 
+62: def _cacheable_fetch_response(response: FetchResponse) -> dict[str, Any]:
+63:     return response.model_copy(update={"cached": False}).model_dump(mode="json")
+64: 
+65: 
+66: def _error_response(url: str, error: str) -> FetchResponse:
+67:     return FetchResponse(
+68:         url=url,
+69:         final_url="",
+70:         title="",
+71:         content="",
+72:         content_type="",
+73:         cached=False,
+74:         success=False,
+75:         error=error,
+76:     )
+77: 
+78: 
+79: class RawFetchedResponse:
+80:     """Fully-read response body with the logical (pre-pinning) URL."""
+81: 
+82:     def __init__(
+83:         self,
+84:         status_code: int,
+85:         headers: httpx.Headers,
+86:         content: bytes,
+87:         logical_url: str,
+88:         charset: str | None,
+89:     ) -> None:
+90:         self.status_code = status_code
+91:         self.headers = headers
+92:         self.content = content
+93:         self.logical_url = logical_url
+94:         self.charset = charset
+95: 
+96: 
+97: def _pinned_request_url(url: str, safe_ip: str) -> str:
+98:     parsed = urlparse(url)
+99:     host_part = f"[{safe_ip}]" if ":" in safe_ip else safe_ip
+100:     port = parsed.port
+101:     default_port = port in (None, 80) and parsed.scheme == "http"
+102:     default_port = default_port or (port in (None, 443) and parsed.scheme == "https")
+103:     netloc = host_part if default_port else f"{host_part}:{port}"
+104:     path = parsed.path or "/"
+105:     return urlunparse((parsed.scheme, netloc, path, parsed.params, parsed.query, parsed.fragment))
+106: 
+107: 
+108: def _original_host_header(url: str) -> str:
+109:     parsed = urlparse(url)
+110:     return parsed.netloc
+111: 
+112: 
+113: async def _get_with_validated_redirects(
+114:     client: httpx.AsyncClient,
+115:     url: str,
+116:     max_bytes: int,
+117: ) -> RawFetchedResponse:
+118:     """Fetch while validating every hop and pinning the connection to the IP
+119:     resolved during validation, so a rebinding DNS answer cannot redirect the
+120:     connection to an internal address. The body is streamed and hard-capped."""
+121: 
+122:     current_url = url
+123:     response: httpx.Response | None = None
+124:     for _ in range(MAX_REDIRECTS + 1):
+125:         await validate_fetch_url(current_url)
+126:         safe_ip, _port = await resolve_safe_address(current_url)
+127:         parsed = urlparse(current_url)
+128:         hostname = parsed.hostname or ""
+129:         request = client.build_request(
+130:             "GET",
+131:             _pinned_request_url(current_url, safe_ip),
+132:             headers={**FETCH_HEADERS, "host": _original_host_header(current_url)},
+133:             extensions={"sni_hostname": hostname} if parsed.scheme == "https" else None,
+134:         )
+135:         response = await client.send(request, stream=True)
+136: 
+137:         if response.status_code in {301, 302, 303, 307, 308}:
+138:             location = response.headers.get("location")
+139:             if location:
+140:                 await response.aclose()
+141:                 next_url = urljoin(current_url, location)
+142:                 validate_url_shape(next_url)
+143:                 current_url = next_url
+144:                 continue
+145:             break
+146: 
+147:         chunks: list[bytes] = []
+148:         total = 0
+149:         async for chunk in response.aiter_bytes():
+150:             total += len(chunk)
+151:             if total > max_bytes:
+152:                 await response.aclose()
+153:                 raise UnsafeUrlError(
+154:                     f"Response body exceeds the {max_bytes} byte safety limit"
+155:                 )
+156:             chunks.append(chunk)
+157:         await response.aclose()
+158:         return RawFetchedResponse(
+159:             status_code=response.status_code,
+160:             headers=response.headers,
+161:             content=b"".join(chunks),
+162:             logical_url=current_url,
+163:             charset=response.encoding,
+164:         )
+165: 
+166:     if response is not None:
+167:         await response.aclose()
+168:     raise UnsafeUrlError(f"Too many redirects; maximum is {MAX_REDIRECTS}")
+169: 
+170: 
+171: def _response_to_fetch_response(
+172:     request_url: str,
+173:     response: RawFetchedResponse,
+174:     max_chars: int,
+175: ) -> FetchResponse:
+176:     final_url = response.logical_url
+177:     content_type = response.headers.get("content-type", "")
+178:     if response.status_code >= 400:
+179:         return FetchResponse(
+180:             url=request_url,
+181:             final_url=final_url,
+182:             title="",
+183:             content="",
+184:             content_type=content_type,
+185:             cached=False,
+186:             success=False,
+187:             error=f"HTTP {response.status_code}",
+188:         )
+189: 
+190:     charset = response.charset or "utf-8"
+191:     text = response.content.decode(charset, errors="replace")
+192: 
+193:     lowered_content_type = content_type.lower()
+194:     if "html" in lowered_content_type:
+195:         extracted = extract_html_text(text, max_chars)
+196:         return FetchResponse(
+197:             url=request_url,
+198:             final_url=final_url,
+199:             title=extracted.title,
+200:             content=extracted.content,
+201:             content_type=content_type,
+202:             cached=False,
+203:             success=True,
+204:             error=None,
+205:         )
+206: 
+207:     if is_plain_text_content(content_type, final_url):
+208:         return FetchResponse(
+209:             url=request_url,
+210:             final_url=final_url,
+211:             title="",
+212:             content=truncate_text(text, max_chars),
+213:             content_type=content_type,
+214:             cached=False,
+215:             success=True,
+216:             error=None,
+217:         )
+218: 
+219:     return FetchResponse(
+220:         url=request_url,
+221:         final_url=final_url,
+222:         title="",
+223:         content="",
+224:         content_type=content_type,
+225:         cached=False,
+226:         success=False,
+227:         error=f"Unsupported content type: {content_type or 'unknown'}",
+228:     )
+229: 
+230: 
+231: async def web_fetch(
+232:     url: str,
+233:     max_chars: int = 12000,
+234:     *,
+235:     cache: JsonFileCache | None = None,
+236: ) -> FetchResponse:
+237:     request = FetchRequest(url=url, max_chars=max_chars)
+238: 
+239:     try:
+240:         await validate_fetch_url(request.url)
+241:     except UnsafeUrlError as exc:
+242:         return _error_response(request.url, str(exc))
+243: 
+244:     cache = cache or build_fetch_cache()
+245:     payload = _cache_payload(request)
+246:     cached_value = cache.get(payload)
+247:     if cached_value is not None:
+248:         try:
+249:             return FetchResponse.model_validate(cached_value).model_copy(
+250:                 update={"cached": True}
+251:             )
+252:         except Exception:  # noqa: BLE001 - poisoned/stale cache must not break the tool.
+253:             cache.delete(payload)
+254: 
+255:     try:
+256:         async with httpx.AsyncClient(
+257:             timeout=httpx.Timeout(get_fetch_timeout_seconds()),
+258:             follow_redirects=False,
+259:             headers=FETCH_HEADERS,
+260:         ) as client:
+261:             response = await _get_with_validated_redirects(
+262:                 client, request.url, get_fetch_max_bytes()
+263:             )
+264:         fetch_response = _response_to_fetch_response(
+265:             request.url, response, request.max_chars
+266:         )
+267:         if fetch_response.success:
+268:             cache.set(payload, _cacheable_fetch_response(fetch_response))
+269:         return fetch_response
+270:     except Exception as exc:  # noqa: BLE001 - fetch failures must be returned as structured errors.
+271:         return _error_response(request.url, str(exc))
+272: 
+273: 
+274: async def ddg_deep_search(
+275:     query: str,
+276:     max_results: int = 10,
+277:     search_window: int | None = None,
+278:     max_pages: int = 5,
+279:     max_chars_per_page: int = 12000,
+280:     safe_search: str = "off",
+281:     time_filter: str | None = None,
+282:     blocked_domains: list[str] | None = None,
+283:     allowed_domains: list[str] | None = None,
+284:     preferred_domains: list[str] | None = None,
+285:     max_concurrency: int | None = None,
+286: ) -> DeepSearchResponse:
+287:     request = DeepSearchRequest(
+288:         query=query,
+289:         max_results=max_results,
+290:         search_window=search_window,
+291:         max_pages=max_pages,
+292:         max_chars_per_page=max_chars_per_page,
+293:         safe_search=safe_search,
+294:         time_filter=time_filter,
+295:         blocked_domains=blocked_domains or [],
+296:         allowed_domains=allowed_domains or [],
+297:         preferred_domains=preferred_domains or [],
+298:         max_concurrency=max_concurrency,
+299:     )
+300:     search_response = await ddg_search(
+301:         query=request.query,
+302:         max_results=request.max_results,
+303:         search_window=request.search_window,
+304:         safe_search=request.safe_search,
+305:         time_filter=request.time_filter,
+306:         blocked_domains=request.blocked_domains,
+307:         allowed_domains=request.allowed_domains,
+308:         preferred_domains=request.preferred_domains,
+309:     )
+310:     selected_sources = search_response.results[: request.max_pages]
+311:     semaphore = asyncio.Semaphore(get_max_concurrency(request.max_concurrency))
+312: 
+313:     async def fetch_source(source_url: str) -> FetchResponse:
+314:         async with semaphore:
+315:             return await web_fetch(source_url, max_chars=request.max_chars_per_page)
+316: 
+317:     fetched_pages = await asyncio.gather(*(fetch_source(source.url) for source in selected_sources))
+318:     pages: list[DeepSearchPage] = []
+319:     failed_pages: list[FailedPage] = []
+320:     cached_flags = [search_response.cached]
+321: 
+322:     for source, page in zip(selected_sources, fetched_pages, strict=True):
+323:         cached_flags.append(page.cached)
+324:         if page.success:
+325:             pages.append(
+326:                 DeepSearchPage(
+327:                     title=page.title or source.title,
+328:                     url=source.url,
+329:                     final_url=page.final_url,
+330:                     content=page.content,
+331:                 )
+332:             )
+333:         else:
+334:             failed_pages.append(FailedPage(url=source.url, error=page.error or "Fetch failed"))
+335: 
+336:     return DeepSearchResponse(
+337:         query=request.query,
+338:         search_provider=search_response.provider,
+339:         sources=selected_sources,
+340:         pages=pages,
+341:         failed_pages=failed_pages,
+342:         cached=bool(cached_flags) and all(cached_flags),
+343:         search_error=search_response.error,
+344:     )

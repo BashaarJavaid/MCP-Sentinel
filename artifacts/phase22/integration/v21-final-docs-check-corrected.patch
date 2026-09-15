@@ -1,0 +1,634 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 5d67f42..b235cad 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -78,6 +78,64 @@ Python runtime scaffolding requires `sentinel init --dynamic`.
+ 
+ ## Current phase
+ 
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
++
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+ twice, with valid native JSON/SARIF and **entire ordered reference/repeat equality**.
+@@ -513,7 +571,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
+ - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
+ - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
+ - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
+-- [ ] Phase 22 — MCP coverage and compatibility expansion (all three exposed SSRF gates and four Linux diagnostic observations pass; full timing, fresh evaluation and acceptance pending; paid benchmark/pilots deferred)
++- [ ] Phase 22 — MCP coverage and compatibility expansion (all three exposed SSRF gates and Linux development pass; historical assessment refresh/repeats, fresh evaluation and acceptance pending; paid benchmark/pilots deferred)
+ - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
+ - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
+ - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)
+diff --git a/ROADMAP.md b/ROADMAP.md
+index 4ad08b8..ac82cb5 100644
+--- a/ROADMAP.md
++++ b/ROADMAP.md
+@@ -1152,7 +1152,65 @@ helps solve and identify the obstacles to voluntary CI adoption.
+ 
+ ## 25. Phase 22 — MCP coverage and compatibility expansion
+ 
+-### Current v20 Linux diagnostic
++### Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+diff --git a/artifacts/phase22/integration/README.md b/artifacts/phase22/integration/README.md
+index e67bbd9..cf86082 100644
+--- a/artifacts/phase22/integration/README.md
++++ b/artifacts/phase22/integration/README.md
+@@ -1,6 +1,64 @@
+-# Integration evidence, batches 1–49 and closeout audit
++# Integration evidence, batches 1–50 and closeout audit
++
++## Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
+ 
+-## Current v20 Linux diagnostic
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+@@ -468,6 +526,15 @@ proposals are prepared and unapproved; no automatic dispatch is authorized.
+ 
+ ## Evidence archives
+ 
++Batch 50 is sealed: **693 files**, SHA-256
++`d714c5b9de7f29eac09d9d5ec55a077027af414aa791a9b562237e2cc8802b62`. Every member and all 49 prior archives were verified. Restore
++after batches 1–49 in separate staging using `evidence-v50.json`; require existing
++destinations to match identical bytes or their recorded prior hash. Stop on
++unexpected conflict. Raw sequence/CI outputs, failed attempts, assessments,
++authorization, source verification and helper sources are retained. The new
++replacement-v4 source packet and final audit/docs/delivery bindings are tracked
++directly; no evaluation of the proposed fresh inputs has run.
++
+ Batch 49 is sealed: **338 files**, SHA-256
+ `d3351afdfaf9ba5df51b9bbc34e335a8ea0b791f18e63d9a4dde03e69fed15e0`. Every member and all 48 prior archives were verified. Restore
+ after batches 1–48 in separate staging using `evidence-v49.json`; require existing
+diff --git a/artifacts/phase22/integration/progress.md b/artifacts/phase22/integration/progress.md
+index cb90c01..9da9f09 100644
+--- a/artifacts/phase22/integration/progress.md
++++ b/artifacts/phase22/integration/progress.md
+@@ -1,6 +1,64 @@
+ # Integration progress — not technical acceptance
+ 
+-## Current v20 Linux diagnostic
++## Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+@@ -3410,3 +3468,14 @@ unexpected conflict. This batch retains diagnostic approval/dispatch, supervisor
+ and selfchecks, raw Linux reports/environment/logs, independent assessment, fresh
+ normal hosted verification, full-sequence proposal and helper sources. Final
+ audit/documentation/delivery bindings are tracked directly after sealing.
++
++### Evidence batch50
++
++Batch 50 is sealed: **693 files**, SHA-256
++`d714c5b9de7f29eac09d9d5ec55a077027af414aa791a9b562237e2cc8802b62`. Every member and all 49 prior archives were verified. Restore
++after batches 1–49 in separate staging using `evidence-v50.json`; require existing
++destinations to match identical bytes or their recorded prior hash. Stop on
++unexpected conflict. Raw sequence/CI outputs, failed attempts, assessments,
++authorization, source verification and helper sources are retained. The new
++replacement-v4 source packet and final audit/docs/delivery bindings are tracked
++directly; no evaluation of the proposed fresh inputs has run.
+diff --git a/artifacts/phase22/integration/requirements.md b/artifacts/phase22/integration/requirements.md
+index 5477040..ac25f68 100644
+--- a/artifacts/phase22/integration/requirements.md
++++ b/artifacts/phase22/integration/requirements.md
+@@ -1,6 +1,15 @@
+ # Consolidated Phase 22 requirement checklist
+ 
+-## Current v20 diagnostic audit
++## Current v21 full-sequence audit
++
++All 89 original rows are mapped in `v21-closeout-audit/packet.json`: **72 passed,
++2 explicitly user-deferred, 15 unresolved**. The 45 added rows include
++approval, supervision, complete-sequence measurement, source verification,
++fresh-proposal preparation and delivery. Historical failed attempts remain
++preserved and never reopen a consumed budget. Fresh evaluation and final human
++acceptance remain pending. No paid calls.
++
++## Historical v20 diagnostic audit
+ 
+ All 89 original rows are mapped in `v20-closeout-audit/packet.json`: **70 passed,
+ 2 explicitly user-deferred, 17 unresolved**. All 39 added rows retain **38 passed,
+diff --git a/docs/phase22-corpus-review.md b/docs/phase22-corpus-review.md
+index 452911b..0afaf6e 100644
+--- a/docs/phase22-corpus-review.md
++++ b/docs/phase22-corpus-review.md
+@@ -12,6 +12,11 @@ The four approved Meta diagnostic observations at `1f3f72f` pass within the
+ 300-second maximum with ordered report equality. These are existing development
+ inputs. Full 25 + 45 + 45 and a new fresh evaluation remain separately gated.
+ 
++The replacement-v4 source packet is prepared after freezing `1f3f72f`, with
++no detector/comparator execution. Its exact checkpoint and bounded proposal are
++in `artifacts/phase22/corpus-replacement-v4/`; explicit evaluation approval remains
++pending. All v1/v2/v3 original results and exposed regressions are preserved.
++
+ ## Historical proposal
+ 
+ **Status: prepared and independently source-reviewed; user freeze approval pending.**
+diff --git a/docs/phase22-implementation-status.md b/docs/phase22-implementation-status.md
+index 22e5b40..21d0b56 100644
+--- a/docs/phase22-implementation-status.md
++++ b/docs/phase22-implementation-status.md
+@@ -1,6 +1,64 @@
+ # Phase 22 implementation status
+ 
+-## Current v20 Linux diagnostic
++## Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+diff --git a/docs/phase22-ssrf-follow-up.md b/docs/phase22-ssrf-follow-up.md
+index af19421..93ac324 100644
+--- a/docs/phase22-ssrf-follow-up.md
++++ b/docs/phase22-ssrf-follow-up.md
+@@ -1,6 +1,64 @@
+ # Replacement SSRF follow-up
+ 
+-## Current v20 Linux diagnostic
++## Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+diff --git a/docs/phase22-technical.md b/docs/phase22-technical.md
+index ed85e07..32bed1f 100644
+--- a/docs/phase22-technical.md
++++ b/docs/phase22-technical.md
+@@ -1,6 +1,64 @@
+ # Phase 22 technical expansion
+ 
+-## Current v20 Linux diagnostic
++## Current v21 full Linux sequence
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.
++
++### Historical v20 diagnostic and full-sequence proposal checkpoint
+ 
+ The approved Linux diagnostic **passes all four observations** at scanner
+ `1f3f72f`, workflow `71906a7`, run **34550284556**. Both named Meta inputs complete
+diff --git a/docs/phase22-timeout-policy.md b/docs/phase22-timeout-policy.md
+index 99ef457..433b086 100644
+--- a/docs/phase22-timeout-policy.md
++++ b/docs/phase22-timeout-policy.md
+@@ -80,3 +80,61 @@ Candidate `1f3f72f` passes the local full suite (2,194 passed, 36 skipped), all
+ normal hosted CI jobs and docs. Workflow candidate `71906a7` also passes fresh normal
+ CI/docs; its scanner bytes equal `1f3f72f`. The four-observation diagnostic passes,
+ while the full 115-observation proposal is unapproved and unexecuted. See the [integration evidence index](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/README.md).
++
++## Current full-sequence result
++
++The approved full Linux sequence at scanner **`1f3f72f`**, workflow **`e7131f0`**,
++run **34555414891**, **does not pass**. It consumed
++**62/115 native observations**: **40** completed within
++the 120-second target and **22** used extended time within the uniform
++300-second native/whole-input maximum. Raw durations, cleanup, reports, condition
++scores and source-assessed deltas are retained in `v21-sequence-assessment/` and
++`v21-source-delta-assessment/`. The dispatch budget is closed; no retry, profile,
++source tuning, target execution or paid call occurred.
++
++Development passes **25/25**. All **37 attempted** historical inputs also complete within
++300 seconds; there are **zero timeouts among 62 attempts**. The run stops on
++`kubernetes-shell-vulnerable` because the old assessment expects 24 findings and
++the current scanner produces 25. Source review confirms the added `kubectl_logs`
++cronjob command-injection suspicion is separate from the named `kubectl_get`
++condition, whose existing hit remains. Post-run source review records **19/19**
++observed vulnerable condition hits and **0 matching alerts on 18 observed** negatives.
++The original gate stays failed, **8 inputs** in the first historical batch remain
++unstarted, and the entire 45-input repeat is skipped. All **53 unused** observations
++are closed; these are not timeout failures or permission to resume.
++
++The next exact proposal is **unapproved**:
++`v21-historical-assessment-refresh-proposal.json`. It requests **98 new native
++observations**, two dispatches: 8 preparatory inputs to freeze complete source-bound
++assessments, then two **whole 45-input historical batches**. It explicitly asks
++to reuse the already passed whole 25-input development batch at identical `1f3f72f`
++bytes. The 37 + 8 preparatory reports never count as a whole 45-input execution pass. The
++limits remain 300 seconds per whole input and 120 seconds as the target, with
++60/245/245-minute job limits, zero retries, profiles, comparators or paid calls, and
++no detector/label change. A failing or unresolved preparatory condition closes
++the 90-run final budget. Strict identity and ordered-repeat checks remain in the
++final pair. See the disposition for exact source evidence and timing.
++
++This is a completion result under the approved timing policy, not a speedup.
++The original Linux result at `7555a9d` remains **15/25 complete, ten Meta timeouts
++at 120 seconds and both historical batches skipped**. Scanner/test/package bytes
++remain `1f3f72f`. Fresh CI **34555415861** passes all **29 normal jobs**; every one
++of 12 quality suites passes **2,194 tests with 36 skips**. Docs **34555415860**
++passes. Prior local coverage, six zero-call production replays and Git runtime
++compatibility retain their exact source bindings. Git campaigns remain incomplete;
++all three exposed SSRF families retain their passing regressions at `2ac39aa`.
++
++A later separate checkpoint is the **unapproved replacement-v4 freeze/evaluation** in
++`artifacts/phase22/corpus-replacement-v4/`. Its independent auth-fetch-mcp source
++pair was curated after the scanner freeze, without running a detector/comparator.
++The proposal permits **10 native and 5 Semgrep observations** in one standard
++Linux job, 300 seconds per whole input, 75 nominal input-minutes, a 90-minute job
++limit and zero paid calls. Source exposure and correlated variants are disclosed;
++there is no independent human or unseen-source review claim.
++
++All 89 original requirements are **72 passed, 2 user-deferred,
++15 unresolved**. **Phase 22 remains incomplete** pending the
++remaining gates and explicit final human acceptance. The original held-out result
++remains 10 completed, 10 unsupported, 5 incomplete, with 0 hits among 4 completed
++vulnerable inputs out of 10 vulnerable inputs total. Paid benchmark/pilots remain
++deferred; Phase 21 incomplete and Phase 24/15 unchanged. No merge/release/outreach.

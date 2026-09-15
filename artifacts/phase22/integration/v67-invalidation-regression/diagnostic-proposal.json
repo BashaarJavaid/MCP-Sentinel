@@ -1,0 +1,178 @@
+{
+  "status": "prepared_not_approved_not_executed",
+  "scanner": {
+    "revision": "4145d3559c5300a5003ca8e3368c8da49fb51f91",
+    "source_sha256": "41dd31a167c454bd9db3d720ce75ce6287312ce0e7799bbda1b2e59c61f77ea6",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-4145d35",
+  "input": {
+    "input": {
+      "id": "faf-read-root-vulnerable",
+      "family": "faf-read-root",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "language": "typescript",
+      "split": "held_out",
+      "variant": "original",
+      "label": "vulnerable",
+      "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+      "scan_root": ".",
+      "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+      "prerequisites": [
+        "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+        "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+        "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+      ],
+      "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+      "runtime_applicability": "unsupported",
+      "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+      "runtime_configuration": null,
+      "evidence": [
+        {
+          "path": "src/index.ts",
+          "start_line": 1,
+          "end_line": 18,
+          "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/server.ts",
+          "start_line": 1,
+          "end_line": 139,
+          "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/tools.ts",
+          "start_line": 1,
+          "end_line": 3302,
+          "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/fileHandler.ts",
+          "start_line": 1,
+          "end_line": 235,
+          "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "src/handlers/engine-adapter.ts",
+          "start_line": 1,
+          "end_line": 877,
+          "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "package.json",
+          "start_line": 1,
+          "end_line": 118,
+          "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        },
+        {
+          "path": "tsconfig.json",
+          "start_line": 1,
+          "end_line": 33,
+          "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+          "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+        }
+      ],
+      "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+      "parent": null,
+      "transformation": null,
+      "overlay": null,
+      "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+    },
+    "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+    "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+    "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "assessment": null
+  },
+  "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+  "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+  "purpose": "Identify remaining scanner costs after the approved invalidation-accumulator change still timed out on the first FAF input. The1948bf9 parent profile predates this change and does not establish current residual costs. One sampled input only; no optimization or uninstrumented retry.",
+  "command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v67-invalidation-regression/diagnostic.py"
+  ],
+  "initial_cwd": "/private/tmp/mcp-phase22-options",
+  "output": "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v68-invalidation-sampling",
+  "bounds": {
+    "total_input_executions": 1,
+    "sampled_profiles": 1,
+    "uninstrumented_observations": 0,
+    "whole_input_maximum_seconds": 1800,
+    "normal_target_seconds": 120,
+    "cleanup_maximum_seconds": 15,
+    "periodic_snapshot_seconds": 15,
+    "maximum_stack_frames": 1024,
+    "optimization_attempts": 0,
+    "retries": 0,
+    "comparators": 0,
+    "paid_calls": 0,
+    "hosted_dispatches": 0,
+    "target_execution": false,
+    "cpu_timer_hz_per_process": 100,
+    "maximum_sampled_processes": 5,
+    "parent_processes": 1,
+    "existing_flow_workers_maximum": 4
+  },
+  "instrumentation": "Reuse the verified100Hz stdlib CPU-timer sampler in the existing parent around measure() and in each existing worker through its wrapped entry point. No scanner method replacement. Verify actual parent and worker imports, including TypeScript discovery/flow, full source/harness/lock identity before target source validation and before timer/worker snapshot access. Parent and each sampled worker retain separate identity and sample files. The attempted-input1800-second timer starts before child imports/preflight and includes configuration, materialization, analysis, reports and sampling overhead. Cleanup has its separate15-second allowance. Read-only launcher source/provenance preflight occurs before budget consumption; it performs no scan.",
+  "partial_output": "Retain atomic15-second snapshots and any incomplete temporary files. Parent and workers may lack final/restoration receipts if mandatory cleanup interrupts them. Do not weaken cleanup or claim complete intervals. The legacy rule=parent and worker_cpu_seconds/final_worker_snapshot fields describe the parent process in parent-cpu-samples.json; other rule names retain worker meaning.",
+  "interpretation": "Statistical CPU-timer sampling, GIL/native-code signal delivery, snapshot threads and serialization can bias attribution. Parent and worker shares have separate denominators and overlapping inclusive stacks; never add them as independent savings. Sampling only around parent measure() excludes prior source/approval verification from parent samples, but not from whole-input wall accounting. Require matching identities for every attributed process; missing or mismatched identities invalidate its attribution and are explicit diagnostic failures. Worker snapshots may be absent if discovery has not reached dispatch; absence alone does not prove workers never started. Parent-only evidence can identify parent costs but cannot establish worker costs or completeness. If a report completes, validate JSON/SARIF and compare the entire ordered report to the original2e0efb2 reference with only the established11 volatile exclusions, then assess every change. This is not a native speedup, regression pass or human acceptance.",
+  "stop": "At most one attempted input, including timeout, interruption or worker-identity failure. Fail before consumption on parent preflight mismatch. Preserve partial outputs and close the one-use budget on every attempted outcome. No automatic retry, optimization, resource/deadline change or reopened regression/profile budget.",
+  "environment": "Existing locked local macOS environment and frozen4145d35. Product worker count, dependencies, resources and shared1800-second timeout remain unchanged. Diagnostic-only parent sampling adds one snapshot thread, matching the existing per-worker sampling design; its overhead is disclosed and inside the limit. No overlapping owned heavy work.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v66-invalidation-contract/evaluation-proposal.json": "a925c4e396b328e2c49f84669fb710f09c58f3490956d868e70a58786ae3c2bf",
+    "artifacts/phase22/integration/v66-invalidation-contract/evaluation-authorization.json": "dc85a1040ac28350108613c98c9905689c719874e3d0131c03b9b25da7631a31",
+    "artifacts/phase22/integration/v66-invalidation-contract/execution-consumed.json": "e7866e122e0b1ffaa2d30ba20390f252124a1ab5a1a611d5ade27e97ee5ff9bb",
+    "artifacts/phase22/integration/v66-invalidation-contract/evaluate.py": "54b7d1d80614637551cf0e72cc2e6518d3aa6ad3f8e3b87c89378812b88b38c4",
+    "artifacts/phase22/integration/v66-invalidation-contract/authorization.json": "7a1a351586ab4b28fef2c79b50e6d91a2bd460e8ebf5518b5af5802c1ec19841",
+    "artifacts/phase22/integration/v66-invalidation-contract/source-proof.json": "77949e6bf49d54fed36c998e9a3c7c6fc95ee995fa5972a09accfa19df45a7f5",
+    "artifacts/phase22/integration/v66-invalidation-contract/freeze.json": "679ced579260751bcf6d978948a3637bd39582db4a59d6504c6ca6d9ee30feb9",
+    "artifacts/phase22/integration/v66-invalidation-contract/local-checks.json": "0326466788187f438d3f92b9e13e017f373dbc1c34bd8f9e490b4960bb5be10b",
+    "artifacts/phase22/integration/v66-invalidation-contract/discovery-equivalence.json": "64cb3e50b5f2b260cca2df61728d955b35ebffce0934c976c411616a0d7b0449",
+    "artifacts/phase22/integration/v67-invalidation-regression/corrected-sampling-worker.py": "168249472b602e0fe243775eb09e4320eafc41f0d86da7d8bc9a96c504cd2626",
+    "artifacts/phase22/integration/v67-invalidation-regression/diagnostic.py": "d3360111cfba64ca1325d3fad3c377714309592af24e3c3e2956c7c7e2e1d896",
+    "artifacts/phase22/integration/v67-invalidation-regression/sampler-selfcheck.py": "5633e807333cdc0043fa362093a086688fdae3482f7dd9fc40572728fb171269",
+    "artifacts/phase22/integration/v67-invalidation-regression/sampler-selfcheck/packet.json": "549ab021061470569f162d5013b419b34bcda735cc4dd77105c2cc5125c367fb",
+    "artifacts/phase22/integration/v67-invalidation-regression/parent-sampler-selfcheck.py": "8320d5a84ce943488b560425b324fbae7ae830410bdb8ec3f7d12c3b42c4a680",
+    "artifacts/phase22/integration/v67-invalidation-regression/parent-sampler-selfcheck/packet.json": "e4fd6ff834b04d2440cff6518b0a1595288aae8b2a49420d56d86c4de0dde8ea",
+    "artifacts/phase22/integration/v67-invalidation-regression/assessment.json": "871ae5161fb5f2bbd85d7095dd4e6419c6d5ae8e5836f6173f91400a5b048e5f",
+    "artifacts/phase22/integration/v67-invalidation-regression/validation.json": "41f02a84676426c5045e1a2e8aef7b17391818f322e98405cd1eb180a2bc5328",
+    "artifacts/phase22/integration/v67-invalidation-regression/budget-closed.json": "ae466d9415191ac3ac48e38a43607ddbd7b2121c3bf6b63fb675a0c0237fdd11",
+    "artifacts/phase22/integration/v67-invalidation-regression/raw/packet.json": "6ea08ba34e2456cfafecf7cf454a013e3b529ceec747864177da6640d76bab0e",
+    "artifacts/phase22/integration/v67-invalidation-regression/execution.json": "abb61baf810d141382788f6b28d4284d5babfb67f6dd26e0d20b29d519961e16",
+    "artifacts/phase22/integration/v67-invalidation-regression/prepare-diagnostic.py": "fe461fd97e8e888a867d2afa86f2a6a9c67d80f246198c217cce86b357b0386e",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v64-shared-discovery-sampling/assessment.json": "95955626215e7a5591949e9a3fe2074e2b3267b756fafe8ced32ef7d6b9daef8",
+    "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json": "5f70268142fca7b6b26ee0ec953e8273ebecccc31e26b276d92fe556e92e06b1"
+  },
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "sampler_reuse": {
+    "prior_proposal_sha256": "6e8e955b82f1c17ea71110c1b348fa46dc546c127fa1588578a9a7bca932652b",
+    "prior_sampler_sha256": "574e6be26f2b2e9b1ccfe3ff251ffb01c45746772af9ba2f217090b6218bd829",
+    "sampling_functions_ast_identical": [
+      "sample",
+      "snapshot",
+      "snapshots",
+      "start",
+      "finish"
+    ],
+    "allowed_changes": "Only frozen root/source identity and diagnostic/regression/output path bindings. Actual parent wrapper, existing worker entry wrapper, cadence, stack cap, snapshot interval and signal restoration remain unchanged. Stale parent rejects before target access and stale worker rejects before timer/snapshot access. No scanner method changes.",
+    "synthetic_parent_sha256": "e4fd6ff834b04d2440cff6518b0a1595288aae8b2a49420d56d86c4de0dde8ea",
+    "synthetic_worker_sha256": "549ab021061470569f162d5013b419b34bcda735cc4dd77105c2cc5125c367fb"
+  },
+  "prior_partial_profile": {
+    "path": "artifacts/phase22/integration/v64-shared-discovery-sampling/assessment.json",
+    "sha256": "95955626215e7a5591949e9a3fe2074e2b3267b756fafe8ced32ef7d6b9daef8",
+    "scanner_revision": "1948bf942babce155b701f5b22ed941eb16d99d0",
+    "current_residual_cost_established": false,
+    "retained_outcome": "148764 parent samples, no worker snapshot/report, timeout and verified cleanup. Final parent snapshot restored timer before later forced teardown; cause of later teardown delay unestablished."
+  }
+}

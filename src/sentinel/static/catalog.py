@@ -105,6 +105,66 @@ RULES = (
         "later coverage.",
         RuleEngine.HYBRID,
     ),
+    _rule(
+        "SENT-012",
+        "Path containment failure",
+        "Caller-controlled paths reach filesystem access without enforced "
+        "containment within the intended directory or repository.",
+        Impact.HIGH,
+        "Resolve the requested path and allowed root, reject paths outside the "
+        "root using component-aware containment, and use the validated value.",
+        "Medium: intentionally unrestricted file tools and unsupported custom "
+        "validators require review; string prefixes alone do not prove containment.",
+        RuleEngine.HYBRID,
+    ),
+    _rule(
+        "SENT-013",
+        "Tool-description poisoning",
+        "Recoverable tool metadata instructs an agent to override instructions, "
+        "disclose secrets, or redirect execution to another tool.",
+        Impact.HIGH,
+        "Remove instruction overrides, secret-disclosure requests and unrelated "
+        "tool redirection from tool and parameter descriptions.",
+        "Medium: legitimate security tooling may quote attack instructions; "
+        "explicit quoted warnings are excluded, and remaining candidates need review.",
+        RuleEngine.AST,
+    ),
+    _rule(
+        "SENT-014",
+        "Command option injection",
+        "Caller-controlled references reach command option positions without "
+        "enforced rejection.",
+        Impact.CRITICAL,
+        "Reject option-like references before invocation or use command-specific "
+        "option terminators and safe object APIs.",
+        "Medium: custom validation and unsupported command wrappers need review; "
+        "argv lists alone do not prevent option injection.",
+        RuleEngine.AST,
+    ),
+    _rule(
+        "SENT-015",
+        "Server-side request forgery",
+        "A caller URL reaches an outbound request without enforced scheme and "
+        "destination restrictions.",
+        Impact.HIGH,
+        "Permit only required HTTP(S) destinations, reject private and loopback "
+        "addresses, and enforce checks on every requested URL and redirect.",
+        "Medium: custom clients and unsupported validators require review; "
+        "DNS rebinding is outside this rule's claim.",
+        RuleEngine.AST,
+    ),
+    _rule(
+        "SENT-016",
+        "Unauthorized operator credential fallback",
+        "An HTTP caller without its own credential can select an operator "
+        "credential for an authenticated request.",
+        Impact.HIGH,
+        "Reject missing caller credentials before forwarding the request; "
+        "keep operator credentials outside caller-selectable fallback paths.",
+        "Medium: intended delegation needs an enforced authorization policy. "
+        "Middleware presence or a nearby check alone does not establish one.",
+        RuleEngine.AST,
+    ),
 )
 
 RULE_BY_ID = {rule.rule_id: rule for rule in RULES}

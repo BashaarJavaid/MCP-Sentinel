@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "recorded_at": "2026-09-14T07:56:02.534445+00:00",
+  "evidence_sha256": {
+    "artifacts/phase22/integration/v67-invalidation-regression/launch-preflight-failure.json": "b914f66a193ec5e0742b5ad63fe327ff8d80b25a9f3b3f5aaedcbcc2320c92ac",
+    "artifacts/phase22/integration/v67-invalidation-regression/diagnostic-preflight.json": "76f8c7b8e3e21064b6e03f1519cc941e7e4620a12edbf635d304275ad97b5e9f",
+    "artifacts/phase22/integration/v67-invalidation-regression/diagnostic-authorization.json": "06ee83ac2d5b797a9f5d77a81b45237af6bcbf799ff9884f09b16404d87ce2ba",
+    "artifacts/phase22/integration/v67-invalidation-regression/worktree-restoration-plan.json": "6d392e40cec01b686c0c6601709ab3e3bc0018d011fc9ea1e7d6487ff69c2ff1",
+    "artifacts/phase22/integration/v67-invalidation-regression/worktree-restoration.json": "a38b00ea5049e5db4a1f04b28dca3d10811b8ff2afe2faffd425b2cd718bb968",
+    "artifacts/phase22/integration/v67-invalidation-regression/sealed-evidence-restoration.json": "7772af19f63f9a8156bfd4441af7430141e4418690e803958e5de0c93c06f4b2",
+    "artifacts/phase22/integration/v67-invalidation-regression/user-document-restoration-detection.json": "f363e861d8c113d9dbb3c13ee2f401a6d19b3235a8bed73f90af5af83347e1f8",
+    "artifacts/phase22/integration/v67-invalidation-regression/user-document-restoration-final.json": "260c612e438609c39eb206e29f4d60f3462e01dae7447be61764073a4e104413",
+    "artifacts/phase22/integration/v67-invalidation-regression/restored-launch-preflight.json": "1fea3aec2cbf16737925656966723390673662ccfe1ae052943100a5550ee73a",
+    "artifacts/phase22/integration/v67-invalidation-regression/docker-cleanup-started.json": "60c2e57d247eeb2b78fceef6fe7604b62dc5dbd8833c8e34739b1b91c89cb146",
+    "artifacts/phase22/integration/v67-invalidation-regression/docker-cleanup.json": "eb256ec2e798f4ec7cb31b27d828a528954e975300fe6e1d4f566dc3c42b2448",
+    "artifacts/phase22/integration/v67-invalidation-regression/base-image-cleanup-started.json": "107d4f0cca85fad0acb0396fa4c16806fc2d556a2b21b99b8d33d74cde73302a",
+    "artifacts/phase22/integration/v67-invalidation-regression/base-image-cleanup.json": "778c023c24a54589336467cbebdec02404d878d1f932116618dc14a03683b992"
+  },
+  "initial_launch": "Read-only preflight failed before token/output/input; restored exact verified bytes and resumed the same still-unused approval once. Initial process-start commentary was corrected; premature preparation assertion retained.",
+  "disappearance_cause": "Unknown. User suggested limited disk space; no evidence establishes ENOSPC or a cleanup process as the cause. Host had roughly35GB available during inspection.",
+  "restoration": {
+    "tracked_files": 25941,
+    "apfs_clones": 24737,
+    "blob_writes": 1204,
+    "git_links": 6,
+    "expanded_evidence_files": 7667,
+    "archives_verified": 95,
+    "protected_user_documents_restored": 2,
+    "protected_user_documents_verified": 9,
+    "existing_files_overwritten": 0,
+    "heads_indexes_preserved": true,
+    "original_session_commands_executed": false,
+    "raw_private_session_logs_published": false
+  },
+  "docker": {
+    "authorization": "User requested checking Docker and freeing unneeded storage.",
+    "selected_cache_entries": 2,
+    "cache_entries_removed": 0,
+    "cache_prune_reported_bytes": 0,
+    "selected_unused_public_images_removed": 5,
+    "logical_image_summary_before_gb": 9.151,
+    "logical_image_summary_after_gb": 6.261,
+    "logical_summary_drop_gb": 2.89,
+    "containers_preserved": 7,
+    "volumes_preserved": 65,
+    "approved_runtime_images_preserved": [
+      "sha256:420b998fc52bd814a2e937e780f9ddc0ede656f19e46ca0df02cf76242c1469a",
+      "sha256:607a597c133477daa68edde0fcedc9c63528c61e45fd05f348ce120766eab757"
+    ],
+    "allocated_bytes_before": 21128253440,
+    "allocated_bytes_now": 20634439680,
+    "delayed_physical_bytes_reclaimed": 493813760,
+    "host_available_bytes_now": 35511771136,
+    "qualification": "Rounded Docker logical image totals differ from physical sparse-disk reclamation. Initial immediate physical delta was zero and remains preserved; this later read is supplemental. Host free-space changes include unrelated filesystem activity. No global prune, project-image deletion, volume/container removal or daemon configuration change.",
+    "summary_now": "TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE\nImages          21        2         6.261GB   3.79GB (60%)\nContainers      7         0         5.14MB    5.14MB (100%)\nLocal Volumes   65        5         136.5MB   88.11kB (0%)\nBuild Cache     317       0         10.82GB   6.445GB\n"
+  },
+  "profile_budget": "Exactly one actual profile after restored preflight; now closed. No second token or target execution.",
+  "helper_failures": [
+    "buildx du incompatible verbose/format options; read-only inventory retried with supported output",
+    "image inspect missing Config.Labels and string Size display assumptions corrected in read-only inspection",
+    "initial public-image guard expected empty RepoTags, but Docker returned exact digest-qualified tags; failed before mutation, corrected helper and original retained",
+    "guessed helper/path lookups corrected using listings; no source or measurement effect"
+  ],
+  "paid_calls": 0,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

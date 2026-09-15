@@ -19,10 +19,13 @@ from sentinel.config import load_configuration
 from sentinel.dynamic.prober import (
     DEFAULT_ORDER,
     INJECTION_MARKER,
+    OUT_OF_SCOPE_CANARY,
     OVERSIZED_MARKER,
     WRONG_TYPE_MARKER,
+    DynamicScanResult,
     ProbeBinding,
     ProbeCampaign,
+    _finding_from_observation,
     _run_campaign,
     _run_one,
 )
@@ -155,7 +158,14 @@ def test_independent_docker_controls(
             _run_one(
                 sandbox,
                 dependency_image.reference,
-                ProbeBinding(probe_id, "process", "value", marker),
+                ProbeBinding(
+                    probe_id,
+                    ("denied" if case.startswith("grant_") else OUT_OF_SCOPE_CANARY)
+                    if probe_id == "SENT-008"
+                    else "process",
+                    None if probe_id == "SENT-008" else "value",
+                    marker,
+                ),
                 PermissionsManifest.model_validate(
                     {"version": 1, "tools": {"process": {}}}
                 ),
@@ -212,18 +222,20 @@ def test_reference_campaigns(
     assert manifest is not None
     campaign = ProbeCampaign(
         DEFAULT_ORDER,
-        {
-            "SENT-008": ProbeBinding("SENT-008", None, None, None),
-            "SENT-009": ProbeBinding(
-                "SENT-009", calculator, "expression", OVERSIZED_MARKER
-            ),
-            "SENT-010": ProbeBinding(
-                "SENT-010", calculator, "expression", INJECTION_MARKER
-            ),
-            "SENT-011": ProbeBinding(
-                "SENT-011", calculator, "expression", WRONG_TYPE_MARKER
-            ),
-        },
+        tuple(
+            {
+                "SENT-008": ProbeBinding("SENT-008", None, None, None),
+                "SENT-009": ProbeBinding(
+                    "SENT-009", calculator, "expression", OVERSIZED_MARKER
+                ),
+                "SENT-010": ProbeBinding(
+                    "SENT-010", calculator, "expression", INJECTION_MARKER
+                ),
+                "SENT-011": ProbeBinding(
+                    "SENT-011", calculator, "expression", WRONG_TYPE_MARKER
+                ),
+            }.values()
+        ),
         None,
         True,
     )
@@ -238,9 +250,54 @@ def test_reference_campaigns(
                 default=lambda value: value.model_dump(mode="json"),
             )
         )
-        assert len(results) == 4
+        assert len(results) == len(campaign.bindings)
+        assert len({item.attempt_id for item in results}) == len(results)
         assert all(item.status == "tested" for item in results), results
-        assert all(item.vulnerable is violation for item in results), results
+        from sentinel.dynamic.merge import merge_findings
+        from sentinel.llm.tools import ToolCatalog
+        from sentinel.report.json_report import render_json
+        from sentinel.report.sarif import render_sarif
+        from sentinel.report.validate_json import validate_report_data
+        from sentinel.report.validate_sarif import validate_sarif_data
+        from tests.conftest import NOW, SCAN_ID
+        from tests.test_baseline import _report
+
+        findings = merge_findings(
+            (),
+            tuple(
+                _finding_from_observation(item, SCAN_ID, NOW)
+                for item in results
+                if item.vulnerable
+            ),
+            ToolCatalog(tools=(), warnings=()),
+        )
+        dynamic = DynamicScanResult(findings, (), dependency_image, campaign, results)
+        report = _report(findings).model_copy(
+            update={
+                "dynamic_analysis": dynamic.summary,
+                "analysis_complete": dynamic.complete,
+            }
+        )
+        native = json.loads(render_json(report))
+        validate_report_data(native)
+        sarif = json.loads(render_sarif(report))
+        validate_sarif_data(sarif)
+        assert (
+            native["dynamic_analysis"]
+            == sarif["runs"][0]["invocations"][0]["properties"]["dynamicAnalysis"]
+        )
+        calculator_results = [
+            item
+            for item in results
+            if item.target_tool == calculator
+            and item.mutation in {"oversized", "injection", "wrong_type"}
+        ]
+        assert len(calculator_results) == 3
+        assert all(item.vulnerable is violation for item in calculator_results), results
+        assert (
+            any(item.probe_id == "SENT-008" and item.vulnerable for item in results)
+            is violation
+        )
     finally:
         _assert_clean(sandbox)
 
@@ -252,7 +309,7 @@ def test_startup_failure_stops_campaign_and_cleans(
     sandbox = _sandbox(tmp_path, case)
     campaign = ProbeCampaign(
         DEFAULT_ORDER,
-        {rule: ProbeBinding(rule, None, None, None) for rule in DEFAULT_ORDER},
+        tuple(ProbeBinding(rule, None, None, None) for rule in DEFAULT_ORDER),
         None,
         True,
     )
@@ -263,8 +320,10 @@ def test_startup_failure_stops_campaign_and_cleans(
         results = asyncio.run(
             _run_campaign(sandbox, dependency_image.reference, campaign, manifest)
         )
-        assert not results[0].execution_successful
-        assert [item.status for item in results[1:]] == ["untested"] * 3
+        assert not results and not campaign.bindings
+        assert not campaign.enumeration_complete
+        assert not campaign.execution_successful
+        assert campaign.discovery
     finally:
         _assert_clean(sandbox)
 
@@ -330,7 +389,7 @@ def test_infrastructure_failure_retains_proof_and_stops_independent_work(
     sandbox.runner = runner
     campaign = ProbeCampaign(
         DEFAULT_ORDER,
-        {rule: ProbeBinding(rule, None, None, None) for rule in DEFAULT_ORDER},
+        tuple(ProbeBinding(rule, None, None, None) for rule in DEFAULT_ORDER),
         None,
         True,
     )
@@ -349,7 +408,12 @@ def test_infrastructure_failure_retains_proof_and_stops_independent_work(
             )
         )
         assert results[0].vulnerable
-        index = 2 if failure == "canary-inspection" else 1
+        index = next(
+            i for i, item in enumerate(results) if not item.execution_successful
+        )
+        assert results[index].probe_id == (
+            "SENT-010" if failure == "canary-inspection" else "SENT-009"
+        )
         assert not results[index].execution_successful
         assert all(item.status == "untested" for item in results[index + 1 :])
     finally:

@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "approved": true,
+  "user_instruction": "go ahead then",
+  "recorded_at": "2026-09-10T22:18:40.399897+00:00",
+  "scope": "Stage0 CPU-throughput probe only, with the assistant safeguards explicitly accepted by the user",
+  "starting_head": "c07ffeb8a621d00a0ebbe762eda9444ff1f76c40",
+  "scanner_identity": {
+    "revision": "c07ffeb8a621d00a0ebbe762eda9444ff1f76c40",
+    "source_sha256": "9639435c0657e28f7c9a16ff25b05b4101910241dc35413f5c26392f9fc36647",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "proposal_sha256": "d165d33cba771c22e54a0c1502edbd98d348fcdf67570563db6fd4b76443142a",
+  "authorization_sha256": "a61c04ccbdb2553189f40d7f3557c023e1a83c2d13b09893a458bc8d2197c33b",
+  "probe_sha256": "03a6a82434f7fe4493c25683df8e67b62e5bada26f132baf319e3faeb6181cb5",
+  "workflow_sha256": "4c9b7a18d8e5bae64bd8e78a1f8ff8dc76c363d83fc267022553a13cf95f914c",
+  "bounds": {
+    "dispatches": 1,
+    "observations": 12,
+    "process_counts": [
+      1,
+      3,
+      4,
+      6
+    ],
+    "repetitions": 3,
+    "units_per_process": 40,
+    "iterations_per_unit": 100000,
+    "one_calibration_halving_allowed": true,
+    "per_observation_seconds": 180,
+    "job_minutes": 15,
+    "scanner_runs": 0,
+    "model_calls": 0,
+    "target_execution": false,
+    "stage1_approved": false,
+    "partitioning_approved": false
+  },
+  "order": [
+    1,
+    3,
+    4,
+    6,
+    1,
+    3,
+    4,
+    6,
+    1,
+    3,
+    4,
+    6
+  ],
+  "seed": 1729,
+  "calibration": "One100000-iteration unit, then one40-unit reference checksum (20units only if calibration exceeds1s); never pooled with observations.",
+  "synchronization": "All children write readiness before a monotonic start is sent over private stdin. Aggregate work divided by the common-start-to-last-finish monotonic interval; per-child start lag and CPU retained.",
+  "deadline_safeguards": "180seconds per observation including readiness; script internal maximum600seconds; first workflow step records a780second monotonic deadline to reserve120seconds before the15minute job ceiling. All started children are killed/reaped on failure. No automatic rerun; GITHUB_RUN_ATTEMPT must equal1.",
+  "decision": "Only complete12-observation evidence is scored. E3<2.7: premise not supported. Else E4>=3.4 and E6>=0.95*E4: supports a separately proposed experiment. Else E4<3.2: close this proposal. Otherwise inconclusive, including E6 failing with highE4. No scanner performance conclusion or implementation approval.",
+  "verification": {
+    "normal_jobs_structurally_identical": true,
+    "normal_workflow_inputs_identical": true,
+    "optional_job_only_changed": true,
+    "selfcheck": "v18-probe-selfcheck.json",
+    "selfcheck_scope": "Tiny32-iteration subprocess controls for readiness/checksums/timeout/cleanup; synthetic decision rows. Zero full scaling measurements and zero scanner runs locally.",
+    "lint": "v18-probe-lint.json"
+  },
+  "workflow_effect": "The optional job replaces the spent v9 diagnostic at this new source. Its old source/evidence/authorization remains immutable. Existing phase22_historical=true selector runs only this new probe on the integration branch. Full workflow equality to592a9cd ends here; normal CI must verify the workflow candidate. Scanner/test/package bytes remain unchanged.",
+  "stage1_approved": false,
+  "partitioning_approved": false,
+  "linux_scanner_diagnostic_approved": false,
+  "full_sequence_approved": false,
+  "fresh_evaluation_approved": false,
+  "paid_calls": 0,
+  "phase22_complete": false
+}

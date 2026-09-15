@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "controls": [
+    {
+      "mutation": "self.invalidated_objects.clear()",
+      "rejected": true
+    },
+    {
+      "mutation": "self.escaped = self.invalidated_objects",
+      "rejected": true
+    },
+    {
+      "mutation": "invalidated.clear()",
+      "rejected": true
+    },
+    {
+      "mutation": "self.escaped = invalidated",
+      "rejected": true
+    },
+    {
+      "mutation": "getattr(self, \"invalidated_objects\").clear()",
+      "rejected": true
+    }
+  ],
+  "candidate_passes": true,
+  "corpus_observations": 0,
+  "paid_calls": 0
+}

@@ -1,0 +1,32 @@
+{
+  "failed_wrapper_checks": {
+    "v62-prerequisites-corrected": 1,
+    "v62-initial-lint": 1,
+    "v62-lint": 1,
+    "v62-prerequisites": 1
+  },
+  "assessments": {
+    "v62-initial-lint": "New test imports TypeScriptBinding, TypeScriptSymbol and walk were missing; E501 formatting also failed. Imports and formatting corrected before candidate commit.",
+    "v62-prerequisites": "The synthetic fixture passed an unsupported language CLI override. ScannerConfig rejected it before the affected assertion; prior binding/warning/pickle comparisons passed. Fixture writes source files/package and omits unsupported override.",
+    "v62-prerequisites-corrected": "16 checks passed, then the mixed-language fixture was correctly rejected for lacking a declared workspace. Added workspaces:[.] to its package.",
+    "v62-lint": "One 89-character test string was parenthesized; no behavior change."
+  },
+  "correction_receipts": [
+    "v62-prerequisites-workspace-corrected.json",
+    "v62-lint-corrected.json",
+    "v62-format.json",
+    "v62-affected.json",
+    "v62-discovery-equivalence.json"
+  ],
+  "notes": [
+    "Initial Git staging in a helper was denied at index.lock by the sandbox; no staging occurred. Direct authorized Git staging/commit succeeded.",
+    "Read-only intake network/process access failures were resolved through authorized access, recorded in shared-discovery-intake-20260914/notes.md.",
+    "A read-only lookup for the nonexistent v61 update-audit.py returned 1; rg found reconcile.py. No product or execution effect.",
+    "Coverage subprocess files belong to the running full suite and are preserved until its combined coverage completes."
+  ],
+  "product_equivalence_failure": false,
+  "attempts": 1,
+  "additional_corpus_observations": 0,
+  "profiles": 0,
+  "paid_calls": 0
+}

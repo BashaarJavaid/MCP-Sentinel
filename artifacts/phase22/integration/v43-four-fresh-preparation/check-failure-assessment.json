@@ -1,0 +1,26 @@
+{
+  "docs_initial": {
+    "metadata_sha256": "c34b54f0167c9661fb504c3ce02b41f1a7b4dcb6880a910feada299d701e6e40",
+    "exit_code": 1,
+    "reason": "Six relative evidence links escaped the published docs tree; changed only those docs links to the GitHub delivery path. Corrected strict build passed. Original log/patch/receipt preserved."
+  },
+  "source_preparation": {
+    "observations": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "initial_helper_failure": "prepare-initial.py compared an enriched prior-manifest record to a two-field reference; assertion failed before packet creation. Corrected to compare the recorded digest, retaining all prior metadata. A separate metadata inspection assumed a dict for the FAF commit-search list and exited1; the actual source fix is faf-security-fix.json.",
+    "source_review_correction": "The initial unapproved corpus-four-fresh-v1 draft incorrectly described Engram storage as SQLite. Full create_database source requires DATABASE_URL/PostgreSQL in both revisions. The new v2 source-only packet corrects that prerequisite and adds complete backend/search evidence. Original draft and sources remain preserved. No sources, scanner, conditions, observations or budgets changed.",
+    "superseded_packet": "artifacts/phase22/corpus-four-fresh-v1/checkpoint-2e0efb2.json",
+    "current_preparation_source": "prepare-v2.py",
+    "current_cases": "cases-v2.json"
+  },
+  "launcher": {
+    "initial_proposal_sha256": "e50f3f9acfe5b9b267440a6dce7370737b04a6e4c461fa13b3f8f53f97fb7aba",
+    "final_proposal_sha256": "f14463b709be246621cf82c08d01978dafea72bc0c1defb5f6044de53ed1d983",
+    "change": "Handle launcher SIGTERM with supervisor.stopped so its finally cleanup executes. Same scanner/sources/configurations/24observation budget/stopping policy. No approval or execution occurred before this source-only launcher hardening.",
+    "observations": 0,
+    "paid_calls": 0,
+    "target_execution": false
+  },
+  "sandbox": "Initial network/process read denials were resolved by authorized read-only escalations. No automatic approval rejection, target execution or scanner observation occurred."
+}

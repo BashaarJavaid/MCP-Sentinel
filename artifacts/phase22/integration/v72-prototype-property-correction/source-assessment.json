@@ -1,0 +1,330 @@
+{
+  "source": "cec0322e904bbf63c33cd95796e7289101a93e5d",
+  "recorded_at": "2026-09-14T13:02:30.214575+00:00",
+  "candidate_commit_sha256": "44582dae0b08d3e5d4253d07b6d7d829b30706a2e7136814281657924531fa53",
+  "intake_sha256": "abc5b92c7139ac093e035c077c777e1047a34b1fab444d3a514ef3f785fb298f",
+  "changes": {
+    "CHANGELOG.md": {
+      "before": "b51c4f9a7ed5947ccf9471eb1dd1617ebf6c80abfc9340dd5cc53e7e9115a7f6",
+      "after": "835011aeca9357a9b8f3677e3e5d0ad11b76e4734a18934357f8ed4897111ad1"
+    },
+    "src/sentinel/static/rules/sent015.py": {
+      "before": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+      "after": "1cdb4c8a357bacef5f9fe242e399f4580560a82eaa4c3ce90ed52a9069b3995c"
+    },
+    "src/sentinel/static/typescript_path_flow.py": {
+      "before": "376b9ba27bddc3add96bfa88fab4d231850b0737daa465ce5db098c85a83e18a",
+      "after": "d531b435131190e98d5b6daca888976bb6987111f1b0b5cc7ac16ab54c757e47"
+    },
+    "tests/test_ssrf_prepared_requests.py": {
+      "before": "84db30d20a1d6842f1be47857049922bab6a64f0cfef672d5bb9d46839769512",
+      "after": "b29e9bee91a8d46991deb539fa82658374314cd1b4e6cd62f245249a0e28149e"
+    },
+    "tests/test_static_workers.py": {
+      "before": "f2ac9514a59079fd28743a6adc7a1b54cc1ccd728fad92f159665cfd96c786d2",
+      "after": "98dde03b834b8d2ea32dc2a73f6387293753f3c512587409dc727264db872420"
+    },
+    "tests/test_typescript_classes.py": {
+      "before": "1f3df66a5522b36ce5e8d743108dd23edeea9cad8575882ac0b3f5d768495e64",
+      "after": "9a22fefe353b31a7b0c4bdedcdc21eb271e27b8b4e691ce22acf461712e4571a"
+    },
+    "tests/test_typescript_discovery.py": {
+      "before": "c86d3918b0a980bd9c2a4d8a189a9a37906fdad9dfb8e15f54161d6a9396ac08",
+      "after": "8b2bf97d1708eca9cd735c2a2d6f25a8bb9753f9ef14bba0a05c350b5bb59a79"
+    }
+  },
+  "authority": "Continuation of approved-contract correctness work explicitly authorized by section2 of the user-requested shared-discovery acceptance/closeout prompt. The v45 approved recovery scope requires actual FAF caller/read/fixed-root support and Lightning initial literal rejection. Correct these unresolved implementation gaps under the same detection/support obligations; no acceptance criterion or private-state contract is waived. This is not the unapproved v68 performance/cache attempt.",
+  "interpretation": "Necessary ordinary correctness under the original v45 recovery contract, not a performance optimization or an acceptance waiver. Synthetic success does not establish actual corpus support or duration. All earlier source-bound failures remain unchanged.",
+  "changes_assessed": [
+    {
+      "path": "src/sentinel/static/typescript_path_flow.py",
+      "root_cause": "class_members rejected every constructor parameter attribute, including ordinary visibility/readonly parameter properties. The shared function binder had no receiver-property assignment for them.",
+      "correction": "For supported named parameter properties, bind all arguments/default expressions first, then assign their final parameter values to the existing actual instance markers before the constructor body. This models mutations made by later defaults. The same shared interpreter supplies discovery and all TypeScript rule subclasses.",
+      "conservative_boundaries": "Existing recursive/unsupported constructor, inheritance/mixin/class decorator, replacement and escape checks remain. Parameter decorators/unknown modifiers, duplicate property names, collisions with instance members, and any initialized instance field on a parameter-property class remain unsupported. Emit-order ambiguity is not guessed. Special __proto__ parameter properties are rejected because ordinary emitted assignments can mutate the receiver prototype; this retains the pre-existing explicit prototype-assignment boundary rather than silently constructing a field marker.",
+      "checks": "Actual passed cases cover private/protected/public/readonly, supplied/missing/default/earlier-parameter/later-default-mutation values, body overwrite, separate instance identities, escape, method collision, initialized fields and decorator rejection. Shared discovery tests verify a nonempty binding plus ordered complete rule state and source-node identity through pickle; serial/parallel tests prove all flow detectors execute without importing target source. The final224focused cases include the new prototype-property rejection control.",
+      "language_reference": "https://www.typescriptlang.org/docs/handbook/2/classes.html#parameter-properties",
+      "reference_interpretation": "Official documentation defines visibility/readonly constructor parameters as properties with the same name/value. The scanner deliberately leaves initialized-field emit-order combinations unsupported."
+    },
+    {
+      "path": "src/sentinel/static/rules/sent015.py",
+      "root_cause": "URLFlow discarded initial destination guard evidence on rstrip(\"/\") and subsequent path suffixes. Simply attaching truth facts also caused returned hostname values to be wrapped as predicates, losing parsed-component identity.",
+      "correction": "Track exact parsed hostname value keys separately from fallback-combined values. Truth on a real hostname establishes presence. Preserve component-valued helper results as components instead of wrapping them as Boolean predicates. Exact source-backed rstrip(\"/\") requires scheme plus host/presence evidence, creates a distinct derived key and removes authority evidence. A known slash-leading suffix preserves complete initial IP/scheme/presence checks on a proven existing destination.",
+      "conservative_boundaries": "No new complete DNS/redirect/rebinding safety claim. Existing qualification remains initial literal IPv4 only. Wrong/reassigned values, caught guard exceptions, custom trim arguments, fallback-host combinations, representation/format changes and authority-changing suffixes lose qualification. No general string operation or arbitrary custom-instance equivalence is assumed.",
+      "checks": "Fifteen independent scanner-owned URL derivation cases retain one broad finding and assert the exact initial-private-literal qualifier. Existing async hostname normalization/pinning, CGNAT, prepared requests, predicate and route qualification tests remain in the focused/full suites."
+    }
+  ],
+  "failures_preserved": [
+    {
+      "check": "v71-baseline-synthetic",
+      "outcome": "5 failed /89 passed on unchanged baseline product with newly introduced tests: two missing parameter-property positives and three missing URL qualifiers. The targeted subset also failed the inherited full-project80% coverage gate at31.26%; that is a check-configuration failure, not full-suite engineering. Later focused checks explicitly use --no-cov; full engineering retains configured coverage and separately verifies branch-only>=80%."
+    },
+    {
+      "check": "v71-correction-synthetic",
+      "outcome": "1 failed /93 passed: existing async model/pinning normalization lost its CGNAT qualifier because a component return was wrapped as a Boolean predicate. Corrected centrally by retaining component result keys. The first implementation/test patch and archive remain preserved."
+    },
+    {
+      "check": "v71-correction-synthetic-v2",
+      "outcome": "96 passed after component bookkeeping correction and fallback/authority controls."
+    },
+    {
+      "check": "v71-correction-synthetic-v3",
+      "outcome": "104 passed after four constructor-default/identity/decorator and four URL formatting/reassignment controls."
+    },
+    {
+      "check": "v71-discovery-worker-synthetic",
+      "outcome": "119 passed including parameter-property discovery and TypeScript/mixed serial/parallel cases. The subsequent two-case check adds an explicit nonempty-binding assertion; complete full-suite verification covers final source."
+    },
+    {
+      "check": "v71-prototype-property-control",
+      "outcome": "Failed: scanner-owned new Writer({save:unknown}).save(args.path) was still treated as the class method when its constructor parameter property was named __proto__. This is a source-established bypass of the existing conservative prototype-mutation boundary, not a corpus finding or runtime exploit claim."
+    },
+    {
+      "check": "v71-full-suite",
+      "outcome": "Deliberately interrupted after1408passed/36skipped in682.16seconds, exit2, once the independent prototype control failed. Initial process-name filter found no lowercase-python match and sent no signal; exact macOS Python PID70409 was then verified and interrupted normally. Partial JUnit/log remain retained; no JSON coverage report was emitted on interruption, and no complete local pass exists."
+    },
+    {
+      "check": "v71-hosted-retention",
+      "outcome": "CI34845266890 deliberately cancelled, docs34845266900passed. All resulting151artifact files and complete available logs retained; engineering_passedfalse. This is not new accepted full engineering. Corrected source receives a new full matrix."
+    },
+    {
+      "check": "v72-focused",
+      "outcome": "224passed, including actual prototype rejection, the original class/URL cases and complete discovery/worker checks."
+    }
+  ],
+  "preparation_notes": [
+    "A retired production helper was absent from /private/tmp. Its exact bytes were restored from v66-production-capture.untracked.tar.gz after verifying the wrapper archive hash; helper SHA256632cd506eeec4c18aea5ac68402c1c745eff60220dd4d439190d6e219c3fe9b6. No protected file was overwritten.",
+    "Read-only guessed historical helper/module paths returned missing-file errors. The candidate delivery helper initially referenced a guessed v70 packet name; inspection corrected it to the actual v70-uncapped-four-results before execution. No failed mutation or corpus observation occurred.",
+    "Adapted hosted audit preparation was reviewed before execution and corrected to the current full-suite coverage filename and candidate description."
+  ],
+  "checks": {
+    "v71-baseline-synthetic": {
+      "receipt_sha256": "80fc7c0e6897fdfd00ef29f50493e388fe049b461486f949512f41119614ac02",
+      "log_sha256": "fcd27af288866ff4d7dc07daee8fe73c532425e335c57460ebfeafaf9c9a38a8",
+      "exit_code": 1,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "1a2bd751396b6fcccbb39e00c17a2b74eeafe8600e0512c82031151e69708cde",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_classes.py",
+        "tests/test_ssrf_prepared_requests.py",
+        "-q"
+      ]
+    },
+    "v71-correction-synthetic": {
+      "receipt_sha256": "5b3e99a29cf5dee9f5d9bf708454281306cc8856ababebf17389f053ba90eaa3",
+      "log_sha256": "5e26bc08aad08d56c1bd0c55465508f17eb2337f35f953a7d84c40cdcd6f2c84",
+      "exit_code": 1,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "15e22dd060081de5fb459aedbf73ddc890f8e83c8dc767290e3159754c24b02a",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_classes.py",
+        "tests/test_ssrf_prepared_requests.py",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v71-correction-synthetic-v2": {
+      "receipt_sha256": "b8398d586c720dee24afc3239b67dce4869409d9310de64666901a98f8804cb0",
+      "log_sha256": "d7e324c71bd2332c0cc91e07bb7d31f59ba740ff6361b7c74cd48b870b87f2cf",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "cd237236d572ff55b0084b551d252499de08b440c94b8241eaa0d804e3f545e8",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_classes.py",
+        "tests/test_ssrf_prepared_requests.py",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v71-correction-synthetic-v3": {
+      "receipt_sha256": "02b38c27f35fba62d04b52fd95df9ab7afd3d00150ffa4ea7b613fef9c9099e4",
+      "log_sha256": "304449fd9ed040c488de0b04a8889a85e80cdb0f29adf31f8ab70c545a77ea26",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "fc37145a8b2c3be2cbd784037868b2136905d4c0abefbd2e45ee91df7bf23b07",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_classes.py",
+        "tests/test_ssrf_prepared_requests.py",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v71-discovery-worker-synthetic": {
+      "receipt_sha256": "a316f4376f628d6ae71a8c504a23d6ada1af2cfe5a5956b8992a7747779bc803",
+      "log_sha256": "f8e6f337529909308dfa2015bb09629e0d8f850d4daff94c3ca0b68b6244c3e7",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "43d452173c8fef5e2f603757208779b917816b92b280e38a8e1378b1428ebfb2",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_discovery.py",
+        "tests/test_static_workers.py",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v71-property-discovery-nonempty": {
+      "receipt_sha256": "331988e31da72bd1b72bac15ee48a455e4b767966e2e06d9f3b9cc263fe028dd",
+      "log_sha256": "0e4d5022591acff13bfb6e00a271ad314ee65ba10175ee7a8a9ea2f42bd7f7ba",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "b9dacd5d5f4d66cbb679898d0fcb307db423335c379b6dccb64a21f01f7f1618",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_discovery.py",
+        "-k",
+        "parameter-property",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v71-final-lint-v2": {
+      "receipt_sha256": "76f088bc231a86638137cd0c894964fe20f508a3191f2be783f5e36c4fdb7e6a",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "b9dacd5d5f4d66cbb679898d0fcb307db423335c379b6dccb64a21f01f7f1618",
+      "command": [
+        "ruff",
+        "check",
+        "src",
+        "tests",
+        "scripts"
+      ]
+    },
+    "v71-final-format-v2": {
+      "receipt_sha256": "f1998dddac07aa0bf4dc7462931cfc502b0a0b52acee4020a327a37498792d93",
+      "log_sha256": "4e91bbf655ac088fa970a2002c8966ba5c052e2564c54c28dee1de4d4385e996",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "b9dacd5d5f4d66cbb679898d0fcb307db423335c379b6dccb64a21f01f7f1618",
+      "command": [
+        "ruff",
+        "format",
+        "--check",
+        "src",
+        "tests",
+        "scripts"
+      ]
+    },
+    "v71-final-types-v2": {
+      "receipt_sha256": "98bf5c0e97558403b4cb03db4d6f22a5bd381cadb991da3cc4966ac2baf0ccfa",
+      "log_sha256": "04a595edfc8e7a5f06ea79b86ccd8c7c40fc7cb3b92eee804b46709ce0681827",
+      "exit_code": 0,
+      "source_commit": "93fb7a58718b585ac916356d6bca1a191069032f",
+      "diff_sha256": "b9dacd5d5f4d66cbb679898d0fcb307db423335c379b6dccb64a21f01f7f1618",
+      "command": [
+        "mypy"
+      ]
+    },
+    "v72-focused": {
+      "receipt_sha256": "c774efaa2c0153cca3bb311df5923f8111a4aa904c99dd4ad313e15f8b5be515",
+      "log_sha256": "99a2c20630cda724c02ae857dec3bc3874cb6b825b387fcb0cf7ad2f4481b04b",
+      "exit_code": 0,
+      "source_commit": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+      "diff_sha256": "4a90c6c0c018376823bc1064746b9df43f407f04ce0797ec35b571bfd3eaca19",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_typescript_classes.py",
+        "tests/test_ssrf_prepared_requests.py",
+        "tests/test_typescript_discovery.py",
+        "tests/test_static_workers.py",
+        "-q",
+        "--no-cov"
+      ]
+    },
+    "v72-final-lint": {
+      "receipt_sha256": "0ae34c8321bd4655a76fca740540241bbc754a7f33fa518a92b825c36c41f4f9",
+      "log_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "exit_code": 0,
+      "source_commit": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+      "diff_sha256": "4a90c6c0c018376823bc1064746b9df43f407f04ce0797ec35b571bfd3eaca19",
+      "command": [
+        "ruff",
+        "check",
+        "src",
+        "tests",
+        "scripts"
+      ]
+    },
+    "v72-final-format": {
+      "receipt_sha256": "dc64d7bd3ef4fac4064330b942d7377d4095dc3ec52602e938e37a10b9da65f9",
+      "log_sha256": "4e91bbf655ac088fa970a2002c8966ba5c052e2564c54c28dee1de4d4385e996",
+      "exit_code": 0,
+      "source_commit": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+      "diff_sha256": "4a90c6c0c018376823bc1064746b9df43f407f04ce0797ec35b571bfd3eaca19",
+      "command": [
+        "ruff",
+        "format",
+        "--check",
+        "src",
+        "tests",
+        "scripts"
+      ]
+    },
+    "v72-final-types": {
+      "receipt_sha256": "e6c63b925fac15b32f069e1cbdf0fb0a3ef1223599596845c77c85bae7f2ca7e",
+      "log_sha256": "04a595edfc8e7a5f06ea79b86ccd8c7c40fc7cb3b92eee804b46709ce0681827",
+      "exit_code": 0,
+      "source_commit": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+      "diff_sha256": "4a90c6c0c018376823bc1064746b9df43f407f04ce0797ec35b571bfd3eaca19",
+      "command": [
+        "mypy"
+      ]
+    }
+  },
+  "paid_calls": 0,
+  "new_corpus_observations": 0,
+  "profiles": 0,
+  "target_execution": false,
+  "pending_v68_performance_optimization_approved": false,
+  "normal_shared_timeout_seconds": 1800,
+  "current_source_repository_gates": "unmeasured",
+  "prior_language_compatibility": "unmeasured at corrected candidate",
+  "full_engineering": "separately retained; this source review alone is not a full engineering pass",
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "historical_initial_source_assessment": {
+    "path": "artifacts/phase22/integration/v71-four-source-correctness/source-assessment.json",
+    "sha256": "03249a13613e43e018a4e0ea8fc1f0ac876b6489222fb23e957eac688c20a246",
+    "source": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+    "qualification": "The first source assessment preceded the newly found prototype-property bypass. Its actual statements/checks remain retained; it is not final engineering evidence."
+  },
+  "prototype_correction": {
+    "prior_source": "42d6c7c007b43f8e96ca0056817e9e7673033159",
+    "product_file": "src/sentinel/static/typescript_path_flow.py",
+    "single_added_guard": "property_name == \"__proto__\"",
+    "inverse_ast_equals_prior_source": true,
+    "prior_source_file_sha256": "55e786ff12ad4f7c5cddf215b32ea7581dac422c55e9b1ef509f234f2aa27703",
+    "candidate_source_file_sha256": "d531b435131190e98d5b6daca888976bb6987111f1b0b5cc7ac16ab54c757e47",
+    "reason": "The first implementation assigned instance markers directly for all named parameter properties, bypassing the existing Assign handler that invalidates __proto__ writes. No target execution or TypeScript compiler assumption is needed to retain that conservative boundary.",
+    "remaining_scope": "No other product semantic change from42d6c7c. Original constructor/URL corrections remain subject to actual approved corpus evaluation."
+  },
+  "initial_engineering_evidence_sha256": {
+    "artifacts/phase22/integration/v71-prototype-property-control.json": "93c905c87632e294963ba5f8d45afa0c0a0e12c0c400491ed2a46375ab5ec410",
+    "artifacts/phase22/integration/v71-prototype-property-control.log": "4d9669b75683c3911a86ed4d8ba5ec620e42183bc83a5a8913f6f47ac7d832ee",
+    "artifacts/phase22/integration/v71-full-suite.json": "0cb74229e0bd49da04e61f1e29f130ce97f51f2928a43e2f921abb6a9d725698",
+    "artifacts/phase22/integration/v71-full-suite-junit.xml": "b065533d16015ac8869c0e726e1ff548e5efa498815db97e7bded8dd0cb7b840",
+    "artifacts/phase22/integration/v71-candidate-quality/packet.json": "e31a301c4a7caba874f948a9e512c302c2e95ddfaf08f4aa7474607ba2b5ae42",
+    "artifacts/phase22/integration/v71-four-source-correctness/prototype-engineering-stop.json": "da784a303ae0e070313430e6e69d5c6a7908e9f74e5a8ad831c86a2fef2d8888"
+  },
+  "assessment_helper_correction": "Initial V72source assessment passed the inverse-AST proof then failed while requiring an interrupted-run JSON coverage report that was never emitted. The helper/configuration mistake and exact original source are retained; no missing coverage artifact is invented.",
+  "prepared_v71_helpers": "The earlier proposed future freeze/regression/reconciliation helpers were not executed, no V71evaluation proposal/approval/token exists, and no budget opened. Current preparation occurs only in V72; all earlier helpers remain preserved as preparation history."
+}

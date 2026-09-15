@@ -1,0 +1,15 @@
+The approved FAF profile at `4145d35` timed out after1800.013225seconds, retaining148,001verified parent samples and no report. Cleanup passed after forced termination; final snapshot/timer restoration is unconfirmed. Budget closed. Detection, compatibility and native speedup remain unestablished.
+
+[Review packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v68-invalidation-sampling/summary.md) · [391-row audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v68-invalidation-sampling/audit.json) · [exact source-only proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v68-invalidation-sampling/optimization-proposal.json)
+
+One unapproved, unimplemented source-only attempt would cache exact TypeScript literal serialization strings within the existing program, bounded to4096entries. Fresh Values, all state/analysis, source identity and ordered output must remain equivalent across cold/warm/eviction/error/deadline controls. Full engineering is required if prerequisites pass. Zero corpus/profile/retry/comparator/target execution/paid calls; no resource/deadline revision. Proposal SHA-256: `fa4ffc3760d4b85b4f8236eec5c7b28d979ece894515bb1495046dd1db108cf6`.
+
+An initial read-only launch preflight failed before any input/token because files disappeared. Exact recovery restored missing tracked/sealed/user files; cause unknown. Authorized selective Docker cleanup removed five unused public base images, preserved project/runtime images, containers and volumes, and records logical and physical reclamation separately. The same unused profile approval then ran once.
+
+Engineering retains `4145d35`:2,419tests/36skips locally and all12hosted suites,29normal CI jobs and docs passed, six zero-call request replays. All prior failures and391requirements remain; no historical limitation is accepted.
+
+Phase22remains incomplete pending current-source gates, explicit human technical acceptance and accepted closeout. Git312/1040incomplete, paid benchmark/pilots deferred, Phase21incomplete, Phase24/15unchanged. No merge, ready-state, release, outreach or Phase23.
+
+[Seal 96](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/evidence-v96.json): 147 members, SHA-256 `90f9898a458ce3a6c1ae243fa2b798689beb0ab0ab15a1509d2ad91cbca1b0e0`; all 95 earlier archives verified. Final docs/packages pass with unchanged tested `4145d35` product bytes.
+
+[Current audit status correction](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v68-invalidation-sampling/audit-current-status.json) explicitly overrides inherited v66 optimization metadata: the new proposal is unapproved, unverified, unopened and has zero attempts. All391sealed audit rows remain unchanged. The stale inherited fields and missed metadata check are preserved in the correction.

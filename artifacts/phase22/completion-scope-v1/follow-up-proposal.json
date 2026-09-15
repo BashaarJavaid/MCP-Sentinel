@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "status": "proposed_pending_user_decision",
+  "approved": false,
+  "recorded_at": "2026-09-09T18:05:00.635433+00:00",
+  "scanner_source": "68bdf83ca35670946c850595f3a2a11eadee2a4a",
+  "prior_scope_decision": {
+    "path": "artifacts/phase22/completion-scope-v1/decision.json",
+    "sha256": "687cdaecd1b9e1b09217314cffab42d079c3dd3a91fd8c36a46f19fe66fd5e2d"
+  },
+  "recommendation": "Retain the bounded shared TypeScript fixes, accept the residual SSRF service-binding limitation and the explicitly reported shared-host deadline variance for Phase22, and keep paid review deferred. The separately prepared five fresh cases still require freeze approval before offline evaluation.",
+  "requested_scope_decisions": [
+    {
+      "id": "residual_ssrf_limit",
+      "original_issue": "The exposed open-webSearch pair remains undetected after the bounded registration/object-method fixes.",
+      "proposed_disposition": "Accept the source-startup/default-service-binding boundary as a documented Phase22 limitation. Preserve both completed vulnerable misses and zero named alerts on three fixed/safe cases; do not count the general flow corrections as a measured detection gain or a defense."
+    },
+    {
+      "id": "historical_casewise_repeatability",
+      "original_gate": "The handoff requires both complete45-input historical runs to finish under the120-second/input deadline.",
+      "observed_full_batches": [
+        {
+          "completed": 44,
+          "incomplete": 1
+        },
+        {
+          "completed": 45,
+          "incomplete": 0
+        },
+        {
+          "completed": 41,
+          "incomplete": 4
+        }
+      ],
+      "proposed_disposition": "Accept at least two completed, identical reports for every one of the45 inputs at the same final implementation, each with recorded total wall time at most120000ms. Retain all135 attempts, five timeouts and one additional native-completed report with123764ms total wall time; that extra report is excluded from the under120s count. The complete pass retains20 vulnerable condition hits and zero named fixed/safe alerts.",
+      "not_claimed": "The original two-complete-batch gate did not pass. This proposal does not raise the deadline, hide failures, establish isolated throughput, or identify host load as a proven cause."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "artifacts/phase22/integration/v3-historical-casewise-repeatability/packet.json",
+      "sha256": "2177628402f0172e2541438f33998e192d151cb0fde7f87996d845bbdfe97ecb"
+    },
+    {
+      "path": "artifacts/phase22/integration/v3-exposed-replacement-assessment/packet.json",
+      "sha256": "8732800e773fb16ef2289dc7442c0996b8471d02100f9c3b59dfc6d923f90a32"
+    },
+    {
+      "path": "artifacts/phase22/integration/v3-green-ci-68bdf83/packet.json",
+      "sha256": "f31a193264b8e75491c4f7ba66217b2ce66f4c33ad553b672c96e262cbbbae30"
+    },
+    {
+      "path": "artifacts/phase22/integration/v3-capture-reuse/packet.json",
+      "sha256": "d6268cd34a38f3e0a7ad4350027e1ca3edad9d99d799e72de9519772e45091aa"
+    },
+    {
+      "path": "artifacts/phase22/integration/v3-historical-casewise-repeatability/wall-time-check.json",
+      "sha256": "cbdab4e718527261751b751bbf67121537baabb584e9a8833b1e3399ceb54fd3"
+    }
+  ],
+  "separate_fresh_freeze_proposal": {
+    "path": "artifacts/phase22/corpus-replacement-v2/packet.json",
+    "sha256": "8015f93445c8f5ab05da54a7d446c5b23848e6e346a2c41e6defc6ab09a79164"
+  },
+  "fresh_cases_evaluated": false,
+  "new_paid_calls": 0,
+  "external_pilots": "Remain deferred and nonblocking only for Phase22, as previously approved.",
+  "phase22_marked_complete": false,
+  "final_technical_acceptance": "Pending; no user approval is inferred for this proposal."
+}

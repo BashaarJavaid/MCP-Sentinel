@@ -1,0 +1,78 @@
+{
+  "id": "no-bash-write-prefix",
+  "archive_label": "no-bash",
+  "repository": "RobertBergman/no-bash-mcp",
+  "language": "typescript",
+  "rule_id": "SENT-012",
+  "scan_root": ".",
+  "licenses": [
+    "README.md",
+    "package.json"
+  ],
+  "tool": "write_file",
+  "argument": "path",
+  "outside": "/srv/no-bash-project-archive/fixture.txt",
+  "inside": "/srv/no-bash-project/fixture.txt",
+  "operator_root": "/srv/no-bash-project",
+  "condition": "write_file caller path must not reach fs.writeFileSync in the sibling directory /srv/no-bash-project-archive outside operator WORKSPACE_ROOT=/srv/no-bash-project.",
+  "flow": "src/index.ts official Server.setRequestHandler(CallToolRequestSchema) -> write_file Zod parse -> executeTool callback -> fileSystem.writeFile(path, config.WORKSPACE_ROOT, content, mode) -> resolveSafePath -> check validation.safe -> fs.writeFileSync(validation.absolutePath, content, 'utf8') in overwrite mode. Vulnerable path.resolve then raw startsWith(root) admits sibling-prefix paths. Fixed requires root + path.sep or exact root equality, returns safe=false for sibling; checked helper result prevents the write.",
+  "prerequisites": [
+    "Unmodified declared Node/TypeScript package stdio startup succeeds with compatible declared dependencies. WORKSPACE_ROOT=/srv/no-bash-project is set by the operator before startup, is an existing directory, and remains unchanged.",
+    "Caller supplies path=/srv/no-bash-project-archive/fixture.txt, content=phase22 fixture, mode=overwrite. Zod admits the string fields and explicit enum. Parent directories exist and are writable, file is writable or absent, no symlinks/races/NULs or custom fs hooks. The safe control uses /srv/no-bash-project/fixture.txt.",
+    "Only the initial workspace boundary for the actual writeFileSync is labeled. Later audit logging success, content correctness, append/create-only modes, network/git tools and symlink escape are separate. The read_file path was not selected: vulnerable validateFileSize uses require('fs') in native ESM and can return invalid before the read; no runtime shim is assumed."
+  ],
+  "evidence_files": [
+    "src/index.ts",
+    "src/fileSystem.ts",
+    "src/security.ts",
+    "src/audit.ts",
+    "package.json",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "mutation_file": "src/fileSystem.ts",
+  "mutation_start": "export function writeFile(",
+  "mutation_end": "export function searchContent(",
+  "mutation_identifier": "validation",
+  "mutation_replacement": "phase22Validation",
+  "provenance_notes": "Both complete upstream trees retain README's MIT declaration and package.json license=MIT. Upstream has no standalone LICENSE or complete MIT grant text and GitHub reports license=null. No upstream license file is omitted and no fabricated license/copyright text is added. The fix changes other security and audit behavior; those full changes remain outside this single named condition.",
+  "reviewer": "Same implementation agent after immutable scanner freeze; source-only, not independent human review.",
+  "vulnerable_revision": "be258b1e332a6f0aeec3dfa4d8e2cf8f5c5c5daa",
+  "fixed_revision": "d057feb697da3dd76ac190c0d2c7a0d076fdcd17",
+  "actual_first_parent_verified": true,
+  "all_changed_files": [
+    "src/audit.test.ts",
+    "src/audit.ts",
+    "src/fileSystem.test.ts",
+    "src/fileSystem.ts",
+    "src/git.test.ts",
+    "src/git.ts",
+    "src/hitl.ts",
+    "src/index.ts",
+    "src/network.ts",
+    "src/security.test.ts",
+    "src/security.ts",
+    "src/system.ts",
+    "src/types.ts",
+    "tsconfig.json"
+  ],
+  "full_pair_diff": {
+    "path": "artifacts/phase22/corpus-four-fresh-v1/no-bash-write-prefix/full-pair.diff",
+    "sha256": "6bdd0629a8e7b2413cfa83a1043f90017b0b849139f60b577ef1e228442c392a"
+  },
+  "actual_detector_support": "Unmeasured. Existing Python/TypeScript path and HTTPX sink families are relevant, but source-level reachability does not establish actual discovery, dispatch, guarded value propagation or fixed-path coverage at this frozen scanner. Those are mandatory post-run source-assessment gates. No positive per-sink guard trace is assumed.",
+  "negative_rule": "Fixed and safe use the same complete upstream fixed tree and configuration, with distinct frozen source prerequisites/labels. A static report is not specialized by the illustrative caller value. Broad candidates remain visible. Zero matching alerts count as discrimination only when the named fixed/safe path is demonstrably within scanner support.",
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/no-bash-vulnerable.tar.gz",
+      "sha256": "b660fd5352186209c9b13748cf484d957de6ecb73636be77de27e355edc8c809"
+    },
+    {
+      "path": "artifacts/phase22/integration/v43-four-fresh-preparation/research/source-archives/no-bash-fixed.tar.gz",
+      "sha256": "84c6710ff2fdac46ee6670358f8e837a392373381c8a3dfabf816988fcb09108"
+    }
+  ],
+  "target_execution": false,
+  "observations": 0,
+  "paid_calls": 0
+}

@@ -1,0 +1,124 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /private/tmp/mcp-phase22-conditions
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-6.3.0, anyio-4.14.2
+collected 834 items
+
+tests/test_baseline.py .........                                         [  1%]
+tests/test_cli.py .............................                          [  4%]
+tests/test_config.py ................................................... [ 10%]
+..............                                                           [ 12%]
+tests/test_containment.py .........................................      [ 17%]
+tests/test_docker_gate.py ..                                             [ 17%]
+tests/test_dynamic_arguments.py ..................................       [ 21%]
+tests/test_dynamic_correctness.py ..............................         [ 25%]
+tests/test_dynamic_docker.py ssssssssssssssssssssssssssssssssssss        [ 29%]
+tests/test_dynamic_prober.py ........                                    [ 30%]
+tests/test_dynamic_reporting.py ................................         [ 34%]
+tests/test_dynamic_sandbox.py ...........                                [ 35%]
+tests/test_finding.py ............                                       [ 37%]
+tests/test_github_action.py .................                            [ 39%]
+tests/test_gpt_review.py .................................               [ 43%]
+tests/test_maintenance.py .........                                      [ 44%]
+tests/test_onboarding.py ..............................                  [ 47%]
+tests/test_orchestrator.py .......                                       [ 48%]
+tests/test_phase17_capture.py .....                                      [ 49%]
+tests/test_phase19.py ....................................               [ 53%]
+tests/test_phase20.py ...................................                [ 57%]
+tests/test_phase20_measurements.py .............                         [ 59%]
+tests/test_phase22_corpus.py ...                                         [ 59%]
+tests/test_phase3_capture.py ..                                          [ 59%]
+tests/test_python_discovery.py .........                                 [ 60%]
+tests/test_report.py .......                                             [ 61%]
+tests/test_sarif.py ....                                                 [ 62%]
+tests/test_semgrep_ast.py ...                                            [ 62%]
+tests/test_static_correctness.py ....................................... [ 67%]
+........................................................................ [ 75%]
+........................................................................ [ 84%]
+...............                                                          [ 86%]
+tests/test_static_engine.py ............................                 [ 89%]
+tests/test_suppression.py ........                                       [ 90%]
+tests/test_typescript_containment.py ................................... [ 94%]
+.......                                                                  [ 95%]
+tests/test_typescript_discovery.py ...                                   [ 96%]
+tests/test_typescript_modules.py .......                                 [ 96%]
+tests/test_typescript_static.py .................                        [ 98%]
+tests/test_workspaces.py .........                                       [100%]
+
+- generated xml file: /private/tmp/mcp-phase22-conditions/artifacts/phase22/containment-conditions/junit.xml -
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.13-final-0 _______________
+
+Name                                          Stmts   Miss Branch BrPart  Cover   Missing
+-----------------------------------------------------------------------------------------
+src/sentinel/__init__.py                          4      0      0      0   100%
+src/sentinel/__main__.py                          1      1      0      0     0%   3
+src/sentinel/baseline.py                        189     33     68     14    80%   50-51, 60-65, 67, 70, 78-81, 87, 167, 169, 196, 199-200, 235, 242, 245-246, 253->262, 268-283, 292->303, 301
+src/sentinel/cli.py                             242     32     56      9    86%   124->126, 181, 242-243, 300, 318-335, 354, 373, 390, 413-416, 421, 424-425, 437->439, 448
+src/sentinel/config.py                          699     80    272     44    86%   137, 158, 166->168, 207, 212-217, 326, 353, 356, 371, 383, 539, 581, 595, 599-600, 602, 614-615, 619->618, 621, 626, 636, 639, 645-646, 648, 654, 657-658, 660, 668, 691-692, 702, 724, 758-759, 768, 774, 795-796, 802, 822, 835-836, 838, 841-842, 874, 890, 894-897, 901, 912, 922, 929, 948, 967, 996, 999, 1001-1008, 1010, 1015, 1020, 1030->1032, 1035->1038, 1058-1063, 1070, 1083, 1087
+src/sentinel/dynamic/__init__.py                  0      0      0      0   100%
+src/sentinel/dynamic/arguments.py               149     16     90     13    87%   34, 55, 91-92, 119, 121-122, 145, 160, 171, 180, 188, 219, 225, 227, 234
+src/sentinel/dynamic/catalog.py                  15      0      0      0   100%
+src/sentinel/dynamic/coverage.py                 71      9     28      5    86%   61-62, 69-70, 97, 107, 124, 132-133
+src/sentinel/dynamic/merge.py                    57      6     24      4    88%   74, 93, 97, 100, 119-120
+src/sentinel/dynamic/prober.py                  452     66    160     36    82%   209-236, 253, 372-373, 378-379, 390, 425, 469, 515-527, 532, 547->552, 566, 588, 620-626, 636-637, 655, 690, 720, 737-738, 757, 765, 767, 771-776, 789, 814, 829, 836, 840, 845, 849, 858, 878, 879->872, 886, 889, 892, 899, 903, 906, 931
+src/sentinel/dynamic/sandbox.py                 261     64     68     14    71%   78-93, 107-109, 124, 147, 297-300, 306-369, 377, 417-421, 444, 456, 467, 475, 482, 497, 508, 537
+src/sentinel/errors.py                            5      0      0      0   100%
+src/sentinel/finding.py                         336     13     62     13    93%   129, 305, 381, 387, 389, 391, 393, 398, 402, 425, 476, 484, 549
+src/sentinel/llm/__init__.py                      0      0      0      0   100%
+src/sentinel/llm/cache.py                        47      8      6      1    83%   29-31, 33-34, 38, 66-67
+src/sentinel/llm/context.py                      91      8     22      4    89%   88-89, 104-105, 155, 168, 171, 173
+src/sentinel/llm/schema.py                       43      1      2      1    96%   34
+src/sentinel/llm/semantic_reviewer.py           565     61    216     45    86%   113, 127-128, 134, 164->173, 191->193, 288, 334-340, 358, 372, 486-488, 508, 512, 528-529, 564, 696, 700, 705, 709, 713, 718, 723, 728, 731, 734-735, 750, 767-768, 782, 787, 792, 796, 800, 803, 809, 818, 820, 824, 844, 1002, 1268, 1271, 1276, 1282, 1285, 1289-1290, 1317, 1322, 1332->1334, 1340, 1343, 1346, 1354-1359
+src/sentinel/llm/tools.py                       209     36     96     16    80%   92, 217, 219->213, 240-242, 254->256, 276, 288-289, 296-308, 320-321, 330-332, 340-341, 344-345, 349-353, 356-357, 361-364, 366-367, 372-373, 394
+src/sentinel/onboarding.py                      292     27    110      9    90%   84, 172-173, 180, 198, 224-228, 233, 253, 255-258, 265, 385->384, 413, 469-470, 503-506, 529-530, 557-559
+src/sentinel/orchestrator.py                    183     22     56      5    87%   96, 111, 218, 236-237, 526-544, 567-577, 648, 660
+src/sentinel/owasp_mapping.py                     6      0      0      0   100%
+src/sentinel/permissions.py                      62      9     26      8    78%   27, 29, 51, 63, 66, 85, 89, 93-94
+src/sentinel/report/__init__.py                   0      0      0      0   100%
+src/sentinel/report/console.py                  164     26     78     10    81%   48->67, 137, 235-241, 243, 245, 264, 304->309, 328->330, 340, 346-386
+src/sentinel/report/coverage.py                  65      2      6      2    94%   90, 92
+src/sentinel/report/json_report.py                6      0      0      0   100%
+src/sentinel/report/model.py                    273     25     60     24    85%   79, 81, 83, 99, 101, 170, 172, 174, 176, 178, 180, 193, 216, 221, 314, 337, 339, 341, 343, 345, 347, 352-359, 361
+src/sentinel/report/presentation.py              61      3     38      2    95%   55-60, 90
+src/sentinel/report/sarif.py                     98      4     36      4    94%   255, 304, 306, 308
+src/sentinel/report/validate_json.py             27      5      2      1    79%   32-37, 46
+src/sentinel/report/validate_sarif.py            38     19      2      0    48%   20-21, 36-42, 46-55
+src/sentinel/schema.py                           74     15     24      3    76%   70, 76, 96-109
+src/sentinel/static/__init__.py                   0      0      0      0   100%
+src/sentinel/static/ast_utils.py                127     16     74      9    84%   32, 61->69, 76, 83->82, 88->82, 149, 155, 180, 205-217
+src/sentinel/static/catalog.py                   10      0      0      0   100%
+src/sentinel/static/coverage.py                 163     15     82     13    88%   121-129, 133, 140->149, 191->189, 195->200, 197-199, 238, 305, 353, 435-449, 487, 490, 523->519
+src/sentinel/static/discovery.py                165      6     98      8    95%   90, 105->104, 117, 202, 216, 225, 230, 304->252
+src/sentinel/static/engine.py                   120      2     48      2    98%   283, 381
+src/sentinel/static/execution.py                 87      0     32      1    99%   105->101
+src/sentinel/static/model.py                     85      0      0      0   100%
+src/sentinel/static/path_flow.py                322     44    200     28    83%   79-84, 107, 111->113, 166->168, 169, 182->184, 187, 191-196, 198-207, 209-217, 219, 230, 269->259, 274->269, 279, 286-287, 288->exit, 290->exit, 306-307, 350->361, 358, 365, 367-369, 381-382, 384, 411, 519, 609->630
+src/sentinel/static/rules/__init__.py             0      0      0      0   100%
+src/sentinel/static/rules/sent001.py             70     16     32      4    78%   32-37, 85-90, 94-101, 107
+src/sentinel/static/rules/sent002.py            176      7     84      9    94%   72, 193, 195, 204->206, 207, 237, 242, 268, 269->262
+src/sentinel/static/rules/sent003.py            119      4     74      9    93%   54, 153, 163, 190->195, 199->206, 206->208, 208->210, 234, 244->231
+src/sentinel/static/rules/sent004.py             59      3     44      4    93%   45, 59, 105->104, 110
+src/sentinel/static/rules/sent005.py             66      6     28      4    89%   46, 65-66, 94, 107->105, 113-114
+src/sentinel/static/rules/sent006.py            138     19     98     16    83%   57, 60, 64, 95->122, 107, 109->108, 124, 136, 147, 164, 168, 232->231, 251-255, 265->260, 271-277, 283
+src/sentinel/static/rules/sent007.py            231     22    136     19    88%   48, 52, 55, 67, 108, 124->133, 148->150, 159, 226->248, 268->267, 308->307, 315-319, 334, 339-340, 343, 352, 374, 379-380, 417, 420, 454
+src/sentinel/static/rules/sent012.py             24      1      6      1    93%   23
+src/sentinel/static/safety.py                    98      6     60      5    92%   51-53, 66->65, 99, 151, 188
+src/sentinel/static/semgrep_adapter.py          137     24     60     15    79%   61->63, 64, 75, 101, 140-141, 145-146, 148-149, 160-161, 165, 173-174, 176, 187, 199, 204, 216-217, 242->241, 247, 253, 256-257
+src/sentinel/static/semgrep_ast.py               69     10     20      4    84%   29, 57-62, 69-70, 72, 99, 109
+src/sentinel/static/suppression.py              127      3     44      2    97%   65-66, 153
+src/sentinel/static/traversal.py                198     26     88     10    85%   56-57, 191, 194-195, 202, 208-209, 210->198, 214, 227-228, 233-236, 242-243, 268, 336->exit, 339, 341, 344-349
+src/sentinel/static/typescript.py               459     49    214     35    87%   60, 63, 73->83, 76->81, 78->81, 151, 184, 195->exit, 206-207, 210, 240-241, 326-334, 336-338, 394, 462->460, 496-499, 516-517, 540, 597-598, 608, 610->604, 622, 632, 637, 641, 644, 665, 673, 698, 760, 762, 772-774, 782, 789, 794, 799-803, 854-855
+src/sentinel/static/typescript_discovery.py     244     22    120     15    89%   93->98, 109, 115->119, 139, 144-145, 159, 195->189, 206, 233-234, 236->246, 256-263, 302-303, 377-378, 384-387, 390-391
+src/sentinel/static/typescript_execution.py     280     20    124     16    91%   68, 127, 136-137, 143-144, 151-152, 155->103, 192, 292->294, 309-310, 329, 384, 399, 409-410, 461-462, 474, 532
+src/sentinel/static/typescript_modules.py       174     29     98     18    81%   17, 60-61, 65, 83-84, 86, 92, 95, 102, 112->114, 122, 124-128, 148, 158, 190, 193, 202-207, 210, 224, 227, 230
+src/sentinel/static/typescript_path_flow.py     415     49    256     35    86%   88->exit, 106-107, 117, 120->112, 125, 149->147, 154->147, 181->277, 206, 223, 231, 236, 241, 245, 261-263, 268, 270, 273-276, 291, 296, 325-332, 344-345, 351, 363-367, 370-393, 459, 543->542, 555->560, 641->663, 657->662, 660, 668, 693
+src/sentinel/static/typescript_safety.py        493     21    280     28    94%   51->53, 72->99, 118, 121, 164->171, 180, 209->204, 223->218, 248, 260-261, 375->383, 393->399, 401, 430->432, 451->442, 499, 582, 624-625, 631, 645, 647, 654, 667, 671, 680, 784, 890, 917
+src/sentinel/workspaces.py                      127     17     64     11    85%   32, 37, 47-48, 50, 58, 83, 99, 105, 110, 128, 152-153, 163-166, 180-183
+-----------------------------------------------------------------------------------------
+TOTAL                                          9568   1028   4072    608    87%
+Coverage JSON written to file artifacts/phase22/containment-conditions/coverage.json
+Required test coverage of 80% reached. Total coverage: 86.88%
+================= 798 passed, 36 skipped in 794.46s (0:13:14) ==================

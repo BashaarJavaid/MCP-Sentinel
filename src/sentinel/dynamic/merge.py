@@ -31,6 +31,16 @@ def merge_findings(
             else None
         )
         if match_index is None:
+            match_index = next(
+                (
+                    index
+                    for index, current in enumerate(merged)
+                    if current.source is FindingSource.DYNAMIC
+                    and current.dedup_key == dynamic.dedup_key
+                ),
+                None,
+            )
+        if match_index is None:
             merged.append(dynamic)
             continue
         static = merged[match_index]

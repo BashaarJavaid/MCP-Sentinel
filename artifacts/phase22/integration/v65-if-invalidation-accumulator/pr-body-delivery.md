@@ -1,0 +1,11 @@
+The approved If accumulator attempt passed256ordinary state comparisons but failed the explicitly required captured-arm alias and shrinking-arm controls. It was reverted; exact tested `1948bf9` is restored. One attempt closed, zero remaining, no corpus/profile or paid calls.
+
+[Review packet](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v65-if-invalidation-accumulator/summary.md) · [365-row audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v65-if-invalidation-accumulator/audit.json) · [explicit revised-contract proposal](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v65-if-invalidation-accumulator/optimization-proposal.json)
+
+The next proposal is unapproved: revise the private-interpreter mutation contract and permit one new source-only attempt only after every shipped writer/reader/subclass proves baseline-preserving invalidations with no escaping arm-set alias. Only the two named injected callbacks would become negative controls outside that prospective domain after explicit approval. Their original failures stay failed. No source-supported target behavior or other counterexample may be excluded. Full source/state/report and local/hosted engineering remain required; no new corpus/profile, paid call, resource or timeout revision is included.
+
+Restored1948bf9 retains2,418tests/36skips locally and all12hosted suites,29normal CI jobs and docs passed; six complete zero-call production replays remain compatible. No new candidate engineering or speedup is established.
+
+Phase22 remains incomplete, pending current-source gates, explicit human technical acceptance and accepted closeout. Git312/1040 incomplete; paid benchmark/pilots deferred, Phase21 incomplete, Phase24/15 unchanged. No merge, ready-state, release, outreach or Phase23.
+
+[Seal93](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/evidence-v93.json): 136 members, SHA-256 `2fcb35d719a08c2727833a5540cb95e86a92ff1ed0fae9093862b7960f45dad0`; all92earlier archives verified. Final docs/packages pass with exact restored tested1948bf9 product bytes.

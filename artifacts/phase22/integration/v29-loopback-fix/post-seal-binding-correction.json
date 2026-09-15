@@ -1,0 +1,14 @@
+{
+  "stage": "post-seal final documentation binding",
+  "initial_helper": "delivery-bindings.py",
+  "initial_helper_sha256": "88360c1bfa5869481cfc81a89d91c1d8383175262b333754a3b3d00150796b13",
+  "initial_error": "AssertionError: ARCHITECTURE.md",
+  "exit_code": 1,
+  "cause": "The audit captures its source/document graph before final-docs.py rewrites the final owning status paragraphs. The reused helper incorrectly required those documented pre-final owning-doc hashes to remain unchanged. Product/test/workflow/package equality check passed before this assertion.",
+  "correction": "Keep the sealed audit/helper immutable. A new helper permits only explicitly named owning-document changes, records each prior/final hash, and verifies every other source/test file unchanged. The final documentation-binding.json supersedes only the audit-stage document hashes.",
+  "corrected_helper": "delivery-bindings-final.py",
+  "corrected_helper_sha256": "32ea81f5a93b7f3b693d1bae03c7ee544da0e42fd1ee21de1c996f6b718efadb",
+  "supplemental_after_seal": 56,
+  "no_repeated_tests_or_corpus_observations": true,
+  "new_paid_calls": 0
+}

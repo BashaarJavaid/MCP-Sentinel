@@ -1,0 +1,104 @@
+{
+  "version": 4,
+  "status": "prepared_pending_user_freeze",
+  "freeze_approved": false,
+  "manifest": {
+    "path": "artifacts/phase22/corpus-replacement-v4/manifest.json",
+    "sha256": "966b8b0578832916c97018316fe890a428b63533242577b8b7cc6f636b59ca7b"
+  },
+  "scanner_identity": {
+    "revision": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+    "source_sha256": "7a6caaabb75c19d2dcd15325bcbb2d07fe8e59b913bce1d32f6f6aac3ee4e0f4",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "scanner_implementation_frozen": "1f3f72f0f25c597b53c9f833e2e4bec99728d328",
+  "pre_curation_freeze": {
+    "path": "artifacts/phase22/integration/v21-scanner-freeze-before-curation.json",
+    "sha256": "aeb7ad53be4aa308c7d3f658d0e988b848fc9df1f426aca9feb70caa4655f381"
+  },
+  "previous_manifest_sha256": "275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd",
+  "new_input_ids": [
+    "authfetch-mapped-loopback-vulnerable",
+    "authfetch-mapped-loopback-vulnerable-mutation",
+    "authfetch-mapped-loopback-fixed",
+    "authfetch-mapped-loopback-fixed-mutation",
+    "authfetch-mapped-public-safe"
+  ],
+  "unchanged_input_records": 45,
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v4/sources/authfetch-direct-vulnerable.tar.gz",
+      "sha256": "9c2d2b8df464c41556011f3d184aae95ad13357d7992bbbf41e869e7737cc06e"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v4/sources/authfetch-direct-fixed.tar.gz",
+      "sha256": "4007999123174043250c21efd87561e75b983fa1d8e50a8f3151493d39adc424"
+    }
+  ],
+  "provenance": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v4/provenance/advisory.json",
+      "sha256": "261b7951d21820774049c58bc4544f64cba0299e90eca80b7d29fed7a3f47236"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v4/provenance/pair-comparison.json",
+      "sha256": "37e6390ab697b5547ec4b0611dfa7bbf3f0db4239945a2bfcf4ec9953c173472"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v4/review/condition-review.json",
+      "sha256": "14d55be301ee168f20cb2d25c6501641cb40e3adb49f210ca505e5c5a9b26c4e"
+    }
+  ],
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v4/mutations/vulnerable-ipv6-helper-rename.tar.gz",
+        "sha256": "c932a493fffa45147d843e015482ce3517c09af8d66ce412e5b67b86db980f8e"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "b15e97c472bec520e16c891003982fdddf84ef8e8406d6301971c12eb6062802",
+      "mutated_tree_sha256": "49ebbad5c78a69881859b92deb47dbeb28dd3a6f19fb137402a168740df67115"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v4/mutations/fixed-ipv6-helper-rename.tar.gz",
+        "sha256": "9d2c412c6025253e477643acec4b303f71046ad352104c811b0c950bdaa2db64"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "6fb6feca4e634bb3860335b6faa55166d8c5d82e7475b8e1b5f8cca80e3a2afc",
+      "mutated_tree_sha256": "6e859e1f0194c36e424cca76a2f88f2c9ddd8f88f3f8764749b5da7326229fa2"
+    }
+  ],
+  "configuration": {
+    "path": "artifacts/phase22/corpus-replacement-v4/configurations.json",
+    "sha256": "548efe12f406d9ec1a6cfe10243b16f51bbd88832219ece6ec1dc7867ca15355"
+  },
+  "corpus_validation": "All50 records pass existing archive/hash/line/lineage/license/split validation. Only the5 new records are proposed for evaluation.",
+  "proposed_evaluation": {
+    "input_count": 5,
+    "native_runs": 2,
+    "native_observations": 10,
+    "native_seconds_per_input": 300,
+    "whole_native_input_seconds": 300,
+    "normal_target_seconds": 120,
+    "comparator_runs": 1,
+    "comparator_observations": 5,
+    "comparator_seconds_per_input": 300,
+    "maximum_nominal_input_budget_seconds": 4500,
+    "comparator": "Existing Semgrep1.176.0 and unchanged prepared rules/configuration; source-only runs.",
+    "paid_calls": 0,
+    "retries": 0,
+    "profiles": 0,
+    "stop_condition": "Run only two ordered five-input native batches and one five-input Semgrep batch. Preserve every attempt, incomplete result and miss. An execution, identity, schema or cleanup failure closes the remaining measurement budget; detection misses/false alerts are outcomes to report, not permission to tune, retry, discard or replace cases. Complete all source assessments and whole ordered native repeat comparisons. No automatic correction or acceptance."
+  },
+  "source_exposure_disclosed": true,
+  "independent_human_acceptance": false,
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "target_execution": false,
+  "model_calls": 0
+}

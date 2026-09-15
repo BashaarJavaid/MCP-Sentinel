@@ -28,7 +28,7 @@ def substitute(sources: Sources, bindings: dict[str, Sources]) -> Sources:
 
 def check_deadline(deadline: float) -> None:
     if time.monotonic() > deadline:
-        raise InfrastructureError("static analysis exceeded its 120-second timeout")
+        raise InfrastructureError("static analysis timeout: deadline exceeded")
 
 
 def dependency_order(graph: dict[str, set[str]]) -> Iterator[str]:

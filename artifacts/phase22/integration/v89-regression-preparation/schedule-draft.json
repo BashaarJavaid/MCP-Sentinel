@@ -1,0 +1,375 @@
+{
+  "status": "source_only_draft_pending_engineering_and_freeze_not_approved_not_executed",
+  "groups": {
+    "proxmox-upload-root": {
+      "actual_language": "python",
+      "repository": "nick-holmquist/proxmox-mcp",
+      "manifest": "artifacts/phase22/corpus-unseen-v1/manifest.json",
+      "manifest_sha256": "c4cdcbb731c965a45ccccd9bb8ae28b4d0dc17a12beae83e9671817638b92dcf",
+      "source_freeze_approval": "source-freeze-authorization.json",
+      "input_ids": [
+        "proxmox-upload-root-vulnerable",
+        "proxmox-upload-root-fixed",
+        "proxmox-upload-root-safe"
+      ],
+      "inputs": {
+        "proxmox-upload-root-vulnerable": {
+          "input": {
+            "id": "proxmox-upload-root-vulnerable",
+            "family": "proxmox-upload-root",
+            "repository": "nick-holmquist/proxmox-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "vulnerable",
+            "snapshot": "3d6610be096f81a1e1257387591f6d77b893eb8b",
+            "scan_root": ".",
+            "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+            "prerequisites": [
+              "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+              "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+              "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+              "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition."
+            ],
+            "static_applicability": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Zero target execution authorized; static source-only evaluation.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/proxmox_mcp/server.py",
+                "start_line": 1,
+                "end_line": 104,
+                "sha256": "caac2b6b6941dbe6f3c95b219d4d2fceb6fec1af3c82ec62bcc0aba41412d74f",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/tools/storage.py",
+                "start_line": 1,
+                "end_line": 248,
+                "sha256": "df93a5c0a376edfc5cd0f40f207f36d8b19873f9cbcc80d9cf9b813a4c3cd5e6",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/client.py",
+                "start_line": 1,
+                "end_line": 792,
+                "sha256": "eb0dcf517cf55796cd42711ab096bbf810fed9a6c41b407dcb3c17ec8097dc28",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/__init__.py",
+                "start_line": 1,
+                "end_line": 3,
+                "sha256": "bfd9a0a79e63ad82ae713f263e0c952551b5ce38b436ce2625dbc5d87d8ce329",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 52,
+                "sha256": "635c3de9f8c16a1951b43ffe1256b6617ed88d38d3c118c44a8bf7763707a38b",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 379,
+                "sha256": "8156fe2ba045f544f4239b9e356ace8e87916bdc4fb782e35f3ce90ac93c8f4c",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": ".env.example",
+                "start_line": 1,
+                "end_line": 6,
+                "sha256": "bd2c412f4bdb7c90766b27adf97d14406ac1b8bbb707ee22ac9ea3f7feb38ab0",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              }
+            ],
+            "matching": "Require SENT-012 on the named pve_storage_upload caller file_path at the actual scored sink with the specified boundary violation; unrelated rule/line overlap is insufficient.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "2202581dc1e89179e4ae2a08e141a70826fc780552d4af04e138aeb88310b72b"
+          },
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "reference_report": "artifacts/phase22/integration/v87-regression-results/raw/04-first-proxmox-upload-root-vulnerable/proxmox-upload-root-vulnerable/report.json",
+          "reference_report_sha256": "4a66cc68f367f4ea53c7cdda68be1d466f7643953cd49fbe35bfc97cbd7253b9",
+          "configuration": "artifacts/phase22/integration/v87-regression-results/raw/04-first-proxmox-upload-root-vulnerable/proxmox-upload-root-vulnerable/configuration.json",
+          "assessment": null
+        },
+        "proxmox-upload-root-fixed": {
+          "input": {
+            "id": "proxmox-upload-root-fixed",
+            "family": "proxmox-upload-root",
+            "repository": "nick-holmquist/proxmox-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "fixed",
+            "snapshot": "39889d55990ad3c98620093c428ca00c1189734c",
+            "scan_root": ".",
+            "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+            "prerequisites": [
+              "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+              "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+              "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+              "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition."
+            ],
+            "static_applicability": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Zero target execution authorized; static source-only evaluation.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/proxmox_mcp/server.py",
+                "start_line": 1,
+                "end_line": 104,
+                "sha256": "caac2b6b6941dbe6f3c95b219d4d2fceb6fec1af3c82ec62bcc0aba41412d74f",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/tools/storage.py",
+                "start_line": 1,
+                "end_line": 253,
+                "sha256": "7b11934690e3729007fc71da011a8eb17cee5a09c7d9421fb6e865ab18731f21",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/client.py",
+                "start_line": 1,
+                "end_line": 820,
+                "sha256": "081af835b1c42882ee1ac5f13c52c7dbe8bdb998ce90c67ffb2e32993c22c30a",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/__init__.py",
+                "start_line": 1,
+                "end_line": 3,
+                "sha256": "bfd9a0a79e63ad82ae713f263e0c952551b5ce38b436ce2625dbc5d87d8ce329",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 52,
+                "sha256": "635c3de9f8c16a1951b43ffe1256b6617ed88d38d3c118c44a8bf7763707a38b",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 392,
+                "sha256": "bf4f278508af660b07850b2351c98c0d6b74e579e3e75cb5d73492c6f658fe75",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": ".env.example",
+                "start_line": 1,
+                "end_line": 13,
+                "sha256": "16cac58035a8d1db9a53c0d734e06661ee4ddc9aed0b5253bcab2e94da57d021",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              }
+            ],
+            "matching": "Require SENT-012 on the named pve_storage_upload caller file_path at the actual scored sink with the specified boundary violation; unrelated rule/line overlap is insufficient.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "a15d78ab36d1baed7dfd1b565ef376588f639721d24b7aac1aa5b45657c7cf8d"
+          },
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "reference_report": "artifacts/phase22/integration/v87-regression-results/raw/05-first-proxmox-upload-root-fixed/proxmox-upload-root-fixed/report.json",
+          "reference_report_sha256": "9ff233a5380f02a58cd03624cf06632b97fda8bd8da7457560bf181721a88184",
+          "configuration": "artifacts/phase22/integration/v87-regression-results/raw/05-first-proxmox-upload-root-fixed/proxmox-upload-root-fixed/configuration.json",
+          "assessment": null
+        },
+        "proxmox-upload-root-safe": {
+          "input": {
+            "id": "proxmox-upload-root-safe",
+            "family": "proxmox-upload-root",
+            "repository": "nick-holmquist/proxmox-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "safe_control",
+            "label": "safe",
+            "snapshot": "39889d55990ad3c98620093c428ca00c1189734c",
+            "scan_root": ".",
+            "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value. Safe caller value: /srv/proxmox-upload/fixture.iso",
+            "prerequisites": [
+              "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+              "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+              "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+              "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition.",
+              "Use illustrative safe value /srv/proxmox-upload/fixture.iso"
+            ],
+            "static_applicability": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Zero target execution authorized; static source-only evaluation.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/proxmox_mcp/server.py",
+                "start_line": 1,
+                "end_line": 104,
+                "sha256": "caac2b6b6941dbe6f3c95b219d4d2fceb6fec1af3c82ec62bcc0aba41412d74f",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/tools/storage.py",
+                "start_line": 1,
+                "end_line": 253,
+                "sha256": "7b11934690e3729007fc71da011a8eb17cee5a09c7d9421fb6e865ab18731f21",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/client.py",
+                "start_line": 1,
+                "end_line": 820,
+                "sha256": "081af835b1c42882ee1ac5f13c52c7dbe8bdb998ce90c67ffb2e32993c22c30a",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "src/proxmox_mcp/__init__.py",
+                "start_line": 1,
+                "end_line": 3,
+                "sha256": "bfd9a0a79e63ad82ae713f263e0c952551b5ce38b436ce2625dbc5d87d8ce329",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 52,
+                "sha256": "635c3de9f8c16a1951b43ffe1256b6617ed88d38d3c118c44a8bf7763707a38b",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 392,
+                "sha256": "bf4f278508af660b07850b2351c98c0d6b74e579e3e75cb5d73492c6f658fe75",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              },
+              {
+                "path": ".env.example",
+                "start_line": 1,
+                "end_line": 13,
+                "sha256": "16cac58035a8d1db9a53c0d734e06661ee4ddc9aed0b5253bcab2e94da57d021",
+                "role": "Complete source context; condition-review.json distinguishes caller, guard, sink and prerequisites."
+              }
+            ],
+            "matching": "Require SENT-012 on the named pve_storage_upload caller file_path at the actual scored sink with the specified boundary violation; unrelated rule/line overlap is insufficient.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "a15d78ab36d1baed7dfd1b565ef376588f639721d24b7aac1aa5b45657c7cf8d"
+          },
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "reference_report": "artifacts/phase22/integration/v87-regression-results/raw/06-first-proxmox-upload-root-safe/proxmox-upload-root-safe/report.json",
+          "reference_report_sha256": "2ac8e3b116f9cda05745aba9089b16b27e191ffcbd7a7e594236d094f87c371a",
+          "configuration": "artifacts/phase22/integration/v87-regression-results/raw/06-first-proxmox-upload-root-safe/proxmox-upload-root-safe/configuration.json",
+          "assessment": null
+        }
+      },
+      "corpus_kind": "unseen_v1_exposed"
+    }
+  },
+  "order": [
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-vulnerable",
+      "batch": "first"
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-fixed",
+      "batch": "first"
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-safe",
+      "batch": "first"
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-vulnerable",
+      "batch": "repeat"
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-fixed",
+      "batch": "repeat"
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-safe",
+      "batch": "repeat"
+    }
+  ],
+  "witnesses": {
+    "proxmox-upload-root": {
+      "proxmox-upload-root-vulnerable": {
+        "rule_id": "SENT-012",
+        "path": "src/proxmox_mcp/client.py",
+        "sink_line": 436
+      },
+      "proxmox-upload-root-fixed": {
+        "rule_id": "SENT-012",
+        "path": "src/proxmox_mcp/client.py",
+        "sink_line": 464
+      },
+      "proxmox-upload-root-safe": {
+        "rule_id": "SENT-012",
+        "path": "src/proxmox_mcp/client.py",
+        "sink_line": 464
+      }
+    }
+  },
+  "reference_files_sha256": {
+    "artifacts/phase22/integration/v87-regression-results/raw/04-first-proxmox-upload-root-vulnerable/proxmox-upload-root-vulnerable/report.json": "4a66cc68f367f4ea53c7cdda68be1d466f7643953cd49fbe35bfc97cbd7253b9",
+    "artifacts/phase22/integration/v87-regression-results/raw/04-first-proxmox-upload-root-vulnerable/proxmox-upload-root-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v87-regression-results/raw/05-first-proxmox-upload-root-fixed/proxmox-upload-root-fixed/report.json": "9ff233a5380f02a58cd03624cf06632b97fda8bd8da7457560bf181721a88184",
+    "artifacts/phase22/integration/v87-regression-results/raw/05-first-proxmox-upload-root-fixed/proxmox-upload-root-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v87-regression-results/raw/06-first-proxmox-upload-root-safe/proxmox-upload-root-safe/report.json": "2ac8e3b116f9cda05745aba9089b16b27e191ffcbd7a7e594236d094f87c371a",
+    "artifacts/phase22/integration/v87-regression-results/raw/06-first-proxmox-upload-root-safe/proxmox-upload-root-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd"
+  },
+  "counts": {
+    "observations": 6,
+    "unique_input_records": 3,
+    "entire_ordered_pairs": 3,
+    "development_singletons": 0,
+    "repository_identities": 1,
+    "source_condition_families": 1,
+    "schedule_groups": 1,
+    "python_observations": 6,
+    "typescript_observations": 0
+  },
+  "scope": "Complete the failed Proxmox gate on3unchanged exposed records, vulnerable/fixed/safe then entire ordered repeat. Candidate source-only proof establishes that the other105completedV87observations cannot enter modified metadata code; retain their original884d376source/report/assessment bindings, not new scans. All older source qualifications and failures remain.",
+  "omitted_observations": {
+    "v87_retained": 105,
+    "source_assessment_sha256": "dec56806c3e9785a01f036ef6a805c3779a53cd31bb49d25d1dfe3c9f77ec0cf",
+    "inventory_sha256": "a8003634e6f4fc5f93733912a425668e0a65d56a0906eb242e74d632fed11095",
+    "new_execution_claimed": false
+  },
+  "bounds_draft": {
+    "native_observations": 6,
+    "distinct_input_records": 3,
+    "entire_ordered_pairs": 3,
+    "native_seconds": 1800,
+    "whole_input_seconds": 1800,
+    "semgrep_rule_timeout_seconds": 10,
+    "cleanup_seconds": 15,
+    "maximum_flow_workers": 4,
+    "serial_inputs": 1,
+    "sequence_maximum_minutes": 200,
+    "internal_stop_minutes": 199,
+    "input_and_cleanup_component_seconds": 10890,
+    "setup_identity_selfcheck_reserve_seconds": 1050,
+    "finalization_reserve_seconds": 60,
+    "outer_cleanup_seconds": 15
+  },
+  "source_schema_note": "Reuse the immutable six-input/two-repository source manifest and adapter for source-only validation; the numerical schedule selects only the3Proxmox records. Taskwarrior source validation is not a scan or a reopened budget.",
+  "numerical_approval_received": false,
+  "corpus_observations": 0,
+  "paid_calls": 0,
+  "technical_acceptance_received": false
+}

@@ -1,0 +1,119 @@
+{
+  "ghsa_id": "GHSA-jm26-853c-62h9",
+  "cve_id": null,
+  "url": "https://api.github.com/repos/tumf/mcp-shell-server/security-advisories/GHSA-jm26-853c-62h9",
+  "html_url": "https://github.com/tumf/mcp-shell-server/security/advisories/GHSA-jm26-853c-62h9",
+  "summary": "Allowlisted git permits arbitrary command execution via git alias configuration",
+  "description": "## Summary\n\nIn mcp-shell-server through 1.0.3, `ALLOW_COMMANDS` validated the executable name but did not constrain argument-level command execution features exposed by an allowed executable. When `git` was allowlisted, a client could use command-scoped alias configuration such as `git -c alias.x=!whoami x` to execute an arbitrary command with the privileges of the server process.\n\nThe report also identified the broader class: allowlisted programs may expose their own execution primitives, including `find -exec`, `awk system()`, and interpreter command options.\n\n## Details\n\nCommands were parsed and executed as argv rather than by passing the complete command through a shell. That prevents ordinary shell metacharacter injection, but it does not prevent an allowlisted program from launching another process through its own arguments.\n\nBefore 1.0.4, command validation did not include a default argument policy for these execution-capable options. Therefore, allowing `git` also allowed Git's external alias mechanism.\n\n## Proof of concept\n\nConfigure the server with:\n\n```json\n{\n  \"env\": {\n    \"ALLOW_COMMANDS\": \"git\"\n  }\n}\n```\n\nThen invoke the command tool with:\n\n```text\ngit -c alias.x=!whoami x\n```\n\nGit executes `whoami` even though only `git` is named in `ALLOW_COMMANDS`.\n\n## Impact\n\nA client permitted to invoke an affected allowlisted executable could execute commands outside the intended command-name policy. The commands run with the privileges of the mcp-shell-server process and could read or modify accessible data.\n\n## Resolution\n\nVersion 1.0.4 introduced default argument hardening that rejects Git external aliases and other known execution-capable argument patterns. Later releases expanded this hardening as additional program-specific execution primitives were identified.\n\nCommand allowlists and argument hardening are not a complete OS sandbox. Deployments accepting untrusted clients should also use least-privilege users, restricted working directories, and external sandboxing.\n\n## Acknowledgment\n\nThis vulnerability class and the Git external-alias proof of concept were reported by @hackwither on January 27, 2026. The project initially closed the private report as expected behavior, then reevaluated the security model after introducing and expanding argument hardening. We thank @hackwither for the original report and for requesting that the historical attribution be corrected.",
+  "severity": "high",
+  "author": null,
+  "publisher": {
+    "login": "tumf",
+    "id": 69994,
+    "node_id": "MDQ6VXNlcjY5OTk0",
+    "avatar_url": "https://avatars.githubusercontent.com/u/69994?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/tumf",
+    "html_url": "https://github.com/tumf",
+    "followers_url": "https://api.github.com/users/tumf/followers",
+    "following_url": "https://api.github.com/users/tumf/following{/other_user}",
+    "gists_url": "https://api.github.com/users/tumf/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/tumf/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/tumf/subscriptions",
+    "organizations_url": "https://api.github.com/users/tumf/orgs",
+    "repos_url": "https://api.github.com/users/tumf/repos",
+    "events_url": "https://api.github.com/users/tumf/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/tumf/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false
+  },
+  "identifiers": [
+    {
+      "value": "GHSA-jm26-853c-62h9",
+      "type": "GHSA"
+    }
+  ],
+  "state": "published",
+  "created_at": null,
+  "updated_at": "2026-08-01T12:37:43Z",
+  "published_at": "2026-08-01T12:37:43Z",
+  "closed_at": null,
+  "withdrawn_at": null,
+  "submission": null,
+  "vulnerabilities": [
+    {
+      "package": {
+        "ecosystem": "pip",
+        "name": "mcp-shell-server"
+      },
+      "vulnerable_version_range": "<= 1.0.3",
+      "patched_versions": "1.0.4",
+      "vulnerable_functions": []
+    }
+  ],
+  "cvss_severities": {
+    "cvss_v3": {
+      "vector_string": null,
+      "score": null
+    },
+    "cvss_v4": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  "cwes": [
+    {
+      "cwe_id": "CWE-78",
+      "name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+    },
+    {
+      "cwe_id": "CWE-88",
+      "name": "Improper Neutralization of Argument Delimiters in a Command ('Argument Injection')"
+    }
+  ],
+  "cwe_ids": [
+    "CWE-78",
+    "CWE-88"
+  ],
+  "credits": [
+    {
+      "login": "hackwither",
+      "type": "reporter"
+    }
+  ],
+  "credits_detailed": [
+    {
+      "user": {
+        "login": "hackwither",
+        "id": 92863250,
+        "node_id": "U_kgDOBYj7Eg",
+        "avatar_url": "https://avatars.githubusercontent.com/u/92863250?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/hackwither",
+        "html_url": "https://github.com/hackwither",
+        "followers_url": "https://api.github.com/users/hackwither/followers",
+        "following_url": "https://api.github.com/users/hackwither/following{/other_user}",
+        "gists_url": "https://api.github.com/users/hackwither/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/hackwither/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/hackwither/subscriptions",
+        "organizations_url": "https://api.github.com/users/hackwither/orgs",
+        "repos_url": "https://api.github.com/users/hackwither/repos",
+        "events_url": "https://api.github.com/users/hackwither/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/hackwither/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "type": "reporter",
+      "state": "accepted"
+    }
+  ],
+  "collaborating_users": null,
+  "collaborating_teams": null,
+  "private_fork": null,
+  "cvss": {
+    "vector_string": null,
+    "score": null
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "reviewer": "Implementation agent; advisory and source curation after scanner implementation froze at 68bdf83. No independent unseen-source review is claimed.",
+  "implementation_frozen": "68bdf83ca35670946c850595f3a2a11eadee2a4a",
+  "condition": "The registered fetch_html tool must reject a caller-supplied HTTP URL whose parsed IPv4 hostname is 127.0.0.1 before its initial outbound fetch",
+  "prerequisites": [
+    "Use the upstream stdio SDK server, registered fetch_html and RequestPayloadSchema with url=http://127.0.0.1/ and ordinary defaults; no custom service or transport overrides.",
+    "The condition scores initial IPv4-loopback destination rejection before fetch. Redirects, DNS names/rebinding, IPv6, proxies, remote availability, response parsing and successful exfiltration are outside this label.",
+    "Dependency semantics are source-reviewed private-ip 3.0.2, as declared and pinned in the retained package/lock files. No dependency installation or target execution is part of this proposal."
+  ],
+  "flow": "CallToolRequestSchema -> RequestPayloadSchema.parse -> Fetcher.html -> this._fetch -> private-IP rejection branch -> native fetch of the same caller URL. The original predicate receives a URL string; the upstream fix passes URL.hostname. Exact IPv4-loopback and public-literal labels are supported by the retained dependency source, not inferred from helper names.",
+  "fixed_scope": "Initial IPv4 literal only. Later upstream SSRF fixes exist; this commit is not a claim of complete SSRF protection or a patched package release.",
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v2/mutations/vulnerable-request-helper-rename.tar.gz",
+        "sha256": "4499fa870ac5284ad6ccbf42e99d4dc309a948670e8fb44edc04b88f40f56fda"
+      },
+      "changed_paths": [
+        "src/Fetcher.ts"
+      ],
+      "identifier_occurrences": 5,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "aa94673a66d2914be3f372558db9480b0537b487d58cf1b20b178bd42643d190",
+      "mutated_tree_sha256": "182c26c1e2a600ac54bb00bdbc829f2bdabf5af14574ccf5d411bc60c96dd63b"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v2/mutations/fixed-request-helper-rename.tar.gz",
+        "sha256": "8704880701d8dfe71c2d949635ce253f8b577b17a250e76d3c339403210d8559"
+      },
+      "changed_paths": [
+        "src/Fetcher.ts"
+      ],
+      "identifier_occurrences": 5,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "cb16246cb598c3e69a3da97996a1db3e9732006ea9c35ff6d8b5cc1c51faa781",
+      "mutated_tree_sha256": "a228a802a10335ab1941eea2d4d14283636d6a8e6a33f64bcd7f1f115d7a45fb"
+    }
+  ],
+  "target_execution": false,
+  "upstream_tests_executed": false,
+  "scanner_evaluation": false,
+  "model_calls": 0,
+  "detector_tuning_after_curation": false
+}

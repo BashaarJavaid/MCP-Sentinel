@@ -1,0 +1,519 @@
+{
+  "recorded_at": "2026-09-13T04:42:07.101217+00:00",
+  "rows": [
+    {
+      "label": "v45-baseline-four",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receipt_sha256": "f74d4fa321c7f9d58dcad51a90a1258be2c816d9266e1b28de88e8f01adb8d62",
+      "log_sha256": "0448615fcedd41b39b01b77f46d94de4c56ab4a190d4d75ddce697563eba743f",
+      "assessment": "All four legitimate synthetic reproductions failed on the prior source: imported startup, checked record qualification, local pathlib and available optional HTTPX. These are scanner-owned controls, not new corpus observations.",
+      "corrected_checks": [
+        "v45-four-repros-first",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-four-repros-first": "4139302e19c23e168908992840d654a460f69106662b7da6855b9ef392eb9620",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-baseline-synthetic",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receipt_sha256": "7644b151bc3de4ce9c1b6da935e4ced9dee29d0dc8286d042c4c2528a2f73382",
+      "log_sha256": "87a2816c4f0210d4b1035201d9f12c63ba990dea036d52a44d0c910e37e7333e",
+      "assessment": "The first runnable test version omitted the URLFlow deadline. Corrected the synthetic harness; its three other reproduction failures remain recorded.",
+      "corrected_checks": [
+        "v45-baseline-four"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-baseline-four": "f74d4fa321c7f9d58dcad51a90a1258be2c816d9266e1b28de88e8f01adb8d62"
+      }
+    },
+    {
+      "label": "v45-boundary-facts-synthetic",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "-q",
+        "--no-cov",
+        "-k",
+        "checked_record"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "b9d43aaaf24dded5aa44c794203e3d6b0c1aad02020f7e35ec76fe19a895a835",
+      "receipt_sha256": "85789aa2d18ff358d04c2685283f09010f44845811cf9ddc51c9400c0c7438da",
+      "log_sha256": "764aa6173f18f4737dde4d844211a0b7fcdb7fb7cb0adc5c2a6fc11febda7e21",
+      "assessment": "Root normalization gave equality/prefix branches different keys, and checked record merging lost the common fact. Added target-bound lexical facts and all-alternative propagation; no raw-prefix or physical-safety suppression.",
+      "corrected_checks": [
+        "v45-ts-startup-record-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-ts-startup-record-controls": "46a4f34612d03596676374eab5c2a89298dc28609036a9194d198203fb3f3003",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-canonical-loop-baseline",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "infinite_canonicalization"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "53307143b1322cc32674b5dd8db2b80bb12ef74008a1001c6c5d93533c6532e8",
+      "receipt_sha256": "cae9b40245385c7ec8eef5eb056505dcfc25c26c381cb79496044b98ac482712",
+      "log_sha256": "5b1937be5beb0402a911486f8c5f99e87ccbdd7c4f3b38afd593ff17138af55a",
+      "assessment": "The generic unsupported infinite loop discarded all returns. The narrow path-operation summary widens state, preserves every return and leaves termination and physical containment unresolved.",
+      "corrected_checks": [
+        "v45-widened-loop-first",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-widened-loop-first": "0dc77fbef50d1f62a4e0703a09a542f46405212b9f4ef14ebddf6daa154ed9b1",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-exported-class-escape-baseline",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "imported_constructor_requires"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "3c7f616d41d405c2aebe5121bccd40b92b8986c18ea443745aad9124b374ef62",
+      "receipt_sha256": "093d98cfbccf88ad4ec25d1c7436fdaeed218ecc4401b64bbb0e137fcb71e534",
+      "log_sha256": "9efa36e3fc0e147673b55e60ca078a2584e9a6ecc9f3323b03c3965a3f457886",
+      "assessment": "A class escaped in its defining module was still modeled intact when imported. Initializing that module and retrieving its actual class binding preserves the escape/replacement effects.",
+      "corrected_checks": [
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-import-alias-mutation-check",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "ff4d231de4a9c75ce2198ef3713650a6aba8b47e5182932706bc34fed04ce23b",
+      "receipt_sha256": "7968a05238820127372e127f217990aed1d573b37d3ecc2f114fde318ac66568",
+      "log_sha256": "b04f84e2c690e92376c8f06d3739dff65c91f4acd5403928de687c8b119a7ef2",
+      "assessment": "Escaping paths.Path did not invalidate its later constructor lookup. The canonical callee identity is now checked for unknown effects, including aliases and reimports.",
+      "corrected_checks": [
+        "v45-import-escaped-constructor",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-import-escaped-constructor": "ead052bf3f3620dabbceed5e24ab05eacf41836b8b811c74726be6594717f8fe",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-import-home-controls",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "fb718d301f949658f4f97eeff41e6b33cbff2dcbc950f015ffed2ecd0b10c2e0",
+      "receipt_sha256": "166ca27925c289ee9894b4832f272a6cbc885248deec1bf5393d6da04170782b",
+      "log_sha256": "690f90ea2d97b1e9e451fe7b7c8af33dbb888ea24c8492e106690326b4b2dd38",
+      "assessment": "Resolved and original paths shared an identity, incorrectly suppressing the reconstructed-original sink. Resolution now has a distinct identity and copy checks only qualify the original-path finding.",
+      "corrected_checks": [
+        "v45-resolved-idempotence-check",
+        "v45-copy-proof-controls",
+        "v45-final-synthetic-controls"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-resolved-idempotence-check": "e0d9628f8f20c9525d3f496b06dda08b4cbf3ef619751bbe11e82c15f78c61af",
+        "v45-copy-proof-controls": "9ec9bbe642ec9df79ef164a3283232815af4da7ac4e0eebc029d5da019016322",
+        "v45-final-synthetic-controls": "0a6b13f147d72945ecf75aaf2d6e094d1edaf47977be69ba2e78b88b8a7a01f6"
+      }
+    },
+    {
+      "label": "v45-initial-synthetic",
+      "exit_code": 2,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "receipt_sha256": "cf6bfc3d2ef6246586268288b2bbe92275c9bf97b0f9c4dc6826f5dec74d5d13",
+      "log_sha256": "8291ebdbe5d834224fa3a96a081ed1ddfa93d86fa123e985b3ea983a1f9cf06c",
+      "assessment": "The initial test imported a nonexistent PythonURLFlow name. Corrected to existing URLFlow; this collection failure is not scanner evidence.",
+      "corrected_checks": [
+        "v45-baseline-four"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-baseline-four": "f74d4fa321c7f9d58dcad51a90a1258be2c816d9266e1b28de88e8f01adb8d62"
+      }
+    },
+    {
+      "label": "v45-lint-first",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "fba352d1a19c4f8b6da2ff32ede0f518cd7b6641e30764f9ef87d7b2c39e1f4c",
+      "receipt_sha256": "3822b68fdaacc0e1b4e8f4432a7a0945f69c32140f83ffd9da11bae8c8fafc6c",
+      "log_sha256": "52badc7c2e9e86730c8a2feb8ffdfee547c3525e7f695077ca01e8784b3d2a1a",
+      "assessment": "Removed an unused import, formatted/split long synthetic strings and sorted imports. Both failing lint reports and intermediate source snapshots remain preserved.",
+      "corrected_checks": [
+        "v45-lint-third",
+        "v45-candidate-lint",
+        "v45-format-check"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-lint-third": "17d03fdd1db82abedd17d58b02c301fe6437176015ebeedc52b34311596338b8",
+        "v45-candidate-lint": "012aeb0cf682e81f31521638008fc80ff493c09750fc0c9b6a8a3cead3f2691e",
+        "v45-format-check": "fad2d7c526094457debb9949e45352ca9f16e887e9bf9a9e02c8171ff9c664ac"
+      }
+    },
+    {
+      "label": "v45-lint-second",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "3c7f616d41d405c2aebe5121bccd40b92b8986c18ea443745aad9124b374ef62",
+      "receipt_sha256": "7e247eb561d5b7bac56cb2a81fbabe2f88939ab417d56916f3ca9e3bece2576e",
+      "log_sha256": "2933fbde21e1c4e09212b4382d2fedf726acb39794c6ca3750aeb61d53a0ba0d",
+      "assessment": "Removed an unused import, formatted/split long synthetic strings and sorted imports. Both failing lint reports and intermediate source snapshots remain preserved.",
+      "corrected_checks": [
+        "v45-lint-third",
+        "v45-candidate-lint",
+        "v45-format-check"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-lint-third": "17d03fdd1db82abedd17d58b02c301fe6437176015ebeedc52b34311596338b8",
+        "v45-candidate-lint": "012aeb0cf682e81f31521638008fc80ff493c09750fc0c9b6a8a3cead3f2691e",
+        "v45-format-check": "fad2d7c526094457debb9949e45352ca9f16e887e9bf9a9e02c8171ff9c664ac"
+      }
+    },
+    {
+      "label": "v45-map-cardinality-snapshot",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "operator_root_fallback"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "c67fd7ea0807fc3d54426d2746b68ce9b16708aaec32d8bfa0a7c6397184709b",
+      "receipt_sha256": "fd3575da4f7199424df968277015fa3f600ef9284a1f4e3e3beb1d115e39b1a2",
+      "log_sha256": "7df0d2afc5a3b4adfd7ba5cb2a45fd96619c02b6afe59c1a03cc59d00986dc19",
+      "assessment": "Nonempty fallback/length facts were absent; the first map propagation read state after callback invalidation. Snapshotting cardinality before the callback fixed that part. The zero comparison then needed the actual JavaScript numeric AST form (Float as well as Int), not string-literal parsing. Empty/filter/flatMap/find/mutated alternatives remain negative controls.",
+      "corrected_checks": [
+        "v45-numeric-zero-cardinality",
+        "v45-collection-length-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-numeric-zero-cardinality": "74ab9e6e2001d8e8db4234e789f18d71880c090eebd33dec8180fb0abfc844a8",
+        "v45-collection-length-controls": "5358ad8af26dee6bdb35ad3387923df81a7a85137961a2b87893a74589c6cc03",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-optional-client-guard-synthetic",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "optional_client"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "c85c9b15a7d504210fe50db7ff8a85421a46a4f3642b0ba45a998b4a4b97eaa3",
+      "receipt_sha256": "edea52679452e14111a316d7c1a2e60041e3f28a79653975a6e4f64b03a63ce3",
+      "log_sha256": "53941dce2a3bebe40d5b555b8a8b90dce34149c74d64d71ca567d2bfd7635755",
+      "assessment": "Client recovery worked but the successful ip_address result was not known non-None, losing the literal branch. Marking only the bound stdlib successful result non-None preserves existing literal guard scope.",
+      "corrected_checks": [
+        "v45-ip-constructor-presence",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-ip-constructor-presence": "74c92b9f2841a7d3fb6ce0b45d31a39abe2667f2354ee3786706f59da792bff6",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-path-loop-proof-check",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "infinite_canonicalization"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "ea6f2c229936703cfeb8ccca99240475faf61a3a8e48cc93ec3e7fa2111cffb5",
+      "receipt_sha256": "498f193558e0f3005558417396aeff45f666bb7045a3221268f8cc1eb2d17c57",
+      "log_sha256": "b634d733eaf2928954bea7196074f7e525cda472a67081f38ed3d1b997ec6dce",
+      "assessment": "The bounded read-only call proof initially excluded the AST Spread operator used for an intact local array. Added only that known-array spread path; arbitrary effects and loop control remain unsupported.",
+      "corrected_checks": [
+        "v45-path-loop-spread-check",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-path-loop-spread-check": "ad65993b2f3b387b3ded33330df808a6fe732f130f5b292c4e30b67b4ca955f5",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-prefix-synthetic",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "-k",
+        "checked_record",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "b6a5c191713dd6f3a2a34472ff16d28b954e57bd2419db420d7b0627ee8cab14",
+      "receipt_sha256": "7e910b80123430d3da613093c04652833a2e82c5d2e4521d34b02578568bcc50",
+      "log_sha256": "e1bdd582b89badb0c8d32bc208bdff1204c8407b16bd1aba23689e9e5a2153c6",
+      "assessment": "Root normalization gave equality/prefix branches different keys, and checked record merging lost the common fact. Added target-bound lexical facts and all-alternative propagation; no raw-prefix or physical-safety suppression.",
+      "corrected_checks": [
+        "v45-ts-startup-record-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-ts-startup-record-controls": "46a4f34612d03596676374eab5c2a89298dc28609036a9194d198203fb3f3003",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-resolved-identity-controls",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "tests/test_containment.py",
+        "--no-cov",
+        "-q"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "b278d3760e60402727c3a4716a0f081a4dc40bd4642d865f1193708d92e938af",
+      "receipt_sha256": "8def5c837900e0b617889556163e77eca986529ed65ea29a862086a0d8bfe296",
+      "log_sha256": "853c6f7c42d9fd28b37444aeca3e478423afda993589068901d1dc7adfee7ec2",
+      "assessment": "Distinct resolution exposed six prior expectations. Two repeated resolutions of an already resolved value needed identity preservation and were restored. Four cases actually checked a copy and used the original; their unsafe quiet expectations were tightened and renamed where applicable. Original tests/diffs remain retained.",
+      "corrected_checks": [
+        "v45-resolved-idempotence-check",
+        "v45-final-synthetic-controls"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-resolved-idempotence-check": "e0d9628f8f20c9525d3f496b06dda08b4cbf3ef619751bbe11e82c15f78c61af",
+        "v45-final-synthetic-controls": "0a6b13f147d72945ecf75aaf2d6e094d1edaf47977be69ba2e78b88b8a7a01f6"
+      }
+    },
+    {
+      "label": "v45-root-cardinality-baseline",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "operator_root_fallback"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "9372e3f22617b84584db103621711627fcf9aa815edda969ff2c21179140df38",
+      "receipt_sha256": "78ab1da0590f8286edb2b412989961d22f2f3b9d9100ffd6b7b29c9be632506c",
+      "log_sha256": "7efa772800128aa82105d862d10c25c8b48bf8668ac9708fcae1ac97a43e0f5c",
+      "assessment": "Nonempty fallback/length facts were absent; the first map propagation read state after callback invalidation. Snapshotting cardinality before the callback fixed that part. The zero comparison then needed the actual JavaScript numeric AST form (Float as well as Int), not string-literal parsing. Empty/filter/flatMap/find/mutated alternatives remain negative controls.",
+      "corrected_checks": [
+        "v45-numeric-zero-cardinality",
+        "v45-collection-length-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-numeric-zero-cardinality": "74ab9e6e2001d8e8db4234e789f18d71880c090eebd33dec8180fb0abfc844a8",
+        "v45-collection-length-controls": "5358ad8af26dee6bdb35ad3387923df81a7a85137961a2b87893a74589c6cc03",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-root-cardinality-first",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "operator_root_fallback"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "3cb73fea3ba5c0c03d4c76021bfdd07d1b58dc52385aa3e8f2fb0e160bd633e2",
+      "receipt_sha256": "9212820bf48e196e88d94a21396b3edd44c1ad839e8ebb7a545b013a6a27de4b",
+      "log_sha256": "56d1d4a2da0d2575cf2d717c7b49109c637bab50ae930758fc200199595cfe54",
+      "assessment": "Nonempty fallback/length facts were absent; the first map propagation read state after callback invalidation. Snapshotting cardinality before the callback fixed that part. The zero comparison then needed the actual JavaScript numeric AST form (Float as well as Int), not string-literal parsing. Empty/filter/flatMap/find/mutated alternatives remain negative controls.",
+      "corrected_checks": [
+        "v45-numeric-zero-cardinality",
+        "v45-collection-length-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-numeric-zero-cardinality": "74ab9e6e2001d8e8db4234e789f18d71880c090eebd33dec8180fb0abfc844a8",
+        "v45-collection-length-controls": "5358ad8af26dee6bdb35ad3387923df81a7a85137961a2b87893a74589c6cc03",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-typescript-two",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "-q",
+        "--no-cov",
+        "-k",
+        "checked_record or imported_class"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "b22bc8e3c81af0b751314b60bfc77d547e815729aa88907fa76930e6d38b0c2c",
+      "receipt_sha256": "37d406b2ae2ee33a2b32b45d723c19bf4c822ac83079a05f835cb9965f667da7",
+      "log_sha256": "0ea461dea7240ae10d12f4fa4e4c2186733f4066f63e54f02e7f701379c03e03",
+      "assessment": "Selecting the entry module alone did not provide the imported class value. Reused the defining module initialization/value path; later escape controls tightened it further.",
+      "corrected_checks": [
+        "v45-typescript-import-value",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-typescript-import-value": "620350a706891c5da00b28498265cca7428bfbc8309521abf5c4d0f344564fd7",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    },
+    {
+      "label": "v45-zero-length-comparison",
+      "exit_code": 1,
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_flow_recovery.py",
+        "--no-cov",
+        "-q",
+        "-k",
+        "operator_root_fallback"
+      ],
+      "source": "88814ad34f1a9e253fca25f00cbf13e4a0f9dd40",
+      "diff_sha256": "11b47da583a99d041d50792210c6b3780647df040228ffd23a75d6a15752f7a1",
+      "receipt_sha256": "eacbb02c30889f3cdfe727ebdaa60f8f81847c6cf9685e146f7cab3b72bd6e66",
+      "log_sha256": "00fb8494be68570bbf94141f4388ecb3820cfb1833e758646e86dc6ea5355635",
+      "assessment": "Nonempty fallback/length facts were absent; the first map propagation read state after callback invalidation. Snapshotting cardinality before the callback fixed that part. The zero comparison then needed the actual JavaScript numeric AST form (Float as well as Int), not string-literal parsing. Empty/filter/flatMap/find/mutated alternatives remain negative controls.",
+      "corrected_checks": [
+        "v45-numeric-zero-cardinality",
+        "v45-collection-length-controls",
+        "v45-class-module-effects"
+      ],
+      "corrected_check_receipts_sha256": {
+        "v45-numeric-zero-cardinality": "74ab9e6e2001d8e8db4234e789f18d71880c090eebd33dec8180fb0abfc844a8",
+        "v45-collection-length-controls": "5358ad8af26dee6bdb35ad3387923df81a7a85137961a2b87893a74589c6cc03",
+        "v45-class-module-effects": "127c51cbac09411d21ca00cf9ade5c03465d36214a6fc0020fdfe075d1b50519"
+      }
+    }
+  ],
+  "qualification": "Synthetic baseline failures and intermediate engineering corrections are preserved at their exact snapshots. No failed result is relabeled as a pass; later checks supersede implementation readiness only. No corpus, diagnostic profile, target repository execution or model call occurred.",
+  "additional_provenance": [
+    "v45-demo-native-schema invoked a module without a CLI entry point and therefore only imported it; its exit0 is not native report validation evidence. v45-demo-validation calls validate_report_data and validate_sarif_data directly and checks the retained20/20 attempt invariants. The separate SARIF module has a CLI and did validate its file.",
+    "The startup-forwarding-guards synthetic source initially omitted await on fs.promises.realpath. The corrected awaited source has its own startup-forwarding-awaited receipt and is the retained relevant proof; the original receipt is not presented as final asynchronous correctness evidence.",
+    "Synthetic AST inspections retained in inspect-*-synthetic and inspect-cardinality-v2 files explain normalization keys, imported startup, Spread and length cardinality. They analyze scanner-owned test strings only.",
+    "A commentary total of777 for flow-recovery-expanded was corrected to the actual783 passing tests; its log is authoritative.",
+    "A read-only lookup for v43-four-fresh-preparation/evaluate-v2.py returned missing; rg located the actual runner.py, which was then inspected. This was a file lookup, not an execution attempt."
+  ],
+  "new_corpus_observations": 0,
+  "paid_calls": 0
+}

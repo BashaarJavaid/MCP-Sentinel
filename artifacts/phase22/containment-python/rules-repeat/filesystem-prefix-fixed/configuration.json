@@ -1,0 +1,43 @@
+{
+  "language": "typescript",
+  "scanner": {
+    "llm": {
+      "cache_enabled": true,
+      "max_concurrency": 5,
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "retries": 2,
+      "timeout_seconds": 30
+    },
+    "rules": {
+      "sent004": {
+        "sanitizers": []
+      },
+      "sent005": {
+        "allowlist": []
+      },
+      "sent006": {
+        "public_routes": []
+      }
+    },
+    "sandbox": {
+      "allowed_registries": [
+        "pypi.org",
+        "files.pythonhosted.org"
+      ]
+    },
+    "scanner": {
+      "fail_on": "high",
+      "format": "console",
+      "ignore_paths": [
+        ".phase20/**"
+      ],
+      "max_findings_per_scan": 500,
+      "rules": [],
+      "rules_only": true,
+      "target_config": "sentinel.target.yaml"
+    }
+  },
+  "static_only": true,
+  "target": null
+}

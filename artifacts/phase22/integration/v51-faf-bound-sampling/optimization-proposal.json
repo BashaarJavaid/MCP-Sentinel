@@ -1,0 +1,102 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-13T09:24:36.866320+00:00",
+  "starting_delivery": "cd5e9aea889053cc5ba9ea25997b273805635241",
+  "scanner": {
+    "revision": "6e4fd671a97d92f6297dffc900c4dd9e18faad2c",
+    "source_sha256": "d1d24e53db3dc112639aaedcfd6a03102188e29d3007fcfc823d2b1b015cc2ed",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "profile_assessment_sha256": "f613f91ebb34d5983f84e5eb566477937f1dddd23c6973c7d2cd4ab406953341",
+  "source_assessment_sha256": "d1dcb29a089575660b5cb39e30524ff82e91430ed49bcf1f3cd01d64db6bacb7",
+  "target": "src/sentinel/static/typescript_path_flow.py:TypeScriptPathFlow.merge",
+  "target_source_sha256": "fe9f1f6b88a1d2e8ec932cc86b07a52f5496ae003dab47d1790a3b5fd0fc9e3d",
+  "purpose": "Avoid preparing unused record fallbacks on the existing all-present equal-value branch path. This addresses a measured repeated traversal, without changing analysis breadth or guard semantics.",
+  "proposed_change": "One source-only optimization: recognize an eligible equal Value actually present in every branch before record-fallback preparation. Reorder the existing unchanged-value fast path using an unambiguous missing sentinel under the typed dict[str, Value] contract. Defer root fallback preparation until that fast path cannot apply. Preserve guard-marker handling, source-free safety stripping, missing-record defaults, ordered combined values and all metadata effects. No new cache, dependency, generic abstraction or traversal algorithm.",
+  "evidence": [
+    {
+      "rule": "SENT-012",
+      "samples": 19785,
+      "snapshot_worker_cpu_seconds": 226.558397,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 44.46297700277989,
+      "merge_fallback_constructor_leaf_percent": 0.07076067728076826,
+      "registration_inclusive_percent": 99.61587060904726,
+      "missing_branch_predicate_leaf_samples": 1722,
+      "missing_branch_predicate_leaf_percent": 8.703563305534495,
+      "equality_predicate_leaf_samples": 1781,
+      "equality_predicate_leaf_percent": 9.00176901693202
+    },
+    {
+      "rule": "SENT-014",
+      "samples": 19945,
+      "snapshot_worker_cpu_seconds": 224.637008,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 44.161443970920025,
+      "merge_fallback_constructor_leaf_percent": 0.03509651541739785,
+      "registration_inclusive_percent": 99.6189521183254,
+      "missing_branch_predicate_leaf_samples": 1812,
+      "missing_branch_predicate_leaf_percent": 9.08498370518927,
+      "equality_predicate_leaf_samples": 1722,
+      "equality_predicate_leaf_percent": 8.63374279267987
+    },
+    {
+      "rule": "SENT-015",
+      "samples": 19880,
+      "snapshot_worker_cpu_seconds": 226.608944,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 43.01810865191147,
+      "merge_fallback_constructor_leaf_percent": 0.04527162977867204,
+      "registration_inclusive_percent": 99.61267605633802,
+      "missing_branch_predicate_leaf_samples": 1669,
+      "missing_branch_predicate_leaf_percent": 8.395372233400403,
+      "equality_predicate_leaf_samples": 1503,
+      "equality_predicate_leaf_percent": 7.5603621730382295
+    },
+    {
+      "rule": "SENT-016",
+      "samples": 19697,
+      "snapshot_worker_cpu_seconds": 225.405079,
+      "final_worker_snapshot": false,
+      "signal_and_timer_state_restored": false,
+      "merge_inclusive_percent": 43.42285627252881,
+      "merge_fallback_constructor_leaf_percent": 0.05076915266284206,
+      "registration_inclusive_percent": 99.6141544397624,
+      "missing_branch_predicate_leaf_samples": 1699,
+      "missing_branch_predicate_leaf_percent": 8.625679037416866,
+      "equality_predicate_leaf_samples": 1512,
+      "equality_predicate_leaf_percent": 7.6762958826217185
+    }
+  ],
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Before editing, preserve the exact6e4fd67 baseline kernel. Reuse the scanner-owned full-state synthetic comparison helper across all-present, missing-first/middle/last, equal/unequal, empty/one/many branches, registered/unregistered roots, guard markers, source-free safety claims and metadata/record/array/path boundaries. Include Values equal to a missing fallback but actually absent and distinct equal instances. Inputs and complete flow state must agree, not only the returned environment.",
+    "Use synthetic lookup/predicate accounting to show fallback preparation is skipped for the intended unchanged cases while all needed defaults remain correct. No synthetic timing claim. If equivalence fails or the proposed work is not avoided, preserve the failed attempt and stop without another target.",
+    "Run affected tests and required full local/hosted engineering at the actual candidate, whole-scope static checks, packages/schema/docs and source-bound production replay/runtime compatibility with zero paid calls. Preserve initial failures.",
+    "Freeze the verified candidate and prepare a separate exact current-source native/affected-compatibility proposal before any corpus observation. Neither this source-only approval nor old closed budgets authorize a measurement."
+  ],
+  "retention_and_limits": "The measured predicate share motivates investigation but supplies no guaranteed speedup or300-second completion. Actual all-present/equal prevalence is unknown. Existing native timeouts, earlier17b4784 profile and invalid interrupted v50 attempt remain unchanged; this current partial profile does not establish vulnerable detection, discrimination, compatibility, generalization or acceptance.",
+  "not_authorized": [
+    "another optimization target or attempt",
+    "broad caching or analysis truncation",
+    "new resource, parallelism or deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

@@ -624,6 +624,11 @@ def _request(
                 "tool_id": tool_id,
             }
         )
+        if candidate.context.omitted_flow_locations:
+            items[-1]["omitted_flow_locations"] = [
+                item.model_dump(mode="json")
+                for item in candidate.context.omitted_flow_locations
+            ]
     untrusted = json.dumps(
         {
             "untrusted_repository_data": {

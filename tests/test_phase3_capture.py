@@ -37,5 +37,5 @@ def test_phase12_capture_dry_run_plans_two_calls_under_cap(
     assert capture_gpt_reviews.main() == 0
     output = capsys.readouterr().out
     assert "request count: 2" in output
-    assert "aggregate worst-case cost: $0.130736" in output
+    assert "aggregate worst-case cost: $0.130740" in output
     assert "no API key read and no network call made" in output

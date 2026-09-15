@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "status": "prepared_pending_user_freeze",
+  "freeze_approved": false,
+  "manifest": {
+    "path": "artifacts/phase22/corpus-replacement-v1/manifest.json",
+    "sha256": "159278d40a7d6fe2faa1c240a26f51009b37cdca30c862d5e9df1d66a6fed0da"
+  },
+  "original_manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+  "scanner_implementation_frozen": "6e6833198989e06bd8c369abab0ee1a9d3db1ef8",
+  "replaced_input_ids": [
+    "authfetch-mapped-loopback-vulnerable",
+    "authfetch-mapped-loopback-vulnerable-mutation",
+    "authfetch-mapped-loopback-fixed",
+    "authfetch-mapped-loopback-fixed-mutation",
+    "authfetch-mapped-loopback-safe"
+  ],
+  "new_input_ids": [
+    "openwebsearch-mapped-loopback-vulnerable",
+    "openwebsearch-mapped-loopback-vulnerable-mutation",
+    "openwebsearch-mapped-loopback-fixed",
+    "openwebsearch-mapped-loopback-fixed-mutation",
+    "openwebsearch-public-ipv4-safe"
+  ],
+  "unchanged_input_records": 45,
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v1/snapshots/e29b2357a11d25c9288e1bb006728ddde4d4b6b1.tar.gz",
+      "sha256": "e59d888ec932819e64af2a19264a9e683499eb60a9e793c7a9979939f800004d"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v1/snapshots/739aef2bf7f2c822236bcce0f404c43b57f42503.tar.gz",
+      "sha256": "24aa2bf97ad02afb7a9e4fd0e55b418f1b9a8665ea799dc613d336b9114bf603"
+    }
+  ],
+  "provenance": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v1/provenance/advisory.json",
+      "sha256": "b3d13b365bef3d22352c56447b27864b463e33cc5aea3acfbd3ee674b034a78a"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v1/provenance/pair-comparison.json",
+      "sha256": "c654c33333b4758247ce147be8e08d2fbf4e9619b541a7275d28551d77366d1e"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v1/review/condition-review.json",
+      "sha256": "6dbc8c8463863d7f79019186c787bf6c5cf19642ff97aa67ead01d12fe89ff43"
+    }
+  ],
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v1/mutations/vulnerable-predicate-rename.tar.gz",
+        "sha256": "46a940c44d515a063df7bc2fc266c42c9e356b0a2536f2dd5d3f03a606073aaa"
+      },
+      "changed_paths": [
+        "src/test/test-url-safety.ts",
+        "src/utils/urlSafety.ts"
+      ],
+      "changed_identifier_occurrences": 5,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "f00129811916d8d721192d2e28b406dd599e1cb7c4b3490db627d654a5992f24",
+      "mutated_tree_sha256": "f7f50d5c3e731056c497eba5b04e5a8ab6b20087c3a46de93182c9c96a6d455f"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v1/mutations/fixed-predicate-rename.tar.gz",
+        "sha256": "fc6a3d7800aec745dd2790167f63949d91ab10e9654dadb4aa947e6ed63b8982"
+      },
+      "changed_paths": [
+        "src/test/test-url-safety.ts",
+        "src/utils/httpRequest.ts",
+        "src/utils/urlSafety.ts"
+      ],
+      "changed_identifier_occurrences": 8,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "1e6cfbcb60410b71d24ede68d0d9a76458100d98d3c6e7e8e15801582b26d6b9",
+      "mutated_tree_sha256": "a4f9096bfa2ad0fdfb10ce9008838f331afec285ea4dfc278555c6b59320867d"
+    }
+  ],
+  "corpus_validation": "Existing Phase22 Manifest and complete archive/overlay/evidence/line/hash/lineage/repository-split validation pass for all 50 records; only the five replacement inputs would be a new evaluation.",
+  "original_corpus_and_results_preserved": true,
+  "source_projection": "None; complete upstream archives and licenses retained.",
+  "scanner_evaluation": false,
+  "target_execution": false,
+  "model_calls": 0,
+  "independent_human_acceptance": false,
+  "source_exposure_disclosed": true,
+  "remaining_checkpoint": "Explicit approval of this exact manifest before any scanner/comparator/model evaluation of the replacement inputs. An independent agent review may be added if authorized; it cannot replace user freeze approval."
+}

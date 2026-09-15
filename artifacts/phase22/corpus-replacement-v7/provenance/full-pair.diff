@@ -1,0 +1,943 @@
+--- vulnerable/CHANGELOG.md
++++ fixed/CHANGELOG.md
+@@ -6,6 +6,26 @@
+ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+ 
+ ## [Unreleased]
++
++## [0.13.0] - 2026-06-05
++
++### Fixed
++
++- Server-reported version is now read from `package.json` at runtime instead of a hardcoded string, which had drifted to `0.10.0`. Added an E2E test asserting the reported version matches `package.json` so it can't fall out of sync again.
++
++### Security
++
++- **Arbitrary local file read via unvalidated `context_import` filePath** (#35)
++  - `context_import` passed the caller-supplied `filePath` straight to `fs.readFileSync`, with no path confinement. A malicious MCP client — or a prompt-injected agent — could point it at any file the server process could read: full contents for any JSON file (imported into the session, then retrievable via `context_get`/`context_export`), and the leading bytes of any other file (echoed back inside the `JSON.parse` error message)
++  - Imports are now confined to a server-owned exports directory (`<DATA_DIR>/exports`, overridable via `MEMORY_KEEPER_EXPORT_DIR`). Relative paths resolve against that directory; absolute paths are accepted only if they resolve — after following symlinks via `realpath` — to a location inside it. Traversal (`../`) and absolute paths outside the directory are rejected
++  - `context_export` now writes to that same exports directory (previously the OS temp dir), so the export → import round trip stays within the confined location
++  - Import failures no longer echo raw exception messages — at every stage (read, JSON parse, and the database write) a generic message is returned and the detail is logged server-side, so no file bytes or inserted values can leak back to the caller
++  - Import is hardened further: the resolved path must be a regular file (directories are rejected), capped at 50 MB and 100k entries to avoid memory/CPU exhaustion, and the whole import runs in a single transaction so a malformed row can never leave an orphaned or partially-populated session. Per-item and session-name shape are validated; `merge` only merges when a current session actually exists (and the result is reported honestly)
++  - The "not found" and "outside the exports directory" cases now return an identical generic message, removing a file-existence oracle, and the resolved absolute path is never echoed back to the caller
++  - `context_export`'s tool description and the import path resolution now guard the exports-directory startup (graceful FATAL on an unreadable directory)
++  - **Round-trip fidelity fixes** surfaced by review of the above: imported items now restore their `channel`, `is_private`, and `metadata` columns (previously dropped); file-cache rows with `NULL` content are preserved (previously dropped); a stored `size` of `0` is no longer wrongly recomputed; skipped-malformed counts and "checkpoints present but not imported" are reported instead of being silently lost; and `context_export` warns when a produced file is too large to be re-imported. The new current session is published only after the import transaction commits, so a failed import can no longer leave `currentSessionId` pointing at a rolled-back session
++  - Added an E2E security regression test suite that reproduces the issue #35 PoC (arbitrary JSON read, `/etc/passwd` byte leak, `..` traversal) and covers symlink escape, the `exports-dir`-prefix sibling boundary, the no-existence-oracle guarantee, empty/non-string paths, directory paths, valid-JSON-but-not-an-export, malformed-item skipping, and a data-preserving round trip
++  - Reported by Zhihao Zhang (@mcfly-zzh)
+ 
+ ## [0.12.2] - 2026-04-07
+ 
+--- vulnerable/README.md
++++ fixed/README.md
+@@ -814,7 +814,8 @@
+ Share context or backup your work:
+ 
+ ```javascript
+-// Export current session
++// Export current session — writes into the exports directory
++// (<DATA_DIR>/exports/, overridable via MEMORY_KEEPER_EXPORT_DIR)
+ mcp_context_export(); // Creates memory-keeper-export-xxx.json
+ 
+ // Export specific session
+@@ -823,7 +824,9 @@
+   format: 'json',
+ });
+ 
+-// Import from file
++// Import from a file inside the exports directory.
++// A bare filename resolves against that directory; the absolute path
++// returned by context_export also works.
+ mcp_context_import({
+   filePath: 'memory-keeper-export-xxx.json',
+ });
+@@ -834,6 +837,17 @@
+   merge: true,
+ });
+ ```
++
++> **Security note:** For safety, `context_import` only reads files inside the
++> server-owned exports directory (`<DATA_DIR>/exports/`, or
++> `MEMORY_KEEPER_EXPORT_DIR` if set). Absolute paths outside that directory and
++> `../` traversal are rejected, so the tool cannot be steered at arbitrary
++> files on disk. Drop any file you want to import into that directory first.
++> Point `MEMORY_KEEPER_EXPORT_DIR` at a dedicated directory — not at a home
++> folder or a tree containing secrets — since any JSON file inside it becomes
++> importable. (Prior to this change, exports were written to the OS temp
++> directory; existing exports there must be moved into the exports directory to
++> be re-imported.)
+ 
+ ### Knowledge Graph (Phase 4)
+ 
+--- vulnerable/package-lock.json
++++ fixed/package-lock.json
+@@ -1,12 +1,12 @@
+ {
+   "name": "mcp-memory-keeper",
+-  "version": "0.12.2",
++  "version": "0.13.0",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "mcp-memory-keeper",
+-      "version": "0.12.2",
++      "version": "0.13.0",
+       "license": "MIT",
+       "dependencies": {
+         "@modelcontextprotocol/sdk": "^1.12.3",
+--- vulnerable/package.json
++++ fixed/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "mcp-memory-keeper",
+-  "version": "0.12.2",
++  "version": "0.13.0",
+   "description": "MCP server for persistent context management in AI coding assistants",
+   "main": "dist/index.js",
+   "bin": {
+--- vulnerable/src/__tests__/e2e/import-path-confinement.test.ts
++++ fixed/src/__tests__/e2e/import-path-confinement.test.ts
+@@ -0,0 +1,336 @@
++import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
++import { spawn, ChildProcess } from 'child_process';
++import * as fs from 'fs';
++import * as path from 'path';
++import * as os from 'os';
++
++/**
++ * Security regression tests for GitHub issue #35:
++ * "Arbitrary Local File Read via Unvalidated context_import.filePath".
++ *
++ * Before the fix, context_import passed the caller-supplied filePath straight
++ * to fs.readFileSync, so an MCP client (or a prompt-injected agent) could read
++ * any file the server process could read — full contents for any JSON file, and
++ * the leading bytes of any other file (echoed back inside the JSON.parse error).
++ *
++ * These tests spawn the real server over stdio and assert that:
++ *   1. Absolute paths outside the exports directory are rejected.
++ *   2. `..` traversal is rejected.
++ *   3. Non-JSON system files (e.g. /etc/passwd) are rejected without leaking
++ *      any of their bytes in the error message.
++ *   4. The secret in a rejected JSON file never becomes retrievable.
++ *   5. The legitimate export -> import round trip (inside the exports dir)
++ *      still works.
++ *
++ * @see https://github.com/mkreyman/mcp-memory-keeper/issues/35
++ */
++
++let serverProcess: ChildProcess | null = null;
++let serverInfo: { name?: string; version?: string } | undefined;
++let tempDir: string;
++let exportsDir: string;
++let victimPath: string;
++let msgId = 0;
++let outputBuffer = '';
++
++const SECRET = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY';
++const SECRET_KEY = 'AWS_SECRET_ACCESS_KEY';
++
++function sendRequest(
++  method: string,
++  params: Record<string, unknown> = {},
++  timeoutMs = 5000
++): Promise<any> {
++  return new Promise((resolve, reject) => {
++    const id = ++msgId;
++    const timeout = setTimeout(() => {
++      reject(new Error(`Timeout waiting for response to ${method} (id=${id})`));
++    }, timeoutMs);
++
++    const onData = (data: Buffer) => {
++      outputBuffer += data.toString();
++      const lines = outputBuffer.split('\n');
++      outputBuffer = lines.pop() || '';
++
++      for (const line of lines) {
++        if (!line.trim()) continue;
++        try {
++          const msg = JSON.parse(line);
++          if (msg.id === id) {
++            clearTimeout(timeout);
++            serverProcess?.stdout?.removeListener('data', onData);
++            resolve(msg);
++          }
++        } catch {
++          // Not JSON, skip
++        }
++      }
++    };
++
++    serverProcess?.stdout?.on('data', onData);
++    serverProcess?.stdin?.write(JSON.stringify({ jsonrpc: '2.0', method, params, id }) + '\n');
++  });
++}
++
++function callTool(name: string, args: Record<string, unknown>): Promise<string> {
++  return sendRequest('tools/call', { name, arguments: args }).then(
++    res => res.result?.content?.[0]?.text ?? JSON.stringify(res)
++  );
++}
++
++describe('Security: context_import path confinement (issue #35)', () => {
++  beforeAll(async () => {
++    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mcp-import-sec-'));
++    // Default exports dir is <DATA_DIR>/exports.
++    exportsDir = path.join(tempDir, 'exports');
++
++    // A "victim" JSON file OUTSIDE the exports directory (but inside the data
++    // dir) — proves confinement is to the exports dir, not just the data dir.
++    victimPath = path.join(tempDir, 'victim_export.json');
++    fs.writeFileSync(
++      victimPath,
++      JSON.stringify({
++        session: { name: 'victims-private-session', branch: 'main' },
++        contextItems: [
++          {
++            key: SECRET_KEY,
++            value: SECRET,
++            category: 'secret',
++            priority: 'high',
++            created_at: new Date(0).toISOString(),
++          },
++        ],
++        fileCache: [],
++      })
++    );
++
++    serverProcess = spawn('node', [path.join(__dirname, '../../../dist/index.js')], {
++      env: { ...process.env, DATA_DIR: tempDir },
++      stdio: ['pipe', 'pipe', 'pipe'],
++    });
++
++    if ((global as any).testProcesses) {
++      (global as any).testProcesses.push(serverProcess);
++    }
++
++    const initResponse = await sendRequest('initialize', {
++      protocolVersion: '2024-11-05',
++      capabilities: {},
++      clientInfo: { name: 'import-sec-test', version: '1.0.0' },
++    });
++    expect(initResponse.result).toHaveProperty('protocolVersion');
++    serverInfo = initResponse.result.serverInfo;
++
++    serverProcess?.stdin?.write(
++      JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n'
++    );
++    await new Promise(resolve => setTimeout(resolve, 200));
++  }, 10000);
++
++  afterAll(async () => {
++    if (serverProcess && !serverProcess.killed) {
++      serverProcess.kill('SIGTERM');
++      await new Promise<void>(resolve => {
++        const timeout = setTimeout(() => {
++          serverProcess?.kill('SIGKILL');
++          resolve();
++        }, 3000);
++        serverProcess?.on('exit', () => {
++          clearTimeout(timeout);
++          resolve();
++        });
++      });
++      serverProcess?.removeAllListeners();
++    }
++    serverProcess = null;
++
++    try {
++      fs.rmSync(tempDir, { recursive: true, force: true });
++    } catch {
++      // ignore cleanup errors
++    }
++  });
++
++  it('reports its version from package.json (no drift)', () => {
++    // The server version is read from package.json at runtime; this guards
++    // against the hardcoded value silently falling out of sync on a release.
++
++    const pkgVersion = require('../../../package.json').version;
++    expect(serverInfo?.name).toBe('memory-keeper');
++    expect(serverInfo?.version).toBe(pkgVersion);
++  });
++
++  it('rejects an absolute path to a JSON file outside the exports directory', async () => {
++    const text = await callTool('context_import', { filePath: victimPath });
++    expect(text).toMatch(/Import failed/i);
++    expect(text).toMatch(/not found in the exports directory/i);
++    // The secret must never appear in the response.
++    expect(text).not.toContain(SECRET);
++  });
++
++  it('returns the same message for a missing path and an existing outside path (no existence oracle)', async () => {
++    // A file that exists outside the exports dir and a path that does not exist
++    // at all must be indistinguishable, so the error cannot be used to probe
++    // for the existence of arbitrary files on the host.
++    const missing = await callTool('context_import', { filePath: '/no/such/file/anywhere.json' });
++    const existsOutside = await callTool('context_import', { filePath: victimPath });
++    const strip = (t: string) => t.replace(/^Import failed:\s*/i, '').trim();
++    expect(strip(existsOutside)).toBe(strip(missing));
++    // And neither echoes the resolved exports-directory absolute path.
++    expect(existsOutside).not.toContain(exportsDir);
++  });
++
++  it('does not make the rejected file’s secret retrievable via context_get', async () => {
++    const text = await callTool('context_get', { key: SECRET_KEY });
++    expect(text).not.toContain(SECRET);
++  });
++
++  // Use an explicit conditional skip (not a bare `return`) so the platform gap
++  // is visible in the test report on systems without /etc/passwd.
++  const hasEtcPasswd = fs.existsSync('/etc/passwd');
++  (hasEtcPasswd ? it : it.skip)(
++    'rejects a non-JSON system file without leaking its bytes',
++    async () => {
++      const text = await callTool('context_import', { filePath: '/etc/passwd' });
++      expect(text).toMatch(/Import failed/i);
++      // The classic leak was "Unexpected token 'r', "root:x:0:0"...". Ensure no
++      // file bytes are reflected back.
++      expect(text).not.toMatch(/root:/);
++      expect(text).not.toMatch(/Unexpected token/);
++    }
++  );
++
++  it('rejects `..` traversal out of the exports directory', async () => {
++    const text = await callTool('context_import', {
++      filePath: '../../../../../../etc/hostname',
++    });
++    expect(text).toMatch(/Import failed/i);
++    expect(text).not.toMatch(/Unexpected token/);
++  });
++
++  it('rejects a symlink inside the exports dir that points outside it', async () => {
++    // realpathSync must resolve the symlink to its target before the
++    // confinement check, so an inside-the-dir symlink cannot escape.
++    const linkPath = path.join(exportsDir, 'escape.json');
++    try {
++      fs.symlinkSync(victimPath, linkPath);
++    } catch (e) {
++      // Only treat a genuine platform restriction as "skip"; surface anything else.
++      const code = (e as NodeJS.ErrnoException).code;
++      if (code === 'EPERM' || code === 'ENOSYS' || code === 'EACCES') {
++        return;
++      }
++      throw e;
++    }
++    try {
++      const text = await callTool('context_import', { filePath: 'escape.json' });
++      expect(text).toMatch(/Import failed/i);
++      expect(text).toMatch(/not found in the exports directory/i);
++      expect(text).not.toContain(SECRET);
++    } finally {
++      fs.unlinkSync(linkPath);
++    }
++  });
++
++  it('rejects a sibling directory whose name shares the exports-dir prefix', async () => {
++    // Guards the `startsWith(exportsDirReal + path.sep)` boundary: a sibling
++    // like "<exportsDir>-evil" must NOT be treated as inside the exports dir.
++    const evilDir = `${exportsDir}-evil`;
++    fs.mkdirSync(evilDir, { recursive: true });
++    const evilFile = path.join(evilDir, 'data.json');
++    fs.writeFileSync(evilFile, JSON.stringify({ session: { name: 'x' }, contextItems: [] }));
++    try {
++      const text = await callTool('context_import', { filePath: evilFile });
++      expect(text).toMatch(/Import failed/i);
++      expect(text).toMatch(/not found in the exports directory/i);
++    } finally {
++      fs.rmSync(evilDir, { recursive: true, force: true });
++    }
++  });
++
++  it('rejects an empty filePath', async () => {
++    const text = await callTool('context_import', { filePath: '' });
++    expect(text).toMatch(/Import failed/i);
++    expect(text).toMatch(/non-empty string/i);
++  });
++
++  it('rejects a non-string filePath', async () => {
++    const text = await callTool('context_import', { filePath: 12345 as unknown as string });
++    expect(text).toMatch(/Import failed/i);
++    expect(text).toMatch(/non-empty string/i);
++  });
++
++  it('rejects the exports directory itself (not a regular file)', async () => {
++    const text = await callTool('context_import', { filePath: exportsDir });
++    expect(text).toMatch(/Import failed/i);
++    expect(text).toMatch(/regular file/i);
++  });
++
++  it('rejects a confined file that is valid JSON but not an export', async () => {
++    const notExport = path.join(exportsDir, 'not-an-export.json');
++    fs.writeFileSync(notExport, JSON.stringify({ hello: 'world' }));
++    try {
++      const text = await callTool('context_import', { filePath: 'not-an-export.json' });
++      expect(text).toMatch(/Import failed/i);
++      expect(text).toMatch(/not a valid memory-keeper export/i);
++    } finally {
++      fs.rmSync(notExport, { force: true });
++    }
++  });
++
++  it('still supports the legitimate export -> import round trip and preserves data', async () => {
++    // Seed a context item, export it (lands inside the exports dir), then
++    // import the produced file back.
++    await callTool('context_save', {
++      key: 'roundtrip_key',
++      value: 'roundtrip_value',
++      category: 'note',
++    });
++
++    const exportText = await callTool('context_export', { confirmEmpty: true });
++    // `.+?\.json` (with `.` not matching newlines) tolerates spaces in the
++    // path, unlike `\S+`.
++    const match = exportText.match(/to:\s*(.+?\.json)/);
++    expect(match).toBeTruthy();
++    const exportPath = match![1];
++    // Export must write inside the exports directory.
++    expect(exportPath.startsWith(exportsDir)).toBe(true);
++
++    const importText = await callTool('context_import', { filePath: exportPath });
++    expect(importText).toMatch(/Import successful/i);
++    // A regression that silently dropped every item would still say "successful";
++    // assert at least one item was imported AND that the value is retrievable.
++    expect(importText).toMatch(/Context items:\s*[1-9]/);
++    const getResult = await callTool('context_get', { key: 'roundtrip_key' });
++    expect(getResult).toContain('roundtrip_value');
++  });
++
++  it('skips malformed items but imports the valid ones and reports the skip count', async () => {
++    // A confined, well-formed export envelope with one good item and several
++    // malformed ones: the good item imports, the bad ones are skipped (not
++    // silently — the count is surfaced), and nothing aborts the transaction.
++    const mixed = path.join(exportsDir, 'mixed.json');
++    fs.writeFileSync(
++      mixed,
++      JSON.stringify({
++        session: { name: 'mixed', branch: 'main' },
++        contextItems: [
++          { key: 'good_key', value: 'good_value', category: 'note', priority: 'high' },
++          { key: 'no_value' }, // missing value -> skipped
++          { value: 'no_key' }, // missing key -> skipped
++          'not-an-object', // not an object -> skipped
++        ],
++        fileCache: [],
++      })
++    );
++    try {
++      const text = await callTool('context_import', { filePath: 'mixed.json' });
++      expect(text).toMatch(/Import successful/i);
++      expect(text).toMatch(/Context items:\s*1\s*\(skipped 3 malformed\)/);
++      const getResult = await callTool('context_get', { key: 'good_key' });
++      expect(getResult).toContain('good_value');
++    } finally {
++      fs.rmSync(mixed, { force: true });
++    }
++  });
++});
+--- vulnerable/src/index.ts
++++ fixed/src/index.ts
+@@ -41,6 +41,94 @@
+   process.exit(1);
+ }
+ 
++// Server-owned directory for session exports/imports. Both context_export
++// (writes) and context_import (reads) are confined to this directory so that
++// context_import can never be steered at an arbitrary file on disk. Override
++// with MEMORY_KEEPER_EXPORT_DIR; defaults to a subdirectory of the data dir.
++const exportsDir = process.env.MEMORY_KEEPER_EXPORT_DIR
++  ? path.resolve(process.env.MEMORY_KEEPER_EXPORT_DIR)
++  : path.join(dataDir, 'exports');
++try {
++  fs.mkdirSync(exportsDir, { recursive: true });
++} catch (err) {
++  console.error(
++    `[memory-keeper] FATAL: Cannot create exports directory "${exportsDir}": ${(err as NodeJS.ErrnoException).message}\n` +
++      `Set MEMORY_KEEPER_EXPORT_DIR to a writable location or create the directory manually.`
++  );
++  process.exit(1);
++}
++// Resolve symlinks once so confinement checks compare real paths on both sides.
++let exportsDirReal: string;
++try {
++  exportsDirReal = fs.realpathSync(exportsDir);
++} catch (err) {
++  console.error(
++    `[memory-keeper] FATAL: Cannot resolve exports directory "${exportsDir}": ${(err as NodeJS.ErrnoException).message}\n` +
++      `Set MEMORY_KEEPER_EXPORT_DIR to a readable location or create the directory manually.`
++  );
++  process.exit(1);
++}
++
++// Upper bound on the size of a file context_import will read into memory. The
++// exports directory is server-owned, but context_export can write arbitrarily
++// large session dumps there, so cap the read to avoid memory exhaustion.
++const MAX_IMPORT_BYTES = 50 * 1024 * 1024;
++
++// Upper bound on how many context items / file-cache entries a single import
++// will process. better-sqlite3 transactions run synchronously and block the
++// event loop, so an export crafted with millions of tiny rows (still under the
++// byte cap) must not be allowed to stall the server.
++const MAX_IMPORT_ITEMS = 100_000;
++
++/**
++ * Resolve a caller-supplied import path and confine it to the exports
++ * directory. Relative paths are resolved against the exports directory;
++ * absolute paths are accepted only if they resolve (after following symlinks)
++ * to a location inside the exports directory.
++ *
++ * Throws an Error whose message is safe to surface to the caller — it never
++ * contains any bytes read from the target file.
++ */
++function resolveConfinedImportPath(filePath: unknown): string {
++  if (typeof filePath !== 'string' || filePath.length === 0) {
++    throw new Error('filePath is required and must be a non-empty string');
++  }
++
++  // Resolve relative paths against the exports directory; leave absolute as-is.
++  const candidate = path.resolve(exportsDirReal, filePath);
++
++  // realpathSync follows symlinks and requires the file to exist; an attacker
++  // cannot use a symlink inside the exports dir to escape it. statSync on the
++  // resolved path then tells us it is a regular file of acceptable size.
++  let resolved: string;
++  let stats: fs.Stats;
++  try {
++    resolved = fs.realpathSync(candidate);
++    stats = fs.statSync(resolved);
++  } catch {
++    throw new Error('import file not found in the exports directory');
++  }
++
++  // Use the SAME message as the not-found case so a file that exists outside
++  // the exports directory is indistinguishable from a missing one (no
++  // existence oracle), and never echo the resolved absolute path.
++  const withinExports =
++    resolved === exportsDirReal || resolved.startsWith(exportsDirReal + path.sep);
++  if (!withinExports) {
++    throw new Error('import file not found in the exports directory');
++  }
++
++  if (!stats.isFile()) {
++    throw new Error('import path must be a regular file');
++  }
++
++  if (stats.size > MAX_IMPORT_BYTES) {
++    throw new Error(`import file exceeds the maximum allowed size (${MAX_IMPORT_BYTES} bytes)`);
++  }
++
++  return resolved;
++}
++
+ // Warn users whose legacy DB is sitting in CWD
+ const legacyDb = path.join(process.cwd(), 'context.db');
+ if (process.cwd() !== dataDir && fs.existsSync(legacyDb)) {
+@@ -355,11 +443,24 @@
+   return summary;
+ }
+ 
++// Read the package version at runtime so the server-reported version can never
++// drift from package.json. The compiled entry (dist/index.js) sits one level
++// below the package root, so package.json is at ../package.json.
++function readPackageVersion(): string {
++  try {
++    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
++    return typeof pkg.version === 'string' ? pkg.version : '0.0.0';
++  } catch {
++    return '0.0.0';
++  }
++}
++const SERVER_VERSION = readPackageVersion();
++
+ // Create MCP server
+ const server = new Server(
+   {
+     name: 'memory-keeper',
+-    version: '0.10.0',
++    version: SERVER_VERSION,
+   },
+   {
+     capabilities: {
+@@ -1656,7 +1757,7 @@
+ 
+       if (format === 'json') {
+         const exportPath = path.join(
+-          os.tmpdir(),
++          exportsDir,
+           `memory-keeper-export-${targetSessionId.substring(0, 8)}.json`
+         );
+ 
+@@ -1677,12 +1778,20 @@
+           size: fs.statSync(exportPath).size,
+         };
+ 
+-        return {
+-          content: [
+-            {
+-              type: 'text',
+-              text: includeStats
+-                ? `✅ Successfully exported session "${session.name}" to: ${exportPath}
++        // context_import caps reads at MAX_IMPORT_BYTES; warn if this export is
++        // too large to be re-imported, so the round trip never breaks silently.
++        const sizeWarning =
++          stats.size > MAX_IMPORT_BYTES
++            ? `\n⚠️  This export is ${(stats.size / (1024 * 1024)).toFixed(1)} MB and exceeds the ${MAX_IMPORT_BYTES / (1024 * 1024)} MB import limit; context_import will reject it.`
++            : '';
++
++        return {
++          content: [
++            {
++              type: 'text',
++              text:
++                (includeStats
++                  ? `✅ Successfully exported session "${session.name}" to: ${exportPath}
+ 
+ 📊 Export Statistics:
+ - Context Items: ${stats.items}
+@@ -1691,9 +1800,9 @@
+ - Export Size: ${(stats.size / 1024).toFixed(2)} KB
+ 
+ Session ID: ${targetSessionId}`
+-                : `Exported session to: ${exportPath}
++                  : `Exported session to: ${exportPath}
+ Items: ${stats.items}
+-Files: ${stats.files}`,
++Files: ${stats.files}`) + sizeWarning,
+             },
+           ],
+           exportPath,
+@@ -1720,90 +1829,223 @@
+     case 'context_import': {
+       const { filePath, merge = false } = args;
+ 
++      // Confine the path to the server-owned exports directory BEFORE touching
++      // the filesystem. A failure here is a path/permission problem, never file
++      // content, so the message is safe to return verbatim.
++      let safePath: string;
+       try {
+-        const importData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+-
+-        // Create new session or merge
+-        let targetSessionId: string;
+-        if (merge && currentSessionId) {
+-          targetSessionId = currentSessionId;
+-        } else {
+-          targetSessionId = uuidv4();
+-          const importedSession = importData.session;
+-          db.prepare(
++        safePath = resolveConfinedImportPath(filePath);
++      } catch (error: any) {
++        return {
++          content: [{ type: 'text', text: `Import failed: ${error.message}` }],
++        };
++      }
++
++      // Read and parse separately so a JSON.parse error can never echo file
++      // bytes back to the caller (V8 includes the offending input in its
++      // SyntaxError message).
++      let importData: any;
++      try {
++        const raw = fs.readFileSync(safePath, 'utf8');
++        try {
++          importData = JSON.parse(raw);
++        } catch {
++          return {
++            content: [{ type: 'text', text: 'Import failed: file is not valid JSON export data' }],
++          };
++        }
++      } catch {
++        return {
++          content: [{ type: 'text', text: 'Import failed: could not read import file' }],
++        };
++      }
++
++      // Validate the import has the expected shape before using it.
++      if (
++        typeof importData !== 'object' ||
++        importData === null ||
++        typeof importData.session !== 'object' ||
++        importData.session === null ||
++        typeof importData.session.name !== 'string' ||
++        !Array.isArray(importData.contextItems)
++      ) {
++        return {
++          content: [
++            {
++              type: 'text',
++              text: 'Import failed: file is not a valid memory-keeper export (missing session or contextItems)',
++            },
++          ],
++        };
++      }
++
++      // Merge only when there is actually a session to merge into; otherwise
++      // fall back to creating a new session (and report that honestly).
++      const merged = merge && !!currentSessionId;
++
++      const fileCacheEntries = Array.isArray(importData.fileCache) ? importData.fileCache : [];
++
++      // Bound the work before opening the (synchronous, event-loop-blocking)
++      // transaction so a huge row count cannot stall the server.
++      if (
++        importData.contextItems.length > MAX_IMPORT_ITEMS ||
++        fileCacheEntries.length > MAX_IMPORT_ITEMS
++      ) {
++        return {
++          content: [
++            {
++              type: 'text',
++              text: `Import failed: file exceeds the maximum allowed entry count (${MAX_IMPORT_ITEMS})`,
++            },
++          ],
++        };
++      }
++
++      try {
++        // Apply the whole import atomically so a malformed row cannot leave an
++        // orphaned session or a partially-populated one behind. We do NOT mutate
++        // the module-level currentSessionId inside the transaction: better-sqlite3
++        // rolls back the database on error but cannot revert a JS assignment, so a
++        // post-assignment failure would leave currentSessionId dangling. Instead we
++        // return the new id and publish it only after the transaction commits.
++        const runImport = db.transaction(() => {
++          let targetSessionId: string;
++          const createdNew = !merged;
++          if (merged) {
++            targetSessionId = currentSessionId as string;
++          } else {
++            targetSessionId = uuidv4();
++            const importedSession = importData.session;
++            db.prepare(
++              `
++              INSERT INTO sessions (id, name, description, branch, working_directory, created_at)
++              VALUES (?, ?, ?, ?, ?, ?)
+             `
+-            INSERT INTO sessions (id, name, description, branch, working_directory, created_at)
++            ).run(
++              targetSessionId,
++              `Imported: ${importedSession.name}`,
++              `Imported from ${safePath} on ${new Date().toISOString()}`,
++              typeof importedSession.branch === 'string' ? importedSession.branch : null,
++              null,
++              new Date().toISOString()
++            );
++          }
++
++          // Import context items. Restore the channel/is_private/metadata columns
++          // too so a round trip is faithful, not lossy.
++          const itemStmt = db.prepare(`
++            INSERT OR REPLACE INTO context_items (id, session_id, key, value, category, priority, size, metadata, is_private, channel, created_at, updated_at)
++            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
++          `);
++
++          let itemCount = 0;
++          let skippedItems = 0;
++          for (const item of importData.contextItems) {
++            // Skip entries that are not well-formed items rather than letting a
++            // bad row abort the whole transaction with a SQLite binding error.
++            if (
++              typeof item !== 'object' ||
++              item === null ||
++              typeof item.key !== 'string' ||
++              typeof item.value !== 'string'
++            ) {
++              skippedItems++;
++              continue;
++            }
++            itemStmt.run(
++              uuidv4(),
++              targetSessionId,
++              item.key,
++              item.value,
++              typeof item.category === 'string' ? item.category : null,
++              typeof item.priority === 'string' ? item.priority : null,
++              // Use the stored size only when it is a valid non-negative number;
++              // `|| calculateSize(...)` would wrongly recompute a legitimate 0.
++              typeof item.size === 'number' && item.size >= 0
++                ? item.size
++                : calculateSize(item.value),
++              typeof item.metadata === 'string' ? item.metadata : null,
++              typeof item.is_private === 'number' ? item.is_private : 0,
++              typeof item.channel === 'string' ? item.channel : 'general',
++              typeof item.created_at === 'string' ? item.created_at : new Date().toISOString()
++            );
++            itemCount++;
++          }
++
++          // Import file cache. content is a nullable column, so null is valid and
++          // must NOT be treated as a malformed row (that would drop legit rows).
++          const fileStmt = db.prepare(`
++            INSERT OR REPLACE INTO file_cache (id, session_id, file_path, content, hash, last_read)
+             VALUES (?, ?, ?, ?, ?, ?)
+-          `
+-          ).run(
+-            targetSessionId,
+-            `Imported: ${importedSession.name}`,
+-            `Imported from ${filePath} on ${new Date().toISOString()}`,
+-            importedSession.branch,
+-            null,
+-            new Date().toISOString()
+-          );
+-          currentSessionId = targetSessionId;
+-        }
+-
+-        // Import context items
+-        const itemStmt = db.prepare(`
+-          INSERT OR REPLACE INTO context_items (id, session_id, key, value, category, priority, size, created_at, updated_at)
+-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+-        `);
+-
+-        let itemCount = 0;
+-        for (const item of importData.contextItems) {
+-          itemStmt.run(
+-            uuidv4(),
+-            targetSessionId,
+-            item.key,
+-            item.value,
+-            item.category,
+-            item.priority,
+-            item.size || calculateSize(item.value),
+-            item.created_at
+-          );
+-          itemCount++;
+-        }
+-
+-        // Import file cache
+-        const fileStmt = db.prepare(`
+-          INSERT OR REPLACE INTO file_cache (id, session_id, file_path, content, hash, last_read)
+-          VALUES (?, ?, ?, ?, ?, ?)
+-        `);
+-
+-        let fileCount = 0;
+-        for (const file of importData.fileCache || []) {
+-          fileStmt.run(
+-            uuidv4(),
+-            targetSessionId,
+-            file.file_path,
+-            file.content,
+-            file.hash,
+-            file.last_read
+-          );
+-          fileCount++;
+-        }
+-
+-        return {
+-          content: [
+-            {
+-              type: 'text',
+-              text: `Import successful!
+-Session: ${targetSessionId.substring(0, 8)}
+-Context items: ${itemCount}
+-Files: ${fileCount}
+-Mode: ${merge ? 'Merged' : 'New session'}`,
+-            },
+-          ],
++          `);
++
++          let fileCount = 0;
++          let skippedFiles = 0;
++          for (const file of fileCacheEntries) {
++            if (
++              typeof file !== 'object' ||
++              file === null ||
++              typeof file.file_path !== 'string' ||
++              (file.content !== null && typeof file.content !== 'string')
++            ) {
++              skippedFiles++;
++              continue;
++            }
++            fileStmt.run(
++              uuidv4(),
++              targetSessionId,
++              file.file_path,
++              file.content ?? null,
++              typeof file.hash === 'string' ? file.hash : null,
++              typeof file.last_read === 'string' ? file.last_read : null
++            );
++            fileCount++;
++          }
++
++          return { targetSessionId, createdNew, itemCount, fileCount, skippedItems, skippedFiles };
++        });
++
++        const result = runImport();
++        // Publish the new current session only after a successful commit.
++        if (result.createdNew) {
++          currentSessionId = result.targetSessionId;
++        }
++
++        const lines = [
++          'Import successful!',
++          `Session: ${result.targetSessionId.substring(0, 8)}`,
++          `Context items: ${result.itemCount}${result.skippedItems ? ` (skipped ${result.skippedItems} malformed)` : ''}`,
++          `Files: ${result.fileCount}${result.skippedFiles ? ` (skipped ${result.skippedFiles} malformed)` : ''}`,
++          `Mode: ${result.createdNew ? 'New session' : 'Merged'}`,
++        ];
++        // Checkpoints are present in exports but not restored by import; say so
++        // explicitly instead of silently dropping them.
++        const checkpointCount = Array.isArray(importData.checkpoints)
++          ? importData.checkpoints.length
++          : 0;
++        if (checkpointCount > 0) {
++          lines.push(`Checkpoints in file: ${checkpointCount} (not imported)`);
++        }
++        // Warn when the caller asked to merge but there was no active session.
++        if (merge && !merged) {
++          lines.push('Note: merge requested but no active session existed; created a new session.');
++        }
++        if (result.itemCount === 0 && importData.contextItems.length > 0) {
++          lines.push('Warning: no valid context items were found; nothing was imported.');
++        }
++
++        return {
++          content: [{ type: 'text', text: lines.join('\n') }],
+         };
+       } catch (error: any) {
+-        return {
+-          content: [
+-            {
+-              type: 'text',
+-              text: `Import failed: ${error.message}`,
++        // The error here comes from the DB layer and may echo the values being
++        // inserted; keep the caller-facing message generic and log the detail.
++        console.error(`[memory-keeper] context_import failed: ${error?.message ?? error}`);
++        return {
++          content: [
++            {
++              type: 'text',
++              text: 'Import failed: could not write imported data to the database',
+             },
+           ],
+         };
+@@ -4341,7 +4583,10 @@
+     // Phase 3: Export/Import
+     {
+       name: 'context_export',
+-      description: 'Export session data for backup or sharing',
++      description:
++        'Export session data for backup or sharing. JSON exports are written to the ' +
++        "server's exports directory (<DATA_DIR>/exports, overridable via MEMORY_KEEPER_EXPORT_DIR); " +
++        'the response includes the full path, which can be passed back to context_import.',
+       inputSchema: {
+         type: 'object',
+         properties: {
+@@ -4357,11 +4602,18 @@
+     },
+     {
+       name: 'context_import',
+-      description: 'Import previously exported session data',
++      description:
++        'Import previously exported session data. For security, imports are confined to the ' +
++        "server's exports directory (where context_export writes); arbitrary filesystem paths are rejected.",
+       inputSchema: {
+         type: 'object',
+         properties: {
+-          filePath: { type: 'string', description: 'Path to import file' },
++          filePath: {
++            type: 'string',
++            description:
++              'Path to an export file inside the exports directory. Relative paths resolve ' +
++              'against that directory; absolute paths must point inside it.',
++          },
+           merge: {
+             type: 'boolean',
+             description: 'Merge with current session instead of creating new',

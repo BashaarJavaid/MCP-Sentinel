@@ -29,6 +29,22 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         ):
             state.visit(file.relative_path, range_for_node(function))
+            prompt_sinks = {
+                node
+                for node in ast.walk(function)
+                if (
+                    isinstance(node, ast.Call)
+                    and (qualified_name(node.func) or "").endswith(
+                        ("responses.create", "chat.completions.create")
+                    )
+                )
+                or (function in prompts and isinstance(node, ast.Return))
+            }
+            if not prompt_sinks:
+                if function in prompts:
+                    state.exempt("sanitizer_or_no_taint")
+                continue
+            event_sinks: dict[ast.AST, list[ast.AST]] = {}
             found = False
             for path in paths(function.body, context.deadline):
                 tainted: dict[str, bool] = {}
@@ -62,17 +78,17 @@ def detect(context: StaticContext, state: RuleRunState) -> None:
                 for event in path:
                     if isinstance(event, Condition):
                         continue
-                    sinks: list[ast.AST] = [
-                        node
-                        for node in ast.walk(event)
-                        if isinstance(node, ast.Call)
-                        and (qualified_name(node.func) or "").endswith(
-                            ("responses.create", "chat.completions.create")
-                        )
-                    ]
-                    if function in prompts and isinstance(event, ast.Return):
-                        sinks.append(event)
-                    sink = next((node for node in sinks if value(node)), None)
+                    if event not in event_sinks:
+                        event_sinks[event] = [
+                            node
+                            for node in ast.walk(event)
+                            if node in prompt_sinks and isinstance(node, ast.Call)
+                        ]
+                        if function in prompts and isinstance(event, ast.Return):
+                            event_sinks[event].append(event)
+                    sink = next(
+                        (node for node in event_sinks[event] if value(node)), None
+                    )
                     if sink is not None:
                         state.matches.append(
                             match_from_node("SENT-004", file, sink, "prompt-taint")

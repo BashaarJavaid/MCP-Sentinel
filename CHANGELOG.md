@@ -12,6 +12,23 @@ new rule IDs.
 
 ### Fixed
 
+- Recover source-established Python module-table tool dispatch, preserving
+  unsupported status for ambiguous, replaced or escaped routing bindings.
+- Preserve module-table dispatch through literal dictionary metadata copies,
+  rejecting dynamic mappings, mutable aliases and builtin namespace changes.
+- Preserve global constructor instances when following nested bound methods,
+  retaining the actual receiver for filesystem guard analysis.
+- Follow supported TypeScript constructor parameter properties with the bound
+  argument/default value, preserving receiver replacement and escape checks.
+- Preserve narrow initial URL guard evidence across trailing-slash removal and
+  path suffixes only when the checked destination remains established.
+- Allow deterministic static scans a 30-minute shared deadline; retain the
+  two-minute target as informational and preserve incomplete results on expiry.
+- Merge equal credential markers consistently regardless of cache interning, and
+  bypass cache dispatch for the canonical unknown singleton without a key override.
+- Recover actual startup through imported TypeScript classes, checked path-return
+  facts, and source-bound Python imports. Keep reconstructed paths as qualified
+  candidates instead of treating a guard on a resolved copy as full protection.
 - Accept comments and trailing commas in devcontainer JSON configuration while
   retaining original source evidence and rejecting malformed content.
 - Include Git in pinned Python runtime images and include the base-image digest
@@ -30,6 +47,13 @@ new rule IDs.
 
 ### Changed
 
+- Reuse the first completed TypeScript branch invalidation set under the private
+  monotone-set contract, preserving independent arm analysis and conservative joins.
+- Reuse completed TypeScript tool discovery across rule workers and coverage,
+  preserving ordered warnings, source identities and the shared deadline.
+- Reuse equal, present TypeScript branch values before preparing record fallbacks,
+  retaining conservative guard and missing-state merges.
+- Avoid constructing unused record fallbacks when merging TypeScript branches.
 - Cancel superseded PR CI/documentation runs and build distributions alongside
   source checks while retaining the full platform matrix and release gates.
 - Empty enabled review uses `not_run`; it does not imply live/replay activity.

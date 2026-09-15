@@ -1,0 +1,2633 @@
+"""Bounded containment interpretation of original Semgrep TypeScript nodes."""
+
+from __future__ import annotations
+
+import copy
+import json
+from collections.abc import Sequence
+from dataclasses import fields as dataclass_fields
+from dataclasses import replace
+from typing import Any
+
+from sentinel.report.model import ReportWarning
+from sentinel.static import typescript as ts
+from sentinel.static.execution import check_deadline
+from sentinel.static.http_discovery import TypeScriptHTTPBinding
+from sentinel.static.model import RuleRunState, StaticMatch, TypeScriptSourceFile
+from sentinel.static.path_flow import UNKNOWN_VALUE, Value, _key, combine
+from sentinel.static.typescript_discovery import (
+    TypeScriptBinding,
+    TypeScriptProgram,
+    TypeScriptSymbol,
+    name_of,
+    walk,
+)
+
+Facts = frozenset[str] | None
+
+
+def all_facts(values: list[Facts]) -> Facts:
+    return (
+        None
+        if None in values
+        else frozenset().union(*(v for v in values if v is not None))
+    )
+
+
+def common_facts(values: Sequence[Facts]) -> Facts:
+    possible = [value for value in values if value is not None]
+    return frozenset.intersection(*possible) if possible else None
+
+
+class TypeScriptPathFlow:
+    rule_id = "SENT-012"
+    state_prefixes = (
+        "#instance:",
+        "#array:",
+        "#record:",
+        "#conditional:",
+        "#http-middleware:",
+    )
+
+    def __init__(self, program: TypeScriptProgram, state: RuleRunState) -> None:
+        self.program, self.state = program, state
+        self.active: set[tuple[str, int, int]] = set()
+        self.globals: dict[tuple[str, str], Value] = {}
+        self.initialized_modules: set[str] = set()
+        self.relative: dict[str, tuple[Value, Value, str]] = {}
+        self.objects: dict[str, dict[str, Value]] = {}
+        self.record_roots: dict[str, str] = {}
+        self.conditions: dict[str, tuple[Facts, Facts]] = {}
+        self.callables: dict[str, TypeScriptSymbol] = {}
+        self.invalidated_objects: set[str] = set()
+        self.prefixes: dict[str, Value] = {}
+        self.boundaries: dict[str, tuple[Value, Value]] = {}
+        self.normalized: set[str] = set()
+        self.parents: dict[str, Value] = {}
+        self.closures: dict[str, dict[str, Value]] = {}
+        self.root_directories: dict[str, Value] = {}
+        self.sdk_instances: dict[str, str] = {}
+        self.sdk_prototypes: dict[str, Value] = {}
+        self.http_instances: set[str] = set()
+        self.http_sequences: dict[
+            str, tuple[tuple[str | None, tuple[Value, ...]], ...]
+        ] = {}
+        self.http_routes: list[
+            tuple[TypeScriptSourceFile, dict[str, Any], list[Value]]
+        ] = []
+        self.http_continuations: dict[
+            str, tuple[TypeScriptSymbol, tuple[Value, ...], Value, Value]
+        ] = {}
+        self.http_depth = 0
+        self.http_entry = False
+        self.call_sites: list[TypeScriptSymbol] = []
+        self.normal_exits: list[list[dict[str, Value]]] = []
+        self.function_effects: Facts = frozenset()
+        self.path_inputs: dict[str, frozenset[str]] = {}
+        self.lexical_alternatives: dict[str, frozenset[str]] = {}
+        self.basenames: dict[str, Value] = {}
+        self.origins: dict[str, frozenset[str]] = {}
+        self.initial_prefixes: dict[str, tuple[frozenset[str], tuple[str, int]]] = {}
+        self.classes: dict[str, TypeScriptSymbol] = {}
+        self.instances: dict[str, str] = {}
+        self.instance_fields: dict[str, set[str]] = {}
+        self.global_members: dict[str, Value] = {}
+        self.lexical_this: set[str] = set()
+        self.receivers: dict[int, Value] = {}
+        self.call_values: dict[int, Value] | None = None
+        self.arrays: set[str] = set()
+        self.collection_lengths: dict[str, Value] = {}
+        self.array_states: dict[str, tuple[tuple[Value, ...], ...]] = {}
+        self.string_literals: dict[str, str] = {}
+        self.nonnull_literals: set[str] = set()
+        self.mobilecli_paths: set[str] = set()
+        self.string_prefixes: dict[str, str] = {}
+        self.zod_schemas: dict[str, tuple[str, dict[str, Value], Value | None]] = {}
+        self.node_exit_bindings: dict[str, bool] = {}
+
+    def node_exit_is_stable(self, file: TypeScriptSourceFile) -> bool:
+        """Recognize the global only when its visible uses cannot replace it."""
+        if file.relative_path in self.node_exit_bindings:
+            return self.node_exit_bindings[file.relative_path]
+        nodes = tuple(walk(self.program.trees[file.relative_path]))
+        callees = {id(n["Call"][0]) for n in nodes if "Call" in n}
+        allowed: set[int] = set()
+        stable = "process" not in self.program.bindings[file.relative_path]
+        for node in nodes:
+            check_deadline(self.program.deadline)
+            access = node.get("DotAccess")
+            if access and name_of(access[0]) == "process":
+                member = name_of(access[2])
+                if member == "env" or (
+                    member in {"cwd", "exit"} and id(node) in callees
+                ):
+                    allowed.add(id(access[0]))
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if assignment and (name_of(assignment[0]) or "").startswith("process."):
+                stable = False
+            if "PatId" in node and node["PatId"][0][0] == "process":
+                stable = False
+            if "N" in node and name_of(node) in {
+                "eval",
+                "Function",
+                "global",
+                "globalThis",
+                "require",
+            }:
+                stable = False
+            if "Call" in node and name_of(node["Call"][0]) == "import":
+                stable = False
+            if node.get("Special", [None])[0] in ("Eval", "Require"):
+                stable = False
+            directive = node.get("DirectiveStmt", {}).get("d", {})
+            for kind in ("ImportFrom", "ImportAs"):
+                if kind in directive and directive[kind][1].get("FileName", [""])[
+                    0
+                ] in {"process", "node:process"}:
+                    stable = False
+        stable = stable and all(
+            id(node) in allowed
+            for node in nodes
+            if "N" in node and name_of(node) == "process"
+        )
+        self.node_exit_bindings[file.relative_path] = stable
+        return stable
+
+    def initialized_global(self, file: TypeScriptSourceFile, name: str) -> Value:
+        """Reuse branch semantics for one assignment to an uninitialized scalar."""
+        declarations = self.program.bindings[file.relative_path].get(name, [])
+        if not (
+            len(declarations) == 2
+            and "VarDef" in declarations[0]
+            and not declarations[0]["VarDef"].get("vinit")
+            and declarations[1].get("rebound")
+        ):
+            return self.globals[(file.relative_path, name)]
+        for node in walk(self.program.trees[file.relative_path]):
+            check_deadline(self.program.deadline)
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if (
+                node.get("Special", [None])[0] == "Eval"
+                or ("N" in node and name_of(node) == "eval")
+                or ("PatId" in node and node["PatId"][0][0] == name)
+                or (
+                    assignment
+                    and name_of(assignment[0]) is None
+                    and any(name_of(part) == name for part in walk(assignment[0]))
+                )
+            ):
+                return self.globals[(file.relative_path, name)]
+        for statement in self.program.trees[file.relative_path]["Pr"]:
+            check_deadline(self.program.deadline)
+            attempt = statement.get("Try")
+            if not attempt or attempt[3] or attempt[4]:
+                continue
+            body = attempt[1].get("Block", [None, []])[1]
+            if len(body) != 1:
+                continue
+            expression = body[0].get("ExprStmt", [{}])[0]
+            assignment = expression.get("Assign")
+            if not assignment or name_of(assignment[0]) != name:
+                continue
+            # Module returns/declarations and nested initialization are outside
+            # this scalar proof; later writes already fail the declaration count.
+            if any("Return" in n or "DefStmt" in n for n in walk(statement)):
+                continue
+            local = {name: self.globals[(file.relative_path, name)]}
+            self.statement(file, statement, local, [])
+            return local.get(name, Value())
+        return self.globals[(file.relative_path, name)]
+
+    def canonical(self, value: Value) -> bool:
+        return value.resolved or value.key in self.normalized
+
+    def imported_class(self, symbol: TypeScriptSymbol) -> Value:
+        path = symbol.file.relative_path
+        self.initialize(TypeScriptSymbol(symbol.file, self.program.trees[path]))
+        return next(
+            (
+                self.globals.get((path, name), Value())
+                for name, declarations in self.program.bindings[path].items()
+                if any(declaration is symbol.node for declaration in declarations)
+            ),
+            Value(),
+        )
+
+    def nonempty(self, value: Value, env: dict[str, Value]) -> bool:
+        if (
+            value.key in self.invalidated_objects
+            or value.maybe_missing
+            or value.maybe_none
+        ):
+            return False
+        variants = self.array_items(value, env)
+        return (
+            bool(variants) and all(variants)
+            if variants is not None
+            else value.collection_nonempty
+            or env.get("#guard:nonempty:" + value.key, Value()).contained
+        )
+
+    def path_loop(
+        self, file: TypeScriptSourceFile, body: Any, env: dict[str, Value]
+    ) -> bool:
+        """Only summarize loops whose calls cannot replace the path operations."""
+        for node in walk(body):
+            check_deadline(self.program.deadline)
+            if node.keys() & {
+                "Break",
+                "Continue",
+                "For",
+                "While",
+                "Lambda",
+                "FuncDef",
+                "ClassDef",
+            }:
+                return False
+            assignment = node.get("Assign", node.get("AssignOp"))
+            if assignment:
+                name = name_of(assignment[0])
+                value = env.get(name or "", Value())
+                if (
+                    not name
+                    or "." in name
+                    or value.key in self.callables
+                    or value.key in self.arrays
+                    or any(
+                        "import" in declaration
+                        for declaration in self.program.bindings[
+                            file.relative_path
+                        ].get(name, [])
+                    )
+                ):
+                    return False
+            if "Call" not in node:
+                continue
+            callee = node["Call"][0]
+            special = callee.get("Special", [{}])[0]
+            if isinstance(special, dict) and "Op" in special:
+                continue
+            if special == "Spread" and len(node["Call"][1][1]) == 1:
+                argument = node["Call"][1][1][0].get("Arg", {})
+                call = argument.get("Call")
+                source = name_of(call[0]) if call else name_of(argument)
+                source = (source or "").removesuffix(".reverse") if call else source
+                if self.array_items(env.get(source or "", Value()), env) is not None:
+                    continue
+            name = name_of(callee) or ""
+            owner, _, method = name.rpartition(".")
+            if (
+                method in {"push", "reverse"}
+                and self.array_items(env.get(owner, Value()), env) is not None
+            ):
+                continue
+            symbol = self.program.resolve_node(file, callee)
+            if not symbol or (symbol.external or "").removeprefix("node:") not in {
+                "path.resolve",
+                "path.join",
+                "path.dirname",
+                "path.basename",
+                "fs.realpathSync",
+            }:
+                return False
+        return True
+
+    def boundary_facts(self, base: Value, target: Value) -> frozenset[str]:
+        fact = f"#guard:boundary:{base.key}:{target.key}"
+        self.boundaries[fact] = (base, target)
+        # Either component-bounded branch establishes lexical containment, even
+        # when separate normalization calls give the operator root different keys.
+        return frozenset({fact, f"#guard:lexical:{target.key}"})
+
+    def merge(self, env: dict[str, Value], branches: list[dict[str, Value]]) -> None:
+        first, *rest = branches or [{}]
+        for name in set().union(*(branch.keys() for branch in branches)):
+            value = first.get(name)
+            if (
+                value is not None
+                and not name.startswith("#guard:")
+                and (
+                    value.sources
+                    or not (
+                        value.contained
+                        or value.checked_path_parent
+                        or value.option_safe
+                        or value.url_checks
+                    )
+                )
+                and all(
+                    (other := branch.get(name)) is value or other == value
+                    for branch in rest
+                )
+            ):
+                # Reuse unchanged state as the Python flow does. Guard markers
+                # and source-free safety claims still use their normal merge.
+                env[name] = value
+                continue
+            root = name.removeprefix("#record:")
+            initial = (
+                Value(key=root)
+                if name.startswith("#record:")
+                and root in self.objects
+                and any(name not in branch for branch in branches)
+                else UNKNOWN_VALUE
+            )
+            values = [branch.get(name, initial) for branch in branches]
+            env[name] = (
+                Value(contained=all(value.contained for value in values))
+                if name.startswith("#guard:")
+                else self.combined(values)
+            )
+
+    def condition(self, value: Value) -> tuple[Facts, Facts]:
+        return self.conditions.get(value.key, (frozenset(), frozenset()))
+
+    def exit_facts(self, exits: list[dict[str, Value]]) -> Facts:
+        return common_facts([self.enforced(exit) for exit in exits])
+
+    def combined(self, values: list[Value], key: str = "") -> Value:
+        present = [v for v in values if v.key != "#ts:undefined"]
+        if present and len(present) != len(values):
+            return replace(self.combined(present, key), maybe_missing=True)
+        result = combine(values, key)
+        if values and all(value is result or value == result for value in values):
+            # The same identity already carries these metadata facts (or defaults).
+            return result
+        if values and all(value.key in self.array_states for value in values):
+            result = self.array_state(
+                tuple(items for v in values for items in self.array_states[v.key])
+            )
+        if any(value.key in self.mobilecli_paths for value in values):
+            self.mobilecli_paths.add(result.key)
+        if result.sources:
+            self.lexical_alternatives[result.key] = frozenset().union(
+                *(
+                    self.lexical_alternatives.get(v.key, frozenset({v.key}))
+                    for v in values
+                    if v.sources
+                )
+            )
+            self.origins[result.key] = frozenset().union(
+                *(
+                    self.origins.get(v.key, frozenset({v.key}))
+                    for v in values
+                    if v.sources
+                )
+            )
+        if len({value.key for value in values}) > 1 and all(
+            value.key in self.objects and value.key not in self.invalidated_objects
+            for value in values
+        ):
+            fields = set.union(*(set(self.objects[v.key]) for v in values))
+            self.objects[result.key] = {
+                name: self.combined(
+                    [
+                        self.objects[v.key].get(name, Value(key="#ts:undefined"))
+                        for v in values
+                    ]
+                )
+                for name in fields
+            }
+        if values and all(self.canonical(value) for value in values):
+            self.normalized.add(result.key)
+            self.path_inputs[result.key] = frozenset.intersection(
+                *(
+                    self.path_inputs.get(value.key, frozenset({value.key}))
+                    for value in values
+                )
+            )
+        if values and all(value.key in self.arrays for value in values):
+            self.arrays.add(result.key)
+        if any(value.key in self.conditions for value in values):
+            self.conditions[result.key] = (
+                common_facts([self.condition(value)[0] for value in values]),
+                common_facts([self.condition(value)[1] for value in values]),
+            )
+        return result
+
+    def array_state(self, variants: tuple[tuple[Value, ...], ...]) -> Value:
+        variants = tuple(dict.fromkeys(variants))
+        result = combine(
+            [value for items in variants for value in items],
+            _key("array-state", repr(variants)),
+        )
+        # ponytail: cap branch alternatives; larger arrays remain unresolved.
+        if len(variants) <= 32 and all(len(items) <= 256 for items in variants):
+            self.array_states[result.key] = variants
+        return result
+
+    def array_items(
+        self, value: Value, env: dict[str, Value]
+    ) -> tuple[tuple[Value, ...], ...] | None:
+        if value.key in self.invalidated_objects:
+            return None
+        return self.array_states.get(env.get("#array:" + value.key, Value()).key)
+
+    def array_value(
+        self,
+        file: TypeScriptSourceFile,
+        node: Any,
+        variants: tuple[tuple[Value, ...], ...],
+        env: dict[str, Value],
+    ) -> Value:
+        state = self.array_state(variants)
+        value = self.combined(
+            [value for items in variants for value in items],
+            key=_key(
+                "array",
+                file.relative_path,
+                str(self.program.source_range(node, file)),
+                *(
+                    str(self.program.source_range(call.node, call.file))
+                    for call in self.call_sites
+                ),
+            ),
+        )
+        self.arrays.add(value.key)
+        self.mobilecli_paths.discard(value.key)
+        env["#array:" + value.key] = state
+        return value
+
+    def warning(self, file: TypeScriptSourceFile, node: Any, reason: str) -> None:
+        location = self.program.source_range(node, file)
+        warning = ReportWarning(
+            code="static_flow_unresolved",
+            message=(
+                f"{self.rule_id} at {file.relative_path}:{location.start_line}: "
+                f"{reason}; protection is not established"
+            ),
+        )
+        if warning not in self.state.warnings:
+            self.state.warnings.append(warning)
+
+    def function(
+        self,
+        symbol: TypeScriptSymbol,
+        args: list[Value],
+        captured: dict[str, Value] | None = None,
+        *,
+        constructor: Value | None = None,
+    ) -> Value:
+        check_deadline(self.program.deadline)
+        function = symbol.function
+        location = self.program.source_range(symbol.node, symbol.file)
+        identity = (
+            symbol.file.relative_path,
+            location.start_line,
+            location.start_column,
+        )
+        if function is None or identity in self.active or len(self.active) >= 64:
+            self.function_effects = frozenset()
+            self.warning(symbol.file, symbol.node, "recursive or unsupported handler")
+            return combine(args)
+        self.active.add(identity)
+        exits: list[dict[str, Value]] = []
+        self.normal_exits.append(exits)
+        try:
+            env = dict(captured or {})
+            parameters = function["fparams"][1]
+            for index, parameter in enumerate(parameters):
+                value = args[index] if index < len(args) else Value()
+                if "Param" in parameter:
+                    param = parameter["Param"]
+                    if (
+                        index >= len(args) or value.key == "#ts:undefined"
+                    ) and param.get("pdefault"):
+                        value = self.expression(
+                            symbol.file, param["pdefault"]["some"], env
+                        )
+                    if param.get("pname"):
+                        env[param["pname"]["some"][0]] = value
+                elif "ParamPattern" in parameter:
+                    self.pattern(parameter["ParamPattern"], value, env)
+                else:
+                    self.warning(
+                        symbol.file, parameter, "unsupported parameter binding"
+                    )
+            if constructor is not None:
+                for parameter in parameters:
+                    param = parameter.get("Param", {})
+                    if param.get("pattrs"):
+                        name = param["pname"]["some"][0]
+                        env[self.instance_marker(constructor, name)] = env[name]
+            returned: list[Value] = []
+            if self.statement(symbol.file, function["fbody"]["FBStmt"], env, returned):
+                exits.append(env.copy())
+                returned.append(Value())
+            self.function_effects = self.exit_facts(exits)
+            if captured is not None and exits:
+                members: dict[str, Value] = {}
+                self.merge(
+                    members,
+                    [
+                        {
+                            key: value
+                            for key, value in exit.items()
+                            if key.startswith(self.state_prefixes)
+                        }
+                        for exit in exits
+                    ],
+                )
+                captured.update(members)
+            return self.combined(returned)
+        finally:
+            self.normal_exits.pop()
+            self.active.remove(identity)
+
+    @staticmethod
+    def enforced(env: dict[str, Value]) -> frozenset[str]:
+        return frozenset(
+            name
+            for name, item in env.items()
+            if name.startswith("#guard:") and item.contained
+        )
+
+    def pattern(self, node: Any, value: Value, env: dict[str, Value]) -> None:
+        if not isinstance(node, dict):
+            if isinstance(node, list):
+                for child in node:
+                    self.pattern(child, value, env)
+            return
+        name = name_of(node)
+        if name:
+            env[name] = value
+        elif "PatTyped" in node:
+            # Type names describe the binding; they are not runtime assignments.
+            self.pattern(node["PatTyped"][0], value, env)
+        elif "PatId" in node:
+            env[node["PatId"][0][0]] = value
+        elif "Record" in node:
+            for field in node["Record"][1]:
+                definition = field.get("F", {}).get("DefStmt")
+                if definition:
+                    name = name_of(definition[0]["name"])
+                    child = (
+                        definition[1].get("FieldDefColon", {}).get("vinit") or {}
+                    ).get("some")
+                    if name and child:
+                        self.pattern(child, self.member(value, name, env), env)
+        else:
+            for key, child in node.items():
+                if key not in {"token", "pinfo"} and not key.startswith("id_"):
+                    self.pattern(child, value, env)
+
+    def statement(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        env: dict[str, Value],
+        returned: list[Value],
+    ) -> bool:
+        check_deadline(self.program.deadline)
+        if "Block" in node:
+            for child in node["Block"][1]:
+                if not self.statement(file, child, env, returned):
+                    return False
+        elif "DefStmt" in node:
+            entity, definition = node["DefStmt"]
+            variable = definition.get("VarDef")
+            if variable is not None:
+                value = self.expression(
+                    file, (variable.get("vinit") or {}).get("some"), env
+                )
+                self.pattern(entity["name"], value, env)
+            elif "FuncDef" in definition or "ClassDef" in definition:
+                value = self.expression(file, definition, env)
+                self.pattern(entity["name"], value, env)
+        elif "ExprStmt" in node:
+            expression = node["ExprStmt"][0]
+            call = expression.get("Call")
+            terminates = (
+                call is not None
+                and name_of(call[0]) == "process.exit"
+                and "process" not in env
+                and self.node_exit_is_stable(file)
+            )
+            self.expression(file, expression, env)
+            if terminates:
+                return False
+        elif "Return" in node:
+            value = self.expression(file, (node["Return"][1] or {}).get("some"), env)
+            if value.key in self.arrays:
+                value = replace(value, collection_nonempty=self.nonempty(value, env))
+            if value.sources:
+                value = replace(
+                    value,
+                    locations=value.locations
+                    | {
+                        (
+                            file.relative_path,
+                            self.program.source_range(node, file).start_line,
+                        )
+                    },
+                )
+            facts = self.enforced(env)
+            result = replace(
+                value,
+                key=_key(value.key, "return", *sorted(facts))
+                if facts and (value.key in self.conditions or value.key in self.objects)
+                else value.key,
+            )
+            if value.key in self.conditions:
+                false, true = self.condition(value)
+                self.conditions[result.key] = (
+                    false | facts if false is not None else None,
+                    true | facts if true is not None else None,
+                )
+            if value.key in self.objects:
+                fields = self.object_fields(value, env).copy()
+                for name, field in fields.items():
+                    if (
+                        facts
+                        and field.key in self.conditions
+                        and field.key not in self.objects
+                    ):
+                        guarded = replace(field, key=_key(field.key, *sorted(facts)))
+                        false, true = self.condition(field)
+                        self.conditions[guarded.key] = (
+                            false | facts if false is not None else None,
+                            true | facts if true is not None else None,
+                        )
+                        fields[name] = guarded
+                if value.key in self.record_roots:
+                    root = self.record_roots[value.key]
+                    snapshot = self.record_state(root, fields)
+                    previous = result
+                    result = replace(result, key=_key(result.key, snapshot.key))
+                    if previous.key in self.conditions:
+                        self.conditions[result.key] = self.conditions[previous.key]
+                    self.objects[result.key] = fields
+                    self.record_roots[result.key] = root
+                    env["#record:" + root] = snapshot
+                else:
+                    self.objects[result.key] = fields
+            self.normal_exits[-1].append(env.copy())
+            returned.append(result)
+            return False
+        elif "Throw" in node:
+            self.expression(file, node["Throw"][1], env)
+            return False
+        elif "If" in node:
+            _, condition, left, right = node["If"]
+            right = right.get("some") if right else None
+            test = condition.get("Cond", condition)
+            value = self.expression(file, test, env)
+            branches = []
+            conditional_facts: list[Facts] = [None, None]
+            initial_invalidated = self.invalidated_objects.copy()
+            invalidated: set[str] | None = None
+            for branch, truth in ((left, True), (right, False)):
+                if self.condition(value)[int(truth)] is None:
+                    continue
+                # An escape in one arm cannot precede the mutually exclusive arm.
+                # Keep every possible escape conservative after the branches join.
+                self.invalidated_objects = initial_invalidated.copy()
+                local = env.copy()
+                self.guard(value, local, truth)
+                if branch is None or self.statement(file, branch, local, returned):
+                    branches.append(local)
+                    conditional_facts[int(truth)] = self.enforced(local)
+                if invalidated is None:
+                    invalidated = self.invalidated_objects
+                else:
+                    invalidated.update(self.invalidated_objects)
+            self.invalidated_objects = (
+                initial_invalidated.copy() if invalidated is None else invalidated
+            )
+            if not branches:
+                return False
+            self.merge(env, branches)
+            if value.sources and any(
+                facts and facts - self.enforced(env) for facts in conditional_facts
+            ):
+                marker = Value(
+                    key=_key("conditional", value.key, repr(conditional_facts))
+                )
+                self.conditions[marker.key] = (
+                    conditional_facts[0],
+                    conditional_facts[1],
+                )
+                env["#conditional:" + value.key] = marker
+        elif "Try" in node:
+            _, body, handlers, otherwise, final = node["Try"]
+            branches, final_states = [], []
+            success = env.copy()
+            alive = self.statement(file, body, success, returned)
+            if otherwise:
+                alive = (
+                    self.statement(file, otherwise["some"][1], success, returned)
+                    and alive
+                )
+            if alive:
+                branches.append(success)
+            final_states.append(success)
+            for _, _, body in handlers:
+                failure = env.copy()
+                if self.statement(file, body, failure, returned):
+                    branches.append(failure)
+                final_states.append(failure)
+            self.merge(env, branches or final_states)
+            if final and not self.statement(file, final["some"][1], env, returned):
+                return False
+            return bool(branches)
+        elif "For" in node and "ForEach" in node["For"][1]:
+            _, header, body = node["For"]
+            pattern, _, iterable = header["ForEach"]
+            local = env.copy()
+            self.pattern(pattern, self.expression(file, iterable, env), local)
+            self.statement(file, body, local, returned)
+            self.merge(env, [env.copy(), local])
+        elif (
+            "For" in node
+            and node["For"][1].get("ForClassic") == [[], None, None]
+            and self.path_loop(file, node["For"][2], env)
+        ):
+            body = node["For"][2]
+            joined = combine(list(env.values()))
+            unknown = Value(
+                sources=joined.sources,
+                key=_key(
+                    "loop-state",
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                ),
+                locations=joined.locations,
+            )
+            # ponytail: widen only path-operation loops; general loops need a
+            # fixed-point analysis. The back edge
+            # cannot fall through an unconditional loop without a break.
+            local = {
+                name: value
+                if value.key in self.callables
+                else replace(unknown, key=_key(unknown.key, name))
+                for name, value in env.items()
+                if not name.startswith("#")
+            }
+            self.warning(
+                file, node, "unbounded loop state widened; termination unresolved"
+            )
+            self.statement(file, body, local, returned)
+            return False
+        elif "While" in node:
+            _, condition, body = node["While"]
+            value = self.expression(file, condition.get("Cond", condition), env)
+            branches = []
+            for truth in (False, True):
+                if self.condition(value)[int(truth)] is None:
+                    continue
+                local = env.copy()
+                self.guard(value, local, truth)
+                if not truth or self.statement(file, body, local, returned):
+                    branches.append(local)
+                    if truth:
+                        # ponytail: one iteration; extend for loop-carried state.
+                        self.warning(
+                            file, node, "later while-loop iterations unresolved"
+                        )
+            if not branches:
+                return False
+            self.merge(env, branches)
+        elif "Switch" in node:
+            _, condition, cases = node["Switch"]
+            self.expression(file, condition, env)
+            branches = []
+            has_default = False
+            for case in cases:
+                if "CasesAndBody" not in case:
+                    self.warning(file, case, "unsupported dispatch branch")
+                    branches.append(env.copy())
+                    continue
+                labels, body = case["CasesAndBody"]
+                has_default |= any("Default" in label for label in labels)
+                local = env.copy()
+                if self.statement(file, body, local, returned):
+                    branches.append(local)
+            if not has_default:
+                branches.append(env.copy())
+            if not branches:
+                return False
+            self.merge(env, branches)
+        else:
+            self.warning(file, node, "unsupported control flow")
+            self.expression(file, node, env)
+        return True
+
+    def class_members(
+        self, symbol: TypeScriptSymbol
+    ) -> dict[tuple[str, bool], dict[str, Any]] | None:
+        definition = symbol.node["ClassDef"]
+        if (
+            definition.get("cextends")
+            or definition.get("cmixins")
+            or any(
+                attribute.get("KeywordAttr", [None])[0] not in {"Export", "Default"}
+                for attribute in self.program.class_attributes.get(id(symbol.node), [])
+            )
+        ):
+            return None
+        members = {}
+        parameter_properties = []
+        for field in definition["cbody"][1]:
+            declaration = field.get("F", {}).get("DefStmt")
+            if not declaration:
+                return None
+            entity, body = declaration
+            name = name_of(entity["name"])
+            attributes = [
+                a.get("KeywordAttr", [None])[0] for a in entity.get("attrs", [])
+            ]
+            if (
+                name is None
+                or any(
+                    a
+                    not in {
+                        "Static",
+                        "Public",
+                        "Private",
+                        "Protected",
+                        "Readonly",
+                        "Async",
+                    }
+                    for a in attributes
+                )
+                or not (body.keys() & {"FuncDef", "VarDef"})
+            ):
+                return None
+            key = (name, "Static" in attributes)
+            if key in members:
+                return None
+            if name == "constructor" and "FuncDef" in body:
+                if any(
+                    part.get("Return", [None, None])[1]
+                    for part in walk(
+                        body["FuncDef"]["fbody"],
+                        stop_at=("Lambda", "FuncDef", "ClassDef"),
+                    )
+                ):
+                    return None
+                for parameter in body["FuncDef"]["fparams"][1]:
+                    param = parameter.get("Param", {})
+                    attrs = param.get("pattrs", [])
+                    if not attrs:
+                        continue
+                    property_name = (param.get("pname") or {}).get("some", [None])[0]
+                    if (
+                        not isinstance(property_name, str)
+                        or property_name == "__proto__"
+                        or any(
+                            attr.get("KeywordAttr", [None])[0]
+                            not in {"Public", "Private", "Protected", "Readonly"}
+                            for attr in attrs
+                        )
+                    ):
+                        return None
+                    parameter_properties.append(property_name)
+            members[key] = body
+        if parameter_properties and (
+            len(set(parameter_properties)) != len(parameter_properties)
+            or any((name, False) in members for name in parameter_properties)
+            or any(
+                not static and member.get("VarDef", {}).get("vinit")
+                for (_, static), member in members.items()
+            )
+        ):
+            # ponytail: field initializers need explicit emit-order modeling first.
+            return None
+        return members
+
+    def instance_marker(self, value: Value, name: str) -> str:
+        self.instance_fields.setdefault(value.key, set()).add(name)
+        return "#instance:" + _key(value.key, name)
+
+    def initialize_fields(
+        self,
+        value: Value,
+        symbol: TypeScriptSymbol,
+        members: dict[tuple[str, bool], dict[str, Any]],
+        env: dict[str, Value],
+        *,
+        static: bool,
+    ) -> None:
+        for (name, is_static), definition in members.items():
+            if is_static == static and "VarDef" in definition:
+                local = {**env, "this": value}
+                initialized = self.expression(
+                    symbol.file,
+                    (definition["VarDef"].get("vinit") or {}).get("some"),
+                    local,
+                )
+                env.update(
+                    (k, v)
+                    for k, v in local.items()
+                    if k.startswith(self.state_prefixes)
+                )
+                env[self.instance_marker(value, name)] = initialized
+
+    def invalidate(self, value: Value) -> None:
+        self.invalidated_objects.update(
+            (value.key, self.record_roots.get(value.key, value.key))
+        )
+        symbol = self.callables.get(value.key)
+        if symbol and symbol.external in {
+            "@modelcontextprotocol/sdk/server/index.js.Server",
+            "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+        }:
+            # Separate import aliases still share the same mutable prototype.
+            self.invalidated_objects.add(symbol.external)
+
+    def record_state(self, root: str, fields: dict[str, Value]) -> Value:
+        attributes = dataclass_fields(Value)
+        value = combine(
+            list(fields.values()),
+            _key(
+                root,
+                json.dumps(
+                    {
+                        name: {
+                            attribute.name: getattr(field, attribute.name)
+                            for attribute in attributes
+                        }
+                        for name, field in fields.items()
+                    },
+                    sort_keys=True,
+                    default=sorted,
+                ),
+            ),
+        )
+        self.objects[value.key] = fields
+        return value
+
+    def object_fields(self, value: Value, env: dict[str, Value]) -> dict[str, Value]:
+        root = self.record_roots.get(value.key, value.key)
+        current = env.get("#record:" + root, value)
+        return self.objects.get(current.key, {})
+
+    def sdk_prototype(
+        self,
+        external: str,
+        file: TypeScriptSourceFile,
+        node: Any,
+        env: dict[str, Value],
+    ) -> Value:
+        if external not in self.sdk_prototypes:
+            fields = {}
+            for name in ("setRequestHandler", "registerTool", "tool"):
+                method = Value(key=_key(external, "original", name))
+                self.callables[method.key] = TypeScriptSymbol(
+                    file, node, external + ".prototype." + name
+                )
+                fields[name] = method
+            prototype = self.record_state(_key(external, "prototype"), fields)
+            self.record_roots[prototype.key] = _key(external, "prototype")
+            self.sdk_prototypes[external] = prototype
+            env["#record:" + self.record_roots[prototype.key]] = prototype
+        return self.sdk_prototypes[external]
+
+    def member(self, value: Value, name: str, env: dict[str, Value]) -> Value:
+        if value.key in self.sdk_instances and name in {
+            "setRequestHandler",
+            "registerTool",
+            "tool",
+        }:
+            prototype = self.sdk_prototypes.get(self.sdk_instances[value.key])
+            if prototype is not None:
+                if {
+                    value.key,
+                    self.sdk_instances[value.key],
+                    prototype.key,
+                    self.record_roots.get(prototype.key, prototype.key),
+                } & self.invalidated_objects:
+                    return Value()
+                return self.object_fields(prototype, env).get(name, Value())
+        fields = self.object_fields(value, env)
+        namespace = self.callables.get(value.key)
+        if namespace and "import" in namespace.node:
+            symbol = self.program.resolve_node(namespace.file, namespace.node, name)
+            if symbol:
+                result = Value(key=_key(value.key, name))
+                if symbol.function or symbol.external or "import" in symbol.node:
+                    self.callables[result.key] = symbol
+                    return result
+                return self.expression(symbol.file, symbol.node, env)
+        field = fields.get(
+            name,
+            Value(key="#ts:undefined")
+            if value.key in self.record_roots and name not in fields
+            else replace(value, key=_key(value.key, name), contained=False),
+        )
+        if value.maybe_missing:
+            field = replace(field, maybe_missing=True)
+        return (
+            replace(
+                field,
+                key=_key("invalidated", value.key, name),
+                contained=False,
+                url_checks=frozenset(),
+                credential_present=False,
+            )
+            if {value.key, self.record_roots.get(value.key, value.key)}
+            & self.invalidated_objects
+            else field
+        )
+
+    def parsed_schema(
+        self, schema: Value, value: Value, env: dict[str, Value], depth: int = 0
+    ) -> Value:
+        if depth >= 64 or schema.key in self.invalidated_objects:
+            return replace(
+                value,
+                key=_key("unresolved-parse", value.key),
+                contained=False,
+                url_checks=frozenset(),
+            )
+        kind, fields, default = self.zod_schemas[schema.key]
+        if default is not None:
+            value = (
+                default
+                if value.key == "#ts:undefined"
+                else self.combined([value, default])
+                if value.sources or value.maybe_missing
+                else value
+            )
+        if kind == "object" or (kind == "record" and value.key in self.record_roots):
+            parsed = (
+                {
+                    name: self.parsed_schema(
+                        field, self.member(value, name, env), env, depth + 1
+                    )
+                    for name, field in fields.items()
+                }
+                if kind == "object"
+                else self.object_fields(value, env).copy()
+            )
+            result = self.record_state(_key("zod-parse", schema.key, value.key), parsed)
+            self.record_roots[result.key] = result.key
+            env["#record:" + result.key] = result
+            return result
+        # Validation does not sanitize scalar caller input. Records retain taint;
+        # their dynamic keys are not inferred from the schema.
+        return value
+
+    def expression(
+        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+    ) -> Value:
+        check_deadline(self.program.deadline)
+        if isinstance(node, list):
+            return combine([self.expression(file, child, env) for child in node])
+        if not isinstance(node, dict):
+            return Value()
+        if "L" in node:
+            if "Undefined" in node["L"] or "Null" in node["L"]:
+                return Value(
+                    key="#ts:undefined" if "Undefined" in node["L"] else "#ts:null"
+                )
+            result = Value(key=json.dumps(node["L"], sort_keys=True))
+            self.nonnull_literals.add(result.key)
+            literal = self.program.literal(TypeScriptSymbol(file, node))
+            if isinstance(literal, str):
+                self.string_literals[result.key] = literal
+                self.string_prefixes[result.key] = literal
+                if literal == "mobilecli":
+                    self.mobilecli_paths.add(result.key)
+            boolean = node["L"].get("Bool")
+            if boolean:
+                self.conditions[result.key] = (
+                    (None, frozenset())
+                    if str(boolean[0]).lower() == "true"
+                    else (frozenset(), None)
+                )
+            return result
+        if "N" in node:
+            name = name_of(node) or ""
+            if name in env:
+                return env[name]
+            key = (file.relative_path, name)
+            if key not in self.globals:
+                self.globals[key] = Value(key=_key(*key))
+                symbol = self.program.resolve(file, name)
+                if symbol:
+                    if symbol.external or symbol.function:
+                        self.callables[self.globals[key].key] = symbol
+                    elif "ClassDef" in symbol.node:
+                        self.globals[key] = self.imported_class(symbol)
+                    else:
+                        local: dict[str, Value] = {}
+                        self.globals[key] = self.expression(
+                            symbol.file, symbol.node, local
+                        )
+                        self.global_members.update(
+                            (k, v)
+                            for k, v in local.items()
+                            if k.startswith(self.state_prefixes)
+                        )
+                else:
+                    self.globals[key] = self.initialized_global(file, name)
+            pending = [self.globals[key]]
+            seen: set[str] = set()
+            while pending:
+                value = pending.pop()
+                if value.key in seen:
+                    continue
+                seen.add(value.key)
+                if value.key in self.arrays:
+                    marker = "#array:" + value.key
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
+                if value.key in self.http_instances:
+                    marker = "#http-middleware:" + value.key
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
+                for field in tuple(self.instance_fields.get(value.key, ())):
+                    marker = self.instance_marker(value, field)
+                    if marker in self.global_members:
+                        env.setdefault(marker, self.global_members[marker])
+                        pending.append(env[marker])
+            return self.globals[key]
+        if "ClassDef" in node:
+            symbol = TypeScriptSymbol(file, node)
+            members = self.class_members(symbol)
+            value = Value(
+                key=_key(
+                    "class",
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                )
+            )
+            if members is None:
+                self.warning(
+                    file, node, "unsupported class inheritance, decorators or members"
+                )
+                return value
+            self.classes[value.key] = symbol
+            self.initialize_fields(value, symbol, members, env, static=True)
+            return value
+        if "Await" in node:
+            return self.expression(file, node["Await"][1], env)
+        if "Cast" in node:
+            return self.expression(file, node["Cast"][2], env)
+        if node.get("OtherExpr", [[None]])[0][0] == "Satisfies":
+            return self.expression(file, node["OtherExpr"][1][0]["E"], env)
+        if "Container" in node:
+            items = tuple(
+                self.expression(file, item, env) for item in node["Container"][1][1]
+            )
+            if node["Container"][0] == "Array":
+                return self.array_value(file, node, (items,), env)
+            return self.combined(list(items))
+        if "Conditional" in node:
+            test, left, right = node["Conditional"]
+            condition = self.expression(file, test, env)
+            values = []
+            branches = []
+            for branch, truth in ((left, True), (right, False)):
+                if self.condition(condition)[int(truth)] is None:
+                    continue
+                local = env.copy()
+                self.guard(condition, local, truth)
+                values.append(self.expression(file, branch, local))
+                branches.append(local)
+            self.merge(env, branches)
+            return self.combined(values)
+        if "Call" in node:
+            previous = self.call_values
+            self.call_values = {}
+            try:
+                return self.call(file, node, env)
+            finally:
+                self.call_values = previous
+        if "New" in node:
+            constructor = node["New"][1].get("t", {}).get("TyExpr", {})
+            class_value = self.expression(file, constructor, env)
+            binding = self.callables.get(class_value.key)
+            if (
+                binding
+                and class_value.key not in self.invalidated_objects
+                and binding.external not in self.invalidated_objects
+                and binding.external
+                in {
+                    "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    "@modelcontextprotocol/sdk/server/index.js.Server",
+                }
+            ):
+                result = Value(
+                    key=_key(
+                        file.relative_path, str(self.program.source_range(node, file))
+                    )
+                )
+                self.sdk_instances[result.key] = binding.external
+                self.objects[result.key] = {}
+                self.sdk_prototype(binding.external, file, node, env)
+                if binding.external.endswith(".McpServer"):
+                    server = Value(key=_key(result.key, "server"))
+                    self.sdk_instances[server.key] = (
+                        "@modelcontextprotocol/sdk/server/index.js.Server"
+                    )
+                    self.objects[server.key] = {}
+                    self.sdk_prototype(self.sdk_instances[server.key], file, node, env)
+                    self.objects[result.key] = {"server": server}
+                return result
+            if (
+                class_value.key in self.classes
+                and class_value.key not in self.invalidated_objects
+            ):
+                symbol = self.classes[class_value.key]
+                members = self.class_members(symbol)
+                assert members is not None
+                value = Value(
+                    key=_key(
+                        "instance",
+                        file.relative_path,
+                        str(self.program.source_range(node, file)),
+                        *(
+                            str(self.program.source_range(call.node, call.file))
+                            for call in self.call_sites
+                        ),
+                    )
+                )
+                self.instances[value.key] = class_value.key
+                args = [
+                    self.expression(file, arg.get("Arg", arg), env)
+                    for arg in node["New"][3][1]
+                ]
+                self.initialize_fields(value, symbol, members, env, static=False)
+                constructor_body = members.get(("constructor", False))
+                if constructor_body:
+                    captured = {**env, "this": value}
+                    self.call_sites.append(TypeScriptSymbol(file, node))
+                    try:
+                        self.function(
+                            TypeScriptSymbol(symbol.file, constructor_body),
+                            args,
+                            captured,
+                            constructor=value,
+                        )
+                    finally:
+                        self.call_sites.pop()
+                    env.update(
+                        (k, v)
+                        for k, v in captured.items()
+                        if k.startswith(self.state_prefixes)
+                    )
+                return value
+        if "Lambda" in node or "FuncDef" in node:
+            value = Value(
+                key=_key(
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                    *(
+                        site.file.relative_path
+                        + str(self.program.source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
+                )
+            )
+            self.callables[value.key] = TypeScriptSymbol(file, node)
+            self.closures[value.key] = env
+            function_node = node.get("Lambda") or node.get("FuncDef") or {}
+            if function_node.get("fkind", [None])[0] == "Arrow":
+                self.lexical_this.add(value.key)
+            return value
+        if "Assign" in node:
+            target, _, expression = node["Assign"]
+            value = self.expression(file, expression, env)
+            access = target.get("DotAccess", target.get("ArrayAccess"))
+            if access:
+                receiver = self.expression(file, access[0], env)
+                assigned_field = (
+                    name_of(access[2])
+                    if "DotAccess" in target
+                    else self.string_literals.get(
+                        self.expression(file, access[1][1], env).key
+                    )
+                )
+                if (
+                    receiver.key in self.record_roots
+                    and assigned_field != "__proto__"
+                    and assigned_field
+                ):
+                    root = self.record_roots[receiver.key]
+                    updated = {
+                        **self.object_fields(receiver, env),
+                        assigned_field: value,
+                    }
+                    env["#record:" + root] = self.record_state(root, updated)
+                    return value
+                if "ArrayAccess" in target or assigned_field == "__proto__":
+                    if receiver.key in self.arrays:
+                        marker = "#array:" + receiver.key
+                        env[marker] = combine([env.get(marker, receiver), value])
+                    self.invalidate(receiver)
+                    self.warning(
+                        file, target, "computed or prototype member assignment"
+                    )
+                    return value
+                if "http:request" in receiver.sources and assigned_field:
+                    env[self.instance_marker(receiver, assigned_field)] = value
+                    return value
+                class_key = self.instances.get(receiver.key, receiver.key)
+                if class_key in self.classes and assigned_field:
+                    members = self.class_members(self.classes[class_key]) or {}
+                    definition = members.get(
+                        (assigned_field, receiver.key in self.classes), {}
+                    )
+                    if "FuncDef" not in definition:
+                        env[self.instance_marker(receiver, assigned_field)] = value
+                        return value
+                self.invalidate(receiver)
+            self.pattern(target, value, env)
+            return value
+        if "ArrayAccess" in node:
+            receiver, index = node["ArrayAccess"]
+            parent = self.expression(file, receiver, env)
+            self.receivers[id(node)] = parent
+            index_value = self.expression(file, index[1], env)
+            member = self.string_literals.get(index_value.key)
+            if parent.key in self.record_roots and member is not None:
+                return self.member(parent, member, env)
+            if parent.key in self.arrays:
+                # ponytail: indexed aliases are unresolved; invalidate the array
+                # until element alias identity is supported, including later writes.
+                self.invalidate(parent)
+                self.warning(file, node, "indexed array alias unresolved")
+            return combine([parent, index_value])
+        if "DotAccess" in node:
+            full_name = name_of(node)
+            if full_name in env:
+                return env[full_name]
+            receiver, _, field = node["DotAccess"]
+            parent = self.expression(file, receiver, env)
+            self.receivers[id(node)] = parent
+            member = name_of(field) or "?"
+            binding = self.callables.get(parent.key)
+            if (
+                member == "prototype"
+                and binding
+                and binding.external
+                in {
+                    "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    "@modelcontextprotocol/sdk/server/index.js.Server",
+                }
+                and parent.key not in self.invalidated_objects
+                and binding.external not in self.invalidated_objects
+            ):
+                return self.sdk_prototype(binding.external, file, node, env)
+            if parent.key in self.zod_schemas:
+                return Value(key=_key(parent.key, member))
+            if "http:request" in parent.sources:
+                if parent.key in self.invalidated_objects:
+                    parent = replace(parent, key=_key("invalidated", parent.key))
+                marker = self.instance_marker(parent, member)
+                if marker in env:
+                    return env[marker]
+            class_key = self.instances.get(parent.key, parent.key)
+            if class_key in self.classes:
+                value = env.get(
+                    self.instance_marker(parent, member),
+                    Value(key=_key(parent.key, member)),
+                )
+                if {parent.key, class_key} & self.invalidated_objects:
+                    self.warning(file, node, "class receiver escapes or is replaced")
+                    return replace(
+                        value, key=_key("invalidated", value.key), contained=False
+                    )
+                symbol = self.classes[class_key]
+                member_definition = (self.class_members(symbol) or {}).get(
+                    (member, parent.key in self.classes)
+                )
+                if member_definition and "FuncDef" in member_definition:
+                    self.callables[value.key] = TypeScriptSymbol(
+                        symbol.file, member_definition
+                    )
+                return value
+            value = self.member(parent, member, env)
+            if member == "length" and parent.key in self.arrays:
+                self.collection_lengths[value.key] = parent
+                variants = self.array_items(parent, env)
+                self.conditions[value.key] = (
+                    None if self.nonempty(parent, env) else frozenset(),
+                    None
+                    if variants is not None and not any(variants)
+                    else frozenset({"#guard:nonempty:" + parent.key}),
+                )
+            binding = self.callables.get(parent.key)
+            if parent.key not in self.invalidated_objects:
+                if binding and binding.external:
+                    self.callables[value.key] = TypeScriptSymbol(
+                        file, node, binding.external + "." + member
+                    )
+                elif (
+                    value.key not in self.callables
+                    and full_name
+                    and full_name.split(".")[0] not in env
+                ):
+                    symbol = self.program.resolve(file, full_name)
+                    if symbol and (symbol.function or symbol.external):
+                        self.callables[value.key] = symbol
+            else:
+                self.callables.pop(value.key, None)
+            return value
+        if "Record" in node:
+            fields: dict[str, Value] = {}
+            plain_record = True
+            for field in node["Record"][1]:
+                definition = field.get("F", {}).get("DefStmt")
+                if definition:
+                    field_name = name_of(definition[0]["name"])
+                    if field_name and "FuncDef" in definition[1]:
+                        if any(
+                            attr.get("KeywordAttr", [None])[0] != "Async"
+                            for attr in definition[0].get("attrs", [])
+                        ):
+                            fields[field_name] = UNKNOWN_VALUE
+                            plain_record = False
+                            self.warning(file, field, "unsupported object member")
+                        else:
+                            fields[field_name] = self.expression(
+                                file, definition[1], env
+                            )
+                    elif field_name:
+                        plain_record &= "FieldDefColon" in definition[1]
+                        fields[field_name] = self.expression(
+                            file,
+                            (
+                                definition[1].get("FieldDefColon", {}).get("vinit")
+                                or {}
+                            ).get("some"),
+                            env,
+                        )
+            value = combine(
+                list(fields.values()),
+                _key(
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                    *(v.key for v in fields.values()),
+                    *(
+                        str(self.program.source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
+                ),
+            )
+            self.objects[value.key] = fields
+            if plain_record and len(fields) == len(node["Record"][1]):
+                self.record_roots[value.key] = value.key
+                env["#record:" + value.key] = value
+            return value
+        return combine(
+            [
+                self.expression(file, child, env)
+                for key, child in node.items()
+                if key not in {"token", "pinfo"} and not key.startswith("id_")
+            ]
+        )
+
+    def call_value(
+        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+    ) -> Value:
+        """Reuse actual callee/argument evaluation within one call only."""
+        if self.call_values is not None and id(node) in self.call_values:
+            return self.call_values[id(node)]
+        value = self.expression(file, node, env)
+        if self.call_values is not None:
+            self.call_values[id(node)] = value
+        return value
+
+    def call(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], env: dict[str, Value]
+    ) -> Value:
+        callee, arguments = node["Call"]
+        if name_of(callee) == "import":
+            symbol = self.program.resolve_node(file, node)
+            result = Value(
+                key=_key(file.relative_path, str(self.program.source_range(node, file)))
+            )
+            if symbol:
+                self.callables[result.key] = symbol
+            return result
+        if (
+            callee.get("OtherExpr", [[None]])[0][0] == "Delete"
+            and len(arguments[1]) == 1
+        ):
+            target = arguments[1][0].get("Arg", {})
+            access = target.get("DotAccess", target.get("ArrayAccess"))
+            if access:
+                receiver = self.expression(file, access[0], env)
+                if "ArrayAccess" in target:
+                    self.expression(file, access[1][1], env)
+                self.invalidate(receiver)
+                self.warning(file, node, "member deletion invalidates receiver")
+                return Value()
+        callable_value = (
+            self.call_value(file, callee, env) if "Special" not in callee else Value()
+        )
+        receiver = (
+            self.receivers.get(id(callee), Value())
+            if "DotAccess" in callee or "ArrayAccess" in callee
+            else Value()
+        )
+        symbol = self.callables.get(callable_value.key)
+        operator = callee.get("Special", [{}])[0]
+        if isinstance(operator, dict) and operator.get("Op") == "Nullish":
+            left, right = [item.get("Arg", item) for item in arguments[1]]
+            value = self.call_value(file, left, env)
+            if value.key in {"#ts:undefined", "#ts:null"}:
+                return self.call_value(file, right, env)
+            if (
+                (
+                    value.key in self.callables
+                    or value.key in self.objects
+                    or value.key in self.arrays
+                    or value.key in self.classes
+                    or value.key in self.instances
+                    or value.key in self.string_literals
+                    or value.key in self.nonnull_literals
+                )
+                and not value.maybe_missing
+                and value.key not in self.invalidated_objects
+            ):
+                return value
+            # Unknown dependencies cannot establish either callable identity.
+            return self.combined([value, self.call_value(file, right, env)])
+        logical_returns: list[tuple[Value, dict[str, Value]]] | None = None
+        if isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
+            local = env.copy()
+            args = []
+            logical_returns = []
+            truth = operator["Op"] == "And"
+            for index, item in enumerate(arguments[1]):
+                value = self.call_value(file, item.get("Arg", item), local)
+                args.append(value)
+                if index == len(arguments[1]) - 1:
+                    logical_returns.append((value, local.copy()))
+                elif self.condition(value)[int(not truth)] is not None:
+                    terminal = local.copy()
+                    self.guard(value, terminal, not truth)
+                    logical_returns.append((value, terminal))
+                if self.condition(value)[int(truth)] is None:
+                    break
+                self.guard(value, local, truth)
+        else:
+            args = [
+                self.call_value(file, item.get("Arg", item), env)
+                for item in arguments[1]
+            ]
+        name = name_of(callee) or "dynamic call"
+        external = (symbol.external or "").removeprefix("node:") if symbol else ""
+        if callable_value.key in self.http_continuations:
+            if args:
+                self.warning(file, node, "HTTP next(error/route) forwarding unresolved")
+                return Value()
+            origin, next_callbacks, request, response = self.http_continuations[
+                callable_value.key
+            ]
+            return self.http_chain(origin, next_callbacks, request, response, env)
+        if external in {"express.default", "express.Router", "express.default.Router"}:
+            instance = Value(
+                key=_key(
+                    file.relative_path,
+                    str(self.program.source_range(node, file)),
+                    *(
+                        str(self.program.source_range(site.node, site.file))
+                        for site in self.call_sites
+                    ),
+                )
+            )
+            if instance.key in self.http_instances:
+                return instance
+            self.http_instances.add(instance.key)
+            self.objects[instance.key] = {}
+            layout = Value(key=_key(instance.key, "http-middleware"))
+            self.http_sequences[layout.key] = ()
+            env["#http-middleware:" + instance.key] = layout
+            return instance
+        if (
+            receiver.key in self.http_instances
+            and receiver.key not in self.invalidated_objects
+            and name.rsplit(".", 1)[-1] not in self.objects.get(receiver.key, {})
+        ):
+            http_method = name.rsplit(".", 1)[-1]
+            marker = "#http-middleware:" + receiver.key
+            previous = env.get(marker, Value())
+            sequence = self.http_sequences.get(previous.key)
+            if http_method == "use":
+                prefix = self.string_literals.get(args[0].key) if args else None
+                callbacks = args[1:] if prefix is not None else args
+                if (
+                    prefix is None
+                    and callbacks
+                    and not (
+                        callbacks[0].key in self.callables
+                        or callbacks[0].key in self.arrays
+                    )
+                ):
+                    self.warning(file, node, "unresolved HTTP middleware or mount path")
+                    callbacks = [Value()]
+                callbacks = self.http_callbacks(callbacks, env)
+                layout = Value(
+                    key=_key(previous.key, str(prefix), *(v.key for v in callbacks))
+                )
+                if sequence is not None and callbacks:
+                    self.http_sequences[layout.key] = (
+                        *sequence,
+                        (prefix, tuple(callbacks)),
+                    )
+                env[marker] = layout
+                return receiver
+            if (
+                http_method
+                in {"get", "post", "put", "patch", "delete", "head", "options", "all"}
+                and args
+            ):
+                callbacks = []
+                route = self.string_literals.get(args[0].key)
+                if sequence is None:
+                    callbacks.append(Value())
+                for prefix, layers in sequence or ():
+                    if prefix is None:
+                        callbacks.extend(layers)
+                    elif route is None or any(char in prefix for char in ":*?+()[]{}"):
+                        callbacks.append(Value())
+                    elif route == prefix or route.startswith(prefix.rstrip("/") + "/"):
+                        callbacks.extend(layers)
+                self.http_registered(
+                    file,
+                    node,
+                    [args[0], *callbacks, *self.http_callbacks(args[1:], env)],
+                )
+                return receiver
+        sdk_receiver, sdk_args = receiver, args
+        sdk_class, _, sdk_method = external.partition(".prototype.")
+        original_sdk_call = self.sdk_instances.get(receiver.key) == sdk_class
+        if (
+            sdk_method == "setRequestHandler.call"
+            and args
+            and receiver.key not in self.invalidated_objects
+        ):
+            sdk_receiver, sdk_args = args[0], args[1:]
+            sdk_method = "setRequestHandler"
+            original_sdk_call = self.sdk_instances.get(sdk_receiver.key) == sdk_class
+        if (
+            original_sdk_call
+            and sdk_class not in self.invalidated_objects
+            and sdk_receiver.key not in self.invalidated_objects
+            and sdk_method in {"registerTool", "tool", "setRequestHandler"}
+        ):
+            if sdk_method == "setRequestHandler":
+                schema = self.callables.get(sdk_args[0].key) if sdk_args else None
+                if (
+                    self.sdk_instances[sdk_receiver.key].endswith(".Server")
+                    and len(sdk_args) == 2
+                    and schema
+                    and schema.external
+                    == "@modelcontextprotocol/sdk/types.js.CallToolRequestSchema"
+                ):
+                    self.registered(
+                        file, node, [UNKNOWN_VALUE, UNKNOWN_VALUE, sdk_args[1]], env
+                    )
+                return Value()
+            if not self.sdk_instances[receiver.key].endswith(".McpServer"):
+                self.warning(file, node, "unsupported low-level SDK registration")
+                return Value()
+            if name.endswith(".tool"):
+                # ponytail: follow schema-bearing legacy overloads only; other
+                # layouts need SDK argument disambiguation before expansion.
+                if len(args) not in {3, 4}:
+                    self.warning(file, node, "unsupported registration arguments")
+                    return Value()
+                schema_node = arguments[1][-2].get("Arg", {})
+                schema = self.program.resolve_node(
+                    file, schema_node
+                ) or TypeScriptSymbol(file, schema_node)
+                if (
+                    ts._zod_object_schema(
+                        self.program.text(schema.file, schema.node),
+                        ts._constant_expressions(schema.file.source),
+                    )
+                    is None
+                ):
+                    self.warning(file, node, "ambiguous legacy tool metadata")
+                    return Value()
+                fields = {"inputSchema": args[-2]}
+                if len(args) == 4:
+                    fields["description"] = args[1]
+                config = self.record_state(
+                    _key(
+                        "legacy-tool",
+                        file.relative_path,
+                        str(self.program.source_range(node, file)),
+                    ),
+                    fields,
+                )
+                args = [args[0], config, args[-1]]
+            self.registered(file, node, args, env)
+            return Value()
+        location = self.program.source_range(node, file)
+        result = combine(
+            [value for value, _ in logical_returns]
+            if logical_returns is not None
+            else args + ([receiver] if receiver.sources else [])
+        )
+        result = replace(
+            result,
+            key=_key(file.relative_path, str(location), name, result.key),
+            contained=False,
+            resolved=False,
+            collection_nonempty=False,
+            locations=result.locations | {(file.relative_path, location.start_line)},
+        )
+        method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+        if external in {
+            f"{namespace}.{kind}"
+            for namespace in ("zod.z", "zod.default", "zod")
+            for kind in ("string", "number", "boolean", "object", "record")
+        }:
+            kind = external.rsplit(".", 1)[1]
+            fields = (
+                self.object_fields(args[0], env) if args and kind == "object" else {}
+            )
+            if (
+                (kind in {"string", "number", "boolean"} and not args)
+                or (
+                    kind == "object"
+                    and len(args) == 1
+                    and args[0].key in self.record_roots
+                    and args[0].key not in self.invalidated_objects
+                    and all(
+                        v.key in self.zod_schemas
+                        and v.key not in self.invalidated_objects
+                        for v in fields.values()
+                    )
+                )
+                or (
+                    kind == "record"
+                    and len(args) in {1, 2}
+                    and all(
+                        v.key in self.zod_schemas
+                        and v.key not in self.invalidated_objects
+                        for v in args
+                    )
+                )
+            ):
+                self.zod_schemas[result.key] = (kind, fields.copy(), None)
+                return result
+        if (
+            receiver.key in self.zod_schemas
+            and receiver.key not in self.invalidated_objects
+        ):
+            kind, fields, default = self.zod_schemas[receiver.key]
+            if (
+                (method == "optional" and not args)
+                or (method == "url" and kind == "string" and not args)
+                or (method == "int" and kind == "number" and not args)
+                or (
+                    method in {"min", "max"}
+                    and kind in {"number", "string"}
+                    and len(args) == 1
+                )
+                or (
+                    method == "default"
+                    and len(args) == 1
+                    and args[0].key not in self.callables
+                )
+            ):
+                self.zod_schemas[result.key] = (
+                    kind,
+                    fields,
+                    args[0] if method == "default" else default,
+                )
+                return result
+            if method == "parse" and len(args) == 1:
+                return self.parsed_schema(receiver, args[0], env)
+        if logical_returns is not None:
+            tainted_returns = [(v, state) for v, state in logical_returns if v.sources]
+            if tainted_returns and all(
+                state.get("#guard:lexical:" + v.key, Value()).contained
+                for v, state in tainted_returns
+            ):
+                env["#guard:lexical:" + result.key] = Value(contained=True)
+        if result.sources:
+            self.origins[result.key] = frozenset().union(
+                *(
+                    self.origins.get(value.key, frozenset({value.key}))
+                    for value in [*args, receiver]
+                    if value.sources
+                )
+            )
+        if (
+            isinstance(operator, dict)
+            and operator.get("ConcatString") == "InterpolatedConcat"
+            and args
+            and not result.sources
+        ):
+            prefix = self.string_prefixes.get(args[0].key)
+            if prefix is not None:
+                self.string_prefixes[result.key] = prefix
+        if (
+            external == "path.join"
+            and len(args) >= 4
+            and [self.string_literals.get(v.key) for v in args[-4:-1]]
+            == ["@mobilenext", "mobilecli", "bin"]
+            and self.string_prefixes.get(args[-1].key, "").startswith("mobilecli-")
+            and not result.sources
+        ):
+            self.mobilecli_paths.add(result.key)
+        if (
+            external
+            in {
+                "child_process.spawn",
+                "child_process.spawnSync",
+                "child_process.execFile",
+                "child_process.execFileSync",
+            }
+            and len(args) >= 2
+            and args[0].key in self.mobilecli_paths
+            and not args[0].sources
+        ):
+            variants = self.array_items(args[1], env)
+            if variants is None:
+                self.warning(file, node, "unresolved recording argument ordering")
+            for items in variants or ():
+                if (
+                    not items
+                    or self.string_literals.get(items[0].key) != "screenrecord"
+                ):
+                    continue
+                index = 1
+                output = None
+                seen_flags: set[str] = set()
+                while index < len(items):
+                    flag = self.string_literals.get(items[index].key)
+                    if flag in seen_flags:
+                        self.warning(file, node, "repeated recording option unresolved")
+                        break
+                    if flag is not None:
+                        seen_flags.add(flag)
+                    if flag == "--silent":
+                        index += 1
+                    elif flag in {
+                        "--device",
+                        "--output",
+                        "--time-limit",
+                    } and index + 1 < len(items):
+                        if flag == "--output":
+                            output = items[index + 1]
+                        index += 2
+                    else:
+                        self.warning(file, node, "unresolved recording option position")
+                        break
+                else:
+                    if output is not None:
+                        self.path_sink(
+                            file,
+                            node,
+                            env,
+                            output,
+                            name,
+                            cli_output="mobilecli screenrecord --output",
+                        )
+            return result
+        if receiver.key in self.arrays:
+            variants = self.array_items(receiver, env)
+            method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+            if variants is not None and method == "push":
+                env["#array:" + receiver.key] = self.array_state(
+                    tuple((*items, *args) for items in variants)
+                )
+                return Value()
+            if variants is not None and method == "slice" and not args:
+                return self.array_value(file, node, variants, env)
+        if external in {
+            "fs.realpath",
+            "fs.realpathSync",
+            "fs/promises.realpath",
+            "fs.promises.realpath",
+        }:
+            if args and args[0].key in self.parents:
+                self.parents[result.key] = self.parents[args[0].key]
+            return replace(result, resolved=True)
+        if (
+            external
+            in {
+                "path.normalize",
+                "path.resolve",
+            }
+            and len(args) == 1
+            and self.canonical(args[0])
+        ):
+            return replace(args[0], locations=result.locations)
+        if external == "path.resolve":
+            self.normalized.add(result.key)
+            if len(args) == 1:
+                self.path_inputs[result.key] = self.path_inputs.get(
+                    args[0].key, frozenset({args[0].key})
+                )
+        if external == "path.basename" and len(args) == 1:
+            self.basenames[result.key] = args[0]
+        if external == "path.join" and args and self.canonical(args[0]):
+            self.normalized.add(result.key)
+        if external == "path.join" and len(args) == 2:
+            parent = self.parents.get(args[0].key)
+            basename = self.basenames.get(args[1].key)
+            if parent and basename and parent.key == basename.key and args[0].resolved:
+                self.normalized.add(result.key)
+                self.path_inputs[result.key] = self.path_inputs.get(
+                    parent.key, frozenset({parent.key})
+                )
+        if (
+            name.endswith(".toLowerCase")
+            and not args
+            and self.canonical(receiver)
+            and env.get("#guard:platform:win32", Value()).contained
+        ):
+            return receiver
+        if external == "path.dirname" and len(args) == 1 and self.canonical(args[0]):
+            self.parents[result.key] = args[0]
+        if (
+            name == "Promise.all"
+            and "Promise" not in env
+            and "Promise" not in self.program.bindings[file.relative_path]
+            and len(args) == 1
+        ):
+            return args[0]
+        if (
+            external in {"path.relative", "path/posix.relative", "path/win32.relative"}
+            and len(args) == 2
+        ):
+            self.relative[result.key] = (args[0], args[1], external.rsplit(".", 1)[0])
+        operator = callee.get("Special", [{}])[0]
+        if isinstance(operator, dict) and operator.get("Op") == "Not" and args:
+            false, true = self.condition(args[0])
+            self.conditions[result.key] = (true, false)
+        elif isinstance(operator, dict) and operator.get("Op") in {"And", "Or"}:
+            conditions = [self.condition(value) for value in args]
+            if operator["Op"] == "And":
+                self.conditions[result.key] = (
+                    common_facts([v[0] for v in conditions]),
+                    all_facts([v[1] for v in conditions]),
+                )
+            else:
+                self.conditions[result.key] = (
+                    all_facts([v[0] for v in conditions]),
+                    common_facts([v[1] for v in conditions]),
+                )
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") == "Plus"
+            and len(args) == 2
+        ):
+            separator = self.callables.get(args[1].key)
+            if separator and separator.external in {"path.sep", "node:path.sep"}:
+                self.prefixes[result.key] = args[0]
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") == "Gt"
+            and len(args) == 2
+            and args[0].key in self.collection_lengths
+        ):
+            raw = arguments[1][1].get("Arg", {})
+            if (
+                raw.get("L", {}).keys() & {"Int", "Float"}
+                and self.program.text(file, raw) == "0"
+            ):
+                self.conditions[result.key] = self.condition(args[0])
+        if (
+            isinstance(operator, dict)
+            and operator.get("Op") in {"PhysEq", "NotPhysEq"}
+            and len(args) == 2
+        ):
+            raw = [argument.get("Arg", argument) for argument in arguments[1]]
+            if (
+                name_of(raw[0]) == "process.platform"
+                and "process" not in env
+                and "process" not in self.program.bindings[file.relative_path]
+                and self.program.literal(TypeScriptSymbol(file, raw[1])) == "win32"
+            ):
+                pair: tuple[Facts, Facts] = (
+                    frozenset(),
+                    frozenset({"#guard:platform:win32"}),
+                )
+                self.conditions[result.key] = (
+                    pair if operator["Op"] == "PhysEq" else pair[::-1]
+                )
+            target, base = args if args[0].sources else list(reversed(args))
+            for directory, separator_value in (args, list(reversed(args))):
+                binding = self.callables.get(separator_value.key)
+                if (
+                    binding
+                    and binding.external in {"path.sep", "node:path.sep"}
+                    and self.canonical(directory)
+                    and not directory.sources
+                ):
+                    fact = f"#guard:root:{directory.key}"
+                    self.root_directories[fact] = directory
+                    self.conditions[result.key] = (
+                        (frozenset(), frozenset({fact}))
+                        if operator["Op"] == "PhysEq"
+                        else (frozenset({fact}), frozenset())
+                    )
+            if (
+                target.sources
+                and self.canonical(target)
+                and self.canonical(base)
+                and not base.sources
+            ):
+                facts = self.boundary_facts(base, target)
+                self.conditions[result.key] = (
+                    (frozenset(), facts)
+                    if operator["Op"] == "PhysEq"
+                    else (facts, frozenset())
+                )
+        if (
+            name.endswith(".startsWith")
+            and len(args) == 1
+            and args[0].key in self.prefixes
+        ):
+            base = self.prefixes[args[0].key]
+            if self.canonical(receiver) and self.canonical(base) and not base.sources:
+                self.conditions[result.key] = (
+                    frozenset(),
+                    self.boundary_facts(base, receiver),
+                )
+        if name.endswith(".startsWith") and len(args) == 1:
+            if (
+                receiver.sources
+                and self.canonical(receiver)
+                and self.canonical(args[0])
+                and not args[0].sources
+            ):
+                fact = f"#guard:initial-prefix:{args[0].key}:{receiver.key}"
+                self.initial_prefixes[fact] = (
+                    self.origins.get(receiver.key, frozenset({receiver.key})),
+                    (file.relative_path, location.start_line),
+                )
+                self.conditions[result.key] = (frozenset(), frozenset({fact}))
+            separator = self.callables.get(args[0].key)
+            if (
+                separator
+                and separator.external in {"path.sep", "node:path.sep"}
+                and self.canonical(receiver)
+            ):
+                root_facts: set[str] = set()
+                for root_fact, base in self.root_directories.items():
+                    if env.get(root_fact, Value()).contained:
+                        root_facts.update(self.boundary_facts(base, receiver))
+                self.conditions[result.key] = (frozenset(), frozenset(root_facts))
+        if (
+            name.endswith(".startsWith")
+            and len(args) == 1
+            and "DotAccess" in callee
+            and receiver.key in self.relative
+        ):
+            argument = arguments[1][0].get("Arg", {})
+            if self.program.literal(TypeScriptSymbol(file, argument)) == "..":
+                self.conditions[result.key] = (
+                    frozenset({f"#guard:{receiver.key}:parent"}),
+                    frozenset(),
+                )
+        if (
+            external
+            in {"path.isAbsolute", "path/posix.isAbsolute", "path/win32.isAbsolute"}
+            and len(args) == 1
+            and args[0].key in self.relative
+            and self.relative[args[0].key][2] == external.rsplit(".", 1)[0]
+        ):
+            self.conditions[result.key] = (
+                frozenset({f"#guard:{args[0].key}:absolute"}),
+                frozenset(),
+            )
+        if (
+            external.rsplit(".", 1)[0] in {"fs", "fs/promises", "fs.promises"}
+            and external.rsplit(".", 1)[-1]
+            in {
+                "readFile",
+                "readFileSync",
+                "writeFile",
+                "writeFileSync",
+                "appendFile",
+                "appendFileSync",
+                "open",
+                "openSync",
+                "readdir",
+                "readdirSync",
+                "unlink",
+                "unlinkSync",
+                "rm",
+                "rmSync",
+                "mkdir",
+                "mkdirSync",
+                "createReadStream",
+                "createWriteStream",
+            }
+            and args
+        ):
+            self.path_sink(file, node, env, args[0], name)
+            return result
+        if symbol and symbol.function:
+            if callable_value.maybe_missing:
+                self.warning(file, node, "callable is absent on another source branch")
+            self.call_sites.append(TypeScriptSymbol(file, node))
+            try:
+                captured = {
+                    **self.closures.get(callable_value.key, {}),
+                    **{
+                        key: value
+                        for key, value in env.items()
+                        if key.startswith(("#guard:", *self.state_prefixes))
+                    },
+                }
+                if callable_value.key not in self.lexical_this:
+                    captured.pop("this", None)
+                if callable_value.key not in self.lexical_this and (
+                    receiver.key in self.instances
+                    or receiver.key in self.classes
+                    or receiver.key in self.objects
+                ):
+                    captured["this"] = receiver
+                value = self.function(
+                    symbol,
+                    args,
+                    captured,
+                )
+                env.update(
+                    (k, v)
+                    for k, v in captured.items()
+                    if k.startswith(self.state_prefixes)
+                )
+                self.apply_facts(self.function_effects, env)
+                return value
+            finally:
+                self.call_sites.pop()
+        if (
+            "DotAccess" in callee
+            and name_of(callee["DotAccess"][2])
+            in {
+                "map",
+                "flatMap",
+                "forEach",
+                "filter",
+                "some",
+                "every",
+                "find",
+            }
+            and arguments[1]
+        ):
+            callback_node = arguments[1][0].get("Arg")
+            callback = self.callables.get(args[0].key) if args else None
+            callback = callback or (
+                self.program.resolve_node(file, callback_node)
+                if callback_node
+                else None
+            )
+            if callback and callback.function:
+                nonempty = self.nonempty(receiver, env)
+                captured = {**self.closures.get(args[0].key, env)}
+                if args[0].key not in self.lexical_this:
+                    captured.pop("this", None)
+                value = self.function(callback, [receiver, Value(), receiver], captured)
+                env.update(
+                    (k, v)
+                    for k, v in captured.items()
+                    if k.startswith(self.state_prefixes)
+                )
+                method = name_of(callee["DotAccess"][2])
+                if method == "some":
+                    self.conditions[result.key] = (
+                        frozenset(),
+                        self.condition(value)[1],
+                    )
+                elif method == "every":
+                    # Empty arrays satisfy every without running its callback.
+                    self.conditions[result.key] = (
+                        self.condition(value)[0],
+                        frozenset(),
+                    )
+                elif method == "find":
+                    return replace(
+                        receiver,
+                        key=result.key,
+                        collection_nonempty=False,
+                        maybe_missing=True,
+                    )
+                elif method == "filter":
+                    self.arrays.add(result.key)
+                    return replace(receiver, key=result.key, collection_nonempty=False)
+                elif method in {"map", "flatMap"}:
+                    # Array truthiness does not establish callback boolean guards.
+                    if self.canonical(value):
+                        self.normalized.add(result.key)
+                    self.arrays.add(result.key)
+                    return replace(
+                        value,
+                        key=result.key,
+                        collection_nonempty=(method == "map" and nonempty),
+                    )
+                return result
+        if "DotAccess" in callee and name_of(callee["DotAccess"][2]) in {
+            "split",
+            "filter",
+        }:
+            self.arrays.add(result.key)
+        if "Special" not in callee:
+            pending = [receiver, *args]
+            seen: set[str] = set()
+            while pending:
+                value = pending.pop()
+                if value.key in seen:
+                    continue
+                seen.add(value.key)
+                pending.extend(self.object_fields(value, env).values())
+                if (
+                    value.key in self.objects
+                    or value.key in self.instances
+                    or value.key in self.classes
+                    or value.key in self.arrays
+                    or value.key in self.zod_schemas
+                    or "http:request" in value.sources
+                ):
+                    self.invalidate(value)
+                callable_symbol = self.callables.get(value.key)
+                if value.key in self.sdk_instances or (
+                    callable_symbol
+                    and (callable_symbol.external or "").partition(".prototype.")[0]
+                    in {
+                        "@modelcontextprotocol/sdk/server/index.js.Server",
+                        "@modelcontextprotocol/sdk/server/mcp.js.McpServer",
+                    }
+                ):
+                    self.invalidate(value)
+                    self.warning(
+                        file, node, "SDK instance escapes to an unresolved call"
+                    )
+        if result.sources and not (
+            external.startswith(("path.", "path/posix.", "path/win32."))
+            or "Special" in callee
+            or name.endswith(".startsWith")
+        ):
+            self.warning(file, node, f"unresolved call to {name}")
+        return result
+
+    def path_sink(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        env: dict[str, Value],
+        value: Value,
+        name: str,
+        *,
+        cli_output: str = "",
+    ) -> None:
+        location = self.program.source_range(node, file)
+        if self.rule_id == "SENT-012" and value.sources and not value.contained:
+            origins = self.origins.get(value.key, frozenset({value.key}))
+            prefix_locations = {
+                location
+                for fact, (checked, location) in self.initial_prefixes.items()
+                if origins <= checked and env.get(fact, Value()).contained
+            }
+            self.state.matches.append(
+                StaticMatch(
+                    rule_id="SENT-012",
+                    path=file.relative_path,
+                    range=location,
+                    snippet=self.program.text(file, node),
+                    match_kinds=("path-flow",),
+                    captures={
+                        "sink_name": name,
+                        **({"cli_output": cli_output} if cli_output else {}),
+                        **(
+                            {"containment_gap": "physical"}
+                            if env.get(f"#guard:lexical:{value.key}", Value()).contained
+                            or all(
+                                env.get(f"#guard:lexical:{key}", Value()).contained
+                                for key in self.lexical_alternatives.get(
+                                    value.key, frozenset({value.key})
+                                )
+                            )
+                            else {"containment_gap": "after-prefix"}
+                            if prefix_locations
+                            else {}
+                        ),
+                        "flow_locations": json.dumps(
+                            sorted(
+                                value.locations
+                                | prefix_locations
+                                | {(file.relative_path, location.start_line)}
+                            )
+                        ),
+                    },
+                )
+            )
+
+    def registered(
+        self,
+        file: TypeScriptSourceFile,
+        node: dict[str, Any],
+        args: list[Value],
+        env: dict[str, Value],
+    ) -> None:
+        if self.http_entry:
+            return
+        if len(args) != 3:
+            self.warning(file, node, "unsupported registration arguments")
+            return
+        callback = self.callables.get(args[2].key)
+        if callback is None or callback.function is None:
+            self.warning(file, node, "unresolved registered callback")
+            return
+        origin = self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node)
+        location = self.program.source_range(origin.node, origin.file)
+        self.state.visit(origin.file.relative_path, location)
+        caller = Value(
+            sources=frozenset({"tool:arguments"}),
+            key=_key(origin.file.relative_path, str(location), args[0].key),
+            locations=frozenset(
+                (
+                    site.file.relative_path,
+                    self.program.source_range(site.node, site.file).start_line,
+                )
+                for site in [*self.call_sites, TypeScriptSymbol(file, node)]
+            ),
+        )
+        self.function(callback, [caller, Value()], self.closures.get(args[2].key))
+
+    def http_callbacks(self, values: list[Value], env: dict[str, Value]) -> list[Value]:
+        pending = list(reversed(values))
+        callbacks: list[Value] = []
+        # ponytail: flatten at most 256 entries; larger layouts stay unresolved.
+        for _ in range(256):
+            if not pending:
+                return callbacks
+            value = pending.pop()
+            if value.key not in self.arrays:
+                callbacks.append(value)
+                continue
+            variants = self.array_items(value, env)
+            if variants is not None and len(variants) == 1:
+                pending.extend(reversed(variants[0]))
+            else:
+                callbacks.append(Value())
+        return [*callbacks, Value()]
+
+    def http_registered(
+        self, file: TypeScriptSourceFile, node: dict[str, Any], args: list[Value]
+    ) -> None:
+        if len(args) < 2:
+            self.warning(file, node, "unsupported HTTP middleware sequence")
+            return
+        self.http_routes.append((file, node, args))
+
+    def initialize(self, initializer: TypeScriptSymbol) -> None:
+        if initializer.function is not None:
+            self.function(initializer, [])
+        else:
+            if initializer.file.relative_path in self.initialized_modules:
+                return
+            self.initialized_modules.add(initializer.file.relative_path)
+            env: dict[str, Value] = {}
+            for name, declarations in self.program.bindings[
+                initializer.file.relative_path
+            ].items():
+                imports = [d for d in declarations if "import" in d]
+                if len(imports) == 1 and all(
+                    "import" in d or "rebound" in d for d in declarations
+                ):
+                    symbol = self.program.resolve_node(initializer.file, imports[0])
+                    if symbol:
+                        if "ClassDef" in symbol.node:
+                            value = self.imported_class(symbol)
+                        else:
+                            value = Value(
+                                key=_key(initializer.file.relative_path, "import", name)
+                            )
+                            self.callables[value.key] = symbol
+                        env[name] = value
+            for statement in initializer.node.get("Pr", []):
+                if statement.keys() & {
+                    "DefStmt",
+                    "ExprStmt",
+                    "Block",
+                    "If",
+                    "Try",
+                    "Switch",
+                    "For",
+                    "While",
+                    "Throw",
+                }:
+                    alive = self.statement(initializer.file, statement, env, [])
+                    self.globals.update(
+                        ((initializer.file.relative_path, name), value)
+                        for name, value in env.items()
+                        if not name.startswith("#") and "." not in name
+                    )
+                    self.global_members.update(
+                        (key, value)
+                        for key, value in env.items()
+                        if key.startswith(self.state_prefixes)
+                    )
+                    if not alive:
+                        break
+
+    def http_initialize(self, initializer: TypeScriptSymbol) -> None:
+        # Each HTTP entry gets a separate flow. MCP registration does not invoke
+        # its callback here; analyze() handles tool entries in their own flow.
+        self.http_entry = True
+        start = len(self.http_routes)
+        self.initialize(initializer)
+        routes = self.http_routes[start:]
+        del self.http_routes[start:]
+        if not routes:
+            return
+        memo: dict[int, object] = {
+            id(self.program): self.program,
+            id(self.state): self.state,
+        }
+        memo.update((id(file), file) for file in self.program.files.values())
+        memo.update(
+            (id(node), node)
+            for tree in self.program.trees.values()
+            for node in walk(tree)
+        )
+        for file, node, args in routes:
+            fork = copy.deepcopy(self, memo.copy())
+            location = self.program.source_range(node, file)
+            self.state.visit(file.relative_path, location)
+            caller = Value(
+                sources=frozenset({"http:request"}),
+                key=_key(file.relative_path, str(location), "http-request"),
+                locations=frozenset({(file.relative_path, location.start_line)}),
+            )
+            fork.http_chain(
+                TypeScriptSymbol(file, node), tuple(args[1:]), caller, Value(), {}
+            )
+
+    def http_chain(
+        self,
+        origin: TypeScriptSymbol,
+        callbacks: tuple[Value, ...],
+        request: Value,
+        response: Value,
+        env: dict[str, Value],
+    ) -> Value:
+        check_deadline(self.program.deadline)
+        if not callbacks:
+            return Value()
+        # ponytail: cap synchronous next chains; longer chains remain unresolved.
+        if self.http_depth >= 32:
+            self.warning(origin.file, origin.node, "HTTP continuation depth limit")
+            return Value()
+        for _index, callback in enumerate(callbacks):
+            check_deadline(self.program.deadline)
+            handler = self.callables.get(callback.key)
+            if (
+                handler is not None
+                and handler.function is not None
+                and callback.key not in self.invalidated_objects
+                and len(handler.function["fparams"][1]) != 4
+            ):
+                break
+            self.warning(
+                origin.file, origin.node, "unresolved HTTP middleware/callback"
+            )
+            self.invalidate(request)
+            env = {}
+        else:
+            return Value()
+        remaining = callbacks[_index + 1 :]
+        request = replace(
+            request,
+            locations=request.locations
+            | {
+                (
+                    handler.file.relative_path,
+                    self.program.source_range(handler.node, handler.file).start_line,
+                )
+            },
+        )
+        next_value = Value(key=_key(request.key, callback.key, str(len(remaining))))
+        self.http_continuations[next_value.key] = (
+            origin,
+            tuple(remaining),
+            request,
+            response,
+        )
+        captured = {
+            **self.closures.get(callback.key, {}),
+            **{
+                key: value
+                for key, value in env.items()
+                if key.startswith(("#guard:", *self.state_prefixes))
+            },
+        }
+        active = self.active
+        self.active = set()
+        self.http_depth += 1
+        try:
+            return self.function(handler, [request, response, next_value], captured)
+        finally:
+            self.http_depth -= 1
+            self.active = active
+
+    def guard(self, value: Value, env: dict[str, Value], truth: bool) -> None:
+        self.apply_facts(self.condition(value)[int(truth)], env)
+        conditional = env.get("#conditional:" + value.key)
+        if conditional is not None and value.key not in self.invalidated_objects:
+            self.apply_facts(self.condition(conditional)[int(truth)], env)
+
+    def apply_facts(self, facts: Facts, env: dict[str, Value]) -> None:
+        for fact in facts or ():
+            env[fact] = Value(contained=True)
+        for fact, (base, target) in self.boundaries.items():
+            if env.get(fact, Value()).contained:
+                for original_key in self.path_inputs.get(
+                    target.key, frozenset({target.key})
+                ):
+                    env[f"#guard:lexical:{original_key}"] = Value(contained=True)
+                for name, current in env.items():
+                    if current.key == target.key and target.resolved:
+                        env[name] = replace(current, contained=True)
+                original = self.parents.get(target.key)
+                if (
+                    target.resolved
+                    and original
+                    and env.get(
+                        f"#guard:boundary:{base.key}:{original.key}", Value()
+                    ).contained
+                ):
+                    for name, current in env.items():
+                        if current.key == original.key:
+                            env[name] = replace(current, contained=True)
+        for key, (base, target, _) in self.relative.items():
+            if not (
+                self.canonical(base) and self.canonical(target) and not base.sources
+            ):
+                continue
+            if all(
+                env.get(f"#guard:{key}:{part}", Value()).contained
+                for part in ("parent", "absolute")
+            ):
+                for original_key in self.path_inputs.get(
+                    target.key, frozenset({target.key})
+                ):
+                    env[f"#guard:lexical:{original_key}"] = Value(contained=True)
+                if base.resolved and target.resolved:
+                    for name, current in env.items():
+                        if current.key == target.key:
+                            env[name] = replace(current, contained=True)
+
+
+def analyze(
+    program: TypeScriptProgram,
+    state: RuleRunState,
+    *,
+    flow: TypeScriptPathFlow | None = None,
+    entries: tuple[TypeScriptBinding | TypeScriptHTTPBinding, ...] | None = None,
+) -> None:
+    flow = flow or TypeScriptPathFlow(program, state)
+    factories: set[tuple[bool, int]] = set()
+    for tool in program.tools() if entries is None else entries:
+        initializer = (
+            tool.initializer
+            if isinstance(tool, TypeScriptHTTPBinding)
+            else tool.factory
+        )
+        if initializer is not None:
+            identity = (isinstance(tool, TypeScriptHTTPBinding), id(initializer.node))
+            if identity not in factories:
+                factories.add(identity)
+                if isinstance(tool, TypeScriptHTTPBinding):
+                    type(flow)(program, state).http_initialize(initializer)
+                else:
+                    flow.initialize(initializer)
+            continue
+        location = program.source_range(tool.registration.node, tool.registration.file)
+        state.visit(tool.registration.file.relative_path, location)
+        handler = tool.handler
+        if handler is None or handler.function is None:
+            flow.warning(
+                tool.registration.file,
+                tool.registration.node,
+                "unresolved tool handler",
+            )
+            continue
+        state.visit(
+            handler.file.relative_path, program.source_range(handler.node, handler.file)
+        )
+        args = [
+            Value(
+                sources=frozenset(
+                    {
+                        "http:request"
+                        if isinstance(tool, TypeScriptHTTPBinding)
+                        else str(index)
+                    }
+                )
+                if index == 0
+                else frozenset(),
+                key=f"{handler.file.relative_path}:{location}:{index}",
+                locations=frozenset(
+                    {(tool.registration.file.relative_path, location.start_line)}
+                ),
+            )
+            for index, _ in enumerate(handler.function["fparams"][1])
+        ]
+        flow.function(handler, args)
+    state.warnings.extend(program.warnings)

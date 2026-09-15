@@ -1,0 +1,11 @@
+The approved uncapped experiment at `4145d35` completed all 24 four-repository observations with 12 entire ordered report pairs equal and verified cleanup. No-bash and Engram pass their narrow exposed conditions; Lightning fails fixed/safe qualification and FAF misses the vulnerable read while leaving negatives unsupported.
+
+[Review and measured times](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v70-uncapped-four-results/summary.md) · [399-row audit](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v70-uncapped-four-results/audit.json) · [complete source assessment](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/v70-uncapped-four-results/final-assessment/assessment.json)
+
+The other repositories took 6.28–10.72 seconds per observation; exact FAF first/repeat times are in the review. 6 observations exceeded the unchanged 1,800-second product policy. The temporary launcher-only override does not establish normal-policy success or speedup. All 260 findings, 52,492 diagnostics, 282 surfaces and complete ordered reference differences are assessed. Original fresh failures remain unchanged.
+
+The 181 earlier-language observations are outside this approval. The pending literal-serialization optimization remains unapproved/unimplemented. No new paid call, retry, profile, comparator, target execution or source tuning occurred. Unchanged engineering retains 2,419 tests/36 skips locally and all 12 hosted suites, 29 normal jobs and docs, six zero-call request replays and approved runtime bindings.
+
+Phase 22 remains incomplete pending failed gates, current earlier-language compatibility, explicit human technical acceptance and accepted closeout. All 399 requirements and historical failures remain; Git 312/1,040 is incomplete, paid benchmark/pilots deferred, Phase 21 incomplete, Phase 24/15 unchanged. No merge, ready-state change, release, outreach or Phase 23.
+
+[Seal 97](https://github.com/BashaarJavaid/MCP-Sentinel/blob/phase22/integration/artifacts/phase22/integration/evidence-v97.json): 479 members, SHA-256 `b73b1b1238d407f63253696cc91a60d72be3d62503484f78f04d86ad6430c114`; all 96 earlier archives verified. Final docs/packages pass with unchanged tested `4145d35` product bytes.

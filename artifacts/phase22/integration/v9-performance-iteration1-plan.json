@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "authorization": "docs/phase22-detection-timing-closeout-agent-prompt.md sections 2 and 4, executed by explicit user instruction",
+  "status": "prepared; starts after detection regression suite finishes",
+  "development_inputs": [
+    "meta-image-ssrf-vulnerable",
+    "meta-operator-fallback-fixed-mutation"
+  ],
+  "historical_inputs": [
+    "atlassian-upload-fixed",
+    "atlassian-auth-fixed-mutation"
+  ],
+  "baseline_runs_per_input": 1,
+  "worker_profiles": [
+    {
+      "input": "meta-operator-fallback-fixed-mutation",
+      "runs": 1
+    },
+    {
+      "input": "atlassian-upload-fixed",
+      "runs": 1
+    }
+  ],
+  "after_runs_per_input": 2,
+  "native_deadline_seconds": 120,
+  "profile_deadline_seconds": 120,
+  "maximum_native_runs": 12,
+  "maximum_profiles": 2,
+  "scope": "Inspect actual worker costs; remove measured repeated work, retain whole-report equality except recorded volatile fields; revert unsuccessful code while preserving evidence. No whole-corpus exploratory retry. Subsequent iterations require a new recorded bounded plan.",
+  "paid_calls": 0,
+  "target_execution": false,
+  "normalization": "Full ordered reports; only existing v8 volatile fields excluded.",
+  "final_linux_sequence": "Separately authorized once on immutable final candidate; unconsumed."
+}

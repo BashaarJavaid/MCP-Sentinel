@@ -1,0 +1,107 @@
+{
+  "ghsa_id": "GHSA-xc9g-j69q-37xw",
+  "cve_id": "CVE-2026-55609",
+  "url": "https://api.github.com/advisories/GHSA-xc9g-j69q-37xw",
+  "html_url": "https://github.com/advisories/GHSA-xc9g-j69q-37xw",
+  "summary": "consciousness-explorer / sublinear-time-solver MCP export_state has an arbitrary file write",
+  "description": "### Impact\nAn arbitrary file write vulnerability (CWE-73, External Control of File Name or Path) exists in the `consciousness-explorer` component of `sublinear-time-solver`. The MCP `export_state` (and `import_state`) tool accepted a user-supplied `filepath` argument and passed it directly to `fs.writeFileSync` / `fs.readFileSync` without constraining the destination or rejecting path traversal. An attacker able to invoke the MCP tool could write or overwrite any file accessible to the server process (e.g. `~/.ssh/authorized_keys`, application files), leading to integrity loss and potential service disruption.\n\nThe same sink class was present in the main solver MCP server (`saveVectorToFile` / `loadVectorFromFile`).\n\n### Affected versions\n- `consciousness-explorer` < 1.1.2\n- `sublinear-time-solver` < 1.6.0\n- `sublinear` (crates.io) < 0.2.0\n\n### Patches\n- `consciousness-explorer@1.1.2`\n- `sublinear-time-solver@1.6.0`\n- `sublinear@0.2.0`\n\nState/vector files are now confined to a dedicated directory (overridable via `$CONSCIOUSNESS_EXPLORER_STATE_DIR` / `$SUBLINEAR_SOLVER_VECTOR_DIR`), a basename-only contract is enforced (rejecting separators, `..`, NUL/control chars, hidden files, and Windows reserved names), and files are opened with `O_NOFOLLOW | O_CLOEXEC` mode `0o600`. Covered by 14 regression tests in `tests/consciousness/safe-path.test.mjs`.\n\n**Breaking change:** callers must now pass a basename, not an absolute path.\n\n### Workarounds\nDo not expose the MCP server to untrusted clients; restrict `export_state` to trusted local users; run the server under a low-privilege account with a restricted working directory.",
+  "type": "reviewed",
+  "severity": "high",
+  "repository_advisory_url": "https://api.github.com/repos/ruvnet/sublinear-time-solver/security-advisories/GHSA-xc9g-j69q-37xw",
+  "source_code_location": "https://github.com/ruvnet/sublinear-time-solver",
+  "identifiers": [
+    {
+      "value": "GHSA-xc9g-j69q-37xw",
+      "type": "GHSA"
+    },
+    {
+      "value": "CVE-2026-55609",
+      "type": "CVE"
+    }
+  ],
+  "references": [
+    "https://github.com/ruvnet/sublinear-time-solver/security/advisories/GHSA-xc9g-j69q-37xw",
+    "https://github.com/BruceJqs/public_exp/issues/32",
+    "https://github.com/ruvnet/sublinear-time-solver/issues/19",
+    "https://github.com/ruvnet/sublinear-time-solver/pull/20",
+    "https://github.com/ruvnet/sublinear-time-solver/commit/a701296e363192be863e79d788fa268095e3d229",
+    "https://github.com/ruvnet/sublinear-time-solver/commit/ea9a212b69e4449ec443fe088a7aec7546f70b4a",
+    "https://github.com/ruvnet/sublinear-time-solver/releases/tag/v1.6.0",
+    "https://github.com/advisories/GHSA-xc9g-j69q-37xw"
+  ],
+  "published_at": "2026-08-25T18:35:32Z",
+  "updated_at": "2026-08-25T18:35:33Z",
+  "github_reviewed_at": "2026-08-25T18:35:32Z",
+  "nvd_published_at": null,
+  "withdrawn_at": null,
+  "vulnerabilities": [
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "consciousness-explorer"
+      },
+      "vulnerable_version_range": "< 1.1.2",
+      "first_patched_version": "1.1.2",
+      "vulnerable_functions": []
+    },
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "sublinear-time-solver"
+      },
+      "vulnerable_version_range": "< 1.6.0",
+      "first_patched_version": "1.6.0",
+      "vulnerable_functions": []
+    }
+  ],
+  "cvss_severities": {
+    "cvss_v3": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "score": 7.1
+    },
+    "cvss_v4": {
+      "vector_string": null,
+      "score": 0
+    }
+  },
+  "cwes": [
+    {
+      "cwe_id": "CWE-73",
+      "name": "External Control of File Name or Path"
+    }
+  ],
+  "credits": [
+    {
+      "user": {
+        "login": "BruceJqs",
+        "id": 93069030,
+        "node_id": "U_kgDOBYwe5g",
+        "avatar_url": "https://avatars.githubusercontent.com/u/93069030?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/BruceJqs",
+        "html_url": "https://github.com/BruceJqs",
+        "followers_url": "https://api.github.com/users/BruceJqs/followers",
+        "following_url": "https://api.github.com/users/BruceJqs/following{/other_user}",
+        "gists_url": "https://api.github.com/users/BruceJqs/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/BruceJqs/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/BruceJqs/subscriptions",
+        "organizations_url": "https://api.github.com/users/BruceJqs/orgs",
+        "repos_url": "https://api.github.com/users/BruceJqs/repos",
+        "events_url": "https://api.github.com/users/BruceJqs/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/BruceJqs/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "type": "finder"
+    }
+  ],
+  "cvss": {
+    "vector_string": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+    "score": 7.1
+  },
+  "epss": {
+    "percentage": 0.00118,
+    "percentile": 0.01871
+  }
+}

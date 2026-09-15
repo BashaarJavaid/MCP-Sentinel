@@ -1,0 +1,93 @@
+{
+  "version": 3,
+  "status": "prepared_pending_user_freeze",
+  "freeze_approved": false,
+  "manifest": {
+    "path": "artifacts/phase22/corpus-replacement-v3/manifest.json",
+    "sha256": "275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd"
+  },
+  "scanner_identity": {
+    "revision": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+    "source_sha256": "b7b7d4d4d5b6c0382769471249c7ea6bcc18465ac2b6d0bfcb3107b6047a089c",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "scanner_implementation_frozen": "7555a9d3b472516ea880bd0ba8fbd25e89699453",
+  "pre_curation_freeze": {
+    "path": "artifacts/phase22/integration/v9-scanner-freeze-before-curation.json",
+    "sha256": "dfb3316ff5a189d97e8f4ab65c7c5bb10190a65ca9f650c91e523c4afee3c2e5"
+  },
+  "previous_manifest_sha256": "a587427f0c40cbff512f00c8024e454a11255e34a13c10f9d8748bbc4aa9bae2",
+  "new_input_ids": [
+    "searxng-default-loopback-vulnerable",
+    "searxng-default-loopback-vulnerable-mutation",
+    "searxng-default-loopback-fixed",
+    "searxng-default-loopback-fixed-mutation",
+    "searxng-public-ipv4-safe"
+  ],
+  "unchanged_input_records": 45,
+  "source_archives": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v3/sources/searxng-direct-vulnerable.tar.gz",
+      "sha256": "55683966d01aab981942937388363b9476cdae75773ee5c7a52ddb976bdb7e8c"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v3/sources/searxng-direct-fixed.tar.gz",
+      "sha256": "c072718932ed5fe2b92b229722eb78352631137f045de4b24d6d89f66b82f0ad"
+    }
+  ],
+  "provenance": [
+    {
+      "path": "artifacts/phase22/corpus-replacement-v3/provenance/advisory.json",
+      "sha256": "b63e4f44ae52953527a8d0299bed90fc89c9348f9a2589f06f27a5f6c7e10d74"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v3/provenance/pair-comparison.json",
+      "sha256": "4beb60bd966e5caface27aa7e61ab173dd11799a6fa796910c3c85201b2d3bc5"
+    },
+    {
+      "path": "artifacts/phase22/corpus-replacement-v3/review/condition-review.json",
+      "sha256": "44353b94844adb62854fdb97a3b02ea6213ba1827eb193485040c4072e6b1571"
+    }
+  ],
+  "mutations": [
+    {
+      "label": "vulnerable",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v3/mutations/vulnerable-local-policy-rename.tar.gz",
+        "sha256": "395e7df435ccebc250ac71c56680aa772ac48bf9bda4a08dbe06b2b852198f08"
+      },
+      "identifier_occurrences": 2,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "2e3c05059ece3d7dee7a128138f752b9f1a831a61bd712d8a6d8ab2dcd8addfc",
+      "mutated_tree_sha256": "a8eccb58ceb788395cc04acb9b2d8161418a237ef381a8f176fd4b9df6218af2"
+    },
+    {
+      "label": "fixed",
+      "overlay": {
+        "path": "artifacts/phase22/corpus-replacement-v3/mutations/fixed-local-policy-rename.tar.gz",
+        "sha256": "aaf2cb8b46ac62ec51dcdf07d925859104a4c1d8b24515a47e3ef6e43381d729"
+      },
+      "identifier_occurrences": 3,
+      "reverse_rename_matches_original_bytes": true,
+      "original_tree_sha256": "c6d7163c697bbdf3d716761bb40f4c026b71485f0830ca018e8e8b2aee023848",
+      "mutated_tree_sha256": "a1af485dabce1f9a53d70b3d877b4313630fb8c067296a409480e1b764d7c31c"
+    }
+  ],
+  "corpus_validation": "All 50 records pass existing archive/hash/line/lineage/license/split validation; only five new records are proposed for evaluation.",
+  "proposed_evaluation": {
+    "input_count": 5,
+    "native_runs": 2,
+    "native_seconds_per_input": 120,
+    "comparator_runs": 1,
+    "comparator_seconds_per_input": 300,
+    "comparator": "existing Semgrep 1.176.0 with unchanged prepared comparator rules",
+    "paid_calls": 0,
+    "stop_condition": "Stop after two five-input native runs and one five-input comparator run. Retain all reports/failures, exact ordered repeat comparisons and source assessments. Report actual misses, false alarms and completion/support denominators. No tuning or fresh-case replacement based on outcomes."
+  },
+  "source_exposure_disclosed": true,
+  "independent_human_acceptance": false,
+  "scanner_evaluation": false,
+  "comparator_evaluation": false,
+  "target_execution": false,
+  "model_calls": 0
+}

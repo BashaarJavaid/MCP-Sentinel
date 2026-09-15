@@ -1,0 +1,945 @@
+{
+  "source": "5142a3fbd5bcff63719df6cce3a30543214e7d27",
+  "previous_measured_scanner": "884d3763d8d63786e1726932951fd859cb6071c2",
+  "source_files_sha256": {
+    "src/sentinel/static/module_dispatch.py": "f4c97d46948ed01290af179564620e4d3ba3f9de4e3e3286f1cb441dbab133bb"
+  },
+  "changed_product_files": [
+    "src/sentinel/static/module_dispatch.py"
+  ],
+  "root_cause": "The previous metadata recognizer rejected every nested Call. Proxmox firewall metadata uses dict(_SCOPE_PROPS); rejecting that provider discarded the entire table, including the storage read handler. The complete V87 collection therefore retains0/2vulnerable detections and0/4supported negatives.",
+  "correction": "Permit only an unshadowed builtin dict with one positional inline or unconditional module-local literal dictionary, no keyword arguments and no dynamic values. ast.literal_eval validates literal data without target code execution. Protect global dictionaries using the existing closure mutation/escape checker and allow only proved copy/unpack reads. Keep all original dispatch, module, receiver, name, forwarding and duplicate checks.",
+  "mapping_boundary": "Reject factory/custom/nonliteral mappings, alias initializers, conditional bindings, multiple/replaced bindings, local shadows, mutated or escaped dictionaries, global/nonlocal replacement, direct dict deletion and known builtin/reflection namespace access. Imports and aliases of builtins/importlib, sys.modules, dynamic sys namespace escape and __builtins__/__dict__ references invalidate builtin-copy support. External runtime monkey patching remains outside source proof.",
+  "current_source_gate": "Unestablished until a separately approved exact regression; source review and synthetic tests do not become actual Proxmox detection/support.",
+  "unchanged_functions": [
+    "body",
+    "assignment",
+    "name",
+    "parameters",
+    "module_table_tools"
+  ],
+  "unchanged_initial_dispatch_statements": [
+    "Assign(targets=[Name(id='args', ctx=Store())], value=Call(func=Name(id='parameters', ctx=Load()), args=[Name(id='callback', ctx=Load()), Constant(value=2)], keywords=[]))",
+    "Assign(targets=[Name(id='statements', ctx=Store())], value=Call(func=Name(id='body', ctx=Load()), args=[Name(id='callback', ctx=Load())], keywords=[]))",
+    "If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='args', ctx=Load()), ops=[Is()], comparators=[Constant(value=None)]), Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='statements', ctx=Load())], keywords=[]), ops=[Lt()], comparators=[Constant(value=3)])]), body=[Return(value=Tuple(elts=[], ctx=Load()))], orelse=[])",
+    "Assign(targets=[Tuple(elts=[Name(id='receiver', ctx=Store()), Name(id='lookup', ctx=Store())], ctx=Store())], value=Call(func=Name(id='assignment', ctx=Load()), args=[Subscript(value=Name(id='statements', ctx=Load()), slice=Constant(value=0), ctx=Load())], keywords=[]))",
+    "If(test=UnaryOp(op=Not(), operand=BoolOp(op=And(), values=[Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='receiver', ctx=Load()), Attribute(value=Name(id='ast', ctx=Load()), attr='Name', ctx=Load())], keywords=[]), Call(func=Name(id='isinstance', ctx=Load()), args=[Name(id='lookup', ctx=Load()), Attribute(value=Name(id='ast', ctx=Load()), attr='Call', ctx=Load())], keywords=[]), Call(func=Name(id='isinstance', ctx=Load()), args=[Attribute(value=Name(id='lookup', ctx=Load()), attr='func', ctx=Load()), Attribute(value=Name(id='ast', ctx=Load()), attr='Attribute', ctx=Load())], keywords=[]), Compare(left=Attribute(value=Attribute(value=Name(id='lookup', ctx=Load()), attr='func', ctx=Load()), attr='attr', ctx=Load()), ops=[Eq()], comparators=[Constant(value='get')]), Call(func=Name(id='isinstance', ctx=Load()), args=[Attribute(value=Attribute(value=Name(id='lookup', ctx=Load()), attr='func', ctx=Load()), attr='value', ctx=Load()), Attribute(value=Name(id='ast', ctx=Load()), attr='Name', ctx=Load())], keywords=[]), Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Attribute(value=Name(id='lookup', ctx=Load()), attr='args', ctx=Load())], keywords=[]), ops=[Eq()], comparators=[Constant(value=1)]), Call(func=Name(id='name', ctx=Load()), args=[Subscript(value=Attribute(value=Name(id='lookup', ctx=Load()), attr='args', ctx=Load()), slice=Constant(value=0), ctx=Load()), Subscript(value=Name(id='args', ctx=Load()), slice=Constant(value=0), ctx=Load())], keywords=[]), UnaryOp(op=Not(), operand=Attribute(value=Name(id='lookup', ctx=Load()), attr='keywords', ctx=Load()))])), body=[Return(value=Tuple(elts=[], ctx=Load()))], orelse=[])"
+  ],
+  "callers": {
+    "declarations": [
+      {
+        "file": "src/sentinel/static/module_dispatch.py",
+        "function": "dispatch_tools",
+        "line": 400
+      }
+    ],
+    "literal_mapping": [
+      {
+        "file": "src/sentinel/static/module_dispatch.py",
+        "function": "declarations",
+        "line": 100
+      },
+      {
+        "file": "src/sentinel/static/module_dispatch.py",
+        "function": "declarations",
+        "line": 108
+      }
+    ],
+    "stable_bindings": [
+      {
+        "file": "src/sentinel/static/module_dispatch.py",
+        "function": "dispatch_tools",
+        "line": 427
+      }
+    ]
+  },
+  "scope_inventory_sha256": "a8003634e6f4fc5f93733912a425668e0a65d56a0906eb242e74d632fed11095",
+  "v87_assessment_sha256": "fce1f2aa2a385007ad0fc0e28af13000d7373c6c5600e46fb0be03161c0c2d39",
+  "reachable_input_records": [
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-vulnerable",
+      "tree_sha256": "2202581dc1e89179e4ae2a08e141a70826fc780552d4af04e138aeb88310b72b",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "initial_get_candidates": 1
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-fixed",
+      "tree_sha256": "a15d78ab36d1baed7dfd1b565ef376588f639721d24b7aac1aa5b45657c7cf8d",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "initial_get_candidates": 1
+    },
+    {
+      "group": "proxmox-upload-root",
+      "input_id": "proxmox-upload-root-safe",
+      "tree_sha256": "a15d78ab36d1baed7dfd1b565ef376588f639721d24b7aac1aa5b45657c7cf8d",
+      "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+      "initial_get_candidates": 1
+    }
+  ],
+  "unaffected_observations": 105,
+  "unaffected_report_bindings": [
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-vulnerable",
+      "batch": "first",
+      "report_sha256": "108d207a585d3de2f21fc5adaba12346c1ac599e8fcb75097bdc930583414faf",
+      "source_tree_sha256": "672ba4fb189c8b9293afc5885e0efc4fef870e31d489365ccd52444c197d281b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-fixed",
+      "batch": "first",
+      "report_sha256": "f18ccb9c01418d3ae8893063e78f021c34bba01aba291cf14932926786c0b27d",
+      "source_tree_sha256": "dbfd27a0b8d1e1ec6b4f40832711e77b092459316bdc264bf37dde557811214a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-safe",
+      "batch": "first",
+      "report_sha256": "37f4db73a8e078d732c0b617620caac335a0ae851aa4d30c93f07335c3660416",
+      "source_tree_sha256": "dbfd27a0b8d1e1ec6b4f40832711e77b092459316bdc264bf37dde557811214a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "926a78a21969ddf70d3dfe91053635ab290344610da4640281b8a3e7f52ee9ea",
+      "source_tree_sha256": "672ba4fb189c8b9293afc5885e0efc4fef870e31d489365ccd52444c197d281b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-fixed",
+      "batch": "repeat",
+      "report_sha256": "69cb62c8e32deaaaec604972fad0d89728fcb409b157947b3108b46ecdd6e00d",
+      "source_tree_sha256": "dbfd27a0b8d1e1ec6b4f40832711e77b092459316bdc264bf37dde557811214a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "taskwarrior-shell",
+      "input_id": "taskwarrior-shell-safe",
+      "batch": "repeat",
+      "report_sha256": "f1d03caa8ebf91ad88251b0f627d4ef09b463f3e62ffc2a53ac5f7150fc3756c",
+      "source_tree_sha256": "dbfd27a0b8d1e1ec6b4f40832711e77b092459316bdc264bf37dde557811214a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-vulnerable",
+      "batch": "first",
+      "report_sha256": "7b0f9a0b9136852f8c84cb1300bdc32321ea05b568a9da97f45c9a6125008285",
+      "source_tree_sha256": "e5df353c3202faf4a657f605a76287a8f4ca31f50a3b986bba406fef56ee2e6a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-fixed",
+      "batch": "first",
+      "report_sha256": "daf824a50a7b49f705d96ffd38971a514297f1aeb3f752a5d40925e8c6794391",
+      "source_tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-safe",
+      "batch": "first",
+      "report_sha256": "2354a7a03a882a335a439b3bb59e2d7bf4dfdc5d4d9bd31e609fbac7a3a30e63",
+      "source_tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-vulnerable",
+      "batch": "first",
+      "report_sha256": "2a8e214c58fa81156da5ceb7ff4ec0d373a156c35613bddbd50fdb070b55578c",
+      "source_tree_sha256": "488175cfbb8c17b5ad4890ca52223410c15a8322a7d35c27d0216c46f3396f85",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-fixed",
+      "batch": "first",
+      "report_sha256": "bbcc32744afa7de9ac8617c852c92355da548b602fbf0553a6436104ec02048c",
+      "source_tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-safe",
+      "batch": "first",
+      "report_sha256": "05b8e5766071f5d869d505be8ef0f2fa7f1891c4a65c0dd55dca53ea9fb35636",
+      "source_tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "30120e605f21864b120f7200a12d96635fcd4527d24e307124cc0987ca2ad6cf",
+      "source_tree_sha256": "e5df353c3202faf4a657f605a76287a8f4ca31f50a3b986bba406fef56ee2e6a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-fixed",
+      "batch": "repeat",
+      "report_sha256": "83c1f36eb48c6631380e2b6d4f515a31d8ba4fee3d58739014e1e07604b77dde",
+      "source_tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "input_id": "lightning-discover-linklocal-safe",
+      "batch": "repeat",
+      "report_sha256": "5b2ccc48eab8d6a2328a7de27becac1203e020a0a4e0f4b97f2ce39d50d76ac5",
+      "source_tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "2a8c315d169c3160b493b86daef6fc613aaff3985698ff7aec7aa8c8ccd03dd7",
+      "source_tree_sha256": "488175cfbb8c17b5ad4890ca52223410c15a8322a7d35c27d0216c46f3396f85",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-fixed",
+      "batch": "repeat",
+      "report_sha256": "390f914029ade18a2c176b3cb7ef141032c7f5baead63cd08c80bfd7f6addc57",
+      "source_tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "engram-export-home",
+      "input_id": "engram-export-home-safe",
+      "batch": "repeat",
+      "report_sha256": "7bd4dd428613222ded5a6599d4e4cf2a6208d740429f35be07425fd2229075b7",
+      "source_tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-vulnerable",
+      "batch": "first",
+      "report_sha256": "c88e04589311c2b39a62b23a12214e81de6a6be933352e39950e5f5e6ce2fadf",
+      "source_tree_sha256": "96de6f16162a5be3a71a654e5e020962cab47931de08da7a8aef829c20312337",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "292e0362713ae0147424be9db3392f9dddefa099307e30b1897fe2877460372e",
+      "source_tree_sha256": "b4ed823f59f4854f15461540b3dd468c937b8883716a306a0a632d21dcb709ab",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-fixed",
+      "batch": "first",
+      "report_sha256": "3a0ca3b9e50c1ff26751c164362c0aff9aab750cf42dc1b1541a82cdf4219ff3",
+      "source_tree_sha256": "95aca9d60ad17d74113d22d52bf29a0d3563e4429341bbb6768a16ff530accac",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "7e16c67aa2cff30889cec795f4ded4b04cc7baf7f8b088eea1a5d66081a0b8f4",
+      "source_tree_sha256": "23b29a93646d4a884577c397f3000d0ee0e19ad260a71a355db049183544af7a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-public-safe",
+      "batch": "first",
+      "report_sha256": "361aa18152cf9afcdd9ec7c811d6bb5578988b18ec6c977022482f279220e6c6",
+      "source_tree_sha256": "95aca9d60ad17d74113d22d52bf29a0d3563e4429341bbb6768a16ff530accac",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "29fa0b7f70261e4fc234da9969dcc3a667c7634386044568353d8faacada73f2",
+      "source_tree_sha256": "96de6f16162a5be3a71a654e5e020962cab47931de08da7a8aef829c20312337",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "290b1fa4168bbd33657128f43fb599d7203f852cb7b0b8a6294abaef160953ed",
+      "source_tree_sha256": "b4ed823f59f4854f15461540b3dd468c937b8883716a306a0a632d21dcb709ab",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-fixed",
+      "batch": "repeat",
+      "report_sha256": "e00a6443670470f7a8a7dc380901f275252aa7351a3aa4b65a7b536d5c763c42",
+      "source_tree_sha256": "95aca9d60ad17d74113d22d52bf29a0d3563e4429341bbb6768a16ff530accac",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-cgnat-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "dba24d202b345fff8e5d358cd1065a8d9e8e5f70134cea826732efc70b657ac2",
+      "source_tree_sha256": "23b29a93646d4a884577c397f3000d0ee0e19ad260a71a355db049183544af7a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "ddg",
+      "input_id": "ddg-public-safe",
+      "batch": "repeat",
+      "report_sha256": "43ab97660d35af859846acd4b652313773b2e552c8a418dd98182c04eea6f619",
+      "source_tree_sha256": "95aca9d60ad17d74113d22d52bf29a0d3563e4429341bbb6768a16ff530accac",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "dbt-option-selection-vulnerable",
+      "batch": "compatibility",
+      "report_sha256": "c913d6dcbead19eeddd9ed1201b9ca0b80e18c10dcfa4c916c526f4241562b9d",
+      "source_tree_sha256": "7cc5fd115be582b4a315406cfb2a988a5052c059b97dcf9d6dc8bd08cd51e092",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "dbt-option-selection-vulnerable-mutation",
+      "batch": "compatibility",
+      "report_sha256": "05d2beaaf35c47ce5e703619047e8e3c0cc90c8adf71d5a1ed4ba043e2c13f5d",
+      "source_tree_sha256": "aed8c08c63078f958a72371c429bf410b094a250fcad9c5b914c50b55271a5e5",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "dbt-option-selection-fixed",
+      "batch": "compatibility",
+      "report_sha256": "0e98c4f666d5cac08c11a7f1b3af60e2960410ad224c5e77d2b29d81a3d1c303",
+      "source_tree_sha256": "bef85f612a54ae3a76b46584bd5e9fe8773264127d8e2ae3aaafaf1eea6d5f8f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "dbt-option-selection-fixed-mutation",
+      "batch": "compatibility",
+      "report_sha256": "a68e2dbdae90560f17fd166ae4f20d53ab19314c2958f527272bebf39e947126",
+      "source_tree_sha256": "d2578d148521d790aee97feb846af33f73cfbe822d66b81822b52f2ab83494c8",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "dbt-option-selection-safe",
+      "batch": "compatibility",
+      "report_sha256": "31fabb91bc1b398a0ceec7a1c715325e12d3f54f17751649b65c789e8876a85d",
+      "source_tree_sha256": "bef85f612a54ae3a76b46584bd5e9fe8773264127d8e2ae3aaafaf1eea6d5f8f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-image-ssrf-vulnerable",
+      "batch": "compatibility",
+      "report_sha256": "bdf85ac687e3ac92d3455b2d594fb7eca10d3cea67e0a3dc01088565f5ca4d95",
+      "source_tree_sha256": "fc515a9f5176cd0b58dea17a6d7676b272834534e88ab104e5b21e821d77aad7",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-image-ssrf-vulnerable-mutation",
+      "batch": "compatibility",
+      "report_sha256": "8a9032e9b61de0cff99dba4364014fbc9a404e15ebbf1848e112d74db075bc3f",
+      "source_tree_sha256": "fb63cac164d64fd68f827c12d8964e54c079918c9e0c645e02ec8da87d4d5c48",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-image-ssrf-fixed",
+      "batch": "compatibility",
+      "report_sha256": "5e37da16c6e03397d8829539e635cde763c1ffb2e9029322530363568dc549a9",
+      "source_tree_sha256": "af7027cbdb5ec7d5e18ad70925c1ce3914ac6455a8a0197ea43e3cb751e0255a",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-image-ssrf-fixed-mutation",
+      "batch": "compatibility",
+      "report_sha256": "29bbbaa0a63929fd2eea08f1339459309cd020944e00fbf8b612842917a54f98",
+      "source_tree_sha256": "6063a78ca50abef6582058db096c3911875de2725efcc5c38582e66680bc28e8",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-image-ssrf-safe",
+      "batch": "compatibility",
+      "report_sha256": "4f6a4af5e9ac556ff9c2ac96cdb301c930d6c12e7b3885e0d56483034e73300c",
+      "source_tree_sha256": "af7027cbdb5ec7d5e18ad70925c1ce3914ac6455a8a0197ea43e3cb751e0255a",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-operator-fallback-vulnerable",
+      "batch": "compatibility",
+      "report_sha256": "df133f2e3fa34ff8d93c63b9dc812613c57220bec03c2d68149650877d253e32",
+      "source_tree_sha256": "104712ee7d7937115ebdd316effad334fbbb9adc2b8e6b48eadb2b753bd8e53e",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-operator-fallback-vulnerable-mutation",
+      "batch": "compatibility",
+      "report_sha256": "7788942ed6ca0703ea4e3d3b44ed85dc8363b34b57f2477e1733342e602ae086",
+      "source_tree_sha256": "58adf70b7383eb47ed691d8927098d86b9901eaa312fc8a706a4132c6b96d7bb",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-operator-fallback-fixed",
+      "batch": "compatibility",
+      "report_sha256": "09da9ca8bb555711d1953d42961f603ee3566847add5e5e0bcd2b5e6caf306ac",
+      "source_tree_sha256": "87b1f4d4e2e1c44c664ece12520da9495bfa93f81cf687a4439e746ec43ec9a7",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-operator-fallback-fixed-mutation",
+      "batch": "compatibility",
+      "report_sha256": "ffb78b7ba6666344a9c5b1f8d1136628e6d001e78ac8ef6b1c5a84a010adc5f1",
+      "source_tree_sha256": "5ba4a3853c06e5511923003375545c7b1d17e84074b9c744e43949ddfedca2bf",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-development",
+      "input_id": "meta-operator-fallback-safe",
+      "batch": "compatibility",
+      "report_sha256": "32b354f348ca7b3d184a4396aa7248a9306395fca6a6402c7e40a28ed3c70480",
+      "source_tree_sha256": "87b1f4d4e2e1c44c664ece12520da9495bfa93f81cf687a4439e746ec43ec9a7",
+      "source_assessment_sha256": "f887781321bed397a1e99437acbc06cdf0b1cd99b5f8377525d8e587cdf66ef0"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-vulnerable",
+      "batch": "first",
+      "report_sha256": "33405ce88a5beefc7cdff43893b6ff837ab3ebea09e3bcf10b590ca090998f87",
+      "source_tree_sha256": "ed0cadd89cb6126c5e3c7635feb79c5909c2fbd1b8865ab465fd356ea8111b05",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "bfffd06eb92999a1f447ee1a0a7fdd1000a215ae56333c5f8fbc904c23b8c29c",
+      "source_tree_sha256": "30bfefb564066c25702f9d25d0c4766aaf030fe84960fab0f9067b44dd32c51f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-fixed",
+      "batch": "first",
+      "report_sha256": "0519fe1780c23d44c0752623881c4796c012caa49c3246bc223abb8a44817801",
+      "source_tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "5b5e4eb998df5f0e09571246d477255735368364385b08e593a5e8cbc257a903",
+      "source_tree_sha256": "2c4c8661813ef375664676a4422675153a5538d17fc5db407b964c1f05b624a1",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-vulnerable",
+      "batch": "first",
+      "report_sha256": "39b2b0d0c7f6c74bdcfdb0eb583e838e93b2c7adbe63753bf5b889332494fbc2",
+      "source_tree_sha256": "70afc45bbce2b3a12fe00a115f790d1754ca8749c17fdf15082c493974ef7f9e",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "676a70248535402fff2a85380308c4feb2b2871687d0787da0bad5571e140fe7",
+      "source_tree_sha256": "401ec3007fccb4830807964206f399785b30a460854dd1bd54de05f79cc7372a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-fixed",
+      "batch": "first",
+      "report_sha256": "a57ebab558cb9ab9c4d677d23e605e52459f2c6de827b3f2b9bb282f4f163b54",
+      "source_tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "5477e4bee592c23208dc6695af2db205a948c4d4947925486b26b558f608867f",
+      "source_tree_sha256": "3b582ab5c012eb20f179992dcfd2fbb2cd19b1ed1449d7ddeba42278d3685434",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-vulnerable",
+      "batch": "first",
+      "report_sha256": "650a5bbee58c503d785e664da438427f073ad476f18a66a4da253b952ca0fe90",
+      "source_tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "923eb030c700ceca3ce8eb52cfac95d710a69bb10f5cf9fdc60344f3af8d8d76",
+      "source_tree_sha256": "59da00247c71c5577f13be292ecaf55c379411aa06c0ce63d32e239300d328d0",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-fixed",
+      "batch": "first",
+      "report_sha256": "36166b9e764498200cf84483ca840f34d7882e9d4c501e83784f178cdeef39ac",
+      "source_tree_sha256": "8bf9d2dcac0d6018497abb1993444c192ce7f19e56b93e9395142634d707dfa9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "d2330eb52451ec42f6194904d63577a39036f3f7da0ce81c15d8bc0d2979b147",
+      "source_tree_sha256": "f036930b1c636dfb237ea24b93b4c2a9e5edd0bc3a9e4946cb7690b92561743e",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-vulnerable",
+      "batch": "first",
+      "report_sha256": "0e4a901bec180fd18073fd3b4c27d7e5c2ad81815e949b8e6b6c523e810911ea",
+      "source_tree_sha256": "7e9191fdeff8ad783ffbfb4c92b45096e8e530f83fee411561d7082af9a6ce0b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "e7b6655401f1a0c91e7e6de5c777283d8f638dc10ccc75e9894c56714fede922",
+      "source_tree_sha256": "2d75e345c2c0de19b0b3c0c3a6178113085a99a7f284fb8ab792a36301fc8a9b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-fixed",
+      "batch": "first",
+      "report_sha256": "b17fa0a7aca1e2e32179283fb49f3f91c67a0aa6e484b14f76bfb82b46108b0e",
+      "source_tree_sha256": "b8e79e445627341317f5ac662010f144714dc3ab1709dc2b2892419591940e28",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "cb79858635f2a23892e78a654ba1bcf69043d740a14af24cba3831ac5dd7ea67",
+      "source_tree_sha256": "f69d8ecc08b295669c78dcba5f4945548b4392a9b6decfee0147345e37062c43",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-vulnerable",
+      "batch": "first",
+      "report_sha256": "eb07f9ac64dc98a10a42f0eec0288597501dcf3d68bfbc8d9ccb31a185c0ead0",
+      "source_tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "bf73f2cde3604f21475d536b4ceaebe950ad960c8ebadd32f7a607fe43b689ab",
+      "source_tree_sha256": "543e0ba069f3a8ffb081fc8827097b186b1dea0a5d99718ba0b275abb59c3ecd",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-fixed",
+      "batch": "first",
+      "report_sha256": "3209f10b332e7484686ae0f629687bb8dc14c9ac5842c742e93e8fdb1c7434d6",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "5da568cb9f5a22e79a8f5f36ee360ca35b37c33f1982d211987ed882ef58576a",
+      "source_tree_sha256": "b38da7e1895593d3b74001c157c9b44fd8fbc20a04dd3d00b566d33fdc2cbf7b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-vulnerable",
+      "batch": "first",
+      "report_sha256": "ff5b33c4f7f18b0619b7a7c9268c7d359a277c11d01324929c425c2e10e8f840",
+      "source_tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "a8246b3dbf77663dfab279f0a270dd56f7061f7cfe52cc8ce60ad6f1470299c6",
+      "source_tree_sha256": "a1ad8739f308a8ffa6b2fee4b8065f34b08113db20535e027f1375a33b9d4e7d",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-fixed",
+      "batch": "first",
+      "report_sha256": "2fcabe833b8ebfa6c083a2fb7e861b94c9d4a63b52629c4877b9610bd74f0c1a",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "bc688dea8686fd71aa9ebbe21873d0fd862970a9318bb602bfd46064f6d97b90",
+      "source_tree_sha256": "7681be9f39aff50f6029d9aed5c641a82c9fd965812b6a5c2892f2b2a18c5ca1",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-vulnerable",
+      "batch": "first",
+      "report_sha256": "1997e9ca514db866027ee5030e1cfde44486410ee49c0bdd9b84a7df03c306d8",
+      "source_tree_sha256": "900bbb1eba4ca8fc238092acf1249e9ec5e944e8b2ca743d998c4ce085daab27",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-vulnerable-mutation",
+      "batch": "first",
+      "report_sha256": "4e4d8ad6646d70d745e05bb1f3dce1859791d34d1501c40210a2371917cd5f33",
+      "source_tree_sha256": "d1ba919a6c3eec87e2cd309f395defe8884552dc65beb33dee1c0e7dbfc6554f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-fixed",
+      "batch": "first",
+      "report_sha256": "8b0d1446877cc1d2cb199821c75725f687d72dfed6f38f53fad2ea02f5cfc1c7",
+      "source_tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-fixed-mutation",
+      "batch": "first",
+      "report_sha256": "c8b330dd56d15f20fa17702173bf890ea3ec58654437c287cbcc4181cccbad49",
+      "source_tree_sha256": "835d36188e5b651ea20919555f4a1d7bf463b081b30c3fe2b45cdae8b792dc18",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-status-safe",
+      "batch": "first",
+      "report_sha256": "1e48910e57fb92e2d4f6154f319aa1711b34f7e8bdd0b29303ea5d5188ac666d",
+      "source_tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-download-path-safe",
+      "batch": "first",
+      "report_sha256": "7b2aac835869c66464462337bf2084cec021d018094f5faf89186a2a5637f925",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-child-path-safe",
+      "batch": "first",
+      "report_sha256": "5b3021cfa7706e881fc5a610be322bcbd0f5944b914c0c2e3878f13bf1c81b40",
+      "source_tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "f17e0852963ef638f7086a85bf0b07dd6e6e62c86870c92bcddcc5dfc48a0fc3",
+      "source_tree_sha256": "ed0cadd89cb6126c5e3c7635feb79c5909c2fbd1b8865ab465fd356ea8111b05",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "f83d2be57e27455a014d40f4e816577945e124cf99e2b9e5a1861099fc39a509",
+      "source_tree_sha256": "30bfefb564066c25702f9d25d0c4766aaf030fe84960fab0f9067b44dd32c51f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-fixed",
+      "batch": "repeat",
+      "report_sha256": "e47ca7c319b82ca3163c9e8d12bdb4805cb48fe767b6e90ec83d1ad1ac674832",
+      "source_tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-staging-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "6c50c0fd021e937535942783db57e44d930454b59d10ddbc692cddcecba35565",
+      "source_tree_sha256": "2c4c8661813ef375664676a4422675153a5538d17fc5db407b964c1f05b624a1",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "0e420149727cf2c03d61bc3de8489de8dad59cc30bafc847a2c17614d272a596",
+      "source_tree_sha256": "70afc45bbce2b3a12fe00a115f790d1754ca8749c17fdf15082c493974ef7f9e",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "4207ddef05d57e6e472fac61a7190130d2d21bf9ac750f227bb84aae4868d140",
+      "source_tree_sha256": "401ec3007fccb4830807964206f399785b30a460854dd1bd54de05f79cc7372a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-fixed",
+      "batch": "repeat",
+      "report_sha256": "1a0744cd141c2efe39d01cd93158017359445867f2b4a8ed80edc389b34c9407",
+      "source_tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-arguments-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "fc1f43ce00acdca8a867c6c0be085191cbcdd2194799202824e1d03908217b3d",
+      "source_tree_sha256": "3b582ab5c012eb20f179992dcfd2fbb2cd19b1ed1449d7ddeba42278d3685434",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "ecd7bbee4a7802f2351d167fa44f8f12a1201fa931ba329ec89c468eb31f1857",
+      "source_tree_sha256": "fb7b18767e1c11ee06fc05cc7a255d147f74e3d85679fc927e5edf43c196276c",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "322e82ed348688d3e7aee246ecd944be1012d085d2f5929c6d293bf70022fd1f",
+      "source_tree_sha256": "59da00247c71c5577f13be292ecaf55c379411aa06c0ce63d32e239300d328d0",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-fixed",
+      "batch": "repeat",
+      "report_sha256": "1276741ca60f0d8ef3b8d2414b67a887bdeea77a658cb6093d17f55c04988735",
+      "source_tree_sha256": "8bf9d2dcac0d6018497abb1993444c192ce7f19e56b93e9395142634d707dfa9",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-repository-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "7d06aa3f14ee430b425ecc181b068fcc5c4b23f3f8aebb1476c0d92103df07eb",
+      "source_tree_sha256": "f036930b1c636dfb237ea24b93b4c2a9e5edd0bc3a9e4946cb7690b92561743e",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "a887751cab63ac9f212b335d1d6194d108e78897e2d24f2d631b6d48c28209bb",
+      "source_tree_sha256": "7e9191fdeff8ad783ffbfb4c92b45096e8e530f83fee411561d7082af9a6ce0b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "b6540849c47f8d5a4ae4288c3498baa86114b6ab2e7781d55483bb873f7f39fc",
+      "source_tree_sha256": "2d75e345c2c0de19b0b3c0c3a6178113085a99a7f284fb8ab792a36301fc8a9b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-fixed",
+      "batch": "repeat",
+      "report_sha256": "9bcb96c0fdbc18834288c275242aad821717361b9b2906d82582c5ef6ba323dc",
+      "source_tree_sha256": "b8e79e445627341317f5ac662010f144714dc3ab1709dc2b2892419591940e28",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-ssrf-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "c9af628206038348128960f31344ad59ea837c4a2c02cc4a869e3ea6ad7f425f",
+      "source_tree_sha256": "f69d8ecc08b295669c78dcba5f4945548b4392a9b6decfee0147345e37062c43",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "07ceaad9721c9042fe659ac447f9f3f7aaa37eb60a60a2f574ada6e620cdd50e",
+      "source_tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "f1ea360ef01b2c9e6c788a3f25303ebbc7ad6c25890575cec0e80613abd63e54",
+      "source_tree_sha256": "543e0ba069f3a8ffb081fc8827097b186b1dea0a5d99718ba0b275abb59c3ecd",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-fixed",
+      "batch": "repeat",
+      "report_sha256": "d11d1dbb98f8eeb9288a71008e67f8112bd6ac78fe4e63427dd93f173bcea92e",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-auth-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "fd3536e4b7a1d1ae5b3a3b1c1cad6f68179d6f8badbae2477fa13078556e83c8",
+      "source_tree_sha256": "b38da7e1895593d3b74001c157c9b44fd8fbc20a04dd3d00b566d33fdc2cbf7b",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "0fc0024187085177d7eb5e491d9c5f20da2e8fc996b0dceca919f57b2433a902",
+      "source_tree_sha256": "afd629310b07685052de0f3479be57da6e5c5fd5d1f692f1cfae90f6cf49f930",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "7884a1aa28537aaf1795f5f071251b3dc5d30bd6665b199bbc6fe7cf119786bf",
+      "source_tree_sha256": "a1ad8739f308a8ffa6b2fee4b8065f34b08113db20535e027f1375a33b9d4e7d",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-fixed",
+      "batch": "repeat",
+      "report_sha256": "cf118ebdd571b679972bd3d927a898a76cdd61e8e2cf4ce61041bdcc18c6c334",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-upload-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "874a81a30fc79b431a142bdcfc2effe18b2dc40cbba275689e611c674cfc9524",
+      "source_tree_sha256": "7681be9f39aff50f6029d9aed5c641a82c9fd965812b6a5c2892f2b2a18c5ca1",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-vulnerable",
+      "batch": "repeat",
+      "report_sha256": "67c49bf17b3ccdfcd8430bac82c7915d194a436ef9b1685d1832746467cf5764",
+      "source_tree_sha256": "900bbb1eba4ca8fc238092acf1249e9ec5e944e8b2ca743d998c4ce085daab27",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-vulnerable-mutation",
+      "batch": "repeat",
+      "report_sha256": "75a0ccb9081a602bdd19dff2162c07b409054fa3c4837fd2a60ec8807c6569d9",
+      "source_tree_sha256": "d1ba919a6c3eec87e2cd309f395defe8884552dc65beb33dee1c0e7dbfc6554f",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-fixed",
+      "batch": "repeat",
+      "report_sha256": "36880ea466faa6a46f1f2b8f6d95823a9568b91c30056ed290a17508c0c0b7b4",
+      "source_tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-boundary-fixed-mutation",
+      "batch": "repeat",
+      "report_sha256": "83c9fa030f8bf2c9f313e3d889bdb7c579527c829fe9d0f246ab0d8dc57570df",
+      "source_tree_sha256": "835d36188e5b651ea20919555f4a1d7bf463b081b30c3fe2b45cdae8b792dc18",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "git-status-safe",
+      "batch": "repeat",
+      "report_sha256": "c8c1f29d58854b916f5488eac052ebff832bbc1076cf1f30c3e4581f02fd9902",
+      "source_tree_sha256": "8e55cb68423ffe4a40ee0d8298e4923ffe228ec9f6b98bc105b1ba45b3f141a6",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "atlassian-download-path-safe",
+      "batch": "repeat",
+      "report_sha256": "97c670c1ca2c4f60cff3acbf40d9e3081348d45d0ffff9ad4838cce803d5f810",
+      "source_tree_sha256": "39929e13ab6adf9155f174239b8de53484b27d675a246ea1f8e2480874317f5a",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    },
+    {
+      "group": "py-historical",
+      "input_id": "excel-child-path-safe",
+      "batch": "repeat",
+      "report_sha256": "bc574158a0d4b506cc1610e32dc4b7cf2e96cda3c0552528a3861c7dbf9262b0",
+      "source_tree_sha256": "fac9807c3e1f77813db2b55d666bc5d9b0715ed4fe9d411dcace3d1ceb0c11e8",
+      "source_assessment_sha256": "9858dfe3ac024912495c3137b7f3bf82fb9df994765464f7c919b2a5ae694bdb"
+    }
+  ],
+  "scope_proof": "Only declarations, stable_bindings, the later dispatch body and new literal_mapping change. Both changed helpers and the new helper are exclusively reached after the unchanged initial dispatch prefix. Source-only inventory of all63records found just3Proxmox records with even the broader initial .get prerequisite; the other60records cannot enter modified code. Preserve105V87observations at884d376 with this execution-path proof; do not call them105new current-source scans. Explicit TypeScript-only sources and traversal remain unchanged, so older unaffected TypeScript evidence also retains its actual source/qualification.",
+  "proposed_followup": "Six observations on the3unchanged Proxmox records, each twice/3entire ordered pairs, normal1800/10/15/four-worker bounds. Preparation is authorized; numeric execution is not.",
+  "controls": {
+    "metadata_controls": 146,
+    "focused_checks": 513,
+    "checks_sha256": {
+      "v88-metadata-controls": "f24f528c040926146d4988e471fe6af68a4595ff0035a5dfb78c01457c218159",
+      "v88-focused": "5c88c1ee4e2727ef805d014d9d61bee034b7ee5360be2c34e7d5f089d9b8cc31",
+      "v88-ruff": "018ebf186837a04a2f85ed74904042a3755e79bb3589da77c2c5f280df629b18",
+      "v88-format": "caf863c36e61b416762647f654ffcae3e47b1f4203672879d41b37a123b221a7",
+      "v88-types-corrected": "bbc80f64c68728321ec0d057cc6978551f035d8d55c10db4cb516a926d60100b"
+    },
+    "initial_failures_sha256": "a88ff3dd3949ffe04744475810f0cbdd6026d548d1c77765784dfafc07708df7",
+    "meaningful_checks": "Both positive and guarded routes across multiple providers; literal copy/unpack and dynamic/mutation/namespace controls; full serial/parallel report equality, unchanged ASTs, deadlines and no target imports. All existing103module tests remain plus43new cases.",
+    "typing_correction": "Focused run preceded an explicit set[ast.AST] annotation; no runtime logic changed. Full committed engineering separately proves the final source."
+  },
+  "full_engineering": "Pending actual local/hosted receipts; not a pass claim.",
+  "corpus_observations": 0,
+  "paid_calls": 0,
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

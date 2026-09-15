@@ -1,0 +1,1669 @@
+{
+  "status": "prospective_exposed_correctness_regression_not_approved",
+  "scanner": {
+    "revision": "cec0322e904bbf63c33cd95796e7289101a93e5d",
+    "source_sha256": "8c8aeb9937930315b0c2ba38685d3e5ac71275cc05946cbae3c790697bdf4099",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "lock_sha256": "c34da413d4761ca42f243bc41a10afd8961a98daa1f3a236d37fe03720743b2b",
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-cec0322",
+  "purpose": "Evaluate the ordinary approved-contract constructor parameter-property and initial URL guard corrections at the engineering-tested candidate. Preserve the user preference to do four repositories first. This is a NEW proposal for24uncapped observations, not use of the completed V70 budget.",
+  "runner": "artifacts/phase22/integration/v72-prototype-property-correction/evaluate.py",
+  "prepared_command": [
+    "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin/python",
+    "-I",
+    "/private/tmp/mcp-phase22-options/artifacts/phase22/integration/v72-prototype-property-correction/launch.py"
+  ],
+  "prepared_command_cwd": "/private/tmp/mcp-phase22-options",
+  "launch_precondition": "Fresh explicit user approval of this exact source/proposal,24observations and uncapped experimental stopping policy; passing final engineering/freeze/policy/missing-approval checks, unused token, protected state and no conflicting owned work. The previous24observations are closed and supply no renewed permission.",
+  "execution": "One serial local sequence. Preserve original non-FAF first/repeat order for18observations, then six FAF observations. Each source has its own existing process group and original worker layout.",
+  "bounds": {
+    "native_observations": 24,
+    "distinct_inputs": 12,
+    "ordered_repeat_pairs": 12,
+    "normal_target_seconds": 120,
+    "native_and_whole_input_maximum_seconds": null,
+    "cleanup_maximum_seconds_per_input": 15,
+    "sequence_maximum_minutes": null,
+    "internal_stop_minutes": null,
+    "semgrep_rule_timeout_seconds": 0,
+    "retries": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "new_repositories": 0,
+    "source_only_optimization_attempts": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "maximum_concurrent_inputs": 1,
+    "maximum_existing_flow_workers_per_input": 4
+  },
+  "groups": {
+    "no-bash-write-prefix": {
+      "manifest": "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/manifest.json",
+      "manifest_sha256": "2f96c685d9299f4a73d35fb1ec941affab819abfbefb83672ab615b10755eeca",
+      "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/no-bash-write-prefix.json",
+      "input_ids": [
+        "no-bash-write-prefix-vulnerable",
+        "no-bash-write-prefix-fixed",
+        "no-bash-write-prefix-safe"
+      ],
+      "inputs": {
+        "no-bash-write-prefix-vulnerable": {
+          "input": {
+            "id": "no-bash-write-prefix-vulnerable",
+            "family": "no-bash-write-prefix",
+            "repository": "RobertBergman/no-bash-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "original",
+            "label": "vulnerable",
+            "snapshot": "be258b1e332a6f0aeec3dfa4d8e2cf8f5c5c5daa",
+            "scan_root": ".",
+            "condition": "write_file caller path must not reach fs.writeFileSync in the sibling directory /srv/no-bash-project-archive outside operator WORKSPACE_ROOT=/srv/no-bash-project.",
+            "prerequisites": [
+              "Unmodified declared Node/TypeScript package stdio startup succeeds with compatible declared dependencies. WORKSPACE_ROOT=/srv/no-bash-project is set by the operator before startup, is an existing directory, and remains unchanged.",
+              "Caller supplies path=/srv/no-bash-project-archive/fixture.txt, content=phase22 fixture, mode=overwrite. Zod admits the string fields and explicit enum. Parent directories exist and are writable, file is writable or absent, no symlinks/races/NULs or custom fs hooks. The safe control uses /srv/no-bash-project/fixture.txt.",
+              "Only the initial workspace boundary for the actual writeFileSync is labeled. Later audit logging success, content correctness, append/create-only modes, network/git tools and symlink escape are separate. The read_file path was not selected: vulnerable validateFileSize uses require('fs') in native ESM and can return invalid before the read; no runtime shim is assumed."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 526,
+                "sha256": "69c4ee353f12488d35a693288ebc572c8445d82a64d29280ea99586a73ea4d84",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/fileSystem.ts",
+                "start_line": 1,
+                "end_line": 264,
+                "sha256": "8dd2ded51a75d8da26e26128d70b0ef2a6063ca77d38d2f8f56b4c0baaee9da8",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/security.ts",
+                "start_line": 1,
+                "end_line": 128,
+                "sha256": "0d66a7b3226a12e3245f6751881c7bd7afa876fb01901571cdbaebda3efc74bf",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/audit.ts",
+                "start_line": 1,
+                "end_line": 98,
+                "sha256": "4644f6b42e13db8ec0f4c3bb8fb6772237f98f1fc2167e9a44059294464fe1e8",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 32,
+                "sha256": "42557af2d526953d730e9677e581b195438592aeb09ae29683945f7160395111",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 20,
+                "sha256": "3e6b4bf96c00ab13ad4340aaf396faa7d6a9b134814ed5165ab41829abcd877b",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 302,
+                "sha256": "a9605781bb6b55f194cab332ceb71c9bc68cec3ff79e0ee65fbf8e23126dbdb7",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named write_file caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "cfa8b9e65ceb1dea075abbf9efb13bc4bfc5d87bb733f775f0440d1db74104e4"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/04-rules-first-no-bash-write-prefix-vulnerable/no-bash-write-prefix-vulnerable/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/04-rules-first-no-bash-write-prefix-vulnerable/no-bash-write-prefix-vulnerable/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        },
+        "no-bash-write-prefix-fixed": {
+          "input": {
+            "id": "no-bash-write-prefix-fixed",
+            "family": "no-bash-write-prefix",
+            "repository": "RobertBergman/no-bash-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "original",
+            "label": "fixed",
+            "snapshot": "d057feb697da3dd76ac190c0d2c7a0d076fdcd17",
+            "scan_root": ".",
+            "condition": "write_file caller path must not reach fs.writeFileSync in the sibling directory /srv/no-bash-project-archive outside operator WORKSPACE_ROOT=/srv/no-bash-project.",
+            "prerequisites": [
+              "Unmodified declared Node/TypeScript package stdio startup succeeds with compatible declared dependencies. WORKSPACE_ROOT=/srv/no-bash-project is set by the operator before startup, is an existing directory, and remains unchanged.",
+              "Caller supplies path=/srv/no-bash-project-archive/fixture.txt, content=phase22 fixture, mode=overwrite. Zod admits the string fields and explicit enum. Parent directories exist and are writable, file is writable or absent, no symlinks/races/NULs or custom fs hooks. The safe control uses /srv/no-bash-project/fixture.txt.",
+              "Only the initial workspace boundary for the actual writeFileSync is labeled. Later audit logging success, content correctness, append/create-only modes, network/git tools and symlink escape are separate. The read_file path was not selected: vulnerable validateFileSize uses require('fs') in native ESM and can return invalid before the read; no runtime shim is assumed."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 548,
+                "sha256": "c765e4e4774e6065179ebae5d95f3f428e5373d58ce6175e36aed7280f1da048",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/fileSystem.ts",
+                "start_line": 1,
+                "end_line": 281,
+                "sha256": "0126917c9d341bd0fb866100d6484048752f671a11243c978bb950d922e75515",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/security.ts",
+                "start_line": 1,
+                "end_line": 129,
+                "sha256": "5362612f5b8f95c0b18bb188ea85f236192340ba22b9a8d2daae867c86dcf7cb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/audit.ts",
+                "start_line": 1,
+                "end_line": 95,
+                "sha256": "97a05191935a7d5eb72d48df9cb9c7201ca520ecbd1d713a69075ac25e980e62",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 32,
+                "sha256": "42557af2d526953d730e9677e581b195438592aeb09ae29683945f7160395111",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 21,
+                "sha256": "6aff215ba4f3276e3a5ef175827c62200adee1ad30a8e36e5cbf744eec2a01ed",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 302,
+                "sha256": "a9605781bb6b55f194cab332ceb71c9bc68cec3ff79e0ee65fbf8e23126dbdb7",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named write_file caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "5380b9922f855582e985490fe4f569ea45a7329ab463af28c5054446ced8d100"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/05-rules-first-no-bash-write-prefix-fixed/no-bash-write-prefix-fixed/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/05-rules-first-no-bash-write-prefix-fixed/no-bash-write-prefix-fixed/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        },
+        "no-bash-write-prefix-safe": {
+          "input": {
+            "id": "no-bash-write-prefix-safe",
+            "family": "no-bash-write-prefix",
+            "repository": "RobertBergman/no-bash-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "safe_control",
+            "label": "safe",
+            "snapshot": "d057feb697da3dd76ac190c0d2c7a0d076fdcd17",
+            "scan_root": ".",
+            "condition": "write_file caller path must not reach fs.writeFileSync in the sibling directory /srv/no-bash-project-archive outside operator WORKSPACE_ROOT=/srv/no-bash-project. Safe input uses /srv/no-bash-project/fixture.txt under the stated prerequisites.",
+            "prerequisites": [
+              "Unmodified declared Node/TypeScript package stdio startup succeeds with compatible declared dependencies. WORKSPACE_ROOT=/srv/no-bash-project is set by the operator before startup, is an existing directory, and remains unchanged.",
+              "Caller supplies path=/srv/no-bash-project-archive/fixture.txt, content=phase22 fixture, mode=overwrite. Zod admits the string fields and explicit enum. Parent directories exist and are writable, file is writable or absent, no symlinks/races/NULs or custom fs hooks. The safe control uses /srv/no-bash-project/fixture.txt.",
+              "Only the initial workspace boundary for the actual writeFileSync is labeled. Later audit logging success, content correctness, append/create-only modes, network/git tools and symlink escape are separate. The read_file path was not selected: vulnerable validateFileSize uses require('fs') in native ESM and can return invalid before the read; no runtime shim is assumed.",
+              "For this safe record only, replace the scored caller value with /srv/no-bash-project/fixture.txt. The complete fixed source and static configuration remain unchanged."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 548,
+                "sha256": "c765e4e4774e6065179ebae5d95f3f428e5373d58ce6175e36aed7280f1da048",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/fileSystem.ts",
+                "start_line": 1,
+                "end_line": 281,
+                "sha256": "0126917c9d341bd0fb866100d6484048752f671a11243c978bb950d922e75515",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/security.ts",
+                "start_line": 1,
+                "end_line": 129,
+                "sha256": "5362612f5b8f95c0b18bb188ea85f236192340ba22b9a8d2daae867c86dcf7cb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/audit.ts",
+                "start_line": 1,
+                "end_line": 95,
+                "sha256": "97a05191935a7d5eb72d48df9cb9c7201ca520ecbd1d713a69075ac25e980e62",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 32,
+                "sha256": "42557af2d526953d730e9677e581b195438592aeb09ae29683945f7160395111",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 21,
+                "sha256": "6aff215ba4f3276e3a5ef175827c62200adee1ad30a8e36e5cbf744eec2a01ed",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "README.md",
+                "start_line": 1,
+                "end_line": 302,
+                "sha256": "a9605781bb6b55f194cab332ceb71c9bc68cec3ff79e0ee65fbf8e23126dbdb7",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named write_file caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "5380b9922f855582e985490fe4f569ea45a7329ab463af28c5054446ced8d100"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/06-rules-first-no-bash-write-prefix-safe/no-bash-write-prefix-safe/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/06-rules-first-no-bash-write-prefix-safe/no-bash-write-prefix-safe/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        }
+      },
+      "actual_language": "typescript",
+      "repository": "RobertBergman/no-bash-mcp",
+      "condition_review": {
+        "path": "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/condition-review.json",
+        "sha256": "bfaca6e42f45253e9d5a1600966d0a694310bc68217c2d647d8da8f1f1faec5e"
+      }
+    },
+    "lightning-discover-linklocal": {
+      "manifest": "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/manifest.json",
+      "manifest_sha256": "1b12b00fe746d4becf887c5cef5eec0c63c8fccb38027edab836c4b8149337bc",
+      "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/lightning-discover-linklocal.json",
+      "input_ids": [
+        "lightning-discover-linklocal-vulnerable",
+        "lightning-discover-linklocal-fixed",
+        "lightning-discover-linklocal-safe"
+      ],
+      "inputs": {
+        "lightning-discover-linklocal-vulnerable": {
+          "input": {
+            "id": "lightning-discover-linklocal-vulnerable",
+            "family": "lightning-discover-linklocal",
+            "repository": "refined-element/lightning-enable-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "vulnerable",
+            "snapshot": "73a657189a1adae889598da691fce6bd561f49bf",
+            "scan_root": "python/lightning-enable-mcp",
+            "condition": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+            "prerequisites": [
+              "Select the actual Python member python/lightning-enable-mcp and its pyproject entry point, Python>=3.11 and declared official MCP SDK/httpx available under ordinary unmodified startup. The repository is mixed C#/Python; GitHub's dominant C# label is not the execution language.",
+              "Invoke discover_api with url=http://169.254.169.254/fixture.json, query/category absent, budget_aware=false. No wallet or API credentials/configuration are set. Service initialization returns without a wallet and discover_api is explicitly in the wallet-exempt producer_tools set. httpx import succeeds. Environment proxy variables are absent and normal request construction reaches client.get; no network access is performed in this evaluation.",
+              "Safe control substitutes initial literal public host 93.184.216.34. No hostname/DNS behavior, redirects, manifest response validity, registry mode, payments, authentication, successful connection or disclosure is claimed. The fixed helper explicitly documents its DNS rebinding window and allows resolution exceptions; neither becomes a claim of complete SSRF protection."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "python/lightning-enable-mcp/pyproject.toml",
+                "start_line": 1,
+                "end_line": 123,
+                "sha256": "70a6c50bf3f082b0f2f736a82d9017af9def4695f61334b04fa39a1a21508423",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+                "start_line": 1,
+                "end_line": 1210,
+                "sha256": "6f359bab75fccdc83619950dcbd5025d87863b11cf5ead0d20799b091228f3c5",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+                "start_line": 1,
+                "end_line": 520,
+                "sha256": "aa79e726a54eeb5b6454c0f4d43f2ad4dd86478bfe9311d5b49195ee72819331",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/config.py",
+                "start_line": 1,
+                "end_line": 640,
+                "sha256": "f54c32d38e30ff1fc241d3da3dbfc8815243c317bb5799ac31158f49ec1daefc",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-015 on the named discover_api caller url flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "e5df353c3202faf4a657f605a76287a8f4ca31f50a3b986bba406fef56ee2e6a"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/07-rules-first-lightning-discover-linklocal-vulnerable/lightning-discover-linklocal-vulnerable/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/07-rules-first-lightning-discover-linklocal-vulnerable/lightning-discover-linklocal-vulnerable/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        },
+        "lightning-discover-linklocal-fixed": {
+          "input": {
+            "id": "lightning-discover-linklocal-fixed",
+            "family": "lightning-discover-linklocal",
+            "repository": "refined-element/lightning-enable-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "fixed",
+            "snapshot": "a1482dc5402e266e1ba835e6b6ceec85b716a1c3",
+            "scan_root": "python/lightning-enable-mcp",
+            "condition": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+            "prerequisites": [
+              "Select the actual Python member python/lightning-enable-mcp and its pyproject entry point, Python>=3.11 and declared official MCP SDK/httpx available under ordinary unmodified startup. The repository is mixed C#/Python; GitHub's dominant C# label is not the execution language.",
+              "Invoke discover_api with url=http://169.254.169.254/fixture.json, query/category absent, budget_aware=false. No wallet or API credentials/configuration are set. Service initialization returns without a wallet and discover_api is explicitly in the wallet-exempt producer_tools set. httpx import succeeds. Environment proxy variables are absent and normal request construction reaches client.get; no network access is performed in this evaluation.",
+              "Safe control substitutes initial literal public host 93.184.216.34. No hostname/DNS behavior, redirects, manifest response validity, registry mode, payments, authentication, successful connection or disclosure is claimed. The fixed helper explicitly documents its DNS rebinding window and allows resolution exceptions; neither becomes a claim of complete SSRF protection."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "python/lightning-enable-mcp/pyproject.toml",
+                "start_line": 1,
+                "end_line": 123,
+                "sha256": "70a6c50bf3f082b0f2f736a82d9017af9def4695f61334b04fa39a1a21508423",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+                "start_line": 1,
+                "end_line": 1216,
+                "sha256": "0b390a2f93374d4ae5c2b34e21ea93273f6b2d59232967ef6e779eb167e8fcdb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+                "start_line": 1,
+                "end_line": 587,
+                "sha256": "47730fa00b02a816cad9713cc75de711e462f250db1a0b7fd22aa5a76bd3c58b",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/_ssrf_guard.py",
+                "start_line": 1,
+                "end_line": 192,
+                "sha256": "6d3cbb5dc939d0d94bc05774bbb333f51c5e3578d9ad6ae341a3a612ab594bfb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/config.py",
+                "start_line": 1,
+                "end_line": 640,
+                "sha256": "f54c32d38e30ff1fc241d3da3dbfc8815243c317bb5799ac31158f49ec1daefc",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-015 on the named discover_api caller url flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/08-rules-first-lightning-discover-linklocal-fixed/lightning-discover-linklocal-fixed/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/08-rules-first-lightning-discover-linklocal-fixed/lightning-discover-linklocal-fixed/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        },
+        "lightning-discover-linklocal-safe": {
+          "input": {
+            "id": "lightning-discover-linklocal-safe",
+            "family": "lightning-discover-linklocal",
+            "repository": "refined-element/lightning-enable-mcp",
+            "language": "python",
+            "split": "held_out",
+            "variant": "safe_control",
+            "label": "safe",
+            "snapshot": "a1482dc5402e266e1ba835e6b6ceec85b716a1c3",
+            "scan_root": "python/lightning-enable-mcp",
+            "condition": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request. Safe input uses http://93.184.216.34/fixture.json under the stated prerequisites.",
+            "prerequisites": [
+              "Select the actual Python member python/lightning-enable-mcp and its pyproject entry point, Python>=3.11 and declared official MCP SDK/httpx available under ordinary unmodified startup. The repository is mixed C#/Python; GitHub's dominant C# label is not the execution language.",
+              "Invoke discover_api with url=http://169.254.169.254/fixture.json, query/category absent, budget_aware=false. No wallet or API credentials/configuration are set. Service initialization returns without a wallet and discover_api is explicitly in the wallet-exempt producer_tools set. httpx import succeeds. Environment proxy variables are absent and normal request construction reaches client.get; no network access is performed in this evaluation.",
+              "Safe control substitutes initial literal public host 93.184.216.34. No hostname/DNS behavior, redirects, manifest response validity, registry mode, payments, authentication, successful connection or disclosure is claimed. The fixed helper explicitly documents its DNS rebinding window and allows resolution exceptions; neither becomes a claim of complete SSRF protection.",
+              "For this safe record only, replace the scored caller value with http://93.184.216.34/fixture.json. The complete fixed source and static configuration remain unchanged."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "python/lightning-enable-mcp/pyproject.toml",
+                "start_line": 1,
+                "end_line": 123,
+                "sha256": "70a6c50bf3f082b0f2f736a82d9017af9def4695f61334b04fa39a1a21508423",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/server.py",
+                "start_line": 1,
+                "end_line": 1216,
+                "sha256": "0b390a2f93374d4ae5c2b34e21ea93273f6b2d59232967ef6e779eb167e8fcdb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/discover_api.py",
+                "start_line": 1,
+                "end_line": 587,
+                "sha256": "47730fa00b02a816cad9713cc75de711e462f250db1a0b7fd22aa5a76bd3c58b",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/tools/_ssrf_guard.py",
+                "start_line": 1,
+                "end_line": 192,
+                "sha256": "6d3cbb5dc939d0d94bc05774bbb333f51c5e3578d9ad6ae341a3a612ab594bfb",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "python/lightning-enable-mcp/src/lightning_enable_mcp/config.py",
+                "start_line": 1,
+                "end_line": 640,
+                "sha256": "f54c32d38e30ff1fc241d3da3dbfc8815243c317bb5799ac31158f49ec1daefc",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-015 on the named discover_api caller url flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "7e67f3752eec1768302a6599da5db5f13eb9d902434dddb925964e6b4f70bdd9"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/09-rules-first-lightning-discover-linklocal-safe/lightning-discover-linklocal-safe/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/09-rules-first-lightning-discover-linklocal-safe/lightning-discover-linklocal-safe/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        }
+      },
+      "actual_language": "python",
+      "repository": "refined-element/lightning-enable-mcp",
+      "condition_review": {
+        "path": "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/condition-review.json",
+        "sha256": "97447a8f145ecdbbe95ebe29b86cc49daa23ad99685291364ca351d4ad7570e5"
+      }
+    },
+    "engram-export-home": {
+      "manifest": "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/manifest.json",
+      "manifest_sha256": "cf56106577df7b46d545240b30b046ed66f7139652192c514b797d409a30ebd3",
+      "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/engram-export-home.json",
+      "input_ids": [
+        "engram-export-home-vulnerable",
+        "engram-export-home-fixed",
+        "engram-export-home-safe"
+      ],
+      "inputs": {
+        "engram-export-home-vulnerable": {
+          "input": {
+            "id": "engram-export-home-vulnerable",
+            "family": "engram-export-home",
+            "repository": "petersimmons1972/engram",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "vulnerable",
+            "snapshot": "1c08801517b72550bb1e69e05796aa1762d7b7a4",
+            "scan_root": ".",
+            "condition": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+            "prerequisites": [
+              "Ordinary unmodified Python package stdio startup with declared FastMCP and compatible dependencies succeeds. Operator home is /home/operator; stable cwd/environment. ENGRAM_EMBEDDER=none selects NullEmbedder. DATABASE_URL is operator-set for a healthy PostgreSQL database with the normal schema/connection privileges; create_database requires it in BOTH revisions. Database connection/migrations and _get_engine('global') complete under this source prerequisite. No database, target startup, network or model call is performed by this evaluation.",
+              "Caller output_path=/home/operator-exports, an existing writable directory outside home with no symlinks/races/permission denial or conflicting generated timestamp directory. Database is healthy with zero or valid exportable records; dump_all_projects and create_export_readme complete so manifest_path.write_text is reachable. Safe control uses /home/operator/exports with the same prerequisites.",
+              "The condition is this initial export write boundary only. Complete zip/archive behavior, all memory tools, confidentiality of exported data, database access controls and protection against path changes are not labeled. The fixed source resolves a path for checking but later reconstructs the original argument; source equivalence under stated prerequisites is distinguished from actual scanner guard recognition."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/engram/server.py",
+                "start_line": 1,
+                "end_line": 1502,
+                "sha256": "73d8e1b866a95001dd23770e0c1457e07e1b0a936d33a698ed897ed14f9667ce",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/markdown_io.py",
+                "start_line": 1,
+                "end_line": 436,
+                "sha256": "decdbcf53b1cc20b336b12c1e0124264b04900d51e435495a6a724590596b0be",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db.py",
+                "start_line": 1,
+                "end_line": 120,
+                "sha256": "3bba2fbbe6ca9d6fa35e5a08f18c3e3ae9d45bb158b926de94b6beb0200b1584",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/embeddings.py",
+                "start_line": 1,
+                "end_line": 307,
+                "sha256": "bcb12bef6128f2c8756958ed14e83beece5de766b15f3a45cb104ae6cdd961d6",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 84,
+                "sha256": "1abcecb56442098fb51f9c811d2ce0f9f9a055ac0e19020e18fd01a278b611d1",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "LICENSE",
+                "start_line": 1,
+                "end_line": 21,
+                "sha256": "e75c51809eca7c4b4d70d56d5a1e490e03396f2dc84fba5413ad64780948c60a",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db_postgres.py",
+                "start_line": 1,
+                "end_line": 1014,
+                "sha256": "fe34fc5dc54bc018a52f857bccb76c6da4eeb1bdded91a090936fce778707b58",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/search.py",
+                "start_line": 1,
+                "end_line": 422,
+                "sha256": "72998b46df060434144f2398cec0d2b2d13ab2d40359702d23aa546a663d5fb3",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named memory_export_all caller output_path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "488175cfbb8c17b5ad4890ca52223410c15a8322a7d35c27d0216c46f3396f85"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/10-rules-first-engram-export-home-vulnerable/engram-export-home-vulnerable/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/10-rules-first-engram-export-home-vulnerable/engram-export-home-vulnerable/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        },
+        "engram-export-home-fixed": {
+          "input": {
+            "id": "engram-export-home-fixed",
+            "family": "engram-export-home",
+            "repository": "petersimmons1972/engram",
+            "language": "python",
+            "split": "held_out",
+            "variant": "original",
+            "label": "fixed",
+            "snapshot": "1c130bb6482c9b4c7db828553360a60555aeff39",
+            "scan_root": ".",
+            "condition": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+            "prerequisites": [
+              "Ordinary unmodified Python package stdio startup with declared FastMCP and compatible dependencies succeeds. Operator home is /home/operator; stable cwd/environment. ENGRAM_EMBEDDER=none selects NullEmbedder. DATABASE_URL is operator-set for a healthy PostgreSQL database with the normal schema/connection privileges; create_database requires it in BOTH revisions. Database connection/migrations and _get_engine('global') complete under this source prerequisite. No database, target startup, network or model call is performed by this evaluation.",
+              "Caller output_path=/home/operator-exports, an existing writable directory outside home with no symlinks/races/permission denial or conflicting generated timestamp directory. Database is healthy with zero or valid exportable records; dump_all_projects and create_export_readme complete so manifest_path.write_text is reachable. Safe control uses /home/operator/exports with the same prerequisites.",
+              "The condition is this initial export write boundary only. Complete zip/archive behavior, all memory tools, confidentiality of exported data, database access controls and protection against path changes are not labeled. The fixed source resolves a path for checking but later reconstructs the original argument; source equivalence under stated prerequisites is distinguished from actual scanner guard recognition."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/engram/server.py",
+                "start_line": 1,
+                "end_line": 1516,
+                "sha256": "b9ec3d15e3e946dbe672726eeab43992e9a186e488fe23045feb4bc96a28a78b",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/markdown_io.py",
+                "start_line": 1,
+                "end_line": 436,
+                "sha256": "decdbcf53b1cc20b336b12c1e0124264b04900d51e435495a6a724590596b0be",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db.py",
+                "start_line": 1,
+                "end_line": 120,
+                "sha256": "3bba2fbbe6ca9d6fa35e5a08f18c3e3ae9d45bb158b926de94b6beb0200b1584",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/embeddings.py",
+                "start_line": 1,
+                "end_line": 307,
+                "sha256": "bcb12bef6128f2c8756958ed14e83beece5de766b15f3a45cb104ae6cdd961d6",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 84,
+                "sha256": "1abcecb56442098fb51f9c811d2ce0f9f9a055ac0e19020e18fd01a278b611d1",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "LICENSE",
+                "start_line": 1,
+                "end_line": 21,
+                "sha256": "e75c51809eca7c4b4d70d56d5a1e490e03396f2dc84fba5413ad64780948c60a",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db_postgres.py",
+                "start_line": 1,
+                "end_line": 1014,
+                "sha256": "fe34fc5dc54bc018a52f857bccb76c6da4eeb1bdded91a090936fce778707b58",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/search.py",
+                "start_line": 1,
+                "end_line": 422,
+                "sha256": "72998b46df060434144f2398cec0d2b2d13ab2d40359702d23aa546a663d5fb3",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named memory_export_all caller output_path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/11-rules-first-engram-export-home-fixed/engram-export-home-fixed/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/11-rules-first-engram-export-home-fixed/engram-export-home-fixed/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        },
+        "engram-export-home-safe": {
+          "input": {
+            "id": "engram-export-home-safe",
+            "family": "engram-export-home",
+            "repository": "petersimmons1972/engram",
+            "language": "python",
+            "split": "held_out",
+            "variant": "safe_control",
+            "label": "safe",
+            "snapshot": "1c130bb6482c9b4c7db828553360a60555aeff39",
+            "scan_root": ".",
+            "condition": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator. Safe input uses /home/operator/exports under the stated prerequisites.",
+            "prerequisites": [
+              "Ordinary unmodified Python package stdio startup with declared FastMCP and compatible dependencies succeeds. Operator home is /home/operator; stable cwd/environment. ENGRAM_EMBEDDER=none selects NullEmbedder. DATABASE_URL is operator-set for a healthy PostgreSQL database with the normal schema/connection privileges; create_database requires it in BOTH revisions. Database connection/migrations and _get_engine('global') complete under this source prerequisite. No database, target startup, network or model call is performed by this evaluation.",
+              "Caller output_path=/home/operator-exports, an existing writable directory outside home with no symlinks/races/permission denial or conflicting generated timestamp directory. Database is healthy with zero or valid exportable records; dump_all_projects and create_export_readme complete so manifest_path.write_text is reachable. Safe control uses /home/operator/exports with the same prerequisites.",
+              "The condition is this initial export write boundary only. Complete zip/archive behavior, all memory tools, confidentiality of exported data, database access controls and protection against path changes are not labeled. The fixed source resolves a path for checking but later reconstructs the original argument; source equivalence under stated prerequisites is distinguished from actual scanner guard recognition.",
+              "For this safe record only, replace the scored caller value with /home/operator/exports. The complete fixed source and static configuration remain unchanged."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/engram/server.py",
+                "start_line": 1,
+                "end_line": 1516,
+                "sha256": "b9ec3d15e3e946dbe672726eeab43992e9a186e488fe23045feb4bc96a28a78b",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/markdown_io.py",
+                "start_line": 1,
+                "end_line": 436,
+                "sha256": "decdbcf53b1cc20b336b12c1e0124264b04900d51e435495a6a724590596b0be",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db.py",
+                "start_line": 1,
+                "end_line": 120,
+                "sha256": "3bba2fbbe6ca9d6fa35e5a08f18c3e3ae9d45bb158b926de94b6beb0200b1584",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/embeddings.py",
+                "start_line": 1,
+                "end_line": 307,
+                "sha256": "bcb12bef6128f2c8756958ed14e83beece5de766b15f3a45cb104ae6cdd961d6",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "pyproject.toml",
+                "start_line": 1,
+                "end_line": 84,
+                "sha256": "1abcecb56442098fb51f9c811d2ce0f9f9a055ac0e19020e18fd01a278b611d1",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "LICENSE",
+                "start_line": 1,
+                "end_line": 21,
+                "sha256": "e75c51809eca7c4b4d70d56d5a1e490e03396f2dc84fba5413ad64780948c60a",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/db_postgres.py",
+                "start_line": 1,
+                "end_line": 1014,
+                "sha256": "fe34fc5dc54bc018a52f857bccb76c6da4eeb1bdded91a090936fce778707b58",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/engram/search.py",
+                "start_line": 1,
+                "end_line": 422,
+                "sha256": "72998b46df060434144f2398cec0d2b2d13ab2d40359702d23aa546a663d5fb3",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named memory_export_all caller output_path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "4898f27bc5279194004e8b5c3af952e29b57c63c1bbf878e1a6a24e044f10ca7"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/12-rules-first-engram-export-home-safe/engram-export-home-safe/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/12-rules-first-engram-export-home-safe/engram-export-home-safe/configuration.json",
+          "configuration_sha256": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+          "assessment": null
+        }
+      },
+      "actual_language": "python",
+      "repository": "petersimmons1972/engram",
+      "condition_review": {
+        "path": "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/condition-review.json",
+        "sha256": "a792f057f19615d8ee2e010fb709caa2d5f12cb73c8f52fc8ad48f3e42aaa732"
+      }
+    },
+    "faf-read-root": {
+      "manifest": "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/manifest.json",
+      "manifest_sha256": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+      "source_freeze_approval": "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json",
+      "input_ids": [
+        "faf-read-root-vulnerable",
+        "faf-read-root-fixed",
+        "faf-read-root-safe"
+      ],
+      "inputs": {
+        "faf-read-root-vulnerable": {
+          "input": {
+            "id": "faf-read-root-vulnerable",
+            "family": "faf-read-root",
+            "repository": "Wolfe-Jam/faf-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "original",
+            "label": "vulnerable",
+            "snapshot": "6531de40da1b558513c78b1072d195bd9452c016",
+            "scan_root": ".",
+            "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+            "prerequisites": [
+              "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+              "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+              "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 18,
+                "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/server.ts",
+                "start_line": 1,
+                "end_line": 139,
+                "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/tools.ts",
+                "start_line": 1,
+                "end_line": 3302,
+                "sha256": "e4cdc29aec13e3b36d7e960265aeab9b5653d10864dd616f8f278cd55a972f44",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/fileHandler.ts",
+                "start_line": 1,
+                "end_line": 235,
+                "sha256": "7c0894faf669d5ab4fb7b650ed830ae459f67736532b995f11bc925b0fa1a269",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/engine-adapter.ts",
+                "start_line": 1,
+                "end_line": 877,
+                "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 118,
+                "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 33,
+                "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "6656c35fcf0131d63dd5144e5bee4bb92e5994a95c7b8fe5d19845572fe4e7ca"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        },
+        "faf-read-root-fixed": {
+          "input": {
+            "id": "faf-read-root-fixed",
+            "family": "faf-read-root",
+            "repository": "Wolfe-Jam/faf-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "original",
+            "label": "fixed",
+            "snapshot": "ae4a5017e18381116c026f7317b43a6dbdd8df73",
+            "scan_root": ".",
+            "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project.",
+            "prerequisites": [
+              "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+              "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+              "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 18,
+                "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/server.ts",
+                "start_line": 1,
+                "end_line": 139,
+                "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/tools.ts",
+                "start_line": 1,
+                "end_line": 3309,
+                "sha256": "db3fb18155dfdd5b785c0e5d299c41201ea3214b4fd9c5fadad334571c35f29f",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/fileHandler.ts",
+                "start_line": 1,
+                "end_line": 242,
+                "sha256": "86569336023495f86286332eea218bf7232bd9c90cdd1b717cc6d1b140781389",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/engine-adapter.ts",
+                "start_line": 1,
+                "end_line": 877,
+                "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/utils/safe-path.ts",
+                "start_line": 1,
+                "end_line": 180,
+                "sha256": "8d357cd2a4b70724be610debaac9116e65762b1cd4e5a137c4c30926e26430e4",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 118,
+                "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 33,
+                "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "8a35e5e817844c6ab4256620805c6669857462d728a6a41971e9da5aa2be4b86"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/02-rules-first-faf-read-root-fixed/faf-read-root-fixed/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/02-rules-first-faf-read-root-fixed/faf-read-root-fixed/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        },
+        "faf-read-root-safe": {
+          "input": {
+            "id": "faf-read-root-safe",
+            "family": "faf-read-root",
+            "repository": "Wolfe-Jam/faf-mcp",
+            "language": "typescript",
+            "split": "held_out",
+            "variant": "safe_control",
+            "label": "safe",
+            "snapshot": "ae4a5017e18381116c026f7317b43a6dbdd8df73",
+            "scan_root": ".",
+            "condition": "faf_read caller path must not reach fs.readFile outside the operator's configured file-operation root /srv/faf-project. Safe input uses /srv/faf-project/fixture.txt under the stated prerequisites.",
+            "prerequisites": [
+              "Ordinary unmodified package stdio startup succeeds with Node >=18, declared official MCP SDK and compatible dependencies; no target packages are installed or executed here. FAF_ALLOWED_ROOTS=/srv/faf-project is operator-controlled, stable and nonempty. Both project root and requested fixture are existing ordinary directories/files with no symlinks or races.",
+              "Caller supplies {path: /srv/faf-outside/fixture.txt}; the outside regular text file is readable by the process, below 50MiB, not under /etc, /sys, /proc, /private/etc or a temp directory, and contains no '..' path component. Its bytes can be read before any downstream formatting. Safe input supplies /srv/faf-project/fixture.txt instead.",
+              "The configured allowed root is not caller-influenced. No custom filesystem hooks, changed cwd/environment, method replacement, filesystem access denial or concurrent renames. Only initial read confinement is labeled; not all context-file tools, arbitrary deployment roots, symlink-race prevention or runtime safety.",
+              "For this safe record only, replace the scored caller value with /srv/faf-project/fixture.txt. The complete fixed source and static configuration remain unchanged."
+            ],
+            "static_applicability": "Source-established MCP caller and supported operation family; actual scanner dispatch/guard/sink support requires post-evaluation assessment.",
+            "runtime_applicability": "unsupported",
+            "runtime_reason": "Unsupported targeted runtime treatment: TypeScript execution is outside Python stdio support.",
+            "runtime_configuration": null,
+            "evidence": [
+              {
+                "path": "src/index.ts",
+                "start_line": 1,
+                "end_line": 18,
+                "sha256": "783cf79290ddc398eaa43b2a410f29d1ecb44ea222a247c2bc74b5f1b361a8d9",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/server.ts",
+                "start_line": 1,
+                "end_line": 139,
+                "sha256": "c0f4d68db8a9f7a3c549e7de54248620e0f4253df0d482890a358e9988374da2",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/tools.ts",
+                "start_line": 1,
+                "end_line": 3309,
+                "sha256": "db3fb18155dfdd5b785c0e5d299c41201ea3214b4fd9c5fadad334571c35f29f",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/fileHandler.ts",
+                "start_line": 1,
+                "end_line": 242,
+                "sha256": "86569336023495f86286332eea218bf7232bd9c90cdd1b717cc6d1b140781389",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/handlers/engine-adapter.ts",
+                "start_line": 1,
+                "end_line": 877,
+                "sha256": "79d2911582d1fdbaa16b96701f0940f1c2d15c3fe18b4297e270b5d4296f51e8",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "src/utils/safe-path.ts",
+                "start_line": 1,
+                "end_line": 180,
+                "sha256": "8d357cd2a4b70724be610debaac9116e65762b1cd4e5a137c4c30926e26430e4",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "package.json",
+                "start_line": 1,
+                "end_line": 118,
+                "sha256": "0bfcc029a82995c861b59318a8a682ed9a82eab513af7f435d1eeb2dddf61523",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              },
+              {
+                "path": "tsconfig.json",
+                "start_line": 1,
+                "end_line": 33,
+                "sha256": "03c918b15028104673b0b29a10d16e803ab7914b88c57c26cb97cb739ba04e0c",
+                "role": "Complete source-bound caller, guard, actual sink or startup/configuration context; see condition-review.json."
+              }
+            ],
+            "matching": "Require SENT-012 on the named faf_read caller path flowing to the actual scored sink and asserting the frozen boundary violation. Rule/line overlap or generic diagnostics alone do not match.",
+            "parent": null,
+            "transformation": null,
+            "overlay": null,
+            "tree_sha256": "8a35e5e817844c6ab4256620805c6669857462d728a6a41971e9da5aa2be4b86"
+          },
+          "reference_report": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/03-rules-first-faf-read-root-safe/faf-read-root-safe/report.json",
+          "configuration": "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/03-rules-first-faf-read-root-safe/faf-read-root-safe/configuration.json",
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "assessment": null
+        }
+      },
+      "actual_language": "typescript",
+      "repository": "Wolfe-Jam/faf-mcp",
+      "condition_review": {
+        "path": "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/condition-review.json",
+        "sha256": "1c3940de39c993e18b22ecf907335bc15a785a0bfacf518777ecb6e3816de35d"
+      }
+    }
+  },
+  "order": [
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "first",
+      "input_id": "no-bash-write-prefix-vulnerable"
+    },
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "first",
+      "input_id": "no-bash-write-prefix-fixed"
+    },
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "first",
+      "input_id": "no-bash-write-prefix-safe"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "first",
+      "input_id": "lightning-discover-linklocal-vulnerable"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "first",
+      "input_id": "lightning-discover-linklocal-fixed"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "first",
+      "input_id": "lightning-discover-linklocal-safe"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "first",
+      "input_id": "engram-export-home-vulnerable"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "first",
+      "input_id": "engram-export-home-fixed"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "first",
+      "input_id": "engram-export-home-safe"
+    },
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "repeat",
+      "input_id": "no-bash-write-prefix-vulnerable"
+    },
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "repeat",
+      "input_id": "no-bash-write-prefix-fixed"
+    },
+    {
+      "group": "no-bash-write-prefix",
+      "batch": "repeat",
+      "input_id": "no-bash-write-prefix-safe"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "repeat",
+      "input_id": "lightning-discover-linklocal-vulnerable"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "repeat",
+      "input_id": "lightning-discover-linklocal-fixed"
+    },
+    {
+      "group": "lightning-discover-linklocal",
+      "batch": "repeat",
+      "input_id": "lightning-discover-linklocal-safe"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "repeat",
+      "input_id": "engram-export-home-vulnerable"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "repeat",
+      "input_id": "engram-export-home-fixed"
+    },
+    {
+      "group": "engram-export-home",
+      "batch": "repeat",
+      "input_id": "engram-export-home-safe"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "first",
+      "input_id": "faf-read-root-vulnerable"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "first",
+      "input_id": "faf-read-root-fixed"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "first",
+      "input_id": "faf-read-root-safe"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "repeat",
+      "input_id": "faf-read-root-vulnerable"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "repeat",
+      "input_id": "faf-read-root-fixed"
+    },
+    {
+      "group": "faf-read-root",
+      "batch": "repeat",
+      "input_id": "faf-read-root-safe"
+    }
+  ],
+  "files_sha256": {
+    "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/condition-review.json": "1c3940de39c993e18b22ecf907335bc15a785a0bfacf518777ecb6e3816de35d",
+    "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/provenance.json": "9a18a0fff816b07f6d2a3a5eeaba737b1115f797ef16e490058c0bdd797461a0",
+    "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/configurations.json": "3261c62e05decdf9204aa15da0a7ca9cf81e50d4b8abe3d885f808193dd59733",
+    "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/condition-review.json": "bfaca6e42f45253e9d5a1600966d0a694310bc68217c2d647d8da8f1f1faec5e",
+    "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/provenance.json": "5b6f7c28d5ebfc07714dc7e6c1eab148c5a7afdae721088cf0d83c2ec1bac247",
+    "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/configurations.json": "ba2eb5f65707b52d84c32cacc22393b8cdb0c0637bb6422ad7a68ddb62d4de19",
+    "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/condition-review.json": "97447a8f145ecdbbe95ebe29b86cc49daa23ad99685291364ca351d4ad7570e5",
+    "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/provenance.json": "18ebddccdc0fe62f90efa19c963c85af81fbc9235cdb91587f3a3c7d74e501e9",
+    "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/configurations.json": "5f53815f06638e3c2052b2a24fa44db7d44a6fd8b10c417b70d605d5780da382",
+    "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/condition-review.json": "a792f057f19615d8ee2e010fb709caa2d5f12cb73c8f52fc8ad48f3e42aaa732",
+    "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/provenance.json": "01a043b02361b92552edacc90e7100052adcd36fdf3542e6f6e368c4cb54ac3c",
+    "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/configurations.json": "199eadf2c7c28f65f3547177a625c64a3d24bdbd55ecd240ebe8db012bbe5a8b",
+    "artifacts/phase22/corpus-four-fresh-v2/faf-read-root/manifest.json": "e8f54073e45cbdfceafa3400f2fb7ae8c21b56c4443c3fe668791182a3902c2c",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/faf-read-root.json": "3f8d0429d9b1e39bacdb55faf3b27e2b243e685cad1bc5d2bdfcae71382bad81",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/report.json": "a2b05137255901e8e942c467a4717208b25131bcbc519e1783cd4a9cede4b07e",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/01-rules-first-faf-read-root-vulnerable/faf-read-root-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/02-rules-first-faf-read-root-fixed/faf-read-root-fixed/report.json": "398f7a757a6157a35a3ac534890423e8fb8b3e3c2755935347034113e3916c82",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/02-rules-first-faf-read-root-fixed/faf-read-root-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/03-rules-first-faf-read-root-safe/faf-read-root-safe/report.json": "259416195b279177b9c3941ac57f973e12b74199393d35bc227950119f01a8b3",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/03-rules-first-faf-read-root-safe/faf-read-root-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/corpus-four-fresh-v2/no-bash-write-prefix/manifest.json": "2f96c685d9299f4a73d35fb1ec941affab819abfbefb83672ab615b10755eeca",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/no-bash-write-prefix.json": "dc6b543836b7b936b0061bc5c6d7985f5f5dbc84a341b0b0ac0e2b8655853f5d",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/04-rules-first-no-bash-write-prefix-vulnerable/no-bash-write-prefix-vulnerable/report.json": "18453bd399a2f5a9c16c250d1cb4b2b265c78dd0d568237b42a52153ad3fe49f",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/04-rules-first-no-bash-write-prefix-vulnerable/no-bash-write-prefix-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/05-rules-first-no-bash-write-prefix-fixed/no-bash-write-prefix-fixed/report.json": "004ef26c1c2aba33d6128f98fc64b702d5044128c1ce7150f1c1f13ab3c79dcf",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/05-rules-first-no-bash-write-prefix-fixed/no-bash-write-prefix-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/06-rules-first-no-bash-write-prefix-safe/no-bash-write-prefix-safe/report.json": "53dfec5d852be15052b4edac3880915a78e471bc1ce8c85a1876bcb9b2d8fcdb",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/06-rules-first-no-bash-write-prefix-safe/no-bash-write-prefix-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/corpus-four-fresh-v2/lightning-discover-linklocal/manifest.json": "1b12b00fe746d4becf887c5cef5eec0c63c8fccb38027edab836c4b8149337bc",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/lightning-discover-linklocal.json": "a9afef603e58dfca753eedd79250be1b94fbe64dd1ca1a99a37d8b8481597384",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/07-rules-first-lightning-discover-linklocal-vulnerable/lightning-discover-linklocal-vulnerable/report.json": "6976310235f700452cf51575455db478c1bc0899c23be8342e57b01dac1fa711",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/07-rules-first-lightning-discover-linklocal-vulnerable/lightning-discover-linklocal-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/08-rules-first-lightning-discover-linklocal-fixed/lightning-discover-linklocal-fixed/report.json": "fd82535c3fb0d9d66a600ef1a314a989fed7fd8af8c125ff2d240a9a509d0da6",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/08-rules-first-lightning-discover-linklocal-fixed/lightning-discover-linklocal-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/09-rules-first-lightning-discover-linklocal-safe/lightning-discover-linklocal-safe/report.json": "e37640656a7818f2b5e491d2d29d43f2d3fbc50c0e831945d06b6858a48dbfb2",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/09-rules-first-lightning-discover-linklocal-safe/lightning-discover-linklocal-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/corpus-four-fresh-v2/engram-export-home/manifest.json": "cf56106577df7b46d545240b30b046ed66f7139652192c514b797d409a30ebd3",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/authorizations/engram-export-home.json": "5ecff152de16d532ea47e6775419e55f359715115d81aae863b9b64c7b498b43",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/10-rules-first-engram-export-home-vulnerable/engram-export-home-vulnerable/report.json": "36c655fde5061ff29b491c923c03256dcb1f597234f7e479df7d9329c1bda981",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/10-rules-first-engram-export-home-vulnerable/engram-export-home-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/11-rules-first-engram-export-home-fixed/engram-export-home-fixed/report.json": "f91c01797c60f62ee9a4def6451b9b29a7b977d0aa33626fad742a2c199adf98",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/11-rules-first-engram-export-home-fixed/engram-export-home-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/12-rules-first-engram-export-home-safe/engram-export-home-safe/report.json": "efbcbc907e90cd751daf8b93ff60336594d83564a1235d80de0a3a8c35fc39be",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/raw/12-rules-first-engram-export-home-safe/engram-export-home-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/corpus-replacement-v7/manifest.json": "85a6faee15cdd0c4bd4d92135cbcf294d031129dc4cacceb6a31aadaa4bc2c40",
+    "artifacts/phase22/integration/v39-fresh-v7/evaluation-authorization.json": "50c93d87d44530ff67ebf4ff856f6a091bdc60a246c104629fc8f550747cda09",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/01-first-memory-import-path-vulnerable/memory-import-path-vulnerable/report.json": "eaf24e10553e5e0fe3c8345c1285ffc2d6dade40bb7d93a82094a630deb47be0",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/01-first-memory-import-path-vulnerable/memory-import-path-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v40-fresh-v7/raw/01-rules-first-memory-import-path-vulnerable/memory-import-path-vulnerable/report.json": "07b9238932959ca8a0b39c103a69078b62ca55c9de64c2dc4d4f63291e89bb29",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/02-first-memory-import-path-fixed/memory-import-path-fixed/report.json": "5adc6e03e35e5e2450015b6b80387aaa02d2b3b8d58c29daf8048bb2e84e45de",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/02-first-memory-import-path-fixed/memory-import-path-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v40-fresh-v7/raw/02-rules-first-memory-import-path-fixed/memory-import-path-fixed/report.json": "db8be0257f447f0796199737d24865c4909f0fe3d9f9d7fe0534e764c782c35c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/03-first-memory-import-safe/memory-import-safe/report.json": "4c5d575ce0bb9d9db5f09519b7100056c5e4cb155807a5c70ff8060789b5525c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/03-first-memory-import-safe/memory-import-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v40-fresh-v7/raw/03-rules-first-memory-import-safe/memory-import-safe/report.json": "9833414de890f1306c520ef2bd805b5f02b137ee68e237c49da8749b32d85d56",
+    "artifacts/phase22/corpus-replacement-v3/manifest.json": "275c98478617c76f92c6e0450b52c62f370a9ae22386022051b50ee792adffdd",
+    "artifacts/phase22/corpus-replacement-v3/authorization-7555a9d.json": "089f820602d2b81750fe26df394af940f5f3dbacbacdecf8ad7209afa3a7cb11",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/07-first-searxng-default-loopback-vulnerable/searxng-default-loopback-vulnerable/report.json": "4833321b82f6c55c928c722f8d25a33afe329dd08d843040ac0dd30fb5b97ad3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/07-first-searxng-default-loopback-vulnerable/searxng-default-loopback-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/01-first-searxng-default-loopback-vulnerable/searxng-default-loopback-vulnerable/report.json": "b12dbf21209b4b53c5af7a7719591b1cc09c885909cdd3770643e3e0e2afdf4d",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/08-first-searxng-default-loopback-vulnerable-mutation/searxng-default-loopback-vulnerable-mutation/report.json": "23a84f4fd3923f782ede4bc79b96818eab71d61688bbed34feabda3d9f04b5ca",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/08-first-searxng-default-loopback-vulnerable-mutation/searxng-default-loopback-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/02-first-searxng-default-loopback-vulnerable-mutation/searxng-default-loopback-vulnerable-mutation/report.json": "1ea9b76339307d44d77317d028f08fff3dde163b87db0d57782d086fbf272b9c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/09-first-searxng-default-loopback-fixed/searxng-default-loopback-fixed/report.json": "5bd4856fe4253526e4244817b577c536b131b8165c96bbe9dcefae816ebcab84",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/09-first-searxng-default-loopback-fixed/searxng-default-loopback-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/03-first-searxng-default-loopback-fixed/searxng-default-loopback-fixed/report.json": "eed20421917026de5febdcd6872bebd4c5ff56307c15decd47d570e1e8bc6319",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/10-first-searxng-default-loopback-fixed-mutation/searxng-default-loopback-fixed-mutation/report.json": "add475fbc4f9f4a14e8f5eaf3208d1b56283a0fc0f91d14bff4abc1e4bd045ca",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/10-first-searxng-default-loopback-fixed-mutation/searxng-default-loopback-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/04-first-searxng-default-loopback-fixed-mutation/searxng-default-loopback-fixed-mutation/report.json": "158e0fa638a8e1a71d0d9f8fc8a2ebac7a0bed66e90c5728e517e1ce7147e349",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/11-first-searxng-public-ipv4-safe/searxng-public-ipv4-safe/report.json": "797b617a071cf667f98397208cfb950ce2fe2cc877c85eb28cd4c6ae94982942",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/11-first-searxng-public-ipv4-safe/searxng-public-ipv4-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/05-first-searxng-public-ipv4-safe/searxng-public-ipv4-safe/report.json": "10d056ef3a4943015fbd8b2987e261cb5b5d7234a61b81094d72cbe650fbe0f8",
+    "artifacts/phase22/corpus-replacement-v2/manifest.json": "a587427f0c40cbff512f00c8024e454a11255e34a13c10f9d8748bbc4aa9bae2",
+    "artifacts/phase22/corpus-replacement-v2/authorization-62987a6.json": "9a7d13492ade7b6a9115f12b7c392b8b6b2ffbd5a5cb117935a7f60ff523f3cb",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/17-first-fetchmcp-ipv4-loopback-vulnerable/fetchmcp-ipv4-loopback-vulnerable/report.json": "36dce91c400d1287c79b76daf95a856711797f34c182a34711999cf2a5f553b2",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/17-first-fetchmcp-ipv4-loopback-vulnerable/fetchmcp-ipv4-loopback-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/11-first-fetchmcp-ipv4-loopback-vulnerable/fetchmcp-ipv4-loopback-vulnerable/report.json": "624d526ff0bd64793d153083acce3184cb8dd844258d6a820c62e90c587cda74",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/18-first-fetchmcp-ipv4-loopback-vulnerable-mutation/fetchmcp-ipv4-loopback-vulnerable-mutation/report.json": "e538e5e04a510dec7d32af7e76a7ddd9cc6a756cc8801e254d6f3ac1cab1c4e3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/18-first-fetchmcp-ipv4-loopback-vulnerable-mutation/fetchmcp-ipv4-loopback-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/12-first-fetchmcp-ipv4-loopback-vulnerable-mutation/fetchmcp-ipv4-loopback-vulnerable-mutation/report.json": "2fe359e20bd5c9420b2d170067d5a8a4045661a706b8d2a41bc16ad3a1504e83",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/19-first-fetchmcp-ipv4-loopback-fixed/fetchmcp-ipv4-loopback-fixed/report.json": "6b8720e25856bb6c2d56068e1112e90c17e81dafaafd7adeafbce76bb8d014c7",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/19-first-fetchmcp-ipv4-loopback-fixed/fetchmcp-ipv4-loopback-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/13-first-fetchmcp-ipv4-loopback-fixed/fetchmcp-ipv4-loopback-fixed/report.json": "de167b2844bf9846c7001c1f01250f97dfa3bec481f19251485138419ab52a3d",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/20-first-fetchmcp-ipv4-loopback-fixed-mutation/fetchmcp-ipv4-loopback-fixed-mutation/report.json": "1c4c81b5266addc03b7df9310fb0768dab2781fde9e1dbd63ae7456534f6e8ac",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/20-first-fetchmcp-ipv4-loopback-fixed-mutation/fetchmcp-ipv4-loopback-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/14-first-fetchmcp-ipv4-loopback-fixed-mutation/fetchmcp-ipv4-loopback-fixed-mutation/report.json": "da24dc051550a5273ac8e85c58de0a82cb7b4d3f70429f895eb45ab269d26e83",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/21-first-fetchmcp-public-ipv4-safe/fetchmcp-public-ipv4-safe/report.json": "7c9564f7a4d2af4947e8d76b82dcf6701c3e6f671fbee87a69971e2ec0115f7e",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/21-first-fetchmcp-public-ipv4-safe/fetchmcp-public-ipv4-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/15-first-fetchmcp-public-ipv4-safe/fetchmcp-public-ipv4-safe/report.json": "8cc9d33767cadf1d2fe8add960c731cd2dfbdd41084996d6c0fbea4c0c5f6801",
+    "artifacts/phase22/corpus-replacement-v1/manifest.json": "159278d40a7d6fe2faa1c240a26f51009b37cdca30c862d5e9df1d66a6fed0da",
+    "artifacts/phase22/corpus-replacement-v1/authorization.json": "6a8632258f3d409783fb0075baddf9d903dd784ee0e4b15cbb7dce27affdcaae",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/27-first-openwebsearch-mapped-loopback-vulnerable/openwebsearch-mapped-loopback-vulnerable/report.json": "95e8eeb2bf12f3a98f3b9baa5899fa0a3f86688ce1f1960ee841e722fa0b3d54",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/27-first-openwebsearch-mapped-loopback-vulnerable/openwebsearch-mapped-loopback-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/21-first-openwebsearch-mapped-loopback-vulnerable/openwebsearch-mapped-loopback-vulnerable/report.json": "33d6d51e30b5ed09d20a1ecc487a6d5c0b9502cae267597e0c1cf5043ec4dc55",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/28-first-openwebsearch-mapped-loopback-vulnerable-mutation/openwebsearch-mapped-loopback-vulnerable-mutation/report.json": "b4cad00fd2f97fe6fa18973ff97cae4d93eb6c0d0facad7ca5f937b6b9d83893",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/28-first-openwebsearch-mapped-loopback-vulnerable-mutation/openwebsearch-mapped-loopback-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/22-first-openwebsearch-mapped-loopback-vulnerable-mutation/openwebsearch-mapped-loopback-vulnerable-mutation/report.json": "cb6db1854d77655b13b8c49cd67eceb68bbd482b5d966872a7866d33bbc817df",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/29-first-openwebsearch-mapped-loopback-fixed/openwebsearch-mapped-loopback-fixed/report.json": "0a6a555f505c5d42187eedb493de2c691ebd57faf657cd17b0118cb3307942d7",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/29-first-openwebsearch-mapped-loopback-fixed/openwebsearch-mapped-loopback-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/23-first-openwebsearch-mapped-loopback-fixed/openwebsearch-mapped-loopback-fixed/report.json": "d2032214b0dd3c498576ef78a3dc3692d1fa4745c6f8f4677fc77b447b156a84",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/30-first-openwebsearch-mapped-loopback-fixed-mutation/openwebsearch-mapped-loopback-fixed-mutation/report.json": "a942301dfd860332cb6824305ec2f4b530c99b996ff6c4f567ae6dbcba8b14c4",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/30-first-openwebsearch-mapped-loopback-fixed-mutation/openwebsearch-mapped-loopback-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/24-first-openwebsearch-mapped-loopback-fixed-mutation/openwebsearch-mapped-loopback-fixed-mutation/report.json": "8bc06637cbcd9737eab8dfdf7d9d4013f36b3c6ae1bbfce1bf8e648487513434",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/31-first-openwebsearch-public-ipv4-safe/openwebsearch-public-ipv4-safe/report.json": "23b309a61f06680eda71d333683589b32fc7e1eb98943c411bd18d3fe3b9c9e2",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/31-first-openwebsearch-public-ipv4-safe/openwebsearch-public-ipv4-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/25-first-openwebsearch-public-ipv4-safe/openwebsearch-public-ipv4-safe/report.json": "7f1770210faafdd2b1f5a5f7339c7b3c38df6aba35a1bc1037590a7525d1c479",
+    "artifacts/phase22/corpus-replacement-v5/manifest.json": "4990b75b3648a96fef8ee2f23ebd5bda6aae2bce1fef8e0db1b877ef34c09ae6",
+    "artifacts/phase22/integration/v29-loopback-fix/evaluation-authorization.json": "2ddeb9bba57dd95296fd05f2f30200868cb26dc631c080db6fc7e7dd5966ad63",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/37-first-lighthouse-linklocal-vulnerable/lighthouse-linklocal-vulnerable/report.json": "f1932d77f9aec27bd0c705506a3dcd30cdc5271e7bd07d9d7e0fa1fd3ada88df",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/37-first-lighthouse-linklocal-vulnerable/lighthouse-linklocal-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v30-lighthouse-regression/hosted/artifacts/phase22-lighthouse-regression/01-rules-first-lighthouse-linklocal-vulnerable/lighthouse-linklocal-vulnerable/report.json": "85855d271997d9a62a6aedd6a7ba1d059a1a4a9180b23157f09a33cc9411b0c9",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/38-first-lighthouse-linklocal-vulnerable-mutation/lighthouse-linklocal-vulnerable-mutation/report.json": "2140facab22410f457da6c755efbbdca33bf0146a30f1e7cf22cd08cbe709d72",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/38-first-lighthouse-linklocal-vulnerable-mutation/lighthouse-linklocal-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v30-lighthouse-regression/hosted/artifacts/phase22-lighthouse-regression/02-rules-first-lighthouse-linklocal-vulnerable-mutation/lighthouse-linklocal-vulnerable-mutation/report.json": "a8056979714acbd4700cf1a584b1fd2a29ab9b6483f1df38c2843cf916b5dd64",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/39-first-lighthouse-linklocal-fixed/lighthouse-linklocal-fixed/report.json": "93dd5785c88b3ac6da2a387335b32dd209934496a242acd6aae7bd0864f8dfc3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/39-first-lighthouse-linklocal-fixed/lighthouse-linklocal-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v30-lighthouse-regression/hosted/artifacts/phase22-lighthouse-regression/03-rules-first-lighthouse-linklocal-fixed/lighthouse-linklocal-fixed/report.json": "609302942e98eeb4d62032e5322e4e98cea3e9e778860780ee04cedd9c318e19",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/40-first-lighthouse-linklocal-fixed-mutation/lighthouse-linklocal-fixed-mutation/report.json": "15024b27dbff93347b7f3a2841d357782607599a2f746d9518a6ee07791f0d1c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/40-first-lighthouse-linklocal-fixed-mutation/lighthouse-linklocal-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v30-lighthouse-regression/hosted/artifacts/phase22-lighthouse-regression/04-rules-first-lighthouse-linklocal-fixed-mutation/lighthouse-linklocal-fixed-mutation/report.json": "bce425be9a19401b2b9a9c8bbd91dfc7c36602dadcced74014a83ed6d406f23a",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/41-first-lighthouse-public-safe/lighthouse-public-safe/report.json": "529b1432c48d23e6291763ce8d8eb1cc0271aace8acfee899c31fc57eb9fd1f9",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/41-first-lighthouse-public-safe/lighthouse-public-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v30-lighthouse-regression/hosted/artifacts/phase22-lighthouse-regression/05-rules-first-lighthouse-public-safe/lighthouse-public-safe/report.json": "aa4469a52d2bb37d73383e3a51f91d2635c5136ee868c90b95d6177160d436e7",
+    "artifacts/phase22/corpus-review/manifest.json": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+    "artifacts/phase22/authorization.json": "57fefa0fe6a68df3e31e66b9daa15de4e0da7d36137de4c96d20e0dcb7507aa3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/47-first-integsec-calculator-poisoning-vulnerable/integsec-calculator-poisoning-vulnerable/report.json": "0a171363423b70c65454a2defc7533d430cbc9af95cbdbc9ff4331e43cffcca0",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/47-first-integsec-calculator-poisoning-vulnerable/integsec-calculator-poisoning-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/31-compatibility-integsec-calculator-poisoning-vulnerable/integsec-calculator-poisoning-vulnerable/report.json": "402d948c1a1eb8a5a29471e0c9e026546553e1a02a35def6db62ef907e4f5992",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/48-first-integsec-calculator-poisoning-vulnerable-mutation/integsec-calculator-poisoning-vulnerable-mutation/report.json": "b68356b0a7b70353847d12cd246a0bdf9260d1d84617cac5c4b0f48571219e59",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/48-first-integsec-calculator-poisoning-vulnerable-mutation/integsec-calculator-poisoning-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/32-compatibility-integsec-calculator-poisoning-vulnerable-mutation/integsec-calculator-poisoning-vulnerable-mutation/report.json": "e208de7260afd6ce4523906a4b95042d80beb87f0b934f08026c5d5e537f7a43",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/49-first-integsec-calculator-poisoning-fixed/integsec-calculator-poisoning-fixed/report.json": "fcc71f8c72330cefbf7ea7d7e563300272b86152a90f28efef5b8c5b0b421f12",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/49-first-integsec-calculator-poisoning-fixed/integsec-calculator-poisoning-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/33-compatibility-integsec-calculator-poisoning-fixed/integsec-calculator-poisoning-fixed/report.json": "38bfea72b4e92344b9d4125f4d3c13d9b3c8af363927d3c329bbeffb11046f2f",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/50-first-integsec-calculator-poisoning-fixed-mutation/integsec-calculator-poisoning-fixed-mutation/report.json": "8d1febc9ff92cc7a7c6c8cf6dc7fa1ae3ac89116bfac0488bcb372a4722105e6",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/50-first-integsec-calculator-poisoning-fixed-mutation/integsec-calculator-poisoning-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/34-compatibility-integsec-calculator-poisoning-fixed-mutation/integsec-calculator-poisoning-fixed-mutation/report.json": "fba82f08ad682bf654ce3a86c55d3a53d4df31ab6f75438fc9b8f2c1ed6b1d2e",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/51-first-integsec-calculator-poisoning-safe/integsec-calculator-poisoning-safe/report.json": "3ec84673aece9ce80e529ea341e3a68031d1bf8c5eeeb00be9de5defa2857356",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/51-first-integsec-calculator-poisoning-safe/integsec-calculator-poisoning-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/35-compatibility-integsec-calculator-poisoning-safe/integsec-calculator-poisoning-safe/report.json": "1e4a86ab51b6eb4583c49fb1bb06de773d986d23a631ea0be0f76b6b45ea4083",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/52-first-mastra-directory-fallback-vulnerable/mastra-directory-fallback-vulnerable/report.json": "427bcd17b74002c009e9b60bdbc8110d53967dba1b0c5df9ba48de77bfca3ad1",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/52-first-mastra-directory-fallback-vulnerable/mastra-directory-fallback-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/36-compatibility-mastra-directory-fallback-vulnerable/mastra-directory-fallback-vulnerable/report.json": "21efa28cfc3d331e3947079dc5a091557de91f023e5c1c46fd4d7bf24dfcfaa0",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/53-first-mastra-directory-fallback-vulnerable-mutation/mastra-directory-fallback-vulnerable-mutation/report.json": "8fb4cad0ed5c7e42310a3a340c1698a2dbc5eab2b7250e6e735e0db8aadc99b5",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/53-first-mastra-directory-fallback-vulnerable-mutation/mastra-directory-fallback-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/37-compatibility-mastra-directory-fallback-vulnerable-mutation/mastra-directory-fallback-vulnerable-mutation/report.json": "d53e269de491e84a41a8b2c844fa7c558c0ef9ac4547dac14650bd8c68f2c184",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/54-first-mastra-directory-fallback-fixed/mastra-directory-fallback-fixed/report.json": "7706488dcf1fbc6e36d716ae98961f72b892a3f075080e9fe14d5028dc1cb0d5",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/54-first-mastra-directory-fallback-fixed/mastra-directory-fallback-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/38-compatibility-mastra-directory-fallback-fixed/mastra-directory-fallback-fixed/report.json": "4449d24e394f8f9ba1d25146a7c7552224339db14dfec74499af5c3f1fd8075c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/55-first-mastra-directory-fallback-fixed-mutation/mastra-directory-fallback-fixed-mutation/report.json": "580ea9edf6bfb5a177d2456a133dbffb47bbc87add8aface5786589fb344d589",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/55-first-mastra-directory-fallback-fixed-mutation/mastra-directory-fallback-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/39-compatibility-mastra-directory-fallback-fixed-mutation/mastra-directory-fallback-fixed-mutation/report.json": "5783087ef86fe8e310a73611d9bed760c3948a7aa68901bccf1de4a26aa54d95",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/56-first-mastra-directory-fallback-safe/mastra-directory-fallback-safe/report.json": "601f5ea2280c86341cf14a86a6d81c633dc18e513a2dc42e7a7c0734373787f3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/56-first-mastra-directory-fallback-safe/mastra-directory-fallback-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/40-compatibility-mastra-directory-fallback-safe/mastra-directory-fallback-safe/report.json": "c6a3e226fe0cdb87972926aa6068dda0f17946b70e01ef68cf25241b80a31f8a",
+    "tests/evals/phase20/manifest.yaml": "f69d043cab43e5785e7c8a9dae430bcf146c105a0d23d1d77bc4089637377682",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/67-first-filesystem-prefix-vulnerable/filesystem-prefix-vulnerable/report.json": "6e5431e9bf6dfd2f541fbcda71740c5ec84420e28c9275efd8a0a55a6258fd94",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/67-first-filesystem-prefix-vulnerable/filesystem-prefix-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/41-compatibility-filesystem-prefix-vulnerable/filesystem-prefix-vulnerable/report.json": "c65f44f406cbd419adb5c2e3d062d590b01fcb80f2a261a8e13680be5889ef0c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/68-first-filesystem-prefix-vulnerable-mutation/filesystem-prefix-vulnerable-mutation/report.json": "30e102b91093ac232fa2ef8ea6191c3652c52061c15de05ea352b771cb5103b3",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/68-first-filesystem-prefix-vulnerable-mutation/filesystem-prefix-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/42-compatibility-filesystem-prefix-vulnerable-mutation/filesystem-prefix-vulnerable-mutation/report.json": "ab806c36704def287c0ff634f8a846bfc122bfdaf3feaafaa858e44534f03050",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/69-first-filesystem-prefix-fixed/filesystem-prefix-fixed/report.json": "1e656237416a6635e69f985bb7e1d5e0781d468da128292d4f27a9f05967ff52",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/69-first-filesystem-prefix-fixed/filesystem-prefix-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/43-compatibility-filesystem-prefix-fixed/filesystem-prefix-fixed/report.json": "367dafaaba542afe72798257574cb4f21ddb294afa2751151d1e5f69ee688c1a",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/70-first-filesystem-prefix-fixed-mutation/filesystem-prefix-fixed-mutation/report.json": "ff05d5f081aca7bb451c1f180a793b14cd78a265e6c6351d33725eda6f434c40",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/70-first-filesystem-prefix-fixed-mutation/filesystem-prefix-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/44-compatibility-filesystem-prefix-fixed-mutation/filesystem-prefix-fixed-mutation/report.json": "e3e31bb06ae2a597f5e4222c6b9e269b5b73110a56b25a75bf5db90eca186362",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/71-first-mobile-output-vulnerable/mobile-output-vulnerable/report.json": "5ff9d5640b45abfafd5ec4e1986762d66aaa206408e0d10d60d8233f022f93cf",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/71-first-mobile-output-vulnerable/mobile-output-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/45-compatibility-mobile-output-vulnerable/mobile-output-vulnerable/report.json": "bb078a6a20bfe16dc09dbccf113ae3f99bcf1f69d82887d59841f705750326af",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/72-first-mobile-output-vulnerable-mutation/mobile-output-vulnerable-mutation/report.json": "108f001fceba0a6eb91e346c172bb4404e00d32ee8861381a899940e0064a2be",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/72-first-mobile-output-vulnerable-mutation/mobile-output-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/46-compatibility-mobile-output-vulnerable-mutation/mobile-output-vulnerable-mutation/report.json": "f3e413e2271ee10121d5e98f33e6d8bbd2f251274546c7712a045219b5774fa8",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/73-first-mobile-output-fixed/mobile-output-fixed/report.json": "69e18586bd2f8bf1b9d3bd58c6f3905ade7ae5e6f2c2d0f4b4b329969d68e243",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/73-first-mobile-output-fixed/mobile-output-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/47-compatibility-mobile-output-fixed/mobile-output-fixed/report.json": "7172ad0d817ef0bec2c6f8fe1f54c9035519e4db678f969c11448d64637c336f",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/74-first-mobile-output-fixed-mutation/mobile-output-fixed-mutation/report.json": "0395f2d24e14baca761c3c41469eeeb901e86bfb9d8e7a0501e125ad170fcb48",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/74-first-mobile-output-fixed-mutation/mobile-output-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/48-compatibility-mobile-output-fixed-mutation/mobile-output-fixed-mutation/report.json": "1cb3a465c4409eb494c1c576ac5fceee3af799dbb183609bf49a8e1707a98c5d",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/75-first-kubernetes-shell-vulnerable/kubernetes-shell-vulnerable/report.json": "ffa3bf013a84a7739460a8c59532470027403fdfaf5aefb9561084c072f081f2",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/75-first-kubernetes-shell-vulnerable/kubernetes-shell-vulnerable/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/49-compatibility-kubernetes-shell-vulnerable/kubernetes-shell-vulnerable/report.json": "621f0c6de95cd1696ed3c4394850dc4703259c3dca80490ba67ef4fa41c3fc1f",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/76-first-kubernetes-shell-vulnerable-mutation/kubernetes-shell-vulnerable-mutation/report.json": "01bb9603122330db910314f1b6d6f34ed98e4619d7da6ede371f53d5286a7e7a",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/76-first-kubernetes-shell-vulnerable-mutation/kubernetes-shell-vulnerable-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/50-compatibility-kubernetes-shell-vulnerable-mutation/kubernetes-shell-vulnerable-mutation/report.json": "b2a8bbc2d4ec3a0dc981ca4d111996f64850b47a8a3ad56227d1e4004fa1965b",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/77-first-kubernetes-shell-fixed/kubernetes-shell-fixed/report.json": "05d3ae7d198345fc369e0314ccaa5bfd9d25bb54fa5fc3aef083b8ca6818567c",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/77-first-kubernetes-shell-fixed/kubernetes-shell-fixed/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/51-compatibility-kubernetes-shell-fixed/kubernetes-shell-fixed/report.json": "5fe52abc7f7b8a47574331c370c81704ec538ab81d348e4b494c5e4964205923",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/78-first-kubernetes-shell-fixed-mutation/kubernetes-shell-fixed-mutation/report.json": "8c97a1956513cc08d3037e860bcdc34abf7ca66f6a0a22c044f4a01117aa2452",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/78-first-kubernetes-shell-fixed-mutation/kubernetes-shell-fixed-mutation/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/52-compatibility-kubernetes-shell-fixed-mutation/kubernetes-shell-fixed-mutation/report.json": "33b63ad4b3a863a8c2993b9757d1c6b77ec5dee82248936b2acd35d4d7d70883",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/79-first-mobile-locale-safe/mobile-locale-safe/report.json": "dfbaf2ea535b0cd28522733131d98ed12b3446f40eaf2187e871f0db4d36028b",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/79-first-mobile-locale-safe/mobile-locale-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/53-compatibility-mobile-locale-safe/mobile-locale-safe/report.json": "3071d3d7922e4fbe92fb3c5c6afc9be68a058f3c450e7a1df8d95ad53d8807f9",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/80-first-kubernetes-formatting-safe/kubernetes-formatting-safe/report.json": "cb3eae994c77b6e19970ed59d943f41cef4b9c2582e746185aba587616cbf8da",
+    "artifacts/phase22/integration/v42-path-guard-regression/raw/80-first-kubernetes-formatting-safe/kubernetes-formatting-safe/configuration.json": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+    "artifacts/phase22/integration/v31-compatibility/raw/54-compatibility-kubernetes-formatting-safe/kubernetes-formatting-safe/report.json": "3c446018a37390d9be012a72ee9b0ba55eef30eea3d8ede5a251d9534e27bc86",
+    "artifacts/phase22/corpus-replacement-v6/manifest.json": "fe9168acb5462f1d9ba940b57512688606214b4be688181dcaf0140ca74691e3",
+    "artifacts/phase22/integration/v32-fresh-v6/evaluation-authorization.json": "abe02c0cbb9e05f2912e04f4425b3ea60275089cfcf32fad2a89e573d9af72af",
+    "artifacts/phase22/integration/v38-guard-regression/raw/01-first-ddg-cgnat-vulnerable/ddg-cgnat-vulnerable/report.json": "79d3e9bb6bfc910082aa2ef76307efe2687acea1afe314de617c3d350f76f412",
+    "artifacts/phase22/integration/v38-guard-regression/raw/01-first-ddg-cgnat-vulnerable/ddg-cgnat-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/ddg/ddg-cgnat-vulnerable.json": "762574bd857a63c0d3e8526ba916ce4d979eb5a03539ee95e9f8433c800a11be",
+    "artifacts/phase22/integration/v38-guard-regression/raw/02-first-ddg-cgnat-vulnerable-mutation/ddg-cgnat-vulnerable-mutation/report.json": "14338ceec8cf2e5ae33ea1dad0f072f1d5b99384039e4df47852e5970fe35eb2",
+    "artifacts/phase22/integration/v38-guard-regression/raw/02-first-ddg-cgnat-vulnerable-mutation/ddg-cgnat-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/ddg/ddg-cgnat-vulnerable-mutation.json": "a50953a2e1375c43efc279b4b5de17bd7c1b20cc2d3d0652dc80be529009bcab",
+    "artifacts/phase22/integration/v38-guard-regression/raw/03-first-ddg-cgnat-fixed/ddg-cgnat-fixed/report.json": "2aae999cda12805f771f5968eb04fcff1655be88ac11a31ba1848ad7d3dd3c7f",
+    "artifacts/phase22/integration/v38-guard-regression/raw/03-first-ddg-cgnat-fixed/ddg-cgnat-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/ddg/ddg-cgnat-fixed.json": "b0e5954b97673c932d7ae611cb26d48b67cf10575f20a26e0df4028fab6acdd1",
+    "artifacts/phase22/integration/v38-guard-regression/raw/04-first-ddg-cgnat-fixed-mutation/ddg-cgnat-fixed-mutation/report.json": "1f63d837ec04d403aec4e7e27c9f55c9bfc9a60873b6197e0f41fedc9ead118c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/04-first-ddg-cgnat-fixed-mutation/ddg-cgnat-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/ddg/ddg-cgnat-fixed-mutation.json": "4a7e15abd83e9957c6c7a0eb293770d151e0cc8ba11e671fe73c0d32ba858780",
+    "artifacts/phase22/integration/v38-guard-regression/raw/05-first-ddg-public-safe/ddg-public-safe/report.json": "1095c215d074a35d16405cf84da444d58cd62da096b614e34d4abb8e646cab04",
+    "artifacts/phase22/integration/v38-guard-regression/raw/05-first-ddg-public-safe/ddg-public-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/ddg/ddg-public-safe.json": "69d76cd58cea9854f4757d0567fc9a588acbd4ed8ae3e6259515fb75155a0e5e",
+    "artifacts/phase22/integration/v38-guard-regression/raw/11-compatibility-dbt-option-selection-vulnerable/dbt-option-selection-vulnerable/report.json": "0890d7c4c46781a44b4ff725e2592c09d4b91ae217ddec5a82fb8ddb8cc5a8e3",
+    "artifacts/phase22/integration/v38-guard-regression/raw/11-compatibility-dbt-option-selection-vulnerable/dbt-option-selection-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/dbt-option-selection-vulnerable.json": "74e3a233719a2e90ab0dc434900d2ab8a4bfdbf6a4b2835db4101d7a4c2bac6c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/12-compatibility-dbt-option-selection-vulnerable-mutation/dbt-option-selection-vulnerable-mutation/report.json": "7788973b4c9826ba5327e3fd3cb35b05b61da8dce8dd646e013be21703a01ada",
+    "artifacts/phase22/integration/v38-guard-regression/raw/12-compatibility-dbt-option-selection-vulnerable-mutation/dbt-option-selection-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/dbt-option-selection-vulnerable-mutation.json": "f99eb38a48cd93a554fff8faf14e2faa9d57b1fa361034f882aca041883aa008",
+    "artifacts/phase22/integration/v38-guard-regression/raw/13-compatibility-dbt-option-selection-fixed/dbt-option-selection-fixed/report.json": "348ccfb129f318dd7728aabd01a34c643c8df51451ef271e4abd0de325d073f7",
+    "artifacts/phase22/integration/v38-guard-regression/raw/13-compatibility-dbt-option-selection-fixed/dbt-option-selection-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/dbt-option-selection-fixed.json": "f2c6b42adb2231fc3dc8f9173e9aaea825fa9d51233d83a0d64c0030ad530d4a",
+    "artifacts/phase22/integration/v38-guard-regression/raw/14-compatibility-dbt-option-selection-fixed-mutation/dbt-option-selection-fixed-mutation/report.json": "91a4211a25f4ebfdddd7b07b88c637f2e78203c26c5d97e635bba3aed4b9b525",
+    "artifacts/phase22/integration/v38-guard-regression/raw/14-compatibility-dbt-option-selection-fixed-mutation/dbt-option-selection-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/dbt-option-selection-fixed-mutation.json": "cfbf30ce06083f93aa025bde246384de01f962e79c7d9c17e6c63830ecc7d63c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/15-compatibility-dbt-option-selection-safe/dbt-option-selection-safe/report.json": "bb66e0ff0ec959eae456ad3648e80e60974810184aa39c7effcecee8b17611df",
+    "artifacts/phase22/integration/v38-guard-regression/raw/15-compatibility-dbt-option-selection-safe/dbt-option-selection-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/dbt-option-selection-safe.json": "6d9b04ffa11607b16c4a01c0897f9fa5c4f2fe42ff450d85d8c17cdb9a891601",
+    "artifacts/phase22/integration/v38-guard-regression/raw/16-compatibility-meta-image-ssrf-vulnerable/meta-image-ssrf-vulnerable/report.json": "8c31d60fabf5d2f6ed7e7c0dc75e276e777b46e506ae13098db0785a03732414",
+    "artifacts/phase22/integration/v38-guard-regression/raw/16-compatibility-meta-image-ssrf-vulnerable/meta-image-ssrf-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-image-ssrf-vulnerable.json": "e3bb25d87f2d590e1b92543a24ccc2e2df08003901cfc815efba007199f08e18",
+    "artifacts/phase22/integration/v38-guard-regression/raw/17-compatibility-meta-image-ssrf-vulnerable-mutation/meta-image-ssrf-vulnerable-mutation/report.json": "5faaeab9ad54760fed665646b544c3543ee3ce5a0a1f42b8be2a63c43568d500",
+    "artifacts/phase22/integration/v38-guard-regression/raw/17-compatibility-meta-image-ssrf-vulnerable-mutation/meta-image-ssrf-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-image-ssrf-vulnerable-mutation.json": "c93f881a5e329c1c82a355d8942878db189117e4c6778c55eb552c3a632e2435",
+    "artifacts/phase22/integration/v38-guard-regression/raw/18-compatibility-meta-image-ssrf-fixed/meta-image-ssrf-fixed/report.json": "7ffb3d3e2fdcdb5df375dcd5bfe935e72f403e70b26c237ffe7007efcb4340dd",
+    "artifacts/phase22/integration/v38-guard-regression/raw/18-compatibility-meta-image-ssrf-fixed/meta-image-ssrf-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-image-ssrf-fixed.json": "e047511a5347924529891cc07cdc91eacc19801860b0ae1bee8473686f5190d0",
+    "artifacts/phase22/integration/v38-guard-regression/raw/19-compatibility-meta-image-ssrf-fixed-mutation/meta-image-ssrf-fixed-mutation/report.json": "117a1711415e0331d75bbd94c1e07a49b25cc8fa786220db8889233462b4dc68",
+    "artifacts/phase22/integration/v38-guard-regression/raw/19-compatibility-meta-image-ssrf-fixed-mutation/meta-image-ssrf-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-image-ssrf-fixed-mutation.json": "72a49cd8253141d100df51beeac547d02f3a15f63ca3abceee7e84d1611915c6",
+    "artifacts/phase22/integration/v38-guard-regression/raw/20-compatibility-meta-image-ssrf-safe/meta-image-ssrf-safe/report.json": "2173862b2e5d59cfcfcfa61e4a0963f99cb5fb2aaca688bb1130a2527ed4560b",
+    "artifacts/phase22/integration/v38-guard-regression/raw/20-compatibility-meta-image-ssrf-safe/meta-image-ssrf-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-image-ssrf-safe.json": "fe58e0f1a433f74168ea0c5b350fe779052a17665eec16add9c0f94f1f2f46c3",
+    "artifacts/phase22/integration/v38-guard-regression/raw/21-compatibility-meta-operator-fallback-vulnerable/meta-operator-fallback-vulnerable/report.json": "47743ec9943983b01b2b1472bd3b2c1c68a89e974c6e51f3aabe747c668ef7cb",
+    "artifacts/phase22/integration/v38-guard-regression/raw/21-compatibility-meta-operator-fallback-vulnerable/meta-operator-fallback-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-operator-fallback-vulnerable.json": "12629a488c7d1096402952e3dbf9c421ff5a34ab6f8f5289e01761ac27ba891d",
+    "artifacts/phase22/integration/v38-guard-regression/raw/22-compatibility-meta-operator-fallback-vulnerable-mutation/meta-operator-fallback-vulnerable-mutation/report.json": "38005c66f2a8cdc708a6649947b0f9f1643ff98b0a8fccf61a354460d4d8a002",
+    "artifacts/phase22/integration/v38-guard-regression/raw/22-compatibility-meta-operator-fallback-vulnerable-mutation/meta-operator-fallback-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-operator-fallback-vulnerable-mutation.json": "989eb6596cae619cfd3dd695f9e2f2477fda6deb14e079f770bbba7c6310ce71",
+    "artifacts/phase22/integration/v38-guard-regression/raw/23-compatibility-meta-operator-fallback-fixed/meta-operator-fallback-fixed/report.json": "6ae0c631e262f8c65be0bdd7b8425af0b52d62f2a91040cd4b3e13287e49de30",
+    "artifacts/phase22/integration/v38-guard-regression/raw/23-compatibility-meta-operator-fallback-fixed/meta-operator-fallback-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-operator-fallback-fixed.json": "0199e370315d7fdd412b365694ec953f7792aaa3387402305264835d77b7ba62",
+    "artifacts/phase22/integration/v38-guard-regression/raw/24-compatibility-meta-operator-fallback-fixed-mutation/meta-operator-fallback-fixed-mutation/report.json": "af2e8b09eb6380c28ea15ac63c1fbc9db269fd5cf82064b97d4069208af4cbff",
+    "artifacts/phase22/integration/v38-guard-regression/raw/24-compatibility-meta-operator-fallback-fixed-mutation/meta-operator-fallback-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-operator-fallback-fixed-mutation.json": "94e99901ae9f4955a5f6e67632415a7639c7d5be677233a5f28fcb65865717fc",
+    "artifacts/phase22/integration/v38-guard-regression/raw/25-compatibility-meta-operator-fallback-safe/meta-operator-fallback-safe/report.json": "e25433fae1f065d1890aff9a740ef7b7e81629ede2f6ebf6163c593f37deec56",
+    "artifacts/phase22/integration/v38-guard-regression/raw/25-compatibility-meta-operator-fallback-safe/meta-operator-fallback-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/development/meta-operator-fallback-safe.json": "4f3c53f3e3d2a95fde58c9b3ee6617e8615d60ec65014bcf385b24d15ce29478",
+    "artifacts/phase22/integration/v38-guard-regression/raw/26-first-git-staging-vulnerable/git-staging-vulnerable/report.json": "0d2b7742ba5f93342527b371ca8ab7f99d760cc641749b1936dd9a4b54c7569a",
+    "artifacts/phase22/integration/v38-guard-regression/raw/26-first-git-staging-vulnerable/git-staging-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-staging-vulnerable.json": "eb875d3c88d90cde1c3e3acefb7762a95a45c3064afb104805ed48f4993389af",
+    "artifacts/phase22/integration/v38-guard-regression/raw/27-first-git-staging-vulnerable-mutation/git-staging-vulnerable-mutation/report.json": "29dba9923d000f7743c487c6ec0c89ac7195fdc249fd88576a9be2f844f4e1cd",
+    "artifacts/phase22/integration/v38-guard-regression/raw/27-first-git-staging-vulnerable-mutation/git-staging-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-staging-vulnerable-mutation.json": "b6308cbdf071764ddfcb805fa48697f5b6084f5373003a0f523f55d27e7dbc98",
+    "artifacts/phase22/integration/v38-guard-regression/raw/28-first-git-staging-fixed/git-staging-fixed/report.json": "9b4e0916aad41cc2db527b06853c3e0a466c0b95ed8e873a86aa9e3e5b8a503f",
+    "artifacts/phase22/integration/v38-guard-regression/raw/28-first-git-staging-fixed/git-staging-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-staging-fixed.json": "41a527570510de562a1dcc29cfb3ffec301e5a52576789880b7f696d4e1b2a60",
+    "artifacts/phase22/integration/v38-guard-regression/raw/29-first-git-staging-fixed-mutation/git-staging-fixed-mutation/report.json": "8919b479a9b6a266b5f2d83168ae18edf617fe8f1a69e104f571287e449bfda7",
+    "artifacts/phase22/integration/v38-guard-regression/raw/29-first-git-staging-fixed-mutation/git-staging-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-staging-fixed-mutation.json": "314f9db2ea5660cbc26d67661a8037f48dda78d866c1f5c16bc47541d53b772f",
+    "artifacts/phase22/integration/v38-guard-regression/raw/30-first-git-arguments-vulnerable/git-arguments-vulnerable/report.json": "27cd9c76960f3ad225be7b87ec8fa361bb473fd27eadeba6730ff701c33ffd63",
+    "artifacts/phase22/integration/v38-guard-regression/raw/30-first-git-arguments-vulnerable/git-arguments-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-arguments-vulnerable.json": "18d3389d57cee8a1d69f67293c2187ff9fa7a5135ba55a70d1f30b893831ab41",
+    "artifacts/phase22/integration/v38-guard-regression/raw/31-first-git-arguments-vulnerable-mutation/git-arguments-vulnerable-mutation/report.json": "55de812ffc54d8c17a88c8ec35d35fa200441b71f0e19d16a3c7901bcd44291c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/31-first-git-arguments-vulnerable-mutation/git-arguments-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-arguments-vulnerable-mutation.json": "8d8b6a805681fef91ef794bf545b59b0d4b0a33875fbceebe4fe9ed939f1c0e4",
+    "artifacts/phase22/integration/v38-guard-regression/raw/32-first-git-arguments-fixed/git-arguments-fixed/report.json": "67693b2c41cfc1e3e60055b535098d0a27dee00af4854c5b4807aa73e6415683",
+    "artifacts/phase22/integration/v38-guard-regression/raw/32-first-git-arguments-fixed/git-arguments-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-arguments-fixed.json": "ee12653b537833fe79ef3c7ac4bef31803b1e7ec79581d677527dcaf320b61dc",
+    "artifacts/phase22/integration/v38-guard-regression/raw/33-first-git-arguments-fixed-mutation/git-arguments-fixed-mutation/report.json": "de2e6dff60154478fbcfd5785e53bdc97fe3b7b4964a6b20219e9ab574dad9e3",
+    "artifacts/phase22/integration/v38-guard-regression/raw/33-first-git-arguments-fixed-mutation/git-arguments-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-arguments-fixed-mutation.json": "0030059662cc8ad16bc27a81408109a33080d31c672bce7e56da9ca7f160028c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/34-first-git-repository-vulnerable/git-repository-vulnerable/report.json": "08f29f0752c81b7a28196e5fc7b4c582cfeac272a5bc2b0baa1bf4fbe3b0fb2c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/34-first-git-repository-vulnerable/git-repository-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-repository-vulnerable.json": "c1d3abcef6c2a0ea3948ab484defefb2b7e70e24281101029df2d3b404fef017",
+    "artifacts/phase22/integration/v38-guard-regression/raw/35-first-git-repository-vulnerable-mutation/git-repository-vulnerable-mutation/report.json": "1564379571408d9635609279129b891e4a1eb754ada17dd505d092b0cdb61d62",
+    "artifacts/phase22/integration/v38-guard-regression/raw/35-first-git-repository-vulnerable-mutation/git-repository-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-repository-vulnerable-mutation.json": "842a52723634e9d5593a1b7729c4675e944b0ef936deb0d57c589f9adff5a976",
+    "artifacts/phase22/integration/v38-guard-regression/raw/36-first-git-repository-fixed/git-repository-fixed/report.json": "99f8d4fe5ec6bfc662aa495e644fcd8be440f5730f62d1d497fbc1b53eca66ec",
+    "artifacts/phase22/integration/v38-guard-regression/raw/36-first-git-repository-fixed/git-repository-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-repository-fixed.json": "15690fc5ade2f1e1bad68f37154d9b2e9400a8b3ea26e3795898b74ebce76de5",
+    "artifacts/phase22/integration/v38-guard-regression/raw/37-first-git-repository-fixed-mutation/git-repository-fixed-mutation/report.json": "c548989903007505d8658fe9230110b5541177e9d0d5101424b5488d5ec8afff",
+    "artifacts/phase22/integration/v38-guard-regression/raw/37-first-git-repository-fixed-mutation/git-repository-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-repository-fixed-mutation.json": "d02de0ae4ff76d3ad22bd987ee03772ea0d5bb25d1ce0d33987a30fc1b4a3079",
+    "artifacts/phase22/integration/v38-guard-regression/raw/38-first-atlassian-ssrf-vulnerable/atlassian-ssrf-vulnerable/report.json": "ef003d05aeb9908720ccee256dcc3953a0784a884bec9e84d952258c4f894cf9",
+    "artifacts/phase22/integration/v38-guard-regression/raw/38-first-atlassian-ssrf-vulnerable/atlassian-ssrf-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-ssrf-vulnerable.json": "02012e2de2c47bed9a88ae0bd7244ca8aef9afaaf93ea3d29355f738d3fbf551",
+    "artifacts/phase22/integration/v38-guard-regression/raw/39-first-atlassian-ssrf-vulnerable-mutation/atlassian-ssrf-vulnerable-mutation/report.json": "1703b391e0fba82713f59d7d641958367bddc4712b5fc98e01620409a3c22d23",
+    "artifacts/phase22/integration/v38-guard-regression/raw/39-first-atlassian-ssrf-vulnerable-mutation/atlassian-ssrf-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-ssrf-vulnerable-mutation.json": "dcdcf096ae71950250f29c7bc11369e58e32efffa4494b2d307ba8a69fee8c51",
+    "artifacts/phase22/integration/v38-guard-regression/raw/40-first-atlassian-ssrf-fixed/atlassian-ssrf-fixed/report.json": "e59bc48adc8627d72457e27b56c21c6b4ce87c329b0c5b37ef6f641498da11d9",
+    "artifacts/phase22/integration/v38-guard-regression/raw/40-first-atlassian-ssrf-fixed/atlassian-ssrf-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-ssrf-fixed.json": "a0ea2c21b3b74c07517b27951446e062792091a7811b45c0d55d4d6312e1217f",
+    "artifacts/phase22/integration/v38-guard-regression/raw/41-first-atlassian-ssrf-fixed-mutation/atlassian-ssrf-fixed-mutation/report.json": "fa70c55119d89dd80a1890b4d68ea98f65fa0625b8418e69190e05b2a9ad1bbf",
+    "artifacts/phase22/integration/v38-guard-regression/raw/41-first-atlassian-ssrf-fixed-mutation/atlassian-ssrf-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-ssrf-fixed-mutation.json": "24bc306b8bb5f3705e447b8055d5e0a446e13e5ae545b8435728e7635e761e17",
+    "artifacts/phase22/integration/v38-guard-regression/raw/42-first-atlassian-auth-vulnerable/atlassian-auth-vulnerable/report.json": "e7eae669dfe87e8d78daf7450a34ebab25ffc12e6e73ab08346f37d6986450bd",
+    "artifacts/phase22/integration/v38-guard-regression/raw/42-first-atlassian-auth-vulnerable/atlassian-auth-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-auth-vulnerable.json": "da291518052dd53ead8e63fbd71111f75d110aeb70dd6440c9cc6196e0a8bbde",
+    "artifacts/phase22/integration/v38-guard-regression/raw/43-first-atlassian-auth-vulnerable-mutation/atlassian-auth-vulnerable-mutation/report.json": "96290631373c09b107da9803ac87835f073e64fe9fa0f3f7192f68b3869a5be1",
+    "artifacts/phase22/integration/v38-guard-regression/raw/43-first-atlassian-auth-vulnerable-mutation/atlassian-auth-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-auth-vulnerable-mutation.json": "21f43f2ba48129852401a3f8cfd67971130d760abf7e5044c405988b3e697c38",
+    "artifacts/phase22/integration/v38-guard-regression/raw/44-first-atlassian-auth-fixed/atlassian-auth-fixed/report.json": "5ff44abda03eb5db506ec3eff501fcd743c42e05d107e2fb1a33dfdbb46bd4c5",
+    "artifacts/phase22/integration/v38-guard-regression/raw/44-first-atlassian-auth-fixed/atlassian-auth-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-auth-fixed.json": "f88c78d5fa5898ce73af570e32cbd3559955e56e637ad0177dbb1afce6b8bd3c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/45-first-atlassian-auth-fixed-mutation/atlassian-auth-fixed-mutation/report.json": "f4cdbdc69dd70956aacf4baf3530ad47fa5c5f31a6f4f838ef0b7c2b59ded660",
+    "artifacts/phase22/integration/v38-guard-regression/raw/45-first-atlassian-auth-fixed-mutation/atlassian-auth-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-auth-fixed-mutation.json": "8186d39d73cd9954a1f842001dc992f1df5b0d169aa25f88ce085624c83e5a06",
+    "artifacts/phase22/integration/v38-guard-regression/raw/46-first-atlassian-upload-vulnerable/atlassian-upload-vulnerable/report.json": "2cfc4660a4b874bebf65a925c4d46132e454199e13151b4536d6fe5affb07221",
+    "artifacts/phase22/integration/v38-guard-regression/raw/46-first-atlassian-upload-vulnerable/atlassian-upload-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-upload-vulnerable.json": "94803691b21dc9a4577cb176fa08db5aa230b83235fe1ff4e03545551898c5a3",
+    "artifacts/phase22/integration/v38-guard-regression/raw/47-first-atlassian-upload-vulnerable-mutation/atlassian-upload-vulnerable-mutation/report.json": "84268b9577b2664bc6ef99a0034b67cbdfa91311b0bdcafa48bc11282ac25bf7",
+    "artifacts/phase22/integration/v38-guard-regression/raw/47-first-atlassian-upload-vulnerable-mutation/atlassian-upload-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-upload-vulnerable-mutation.json": "4f5ced78b98f0ffa8ed59a41ce3ccfe8667fbcab31d18639b174a9edac7cadf2",
+    "artifacts/phase22/integration/v38-guard-regression/raw/48-first-atlassian-upload-fixed/atlassian-upload-fixed/report.json": "c040f61cc2e9751abf1545ddf50ef824bd7a37b5231454524b70005102fd6397",
+    "artifacts/phase22/integration/v38-guard-regression/raw/48-first-atlassian-upload-fixed/atlassian-upload-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-upload-fixed.json": "7e0fef9946bfdf958fe3f7e58883256c5f305e8b4082c8de9e46b52132f1c7a2",
+    "artifacts/phase22/integration/v38-guard-regression/raw/49-first-atlassian-upload-fixed-mutation/atlassian-upload-fixed-mutation/report.json": "3ddd5f30225c1078ff377110aab0c7ae1cf605989ee25075bab24997325887e5",
+    "artifacts/phase22/integration/v38-guard-regression/raw/49-first-atlassian-upload-fixed-mutation/atlassian-upload-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-upload-fixed-mutation.json": "009905bcedfb50fec201d004b401cc8e33616a86e772a5356443609c392a27f6",
+    "artifacts/phase22/integration/v38-guard-regression/raw/50-first-excel-boundary-vulnerable/excel-boundary-vulnerable/report.json": "d1eb9322ba1a909e3b4ef8661d1bf2263c11c36f18dcc4cfe5c7fda9d6caf8c2",
+    "artifacts/phase22/integration/v38-guard-regression/raw/50-first-excel-boundary-vulnerable/excel-boundary-vulnerable/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/excel-boundary-vulnerable.json": "474ca28afae812073df699ff2d1b6dcc073bb5871114f4e03a024d6e59be4e5d",
+    "artifacts/phase22/integration/v38-guard-regression/raw/51-first-excel-boundary-vulnerable-mutation/excel-boundary-vulnerable-mutation/report.json": "59ff1d9bcd14fe7fabd12759616180ac3da0760fb50d482f309aa3ac97f0f581",
+    "artifacts/phase22/integration/v38-guard-regression/raw/51-first-excel-boundary-vulnerable-mutation/excel-boundary-vulnerable-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/excel-boundary-vulnerable-mutation.json": "e0f1fa0056b6b21e42609ab2bfaef5d32e525ab946d27e939d668421b3ffba8b",
+    "artifacts/phase22/integration/v38-guard-regression/raw/52-first-excel-boundary-fixed/excel-boundary-fixed/report.json": "6eccda50afe7e57f9fcc58df5446962de77696e7dee165c5a6b9be950af4bdf0",
+    "artifacts/phase22/integration/v38-guard-regression/raw/52-first-excel-boundary-fixed/excel-boundary-fixed/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/excel-boundary-fixed.json": "ede4e890679b5b60a43096e2a66025d034c491a0132b96c47083bbfea82c1dc1",
+    "artifacts/phase22/integration/v38-guard-regression/raw/53-first-excel-boundary-fixed-mutation/excel-boundary-fixed-mutation/report.json": "a8a5c1c62323131924c1984a36fadedaf81970b454039d294b98ae599ad23cfc",
+    "artifacts/phase22/integration/v38-guard-regression/raw/53-first-excel-boundary-fixed-mutation/excel-boundary-fixed-mutation/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/excel-boundary-fixed-mutation.json": "479116cd075ab58f9ce7935265317a2ccf6a8bef05584303e1849c4620e605fe",
+    "artifacts/phase22/integration/v38-guard-regression/raw/54-first-git-status-safe/git-status-safe/report.json": "5e57a3c86abc0d5f3bbe9dd1dbb453a9d35596cd9adfe3cc6ce867b33873bd8c",
+    "artifacts/phase22/integration/v38-guard-regression/raw/54-first-git-status-safe/git-status-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/git-status-safe.json": "49605fe083b031003055f555b6a7bc11b17d189fbe97ba35757b09767081eb8f",
+    "artifacts/phase22/integration/v38-guard-regression/raw/55-first-atlassian-download-path-safe/atlassian-download-path-safe/report.json": "c3c057d4668b96a61cef48bd294c37a2cae8601fb68421b5329fa06a1820743e",
+    "artifacts/phase22/integration/v38-guard-regression/raw/55-first-atlassian-download-path-safe/atlassian-download-path-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/atlassian-download-path-safe.json": "5668c0c3c875c63e665b1f8ec06ac4a789d32ada8fb80ebf2e3dfb422dcf9c76",
+    "artifacts/phase22/integration/v38-guard-regression/raw/56-first-excel-child-path-safe/excel-child-path-safe/report.json": "9516cef56473fb4361e3d6a5cd89b6c22b17ac9108fc44234de75156a026973b",
+    "artifacts/phase22/integration/v38-guard-regression/raw/56-first-excel-child-path-safe/excel-child-path-safe/configuration.json": "f996757169ce1597b3c6b052f77b267098080ea4557d5b956c953a79f9f813dd",
+    "artifacts/phase22/integration/v34-fixed-coverage-proposal/references/historical/excel-child-path-safe.json": "3e1ab6096c5a98d479e325f5000423f21a0fe17eaddb685c365200cc6db9b675",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py": "cc5b619723f98ae8eb2ecbde4f2ed3286a0275da34cb8d7d328bd6f62e1541e9",
+    "artifacts/phase22/integration/v20-linux-diagnostic-v1/runner.py": "cd0c7f3038bca2f88428b309de25f8bd19dba747f3c33317a5d3408a99cf71c6",
+    "artifacts/phase22/integration/v43-four-fresh-preparation/scoring-rubric.json": "2d4ff404ecb5c99e4ec344823a2026d8771ecbf5a467d2ce50306ea3ee9b36c0",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/assessment.json": "f895435b935290a69c82ae7a7bc3f0216b31766a201ef72eca7dcade308d52da",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/source-diagnosis.json": "e923a960f4472d56c59ed6aa010c571d706caf3ae34568e3d8e7dcb6cb9a11ef",
+    "artifacts/phase22/integration/v44-four-fresh-evaluation/source-context-assessment.json": "767d56b0b25fde8ae450a0fa263d0c52bdc049efeaaf1cc83976a5a7e2977b25",
+    "artifacts/phase22/integration/v42-path-guard-regression/assessment.json": "47574a534a9a2aadc839e1494b300b5b2c852e984aa9e2048cad13f74823c941",
+    "artifacts/phase22/integration/v42-path-guard-regression/condition-assessment.json": "e94194d43eac8f247874940a60aa4f5f2850af27a4d46148109a2bc6f3e44bbc",
+    "artifacts/phase22/integration/v38-guard-regression/assessment.json": "d561cdfeff0f2ebf65bff850413d61f8a3a0c6c11ee6779a289917eaa9a719d5",
+    "artifacts/phase22/integration/v37-ddg-trace/scoring-rubric.json": "2ce9c863247f28547c4206636bb4d0523c89e049c25c9e787ec4e07de241c3a5",
+    "artifacts/phase22/integration/v41-path-guard-recovery/scoring-rubric.json": "a5b8585b4eb9b9e79234fdaef7e522aa2b07c8b170890bedbbb2bce39fb293c2",
+    "artifacts/phase22/integration/v59-timeout-policy/timeout-confirmation.json": "73c44ec8a14bce4b4571a9afc3d85dac71bdb5db755174a907424f179386ba25",
+    "artifacts/phase22/integration/v72-prototype-property-correction/uncapped.py": "d6a43829e3a91c6908471d1dd09b041626bc77d33f8185d2ea14a746e6098fcd",
+    "artifacts/phase22/integration/v72-prototype-property-correction/evaluate.py": "57442f818ab4d3bce4ee0614bc18bddda61ab84007e6b056906f6c21e39fc32a",
+    "artifacts/phase22/integration/v72-prototype-property-correction/launch.py": "0cf2ea150deaca68487a4b569f0b285d634c7758ea928622bf074afc144503b8",
+    "artifacts/phase22/integration/v72-prototype-property-correction/intake.json": "abc5b92c7139ac093e035c077c777e1047a34b1fab444d3a514ef3f785fb298f",
+    "artifacts/phase22/integration/v72-prototype-property-correction/boundary-checks.json": "f17f65ebc25d9a1f28932a1019630936389b82c82145a9432975691956cac383",
+    "artifacts/phase22/integration/v72-prototype-property-correction/synthetic-equivalence.json": "b655027c8667e4f847308f7fb5bb993dcde67fda4f54a3afcd8be1e9817cd8e5",
+    "artifacts/phase22/integration/v72-prototype-property-correction/scoring-rubric.json": "c0d5082c1e7f8dfdb8c870b410bdf988b00e1da7921b311d66f74c3130508d16",
+    "artifacts/phase22/integration/v72-prototype-property-correction/local-checks.json": "2a4559ce87c6cb4b2aef6eed8dab3810dbb0fa539cbca2a01d14385028e497f2",
+    "artifacts/phase22/integration/v72-prototype-property-correction/freeze.json": "c9ce215fdf400f7bea8b1d790fad8ebd968cd84b598adafe4cee6e3bf7375fc0",
+    "artifacts/phase22/integration/v72-prototype-property-correction/source-assessment.json": "69cd5a60c7387d5079f34a65f4eec79fd689d632f34a6235961252860771eb83",
+    "artifacts/phase22/integration/v72-candidate-quality-audit/packet.json": "3f3a0941b8208624a556aef3bf518e21684f0d9466d0f5f437677e140a45d33e",
+    "artifacts/phase22/integration/v70-uncapped-four-results/final-assessment/assessment.json": "e792d65b85110810ee3895cf27ec4bd013c9f7604d7bd090219a9038686560c4",
+    "artifacts/phase22/integration/v70-uncapped-four-results/delivery-verification.json": "1dae7f6440663e905d26ec7a0f2023532ba36e34f00f12ea4e0e50adc2259309"
+  },
+  "volatile_exclusions": [
+    "applied_at",
+    "completed_at",
+    "duration_ms",
+    "execution_latency_ms",
+    "finding_id",
+    "latency_ms",
+    "origin_latency_ms",
+    "reviewed_at",
+    "scan_id",
+    "started_at",
+    "timestamp"
+  ],
+  "witnesses": {},
+  "gate": "Preserve each original condition-review, label, caller input, actual sink and source prerequisites. Each three-input four-repository batch requires one vulnerable hit and zero matching fixed/safe alerts, with source-established actual sink/guard/value support. Quiet unsupported paths fail. Do not specialize scans to illustrative caller values or use unrelated findings as named hits. All prior source-labeled conditions, narrow qualifiers and support requirements must also pass; final source assessment decides the gates, never execution completion alone. The prior-language requirements remain pending globally; their181observations are outside this24-observation experiment.",
+  "stop": "Continue until24observations complete or the user cancels, or execution/identity/schema/cleanup/entire ordered-repeat validation fails. Detection/condition findings alone do not stop collection. No elapsed-time stop. On any stop, preserve every started/completed outcome and close all unstarted remainder with zero retry budget. A cancelled input may lack a completed timing receipt; retain raw outcome and sequence duration without inventing a completion time.",
+  "scope_justification": "The last24observations completed and exposed two source-established correctness gaps. Both corrections now pass independent scanner-owned and full engineering checks; actual corrected-source results remain unknown. Preserve four-repository-first order:18non-FAF observations followed by6FAF,12inputs twice. All181prior-language observations remain excluded and unapproved; necessary current-source Python/TypeScript compatibility is still a later gate.",
+  "retained_timeout_policy": {
+    "shipped_default_seconds": 1800,
+    "experimental_whole_input_limit_seconds": null,
+    "experimental_sequence_limit_seconds": null,
+    "experimental_semgrep_rule_timeout_seconds": 0,
+    "scope": "Proposed reuse of the verified V69 experiment-only deadline overrides and infinity-to-None subprocess-wait adapter, bound to the new candidate. The normal product source remains1800seconds; finite cleanup and existing worker/resource limits remain unchanged.",
+    "reference": "https://docs.semgrep.dev/cli-reference",
+    "qualification": "A prior-source FAF input took2212.22\u20132341.48seconds in the completed uncapped experiment. That is historical local timing, not an estimate or ceiling for this expanded correctness candidate. Completion here would establish experimental uncapped behavior only, not normal1800-second completion or speedup."
+  },
+  "original_source_bindings": {
+    "four_fresh": "2e0efb2:24 complete,12equal pairs,all4repository gates failed",
+    "typescript": "2e0efb2:94complete/47equal pairs",
+    "python": "8c62567:87complete/36equal pairs",
+    "whole_linux": "1f3f72f:whole25development reuse and45+45historical; retain Meta operator erratum",
+    "immediately_preceding_exposed": "4145d35:24complete/12equal pairs; no-bash and Engram narrow passes, FAF vulnerable miss/unsupported negatives and Lightning negative-qualifier failure. Immutable source/report assessment retained in V70."
+  },
+  "ddg_language_erratum": "The frozen DDG manifest incorrectly says TypeScript. All five actual source/configuration records are Python and remain in the Python group; do not edit the old manifest or relabel historical execution.",
+  "source_freeze_receipts": "Historical approvals bind unchanged source provenance only; all old budgets are closed. This sequence requires a new exact top-level authorization binding this proposal, scanner, rubric, order and bounds before any child can run.",
+  "following_checkpoint": "Source-assess all findings, diagnostics, surfaces and complete ordered differences against original first-frozen and immediately preceding exposed reports. Retain any failure and close all unused observations. Prepare further required compatibility or ordinary correctness work based on actual evidence; no automatic retry, optimization, new measurement budget or technical acceptance.",
+  "not_authorized": [
+    "the pending v68 literal-serialization performance optimization",
+    "the181prior-language observations",
+    "any input beyond these24 or automatic retry/profile/comparator/new repository",
+    "product/default deadline change",
+    "worker/resource increase or new execution environment",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false,
+  "recorded_at": "2026-09-14T13:40:26.149757+00:00",
+  "runtime_policy_sha256": "d6a43829e3a91c6908471d1dd09b041626bc77d33f8185d2ea14a746e6098fcd",
+  "intake_sha256": "abc5b92c7139ac093e035c077c777e1047a34b1fab444d3a514ef3f785fb298f",
+  "prior_exposed_assessment": {
+    "path": "artifacts/phase22/integration/v70-uncapped-four-results/final-assessment/assessment.json",
+    "sha256": "e792d65b85110810ee3895cf27ec4bd013c9f7604d7bd090219a9038686560c4",
+    "source": {
+      "revision": "4145d3559c5300a5003ca8e3368c8da49fb51f91",
+      "source_sha256": "41dd31a167c454bd9db3d720ce75ce6287312ce0e7799bbda1b2e59c61f77ea6",
+      "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+    },
+    "delivery_sha256": "1dae7f6440663e905d26ec7a0f2023532ba36e34f00f12ea4e0e50adc2259309"
+  },
+  "current_engineering": {
+    "local_sha256": "2a4559ce87c6cb4b2aef6eed8dab3810dbb0fa539cbca2a01d14385028e497f2",
+    "hosted_audit_sha256": "3f3a0941b8208624a556aef3bf518e21684f0d9466d0f5f437677e140a45d33e",
+    "freeze_sha256": "c9ce215fdf400f7bea8b1d790fad8ebd968cd84b598adafe4cee6e3bf7375fc0",
+    "source_assessment_sha256": "69cd5a60c7387d5079f34a65f4eec79fd689d632f34a6235961252860771eb83"
+  }
+}

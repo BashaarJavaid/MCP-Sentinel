@@ -1,0 +1,131 @@
+{
+  "status": "prepared_not_approved_not_started",
+  "recorded_at": "2026-09-14T03:18:21.999856+00:00",
+  "starting_delivery": "7d6e01a0e8c9e4e5f81a8fd195599dac6b7aa8ab",
+  "scanner": {
+    "revision": "1948bf942babce155b701f5b22ed941eb16d99d0",
+    "source_sha256": "8f88940210e0f382f8c1cfa1b8af3bf7464ecb891122ae23539de1e4806fc408",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "frozen_checkout": "/private/tmp/mcp-phase22-frozen-1948bf9",
+  "profile_assessment_sha256": "95955626215e7a5591949e9a3fe2074e2b3267b756fafe8ced32ef7d6b9daef8",
+  "source_assessment_sha256": "526b7537bcb69fea4728de7e99113fc2c326c628f10b884008f9f84e815348e6",
+  "target": "Avoid a redundant baseline copy and first-arm union when forming an If invalidation accumulator.",
+  "target_files": [
+    "src/sentinel/static/typescript_path_flow.py"
+  ],
+  "source_files_sha256": {
+    "src/sentinel/static/typescript_path_flow.py": "45da804fa6258bb4fc728acf6f2beaf0266674a043c38c84bb8d830420b1866e",
+    "src/sentinel/static/typescript_registration_flow.py": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+    "src/sentinel/static/typescript_discovery.py": "c46f8f65a40190bb2f722bd1daaa5ffc1bf06db789de60079d053684718afdd3",
+    "src/sentinel/static/path_flow.py": "5eeeb6973abeb45d96b20efd4c4a73d4bfc7da4eb723e8153dc18a955cc7f337",
+    "src/sentinel/static/workers.py": "ecefa91292fbd863fed600b339a8cdf4f94b1a93ba4b7a245941e01f9c692afc",
+    "src/sentinel/static/rules/sent015.py": "ac61d136ebdc4fcaaf7ab0be7129f1dffdc250f302e0366fc6c4899ddaf41a49",
+    "src/sentinel/static/rules/sent016.py": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291",
+    "tests/test_static_workers.py": "f2ac9514a59079fd28743a6adc7a1b54cc1ccd728fad92f159665cfd96c786d2",
+    "tests/test_typescript_discovery.py": "c86d3918b0a980bd9c2a4d8a189a9a37906fdad9dfb8e15f54161d6a9396ac08",
+    "tests/test_typescript_classes.py": "1f3df66a5522b36ce5e8d743108dd23edeea9cad8575882ac0b3f5d768495e64"
+  },
+  "purpose": "The current If path copies its pre-arm invalidation baseline into an accumulator and then unions every feasible arm into it, even though the first arm already starts with an independent copy of that baseline. Final parent leaf samples include this accumulator copy and repeated union. Only those two redundant operations are proposed for removal; sample shares do not establish savings or completion.",
+  "proposed_change": "One source-only change confined to TypeScriptPathFlow.statement If invalidation accumulation: keep the original independent pre-arm baseline and fresh copy before every feasible arm; initialize the result accumulator lazily from the first fully evaluated feasible arm set, then union subsequent evaluated arm sets into it. Include terminating and absent arms exactly as before. If no feasible arm was evaluated, preserve the original fresh baseline-copy fallback. Keep assignment/evaluation order, all guard/statement/environment/merge work and subsequent conditional facts unchanged.",
+  "identity_and_warning_contract": "Preexisting invalidations must remain in the final set, and first-arm escapes must never affect the mutually exclusive arm. Trace every set writer/reset/reader and establish the required monotonicity and alias conditions; do not assume an externally observable or retained alias is safe to mutate. Preserve full environments, all Value fields and interning, every flow field and relevant alias relation, warnings, unresolved flows, registrations, guard/sink support, source-node identity, ordered reports and cleanup. No initial baseline mutation or set sharing across simultaneously evaluated arms.",
+  "implementation_limit": "Only the If result accumulator may change. No changes to per-arm baseline copies, env.copy, guard/condition evaluation, If arm eligibility, Try/loop/function traversal, merge semantics or stopping rules. No new cache, Value/environment/function memoization, AST mutation/pruning, warning suppression, dependency, resource/worker-count or timeout revision. If full state/alias/monotonicity or avoided-work prerequisites fail, preserve and close this one attempt; do not switch targets or silently broaden the contract.",
+  "bounds": {
+    "source_only_optimization_attempts": 1,
+    "corpus_observations": 0,
+    "profiles": 0,
+    "comparators": 0,
+    "retries": 0,
+    "new_repositories": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "runtime_campaigns": 0
+  },
+  "verification": [
+    "Preserve exact tested1948bf9 source and trace all invalidated_objects writes/resets/readers and all If callers/subclasses before editing. Establish why adopting a completed arm cannot mutate any observable retained alias, why preexisting invalidations cannot shrink on eligible source paths, and why the original baseline remains independent.",
+    "Compare complete baseline/candidate Value, environment and entire flow state on existing scanner-owned synthetic ASTs for zero/one/two feasible arms, absent else, true/false/unknown facts, empty/nonempty and large preexisting sets, arm-specific escapes, both arm orders, terminating/throwing arms, nested If/Try/loops/functions/constructors/imported aliases, guard and instance/credential invalidation. Assert second-arm isolation and union of every evaluated arm, including terminating paths. Compare input state and relevant source/set/Value alias identities.",
+    "Retain adversarial invalidation/alias controls and compare partial state after deadline/error/interruption. Do not drop baseline keys or accept narrowing merely because ordinary cases pass. Every production writer/reset must be accounted for; unsupported alias or shrinking behavior fails the prerequisite rather than being excluded.",
+    "Synthetic operation accounting must show the redundant accumulator baseline copy and first-arm union are avoided in eligible cases, while every feasible arm, baseline isolation copy, environment copy, guard, merge and security-state update still executes. This is not a corpus observation, benchmark or native speedup measurement.",
+    "Compare entire ordered registration bindings/warnings/options and all five rules; preserve serial/parallel Python/TypeScript/mixed reports, source-node/file aliases, shared completed discovery, deadline and worker cleanup controls. No exposed corpus is repurposed as a synthetic fixture.",
+    "If the single attempt passes complete equivalence and avoided-work prerequisites, complete affected/full local and all required hosted engineering under prompt section8: strict whole-scope quality, schemas/lock/notices/advisories/offline artifacts, docs/packages/installed-wheel matrix, Docker/isolation/Action/hooks. Regenerate/revalidate all six complete production requests and approved runtime/image compatibility with live transport forbidden. Freeze the actual tested candidate, then prepare separately approved affected regression; no corpus/profile/paid call follows from this approval."
+  ],
+  "profile_metrics": [
+    {
+      "rule": "parent",
+      "samples": 148764,
+      "snapshot_worker_cpu_seconds": 1697.952596,
+      "final_worker_snapshot": true,
+      "signal_and_timer_state_restored": true,
+      "registration_inclusive_samples": 148543,
+      "registration_inclusive_percent": 99.8514425533059,
+      "merge_inclusive_percent": 24.128149283428787,
+      "maximum_observed_depth": 207,
+      "sampling_started_cpu_seconds": 2.104293,
+      "sampling_ended_cpu_seconds": 1697.706161,
+      "retained_cpu_interval_seconds": 1695.848303,
+      "registration_callsite_samples": {
+        "85": 148539,
+        "67": 4
+      },
+      "literal_json_encoder_leaf_samples": 6255,
+      "literal_json_encoder_leaf_percent": 4.204646285391627,
+      "leaf_samples": {
+        "json_encoder": 8600,
+        "merge_equal_predicate": 4758,
+        "combine_entry": 6786
+      },
+      "leaf_percent": {
+        "json_encoder": 5.7809685138877684,
+        "merge_equal_predicate": 3.198354440590465,
+        "combine_entry": 4.56158748084214
+      },
+      "json_encoder_scanner_callers": [
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-1948bf9/src/sentinel/static/typescript_path_flow.py",
+          "function": "expression",
+          "line": 1052,
+          "samples": 6255
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-1948bf9/src/sentinel/static/path_flow.py",
+          "function": "_key",
+          "line": 167,
+          "samples": 2043
+        },
+        {
+          "filename": "/private/tmp/mcp-phase22-frozen-1948bf9/src/sentinel/static/typescript_path_flow.py",
+          "function": "record_state",
+          "line": 912,
+          "samples": 302
+        }
+      ],
+      "if_state_leaf_samples": {
+        "669": 2141,
+        "670": 3747,
+        "676": 7174,
+        "677": 6873,
+        "682": 13032
+      },
+      "if_state_leaf_percent": {
+        "669": 1.4391922777015944,
+        "670": 2.518754537388078,
+        "676": 4.822403269608238,
+        "677": 4.620069371622167,
+        "682": 8.760183915463418
+      }
+    }
+  ],
+  "uncertainty": "Parent leaf counts at statement lines670/676/677/682 identify sampled accumulator-copy, per-arm-copy, env-copy and union sites. Samples do not separate first and later arm unions, count operations/cardinalities or establish removable fractions. Only the accumulator baseline copy and first-arm union are targets; all other copying/merging/traversal remains. No speedup or1800-second completion guarantee.",
+  "preliminary_option": "The earlier unexecuted literal-key-cache preparation is retained in preliminary-literal-key with its initial source assessment and helper bytes. Final source review selected a smaller existing-set change. No literal-cache implementation or approval is requested, and no optimization attempt was consumed.",
+  "retention": "The v64 one-profile budget and all six native regression budgets remain closed. Original fresh failures, invalid v50 attribution/V49 preparation, both singleton failures and all source-bound results remain unchanged and unaccepted where applicable. The1800-second shared policy remains.",
+  "not_authorized": [
+    "another source-only optimization target or attempt",
+    "any corpus/profile/retry/comparator execution",
+    "new cache or dependency/resource/parallelism/deadline policy",
+    "target tests/build/install/endpoints",
+    "paid calls",
+    "merge/ready/release/outreach/Phase23"
+  ],
+  "technical_acceptance_received": false,
+  "phase22_complete": false
+}

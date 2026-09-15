@@ -25,6 +25,7 @@ from sentinel.orchestrator import run_phase1_scan
 from sentinel.report.model import ScanContext, ScanTarget, StaticRuleStatus
 from sentinel.report.sarif import render_sarif
 from sentinel.report.validate_sarif import validate_sarif_data
+from sentinel.static.catalog import RULE_IDS
 from sentinel.static.engine import run_static_scan, select_rule_ids
 from sentinel.static.traversal import MAX_STATIC_FILE_BYTES, collect_static_files
 from tests.conftest import make_target
@@ -46,9 +47,7 @@ def test_reference_fixture_acceptance(fixture: str, expected: list[str]) -> None
 
     assert [finding.rule_id for finding in result.findings] == expected
     assert result.summary.total_matches == len(expected)
-    assert result.summary.selected_rule_ids == tuple(
-        f"SENT-{number:03d}" for number in range(1, 8)
-    )
+    assert result.summary.selected_rule_ids == RULE_IDS
     for finding in result.findings:
         assert finding.status is FindingStatus.NEEDS_REVIEW
         assert isinstance(finding.location, FileLocation)
@@ -81,7 +80,7 @@ def test_phase1_sarif_contains_findings_and_full_rule_catalog() -> None:
     validate_sarif_data(payload)
 
     run = payload["runs"][0]
-    assert len(run["tool"]["driver"]["rules"]) == 7
+    assert [rule["id"] for rule in run["tool"]["driver"]["rules"]] == list(RULE_IDS)
     assert len(run["results"]) == 7
     first = run["results"][0]
     assert first["ruleId"] == "SENT-001"
@@ -92,9 +91,11 @@ def test_phase1_sarif_contains_findings_and_full_rule_catalog() -> None:
 
 
 def test_rule_selection_uses_include_then_exclude_semantics() -> None:
-    assert select_rule_ids(()) == tuple(f"SENT-{number:03d}" for number in range(1, 8))
+    assert select_rule_ids(()) == RULE_IDS
     assert select_rule_ids(("SENT-003", "+SENT-005", "-SENT-003")) == ("SENT-005",)
-    assert select_rule_ids(("-SENT-007",))[-1] == "SENT-006"
+    assert select_rule_ids(("-SENT-007",)) == tuple(
+        rule for rule in RULE_IDS if rule != "SENT-007"
+    )
 
 
 def test_missing_permissions_sidecar_marks_sent001_skipped(tmp_path: Path) -> None:
@@ -230,6 +231,61 @@ def test_other_json_stays_strict(tmp_path: Path) -> None:
         collect_static_files(tmp_path, ())
 
 
+def test_helm_template_retains_secret_checks_and_discloses_yaml_omission(
+    tmp_path: Path,
+) -> None:
+    root = make_target(tmp_path / "target")
+    chart = root / "charts" / "server"
+    template = chart / "templates" / "deployment.yaml"
+    template.parent.mkdir(parents=True)
+    (chart / "Chart.yaml").write_text("apiVersion: v2\nname: server\nversion: 1.0.0\n")
+    source = (
+        "{{- if .Values.enabled }}\nkind: Secret\ndata:\n"
+        "  token: ghp_abcdefghijklmnopqrstuvwxyz1234567890\n{{- end }}\n"
+    )
+    template.write_text(source)
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True}
+    )
+    result = run_static_scan(configuration, uuid4(), timestamp=NOW)
+    assert any(
+        f.rule_id == "SENT-005"
+        and isinstance(f.location, FileLocation)
+        and f.location.path == "charts/server/templates/deployment.yaml"
+        and f.location.range.start_line == 4
+        for f in result.findings
+    )
+    assert any(
+        w.code == "static_helm_template_unparsed"
+        and "charts/server/templates/deployment.yaml" in w.message
+        for w in result.warnings
+    )
+    assert template.read_text() == source
+
+
+@pytest.mark.parametrize(
+    "name", ["values.yaml", "sentinel.target.yaml", "sentinel.permissions.yaml"]
+)
+def test_helm_does_not_relax_ordinary_or_sentinel_yaml(
+    tmp_path: Path, name: str
+) -> None:
+    (tmp_path / "Chart.yaml").write_text("apiVersion: v2\nname: server\n")
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    directory = tmp_path if name == "values.yaml" else templates
+    (directory / name).write_text("value: {{ .Values.secret }}\n")
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
+def test_template_directory_without_chart_is_strict(tmp_path: Path) -> None:
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    (templates / "deployment.yaml").write_text("{{- if .Values.enabled }}\n")
+    with pytest.raises(UsageError, match="cannot parse configuration"):
+        collect_static_files(tmp_path, ())
+
+
 def test_traversal_rejects_oversized_supported_file(tmp_path: Path) -> None:
     (tmp_path / "large.py").write_text(
         "x" * (MAX_STATIC_FILE_BYTES + 1), encoding="utf-8"
@@ -261,3 +317,93 @@ def test_rule_specific_configuration_is_strict() -> None:
         Sent006Config(public_routes=("/health",))
     with pytest.raises(ValidationError):
         Sent005AllowlistEntry(path="../escape", fingerprint="x", reason=" ")
+
+
+@pytest.mark.parametrize(
+    "elapsed", [30.0, 120.0, 120.001, 299.0, 300.001, 1799.0, 1800.0, 1800.001]
+)
+def test_static_budget_allows_extended_time_but_stops_at_hard_limit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, elapsed: float
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static import engine
+    from sentinel.static.model import RuleRunState, StaticContext
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True, "rules": ["SENT-003"]}
+    )
+    clock = [1000.0]
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: clock[0])
+    monkeypatch.setattr(engine, "run_semgrep", lambda *a, **kw: {})
+    observed: list[float] = []
+
+    def analyze(
+        context: StaticContext, selected: tuple[str, ...]
+    ) -> dict[str, RuleRunState]:
+        observed.append(context.deadline)
+        clock[0] += elapsed
+        return {}
+
+    monkeypatch.setattr(engine, "run_flow_rules", analyze)
+    if elapsed > 1800:
+        with pytest.raises(InfrastructureError, match="deadline"):
+            engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
+    else:
+        result = engine.run_static_scan(configuration, uuid4(), timestamp=NOW)
+        assert result.summary.duration_ms == round(elapsed * 1000)
+        assert not result.incomplete
+    assert observed == [2800.0]
+
+
+@pytest.mark.parametrize("deadline", [0.0, 1005.0, 2000.0, 3000.0])
+def test_static_scan_preserves_shorter_deadline_and_caps_longer_one(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, deadline: float
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.static import engine
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True}
+    )
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: 1000.0)
+    seen: list[float] = []
+
+    def stop(*args: object, deadline: float, **kwargs: object) -> dict[str, object]:
+        seen.append(deadline)
+        raise InfrastructureError("deadline captured")
+
+    monkeypatch.setattr(engine, "run_semgrep", stop)
+    with pytest.raises(InfrastructureError, match="deadline"):
+        engine.run_static_scan(configuration, uuid4(), timestamp=NOW, deadline=deadline)
+    assert seen == [min(deadline, 2800.0)]
+
+
+def test_static_report_assembly_cannot_return_success_after_deadline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from sentinel.errors import InfrastructureError
+    from sentinel.report.coverage import StaticCoverage
+    from sentinel.static import engine
+    from sentinel.static.model import RuleRunState, StaticContext
+
+    root = make_target(tmp_path / "target")
+    configuration = load_configuration(
+        root, environ={}, cli_overrides={"rules_only": True, "rules": ["SENT-003"]}
+    )
+    clock = [1000.0]
+    monkeypatch.setattr("sentinel.static.engine.time.monotonic", lambda: clock[0])
+    monkeypatch.setattr(engine, "run_semgrep", lambda *a, **kw: {})
+    from sentinel.static.coverage import inventory as original
+
+    def inventory(
+        context: StaticContext, states: dict[str, RuleRunState]
+    ) -> StaticCoverage:
+        result = original(context, states)
+        clock[0] = 2800.001
+        return result
+
+    monkeypatch.setattr(engine, "inventory", inventory)
+    with pytest.raises(InfrastructureError, match="deadline"):
+        engine.run_static_scan(configuration, uuid4(), timestamp=NOW)

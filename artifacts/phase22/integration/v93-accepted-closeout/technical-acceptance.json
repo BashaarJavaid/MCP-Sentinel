@@ -1,0 +1,1728 @@
+{
+  "recorded_at": "2026-09-15T05:15:50.766746+00:00",
+  "approved": true,
+  "user_decision": "approved",
+  "approval_question": "Do you explicitly accept Phase 22 technical completion under the V92 proposal, including all24remaining documented limitations,FAF unestablished30-minute completion,V68remaining unimplemented,and existing deferrals? After acceptance,I will finish verified final closeout delivery.",
+  "decision_context": "Latest approved directly answers the delivered complete V92technical acceptance question. This is explicit human Phase22technical acceptance under the revised scope, distinct from prior Proxmox-only limitation approval and numerical approvals.",
+  "acceptance_proposal_sha256": "f2030fbd48c225a008e1a62ef1d2c5e603df66a96cbba09db7ebfe19287be239",
+  "accepted_proposal": "artifacts/phase22/integration/v92-technical-acceptance/acceptance-proposal.json",
+  "delivered_head": "792d92216c0bb7268b6757c61c5133676a1c7509",
+  "delivery_verification_sha256": "0a724a875aa8e6d55c7cc52a76194738ebd72d838796f3c1f41314530432c621",
+  "documentation_binding_sha256": "0601837b503a0b78a15e561dbde9cb5a4e04f8c206612b4c629cd9b22e0cf937",
+  "accepted_evidence_seal_sha256": "e8ecad47017d3bb1dce5433997b8646a12521eb26569ee4773aab834ca371d7b",
+  "scanner": {
+    "revision": "5142a3fbd5bcff63719df6cce3a30543214e7d27",
+    "source_sha256": "b1f044ed710e9997a9572ad3a28dcce01254dc0134bb638a53334541160a8f77",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "measured_sources_and_outcomes": {
+    "V80": {
+      "scanner": "cec0322",
+      "completed": 12,
+      "pairs": 6,
+      "taskwarrior_gate": true,
+      "proxmox_gate": false,
+      "exposure": "first-frozen"
+    },
+    "V87": {
+      "scanner": "884d376",
+      "completed": 111,
+      "pairs": 48,
+      "qualified": 105,
+      "proxmox_failed": 6,
+      "exposure": "exposed"
+    },
+    "V90": {
+      "scanner": "5142a3f",
+      "completed": 6,
+      "pairs": 3,
+      "vulnerable_detected": 0,
+      "vulnerable_total": 2,
+      "supported_negatives": 0,
+      "negative_total": 4,
+      "proxmox_limitation_accepted": true,
+      "exposure": "exposed"
+    },
+    "V73": {
+      "scanner": "cec0322",
+      "completed": 24,
+      "pairs": 12,
+      "narrow_gates": 4,
+      "FAF_policy": "explicitly approved experiment-only uncapped"
+    },
+    "V75": {
+      "scanner": "cec0322",
+      "completed": 181,
+      "pairs": 83,
+      "typescript": 94,
+      "python": 87,
+      "nominal_fixed_operator_errata": 2
+    },
+    "interpretation": "Separate source-bound approved schedules with overlapping records; no pooled independent denominator, new wholeLinuxcampaign or broad accuracy claim.105V87observations retain exact unaffected execution-path proof."
+  },
+  "engineering_source": "5142a3fbd5bcff63719df6cce3a30543214e7d27",
+  "hosted_ci_runs": [
+    "34922354713",
+    "34922354718"
+  ],
+  "hosted_merge_checkout": "792f4390ea6a3d1886a4a42c4a9a8391345c6f0a",
+  "hosted_candidate_tree": "dbbced0017c635205db51b1b4ec2b6c0713c3279",
+  "newly_accepted_limitation_ids": [
+    "R66",
+    "R88",
+    "V14-RETENTION",
+    "V21-SEQUENCE",
+    "V21-FRESH-PROPOSAL",
+    "V25-EXPOSED-REGRESSION",
+    "V27-REGRESSION",
+    "V39-EVALUATION",
+    "V44-FOUR-GATE",
+    "V46-REGRESSION-GATE",
+    "V49-DIAGNOSTIC-PREPARATION",
+    "V49-REGRESSION-GATE",
+    "V53-REGRESSION-GATE",
+    "V55-EQUIVALENCE",
+    "V56-EQUIVALENCE",
+    "V58-REGRESSION-GATE",
+    "V60-REGRESSION-GATE",
+    "V63-REGRESSION-GATE",
+    "V65-EQUIVALENCE",
+    "V67-REGRESSION-GATE",
+    "V68-OPT-DECISION",
+    "V70-FOUR-GATE",
+    "V76-FAF-DEADLINE",
+    "V78-METADATA-FAILURE"
+  ],
+  "already_accepted_proxmox_limitation_ids": [
+    "V79-EVALUATION",
+    "V80-PROXMOX-GATE",
+    "V86-REGRESSION",
+    "V87-PROXMOX-GATE",
+    "V89-REGRESSION",
+    "V90-PROXMOX-GATE"
+  ],
+  "proxmox_acceptance_receipt_sha256": "1c20b692c0c8764d27936f8271c31200fbed3085e9f0b75071945bafe8be8087",
+  "accepted_proposed_limitation_dispositions": [
+    {
+      "id": "R66",
+      "requirement": "Fresh holdout outside tuning, separate results/no invented threshold",
+      "disposition": "proposed documented limitation awaiting decision",
+      "source_and_test_files": [
+        "scripts/phase20_corpus.py",
+        "scripts/phase20_measurements.py",
+        "scripts/phase20_review.py",
+        "scripts/phase20_scoring.py",
+        "scripts/phase22_corpus.py",
+        "tests/test_phase20.py",
+        "tests/test_phase20_measurements.py",
+        "tests/test_phase22_corpus.py"
+      ],
+      "current_tests": {
+        "tests/test_phase20.py": {
+          "passed": 35
+        },
+        "tests/test_phase20_measurements.py": {
+          "passed": 13
+        },
+        "tests/test_phase22_corpus.py": {
+          "passed": 8
+        }
+      },
+      "prior_requirement_record_sha256": "f438ea865b25068ce134376c05fea9d736e434e7a1664fd6359e89e7be384e0f",
+      "historical_assessment": {
+        "audit": "v33-fresh-v6/audit.json",
+        "text": "Replacement-v6 is a new repository absent from seven prior manifests/96source trees, selected after immutablef85a90f freeze and evaluated only after exact user yes receipt. All15observations completed and source-assessed, native2/2 correlated vulnerable hits per batch,0/3matching negative alerts,5ordered repeats. The frozen output threshold passes; scanner recognition of the fixed guard is not established because send is unsupported. That separate limitation is proposed for explicit acceptance inV33-FIXED-COVERAGE. Original1f Lighthouse and original heldout misses remain unchanged; no broad generalization or independent human review.",
+        "disposition": "passed"
+      },
+      "evidence": [
+        "artifacts/phase22/integration/v9-current-source-test-bindings/packet.json",
+        "artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json",
+        "artifacts/phase22/integration/v9-fresh-staging-preflight.json",
+        "artifacts/phase22/integration/v10-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v10-source-compatibility.json",
+        "artifacts/phase22/integration/v9-fresh-assessment/packet.json",
+        "artifacts/phase22/integration/v10-fresh-review.md",
+        "artifacts/phase22/integration/v12-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v13-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v14-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v15-source-verification.json",
+        "artifacts/phase22/integration/v16-source-verification.json",
+        "artifacts/phase22/integration/v17-source-verification.json",
+        "artifacts/phase22/integration/v18-source-verification.json",
+        "artifacts/phase22/integration/v18-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v19-source-verification.json",
+        "artifacts/phase22/integration/v19-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v20-source-verification.json",
+        "artifacts/phase22/integration/v20-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v21-source-verification.json",
+        "artifacts/phase22/integration/v21-hosted-audit/packet.json",
+        "artifacts/phase22/corpus-replacement-v4/evaluation-proposal.json",
+        "artifacts/phase22/integration/v21-fresh-proposal-verification.json",
+        "artifacts/phase22/integration/v22-source-verification.json",
+        "artifacts/phase22/integration/v23-v5-compatible-reuse.json",
+        "artifacts/phase22/integration/v23-freshness-assessment.json",
+        "artifacts/phase22/integration/v23-fresh-v4/recovery-proposal.json",
+        "artifacts/phase22/integration/v23-source-only-recovery-authorization.json",
+        "artifacts/phase22/corpus-replacement-v5/preparation.json",
+        "artifacts/phase22/integration/v24-fresh-v5/compatible-reuse.json",
+        "artifacts/phase22/integration/v23-fresh-v5/authorization.json",
+        "artifacts/phase22/integration/v23-fresh-v5/binding.json",
+        "artifacts/phase22/integration/v24-fresh-v5/assessment.json",
+        "artifacts/phase22/integration/v24-fresh-v5/limitation-proposal.json",
+        "artifacts/phase22/integration/v25-final-quality/packet.json",
+        "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+        "artifacts/phase22/integration/v25-final-full-suite.json",
+        "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+        "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+        "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+        "artifacts/phase22/integration/v27-quality/packet.json",
+        "artifacts/phase22/integration/v27-quality-audit/packet.json",
+        "artifacts/phase22/integration/v27-full-suite.json",
+        "artifacts/phase22/integration/v27-full-suite-junit.xml",
+        "artifacts/phase22/integration/v27-full-suite-coverage.json",
+        "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+        "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+        "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+        "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+        "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+        "artifacts/phase22/integration/v29-quality/packet.json",
+        "artifacts/phase22/integration/v29-quality-audit/packet.json",
+        "artifacts/phase22/integration/v29-full-suite.json",
+        "artifacts/phase22/integration/v29-full-suite-junit.xml",
+        "artifacts/phase22/integration/v29-full-suite-coverage.json",
+        "artifacts/phase22/integration/v29-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v29-loopback-fix/compatibility.json",
+        "artifacts/phase22/integration/v29-loopback-fix/local-source-binding.json",
+        "artifacts/phase22/integration/v29-loopback-fix/local-checks.json",
+        "artifacts/phase22/integration/v29-loopback-fix/correction.json",
+        "artifacts/phase22/integration/v29-loopback-fix/check-failure-assessment.json",
+        "artifacts/phase22/integration/v29-loopback-fix/evaluation-proposal.json",
+        "artifacts/phase22/integration/v29-loopback-fix/source-compatibility-scope.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/source-assessment.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/retained-source-deltas.json",
+        "artifacts/phase22/integration/v27-constructor-fix/evaluation-authorization.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/source-assessment.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/retained-source-deltas.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/validation.json",
+        "artifacts/phase22/integration/v29-loopback-fix/evaluation-authorization.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-proposal.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/source-proof.json",
+        "artifacts/phase22/integration/v31-compatibility/assessment.json",
+        "artifacts/phase22/integration/v31-compatibility/source-assessment.json",
+        "artifacts/phase22/integration/v31-compatibility/validation.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-authorization.json",
+        "artifacts/phase22/integration/v32-fresh-v6/scope-and-precuration-freeze.json",
+        "artifacts/phase22/integration/v32-fresh-v6/evaluation-proposal.json",
+        "artifacts/phase22/integration/v33-fresh-v6/assessment.json",
+        "artifacts/phase22/integration/v32-fresh-v6/evaluation-authorization.json",
+        "artifacts/phase22/integration/v34-import-quality/packet.json",
+        "artifacts/phase22/integration/v34-import-quality-audit/packet.json",
+        "artifacts/phase22/integration/v34-import-full-suite.json",
+        "artifacts/phase22/integration/v34-import-full-suite-junit.xml",
+        "artifacts/phase22/integration/v34-import-full-suite-coverage.json",
+        "artifacts/phase22/integration/v34-import-binding/local-source-binding.json",
+        "artifacts/phase22/integration/v34-import-binding/local-checks.json",
+        "artifacts/phase22/integration/v34-import-binding/compatibility.json",
+        "artifacts/phase22/integration/v34-import-binding/source-proof.json",
+        "artifacts/phase22/integration/v34-import-binding/freeze.json",
+        "artifacts/phase22/integration/v34-import-binding/evaluation-proposal.json",
+        "artifacts/phase22/integration/v34-import-binding/scoring-rubric.json",
+        "artifacts/phase22/integration/v34-import-binding/check-failure-assessment.json",
+        "artifacts/phase22/integration/v34-fixed-coverage-proposal/implementation-authorization.json",
+        "artifacts/phase22/integration/v35-ddg-regression/assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/finding-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/other-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/validation.json",
+        "artifacts/phase22/integration/v35-ddg-regression/recovery-proposal.json",
+        "artifacts/phase22/integration/v36-guard-recovery/authorization.json",
+        "artifacts/phase22/integration/v36-guard-recovery/assessment.json",
+        "artifacts/phase22/integration/v36-guard-recovery/synthetic-source-retention.json",
+        "artifacts/phase22/integration/v36-guard-recovery/diagnostic-proposal.json",
+        "artifacts/phase22/integration/v36-guard-recovery/scoring-rubric.json",
+        "artifacts/phase22/integration/v36-guard-recovery/trace-selfcheck.json",
+        "artifacts/phase22/integration/v36-guard-recovery/runner-selfcheck.json",
+        "artifacts/phase22/integration/v36-guard-recovery/worktree-restoration.json",
+        "artifacts/phase22/integration/v36-guard-recovery/evidence-restoration.json",
+        "artifacts/phase22/integration/v37-ddg-trace/diagnostic-assessment.json",
+        "artifacts/phase22/integration/v37-ddg-trace/raw/packet.json",
+        "artifacts/phase22/integration/v37-ddg-trace/freeze.json",
+        "artifacts/phase22/integration/v37-ddg-trace/local-checks.json",
+        "artifacts/phase22/integration/v37-ddg-trace/compatibility.json",
+        "artifacts/phase22/integration/v37-ddg-trace/source-proof.json",
+        "artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json",
+        "artifacts/phase22/integration/v37-ddg-trace/scoring-rubric.json",
+        "artifacts/phase22/integration/v37-ddg-trace/check-failure-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/validation.json",
+        "artifacts/phase22/integration/v38-guard-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/finding-source-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/other-source-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/coverage-source-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/guard-source-proof.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Original held-out10complete/10unsupported/5incomplete;0hits among4completed vulnerable of10total. Exposed corrections do not establish unseen-source accuracy. Explicit human acceptance remains required.",
+      "interpretation": "94/94 exposed TypeScript observations at2e0efb2 pass,47 whole ordered repeats. Memory-keeper vulnerable hit twice and0matching fixed/control alerts; guard/read source-assessed,4false-alert occurrences removed,allotherreportcontent equal references. Python87 reuse retains8c62567. Original fresh false positives/misses and Git312/1040 remain; explicit technical acceptance pending.",
+      "prior_v31_assessment": {
+        "disposition": "proposed documented limitation awaiting decision",
+        "assessment": "Independent-repository replacement-v5 was frozen after1f3f72f stabilization and evaluated under exact approval:15completed observations,0/2 vulnerable hits in each native batch and comparator. The implementation agent curated/reviewed it;no independent human or unseen-source review. Subsequentf85a90f correction passes10 exposed observations. Proposed acceptance retains the fresh misses as a documented detection/generalization limitation;it does not turn them into hits or claim a fresh result atf85a90f. A new fresh evaluation is not executed or silently substituted."
+      },
+      "prior_v32_assessment": {
+        "disposition": "unresolved",
+        "assessment": "First-frozen detection on another previously unused repository is now an explicit acceptance prerequisite. Preserve original1f3f72f Lighthouse misses and later exposedf85a90f passes. The newf85a90f DDG pair is source-prepared, novel across seven prior manifests/96trees, but has zero observations and requires exact evaluation approval. Same-source tuning cannot satisfy this gate."
+      },
+      "historical_v34_assessment": {
+        "disposition": "passed",
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred."
+      },
+      "historical_v35_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v36_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v37_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v38_assessment": {
+        "assessment": "The independent-repository DDG first-frozen evaluation atf85a90f remains10native+5Semgrep,2/2 vulnerable native hits per batch and0matching negatives; one narrow vulnerability with correlated variants, same-agent source exposure disclosed. Its original fixed sink/guard coverage gap is now corrected in exposed8c62567 regression, never relabeled as fresh detection. No unsupported-fixed-coverage waiver is requested.",
+        "disposition": "passed",
+        "interpretation": "The separately approved87-observation exposed regression passes at8c62567: DDG vulnerable2/2per batch, actual fixed/control send and direct-route initialCGNAT qualification6/6, Python development and both31-input historical condition batches pass, all36 entire ordered repeats agree. Every description change is individually source-assessed; priorv35 failure and originalf85 fresh-source outcome remain unchanged. Product/tests/workflows equal verified8c62567 with2283passed36skipped in local/all12 hosted suites. Explicit human acceptance is the remaining Phase22 checkpoint; no paid call or corpus target execution occurred."
+      },
+      "historical_v39_assessment": {
+        "assessment": "Prior DDG fresh detection and corrected exposed fixed coverage retain their passes. The user requested another unseen repository before acceptance; new memory-keeper source preparation is complete, exact6-native evaluation unapproved and unevaluated. No new detection or guard-recognition result exists.",
+        "disposition": "unresolved",
+        "interpretation": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance."
+      },
+      "historical_v40_assessment": {
+        "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+        "disposition": "unresolved",
+        "interpretation": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved."
+      },
+      "historical_v41_assessment": {
+        "assessment": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+        "disposition": "unresolved",
+        "interpretation": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+        "current_tests": {
+          "tests/test_phase20.py": {
+            "passed": 35
+          },
+          "tests/test_phase20_measurements.py": {
+            "passed": 13
+          },
+          "tests/test_phase22_corpus.py": {
+            "passed": 8
+          }
+        }
+      },
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "R66",
+        "requirement": "Fresh holdout outside tuning, separate results/no invented threshold",
+        "disposition": "proposed documented limitation awaiting decision",
+        "source_and_test_files": [
+          "scripts/phase20_corpus.py",
+          "scripts/phase20_measurements.py",
+          "scripts/phase20_review.py",
+          "scripts/phase20_scoring.py",
+          "scripts/phase22_corpus.py",
+          "tests/test_phase20.py",
+          "tests/test_phase20_measurements.py",
+          "tests/test_phase22_corpus.py"
+        ],
+        "current_tests": {
+          "tests/test_phase20.py": {
+            "passed": 35
+          },
+          "tests/test_phase20_measurements.py": {
+            "passed": 13
+          },
+          "tests/test_phase22_corpus.py": {
+            "passed": 8
+          }
+        },
+        "prior_requirement_record_sha256": "f438ea865b25068ce134376c05fea9d736e434e7a1664fd6359e89e7be384e0f",
+        "historical_assessment": {
+          "audit": "v33-fresh-v6/audit.json",
+          "text": "Replacement-v6 is a new repository absent from seven prior manifests/96source trees, selected after immutablef85a90f freeze and evaluated only after exact user yes receipt. All15observations completed and source-assessed, native2/2 correlated vulnerable hits per batch,0/3matching negative alerts,5ordered repeats. The frozen output threshold passes; scanner recognition of the fixed guard is not established because send is unsupported. That separate limitation is proposed for explicit acceptance inV33-FIXED-COVERAGE. Original1f Lighthouse and original heldout misses remain unchanged; no broad generalization or independent human review.",
+          "disposition": "passed"
+        },
+        "evidence": [
+          "artifacts/phase22/integration/v9-current-source-test-bindings/packet.json",
+          "artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json",
+          "artifacts/phase22/integration/v9-fresh-staging-preflight.json",
+          "artifacts/phase22/integration/v10-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v10-source-compatibility.json",
+          "artifacts/phase22/integration/v9-fresh-assessment/packet.json",
+          "artifacts/phase22/integration/v10-fresh-review.md",
+          "artifacts/phase22/integration/v12-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v13-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v14-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v15-source-verification.json",
+          "artifacts/phase22/integration/v16-source-verification.json",
+          "artifacts/phase22/integration/v17-source-verification.json",
+          "artifacts/phase22/integration/v18-source-verification.json",
+          "artifacts/phase22/integration/v18-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v19-source-verification.json",
+          "artifacts/phase22/integration/v19-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v20-source-verification.json",
+          "artifacts/phase22/integration/v20-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v21-source-verification.json",
+          "artifacts/phase22/integration/v21-hosted-audit/packet.json",
+          "artifacts/phase22/corpus-replacement-v4/evaluation-proposal.json",
+          "artifacts/phase22/integration/v21-fresh-proposal-verification.json",
+          "artifacts/phase22/integration/v22-source-verification.json",
+          "artifacts/phase22/integration/v23-v5-compatible-reuse.json",
+          "artifacts/phase22/integration/v23-freshness-assessment.json",
+          "artifacts/phase22/integration/v23-fresh-v4/recovery-proposal.json",
+          "artifacts/phase22/integration/v23-source-only-recovery-authorization.json",
+          "artifacts/phase22/corpus-replacement-v5/preparation.json",
+          "artifacts/phase22/integration/v24-fresh-v5/compatible-reuse.json",
+          "artifacts/phase22/integration/v23-fresh-v5/authorization.json",
+          "artifacts/phase22/integration/v23-fresh-v5/binding.json",
+          "artifacts/phase22/integration/v24-fresh-v5/assessment.json",
+          "artifacts/phase22/integration/v24-fresh-v5/limitation-proposal.json",
+          "artifacts/phase22/integration/v25-final-quality/packet.json",
+          "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+          "artifacts/phase22/integration/v25-final-full-suite.json",
+          "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+          "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+          "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+          "artifacts/phase22/integration/v27-quality/packet.json",
+          "artifacts/phase22/integration/v27-quality-audit/packet.json",
+          "artifacts/phase22/integration/v27-full-suite.json",
+          "artifacts/phase22/integration/v27-full-suite-junit.xml",
+          "artifacts/phase22/integration/v27-full-suite-coverage.json",
+          "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+          "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+          "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+          "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+          "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+          "artifacts/phase22/integration/v29-quality/packet.json",
+          "artifacts/phase22/integration/v29-quality-audit/packet.json",
+          "artifacts/phase22/integration/v29-full-suite.json",
+          "artifacts/phase22/integration/v29-full-suite-junit.xml",
+          "artifacts/phase22/integration/v29-full-suite-coverage.json",
+          "artifacts/phase22/integration/v29-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v29-loopback-fix/compatibility.json",
+          "artifacts/phase22/integration/v29-loopback-fix/local-source-binding.json",
+          "artifacts/phase22/integration/v29-loopback-fix/local-checks.json",
+          "artifacts/phase22/integration/v29-loopback-fix/correction.json",
+          "artifacts/phase22/integration/v29-loopback-fix/check-failure-assessment.json",
+          "artifacts/phase22/integration/v29-loopback-fix/evaluation-proposal.json",
+          "artifacts/phase22/integration/v29-loopback-fix/source-compatibility-scope.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/source-assessment.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/retained-source-deltas.json",
+          "artifacts/phase22/integration/v27-constructor-fix/evaluation-authorization.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/source-assessment.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/retained-source-deltas.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/validation.json",
+          "artifacts/phase22/integration/v29-loopback-fix/evaluation-authorization.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-proposal.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/source-proof.json",
+          "artifacts/phase22/integration/v31-compatibility/assessment.json",
+          "artifacts/phase22/integration/v31-compatibility/source-assessment.json",
+          "artifacts/phase22/integration/v31-compatibility/validation.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-authorization.json",
+          "artifacts/phase22/integration/v32-fresh-v6/scope-and-precuration-freeze.json",
+          "artifacts/phase22/integration/v32-fresh-v6/evaluation-proposal.json",
+          "artifacts/phase22/integration/v33-fresh-v6/assessment.json",
+          "artifacts/phase22/integration/v32-fresh-v6/evaluation-authorization.json",
+          "artifacts/phase22/integration/v34-import-quality/packet.json",
+          "artifacts/phase22/integration/v34-import-quality-audit/packet.json",
+          "artifacts/phase22/integration/v34-import-full-suite.json",
+          "artifacts/phase22/integration/v34-import-full-suite-junit.xml",
+          "artifacts/phase22/integration/v34-import-full-suite-coverage.json",
+          "artifacts/phase22/integration/v34-import-binding/local-source-binding.json",
+          "artifacts/phase22/integration/v34-import-binding/local-checks.json",
+          "artifacts/phase22/integration/v34-import-binding/compatibility.json",
+          "artifacts/phase22/integration/v34-import-binding/source-proof.json",
+          "artifacts/phase22/integration/v34-import-binding/freeze.json",
+          "artifacts/phase22/integration/v34-import-binding/evaluation-proposal.json",
+          "artifacts/phase22/integration/v34-import-binding/scoring-rubric.json",
+          "artifacts/phase22/integration/v34-import-binding/check-failure-assessment.json",
+          "artifacts/phase22/integration/v34-fixed-coverage-proposal/implementation-authorization.json",
+          "artifacts/phase22/integration/v35-ddg-regression/assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/finding-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/other-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/validation.json",
+          "artifacts/phase22/integration/v35-ddg-regression/recovery-proposal.json",
+          "artifacts/phase22/integration/v36-guard-recovery/authorization.json",
+          "artifacts/phase22/integration/v36-guard-recovery/assessment.json",
+          "artifacts/phase22/integration/v36-guard-recovery/synthetic-source-retention.json",
+          "artifacts/phase22/integration/v36-guard-recovery/diagnostic-proposal.json",
+          "artifacts/phase22/integration/v36-guard-recovery/scoring-rubric.json",
+          "artifacts/phase22/integration/v36-guard-recovery/trace-selfcheck.json",
+          "artifacts/phase22/integration/v36-guard-recovery/runner-selfcheck.json",
+          "artifacts/phase22/integration/v36-guard-recovery/worktree-restoration.json",
+          "artifacts/phase22/integration/v36-guard-recovery/evidence-restoration.json",
+          "artifacts/phase22/integration/v37-ddg-trace/diagnostic-assessment.json",
+          "artifacts/phase22/integration/v37-ddg-trace/raw/packet.json",
+          "artifacts/phase22/integration/v37-ddg-trace/freeze.json",
+          "artifacts/phase22/integration/v37-ddg-trace/local-checks.json",
+          "artifacts/phase22/integration/v37-ddg-trace/compatibility.json",
+          "artifacts/phase22/integration/v37-ddg-trace/source-proof.json",
+          "artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json",
+          "artifacts/phase22/integration/v37-ddg-trace/scoring-rubric.json",
+          "artifacts/phase22/integration/v37-ddg-trace/check-failure-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/validation.json",
+          "artifacts/phase22/integration/v38-guard-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/finding-source-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/other-source-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/coverage-source-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/guard-source-proof.json"
+        ],
+        "assessment": "Fresh repository selection, bounded execution and source assessment are complete. Original memory-keeper detects1/1vulnerable but falsely alerts on both negatives per batch at8c62567. Current2e0efb2 exposed correction passes; no clean unseen discrimination atfinalsource is claimed. Explicitly proposed revised technical closure accepts that preserved limitation; no approval or relabeling inferred.",
+        "interpretation": "94/94 exposed TypeScript observations at2e0efb2 pass,47 whole ordered repeats. Memory-keeper vulnerable hit twice and0matching fixed/control alerts; guard/read source-assessed,4false-alert occurrences removed,allotherreportcontent equal references. Python87 reuse retains8c62567. Original fresh false positives/misses and Git312/1040 remain; explicit technical acceptance pending.",
+        "prior_v31_assessment": {
+          "disposition": "proposed documented limitation awaiting decision",
+          "assessment": "Independent-repository replacement-v5 was frozen after1f3f72f stabilization and evaluated under exact approval:15completed observations,0/2 vulnerable hits in each native batch and comparator. The implementation agent curated/reviewed it;no independent human or unseen-source review. Subsequentf85a90f correction passes10 exposed observations. Proposed acceptance retains the fresh misses as a documented detection/generalization limitation;it does not turn them into hits or claim a fresh result atf85a90f. A new fresh evaluation is not executed or silently substituted."
+        },
+        "prior_v32_assessment": {
+          "disposition": "unresolved",
+          "assessment": "First-frozen detection on another previously unused repository is now an explicit acceptance prerequisite. Preserve original1f3f72f Lighthouse misses and later exposedf85a90f passes. The newf85a90f DDG pair is source-prepared, novel across seven prior manifests/96trees, but has zero observations and requires exact evaluation approval. Same-source tuning cannot satisfy this gate."
+        },
+        "historical_v34_assessment": {
+          "disposition": "passed",
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred."
+        },
+        "historical_v35_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v36_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v37_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v38_assessment": {
+          "assessment": "The independent-repository DDG first-frozen evaluation atf85a90f remains10native+5Semgrep,2/2 vulnerable native hits per batch and0matching negatives; one narrow vulnerability with correlated variants, same-agent source exposure disclosed. Its original fixed sink/guard coverage gap is now corrected in exposed8c62567 regression, never relabeled as fresh detection. No unsupported-fixed-coverage waiver is requested.",
+          "disposition": "passed",
+          "interpretation": "The separately approved87-observation exposed regression passes at8c62567: DDG vulnerable2/2per batch, actual fixed/control send and direct-route initialCGNAT qualification6/6, Python development and both31-input historical condition batches pass, all36 entire ordered repeats agree. Every description change is individually source-assessed; priorv35 failure and originalf85 fresh-source outcome remain unchanged. Product/tests/workflows equal verified8c62567 with2283passed36skipped in local/all12 hosted suites. Explicit human acceptance is the remaining Phase22 checkpoint; no paid call or corpus target execution occurred."
+        },
+        "historical_v39_assessment": {
+          "assessment": "Prior DDG fresh detection and corrected exposed fixed coverage retain their passes. The user requested another unseen repository before acceptance; new memory-keeper source preparation is complete, exact6-native evaluation unapproved and unevaluated. No new detection or guard-recognition result exists.",
+          "disposition": "unresolved",
+          "interpretation": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance."
+        },
+        "historical_v40_assessment": {
+          "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+          "disposition": "unresolved",
+          "interpretation": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved."
+        },
+        "historical_v41_assessment": {
+          "assessment": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+          "disposition": "unresolved",
+          "interpretation": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+          "current_tests": {
+            "tests/test_phase20.py": {
+              "passed": 35
+            },
+            "tests/test_phase20_measurements.py": {
+              "passed": 13
+            },
+            "tests/test_phase22_corpus.py": {
+              "passed": 8
+            }
+          }
+        },
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "R88",
+      "requirement": "Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments",
+      "disposition": "proposed documented limitation awaiting decision",
+      "source_and_test_files": [
+        "scripts/phase22_corpus.py",
+        "scripts/phase20_corpus.py",
+        "scripts/phase20_measurements.py",
+        "scripts/phase20_scoring.py",
+        "tests/test_phase22_corpus.py",
+        "tests/test_phase20_measurements.py"
+      ],
+      "current_tests": {
+        "tests/test_phase22_corpus.py": {
+          "passed": 8
+        },
+        "tests/test_phase20_measurements.py": {
+          "passed": 13
+        }
+      },
+      "prior_requirement_record_sha256": "5af108492ecb8ab737af44de7c37f01bb57b8ed0e8b19fe36b25f00df3eadc14",
+      "historical_assessment": {
+        "audit": "v33-fresh-v6/audit.json",
+        "text": "Replacement-v6 is a new repository absent from seven prior manifests/96source trees, selected after immutablef85a90f freeze and evaluated only after exact user yes receipt. All15observations completed and source-assessed, native2/2 correlated vulnerable hits per batch,0/3matching negative alerts,5ordered repeats. The frozen output threshold passes; scanner recognition of the fixed guard is not established because send is unsupported. That separate limitation is proposed for explicit acceptance inV33-FIXED-COVERAGE. Original1f Lighthouse and original heldout misses remain unchanged; no broad generalization or independent human review.",
+        "disposition": "passed"
+      },
+      "evidence": [
+        "artifacts/phase22/integration/v9-current-source-test-bindings/packet.json",
+        "artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json",
+        "artifacts/phase22/integration/v9-fresh-staging-preflight.json",
+        "artifacts/phase22/integration/v10-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v10-source-compatibility.json",
+        "artifacts/phase22/integration/v9-fresh-assessment/packet.json",
+        "artifacts/phase22/integration/v10-fresh-review.md",
+        "artifacts/phase22/integration/v12-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v13-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v14-current-source-test-bindings/packet.json",
+        "artifacts/phase22/integration/v15-source-verification.json",
+        "artifacts/phase22/integration/v16-source-verification.json",
+        "artifacts/phase22/integration/v17-source-verification.json",
+        "artifacts/phase22/integration/v18-source-verification.json",
+        "artifacts/phase22/integration/v18-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v19-source-verification.json",
+        "artifacts/phase22/integration/v19-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v20-source-verification.json",
+        "artifacts/phase22/integration/v20-hosted-audit/packet.json",
+        "artifacts/phase22/integration/v21-source-verification.json",
+        "artifacts/phase22/integration/v21-hosted-audit/packet.json",
+        "artifacts/phase22/corpus-replacement-v4/evaluation-proposal.json",
+        "artifacts/phase22/integration/v21-fresh-proposal-verification.json",
+        "artifacts/phase22/integration/v22-source-verification.json",
+        "artifacts/phase22/integration/v23-v5-compatible-reuse.json",
+        "artifacts/phase22/integration/v23-freshness-assessment.json",
+        "artifacts/phase22/integration/v23-fresh-v4/recovery-proposal.json",
+        "artifacts/phase22/integration/v23-source-only-recovery-authorization.json",
+        "artifacts/phase22/corpus-replacement-v5/preparation.json",
+        "artifacts/phase22/integration/v24-fresh-v5/compatible-reuse.json",
+        "artifacts/phase22/integration/v23-fresh-v5/authorization.json",
+        "artifacts/phase22/integration/v23-fresh-v5/binding.json",
+        "artifacts/phase22/integration/v24-fresh-v5/assessment.json",
+        "artifacts/phase22/integration/v24-fresh-v5/limitation-proposal.json",
+        "artifacts/phase22/integration/v25-final-quality/packet.json",
+        "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+        "artifacts/phase22/integration/v25-final-full-suite.json",
+        "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+        "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+        "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+        "artifacts/phase22/integration/v27-quality/packet.json",
+        "artifacts/phase22/integration/v27-quality-audit/packet.json",
+        "artifacts/phase22/integration/v27-full-suite.json",
+        "artifacts/phase22/integration/v27-full-suite-junit.xml",
+        "artifacts/phase22/integration/v27-full-suite-coverage.json",
+        "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+        "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+        "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+        "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+        "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+        "artifacts/phase22/integration/v29-quality/packet.json",
+        "artifacts/phase22/integration/v29-quality-audit/packet.json",
+        "artifacts/phase22/integration/v29-full-suite.json",
+        "artifacts/phase22/integration/v29-full-suite-junit.xml",
+        "artifacts/phase22/integration/v29-full-suite-coverage.json",
+        "artifacts/phase22/integration/v29-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v29-loopback-fix/compatibility.json",
+        "artifacts/phase22/integration/v29-loopback-fix/local-source-binding.json",
+        "artifacts/phase22/integration/v29-loopback-fix/local-checks.json",
+        "artifacts/phase22/integration/v29-loopback-fix/correction.json",
+        "artifacts/phase22/integration/v29-loopback-fix/check-failure-assessment.json",
+        "artifacts/phase22/integration/v29-loopback-fix/evaluation-proposal.json",
+        "artifacts/phase22/integration/v29-loopback-fix/source-compatibility-scope.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/source-assessment.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/retained-source-deltas.json",
+        "artifacts/phase22/integration/v27-constructor-fix/evaluation-authorization.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/source-assessment.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/retained-source-deltas.json",
+        "artifacts/phase22/integration/v30-lighthouse-regression/validation.json",
+        "artifacts/phase22/integration/v29-loopback-fix/evaluation-authorization.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-proposal.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/source-proof.json",
+        "artifacts/phase22/integration/v31-compatibility/assessment.json",
+        "artifacts/phase22/integration/v31-compatibility/source-assessment.json",
+        "artifacts/phase22/integration/v31-compatibility/validation.json",
+        "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-authorization.json",
+        "artifacts/phase22/integration/v32-fresh-v6/scope-and-precuration-freeze.json",
+        "artifacts/phase22/integration/v32-fresh-v6/evaluation-proposal.json",
+        "artifacts/phase22/integration/v33-fresh-v6/assessment.json",
+        "artifacts/phase22/integration/v32-fresh-v6/evaluation-authorization.json",
+        "artifacts/phase22/integration/v34-import-quality/packet.json",
+        "artifacts/phase22/integration/v34-import-quality-audit/packet.json",
+        "artifacts/phase22/integration/v34-import-full-suite.json",
+        "artifacts/phase22/integration/v34-import-full-suite-junit.xml",
+        "artifacts/phase22/integration/v34-import-full-suite-coverage.json",
+        "artifacts/phase22/integration/v34-import-binding/local-source-binding.json",
+        "artifacts/phase22/integration/v34-import-binding/local-checks.json",
+        "artifacts/phase22/integration/v34-import-binding/compatibility.json",
+        "artifacts/phase22/integration/v34-import-binding/source-proof.json",
+        "artifacts/phase22/integration/v34-import-binding/freeze.json",
+        "artifacts/phase22/integration/v34-import-binding/evaluation-proposal.json",
+        "artifacts/phase22/integration/v34-import-binding/scoring-rubric.json",
+        "artifacts/phase22/integration/v34-import-binding/check-failure-assessment.json",
+        "artifacts/phase22/integration/v34-fixed-coverage-proposal/implementation-authorization.json",
+        "artifacts/phase22/integration/v35-ddg-regression/assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/finding-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/other-source-assessment.json",
+        "artifacts/phase22/integration/v35-ddg-regression/validation.json",
+        "artifacts/phase22/integration/v35-ddg-regression/recovery-proposal.json",
+        "artifacts/phase22/integration/v36-guard-recovery/authorization.json",
+        "artifacts/phase22/integration/v36-guard-recovery/assessment.json",
+        "artifacts/phase22/integration/v36-guard-recovery/synthetic-source-retention.json",
+        "artifacts/phase22/integration/v36-guard-recovery/diagnostic-proposal.json",
+        "artifacts/phase22/integration/v36-guard-recovery/scoring-rubric.json",
+        "artifacts/phase22/integration/v36-guard-recovery/trace-selfcheck.json",
+        "artifacts/phase22/integration/v36-guard-recovery/runner-selfcheck.json",
+        "artifacts/phase22/integration/v36-guard-recovery/worktree-restoration.json",
+        "artifacts/phase22/integration/v36-guard-recovery/evidence-restoration.json",
+        "artifacts/phase22/integration/v37-ddg-trace/diagnostic-assessment.json",
+        "artifacts/phase22/integration/v37-ddg-trace/raw/packet.json",
+        "artifacts/phase22/integration/v37-ddg-trace/freeze.json",
+        "artifacts/phase22/integration/v37-ddg-trace/local-checks.json",
+        "artifacts/phase22/integration/v37-ddg-trace/compatibility.json",
+        "artifacts/phase22/integration/v37-ddg-trace/source-proof.json",
+        "artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json",
+        "artifacts/phase22/integration/v37-ddg-trace/scoring-rubric.json",
+        "artifacts/phase22/integration/v37-ddg-trace/check-failure-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/validation.json",
+        "artifacts/phase22/integration/v38-guard-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/finding-source-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v38-guard-regression/other-source-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/condition-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/coverage-source-assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/guard-source-proof.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Original source-selection/fresh failures remain; later corrections are exposed and same-agent source-reviewed. DDG first-frozen f85a90f detection and prospective output discrimination passed, but build_request/send fixed-path support was absent. V35 a50e9b7 completed87/36pairs yet qualified0of6DDGnegative sends and failed Meta image fixed/control qualification; V38 and currentV75 exposed corrections do not retroactively pass those support failures. Explicit human acceptance remains required.",
+      "interpretation": "94/94 exposed TypeScript observations at2e0efb2 pass,47 whole ordered repeats. Memory-keeper vulnerable hit twice and0matching fixed/control alerts; guard/read source-assessed,4false-alert occurrences removed,allotherreportcontent equal references. Python87 reuse retains8c62567. Original fresh false positives/misses and Git312/1040 remain; explicit technical acceptance pending.",
+      "prior_v31_assessment": {
+        "disposition": "proposed documented limitation awaiting decision",
+        "assessment": "Independent-repository replacement-v5 was frozen after1f3f72f stabilization and evaluated under exact approval:15completed observations,0/2 vulnerable hits in each native batch and comparator. The implementation agent curated/reviewed it;no independent human or unseen-source review. Subsequentf85a90f correction passes10 exposed observations. Proposed acceptance retains the fresh misses as a documented detection/generalization limitation;it does not turn them into hits or claim a fresh result atf85a90f. A new fresh evaluation is not executed or silently substituted."
+      },
+      "prior_v32_assessment": {
+        "disposition": "unresolved",
+        "assessment": "First-frozen detection on another previously unused repository is now an explicit acceptance prerequisite. Preserve original1f3f72f Lighthouse misses and later exposedf85a90f passes. The newf85a90f DDG pair is source-prepared, novel across seven prior manifests/96trees, but has zero observations and requires exact evaluation approval. Same-source tuning cannot satisfy this gate."
+      },
+      "historical_v34_assessment": {
+        "disposition": "passed",
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred."
+      },
+      "historical_v35_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v36_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v37_assessment": {
+        "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+        "disposition": "passed"
+      },
+      "historical_v38_assessment": {
+        "assessment": "The independent-repository DDG first-frozen evaluation atf85a90f remains10native+5Semgrep,2/2 vulnerable native hits per batch and0matching negatives; one narrow vulnerability with correlated variants, same-agent source exposure disclosed. Its original fixed sink/guard coverage gap is now corrected in exposed8c62567 regression, never relabeled as fresh detection. No unsupported-fixed-coverage waiver is requested.",
+        "disposition": "passed",
+        "interpretation": "The separately approved87-observation exposed regression passes at8c62567: DDG vulnerable2/2per batch, actual fixed/control send and direct-route initialCGNAT qualification6/6, Python development and both31-input historical condition batches pass, all36 entire ordered repeats agree. Every description change is individually source-assessed; priorv35 failure and originalf85 fresh-source outcome remain unchanged. Product/tests/workflows equal verified8c62567 with2283passed36skipped in local/all12 hosted suites. Explicit human acceptance is the remaining Phase22 checkpoint; no paid call or corpus target execution occurred."
+      },
+      "historical_v39_assessment": {
+        "assessment": "Prior DDG fresh detection and corrected exposed fixed coverage retain their passes. The user requested another unseen repository before acceptance; new memory-keeper source preparation is complete, exact6-native evaluation unapproved and unevaluated. No new detection or guard-recognition result exists.",
+        "disposition": "unresolved",
+        "interpretation": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance."
+      },
+      "historical_v40_assessment": {
+        "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+        "disposition": "unresolved",
+        "interpretation": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved."
+      },
+      "historical_v41_assessment": {
+        "assessment": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+        "disposition": "unresolved",
+        "interpretation": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+        "current_tests": {
+          "tests/test_phase22_corpus.py": {
+            "passed": 8
+          },
+          "tests/test_phase20_measurements.py": {
+            "passed": 13
+          }
+        }
+      },
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "R88",
+        "requirement": "Next independent fresh corpus frozen after stabilization, exact approval before bounded evaluation, actual outcomes and source assessments",
+        "disposition": "proposed documented limitation awaiting decision",
+        "source_and_test_files": [
+          "scripts/phase22_corpus.py",
+          "scripts/phase20_corpus.py",
+          "scripts/phase20_measurements.py",
+          "scripts/phase20_scoring.py",
+          "tests/test_phase22_corpus.py",
+          "tests/test_phase20_measurements.py"
+        ],
+        "current_tests": {
+          "tests/test_phase22_corpus.py": {
+            "passed": 8
+          },
+          "tests/test_phase20_measurements.py": {
+            "passed": 13
+          }
+        },
+        "prior_requirement_record_sha256": "5af108492ecb8ab737af44de7c37f01bb57b8ed0e8b19fe36b25f00df3eadc14",
+        "historical_assessment": {
+          "audit": "v33-fresh-v6/audit.json",
+          "text": "Replacement-v6 is a new repository absent from seven prior manifests/96source trees, selected after immutablef85a90f freeze and evaluated only after exact user yes receipt. All15observations completed and source-assessed, native2/2 correlated vulnerable hits per batch,0/3matching negative alerts,5ordered repeats. The frozen output threshold passes; scanner recognition of the fixed guard is not established because send is unsupported. That separate limitation is proposed for explicit acceptance inV33-FIXED-COVERAGE. Original1f Lighthouse and original heldout misses remain unchanged; no broad generalization or independent human review.",
+          "disposition": "passed"
+        },
+        "evidence": [
+          "artifacts/phase22/integration/v9-current-source-test-bindings/packet.json",
+          "artifacts/phase22/corpus-replacement-v3/checkpoint-7555a9d.json",
+          "artifacts/phase22/integration/v9-fresh-staging-preflight.json",
+          "artifacts/phase22/integration/v10-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v10-source-compatibility.json",
+          "artifacts/phase22/integration/v9-fresh-assessment/packet.json",
+          "artifacts/phase22/integration/v10-fresh-review.md",
+          "artifacts/phase22/integration/v12-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v13-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v14-current-source-test-bindings/packet.json",
+          "artifacts/phase22/integration/v15-source-verification.json",
+          "artifacts/phase22/integration/v16-source-verification.json",
+          "artifacts/phase22/integration/v17-source-verification.json",
+          "artifacts/phase22/integration/v18-source-verification.json",
+          "artifacts/phase22/integration/v18-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v19-source-verification.json",
+          "artifacts/phase22/integration/v19-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v20-source-verification.json",
+          "artifacts/phase22/integration/v20-hosted-audit/packet.json",
+          "artifacts/phase22/integration/v21-source-verification.json",
+          "artifacts/phase22/integration/v21-hosted-audit/packet.json",
+          "artifacts/phase22/corpus-replacement-v4/evaluation-proposal.json",
+          "artifacts/phase22/integration/v21-fresh-proposal-verification.json",
+          "artifacts/phase22/integration/v22-source-verification.json",
+          "artifacts/phase22/integration/v23-v5-compatible-reuse.json",
+          "artifacts/phase22/integration/v23-freshness-assessment.json",
+          "artifacts/phase22/integration/v23-fresh-v4/recovery-proposal.json",
+          "artifacts/phase22/integration/v23-source-only-recovery-authorization.json",
+          "artifacts/phase22/corpus-replacement-v5/preparation.json",
+          "artifacts/phase22/integration/v24-fresh-v5/compatible-reuse.json",
+          "artifacts/phase22/integration/v23-fresh-v5/authorization.json",
+          "artifacts/phase22/integration/v23-fresh-v5/binding.json",
+          "artifacts/phase22/integration/v24-fresh-v5/assessment.json",
+          "artifacts/phase22/integration/v24-fresh-v5/limitation-proposal.json",
+          "artifacts/phase22/integration/v25-final-quality/packet.json",
+          "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+          "artifacts/phase22/integration/v25-final-full-suite.json",
+          "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+          "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+          "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+          "artifacts/phase22/integration/v27-quality/packet.json",
+          "artifacts/phase22/integration/v27-quality-audit/packet.json",
+          "artifacts/phase22/integration/v27-full-suite.json",
+          "artifacts/phase22/integration/v27-full-suite-junit.xml",
+          "artifacts/phase22/integration/v27-full-suite-coverage.json",
+          "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+          "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+          "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+          "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+          "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+          "artifacts/phase22/integration/v29-quality/packet.json",
+          "artifacts/phase22/integration/v29-quality-audit/packet.json",
+          "artifacts/phase22/integration/v29-full-suite.json",
+          "artifacts/phase22/integration/v29-full-suite-junit.xml",
+          "artifacts/phase22/integration/v29-full-suite-coverage.json",
+          "artifacts/phase22/integration/v29-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v29-loopback-fix/compatibility.json",
+          "artifacts/phase22/integration/v29-loopback-fix/local-source-binding.json",
+          "artifacts/phase22/integration/v29-loopback-fix/local-checks.json",
+          "artifacts/phase22/integration/v29-loopback-fix/correction.json",
+          "artifacts/phase22/integration/v29-loopback-fix/check-failure-assessment.json",
+          "artifacts/phase22/integration/v29-loopback-fix/evaluation-proposal.json",
+          "artifacts/phase22/integration/v29-loopback-fix/source-compatibility-scope.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/source-assessment.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/retained-source-deltas.json",
+          "artifacts/phase22/integration/v27-constructor-fix/evaluation-authorization.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/source-assessment.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/retained-source-deltas.json",
+          "artifacts/phase22/integration/v30-lighthouse-regression/validation.json",
+          "artifacts/phase22/integration/v29-loopback-fix/evaluation-authorization.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-proposal.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/source-proof.json",
+          "artifacts/phase22/integration/v31-compatibility/assessment.json",
+          "artifacts/phase22/integration/v31-compatibility/source-assessment.json",
+          "artifacts/phase22/integration/v31-compatibility/validation.json",
+          "artifacts/phase22/integration/v30-compatibility-proposal/evaluation-authorization.json",
+          "artifacts/phase22/integration/v32-fresh-v6/scope-and-precuration-freeze.json",
+          "artifacts/phase22/integration/v32-fresh-v6/evaluation-proposal.json",
+          "artifacts/phase22/integration/v33-fresh-v6/assessment.json",
+          "artifacts/phase22/integration/v32-fresh-v6/evaluation-authorization.json",
+          "artifacts/phase22/integration/v34-import-quality/packet.json",
+          "artifacts/phase22/integration/v34-import-quality-audit/packet.json",
+          "artifacts/phase22/integration/v34-import-full-suite.json",
+          "artifacts/phase22/integration/v34-import-full-suite-junit.xml",
+          "artifacts/phase22/integration/v34-import-full-suite-coverage.json",
+          "artifacts/phase22/integration/v34-import-binding/local-source-binding.json",
+          "artifacts/phase22/integration/v34-import-binding/local-checks.json",
+          "artifacts/phase22/integration/v34-import-binding/compatibility.json",
+          "artifacts/phase22/integration/v34-import-binding/source-proof.json",
+          "artifacts/phase22/integration/v34-import-binding/freeze.json",
+          "artifacts/phase22/integration/v34-import-binding/evaluation-proposal.json",
+          "artifacts/phase22/integration/v34-import-binding/scoring-rubric.json",
+          "artifacts/phase22/integration/v34-import-binding/check-failure-assessment.json",
+          "artifacts/phase22/integration/v34-fixed-coverage-proposal/implementation-authorization.json",
+          "artifacts/phase22/integration/v35-ddg-regression/assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/finding-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/other-source-assessment.json",
+          "artifacts/phase22/integration/v35-ddg-regression/validation.json",
+          "artifacts/phase22/integration/v35-ddg-regression/recovery-proposal.json",
+          "artifacts/phase22/integration/v36-guard-recovery/authorization.json",
+          "artifacts/phase22/integration/v36-guard-recovery/assessment.json",
+          "artifacts/phase22/integration/v36-guard-recovery/synthetic-source-retention.json",
+          "artifacts/phase22/integration/v36-guard-recovery/diagnostic-proposal.json",
+          "artifacts/phase22/integration/v36-guard-recovery/scoring-rubric.json",
+          "artifacts/phase22/integration/v36-guard-recovery/trace-selfcheck.json",
+          "artifacts/phase22/integration/v36-guard-recovery/runner-selfcheck.json",
+          "artifacts/phase22/integration/v36-guard-recovery/worktree-restoration.json",
+          "artifacts/phase22/integration/v36-guard-recovery/evidence-restoration.json",
+          "artifacts/phase22/integration/v37-ddg-trace/diagnostic-assessment.json",
+          "artifacts/phase22/integration/v37-ddg-trace/raw/packet.json",
+          "artifacts/phase22/integration/v37-ddg-trace/freeze.json",
+          "artifacts/phase22/integration/v37-ddg-trace/local-checks.json",
+          "artifacts/phase22/integration/v37-ddg-trace/compatibility.json",
+          "artifacts/phase22/integration/v37-ddg-trace/source-proof.json",
+          "artifacts/phase22/integration/v37-ddg-trace/evaluation-proposal.json",
+          "artifacts/phase22/integration/v37-ddg-trace/scoring-rubric.json",
+          "artifacts/phase22/integration/v37-ddg-trace/check-failure-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/validation.json",
+          "artifacts/phase22/integration/v38-guard-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/finding-source-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v38-guard-regression/other-source-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/condition-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/coverage-source-assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/guard-source-proof.json"
+        ],
+        "assessment": "Fresh repository selection, bounded execution and source assessment are complete. Original memory-keeper detects1/1vulnerable but falsely alerts on both negatives per batch at8c62567. Current2e0efb2 exposed correction passes; no clean unseen discrimination atfinalsource is claimed. Explicitly proposed revised technical closure accepts that preserved limitation; no approval or relabeling inferred.",
+        "interpretation": "94/94 exposed TypeScript observations at2e0efb2 pass,47 whole ordered repeats. Memory-keeper vulnerable hit twice and0matching fixed/control alerts; guard/read source-assessed,4false-alert occurrences removed,allotherreportcontent equal references. Python87 reuse retains8c62567. Original fresh false positives/misses and Git312/1040 remain; explicit technical acceptance pending.",
+        "prior_v31_assessment": {
+          "disposition": "proposed documented limitation awaiting decision",
+          "assessment": "Independent-repository replacement-v5 was frozen after1f3f72f stabilization and evaluated under exact approval:15completed observations,0/2 vulnerable hits in each native batch and comparator. The implementation agent curated/reviewed it;no independent human or unseen-source review. Subsequentf85a90f correction passes10 exposed observations. Proposed acceptance retains the fresh misses as a documented detection/generalization limitation;it does not turn them into hits or claim a fresh result atf85a90f. A new fresh evaluation is not executed or silently substituted."
+        },
+        "prior_v32_assessment": {
+          "disposition": "unresolved",
+          "assessment": "First-frozen detection on another previously unused repository is now an explicit acceptance prerequisite. Preserve original1f3f72f Lighthouse misses and later exposedf85a90f passes. The newf85a90f DDG pair is source-prepared, novel across seven prior manifests/96trees, but has zero observations and requires exact evaluation approval. Same-source tuning cannot satisfy this gate."
+        },
+        "historical_v34_assessment": {
+          "disposition": "passed",
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred."
+        },
+        "historical_v35_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v36_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v37_assessment": {
+          "assessment": "The first-frozenf85a90f DDG repository result remains the actual fresh detection evidence: two correlated vulnerable hits per native batch, zero matching negatives, five ordered repeats, all15 observations assessed. The latera50e9b7 correction follows source exposure and cannot be called fresh. The fixed sink/guard coverage requirement is separately pending inV33-FIXED-COVERAGE/V34-REGRESSION; no limitation or technical acceptance is inferred.",
+          "disposition": "passed"
+        },
+        "historical_v38_assessment": {
+          "assessment": "The independent-repository DDG first-frozen evaluation atf85a90f remains10native+5Semgrep,2/2 vulnerable native hits per batch and0matching negatives; one narrow vulnerability with correlated variants, same-agent source exposure disclosed. Its original fixed sink/guard coverage gap is now corrected in exposed8c62567 regression, never relabeled as fresh detection. No unsupported-fixed-coverage waiver is requested.",
+          "disposition": "passed",
+          "interpretation": "The separately approved87-observation exposed regression passes at8c62567: DDG vulnerable2/2per batch, actual fixed/control send and direct-route initialCGNAT qualification6/6, Python development and both31-input historical condition batches pass, all36 entire ordered repeats agree. Every description change is individually source-assessed; priorv35 failure and originalf85 fresh-source outcome remain unchanged. Product/tests/workflows equal verified8c62567 with2283passed36skipped in local/all12 hosted suites. Explicit human acceptance is the remaining Phase22 checkpoint; no paid call or corpus target execution occurred."
+        },
+        "historical_v39_assessment": {
+          "assessment": "Prior DDG fresh detection and corrected exposed fixed coverage retain their passes. The user requested another unseen repository before acceptance; new memory-keeper source preparation is complete, exact6-native evaluation unapproved and unevaluated. No new detection or guard-recognition result exists.",
+          "disposition": "unresolved",
+          "interpretation": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance."
+        },
+        "historical_v40_assessment": {
+          "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+          "disposition": "unresolved",
+          "interpretation": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved."
+        },
+        "historical_v41_assessment": {
+          "assessment": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+          "disposition": "unresolved",
+          "interpretation": "Focused source correction and engineering pass at2e0efb2;0new corpus observations. Originalv7 first-frozen discrimination failure at8c62567 preserved. Exact94-observation exposed TypeScript regression unapproved; Python87 retained observations source-compatible. No technical acceptance.",
+          "current_tests": {
+            "tests/test_phase22_corpus.py": {
+              "passed": 8
+            },
+            "tests/test_phase20_measurements.py": {
+              "passed": 13
+            }
+          }
+        },
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "V14-RETENTION",
+      "requirement": "At least5% paired median wall/CPU reduction on every input and no candidate above baseline maxima",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "v14-performance-disposition.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Failed/reverted optimization; no5%paired gain or current speedup established. Explicit human acceptance remains required.",
+      "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "V14-RETENTION",
+        "requirement": "At least5% paired median wall/CPU reduction on every input and no candidate above baseline maxima",
+        "disposition": "proposed documented limitation awaiting decision",
+        "evidence": [
+          "v14-performance-disposition.json"
+        ],
+        "assessment": "The candidate violated its per-observation retention rule and was reverted. No5% gain is claimed. The user later approved120-second target/300-second maximum,under which the whole historical/development timing gate passes at1f3f72f. Accept closure while retaining the failed optimization as a historical failure.",
+        "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+        "historical_gate_failed": true,
+        "current_implementation_gate": false,
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "V21-SEQUENCE",
+      "requirement": "Complete25+45+45 and ordered historical repeat gate",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "v21-sequence-assessment/packet.json",
+        "v21-source-delta-assessment/packet.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+      "assessment": "Original62/115stopped,53unstartedclosed; exact98refresh and whole25reuse later establish their actual1f3f72f whole-batch results. Current subsets are no new whole45+45Linux runs. Explicit human acceptance remains required.",
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "V21-SEQUENCE",
+        "requirement": "Complete25+45+45 and ordered historical repeat gate",
+        "disposition": "proposed documented limitation awaiting decision",
+        "evidence": [
+          "v21-sequence-assessment/packet.json",
+          "v21-source-delta-assessment/packet.json"
+        ],
+        "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+        "assessment": "The old115-observation sequence stopped at62 due to stale assessment identity;53unstarted closed. The later exact98-observation refresh passes both whole45-input historical batches and explicitly reuses the passed whole25development batch. Accept the superseding approved completion evidence without relabeling the earlier stop.",
+        "historical_gate_failed": true,
+        "current_implementation_gate": false,
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "V21-FRESH-PROPOSAL",
+      "requirement": "Prepare post-freeze independent source packet without evaluation",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "v21-scanner-freeze-before-curation.json",
+        "v21-fresh-proposal-verification.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+      "superseded_disposition": "passed",
+      "scope_closed": true,
+      "recovery_scope": "V23-SOURCE-RECOVERY",
+      "current_correction": "Historical preparation/integrity checks passed, but the independent-source claim fails comparison against the original corpus. See V23-FRESHNESS; no historical result or status is overwritten.",
+      "assessment": "Reusedv4preparation failed novelty; later independently prepared sources do not retroactively makev4fresh. Explicit human acceptance remains required.",
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "explicit_acceptance_pending": true,
+      "historical_v37_assessment": "The v4auth-fetch source was reused and fails novelty. Source-only recovery was approved;independent-repository v5 replaces it and its original misses remain recorded. Accept the failedv4preparation as historical,not an independent evaluation.",
+      "previous_row": {
+        "id": "V21-FRESH-PROPOSAL",
+        "requirement": "Prepare post-freeze independent source packet without evaluation",
+        "disposition": "proposed documented limitation awaiting decision",
+        "evidence": [
+          "v21-scanner-freeze-before-curation.json",
+          "v21-fresh-proposal-verification.json"
+        ],
+        "scope": "Preserved historical attempt; closed budgets do not reopen. V21 sequence is superseded prospectively only by the explicit V22 scope amendment.",
+        "superseded_disposition": "passed",
+        "scope_closed": true,
+        "recovery_scope": "V23-SOURCE-RECOVERY",
+        "current_correction": "Historical preparation/integrity checks passed, but the independent-source claim fails comparison against the original corpus. See V23-FRESHNESS; no historical result or status is overwritten.",
+        "assessment": "The reusedv4auth-fetch packet failed novelty and remains a failed preparation. Approved independent-source recovery producedv5Lighthouse(original misses preserved), then separately approvedv6DDG supplied passing first-frozen detection. Accept historical closure ofv4without calling it independent or reopening its budget.",
+        "historical_gate_failed": true,
+        "current_implementation_gate": false,
+        "explicit_acceptance_pending": true,
+        "historical_v37_assessment": "The v4auth-fetch source was reused and fails novelty. Source-only recovery was approved;independent-repository v5 replaces it and its original misses remain recorded. Accept the failedv4preparation as historical,not an independent evaluation."
+      }
+    },
+    {
+      "id": "V25-EXPOSED-REGRESSION",
+      "requirement": "Obtain exact approval and complete/source-assess the corrected Lighthouse repeat gate",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v25-final-quality/packet.json",
+        "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+        "artifacts/phase22/integration/v25-final-full-suite.json",
+        "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+        "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+        "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+        "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "6db3858Lighthouse vulnerable miss;1/10attempted,9closed. Laterf85a90f exposed pass and current qualification do not erase the miss. Explicit human acceptance remains required.",
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "V25-EXPOSED-REGRESSION",
+        "requirement": "Obtain exact approval and complete/source-assess the corrected Lighthouse repeat gate",
+        "disposition": "proposed documented limitation awaiting decision",
+        "evidence": [
+          "artifacts/phase22/integration/v25-final-quality/packet.json",
+          "artifacts/phase22/integration/v25-final-quality-audit/packet.json",
+          "artifacts/phase22/integration/v25-final-full-suite.json",
+          "artifacts/phase22/integration/v25-final-full-suite-junit.xml",
+          "artifacts/phase22/integration/v25-final-full-suite-coverage.json",
+          "artifacts/phase22/integration/v25-final-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/compatibility-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/source-compatibility-scope-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/local-source-binding-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/authorization.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-proposal-final.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/failure-assessment.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-correction.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-before.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/alias-regression-after.log",
+          "artifacts/phase22/integration/v25-lighthouse-fix/final-preparation-pr-readback.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json"
+        ],
+        "assessment": "The6db3858 run stopped after one vulnerable miss;nine unstarted closed. The laterf85a90f approved Lighthouse gate passes all10 observations. Accept closure of this superseded failed attempt without reopening its budget.",
+        "historical_gate_failed": true,
+        "current_implementation_gate": false,
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "V27-REGRESSION",
+      "requirement": "Obtain exact new approval and demonstrate the corrected Lighthouse condition/repeat gate",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v27-quality/packet.json",
+        "artifacts/phase22/integration/v27-quality-audit/packet.json",
+        "artifacts/phase22/integration/v27-full-suite.json",
+        "artifacts/phase22/integration/v27-full-suite-junit.xml",
+        "artifacts/phase22/integration/v27-full-suite-coverage.json",
+        "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+        "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+        "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+        "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+        "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+        "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+        "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+        "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+        "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+        "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "4a2359dLighthouse fixed qualification failed after2vulnerablehits;3/10attempted,7closed. Later exposed passes retain the failure. Explicit human acceptance remains required.",
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "explicit_acceptance_pending": true,
+      "previous_row": {
+        "id": "V27-REGRESSION",
+        "requirement": "Obtain exact new approval and demonstrate the corrected Lighthouse condition/repeat gate",
+        "disposition": "proposed documented limitation awaiting decision",
+        "evidence": [
+          "artifacts/phase22/integration/v27-quality/packet.json",
+          "artifacts/phase22/integration/v27-quality-audit/packet.json",
+          "artifacts/phase22/integration/v27-full-suite.json",
+          "artifacts/phase22/integration/v27-full-suite-junit.xml",
+          "artifacts/phase22/integration/v27-full-suite-coverage.json",
+          "artifacts/phase22/integration/v27-production-capture-revalidation/packet.json",
+          "artifacts/phase22/integration/v27-constructor-fix/compatibility.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-source-binding.json",
+          "artifacts/phase22/integration/v27-constructor-fix/local-checks.json",
+          "artifacts/phase22/integration/v27-constructor-fix/correction.json",
+          "artifacts/phase22/integration/v27-constructor-fix/check-failure-assessment.json",
+          "artifacts/phase22/integration/v27-constructor-fix/evaluation-proposal.json",
+          "artifacts/phase22/integration/v27-constructor-fix/source-compatibility-scope.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/diagnostic-source-assessment.json",
+          "artifacts/phase22/integration/v26-lighthouse-regression/retained-source-delta.json",
+          "artifacts/phase22/integration/v25-lighthouse-fix/evaluation-authorization-final.json",
+          "artifacts/phase22/integration/v28-lighthouse-regression/assessment.json"
+        ],
+        "assessment": "The4a2359d run stopped after two vulnerable hits and a fixed qualification failure;seven unstarted closed. Thef85a90f correction subsequently passes all10Lighthouse observations. Accept the earlier stop as a preserved historical failure.",
+        "historical_gate_failed": true,
+        "current_implementation_gate": false,
+        "explicit_acceptance_pending": true
+      }
+    },
+    {
+      "id": "V39-EVALUATION",
+      "requirement": "Obtain exact approval, execute bounded six-native evaluation and source-assess detection plus fixed-path coverage",
+      "disposition": "proposed documented limitation awaiting decision",
+      "assessment": "8c62567fresh memory-keeper negative failure:1vulnerablehit/2matchingnegativealerts perbatch. Later2e0efb2andcurrentcec0322exposed passes are distinct. Explicit human acceptance remains required.",
+      "evidence": [
+        "artifacts/phase22/integration/v39-fresh-v7/scope-and-precuration-freeze.json",
+        "artifacts/phase22/integration/v39-fresh-v7/evaluation-proposal.json",
+        "artifacts/phase22/integration/v39-fresh-v7/preflight.json",
+        "artifacts/phase22/integration/v39-fresh-v7/staging-verification.json",
+        "artifacts/phase22/integration/v39-fresh-v7/scoring-rubric.json",
+        "artifacts/phase22/integration/v40-fresh-v7/assessment.json",
+        "artifacts/phase22/integration/v42-path-guard-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "historical_v39_assessment": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance.",
+      "historical_v41_assessment": {
+        "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+        "disposition": "unresolved"
+      },
+      "explicit_acceptance_pending": true,
+      "historical_gate_failed": true,
+      "current_implementation_gate": false,
+      "previous_row": {
+        "id": "V39-EVALUATION",
+        "requirement": "Obtain exact approval, execute bounded six-native evaluation and source-assess detection plus fixed-path coverage",
+        "disposition": "proposed documented limitation awaiting decision",
+        "assessment": "Originalv40 fresh discrimination fails: one vulnerable hit and two matching negative false alerts per batch. The separately approved current2e0efb2 exposed regression passes all six memory-keeper observations and88affected compatibility observations. Propose closure with original first-frozen failure retained, not reclassified as fresh success.",
+        "evidence": [
+          "artifacts/phase22/integration/v39-fresh-v7/scope-and-precuration-freeze.json",
+          "artifacts/phase22/integration/v39-fresh-v7/evaluation-proposal.json",
+          "artifacts/phase22/integration/v39-fresh-v7/preflight.json",
+          "artifacts/phase22/integration/v39-fresh-v7/staging-verification.json",
+          "artifacts/phase22/integration/v39-fresh-v7/scoring-rubric.json",
+          "artifacts/phase22/integration/v40-fresh-v7/assessment.json",
+          "artifacts/phase22/integration/v42-path-guard-regression/assessment.json"
+        ],
+        "historical_v39_assessment": "Additional user-requested fresh repository prepared after immutable8c62567 freeze; zero new observations. Priorv38 regression and engineering passes remain unchanged. Exactv39 six-native evaluation and source assessment precede explicit human acceptance.",
+        "historical_v41_assessment": {
+          "assessment": "Approvedv40 six-native first-frozen8c62567 evaluation completes with3whole ordered repeats; vulnerable1/1per batch detected, both negatives falsely alerted each batch. Fixed sink supported, guard and named dispatch unresolved. Budget closed; proposed source-only correction unapproved; no paid/target execution. Priorv38 and all historical evidence preserved.",
+          "disposition": "unresolved"
+        },
+        "explicit_acceptance_pending": true,
+        "historical_gate_failed": true,
+        "current_implementation_gate": false
+      }
+    },
+    {
+      "id": "V44-FOUR-GATE",
+      "requirement": "Establish all four requested fresh vulnerable/fixed/safe gates or obtain explicit user disposition of their actual failures",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v44-four-fresh-evaluation/assessment.json",
+        "artifacts/phase22/integration/v44-four-fresh-evaluation/source-diagnosis.json",
+        "artifacts/phase22/integration/v44-four-fresh-evaluation/recovery-proposal.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Original2e0efb2four-repository24/24,12pairs,all4gatesfailed. Currentcec0322all4narrowexposed passes do not make the original results fresh successes. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V44-FOUR-GATE",
+        "requirement": "Establish all four requested fresh vulnerable/fixed/safe gates or obtain explicit user disposition of their actual failures",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v44-four-fresh-evaluation/assessment.json",
+          "artifacts/phase22/integration/v44-four-fresh-evaluation/source-diagnosis.json",
+          "artifacts/phase22/integration/v44-four-fresh-evaluation/recovery-proposal.json"
+        ],
+        "assessment": "Four first-frozen repository gates fail and remain unresolved. Execution/assessment/compatibility passes are separately bound; technical acceptance and closeout have not occurred."
+      }
+    },
+    {
+      "id": "V46-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v46-four-source-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V46-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v46-four-source-regression/assessment.json"
+        ],
+        "assessment": "One incomplete timed-out observation, no reports,204closed unstarted,zero remaining. No corrected-source discrimination/compatibility or human acceptance is claimed."
+      }
+    },
+    {
+      "id": "V49-DIAGNOSTIC-PREPARATION",
+      "requirement": "Prepare a separately gated single bounded sampled input with synthetic validation and zero execution",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json",
+        "artifacts/phase22/integration/v50-faf-allocation-sampling/source-correction.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "InvalidV50stale-root preparation/attempt imported17b4784instead of6e4fd67. Six valid partial profiles retain separate process/source/interval limits; no speedup or removable fraction. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V49-DIAGNOSTIC-PREPARATION",
+        "requirement": "Prepare a separately gated single bounded sampled input with synthetic validation and zero execution",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v50-faf-allocation-sampling/assessment.json",
+          "artifacts/phase22/integration/v50-faf-allocation-sampling/source-correction.json"
+        ],
+        "assessment": "The historical hash/synthetic checks passed but failed to establish the actual subprocess scanner identity. The proposed sampler retained17b4784instead of6e4fd67. The invalid interrupted attempt is closed. Corrected identity checks are prepared; current-source profile execution requires a new decision. Historical preparation is not silently relabeled as sound.",
+        "previous_row": {
+          "id": "V49-DIAGNOSTIC-PREPARATION",
+          "requirement": "Prepare a separately gated single bounded sampled input with synthetic validation and zero execution",
+          "disposition": "passed",
+          "evidence": [
+            "artifacts/phase22/integration/v49-allocation-regression/diagnostic-proposal.json",
+            "artifacts/phase22/integration/v49-allocation-regression/sampler-selfcheck/packet.json",
+            "artifacts/phase22/integration/v46-diagnostic-boundary.json"
+          ],
+          "assessment": "One incomplete timed-out observation, no reports,204closed unstarted,zero remaining. No corrected-source discrimination/compatibility or human acceptance is claimed."
+        }
+      }
+    },
+    {
+      "id": "V49-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v49-allocation-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V49-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v49-allocation-regression/assessment.json"
+        ],
+        "assessment": "One incomplete timed-out observation, no reports,204closed unstarted,zero remaining. No corrected-source discrimination/compatibility or human acceptance is claimed."
+      }
+    },
+    {
+      "id": "V53-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v53-fastpath-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V53-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and affected compatibility gates or obtain an explicit disposition of actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v53-fastpath-regression/assessment.json"
+        ],
+        "assessment": "One incomplete timed-out observation, no reports,204closed unstarted,zero remaining. No corrected-source discrimination/compatibility or human acceptance is claimed."
+      }
+    },
+    {
+      "id": "V55-EQUIVALENCE",
+      "requirement": "Preserve complete Value and flow semantics, including cache interning and identity-sensitive callers",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v55-singleton-combine/identity-validation.json",
+        "artifacts/phase22/integration/v55-singleton-combine/assessment.json",
+        "artifacts/phase22/integration/v55-singleton-combine/optimization-budget-closed.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Reverted broad-singleton synthetic environment-equivalence failure; structural flow equality does not remove identity-sensitive environment delta. Real-target reachability unestablished. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V55-EQUIVALENCE",
+        "requirement": "Preserve complete Value and flow semantics, including cache interning and identity-sensitive callers",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v55-singleton-combine/identity-validation.json",
+          "artifacts/phase22/integration/v55-singleton-combine/assessment.json",
+          "artifacts/phase22/integration/v55-singleton-combine/optimization-budget-closed.json"
+        ],
+        "assessment": "One broad singleton attempt failed its synthetic environment equivalence prerequisite and was reverted. No real-target regression or runtime reachability is claimed. A narrower canonical-empty-value proposal is unapproved; no stopped budget is reopened."
+      }
+    },
+    {
+      "id": "V56-EQUIVALENCE",
+      "requirement": "Preserve complete Value/environment/flow state, including LRU eviction and identity-sensitive credential markers",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v56-canonical-unknown/synthetic-validation.json",
+        "artifacts/phase22/integration/v56-canonical-unknown/optimization-budget-closed.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Reverted canonical-singleton eviction failure. Separately approvedV57equal-marker correction and bypass do not retroactively pass the original strict failure. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V56-EQUIVALENCE",
+        "requirement": "Preserve complete Value/environment/flow state, including LRU eviction and identity-sensitive credential markers",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v56-canonical-unknown/synthetic-validation.json",
+          "artifacts/phase22/integration/v56-canonical-unknown/optimization-budget-closed.json"
+        ],
+        "assessment": "Canonical bypass failed synthetic cache-eviction environment equivalence; product restored and attempt closed. Real-target impact unestablished. Proposed equal-marker contract revision and bypass are unapproved; neither old failure is accepted or relabeled."
+      }
+    },
+    {
+      "id": "V58-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and affected compatibility gates or obtain explicit disposition of this actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v58-credential-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V58-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and affected compatibility gates or obtain explicit disposition of this actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v58-credential-regression/assessment.json"
+        ],
+        "assessment": "One incomplete timed-out input, zero reports, 204 unstarted closed and zero remaining. No current-source discrimination, compatibility, speedup or human acceptance is established."
+      }
+    },
+    {
+      "id": "V60-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and affected compatibility gates or obtain explicit disposition of this actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v60-long-timeout-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V60-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and affected compatibility gates or obtain explicit disposition of this actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v60-long-timeout-regression/assessment.json"
+        ],
+        "assessment": "One incomplete timed-out input, zero reports, 204 unstarted closed and zero remaining. No current-source discrimination, compatibility, speedup or human acceptance is established."
+      }
+    },
+    {
+      "id": "V63-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and prior-language gates or obtain an explicit applicable disposition of this actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v63-shared-discovery-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V63-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and prior-language gates or obtain an explicit applicable disposition of this actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v63-shared-discovery-regression/assessment.json"
+        ],
+        "assessment": "One1800-second native timeout at1948bf9; no report,204unstarted closed,zero remaining. No current detection/compatibility or speedup pass. One parent-and-worker profile is prepared,unapproved and unexecuted. All prior failures and human acceptance remain unresolved."
+      }
+    },
+    {
+      "id": "V65-EQUIVALENCE",
+      "requirement": "Preserve complete state and required adversarial alias/shrinking behavior under the original strict contract",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v65-if-invalidation-accumulator/equivalence.json",
+        "artifacts/phase22/integration/v65-if-invalidation-accumulator/candidate.patch",
+        "artifacts/phase22/integration/v65-if-invalidation-accumulator/candidate-typescript-path-flow.py",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Strict captured-arm alias/shrinking failure after256ordinary passes. ApprovedV66prospective private/monotone domain excludes only its two named injected callbacks; original strict failure remains. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V65-EQUIVALENCE",
+        "requirement": "Preserve complete state and required adversarial alias/shrinking behavior under the original strict contract",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v65-if-invalidation-accumulator/equivalence.json",
+          "artifacts/phase22/integration/v65-if-invalidation-accumulator/candidate.patch",
+          "artifacts/phase22/integration/v65-if-invalidation-accumulator/candidate-typescript-path-flow.py"
+        ],
+        "assessment": "256ordinary full-state comparisons and avoided work pass; captured-arm alias and shrinking-arm controls fail the explicitly approved strict prerequisite. Error/interruption controls agree. Real-target reachability is unestablished. One attempt closed, exact1948bf9 restored; a prospective domain revision is unapproved. No failure or human technical acceptance is inferred."
+      }
+    },
+    {
+      "id": "V67-REGRESSION-GATE",
+      "requirement": "Complete current-source four-repository and prior-language gates or obtain an explicit applicable disposition of this actual failure",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v67-invalidation-regression/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Historical source-bound native timeout:1incomplete/0reports/204unstartedclosed of205;zero remaining. Current uncapped FAF observations are distinct approved runs. No retrospective timeout pass or reopened budget. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V67-REGRESSION-GATE",
+        "requirement": "Complete current-source four-repository and prior-language gates or obtain an explicit applicable disposition of this actual failure",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v67-invalidation-regression/assessment.json"
+        ],
+        "assessment": "First FAF input timed out at 4145d35 without a report; 204 unstarted observations closed. No current detection, compatibility or speedup pass. One parent-and-worker profile is prepared, unapproved and unexecuted. Earlier failures and human acceptance remain unresolved."
+      }
+    },
+    {
+      "id": "V68-OPT-DECISION",
+      "requirement": "Obtain separate exact approval before the proposed source-only optimization attempt",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v68-invalidation-sampling/optimization-proposal.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "Explicitly propose leaving original4145d35literal-serialization performance proposal unopened, unimplemented and unapproved; no performance attempt included. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V68-OPT-DECISION",
+        "requirement": "Obtain separate exact approval before the proposed source-only optimization attempt",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v68-invalidation-sampling/optimization-proposal.json"
+        ],
+        "assessment": "One current-source partial parent profile:148001samples,1800.013225seconds,no report,cleanup verified,one-use budget closed. Final snapshot and timer restoration unconfirmed. Recovery and selective Docker cleanup verified. Proposed source-only literal serialization reuse remains unapproved/unimplemented. All current-source gates and separate human acceptance remain unresolved."
+      }
+    },
+    {
+      "id": "V70-FOUR-GATE",
+      "requirement": "Establish all four current-source repository gates with actual named vulnerable detection and supported fixed/control discrimination",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v70-uncapped-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/final-assessment/assessment.json",
+        "artifacts/phase22/integration/v75-prior-language-results/completion-verification.json",
+        "artifacts/phase22/integration/v76-technical-acceptance/acceptance-limits.md"
+      ],
+      "assessment": "4145d35no-bash/Engram narrow passes; Lightning fixed/safe qualification and FAF detection/support failures. Currentcec0322supersedes current detection evidence only. Explicit human acceptance remains required.",
+      "previous_row": {
+        "id": "V70-FOUR-GATE",
+        "requirement": "Establish all four current-source repository gates with actual named vulnerable detection and supported fixed/control discrimination",
+        "disposition": "unresolved",
+        "evidence": [
+          "artifacts/phase22/integration/v70-uncapped-four-results/final-assessment/assessment.json"
+        ],
+        "assessment": "The 24-observation uncapped experiment completes with 12 entire ordered pairs. No-bash and Engram pass only their frozen narrow qualifiers; Lightning negative qualification and FAF named detection/support fail. Normal 1800-second policy and the 181 unexecuted earlier-language observations remain separate. No new optimization, profile, retry, target execution or paid call; no limitation or technical acceptance inferred."
+      }
+    },
+    {
+      "id": "V76-FAF-DEADLINE",
+      "requirement": "Obtain explicit practical disposition of ordinary1800-second FAF completion remaining unestablished",
+      "disposition": "proposed documented limitation awaiting decision",
+      "evidence": [
+        "artifacts/phase22/integration/v73-corrected-four-results/final-assessment/assessment.json"
+      ],
+      "assessment": "Explicit human decision and/or subsequent verified delivery remain required; Phase22incomplete."
+    },
+    {
+      "id": "V78-METADATA-FAILURE",
+      "requirement": "Retain the first approved fresh-scope metadata failure and obtain explicit final historical disposition",
+      "disposition": "proposed documented limitation awaiting decision",
+      "assessment": "Original preparation missed the validated Input defaults; first input failed before analysis. Its1incomplete/11closed budget remains failed and spent. Correction does not retroactively pass it. No limitation accepted.",
+      "evidence": [
+        "artifacts/phase22/integration/v78-unseen-results/stop-assessment.json"
+      ]
+    }
+  ],
+  "accepted_practical_faf_limit": {
+    "ordinary_1800_second_completion_established": false,
+    "uncapped_whole_seconds_minimum": 2297.758465165971,
+    "uncapped_whole_seconds_maximum": 2735.3864036251325,
+    "observations_exceeding_normal_policy": 6,
+    "normal_timeout_policy_seconds": 1800,
+    "speedup_established": false,
+    "V68_optimization_approved": false,
+    "V68_optimization_implemented": false
+  },
+  "accepted_preserved_limits": [
+    "Original held-out/fresh failures remain failed; later exposed passes establish no clean unseen accuracy estimate.",
+    "Seven native timeouts, six valid partial profiles, invalid stale-root preparation, both singleton failures, strict invalidation failure and initial interrupted/cancelled engineering remain source-bound.",
+    "Original whole25 reuse and whole45+45 Linux evidence retain actual sources; current language subsets are distinct schedules.",
+    "Narrow caller/path/initial URL guard qualifications, unresolved dispatch surfaces, broader review candidates and runtime uncertainty remain.",
+    "The approved V66 prospective private/monotone invalidation domain remains; only its two named injected callbacks fall outside that revised domain, without retroactively passing V65.",
+    "Git13 campaigns312/1040 remain incomplete with728deferred; paid396-request benchmark and pilots remain explicitly deferred and nonblocking for revised Phase22.",
+    "Historical paid spend$0.071799;zero added. Phase21incomplete;Phase24/15unchanged.",
+    "The user explicitly accepts the Proxmox unsupported limitation and defers recovery; all original and exposed misses/unsupported negatives remain at actualsources.",
+    "V78firstmetadatafailure1incomplete/0reports/11closed remains separately proposed historical limitation.",
+    "Same-agent two-repository novelty, Taskwarrior POSIX/task/config/SDKqualifiers and Proxmox declaration-only MITlicense evidence remain."
+  ],
+  "accepted_disposition": "Accept Phase22technical completion under the recorded revised scope, all24enumerated historical/practical limitations and six already accepted Proxmox limitation rows. Explicitly accept ordinaryFAF1800-secondcompletion remaining unestablished and leaveV68unapproved/unimplemented. Preserve all failed measurements, narrow source qualifications and deferrals. Then deliver and verify actual accepted closeout on existing OPEN DRAFT PR37.",
+  "technical_acceptance_received": true,
+  "phase22_technically_complete_under_accepted_scope": true,
+  "accepted_closeout_delivery_verified": false,
+  "phase22_complete": false,
+  "new_native_observations_authorized": 0,
+  "paid_calls": 0,
+  "not_authorized": [
+    "new corpus/profile/comparator/retry execution",
+    "performance/source-only optimization attempt",
+    "new paid calls",
+    "resource/runtime change",
+    "merge",
+    "ready-state change",
+    "release",
+    "outreach",
+    "Phase23"
+  ]
+}

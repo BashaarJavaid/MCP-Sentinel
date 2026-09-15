@@ -1,0 +1,83 @@
+{
+  "recorded_at": "2026-09-11T07:42:37.245378+00:00",
+  "status": "prepared_not_approved_not_dispatched",
+  "source_parent": "3c29529e3f1c1f67150fd17aaf3afe57459c732e",
+  "new_native_observations": 0,
+  "new_comparator_observations": 0,
+  "new_paid_calls": 0,
+  "target_execution": false,
+  "checks": {
+    "baseline": {
+      "exit_code": 0,
+      "log": "v23-baseline-final-command.log",
+      "packet_sha256": "ec16a32a70ee51fcafcc1de049bcddf197d9f8850e9e5cf6d294463343b3f139"
+    },
+    "preflight": {
+      "exit_code": 0,
+      "log": "v23-preflight-command.log",
+      "packet_sha256": "8fa3ce4e2b38269e653b71c1d2c5fb7bee037fc8404cef15830693a37d02cbdf"
+    },
+    "linux_synthetic_supervisor": {
+      "exit_code": 0,
+      "image": "789391077c9a",
+      "log": "v23-supervisor-command.log",
+      "packet_sha256": "3b6e79e3a745f97d3fc71d9cf30cdf137709232bc73790242aecdba081aaa65e"
+    },
+    "action": {
+      "exit_code": 0,
+      "log": "v23-action-check.log",
+      "passed": 18
+    },
+    "docs": {
+      "exit_code": 0,
+      "log": "v23-final-preparation-docs.log"
+    },
+    "lint": {
+      "exit_code": 0,
+      "log": "v23-final-runner-lint.log"
+    }
+  },
+  "preparation_corrections": [
+    {
+      "failure": "Initial baseline compared the retained45 records against all50 preceding records; first implementation also serialized model records before comparison. Both checks stopped before materialization or any scanner execution.",
+      "logs": [
+        "v23-baseline-command.log",
+        "v23-baseline-corrected-command.log"
+      ],
+      "source_snapshots": [
+        "v23-baseline-initial-source.py",
+        "v23-baseline-second-source.py"
+      ],
+      "correction": "Compare the raw45 retained records with the identical IDs from the preceding50-record manifest; validation passes.",
+      "exit_codes": [
+        1,
+        1
+      ]
+    },
+    {
+      "failure": "Initial directory-level Ruff command found no Python files because integration assets are ignored. Its output is not validation. Explicit-file lint subsequently found48 import placement/line-length errors; formatting and local imports corrected them.",
+      "logs": [
+        "v23-initial-lint.log",
+        "v23-final-runner-lint.log"
+      ],
+      "raw_initial_explicit_lint_log": "Tool transcript only; not retained as a standalone file.",
+      "correction": "Explicit --no-respect-gitignore lint now passes for all three helpers; source checks and Linux controls pass."
+    }
+  ],
+  "documentation_corrections": [
+    "Architecture SearXNG statement reconciled with measured2ac39aa, retaining the prior failure.",
+    "Technical contract reconciled with the explicitly approved prospective120/300 timing policy and closed profiling scopes.",
+    "Configuration suppression documentation matches existing SENT-012\u2013016 support."
+  ],
+  "hosted_candidate_checks": "Required after delivery; no new hosted pass yet.",
+  "files_sha256": {
+    "artifacts/phase22/integration/v23-fresh-v4/runner.py": "80dd25b184d503fb899e2c7641eac6c824b997402ffb48bc10005262c04bdfaf",
+    "artifacts/phase22/integration/v23-fresh-v4/baseline.py": "c5089b9a6e51da2ecac9efca4aa80010ede9d849d97321c2c73a798ceec0769c",
+    "artifacts/phase22/integration/v23-fresh-v4/preflight.py": "b7fe23d42631013c09d38c62b304427ea343cbb820056478c161c3750c3a9a34",
+    "artifacts/phase22/integration/v23-fresh-v4/README.md": "261d86c2be363cf0c18523ef2f11418a6bd46a299b06a85155da1b94f4bcfaad",
+    ".github/workflows/ci.yml": "8be7b9592c43b89b69cafa0f5b495191270c9db625482ab1fcfa47abaa9a686d",
+    "ARCHITECTURE.md": "7b777be13ee7ec6e6b560516adc099d72283828c39e45f31c3034f0076bfee1b",
+    "docs/phase22-technical.md": "91f6eba552d19717263abcd8797143ff3b4a131906c2703cdd0283c24c82e4a7",
+    "docs/configuration.md": "c6eb6f49e041353364666011f0c15b1dbed685f74ecccb15fabc83685730bbbd"
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "status": "proposed_not_approved_not_executed",
+  "prior_rubric_sha256": {
+    "v79-unseen-metadata-correction": "d498a216878c9f4f7f3277faa4622298e7127e92d45c0dce29ca9a335da830f9",
+    "v74-prior-language-preparation": "493f8f17caaa4310bdf75506e43b2531a96c3d5958d6443a5e62a1bd0c0b1f8b"
+  },
+  "new_two_original_cases": [
+    {
+      "id": "taskwarrior-shell",
+      "archive_label": "taskwarrior",
+      "repository": "awwaiid/mcp-server-taskwarrior",
+      "language": "typescript",
+      "rule_id": "SENT-002",
+      "tool": "mark_task_done",
+      "argument": "identifier",
+      "scan_root": ".",
+      "licenses": [
+        "LICENSE"
+      ],
+      "condition": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed.",
+      "safe_value": "1",
+      "flow": "index.ts imports SDK Server and CallToolRequestSchema, registers mark_task_done via ListToolsRequestSchema, and dispatches request.params through switch(name). markTaskDoneRequest only requires z.string(); safeParse failure throws. Vulnerable line146 interpolates parsed.data.identifier into child_process.execSync. Fixed lines151\u2013154 use execFileSync(task,[identifier,done]) with shell absent. The same parsed field reaches the fixed invocation.",
+      "prerequisites": [
+        "Operator starts the upstream stdio server with the declared SDK and a local configured task binary. The declared package omits a direct zod dependency; a compatible zod must be present for its source import. No installation/startup is performed.",
+        "Caller reaches the registered mark_task_done route with a string identifier; no unrecorded outer authorization or sanitizer.",
+        "POSIX shell interpretation for the vulnerable witness. Fixed subprocess creation uses Node shell=false default; no malicious replacement task binary or executable search path."
+      ],
+      "limits": [
+        "Named shell interpretation only; no claim about Taskwarrior option/filter semantics, authorization, stable task IDs, other tools, or Windows batch execution.",
+        "GitHub current repository language says JavaScript; both selected complete archives contain index.ts and tsconfig.json and no JavaScript source. Actual evaluated language is TypeScript.",
+        "Fixed/safe records share the full fixed tree; the static scanner is not specialized to the illustrative safe value."
+      ],
+      "evidence_files": [
+        "index.ts",
+        "package.json",
+        "tsconfig.json",
+        "README.md",
+        "LICENSE"
+      ],
+      "witnesses": {
+        "vulnerable": {
+          "path": "index.ts",
+          "sink_line": 146
+        },
+        "fixed": {
+          "path": "index.ts",
+          "sink_line": 151
+        }
+      },
+      "license_assessment": "Both archives retain the complete MIT license. Repository API identity is non-fork; name matches absent from the pre-curation inventory.",
+      "vulnerable_revision": "d502ad2799d00ac2d879c6f279b0795fc3fdf02c",
+      "vulnerable_git_tree": "23d8c7870641da11651165611a0c31610f4535c8",
+      "fixed_revision": "29850c7a6991a35aea1402b6cba2cd01c7541205",
+      "fixed_git_tree": "287442ef81fd97c1f9849a723d735a3c333aabef",
+      "all_changed_files": [
+        "index.ts"
+      ],
+      "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+    },
+    {
+      "id": "proxmox-upload-root",
+      "archive_label": "proxmox",
+      "repository": "nick-holmquist/proxmox-mcp",
+      "language": "python",
+      "rule_id": "SENT-012",
+      "tool": "pve_storage_upload",
+      "argument": "file_path",
+      "scan_root": ".",
+      "licenses": [
+        "README.md",
+        "pyproject.toml"
+      ],
+      "condition": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "safe_value": "/srv/proxmox-upload/fixture.iso",
+      "flow": "server.py _MODULES/_build_dispatch_table derives tool ownership from get_tools; @server.call_tool dispatches the exact name to storage.handle_tool. tools/storage.py declares pve_storage_upload and forwards arguments[file_path] to imported singleton client.upload_to_storage. client=ProxmoxClient() is initialized with _api=None. Vulnerable client.py line436 open(file_path,rb); fixed helper415\u2013437 returns resolved and method457\u2013464 consumes it. API property/network upload occurs after opening; the named local read boundary does not require claiming successful remote exfiltration.",
+      "prerequisites": [
+        "Stable nonempty operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload; operator environment and dotenv inputs are not caller controlled.",
+        "Caller supplies node, storage, file_path and valid optional content. The outside witness is an existing ordinary readable regular file; the safe file is inside the existing allowed root.",
+        "Upstream Python stdio SDK server and declared dependencies/configuration are available in the source scenario. No target import/startup or credentials are supplied during evaluation.",
+        "No symlink replacement, filesystem race, mount change or custom filesystem hooks between resolution/isfile/open. Correct Proxmox configuration is additionally required for a successful upload, which is outside this static read condition."
+      ],
+      "limits": [
+        "Initial resolved filesystem containment only; no race/physical-use, downstream Proxmox authorization, successful exfiltration, API/DNS/TLS or other tool safety claim.",
+        "Module-table dispatch and imported singleton/helper support remain to be established in actual scanner output and source assessment; no-alert unsupported code fails discrimination.",
+        "Fixed/safe share complete source/configuration; safe caller value is an illustrative source prerequisite, not a specialization of static analysis."
+      ],
+      "evidence_files": [
+        "src/proxmox_mcp/server.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/__init__.py",
+        "pyproject.toml",
+        "README.md",
+        ".env.example"
+      ],
+      "witnesses": {
+        "vulnerable": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 436
+        },
+        "fixed": {
+          "path": "src/proxmox_mcp/client.py",
+          "sink_line": 464
+        }
+      },
+      "license_assessment": "Both full archives declare MIT in README and pyproject.toml, including the MIT classifier. Neither contains a standalone license/full grant text; GitHub license metadata is null. All actual declarations are preserved; no absent grant text is fabricated. This qualification follows the retained no-bash declaration-only precedent.",
+      "vulnerable_revision": "3d6610be096f81a1e1257387591f6d77b893eb8b",
+      "vulnerable_git_tree": "cd9d0375773b617d462403180be85be67a3a36fb",
+      "fixed_revision": "39889d55990ad3c98620093c428ca00c1189734c",
+      "fixed_git_tree": "45884e181534b5dfd417eb475d7578e8be9983d1",
+      "all_changed_files": [
+        ".env.example",
+        "README.md",
+        "src/proxmox_mcp/client.py",
+        "src/proxmox_mcp/tools/storage.py",
+        "tests/test_client_smoke.py",
+        "tests/test_handlers_smoke.py",
+        "tests/test_upload_path_confinement.py"
+      ],
+      "actual_detector_support": "Unmeasured: require source-bound discovery/caller/guard/value/sink support after execution. Native output has no positive per-sink guard trace. A generic rule/line match is only a candidate; full source assessment decides the named condition."
+    }
+  ],
+  "original_conditions": {
+    "taskwarrior-shell": {
+      "taskwarrior-shell-vulnerable": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed.",
+      "taskwarrior-shell-fixed": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed.",
+      "taskwarrior-shell-safe": "An MCP mark_task_done caller controls identifier. A schema-valid string such as 1; printf PHASE22_INERT; # crosses from a task identifier into shell command syntax in execSync. The upstream fixed execFileSync passes the entire identifier as one argv element without a shell. The witness is documentation only and is never executed. Safe caller value: 1"
+    },
+    "proxmox-upload-root": {
+      "proxmox-upload-root-vulnerable": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "proxmox-upload-root-fixed": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value.",
+      "proxmox-upload-root-safe": "An MCP pve_storage_upload caller must not open /srv/proxmox-outside/fixture.iso outside operator PROXMOX_MCP_UPLOAD_DIR=/srv/proxmox-upload. Vulnerable upload_to_storage checks isfile then opens the original caller path. Fixed _resolve_upload_path requires a nonempty operator directory, resolves directory and caller path, rejects commonpath mismatch, returns the checked path, and upload_to_storage opens that returned value. Safe caller value: /srv/proxmox-upload/fixture.iso"
+    },
+    "lightning-discover-linklocal": {
+      "lightning-discover-linklocal-vulnerable": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+      "lightning-discover-linklocal-fixed": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request.",
+      "lightning-discover-linklocal-safe": "discover_api caller URL with initial literal host 169.254.169.254 must be rejected before the first HTTPX client.get request. Safe input uses http://93.184.216.34/fixture.json under the stated prerequisites."
+    },
+    "engram-export-home": {
+      "engram-export-home-vulnerable": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+      "engram-export-home-fixed": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator.",
+      "engram-export-home-safe": "memory_export_all caller output_path must not direct the actual manifest_path.write_text outside the process user's home /home/operator. Safe input uses /home/operator/exports under the stated prerequisites."
+    },
+    "ddg": {
+      "ddg-cgnat-vulnerable": "The registered web_fetch tool rejects initial http://100.100.200.200/ in shared address space 100.64.0.0/10 before issuing an outbound HTTP request.",
+      "ddg-cgnat-vulnerable-mutation": "The registered web_fetch tool rejects initial http://100.100.200.200/ in shared address space 100.64.0.0/10 before issuing an outbound HTTP request.",
+      "ddg-cgnat-fixed": "The registered web_fetch tool rejects initial http://100.100.200.200/ in shared address space 100.64.0.0/10 before issuing an outbound HTTP request.",
+      "ddg-cgnat-fixed-mutation": "The registered web_fetch tool rejects initial http://100.100.200.200/ in shared address space 100.64.0.0/10 before issuing an outbound HTTP request.",
+      "ddg-public-safe": "The fixed web_fetch initial destination policy permits public literal http://8.8.8.8/ without classifying it as restricted shared address space."
+    },
+    "py-development": {
+      "dbt-option-selection-vulnerable": "Caller-controlled node_selection tokens must not become extra dbt CLI options through the --select argument list",
+      "dbt-option-selection-vulnerable-mutation": "Caller-controlled node_selection tokens must not become extra dbt CLI options through the --select argument list",
+      "dbt-option-selection-fixed": "Caller-controlled node_selection tokens must not become extra dbt CLI options through the --select argument list",
+      "dbt-option-selection-fixed-mutation": "Caller-controlled node_selection tokens must not become extra dbt CLI options through the --select argument list",
+      "dbt-option-selection-safe": "An ordinary selector token such as model_a without a leading hyphen may be passed through --select; accepting it is not option injection",
+      "meta-image-ssrf-vulnerable": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+      "meta-image-ssrf-vulnerable-mutation": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+      "meta-image-ssrf-fixed": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+      "meta-image-ssrf-fixed-mutation": "upload_ad_image image_url must not trigger a request to a literal loopback/private address or prohibited URL scheme",
+      "meta-image-ssrf-safe": "A public HTTP(S) literal such as https://8.8.8.8/image.jpg passes the relevant URL guard; accepting a public literal is not the labeled SSRF condition",
+      "meta-operator-fallback-vulnerable": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+      "meta-operator-fallback-vulnerable-mutation": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+      "meta-operator-fallback-fixed": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+      "meta-operator-fallback-fixed-mutation": "An HTTP caller without a caller credential must not invoke Meta tools using the operator's META_ACCESS_TOKEN fallback",
+      "meta-operator-fallback-safe": "A valid per-request caller token may authenticate that caller's request to Meta; relevant caller-token use is not operator fallback"
+    },
+    "py-historical": {
+      "git-staging-vulnerable": "git_add rejects relative paths resolving outside its repository before staging",
+      "git-staging-vulnerable-mutation": "git_add rejects relative paths resolving outside its repository before staging",
+      "git-staging-fixed": "git_add rejects relative paths resolving outside its repository before staging",
+      "git-staging-fixed-mutation": "git_add rejects relative paths resolving outside its repository before staging",
+      "git-arguments-vulnerable": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "git-arguments-vulnerable-mutation": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "git-arguments-fixed": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "git-arguments-fixed-mutation": "git_diff and git_checkout reject flag-like refs before the Git CLI can treat them as options",
+      "git-repository-vulnerable": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "git-repository-vulnerable-mutation": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "git-repository-fixed": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "git-repository-fixed-mutation": "When --repository is set, tool repo_path cannot select a repository outside that resolved boundary",
+      "atlassian-ssrf-vulnerable": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "atlassian-ssrf-vulnerable-mutation": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "atlassian-ssrf-fixed": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "atlassian-ssrf-fixed-mutation": "Header service URLs with literal loopback/private IPs or blocked schemes are rejected before Jira/Confluence requests",
+      "atlassian-auth-vulnerable": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "atlassian-auth-vulnerable-mutation": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "atlassian-auth-fixed": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "atlassian-auth-fixed-mutation": "An HTTP caller with no user credential cannot inherit operator-global Jira/Confluence credentials with ALLOW_GLOBAL_CRED_FALLBACK unset",
+      "atlassian-upload-vulnerable": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "atlassian-upload-vulnerable-mutation": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "atlassian-upload-fixed": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "atlassian-upload-fixed-mutation": "Confluence and Jira attachment upload sources cannot escape the process working directory through absolute paths or traversal",
+      "excel-boundary-vulnerable": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "excel-boundary-vulnerable-mutation": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "excel-boundary-fixed": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "excel-boundary-fixed-mutation": "Remote-mode filenames must be relative and resolve inside EXCEL_FILES_PATH before workbook operations",
+      "git-status-safe": "git_status uses fixed Git status options, with no caller-provided shell command; missing shell sanitization here is not a defect",
+      "atlassian-download-path-safe": "validate_safe_path rejects a resolved download destination outside its supplied base directory; normalization without checking containment would not suffice",
+      "excel-child-path-safe": "A plain child workbook filename resolving inside EXCEL_FILES_PATH is permitted in remote mode; accepting this contained path is not a path-boundary violation"
+    }
+  },
+  "success": "Every original vulnerable condition and valid fixed/safe condition retains actual source-supported caller/guard/value/sink handling and its narrow qualifier. Quiet unsupported negatives fail. Proxmox requires actual module dispatch, local read and terminal root guard support; Taskwarrior retains the named shell/argv boundary. DDG caller-specific actual-send CGNAT support, two Meta nominal-fixed operator errata, calculator outside-condition findings and Git physical/identity qualifiers remain. All48 entire ordered repeats agree after only11 original volatile exclusions. Assess every finding, diagnostic, unresolved flow/surface, denominator and full ordered reference difference; no stale-key automatic refresh.",
+  "collection_stop": "Stop and close all unused observations on user cancellation or identity, infrastructure, execution, whole/native timeout, schema, process-cleanup or entire ordered-repeat failure. Named condition/support failures remain outcomes for source assessment after collection. No retry, profile, tuning, extra diagnostic, comparator or replacement. This top-level policy supersedes the older nested TypeScript first-condition stop only for this proposed sequence, subject to explicit approval.",
+  "timing": "Normal1800-second whole/native input,10-second Semgrep,15-second cleanup,existing4workers and serial inputs;120seconds informational.3455-minute outer cap plus15seconds outer cleanup is a worst-case bound, not an estimate.",
+  "assessment": "Complete raw outputs and source contexts, source-supported negative qualification, unchanged eleven volatile exclusions, full ordered differences. Related variants/repeats are correlated; no population accuracy or independent validation claim.",
+  "technical_acceptance_received": false,
+  "paid_calls": 0,
+  "target_execution": false
+}

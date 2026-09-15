@@ -1,0 +1,457 @@
+{
+  "recorded_at": "2026-09-11T07:48:55.961720+00:00",
+  "verification_passed": true,
+  "fresh_source_qualification_passed": false,
+  "original_manifest_sha256": "a5ea6930e9cd5522f9420bef57875fea5d44d1d1c45fb5136a02a7c0292a9c67",
+  "proposed_manifest_sha256": "966b8b0578832916c97018316fe890a428b63533242577b8b7cc6f636b59ca7b",
+  "comparisons": [
+    {
+      "label": "vulnerable",
+      "original_revision": "98f381d1298b6b7e7ff29d7a7851f18ea5f2364c",
+      "proposed_revision": "42daa70c391cde4396de877541a64a9c3f761a9d",
+      "original_archive": {
+        "path": "artifacts/phase22/corpus-review/snapshots/98f381d1298b6b7e7ff29d7a7851f18ea5f2364c.tar.gz",
+        "sha256": "7d5d6c0d9fa24050eeaaf586bef095cd265a8a0cd0f59d03ea0d0ef8f0aacdf0"
+      },
+      "proposed_archive": {
+        "path": "artifacts/phase22/corpus-replacement-v4/sources/authfetch-direct-vulnerable.tar.gz",
+        "sha256": "9c2d2b8df464c41556011f3d184aae95ad13357d7992bbbf41e869e7737cc06e"
+      },
+      "original_tree_sha256": "b15e97c472bec520e16c891003982fdddf84ef8e8406d6301971c12eb6062802",
+      "proposed_tree_sha256": "b15e97c472bec520e16c891003982fdddf84ef8e8406d6301971c12eb6062802",
+      "original_condition": "auth_fetch must reject an IPv4-mapped IPv6 loopback URL after the URL parser canonicalizes its hostname",
+      "proposed_condition": "The registered auth_fetch tool rejects a caller-supplied http://[::ffff:7f00:1]/ URL before the initial browser navigation when private destinations have not been opted into",
+      "identical_files": [
+        ".dockerignore",
+        ".github/workflows/release.yml",
+        ".gitignore",
+        "Dockerfile",
+        "LICENSE",
+        "README.md",
+        "demo/demo-presentation.html",
+        "demo/product-demo.gif",
+        "demo/product-demo.mp4",
+        "demo/product-demo.webm",
+        "demo/record-demo.js",
+        "demo/test-server.js",
+        "glama.json",
+        "package-lock.json",
+        "package.json",
+        "src/browser.ts",
+        "src/extractor.ts",
+        "src/index.ts",
+        "src/security.ts",
+        "src/tools.ts",
+        "tsconfig.json"
+      ],
+      "changed_files": [],
+      "removed_files": [],
+      "added_files": [],
+      "diffs": {},
+      "source_file_hashes": {
+        ".dockerignore": "4a241817ad157916d3fbd152a0b310b6b24b950a4a849628dafc8017016fb325",
+        ".github/workflows/release.yml": "1e2074caded7978c3515f940e9804dcc3208248b0a900c979591ab3132b5170b",
+        ".gitignore": "4b8d172201186b3b91f76858eac75d940d23bfbc372293512f8a9feced4c29cf",
+        "Dockerfile": "1b733a2657c72e8eda891e6362e2d678098ea9e305cf8cf7f80101e2218b3b21",
+        "LICENSE": "6c0445c953deab46daf71fef398126cb3db96d99c4eac0e01086d7f12c3cc88f",
+        "README.md": "f988ec655ae21616e1944fae1de3556dcd44cd20664ad6a9db5fde0bfb2cf602",
+        "demo/demo-presentation.html": "b4c3446759044fbbfba2fb8b7440bc975dc25c7f199e353be94681186e44bcae",
+        "demo/product-demo.gif": "be43201e066ce78a13e02fd8f403c829f4884e1fdc810c412f8113f5ff948947",
+        "demo/product-demo.mp4": "6b1ad826fa2eef1daf6ebed56ff9a482b4e0c6fa2e7662f44e4ac71eb5a431ec",
+        "demo/product-demo.webm": "2e88482fe08081e59ad68b52874b183dacdd9940f3a0d8902a47ff910e55a92d",
+        "demo/record-demo.js": "1c21fb193ff1c61692ba30b8638aa507c2a6920721bda210249e11474fdd5952",
+        "demo/test-server.js": "c43123f70d2099af9f5b73a58cd19740bfda27fd31ffb93513184bb252469aeb",
+        "glama.json": "c94bcf6720adb52f4a3040f6218c6c009fea2ea229f00a13ad9d571567023b5d",
+        "package-lock.json": "bc749726b22ba691bf89753b049b7d3ac8d492606e825a5be8228db90b28a1a8",
+        "package.json": "cfd006a2f83242d08b7858e2e0af4e7fe0e8e6cd85ad3ef94356edb987c299ad",
+        "src/browser.ts": "2d1bde24720d08d2726b3f64a3ee11f02235b2ad87972894ab542fa8846bfef6",
+        "src/extractor.ts": "91acbaa97bcc14d418f288f90a33168dc60a68b24a3609fd3bbd0d43a19b5d44",
+        "src/index.ts": "0fff3fdda1f4260b47d19d797cced3c12911c8a6502d924d8526141b95441296",
+        "src/security.ts": "89bb98c97a8942230914c38dfeb33f373a42dbde9c3957703beda28c9b08b484",
+        "src/tools.ts": "798d534524a6b133fbe622a45e94756dfb172578b7bc2c4d51384c460191a3e9",
+        "tsconfig.json": "4a9281de6600b0eb7a02b42322e7cda7006e8fd709c049fcf3d3bdf9d6439cf1"
+      }
+    },
+    {
+      "label": "fixed",
+      "original_revision": "d4dedaf55c1d39228dbed58807ea1f9fac1328e1",
+      "proposed_revision": "177ec5f8ee9c2d5749035777e562f699971b0da9",
+      "original_archive": {
+        "path": "artifacts/phase22/corpus-review/snapshots/d4dedaf55c1d39228dbed58807ea1f9fac1328e1.tar.gz",
+        "sha256": "1596050587682ba4fa69cce7689d718b2e65d4f51e6d1f80b180f864d6219373"
+      },
+      "proposed_archive": {
+        "path": "artifacts/phase22/corpus-replacement-v4/sources/authfetch-direct-fixed.tar.gz",
+        "sha256": "4007999123174043250c21efd87561e75b983fa1d8e50a8f3151493d39adc424"
+      },
+      "original_tree_sha256": "12d3600d86afb13ac812d7802807f1b765aa18e793eac67bc384d3e33b57886a",
+      "proposed_tree_sha256": "6fb6feca4e634bb3860335b6faa55166d8c5d82e7475b8e1b5f8cca80e3a2afc",
+      "original_condition": "auth_fetch must reject an IPv4-mapped IPv6 loopback URL after the URL parser canonicalizes its hostname",
+      "proposed_condition": "The registered auth_fetch tool rejects a caller-supplied http://[::ffff:7f00:1]/ URL before the initial browser navigation when private destinations have not been opted into",
+      "identical_files": [
+        ".dockerignore",
+        ".github/workflows/release.yml",
+        ".gitignore",
+        "Dockerfile",
+        "LICENSE",
+        "README.md",
+        "demo/demo-presentation.html",
+        "demo/product-demo.gif",
+        "demo/product-demo.mp4",
+        "demo/product-demo.webm",
+        "demo/record-demo.js",
+        "demo/test-server.js",
+        "glama.json",
+        "src/browser.ts",
+        "src/extractor.ts",
+        "src/index.ts",
+        "src/security.ts",
+        "src/tools.ts",
+        "tsconfig.json"
+      ],
+      "changed_files": [
+        "package-lock.json",
+        "package.json"
+      ],
+      "removed_files": [],
+      "added_files": [],
+      "diffs": {
+        "package-lock.json": "--- original/package-lock.json\n+++ proposed/package-lock.json\n@@ -1,12 +1,12 @@\n {\n   \"name\": \"auth-fetch-mcp\",\n-  \"version\": \"3.0.2\",\n+  \"version\": \"3.0.1\",\n   \"lockfileVersion\": 3,\n   \"requires\": true,\n   \"packages\": {\n     \"\": {\n       \"name\": \"auth-fetch-mcp\",\n-      \"version\": \"3.0.2\",\n+      \"version\": \"3.0.1\",\n       \"license\": \"MIT\",\n       \"dependencies\": {\n         \"@modelcontextprotocol/sdk\": \"^1.27.1\",\n@@ -896,9 +896,9 @@\n       }\n     },\n     \"node_modules/qs\": {\n-      \"version\": \"6.15.2\",\n-      \"resolved\": \"https://registry.npmjs.org/qs/-/qs-6.15.2.tgz\",\n-      \"integrity\": \"sha512-Rzq0KEyX/w/tEybncDgdkZrJgVUsUMk3xjh3t5bv3S1HTAtg+uOYt72+ZfwiQwKdysThkTBdL/rTi6HDmX9Ddw==\",\n+      \"version\": \"6.15.0\",\n+      \"resolved\": \"https://registry.npmjs.org/qs/-/qs-6.15.0.tgz\",\n+      \"integrity\": \"sha512-mAZTtNCeetKMH+pSjrb76NAM8V9a05I9aBZOHztWy/UqcJdQYNsf59vrRKWnojAT9Y+GbIvoTBC++CPHqpDBhQ==\",\n       \"license\": \"BSD-3-Clause\",\n       \"dependencies\": {\n         \"side-channel\": \"^1.1.0\"\n",
+        "package.json": "--- original/package.json\n+++ proposed/package.json\n@@ -1,6 +1,6 @@\n {\n   \"name\": \"auth-fetch-mcp\",\n-  \"version\": \"3.0.2\",\n+  \"version\": \"3.0.1\",\n   \"description\": \"MCP server that lets AI read Notion, Google Docs, Jira & any login-protected page via a real browser\",\n   \"main\": \"dist/index.js\",\n   \"bin\": {\n"
+      },
+      "source_file_hashes": {
+        ".dockerignore": "4a241817ad157916d3fbd152a0b310b6b24b950a4a849628dafc8017016fb325",
+        ".github/workflows/release.yml": "1e2074caded7978c3515f940e9804dcc3208248b0a900c979591ab3132b5170b",
+        ".gitignore": "4b8d172201186b3b91f76858eac75d940d23bfbc372293512f8a9feced4c29cf",
+        "Dockerfile": "1b733a2657c72e8eda891e6362e2d678098ea9e305cf8cf7f80101e2218b3b21",
+        "LICENSE": "6c0445c953deab46daf71fef398126cb3db96d99c4eac0e01086d7f12c3cc88f",
+        "README.md": "f988ec655ae21616e1944fae1de3556dcd44cd20664ad6a9db5fde0bfb2cf602",
+        "demo/demo-presentation.html": "b4c3446759044fbbfba2fb8b7440bc975dc25c7f199e353be94681186e44bcae",
+        "demo/product-demo.gif": "be43201e066ce78a13e02fd8f403c829f4884e1fdc810c412f8113f5ff948947",
+        "demo/product-demo.mp4": "6b1ad826fa2eef1daf6ebed56ff9a482b4e0c6fa2e7662f44e4ac71eb5a431ec",
+        "demo/product-demo.webm": "2e88482fe08081e59ad68b52874b183dacdd9940f3a0d8902a47ff910e55a92d",
+        "demo/record-demo.js": "1c21fb193ff1c61692ba30b8638aa507c2a6920721bda210249e11474fdd5952",
+        "demo/test-server.js": "c43123f70d2099af9f5b73a58cd19740bfda27fd31ffb93513184bb252469aeb",
+        "glama.json": "c94bcf6720adb52f4a3040f6218c6c009fea2ea229f00a13ad9d571567023b5d",
+        "src/browser.ts": "2d1bde24720d08d2726b3f64a3ee11f02235b2ad87972894ab542fa8846bfef6",
+        "src/extractor.ts": "91acbaa97bcc14d418f288f90a33168dc60a68b24a3609fd3bbd0d43a19b5d44",
+        "src/index.ts": "0fff3fdda1f4260b47d19d797cced3c12911c8a6502d924d8526141b95441296",
+        "src/security.ts": "b1b72509dab5e0bbd0017d8d6eb7f966930f99048175cf327fad1a4e948c607b",
+        "src/tools.ts": "798d534524a6b133fbe622a45e94756dfb172578b7bc2c4d51384c460191a3e9",
+        "tsconfig.json": "4a9281de6600b0eb7a02b42322e7cda7006e8fd709c049fcf3d3bdf9d6439cf1"
+      }
+    }
+  ],
+  "prior_completed_evaluations": [
+    {
+      "path": "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/results.json",
+      "sha256": "c2b9aaaa97d7a1e0b82907d5850b81f2c9fc0c988715dbd8ab716e63a2bd7b27",
+      "scanner": {
+        "harness_sha256": "82c5d93ea7b75b047dbcaf80b3a9249baa5cb033f4b5dad4779387525e3a393e",
+        "revision": "dcb965fa872f3b8c76d6a4e87a32ad23f1d5bb24",
+        "source_sha256": "42ead5c5cfbef7cebfd47a9235628f9bb1fcf831bc3385497d9c5af4b0bf3589"
+      },
+      "started_at": "2026-09-09T09:07:07.083518+00:00",
+      "outcomes": [
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-vulnerable",
+          "reason": null,
+          "report_sha256": "c49e79e17a3579aabb5ae88d536da50aa7e427d2596fe78b136dd6207c3759eb",
+          "stable_sha256": "7f65b79f08c0c9db8486d9743daf5a5d67360f48d87f8cc72201f00ab4cfb5db",
+          "state": "completed",
+          "wall_duration_ms": 4536
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-vulnerable-mutation",
+          "reason": null,
+          "report_sha256": "f9598160c34f2788b0012591c9c35611802052211049691782bb28adddedca31",
+          "stable_sha256": "7f65b79f08c0c9db8486d9743daf5a5d67360f48d87f8cc72201f00ab4cfb5db",
+          "state": "completed",
+          "wall_duration_ms": 4214
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-fixed",
+          "reason": null,
+          "report_sha256": "f0a76d96c7f469468eaae17b26f3ca3e2527af812cb8a89ab23af135d7fae2ef",
+          "stable_sha256": "7f65b79f08c0c9db8486d9743daf5a5d67360f48d87f8cc72201f00ab4cfb5db",
+          "state": "completed",
+          "wall_duration_ms": 4110
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-fixed-mutation",
+          "reason": null,
+          "report_sha256": "bb4cfbe8846e8496792fab0e5f3029ac313171eed2606e9b095f42fb370a14a2",
+          "stable_sha256": "7f65b79f08c0c9db8486d9743daf5a5d67360f48d87f8cc72201f00ab4cfb5db",
+          "state": "completed",
+          "wall_duration_ms": 4064
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-safe",
+          "reason": null,
+          "report_sha256": "26a2fc1652844d3823e2ce4678a47ea09017077524011bbf63ddf45cdd946966",
+          "stable_sha256": "7f65b79f08c0c9db8486d9743daf5a5d67360f48d87f8cc72201f00ab4cfb5db",
+          "state": "completed",
+          "wall_duration_ms": 4348
+        }
+      ],
+      "report_hashes_verified": {
+        "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/authfetch-mapped-loopback-vulnerable/report.json": "c49e79e17a3579aabb5ae88d536da50aa7e427d2596fe78b136dd6207c3759eb",
+        "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/authfetch-mapped-loopback-vulnerable-mutation/report.json": "f9598160c34f2788b0012591c9c35611802052211049691782bb28adddedca31",
+        "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/authfetch-mapped-loopback-fixed/report.json": "f0a76d96c7f469468eaae17b26f3ca3e2527af812cb8a89ab23af135d7fae2ef",
+        "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/authfetch-mapped-loopback-fixed-mutation/report.json": "bb4cfbe8846e8496792fab0e5f3029ac313171eed2606e9b095f42fb370a14a2",
+        "artifacts/phase22/integration/v2-held_out-rules-dcb965f-first/authfetch-mapped-loopback-safe/report.json": "26a2fc1652844d3823e2ce4678a47ea09017077524011bbf63ddf45cdd946966"
+      }
+    },
+    {
+      "path": "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/results.json",
+      "sha256": "7090ed85ac25bf2fdc7b9f37d448b9dc4a4376f1c8e100206ff568ace5a00cc9",
+      "scanner": {
+        "harness_sha256": "82c5d93ea7b75b047dbcaf80b3a9249baa5cb033f4b5dad4779387525e3a393e",
+        "revision": "dcb965fa872f3b8c76d6a4e87a32ad23f1d5bb24",
+        "source_sha256": "42ead5c5cfbef7cebfd47a9235628f9bb1fcf831bc3385497d9c5af4b0bf3589"
+      },
+      "started_at": "2026-09-09T09:31:00.407193+00:00",
+      "outcomes": [
+        {
+          "error_count": 0,
+          "exit_code": 0,
+          "finding_count": 5,
+          "input_id": "authfetch-mapped-loopback-vulnerable",
+          "paths": {
+            "scanned": [
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/.github/workflows/release.yml",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/demo/record-demo.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/demo/test-server.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/glama.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/package-lock.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/package.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/src/browser.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/src/extractor.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/src/index.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/src/security.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/src/tools.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-ig1w1qk2/source/tsconfig.json"
+            ]
+          },
+          "raw_sha256": "22d1a71b5ec3d3f8e4909ef15a45f9146f4766066360e4e5a0be96170e70f7ba",
+          "reason": null,
+          "state": "completed",
+          "wall_duration_ms": 22101
+        },
+        {
+          "error_count": 0,
+          "exit_code": 0,
+          "finding_count": 5,
+          "input_id": "authfetch-mapped-loopback-vulnerable-mutation",
+          "paths": {
+            "scanned": [
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/.github/workflows/release.yml",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/demo/record-demo.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/demo/test-server.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/glama.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/package-lock.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/package.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/src/browser.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/src/extractor.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/src/index.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/src/security.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/src/tools.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-pd0qsnpw/source/tsconfig.json"
+            ]
+          },
+          "raw_sha256": "abde497b67f5042201c49493343233a5c97d6e48757fff992f83a11ab2bc7d72",
+          "reason": null,
+          "state": "completed",
+          "wall_duration_ms": 21205
+        },
+        {
+          "error_count": 0,
+          "exit_code": 0,
+          "finding_count": 5,
+          "input_id": "authfetch-mapped-loopback-fixed",
+          "paths": {
+            "scanned": [
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/.github/workflows/release.yml",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/demo/record-demo.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/demo/test-server.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/glama.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/package-lock.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/package.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/src/browser.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/src/extractor.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/src/index.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/src/security.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/src/tools.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-h39g9abt/source/tsconfig.json"
+            ]
+          },
+          "raw_sha256": "e636360b101be329d2d90ce43af147c12288a9d0cf284e7ed5922b28161fd01a",
+          "reason": null,
+          "state": "completed",
+          "wall_duration_ms": 20232
+        },
+        {
+          "error_count": 0,
+          "exit_code": 0,
+          "finding_count": 5,
+          "input_id": "authfetch-mapped-loopback-fixed-mutation",
+          "paths": {
+            "scanned": [
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/.github/workflows/release.yml",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/demo/record-demo.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/demo/test-server.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/glama.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/package-lock.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/package.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/src/browser.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/src/extractor.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/src/index.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/src/security.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/src/tools.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-nnhl4kq8/source/tsconfig.json"
+            ]
+          },
+          "raw_sha256": "7ff82727497e29de2b60e0b543b7564a3bd1016e98999f78eedb391dd9baa16c",
+          "reason": null,
+          "state": "completed",
+          "wall_duration_ms": 20908
+        },
+        {
+          "error_count": 0,
+          "exit_code": 0,
+          "finding_count": 5,
+          "input_id": "authfetch-mapped-loopback-safe",
+          "paths": {
+            "scanned": [
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/.github/workflows/release.yml",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/demo/record-demo.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/demo/test-server.js",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/glama.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/package-lock.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/package.json",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/src/browser.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/src/extractor.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/src/index.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/src/security.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/src/tools.ts",
+              "/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/phase20-n1chjm8d/source/tsconfig.json"
+            ]
+          },
+          "raw_sha256": "ae200b4483cbf67e58218c5b2ff23c01e56367b23ae81f676dbcb2caeebc2feb",
+          "reason": null,
+          "state": "completed",
+          "wall_duration_ms": 21287
+        }
+      ],
+      "report_hashes_verified": {
+        "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/authfetch-mapped-loopback-vulnerable/raw.json": "22d1a71b5ec3d3f8e4909ef15a45f9146f4766066360e4e5a0be96170e70f7ba",
+        "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/authfetch-mapped-loopback-vulnerable-mutation/raw.json": "abde497b67f5042201c49493343233a5c97d6e48757fff992f83a11ab2bc7d72",
+        "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/authfetch-mapped-loopback-fixed/raw.json": "e636360b101be329d2d90ce43af147c12288a9d0cf284e7ed5922b28161fd01a",
+        "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/authfetch-mapped-loopback-fixed-mutation/raw.json": "7ff82727497e29de2b60e0b543b7564a3bd1016e98999f78eedb391dd9baa16c",
+        "artifacts/phase22/integration/v2-held_out-semgrep-dcb965f-first/authfetch-mapped-loopback-safe/raw.json": "ae200b4483cbf67e58218c5b2ff23c01e56367b23ae81f676dbcb2caeebc2feb"
+      }
+    },
+    {
+      "path": "artifacts/phase22/integration/v3-held_out-rules-final/results.json",
+      "sha256": "12558becb2061362367e46cbd852f8418ecfd523fe350c921cd5bde083e0cb5d",
+      "scanner": {
+        "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add",
+        "revision": "68bdf83ca35670946c850595f3a2a11eadee2a4a",
+        "source_sha256": "79d959ea43727b916b50b4dc584350f6dab3dad47e50565282d12c89a0c5a828"
+      },
+      "started_at": "2026-09-09T16:29:16.977676+00:00",
+      "outcomes": [
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-vulnerable",
+          "reason": null,
+          "report_sha256": "4419d8b6cace3da7cf6ae2d3d6f7406770e8f37ef325e05e20d0563c66b362fe",
+          "stable_sha256": "277a6f3c70233ac5a29ae5348429bfed00f4553aac5331bbadbbee4104f5594d",
+          "state": "completed",
+          "wall_duration_ms": 4637
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-vulnerable-mutation",
+          "reason": null,
+          "report_sha256": "9aa6240eda73a27fb2f3354f4bccf2e5584e05a7b7925a26111c330a5a0347c0",
+          "stable_sha256": "277a6f3c70233ac5a29ae5348429bfed00f4553aac5331bbadbbee4104f5594d",
+          "state": "completed",
+          "wall_duration_ms": 4099
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-fixed",
+          "reason": null,
+          "report_sha256": "29c2aebc3a61e9bc29450afe97931a39a2940f2c1ef6b9fb2be893cb219c6dec",
+          "stable_sha256": "277a6f3c70233ac5a29ae5348429bfed00f4553aac5331bbadbbee4104f5594d",
+          "state": "completed",
+          "wall_duration_ms": 4124
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-fixed-mutation",
+          "reason": null,
+          "report_sha256": "55a9b271a358dfc51ad747a377a4b995a0f1d95292aa0b755ff8a13b8145bdc7",
+          "stable_sha256": "277a6f3c70233ac5a29ae5348429bfed00f4553aac5331bbadbbee4104f5594d",
+          "state": "completed",
+          "wall_duration_ms": 4109
+        },
+        {
+          "configuration_sha256": "6e51bdaed5981b736dd42a919c65206a9846c3d56653bb5138b22ab00187e504",
+          "exit_code": 0,
+          "finding_count": 2,
+          "input_id": "authfetch-mapped-loopback-safe",
+          "reason": null,
+          "report_sha256": "fb852de59595734f132ec3c8af3873dd5e510221486de2b616b1e86460356434",
+          "stable_sha256": "277a6f3c70233ac5a29ae5348429bfed00f4553aac5331bbadbbee4104f5594d",
+          "state": "completed",
+          "wall_duration_ms": 4061
+        }
+      ],
+      "report_hashes_verified": {
+        "artifacts/phase22/integration/v3-held_out-rules-final/authfetch-mapped-loopback-vulnerable/report.json": "4419d8b6cace3da7cf6ae2d3d6f7406770e8f37ef325e05e20d0563c66b362fe",
+        "artifacts/phase22/integration/v3-held_out-rules-final/authfetch-mapped-loopback-vulnerable-mutation/report.json": "9aa6240eda73a27fb2f3354f4bccf2e5584e05a7b7925a26111c330a5a0347c0",
+        "artifacts/phase22/integration/v3-held_out-rules-final/authfetch-mapped-loopback-fixed/report.json": "29c2aebc3a61e9bc29450afe97931a39a2940f2c1ef6b9fb2be893cb219c6dec",
+        "artifacts/phase22/integration/v3-held_out-rules-final/authfetch-mapped-loopback-fixed-mutation/report.json": "55a9b271a358dfc51ad747a377a4b995a0f1d95292aa0b755ff8a13b8145bdc7",
+        "artifacts/phase22/integration/v3-held_out-rules-final/authfetch-mapped-loopback-safe/report.json": "fb852de59595734f132ec3c8af3873dd5e510221486de2b616b1e86460356434"
+      }
+    }
+  ],
+  "finding": "Replacement-v4 reuses the original held-out repository, vulnerability and source flow. Its vulnerable21-file tree is byte-identical; all fixed source files are identical, with only package metadata differing. Different revision IDs, renamed helpers, clarified prerequisites and a changed public control do not establish an independent fresh repository or vulnerability.",
+  "scope_consequence": "The unchanged replacement-v4 proposal cannot satisfy R66/R88 as independent fresh evidence. Do not dispatch or silently waive this requirement; preserve the proposed packet and obtain a concrete disposition. No claim is made about current-scanner detection without a newly approved execution.",
+  "preparation_erratum": "The prior v21 and v23 checks verified internal hashes, materialization and unchanged45 records, but omitted comparison against the original held-out source trees. Their successful integrity checks do not establish freshness. The v4 proposal and this turn's first preparation delivery retain their original bytes/history.",
+  "new_native_observations": 0,
+  "new_comparator_observations": 0,
+  "new_paid_calls": 0,
+  "target_execution": false,
+  "dispatches_consumed": 0,
+  "measurement_budget_approved": false,
+  "unused_proposed_observations": 15,
+  "unused_proposal_is_not_authority": true,
+  "phase22_complete": false,
+  "technical_acceptance_requested": false
+}
