@@ -53,6 +53,118 @@ def sources(server: str = SERVER, provider: str = PROVIDER) -> dict[str, str]:
     }
 
 
+@pytest.mark.parametrize(
+    "metadata", ["dict(PROPS)", "{**PROPS}", "dict({'type': 'object'})"]
+)
+@pytest.mark.parametrize("guarded", [False, True])
+def test_literal_metadata_copies_preserve_all_module_routes(
+    metadata: str, guarded: bool
+) -> None:
+    source = sources(
+        SERVER.replace("import storage", "import storage, second").replace(
+            "[storage]", "[storage, second]"
+        )
+    )
+    source["app/tools/second.py"] = (
+        "PROPS: dict = {'type': 'object', 'properties': {'path': {'type': 'string'}}}\n"
+        + PROVIDER.replace("'upload'", "'second'").replace(
+            "inputSchema={}", f"inputSchema={metadata}"
+        )
+    )
+    if guarded:
+        source["app/client.py"] = (
+            "from pathlib import Path\ndef read(path):\n"
+            "    resolved = Path(path).resolve()\n"
+            "    resolved.relative_to(Path('/srv/data').resolve())\n"
+            "    return open(resolved)\n"
+        )
+    index = program(source)
+    before = [ast.dump(file.tree, include_attributes=True) for file in index.files]
+    assert [(t.name, t.handler.file.relative_path) for t in index.tools()] == [
+        ("upload", "app/tools/storage.py"),
+        ("second", "app/tools/second.py"),
+    ]
+    state = RuleRunState()
+    analyze(index, state)
+    assert len(state.matches) == (0 if guarded else 2)
+    assert not state.warnings
+    assert before == [
+        ast.dump(file.tree, include_attributes=True) for file in index.files
+    ]
+
+
+@pytest.mark.parametrize(
+    ("prefix", "metadata", "suffix"),
+    [
+        ("PROPS = factory()\n", "dict(PROPS)", ""),
+        ("PROPS = {'x': factory()}\n", "dict(PROPS)", ""),
+        ("PROPS = {'x': other}\n", "dict(PROPS)", ""),
+        ("PROPS = {'x': other}\n", "{**PROPS}", ""),
+        ("PROPS = {}\n", "dict(PROPS, x=1)", ""),
+        ("PROPS = {}\n", "dict(PROPS, other)", ""),
+        ("PROPS = {}\n", "dict(**PROPS)", ""),
+        ("PROPS = {}\n", "dict()", ""),
+        ("PROPS = {}\n", "dict([('x', 1)])", ""),
+        ("PROPS = {}\n", "dict({'x': factory()})", ""),
+        ("PROPS = {}\n", "{**unknown}", ""),
+        ("PROPS = {}\n", "dict(PROPS)", "dict = replacement\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "del dict\n"),
+        ("if enabled:\n    PROPS = {}\n", "dict(PROPS)", ""),
+        ("PROPS = {}\nALIAS = PROPS\n", "dict(ALIAS)", ""),
+        ("PROPS = {}\n", "dict(PROPS)", "PROPS['x'] = other\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "PROPS.update(other)\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "alias = PROPS\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "unknown(PROPS)\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "PROPS = other\n"),
+        ("PROPS = {}\n", "dict(PROPS)", "del PROPS\n"),
+        (
+            "PROPS = {}\n",
+            "dict(PROPS)",
+            "def change():\n    global PROPS\n    PROPS = other\n",
+        ),
+        (
+            "PROPS = {}\n",
+            "dict(PROPS)",
+            "def change():\n    global dict\n    dict = other\n",
+        ),
+    ],
+)
+def test_unproved_metadata_copy_stays_unsupported(
+    prefix: str, metadata: str, suffix: str
+) -> None:
+    provider = (
+        prefix + PROVIDER.replace("inputSchema={}", f"inputSchema={metadata}") + suffix
+    )
+    assert not program(sources(provider=provider)).tools()
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "from .tools.storage import PROPS\nPROPS.clear()\n",
+        "from .tools.storage import PROPS\nescaped = PROPS\n",
+        "def mutate():\n    from .tools.storage import PROPS\n    PROPS.clear()\n",
+        "import builtins as b\nb.dict = replacement\n",
+        "from builtins import __dict__ as namespace\nnamespace['dict'] = replacement\n",
+        "__builtins__['dict'] = replacement\n",
+        "import sys as system\nsystem.modules['builtins'].dict = replacement\n",
+        "from sys import modules as loaded\nloaded['builtins'].dict = replacement\n",
+        "import sys\ngetattr(sys, 'modules')['builtins'].dict = replacement\n",
+        "import importlib\nimportlib.import_module('builtins').dict = replacement\n",
+    ],
+)
+def test_metadata_alias_or_builtin_namespace_mutation_rejects_routes(
+    mutation: str,
+) -> None:
+    source = sources(
+        SERVER + "from . import plugin\n",
+        "PROPS = {'type': 'object'}\n"
+        + PROVIDER.replace("inputSchema={}", "inputSchema=dict(PROPS)"),
+    )
+    source["app/plugin.py"] = mutation
+    assert not program(source).tools()
+
+
 @pytest.mark.parametrize("guarded", [False, True])
 def test_module_dispatch_reaches_actual_imported_sink(guarded: bool) -> None:
     source = sources()
@@ -417,8 +529,15 @@ def test_mutated_or_escaped_global_never_qualifies_original_guard(
 
 @pytest.mark.parametrize("guarded", [False, True])
 @pytest.mark.parametrize("initialized", [False, True])
+@pytest.mark.parametrize(
+    "metadata", ["{}", "{'properties': dict(PROPS), 'extra': {**PROPS}}"]
+)
 def test_module_dispatch_complete_serial_parallel_result(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, guarded: bool, initialized: bool
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    guarded: bool,
+    initialized: bool,
+    metadata: str,
 ) -> None:
     import dataclasses
     import os
@@ -429,6 +548,10 @@ def test_module_dispatch_complete_serial_parallel_result(
 
     root = make_target(tmp_path / "target")
     source = sources()
+    source["app/tools/storage.py"] = (
+        "PROPS = {'path': {'type': 'string'}}\n"
+        + PROVIDER.replace("inputSchema={}", f"inputSchema={metadata}")
+    )
     source["app/client.py"] = (
         "import os\n"
         "class Reader:\n"

@@ -14,6 +14,8 @@ new rule IDs.
 
 - Recover source-established Python module-table tool dispatch, preserving
   unsupported status for ambiguous, replaced or escaped routing bindings.
+- Preserve module-table dispatch through literal dictionary metadata copies,
+  rejecting dynamic mappings, mutable aliases and builtin namespace changes.
 - Preserve global constructor instances when following nested bound methods,
   retaining the actual receiver for filesystem guard analysis.
 - Follow supported TypeScript constructor parameter properties with the bound

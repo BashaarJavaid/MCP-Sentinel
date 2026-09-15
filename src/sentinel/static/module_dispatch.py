@@ -50,7 +50,10 @@ def parameters(node: Function, count: int) -> list[str] | None:
 
 
 def declarations(
-    program: PythonProgram, provider: Symbol
+    program: PythonProgram,
+    provider: Symbol,
+    protected: set[ast.AST],
+    allowed: set[ast.AST],
 ) -> tuple[tuple[str, ast.Call], ...] | None:
     node = provider.node
     if not isinstance(node, ast.FunctionDef) or node.decorator_list:
@@ -81,15 +84,71 @@ def declarations(
             or not names[0].value
         ):
             return None
-        # Metadata expressions may not execute another factory or mutate state.
-        if any(
-            isinstance(part, (ast.Call, ast.NamedExpr, ast.Await, ast.Yield))
-            for kw in item.keywords
-            for part in ast.walk(kw.value)
-        ):
-            return None
+        for kw in item.keywords:
+            for part in ast.walk(kw.value):
+                check_deadline(program.deadline)
+                if isinstance(part, (ast.NamedExpr, ast.Await, ast.Yield)):
+                    return None
+                if isinstance(part, ast.Call):
+                    # Only the unshadowed builtin copying a proved literal dict.
+                    if (
+                        not name(part.func, "dict")
+                        or len(part.args) != 1
+                        or part.keywords
+                        or program.bindings[provider.file.relative_path].get("dict")
+                        or shadowed(program, part, "dict")
+                        or not literal_mapping(
+                            program, provider, part.args[0], protected, allowed
+                        )
+                    ):
+                        return None
+                    allowed.add(part)
+                if isinstance(part, ast.Dict) and any(
+                    key is None
+                    and not literal_mapping(
+                        program, provider, value, protected, allowed
+                    )
+                    for key, value in zip(part.keys, part.values, strict=True)
+                ):
+                    return None
         found.append((names[0].value, item))
     return tuple(found)
+
+
+def literal_mapping(
+    program: PythonProgram,
+    provider: Symbol,
+    expression: ast.expr,
+    protected: set[ast.AST],
+    allowed: set[ast.AST],
+) -> bool:
+    """Prove an inline or unconditional module-local literal; never evaluate code."""
+    value: ast.AST = expression
+    if isinstance(expression, ast.Name):
+        binding = program.resolve(provider.file, expression.id, value_binding=True)
+        if binding is None or binding.file is not provider.file:
+            return False
+        value = binding.node
+        parent = program.parents.get(value)
+        if (
+            not isinstance(parent, (ast.Assign, ast.AnnAssign))
+            or program.parents.get(parent) is not provider.file.tree
+            or not name(assignment(parent)[0], expression.id)
+            or shadowed(program, expression, expression.id)
+        ):
+            return False
+    if not isinstance(value, ast.Dict):
+        return False
+    check_deadline(program.deadline)
+    try:
+        ast.literal_eval(value)
+    except (ValueError, TypeError, SyntaxError):
+        return False
+    check_deadline(program.deadline)
+    if value is not expression:
+        protected.add(value)
+        allowed.add(expression)
+    return True
 
 
 def module_table_tools(
@@ -316,6 +375,7 @@ def dispatch_tools(
     found = []
     seen_names: set[str] = set()
     module_bindings = []
+    protected_nodes: set[ast.AST] = {table.node, modules.node, factory.node}
     for expression in modules.node.elts:
         module_name = qualified_name(expression)
         module = (
@@ -336,7 +396,11 @@ def dispatch_tools(
                 return ()
         provider = program.resolve(module.file, inner.iter.func.attr)
         handler = program.resolve(module.file, invocation.func.attr)
-        names = declarations(program, provider) if provider else None
+        names = (
+            declarations(program, provider, protected_nodes, allowed)
+            if provider
+            else None
+        )
         if (
             names is None
             or handler is None
@@ -364,7 +428,7 @@ def dispatch_tools(
         program,
         file,
         module_bindings,
-        {table.node, modules.node, factory.node},
+        protected_nodes,
         allowed,
     ):
         return ()
@@ -380,6 +444,9 @@ def stable_bindings(
 ) -> bool:
     """Reject replacement/escape in the included production import closure."""
     reachable = program.reachable_files({registration_file.relative_path})
+    copies = any(
+        isinstance(part, ast.Call) and name(part.func, "dict") for part in allowed
+    )
     module_nodes = {module.node for module, _, _, _ in modules}
     references = {reference for _, reference, _, _ in modules}
     members = {
@@ -409,6 +476,11 @@ def stable_bindings(
                 for imported in part.names:
                     if imported.name == "*":
                         return False
+                    external = program.external_import(
+                        part, imported.asname or imported.name.split(".")[0]
+                    )
+                    if copies and external.split(".")[0] in {"builtins", "importlib"}:
+                        return False
                     if program.parents.get(part) is file.tree:
                         continue
                     binding = program.resolve_import(
@@ -425,6 +497,36 @@ def stable_bindings(
                 part, (ast.Global, ast.Nonlocal)
             ) and member_names.intersection(part.names):
                 return False
+            if isinstance(part, (ast.Global, ast.Nonlocal)) and any(
+                (copies and identifier == "dict")
+                or (
+                    (binding := program.resolve(file, identifier, value_binding=True))
+                    is not None
+                    and binding.node in protected
+                )
+                for identifier in part.names
+            ):
+                return False
+            if copies and (
+                name(part, "__builtins__")
+                or (
+                    name(part, "dict")
+                    and isinstance(part, ast.Name)
+                    and isinstance(part.ctx, ast.Del)
+                )
+                or (isinstance(part, ast.Attribute) and part.attr == "__dict__")
+                or program.external(Symbol(file, "", file.tree), part) == "sys.modules"
+            ):
+                return False
+            if copies and program.external(Symbol(file, "", file.tree), part) == "sys":
+                parent = program.parents.get(part)
+                if not (
+                    isinstance(parent, ast.Attribute)
+                    and isinstance(parent.ctx, ast.Load)
+                    and not parent.attr.startswith("_")
+                    and parent.attr != "modules"
+                ):
+                    return False
             if isinstance(part, ast.Call) and qualified_name(part.func) in {
                 "globals",
                 "locals",
@@ -453,7 +555,7 @@ def stable_bindings(
                 and not (
                     isinstance(part.ctx, ast.Store)
                     and isinstance(parent, (ast.Assign, ast.AnnAssign))
-                    and program.parents.get(parent) is registration_file.tree
+                    and program.parents.get(parent) is file.tree
                     and assignment(parent)[1] in protected
                 )
             ):
