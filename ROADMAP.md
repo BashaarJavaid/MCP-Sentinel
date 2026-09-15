@@ -2249,6 +2249,13 @@ helps solve and identify the obstacles to voluntary CI adoption.
 
 ## 25. Phase 22 — MCP coverage and compatibility expansion
 
+**Status: complete under the explicitly accepted revised scope; accepted closeout delivery verified.**
+The [V93 completion record](artifacts/phase22/integration/v93-accepted-closeout/completion-summary.md)
+and final 493-row audit retain 461 passed requirements, 30 explicitly accepted
+limitations and two existing user deferrals. Proxmox remains unsupported with
+recovery deferred; ordinary FAF completion within 1,800 seconds remains
+unestablished. The paid benchmark and pilots remain deferred.
+
 ### Historical v33 fresh detection and acceptance checkpoint
 
 The approved **replacement-v6 fresh evaluation passes its frozen output gate**

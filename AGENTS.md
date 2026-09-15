@@ -2193,7 +2193,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 19 — coverage reporting and actionable findings (recognized/unknown surface and useful evidence; final gate accepted)
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
-- [ ] Phase 22 — MCP coverage and compatibility expansion (all three exposed SSRF gates and approved historical repeats pass; replacement-v6 first-frozen detection passes; explicit acceptance and closeout pending; paid benchmark/pilots deferred)
+- [x] Phase 22 — MCP coverage and compatibility expansion (V93 technical acceptance and closeout delivery verified under the accepted revised scope; 30 accepted limitations retained; paid benchmark/pilots deferred)
 - [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)
