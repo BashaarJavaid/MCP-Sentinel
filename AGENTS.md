@@ -1,6 +1,32 @@
 # AGENTS.md
 
-## Current Phase 23: reviewed advisory gate passed; CI engineering and compatibility pending
+## Current Phase 23: draft delivered; hosted failure retained; correction review pending
+
+Draft PR #40 delivered approved `f015c005` at the exact reviewed merge tree.
+Original CI `35019572654` completed with **17 passed / 13 failed / four optional
+skips**; documentation `35019572664` passed. All 12 quality jobs stopped on the
+same **89 lint errors in four review-packet scripts**, before tests. The new
+seven-input isolated scan step succeeded, but its root-owned mode-0600 evidence
+could not be uploaded. **No raw Phase23 reports survived that upload**, so it
+cannot establish verified hosted regression evidence. All 127 local observations
+remain unstarted under the approved failure-stop policy. No retry occurred.
+
+The local correction formats those four scripts, removes three unused imports,
+fixes the historical launch receipt count from 111 to 112, and restores output
+ownership before upload. Original script bytes and proposal JSON remain retained;
+separate revised binding/approval filenames prevent stale approval reuse.
+Repository-wide lint/format checks, 48 helper tests, both missing-approval
+boundaries and 56 historical source/configuration checks pass. Detector, bounded
+helper, source corpora, reference comparisons and runtime limits are unchanged.
+Evidence: `artifacts/phase23/hosted-failure-review-v1/` and
+`artifacts/phase23/hosted-verification-v1/`. New hosted execution requires review.
+
+Earlier local **2,765 tests / 36 skips** and its final test-portability qualification
+remain historical evidence; no new full platform test pass is claimed. Final
+technical acceptance and versioned publication remain pending. Phase22 accepted
+closeout and all deferrals remain unchanged; zero paid calls or target execution.
+
+## Historical Phase 23: reviewed advisory gate passed; CI engineering and compatibility pending
 
 The approved metadata candidate completed **14 observations / seven equal entire
 ordered pairs** in **188.804086 seconds**, with verified cleanup and zero remaining

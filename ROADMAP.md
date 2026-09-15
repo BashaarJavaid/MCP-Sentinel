@@ -3502,13 +3502,21 @@ approved clock/UUID exclusions and expected installed scanner-version rule apply
 there is no automatic reference promotion. Full local **make check passed: 2,765
 tests / 36 skips**, **90.52% combined / 86.58% branch coverage**. A final
 portability-only test adjustment passed all 48 focused checks. Local wheel/sdist
-builds match all 134 scanner files. Hosted gates have not run. Detector source remains the same as the
-reviewed advisory candidate. Previous local metadata engineering passed **2,748
+builds match all 134 scanner files. Original hosted CI at draft PR #40 failed:
+17 jobs passed, 13 failed and four optional jobs skipped. All 12 quality jobs
+stopped before tests on 89 review-script lint errors; the new isolated scan step
+succeeded but evidence upload failed on root-owned private files. Its raw reports
+are unavailable, so this is not verified hosted regression evidence. Documentation
+passed. The locally verified correction and exact evidence are retained in
+`artifacts/phase23/hosted-failure-review-v1/`; a new hosted attempt needs review.
+Detector source remains the same as the reviewed advisory candidate. Previous local metadata engineering passed **2,748
 tests / 36 skips**, with **90.52% combined / 86.58% branch coverage**.
 
 Separate exact packets prepare **14 first-advisory compatibility observations,
 112 historical TypeScript observations and one deliberate-regression observation**.
-They remain unapproved/unexecuted. All 56 historical source/configuration bindings
+The approved hosted-failure stop left all 127 local observations unstarted. Revised
+runner bindings preserve original packets and require a fresh execution review.
+All 56 historical source/configuration bindings
 validate. Synthetic reverse-fix/cleanup checks use retained reports and establish
 no actual regression-rejection observation. FAF is last under normal 1,800-second
 limits; its earlier uncapped completion does not establish ordinary completion.

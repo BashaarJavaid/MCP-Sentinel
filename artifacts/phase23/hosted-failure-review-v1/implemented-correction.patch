@@ -1,0 +1,944 @@
+--- a/artifacts/phase23/compatibility-review-v1/evaluate.py
++++ b/artifacts/phase23/compatibility-review-v1/evaluate.py
+@@ -1,4 +1,7 @@
+-"""Proposed112-observation local exposed regression and compatibility sequence; no execution without a new approval."""
++"""Proposed112-observation local exposed regression and compatibility sequence.
++
++No execution without a new approval.
++"""
+ 
+ import importlib.util
+ import json
+@@ -13,8 +16,8 @@
+ 
+ ASSETS = Path(__file__).resolve().parent
+ ROOT = ASSETS.parents[2]
+-PROPOSAL = ASSETS / "evaluation-proposal.json"
+-APPROVAL = ASSETS / "evaluation-authorization.json"
++PROPOSAL = ASSETS / "evaluation-proposal-revised-v2.json"
++APPROVAL = ASSETS / "evaluation-authorization-revised-v2.json"
+ spec = importlib.util.spec_from_file_location(
+     "prior", ROOT / "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py"
+ )
+@@ -45,22 +48,26 @@
+     assert receipt["order"] == proposal["order"]
+     assert receipt["affected_scope_sha256"] == proposal["affected_scope_sha256"]
+     from scripts.phase23_regression import execution_identity
++
+     assert execution_identity() == proposal["execution_identity"]
+     assert Path.cwd().resolve() == Path(proposal["frozen_checkout"]).resolve()
+     return proposal
+ 
+ 
+ def identity(group):
++    from scripts.phase20_corpus import validate
+     from scripts.phase20_measurements import scanner_identity
+-    from scripts.phase20_corpus import validate
+     from scripts.phase22_corpus import frozen
+     from sentinel.static.engine import STATIC_TIMEOUT_SECONDS
+     from sentinel.static.semgrep_adapter import SEMGREP_TIMEOUT_SECONDS
+ 
+     proposal = approved()
+     from sentinel.static import discovery, module_dispatch
++
+     for module in (discovery, module_dispatch):
+-        assert Path(module.__file__).is_relative_to(Path(proposal["frozen_checkout"]) / "src"), module.__name__
++        assert Path(module.__file__).is_relative_to(
++            Path(proposal["frozen_checkout"]) / "src"
++        ), module.__name__
+     assert scanner_identity() == proposal["scanner"]
+     assert sha(Path.cwd() / "uv.lock") == proposal["lock_sha256"]
+     assert STATIC_TIMEOUT_SECONDS == 1800 and SEMGREP_TIMEOUT_SECONDS == 10
+@@ -68,34 +75,84 @@
+     assert sha(Path.cwd() / g["manifest"]) == g["manifest_sha256"]
+     if g.get("corpus_kind") == "unseen_v1_exposed":
+         from unseen_corpus import frozen as unseen_frozen
++
+         manifest = unseen_frozen(approval_path=ROOT / g["source_freeze_approval"])
+     else:
+-        manifest = validate() if group.endswith("historical") else frozen(approval_path=Path.cwd() / g["source_freeze_approval"])
++        manifest = (
++            validate()
++            if group.endswith("historical")
++            else frozen(approval_path=Path.cwd() / g["source_freeze_approval"])
++        )
+     selected = [i for i in manifest.inputs if i.id in g["input_ids"]]
+     assert [i.id for i in selected] == g["input_ids"]
+-    assert all(i.model_dump(mode="json") == g["inputs"][i.id]["input"] for i in selected)
++    assert all(
++        i.model_dump(mode="json") == g["inputs"][i.id]["input"] for i in selected
++    )
+     return proposal, manifest, selected
+ 
+ 
+ def condition(report, reference, assessment, label, excluded, witness=None):
+     if witness is not None:
+-        matches = [f for f in report["findings"] if f["rule_id"] == witness.get("rule_id", "SENT-015") and f["location"]["path"] == witness["path"] and f["location"]["range"]["start_line"] == witness["sink_line"]]
++        matches = [
++            f
++            for f in report["findings"]
++            if f["rule_id"] == witness.get("rule_id", "SENT-015")
++            and f["location"]["path"] == witness["path"]
++            and f["location"]["range"]["start_line"] == witness["sink_line"]
++        ]
+         if witness.get("rule_id") == "SENT-012":
+             passed = bool(matches) if label == "vulnerable" else not matches
+         else:
+-            qualified = [f for f in matches if f["description"].startswith("The source rejects literal link-local IPv4 destinations for this caller URL before the request.")]
+-            passed = bool(matches) and (not qualified if label == "vulnerable" else len(qualified) == len(matches))
+-        return {"condition_passed": bool(passed), "sink_candidates": len(matches), "source_assessment_pending": True}
++            qualified = [
++                f
++                for f in matches
++                if f["description"].startswith(
++                    "The source rejects literal link-local IPv4 destinations "
++                    "for this caller URL before the request."
++                )
++            ]
++            passed = bool(matches) and (
++                not qualified
++                if label == "vulnerable"
++                else len(qualified) == len(matches)
++            )
++        return {
++            "condition_passed": bool(passed),
++            "sink_candidates": len(matches),
++            "source_assessment_pending": True,
++        }
+ 
+     from scripts.phase20_scoring import score
+ 
+-    same = supervisor.clean(report["findings"], excluded) == supervisor.clean(reference["findings"], excluded)
++    same = supervisor.clean(report["findings"], excluded) == supervisor.clean(
++        reference["findings"], excluded
++    )
+     if not same:
+-        return {"condition_passed": None, "ordered_findings_equal": False, "source_assessment_pending": True}
++        return {
++            "condition_passed": None,
++            "ordered_findings_equal": False,
++            "source_assessment_pending": True,
++        }
+     if assessment is None:
+-        return {"condition_passed": None, "ordered_findings_equal": same, "source_assessment_pending": True}
+-    row = score(label=label, state="completed", findings=report["findings"], assessment=assessment)
+-    return {**row, "condition_passed": row["candidate_detected"] if label == "vulnerable" else row["false_alarm"] is False, "ordered_findings_equal": True, "source_assessment_pending": True}
++        return {
++            "condition_passed": None,
++            "ordered_findings_equal": same,
++            "source_assessment_pending": True,
++        }
++    row = score(
++        label=label,
++        state="completed",
++        findings=report["findings"],
++        assessment=assessment,
++    )
++    return {
++        **row,
++        "condition_passed": row["candidate_detected"]
++        if label == "vulnerable"
++        else row["false_alarm"] is False,
++        "ordered_findings_equal": True,
++        "source_assessment_pending": True,
++    }
+ 
+ 
+ def child(group, input_id, out):
+@@ -114,7 +171,11 @@
+     parent = json.loads((Path(consumed["output"]) / "packet.json").read_text())
+     assert not parent.get("budget_closed", False)
+     active = parent["attempts"][-1]
+-    assert active["group"] == group and active["input_id"] == input_id and active["state"] == "attempted"
++    assert (
++        active["group"] == group
++        and active["input_id"] == input_id
++        and active["state"] == "attempted"
++    )
+     assert out.resolve() == (Path(consumed["output"]) / active["directory"]).resolve()
+     item = next(i for i in selected if i.id == input_id)
+     g = proposal["groups"][group]
+@@ -127,24 +188,70 @@
+         assert prior.configuration(config) == expected["configuration_sha256"]
+         return config
+ 
+-    from sentinel.static import engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch
+-    modules = (engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch)
++    from sentinel.static import (
++        discovery,
++        engine,
++        module_dispatch,
++        path_flow,
++        semgrep_adapter,
++        typescript_path_flow,
++        workers,
++    )
++
++    modules = (
++        engine,
++        workers,
++        path_flow,
++        typescript_path_flow,
++        semgrep_adapter,
++        discovery,
++        module_dispatch,
++    )
+     imports = {module.__name__: str(module.__file__) for module in modules}
+-    assert all(Path(path).is_relative_to(Path(proposal["frozen_checkout"]) / "src") for path in imports.values())
+-    assert engine.STATIC_TIMEOUT_SECONDS == 1800 and semgrep_adapter.SEMGREP_TIMEOUT_SECONDS == 10
+-    write(out.with_name(out.name + "-runtime-binding.json"), {
+-        "scanner": proposal["scanner"], "imports": imports,
+-        "configuration_sha256": expected["configuration_sha256"],
+-        "normal_static_deadline_seconds": 1800, "semgrep_rule_timeout_seconds": 10,
+-        "maximum_existing_flow_workers_per_input": 4, "runtime_policy_override": False,
+-        "verified_before_target_access": True,
+-    })
++    assert all(
++        Path(path).is_relative_to(Path(proposal["frozen_checkout"]) / "src")
++        for path in imports.values()
++    )
++    assert (
++        engine.STATIC_TIMEOUT_SECONDS == 1800
++        and semgrep_adapter.SEMGREP_TIMEOUT_SECONDS == 10
++    )
++    write(
++        out.with_name(out.name + "-runtime-binding.json"),
++        {
++            "scanner": proposal["scanner"],
++            "imports": imports,
++            "configuration_sha256": expected["configuration_sha256"],
++            "normal_static_deadline_seconds": 1800,
++            "semgrep_rule_timeout_seconds": 10,
++            "maximum_existing_flow_workers_per_input": 4,
++            "runtime_policy_override": False,
++            "verified_before_target_access": True,
++        },
++    )
+ 
+     from contextlib import nullcontext
++
+     from unseen_corpus import frozen as unseen_frozen
++
+     unseen = g.get("corpus_kind") == "unseen_v1_exposed"
+-    source_approval = (ROOT / g["source_freeze_approval"]) if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_freeze_approval"] else None)
+-    with patch.object(harness, "load_configuration", checked), (patch.object(harness, "frozen_phase22", unseen_frozen) if unseen else nullcontext()):
++    source_approval = (
++        (ROOT / g["source_freeze_approval"])
++        if unseen
++        else (
++            Path.cwd() / g["source_freeze_approval"]
++            if g["source_freeze_approval"]
++            else None
++        )
++    )
++    with (
++        patch.object(harness, "load_configuration", checked),
++        (
++            patch.object(harness, "frozen_phase22", unseen_frozen)
++            if unseen
++            else nullcontext()
++        ),
++    ):
+         result = harness.measure(
+             manifest.model_copy(update={"inputs": [item]}),
+             "rules",
+@@ -166,13 +273,33 @@
+     assert report["analysisComplete"] and report["executionSuccessful"]
+     assert report["static_analysis"]["duration_ms"] <= 1800000
+     assert sha(report_path) == result["outcomes"][0]["report_sha256"]
+-    assert sha(report_path.parent / "configuration.json") == expected["configuration_sha256"]
++    assert (
++        sha(report_path.parent / "configuration.json")
++        == expected["configuration_sha256"]
++    )
+     if unseen:
+         witness = proposal["witnesses"][group][input_id]
+-        matches = [f for f in report["findings"] if f["rule_id"] == witness["rule_id"] and f["location"]["path"] == witness["path"] and f["location"]["range"]["start_line"] == witness["sink_line"]]
+-        judgement = {"condition_passed": None, "provisional_sink_candidates": len(matches), "source_assessment_pending": True}
++        matches = [
++            f
++            for f in report["findings"]
++            if f["rule_id"] == witness["rule_id"]
++            and f["location"]["path"] == witness["path"]
++            and f["location"]["range"]["start_line"] == witness["sink_line"]
++        ]
++        judgement = {
++            "condition_passed": None,
++            "provisional_sink_candidates": len(matches),
++            "source_assessment_pending": True,
++        }
+     else:
+-        judgement = condition(report, json.loads((ROOT / expected["reference_report"]).read_text()), expected["assessment"], item.label, set(proposal["volatile_exclusions"]), proposal["witnesses"].get(group, {}).get(input_id))
++        judgement = condition(
++            report,
++            json.loads((ROOT / expected["reference_report"]).read_text()),
++            expected["assessment"],
++            item.label,
++            set(proposal["volatile_exclusions"]),
++            proposal["witnesses"].get(group, {}).get(input_id),
++        )
+     write(out / "condition.json", judgement)
+     assert harness.scanner_identity() == proposal["scanner"]
+ 
+@@ -196,11 +323,15 @@
+         "proposal_sha256": sha(PROPOSAL),
+         "approval_sha256": sha(APPROVAL),
+         "execution": "single local serial sequence",
+-        "runner_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
++        "runner_revision": subprocess.check_output(
++            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
++        ).strip(),
+         "python": sys.version,
+         "platform": platform.platform(),
+         "cpu_count": os.cpu_count(),
+-        "cpu_topology": subprocess.check_output(["sysctl", "hw.ncpu", "hw.memsize"], text=True),
++        "cpu_topology": subprocess.check_output(
++            ["sysctl", "hw.ncpu", "hw.memsize"], text=True
++        ),
+         "attempts": [],
+         "unstarted": order,
+         "passed": False,
+@@ -211,9 +342,19 @@
+     write(out / "packet.json", packet)
+     try:
+         assert sys.platform == "darwin"
+-        assert not (ASSETS / "execution-consumed.json").exists(), "Sequence budget already consumed"
++        assert not (ASSETS / "execution-consumed.json").exists(), (
++            "Sequence budget already consumed"
++        )
+         with (ASSETS / "execution-consumed.json").open("x") as receipt:
+-            json.dump({"proposal_sha256": sha(PROPOSAL), "approval_sha256": sha(APPROVAL), "output": str(out), "budget_consumed": True}, receipt)
++            json.dump(
++                {
++                    "proposal_sha256": sha(PROPOSAL),
++                    "approval_sha256": sha(APPROVAL),
++                    "output": str(out),
++                    "budget_consumed": True,
++                },
++                receipt,
++            )
+         supervisor.selfcheck(out)
+         selfcheck()
+         previous = {}
+@@ -261,10 +402,14 @@
+                 previous[observation["input_id"]] = canonical
+             row["condition"] = json.loads((out / label / "condition.json").read_text())
+             # All condition and coverage gates require separate source assessment.
+-            # Collection stops only on execution/identity/schema/timing/cleanup/repeat failure.
++            # Collection stops only on
++            # execution/identity/schema/timing/cleanup/repeat failure.
+             write(out / "packet.json", packet)
+             print(json.dumps(row), flush=True)
+-        assert len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 112 and not packet["unstarted"]
++        assert (
++            len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 112
++            and not packet["unstarted"]
++        )
+         packet["passed"] = True
+         packet["detection_and_coverage_gate_passed"] = None
+     except BaseException as error:
+@@ -286,21 +431,45 @@
+ 
+ def selfcheck():
+     from scripts.phase20_scoring import candidate_identity
++
+     prior.selfcheck()
+     witness = {"rule_id": "SENT-012", "path": "src/index.ts", "sink_line": 10}
+-    hit = {"rule_id": "SENT-012", "location": {"path": "src/index.ts", "range": {"start_line": 10}}}
+-    assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+-    assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+-    assert condition({"findings": []}, {}, None, "fixed", set(), witness)["condition_passed"]
+-    assert not condition({"findings": []}, {}, None, "vulnerable", set(), witness)["condition_passed"]
++    hit = {
++        "rule_id": "SENT-012",
++        "location": {"path": "src/index.ts", "range": {"start_line": 10}},
++    }
++    assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)[
++        "condition_passed"
++    ]
++    assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)[
++        "condition_passed"
++    ]
++    assert condition({"findings": []}, {}, None, "fixed", set(), witness)[
++        "condition_passed"
++    ]
++    assert not condition({"findings": []}, {}, None, "vulnerable", set(), witness)[
++        "condition_passed"
++    ]
+     f = {"dedup_key": "key", "status": "needs_review", "review": None}
+     r = {"findings": [f]}
+-    a = {"candidate_identity": candidate_identity([f]), "matches": ["key"], "rationale": "Synthetic control"}
++    a = {
++        "candidate_identity": candidate_identity([f]),
++        "matches": ["key"],
++        "rationale": "Synthetic control",
++    }
+     assert condition(r, r, a, "vulnerable", set())["condition_passed"]
+     assert not condition(r, r, a, "fixed", set())["condition_passed"]
+     assert condition(r, r, {**a, "matches": []}, "fixed", set())["condition_passed"]
+-    assert condition({"findings": []}, r, a, "vulnerable", set())["condition_passed"] is None
+-    assert condition({"findings": [{**f, "description": "changed"}]}, r, a, "vulnerable", set())["condition_passed"] is None
++    assert (
++        condition({"findings": []}, r, a, "vulnerable", set())["condition_passed"]
++        is None
++    )
++    assert (
++        condition(
++            {"findings": [{**f, "description": "changed"}]}, r, a, "vulnerable", set()
++        )["condition_passed"]
++        is None
++    )
+ 
+ 
+ if __name__ == "__main__":
+@@ -308,7 +477,10 @@
+         if name.startswith(("OPENAI_", "SENTINEL_")):
+             os.environ.pop(name)
+     sys.path[:0] = [str(Path.cwd() / "src"), str(Path.cwd())]
+-    schema_spec = importlib.util.spec_from_file_location("unseen_corpus", ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py")
++    schema_spec = importlib.util.spec_from_file_location(
++        "unseen_corpus",
++        ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py",
++    )
+     schema = importlib.util.module_from_spec(schema_spec)
+     sys.modules["unseen_corpus"] = schema
+     schema_spec.loader.exec_module(schema)
+--- a/artifacts/phase23/compatibility-review-v1/launch.py
++++ b/artifacts/phase23/compatibility-review-v1/launch.py
+@@ -1,4 +1,5 @@
+ """One-use launch of the separately approved sequence, with an outer deadline."""
++
+ import importlib.util
+ import json
+ import os
+@@ -8,63 +9,100 @@
+ from pathlib import Path
+ 
+ ASSETS = Path(__file__).resolve().parent
+-spec = importlib.util.spec_from_file_location('recovery_runner', ASSETS/'evaluate.py')
++spec = importlib.util.spec_from_file_location("recovery_runner", ASSETS / "evaluate.py")
+ r = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(r)
+-OUT = ASSETS.parent/'compatibility-v1'
+-BINDING = ASSETS/'launcher-binding.json'
++OUT = ASSETS.parent / "compatibility-v1"
++BINDING = ASSETS / "launcher-binding-revised-v2.json"
++
+ 
+ def preflight():
+     proposal = r.verify()
+     binding = json.loads(BINDING.read_text())
+-    assert binding['proposal_sha256'] == r.sha(r.PROPOSAL)
+-    assert binding['launcher_sha256'] == r.sha(Path(__file__).resolve())
+-    assert binding['runner_sha256'] == r.sha(ASSETS/'evaluate.py')
+-    os.chdir(proposal['frozen_checkout'])
+-    sys.path[:0] = [str(Path.cwd()/'src'), str(Path.cwd())]
++    assert binding["proposal_sha256"] == r.sha(r.PROPOSAL)
++    assert binding["launcher_sha256"] == r.sha(Path(__file__).resolve())
++    assert binding["runner_sha256"] == r.sha(ASSETS / "evaluate.py")
++    os.chdir(proposal["frozen_checkout"])
++    sys.path[:0] = [str(Path.cwd() / "src"), str(Path.cwd())]
+     r.approved()
+     approval = json.loads(r.APPROVAL.read_text())
+-    assert approval['launcher_binding_sha256'] == r.sha(BINDING)
+-    assert not (ASSETS/'execution-consumed.json').exists()
++    assert approval["launcher_binding_sha256"] == r.sha(BINDING)
++    assert not (ASSETS / "execution-consumed.json").exists()
+     assert not OUT.exists()
+     return proposal
+ 
++
+ def main():
+-    if sys.argv[1:] == ['check']:
++    if sys.argv[1:] == ["check"]:
+         assert not r.APPROVAL.exists() and not OUT.exists()
+         try:
+             preflight()
+         except FileNotFoundError as error:
+             assert Path(error.filename) == r.APPROVAL
+         else:
+-            raise AssertionError('Missing approval accepted')
+-        assert not OUT.exists() and not (ASSETS/'execution-consumed.json').exists()
+-        print('Missing approval rejected before launch/output/budget mutation; zero observations.')
++            raise AssertionError("Missing approval accepted")
++        assert not OUT.exists() and not (ASSETS / "execution-consumed.json").exists()
++        print(
++            "Missing approval rejected before launch/output/budget mutation; "
++            "zero observations."
++        )
+         return 0
+     assert not sys.argv[1:]
+     proposal = preflight()
+     signal.signal(signal.SIGTERM, r.supervisor.stopped)
+     for key in list(os.environ):
+-        if key.startswith(('OPENAI_', 'SENTINEL_')):
++        if key.startswith(("OPENAI_", "SENTINEL_")):
+             os.environ.pop(key)
+-    os.environ['PATH'] = '/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin:' + os.environ.get('PATH', '')
++    os.environ["PATH"] = (
++        "/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin:"
++        + os.environ.get("PATH", "")
++    )
+     OUT.mkdir(exist_ok=False)
+-    command = [sys.executable, '-I', str(ASSETS/'evaluate.py'), 'run', str(OUT/'raw')]
+-    assert command == proposal['prepared_command']
+-    limit = proposal['bounds']['sequence_maximum_minutes'] * 60
+-    with (OUT/'launch.json').open('x') as stream:
+-        json.dump({'command': command, 'cwd': str(Path.cwd()), 'started_at': datetime.now(timezone.utc).isoformat(),
+-                   'proposal_sha256': r.sha(r.PROPOSAL), 'approval_sha256': r.sha(r.APPROVAL),
+-                   'launcher_binding_sha256': r.sha(BINDING), 'sequence_limit_seconds': limit,
+-                   'observations_maximum': 111, 'paid_calls': 0}, stream, indent=2)
+-        stream.write('\n')
+-    timing = r.supervisor.supervise(command, OUT/'sequence.log', limit)
+-    r.write(OUT/'execution.json', {'timing': timing, 'completed_at': datetime.now(timezone.utc).isoformat(),
+-                                 'darwin_group_checks': r.prior.DARWIN_GROUP_CHECKS,
+-                                 'proposal_sha256': r.sha(r.PROPOSAL), 'paid_calls': 0})
+-    assert timing['cleanup_verified'] and not timing['timed_out'] and not timing['remaining_group_killed']
+-    assert timing['elapsed_seconds'] <= limit
+-    return timing['returncode']
++    command = [
++        sys.executable,
++        "-I",
++        str(ASSETS / "evaluate.py"),
++        "run",
++        str(OUT / "raw"),
++    ]
++    assert command == proposal["prepared_command"]
++    limit = proposal["bounds"]["sequence_maximum_minutes"] * 60
++    with (OUT / "launch.json").open("x") as stream:
++        json.dump(
++            {
++                "command": command,
++                "cwd": str(Path.cwd()),
++                "started_at": datetime.now(timezone.utc).isoformat(),
++                "proposal_sha256": r.sha(r.PROPOSAL),
++                "approval_sha256": r.sha(r.APPROVAL),
++                "launcher_binding_sha256": r.sha(BINDING),
++                "sequence_limit_seconds": limit,
++                "observations_maximum": 112,
++                "paid_calls": 0,
++            },
++            stream,
++            indent=2,
++        )
++        stream.write("\n")
++    timing = r.supervisor.supervise(command, OUT / "sequence.log", limit)
++    r.write(
++        OUT / "execution.json",
++        {
++            "timing": timing,
++            "completed_at": datetime.now(timezone.utc).isoformat(),
++            "darwin_group_checks": r.prior.DARWIN_GROUP_CHECKS,
++            "proposal_sha256": r.sha(r.PROPOSAL),
++            "paid_calls": 0,
++        },
++    )
++    assert (
++        timing["cleanup_verified"]
++        and not timing["timed_out"]
++        and not timing["remaining_group_killed"]
++    )
++    assert timing["elapsed_seconds"] <= limit
++    return timing["returncode"]
+ 
+-if __name__ == '__main__':
++
++if __name__ == "__main__":
+     raise SystemExit(main())
+--- a/artifacts/phase23/compatibility-review-v1/verify-sources.py
++++ b/artifacts/phase23/compatibility-review-v1/verify-sources.py
+@@ -1,20 +1,23 @@
+ """Read-only preparation: original validators, source bytes and configurations."""
++
+ import importlib.util
+ import json
+ import sys
+ import tempfile
+ from pathlib import Path
+-from unittest.mock import patch
+ 
+ ROOT = Path(__file__).resolve().parents[3]
+ sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+-from scripts import phase20_corpus, phase22_corpus
+-from scripts.phase20_measurements import LLM
+-from sentinel.config import load_configuration
++from scripts import phase20_corpus, phase22_corpus  # noqa: E402
++from scripts.phase20_measurements import LLM  # noqa: E402
++from sentinel.config import load_configuration  # noqa: E402
+ 
+ HERE = Path(__file__).resolve().parent
+-proposal = json.loads((HERE / "evaluation-proposal.json").read_text())
+-spec = importlib.util.spec_from_file_location("unseen", ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py")
++proposal = json.loads((HERE / "evaluation-proposal-revised-v2.json").read_text())
++spec = importlib.util.spec_from_file_location(
++    "unseen",
++    ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py",
++)
+ unseen = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(unseen)
+ records = []
+@@ -32,12 +35,71 @@
+         expected = details["inputs"][input_id]
+         item = items[input_id]
+         assert item.model_dump(mode="json") == expected["input"], input_id
+-        with tempfile.TemporaryDirectory(prefix="phase23-source-preflight-") as temporary:
+-            root = phase20_corpus.materialize(item, snapshots[item.snapshot], Path(temporary).resolve() / "source", manifest.packet)
+-            config = load_configuration(root, environ={}, static_only=True, cli_overrides={"rules_only":True,"ignore_paths":[".phase20/**"],"max_findings_per_scan":500},llm_cli_overrides={"model":LLM.model,"reasoning_effort":"medium","retries":0,"max_concurrency":1,"cache_enabled":False})
+-            payload = {"scanner":config.scanner.model_dump(mode="json"),"target":config.target.model_dump(mode="json") if config.target else None,"static_only":config.static_only,"language":config.language.value}
+-            actual = phase20_corpus.digest((json.dumps(payload,indent=2,sort_keys=True)+"\n").encode())
+-            assert actual == expected["configuration_sha256"], (input_id,actual,expected["configuration_sha256"])
+-        records.append({"group":group,"input_id":input_id,"source_and_input_equal":True,"configuration_sha256":actual})
+-(HERE / "source-validation.json").write_text(json.dumps({"status":"passed","inputs":records,"count":len(records),"scanner_calls":0,"target_executions":0,"paid_calls":0},indent=2)+"\n")
+-print(f"{len(records)} historical source and exact configuration bindings verified; zero scans.")
++        with tempfile.TemporaryDirectory(
++            prefix="phase23-source-preflight-"
++        ) as temporary:
++            root = phase20_corpus.materialize(
++                item,
++                snapshots[item.snapshot],
++                Path(temporary).resolve() / "source",
++                manifest.packet,
++            )
++            config = load_configuration(
++                root,
++                environ={},
++                static_only=True,
++                cli_overrides={
++                    "rules_only": True,
++                    "ignore_paths": [".phase20/**"],
++                    "max_findings_per_scan": 500,
++                },
++                llm_cli_overrides={
++                    "model": LLM.model,
++                    "reasoning_effort": "medium",
++                    "retries": 0,
++                    "max_concurrency": 1,
++                    "cache_enabled": False,
++                },
++            )
++            payload = {
++                "scanner": config.scanner.model_dump(mode="json"),
++                "target": config.target.model_dump(mode="json")
++                if config.target
++                else None,
++                "static_only": config.static_only,
++                "language": config.language.value,
++            }
++            actual = phase20_corpus.digest(
++                (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
++            )
++            assert actual == expected["configuration_sha256"], (
++                input_id,
++                actual,
++                expected["configuration_sha256"],
++            )
++        records.append(
++            {
++                "group": group,
++                "input_id": input_id,
++                "source_and_input_equal": True,
++                "configuration_sha256": actual,
++            }
++        )
++(HERE / "source-validation-revised-v2.json").write_text(
++    json.dumps(
++        {
++            "status": "passed",
++            "inputs": records,
++            "count": len(records),
++            "scanner_calls": 0,
++            "target_executions": 0,
++            "paid_calls": 0,
++        },
++        indent=2,
++    )
++    + "\n"
++)
++print(
++    f"{len(records)} historical source and exact configuration bindings verified; "
++    "zero scans."
++)
+--- a/artifacts/phase23/regression-rejection-review-v1/run.py
++++ b/artifacts/phase23/regression-rejection-review-v1/run.py
+@@ -1,8 +1,10 @@
+-"""One approved observation with only the promisify binding reversed in a disposable checkout."""
+-import hashlib
++"""One approved observation with only the promisify binding reversed.
++
++Uses a disposable checkout.
++"""
++
+ import io
+ import json
+-import runpy
+ import signal
+ import subprocess
+ import sys
+@@ -14,12 +16,12 @@
+ 
+ ROOT = Path(__file__).resolve().parents[3]
+ sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+-from scripts import phase23_regression as helper
+-from scripts.phase20_corpus import Artifact, digest, tree_digest
++from scripts import phase23_regression as helper  # noqa: E402
++from scripts.phase20_corpus import Artifact, digest, tree_digest  # noqa: E402
+ 
+ HERE = Path(__file__).resolve().parent
+-PROPOSAL = HERE / "proposal.json"
+-APPROVAL = HERE / "authorization.json"
++PROPOSAL = HERE / "proposal-revised-v2.json"
++APPROVAL = HERE / "authorization-revised-v2.json"
+ 
+ 
+ def preflight():
+@@ -30,15 +32,30 @@
+     assert approval.get("proposal_sha256") == digest(data)
+     assert helper.execution_identity() == proposal["identity"]
+     assert digest(Path(__file__).read_bytes()) == proposal["runner_sha256"]
+-    assert proposal["observations"] == 1 and proposal["input_id"] == "minimized-vulnerable"
+-    assert proposal["limits"] == {"input_seconds":1800,"semgrep_seconds":10,"cleanup_seconds":15,"maximum_workers":4,"outer_seconds":2100,"outer_cleanup_seconds":15}
++    assert (
++        proposal["observations"] == 1 and proposal["input_id"] == "minimized-vulnerable"
++    )
++    assert proposal["limits"] == {
++        "input_seconds": 1800,
++        "semgrep_seconds": 10,
++        "cleanup_seconds": 15,
++        "maximum_workers": 4,
++        "outer_seconds": 2100,
++        "outer_cleanup_seconds": 15,
++    }
+     assert not (ROOT / proposal["output"]).exists()
+     assert not Path(proposal["disposable_checkout"]).exists()
+     assert not APPROVAL.with_suffix(".used.json").exists()
+-    assert digest((ROOT / proposal["changed_file"]).read_bytes()) == proposal["before_sha256"]
++    assert (
++        digest((ROOT / proposal["changed_file"]).read_bytes())
++        == proposal["before_sha256"]
++    )
+     Artifact.model_validate(proposal["patch"]).read(ROOT)
+     Artifact.model_validate(proposal["reversed_source"]).read(ROOT)
+-    assert digest(Artifact.model_validate(proposal["reversed_source"]).read(ROOT)) == proposal["after_sha256"]
++    assert (
++        digest(Artifact.model_validate(proposal["reversed_source"]).read(ROOT))
++        == proposal["after_sha256"]
++    )
+     manifest_path = ROOT / proposal["manifest"]["path"]
+     assert digest(manifest_path.read_bytes()) == proposal["manifest"]["sha256"]
+     manifest = helper.validate(manifest_path)
+@@ -56,86 +73,164 @@
+             assert Path(error.filename) == APPROVAL
+         else:
+             raise AssertionError("Missing approval accepted")
+-        print("Missing approval rejected before source checkout, budget or scanner execution.")
++        print(
++            "Missing approval rejected before source checkout, budget "
++            "or scanner execution."
++        )
+         return 0
+     assert not sys.argv[1:]
+     proposal, item, reference = preflight()
+     output = ROOT / proposal["output"]
+     checkout = Path(proposal["disposable_checkout"])
+     with APPROVAL.with_suffix(".used.json").open("x") as f:
+-        json.dump({"proposal_sha256":digest(PROPOSAL.read_bytes()),"status":"consumed"},f)
++        json.dump(
++            {"proposal_sha256": digest(PROPOSAL.read_bytes()), "status": "consumed"}, f
++        )
+     output.mkdir()
+     (output / "tmp").mkdir()
+-    receipt = {"status":"running","started_at_utc":datetime.now(timezone.utc).isoformat(),"proposal_sha256":digest(PROPOSAL.read_bytes()),"remaining_observations":0,"paid_calls":0,"target_executions":0}
+-    handlers = {sig:signal.signal(sig,handler) for sig,handler in [(signal.SIGALRM,helper._expired),(signal.SIGINT,helper._cancelled),(signal.SIGTERM,helper._cancelled)]}
+-    deadline = time.monotonic()+2100
++    receipt = {
++        "status": "running",
++        "started_at_utc": datetime.now(timezone.utc).isoformat(),
++        "proposal_sha256": digest(PROPOSAL.read_bytes()),
++        "remaining_observations": 0,
++        "paid_calls": 0,
++        "target_executions": 0,
++    }
++    handlers = {
++        sig: signal.signal(sig, handler)
++        for sig, handler in [
++            (signal.SIGALRM, helper._expired),
++            (signal.SIGINT, helper._cancelled),
++            (signal.SIGTERM, helper._cancelled),
++        ]
++    }
++    deadline = time.monotonic() + 2100
+     helper._alarm(2100)
+     try:
+-        archive = subprocess.check_output(["git","archive","HEAD","src","scripts","schemas","pyproject.toml","uv.lock"],cwd=ROOT)
++        archive = subprocess.check_output(
++            [
++                "git",
++                "archive",
++                "HEAD",
++                "src",
++                "scripts",
++                "schemas",
++                "pyproject.toml",
++                "uv.lock",
++            ],
++            cwd=ROOT,
++        )
+         checkout.mkdir()
+         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+-            tar.extractall(checkout,filter="data")
+-        # Overlay the reviewed uncommitted candidate bytes, excluding interpreter caches.
+-        for directory in ["src","scripts","schemas"]:
++            tar.extractall(checkout, filter="data")
++        # Overlay the reviewed uncommitted candidate bytes, excluding
++        # interpreter caches.
++        for directory in ["src", "scripts", "schemas"]:
+             for source in (ROOT / directory).rglob("*"):
+                 if source.is_file() and "__pycache__" not in source.parts:
+                     target = checkout / source.relative_to(ROOT)
+-                    target.parent.mkdir(parents=True,exist_ok=True)
++                    target.parent.mkdir(parents=True, exist_ok=True)
+                     target.write_bytes(source.read_bytes())
+-        for name in ["pyproject.toml","uv.lock"]:
++        for name in ["pyproject.toml", "uv.lock"]:
+             (checkout / name).write_bytes((ROOT / name).read_bytes())
+-        current = {p.relative_to(ROOT).as_posix():p.read_bytes() for p in (ROOT/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+-        copied = {p.relative_to(checkout).as_posix():p.read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
++        current = {
++            p.relative_to(ROOT).as_posix(): p.read_bytes()
++            for p in (ROOT / "src/sentinel").rglob("*")
++            if p.is_file() and "__pycache__" not in p.parts
++        }
++        copied = {
++            p.relative_to(checkout).as_posix(): p.read_bytes()
++            for p in (checkout / "src/sentinel").rglob("*")
++            if p.is_file() and "__pycache__" not in p.parts
++        }
+         assert copied == current
+-        (checkout / proposal["changed_file"]).write_bytes(Artifact.model_validate(proposal["reversed_source"]).read(ROOT))
+-        changed = {p.relative_to(checkout).as_posix():p.read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+-        assert [name for name in current if current[name]!=changed[name]] == [proposal["changed_file"]]
++        (checkout / proposal["changed_file"]).write_bytes(
++            Artifact.model_validate(proposal["reversed_source"]).read(ROOT)
++        )
++        changed = {
++            p.relative_to(checkout).as_posix(): p.read_bytes()
++            for p in (checkout / "src/sentinel").rglob("*")
++            if p.is_file() and "__pycache__" not in p.parts
++        }
++        assert [name for name in current if current[name] != changed[name]] == [
++            proposal["changed_file"]
++        ]
+         receipt["candidate_source_sha256"] = tree_digest(current)
+         receipt["reversed_source_sha256"] = tree_digest(changed)
+         bootstrap = (
+             "import sys,runpy; "
+-            f"sys.path[:0]={[str(checkout/'src'),str(checkout)]!r}; "
++            f"sys.path[:0]={[str(checkout / 'src'), str(checkout)]!r}; "
+             "import sentinel; "
+-            f"assert sentinel.__file__=={str(checkout/'src/sentinel/__init__.py')!r}; "
++            "assert sentinel.__file__=="
++            f"{str(checkout / 'src/sentinel/__init__.py')!r}; "
+             "runpy.run_module('sentinel',run_name='__main__')"
+         )
+         original_popen = subprocess.Popen
++
+         def launch(command, **kwargs):
+-            assert command[1:4] == ["-I","-m","sentinel"]
+-            command[:] = [command[0],"-I","-c",bootstrap,*command[4:]]
++            assert command[1:4] == ["-I", "-m", "sentinel"]
++            command[:] = [command[0], "-I", "-c", bootstrap, *command[4:]]
+             receipt["actual_command"] = list(command)
+-            helper._atomic_json(output / "results.json",receipt)
+-            return original_popen(command,**kwargs)
+-        config = json.loads((ROOT/"artifacts/phase23/candidate-execution-review-v2/proposal.json").read_bytes())["configurations"][item["id"]]
+-        with patch.object(subprocess,"Popen",launch):
+-            outcome,report = helper._observe(item,output/"observation",output/"sources"/item["id"],helper.baseline_environment(output),deadline,config)
++            helper._atomic_json(output / "results.json", receipt)
++            return original_popen(command, **kwargs)
++
++        config = json.loads(
++            (
++                ROOT / "artifacts/phase23/candidate-execution-review-v2/proposal.json"
++            ).read_bytes()
++        )["configurations"][item["id"]]
++        with patch.object(subprocess, "Popen", launch):
++            outcome, report = helper._observe(
++                item,
++                output / "observation",
++                output / "sources" / item["id"],
++                helper.baseline_environment(output),
++                deadline,
++                config,
++            )
+         receipt["observation"] = outcome
+-        assert outcome["state"] == "completed" and outcome["cleanup"] == "verified" and report is not None
++        assert (
++            outcome["state"] == "completed"
++            and outcome["cleanup"] == "verified"
++            and report is not None
++        )
+         try:
+-            helper.ci_report_difference(report,reference,item)
++            helper.ci_report_difference(report, reference, item)
+         except ValueError as error:
+             assert str(error) == "CI source-matched shell condition failed", str(error)
+-            receipt["failed_assertion"] = {"function":"scripts.phase23_regression.ci_report_difference","type":type(error).__name__,"message":str(error)}
+-            (output/"failed-assertion.txt").write_text(f"{type(error).__name__}: {error}\n")
++            receipt["failed_assertion"] = {
++                "function": "scripts.phase23_regression.ci_report_difference",
++                "type": type(error).__name__,
++                "message": str(error),
++            }
++            (output / "failed-assertion.txt").write_text(
++                f"{type(error).__name__}: {error}\n"
++            )
+         else:
+-            raise AssertionError("Deliberate regression was not rejected by the source-matched assertion")
++            raise AssertionError(
++                "Deliberate regression was not rejected by the source-matched assertion"
++            )
+         receipt["status"] = "regression_rejected"
+         return 0
+     except BaseException as error:
+-        receipt.update(status="failed",reason=f"{type(error).__name__}: {error}")
++        receipt.update(status="failed", reason=f"{type(error).__name__}: {error}")
+         raise
+     finally:
+-        signal.setitimer(signal.ITIMER_REAL,0)
++        signal.setitimer(signal.ITIMER_REAL, 0)
+         try:
+-            helper._cleanup(None,checkout)
++            helper._cleanup(None, checkout)
+             receipt["disposable_checkout_cleanup"] = "verified"
+         except BaseException as error:
+-            receipt.update(status="failed",disposable_checkout_cleanup=f"failed: {type(error).__name__}: {error}")
++            receipt.update(
++                status="failed",
++                disposable_checkout_cleanup=f"failed: {type(error).__name__}: {error}",
++            )
+             raise
+         finally:
+-            for sig,handler in handlers.items():signal.signal(sig,handler)
++            for sig, handler in handlers.items():
++                signal.signal(sig, handler)
+             receipt["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
+-            helper._atomic_json(output/"results.json",receipt)
++            helper._atomic_json(output / "results.json", receipt)
+ 
+ 
+ if __name__ == "__main__":
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -48,6 +48,12 @@
+         run: uv sync --frozen --extra dev --python 3.12
+       - name: Compare seven current-candidate reports in an isolated network namespace
+         run: sudo unshare --net -- "$PWD/.venv/bin/python" -m scripts.phase23_regression ci --output "${{ runner.temp }}/phase23-regression"
++      - name: Restore regression evidence ownership for upload
++        if: always()
++        run: |
++          if [ -d "${{ runner.temp }}/phase23-regression" ]; then
++            sudo chown -R "$(id -u):$(id -g)" -- "${{ runner.temp }}/phase23-regression"
++          fi
+       - name: Retain complete regression evidence
+         if: always()
+         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

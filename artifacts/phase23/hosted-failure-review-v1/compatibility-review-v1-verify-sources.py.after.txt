@@ -13,7 +13,7 @@ from scripts.phase20_measurements import LLM  # noqa: E402
 from sentinel.config import load_configuration  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-proposal = json.loads((HERE / "evaluation-proposal-revised-v2.json").read_text())
+proposal = json.loads((HERE / "evaluation-proposal.json").read_text())
 spec = importlib.util.spec_from_file_location(
     "unseen",
     ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py",
@@ -85,7 +85,7 @@ for group, details in proposal["groups"].items():
                 "configuration_sha256": actual,
             }
         )
-(HERE / "source-validation-revised-v2.json").write_text(
+(HERE / "source-validation.json").write_text(
     json.dumps(
         {
             "status": "passed",
