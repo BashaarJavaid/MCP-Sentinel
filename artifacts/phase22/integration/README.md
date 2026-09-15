@@ -1,6 +1,48 @@
-# Integration evidence, batches 1–106 and closeout audit
+# Integration evidence, batches 1–107 and closeout audit
 
-## Current technical acceptance evidence seal 106
+## Current accepted-closeout evidence seal 107
+
+[Seal 107](evidence-v107.json) retains **69 members / 28,483,208 raw bytes**;
+archive SHA-256 `8240387406c65ad24b31d728bcb739b22f5395036e15938a36fd85d4e96fea84`. All 106 previous archives and every new member were verified.
+The immutable explicit human technical acceptance receipt and 493-row accepted-closeout audit
+preserve all 30 accepted limitations and two existing paid/pilot deferrals. Proxmox remains
+unsupported/recovery deferred; ordinary FAF completion within 1,800 seconds remains unestablished;
+V68 remains unapproved/unimplemented. Every original failed measurement remains failed.
+
+Restore after seals 1–106 in numeric order into separate staging; verify every member, reject unsafe
+paths and stop on unexplained conflicts. The final delivery-verification/final-audit receipts remain
+honest supplemental post-delivery evidence outside their own seal/commit. **Phase 22 is technically
+complete under the accepted revised scope; actual final delivery is separately verified. Zero new paid calls.**
+
+## Current v93 accepted Phase 22 closeout
+
+**Phase 22 is technically complete under the explicitly accepted revised scope.**
+The user accepted the delivered V92 technical proposal, including all historical and
+practical limitations. **Proxmox remains unsupported and recovery is deferred**;
+its original and exposed failures remain failed. Ordinary **FAF completion within
+1,800 seconds remains unestablished**; V68 remains unapproved and unimplemented.
+
+The accepted-closeout packet is **`v93-accepted-closeout/`**. Its immutable acceptance
+receipt and **493-row audit** preserve all previous evidence: **30 explicitly accepted
+limitation rows**, two existing paid/pilot deferrals and unchanged raw measurements.
+The supplemental delivery-verification and final-audit receipts bind actual closeout
+completion to the exact delivered revision. Technical acceptance and that verified
+delivery are distinct events; the sealed audit preserves its honest pre-delivery state.
+
+Unchanged engineering at **`5142a3f`** retains **2,596 tests / 36 skips** locally and
+in all 12 hosted suites, 29 normal jobs/docs, **90.28% combined / 86.23% branch coverage**,
+six zero-call production replays and 19 runtime bindings. Taskwarrior and earlier
+qualified conditions retain their actual measured sources and narrow qualifications.
+Current Proxmox: six completed observations / three equal ordered pairs, two missed
+vulnerable reads and four unsupported negatives. No failure becomes a retroactive pass.
+
+Git remains **312/1,040 incomplete, 728 deferred**; the 396-request paid benchmark and
+pilots remain user-deferred, Phase 21 incomplete and Phase 24/15 unchanged. No new
+correction, scan, profile, retry, comparator, target execution or paid call occurred.
+Historical spend **$0.071799; zero new paid calls**. Accepted Phase 22 completion does
+not authorize merge, ready-state change, release, outreach, launch or Phase 23.
+
+## Historical technical acceptance evidence seal 106
 
 [Seal 106](evidence-v106.json) retains **69 members / 25,372,927 raw bytes**;
 archive SHA-256 `e8ecad47017d3bb1dce5433997b8646a12521eb26569ee4773aab834ca371d7b`. All 105 previous archives and every new member were verified.
@@ -14,7 +56,7 @@ paths and stop on unexplained conflicts. Post-seal documentation and actual draf
 remain supplemental. **Separate explicit human technical acceptance and verified accepted closeout
 remain pending; Phase 22 incomplete; zero new paid calls.**
 
-## Current v92 technical review: Proxmox limitation accepted, technical acceptance pending
+## Historical v92 technical review: Proxmox limitation accepted, technical acceptance pending
 
 The user explicitly approved retaining **Proxmox upload-root as unsupported** and
 **deferring further recovery**. Its original and exposed failures remain failed:
