@@ -1,0 +1,5106 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-15T15:52:57.694634Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "7715187e9716c2aad16ba1fd7a36364bf2a00fd55d8125d2a773b300bf0ab52d",
+      "description": "A caller URL reaches an outbound request without enforced scheme and destination restrictions.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 90,
+              "start_column": 1,
+              "start_line": 90
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 58,
+          "end_line": 90,
+          "start_column": 25,
+          "start_line": 90
+        },
+        "snippet": "fetch(`http://localhost:${port}`)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "8c6274b8-716e-4585-8e6c-bdebda8e0000",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/utils.ts",
+        "range": {
+          "end_column": 58,
+          "end_line": 90,
+          "start_column": 25,
+          "start_line": 90
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 70,
+                  "start_column": 1,
+                  "start_line": 70
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/utils.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 90,
+                  "start_column": 1,
+                  "start_line": 90
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 58,
+              "end_line": 90,
+              "start_column": 25,
+              "start_line": 90
+            },
+            "snippet": "fetch(`http://localhost:${port}`)"
+          },
+          "review": null,
+          "rule_id": "SENT-015",
+          "source": "static",
+          "timestamp": "2026-09-15T15:52:57.694634Z"
+        }
+      ],
+      "remediation": "Permit only required HTTP(S) destinations, reject private and loopback addresses, and enforce checks on every requested URL and redirect.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-015",
+      "scan_id": "9f6554c6-705a-4a45-b6ab-62349745b0d7",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T15:52:57.694634Z",
+      "title": "Server-side request forgery"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 1,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 1
+    }
+  },
+  "scan_id": "9f6554c6-705a-4a45-b6ab-62349745b0d7",
+  "schema_version": "1.7.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-15T15:52:57.694532Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 106,
+              "start_column": 22,
+              "start_line": 32
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 61,
+              "start_column": 1,
+              "start_line": 56
+            }
+          },
+          "name": "sandbox_initialize",
+          "reasons": [
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 61,
+                  "start_column": 1,
+                  "start_line": 56
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/exec.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 50,
+              "start_column": 22,
+              "start_line": 16
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "name": "sandbox_exec",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 166,
+              "start_column": 22,
+              "start_line": 53
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 78,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "name": "run_js",
+          "reasons": [
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 78,
+                  "start_column": 1,
+                  "start_line": 70
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 22,
+              "start_line": 15
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 85,
+              "start_column": 1,
+              "start_line": 80
+            }
+          },
+          "name": "sandbox_stop",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/runJsEphemeral.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 157,
+              "start_column": 22,
+              "start_line": 60
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "name": "run_js_ephemeral",
+          "reasons": [
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 103,
+                  "start_column": 1,
+                  "start_line": 87
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 84,
+              "start_column": 22,
+              "start_line": 15
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "name": "get_dependency_types",
+          "reasons": [],
+          "status": "recognized"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 186,
+              "start_column": 22,
+              "start_line": 171
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 124,
+              "start_column": 1,
+              "start_line": 119
+            }
+          },
+          "name": "search_npm_packages",
+          "reasons": [
+            {
+              "code": "unresolved_schema",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 124,
+                  "start_column": 1,
+                  "start_line": 119
+                }
+              },
+              "message": "imported or unsupported schema"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [],
+          "handler": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 1,
+              "end_line": 166,
+              "start_column": 79,
+              "start_line": 145
+            }
+          },
+          "kind": "prompt",
+          "location": {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 4,
+              "end_line": 166,
+              "start_column": 1,
+              "start_line": 145
+            }
+          },
+          "name": "run-node-js-script",
+          "reasons": [
+            {
+              "code": "unsupported_registration",
+              "location": {
+                "kind": "file",
+                "path": "src/server.ts",
+                "range": {
+                  "end_column": 4,
+                  "end_line": 166,
+                  "start_column": 1,
+                  "start_line": 145
+                }
+              },
+              "message": "registration or handler is outside supported recognition"
+            }
+          ],
+          "status": "unsupported"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 63,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "message": "SENT-002 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-002 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 1,
+              "start_line": 180
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 182,
+              "start_column": 1,
+              "start_line": 182
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 43,
+              "start_column": 1,
+              "start_line": 43
+            }
+          },
+          "message": "SENT-002 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 90,
+              "start_column": 1,
+              "start_line": 90
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 88,
+              "start_column": 1,
+              "start_line": 88
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          "message": "SENT-002 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 36,
+              "start_column": 1,
+              "start_line": 36
+            }
+          },
+          "message": "SENT-002 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-002 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 49
+            }
+          },
+          "message": "SENT-002 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-002 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 31,
+              "start_column": 1,
+              "start_line": 31
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 48,
+              "start_column": 1,
+              "start_line": 48
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 57,
+              "start_column": 1,
+              "start_line": 57
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 56,
+              "start_column": 1,
+              "start_line": 56
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 68
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-002 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-002 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-002 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-002 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 176,
+              "start_column": 1,
+              "start_line": 176
+            }
+          },
+          "message": "SENT-002 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 63,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "message": "SENT-012 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-012 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 78,
+              "start_column": 1,
+              "start_line": 78
+            }
+          },
+          "message": "SENT-012 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 1,
+              "start_line": 180
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 182,
+              "start_column": 1,
+              "start_line": 182
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/exec.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-012 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 80,
+              "start_column": 1,
+              "start_line": 80
+            }
+          },
+          "message": "SENT-012 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 43,
+              "start_column": 1,
+              "start_line": 43
+            }
+          },
+          "message": "SENT-012 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 95,
+              "start_column": 1,
+              "start_line": 95
+            }
+          },
+          "message": "SENT-012 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/dockerUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 67,
+              "start_column": 1,
+              "start_line": 67
+            }
+          },
+          "message": "SENT-012 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 90,
+              "start_column": 1,
+              "start_line": 90
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 88,
+              "start_column": 1,
+              "start_line": 88
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          "message": "SENT-012 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          "message": "SENT-012 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-012 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 36,
+              "start_column": 1,
+              "start_line": 36
+            }
+          },
+          "message": "SENT-012 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-012 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 49
+            }
+          },
+          "message": "SENT-012 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-012 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 31,
+              "start_column": 1,
+              "start_line": 31
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 48,
+              "start_column": 1,
+              "start_line": 48
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 57,
+              "start_column": 1,
+              "start_line": 57
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 56,
+              "start_column": 1,
+              "start_line": 56
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 68
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-012 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-012 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-012 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 176,
+              "start_column": 1,
+              "start_line": 176
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 63,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "message": "SENT-014 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-014 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 78,
+              "start_column": 1,
+              "start_line": 78
+            }
+          },
+          "message": "SENT-014 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 1,
+              "start_line": 180
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 182,
+              "start_column": 1,
+              "start_line": 182
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/exec.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-014 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 80,
+              "start_column": 1,
+              "start_line": 80
+            }
+          },
+          "message": "SENT-014 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 43,
+              "start_column": 1,
+              "start_line": 43
+            }
+          },
+          "message": "SENT-014 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 95,
+              "start_column": 1,
+              "start_line": 95
+            }
+          },
+          "message": "SENT-014 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/dockerUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 67,
+              "start_column": 1,
+              "start_line": 67
+            }
+          },
+          "message": "SENT-014 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 90,
+              "start_column": 1,
+              "start_line": 90
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 88,
+              "start_column": 1,
+              "start_line": 88
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          "message": "SENT-014 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          "message": "SENT-014 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-014 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 36,
+              "start_column": 1,
+              "start_line": 36
+            }
+          },
+          "message": "SENT-014 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-014 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 49
+            }
+          },
+          "message": "SENT-014 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-014 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 31,
+              "start_column": 1,
+              "start_line": 31
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 48,
+              "start_column": 1,
+              "start_line": 48
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 57,
+              "start_column": 1,
+              "start_line": 57
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 56,
+              "start_column": 1,
+              "start_line": 56
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 68
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-014 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-014 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-014 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-014 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 176,
+              "start_column": 1,
+              "start_line": 176
+            }
+          },
+          "message": "SENT-014 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 63,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "message": "SENT-015 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-015 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 78,
+              "start_column": 1,
+              "start_line": 78
+            }
+          },
+          "message": "SENT-015 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 1,
+              "start_line": 180
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 182,
+              "start_column": 1,
+              "start_line": 182
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/exec.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-015 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 80,
+              "start_column": 1,
+              "start_line": 80
+            }
+          },
+          "message": "SENT-015 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 43,
+              "start_column": 1,
+              "start_line": 43
+            }
+          },
+          "message": "SENT-015 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 95,
+              "start_column": 1,
+              "start_line": 95
+            }
+          },
+          "message": "SENT-015 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/dockerUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 67,
+              "start_column": 1,
+              "start_line": 67
+            }
+          },
+          "message": "SENT-015 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 88,
+              "start_column": 1,
+              "start_line": 88
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          "message": "SENT-015 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          "message": "SENT-015 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-015 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 36,
+              "start_column": 1,
+              "start_line": 36
+            }
+          },
+          "message": "SENT-015 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-015 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 49
+            }
+          },
+          "message": "SENT-015 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-015 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 48,
+              "start_column": 1,
+              "start_line": 48
+            }
+          },
+          "message": "SENT-015 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-015 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-015 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 57,
+              "start_column": 1,
+              "start_line": 57
+            }
+          },
+          "message": "SENT-015 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-015 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-015 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-015 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 176,
+              "start_column": 1,
+              "start_line": 176
+            }
+          },
+          "message": "SENT-015 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 63,
+              "start_column": 1,
+              "start_line": 63
+            }
+          },
+          "message": "SENT-016 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 60,
+              "start_column": 1,
+              "start_line": 60
+            }
+          },
+          "message": "SENT-016 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/initialize.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 78,
+              "start_column": 1,
+              "start_line": 78
+            }
+          },
+          "message": "SENT-016 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 155,
+              "start_column": 1,
+              "start_line": 155
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 180,
+              "start_column": 1,
+              "start_line": 180
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 182,
+              "start_column": 1,
+              "start_line": 182
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/exec.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-016 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 80,
+              "start_column": 1,
+              "start_line": 80
+            }
+          },
+          "message": "SENT-016 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 43,
+              "start_column": 1,
+              "start_line": 43
+            }
+          },
+          "message": "SENT-016 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 95,
+              "start_column": 1,
+              "start_line": 95
+            }
+          },
+          "message": "SENT-016 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/dockerUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 67,
+              "start_column": 1,
+              "start_line": 67
+            }
+          },
+          "message": "SENT-016 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 88,
+              "start_column": 1,
+              "start_line": 88
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/runJs.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          "message": "SENT-016 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/snapshotUtils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          "message": "SENT-016 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-016 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 36,
+              "start_column": 1,
+              "start_line": 36
+            }
+          },
+          "message": "SENT-016 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-016 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/stop.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 49,
+              "start_column": 1,
+              "start_line": 49
+            }
+          },
+          "message": "SENT-016 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/utils.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 45,
+              "start_column": 1,
+              "start_line": 45
+            }
+          },
+          "message": "SENT-016 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 48,
+              "start_column": 1,
+              "start_line": 48
+            }
+          },
+          "message": "SENT-016 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-016 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 54,
+              "start_column": 1,
+              "start_line": 54
+            }
+          },
+          "message": "SENT-016 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/getDependencyTypes.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 57,
+              "start_column": 1,
+              "start_line": 57
+            }
+          },
+          "message": "SENT-016 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 35,
+              "start_column": 1,
+              "start_line": 35
+            }
+          },
+          "message": "SENT-016 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/logger.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 44,
+              "start_column": 1,
+              "start_line": 44
+            }
+          },
+          "message": "SENT-016 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-016 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 176,
+              "start_column": 1,
+              "start_line": 176
+            }
+          },
+          "message": "SENT-016 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 53,
+              "start_column": 1,
+              "start_line": 53
+            }
+          },
+          "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "evals/auditClient.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 91,
+              "start_column": 1,
+              "start_line": 91
+            }
+          },
+          "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/tools/searchNpmPackages.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 64,
+              "start_column": 1,
+              "start_line": 64
+            }
+          },
+          "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+        }
+      ],
+      "workspace": null
+    },
+    "duration_ms": 7859,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-013",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-014",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-015",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-016",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 55,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012",
+      "SENT-013",
+      "SENT-014",
+      "SENT-015",
+      "SENT-016"
+    ],
+    "total_matches": 1
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 1
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 0
+    },
+    "total": 1
+  },
+  "target": {
+    "display_name": "full-fixed",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'shape'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'console'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'process.exit'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Array'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Array.isArray'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'process.env.OPENAI_API_KEY'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'process.env.FILES_DIR'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'console.log'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'i'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'batch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'batch.length'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'batch.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'err'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'err.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'Promise.all'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'promises'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'results'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'result'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at evals/index.ts:53: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at evals/auditClient.ts:128: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at evals/auditClient.ts:91: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'Map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'Set'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'URL'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'Set'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/exec.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/execInSandbox.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/getDependencyTypes.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'Map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initializeSandbox.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/sandbox.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/snapshotUtils.test.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/stopSandbox.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/utils.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'safeParse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'entries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'delete'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'keys'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'set'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'serverRunId'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'image'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Object.entries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'parseInt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/config.ts: cannot resolve TypeScript binding 'isNaN'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'Boolean'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'serverInstance'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'serverInstance._server'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'console'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'console'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'cleanupError'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'Object.fromEntries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'dependencies'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'dependencies.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'process.env.DOCKER_CONTAINER'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'process.env.DOCKER_ENV'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'dependencies.length'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'command'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'timeoutMs'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'err'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'fetch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'Object.keys'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'dependencies'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'image'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'Object.fromEntries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'Boolean'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'dependencies.length'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'fetch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'encodeURIComponent'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'e'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:90: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:31: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:33: unresolved call to pkgRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:42: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:45: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:56: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:60: unresolved call to typesRes.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:68: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/getDependencyTypes.ts:73: unresolved call to contentRes.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'this.client.connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'this.client.listTools'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'tools.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'this.openai.chat.completions.create'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'responses.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'messages.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'this.client.callTool'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/auditClient.ts: cannot resolve TypeScript binding 'toolRuns.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'client.initializeClient'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'evals.slice'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "evals/index.ts: cannot resolve TypeScript binding 'client.chat'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'setInterval'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'Array.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'containersToClean.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'Promise.allSettled'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/containerUtils.ts: cannot resolve TypeScript binding 'results.forEach'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'internalServer.sendLoggingMessage'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'level.toUpperCase'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'dirent.isFile'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'contents.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'imageTypes.has'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'process.cwd'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'tool'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'resource'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'uri.toString'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'data.toString'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'prompt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'clearInterval'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'setTimeout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'process.exit'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'process.on'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/server.ts: cannot resolve TypeScript binding 'connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'entry.isDirectory'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'changes.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'changes.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'contents.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'summaryLines.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'imageTypes.has'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/exec.ts: cannot resolve TypeScript binding 'output.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/exec.ts: cannot resolve TypeScript binding 'output.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'pkgRes.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'contentRes.text'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'results.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'dep.name.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'typesRes.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'portOption.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'memFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'cpuFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'mountFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'labels.flatMap'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'localWorkspace.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'memFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'cpuFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'mountFlag.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'this.registry.search'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'searchResults.objects.sort'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'this.getPackagesDetails'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'Promise.all'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'packages.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'this.registry.getPackage'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'Object.values'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'packagesDetails.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'this.extractReadmeSnippet'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'readme.substring'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'tool.searchPackages'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'cgroup.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'dependencies.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'setTimeout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'image.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'cmd.trim'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/execInSandbox.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/execInSandbox.test.ts: cannot resolve TypeScript binding 'dangerousIds.forEach'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/execInSandbox.test.ts: cannot resolve TypeScript binding 'import'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/getDependencyTypes.test.ts: cannot resolve TypeScript binding 'Promise.resolve'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/getDependencyTypes.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/getDependencyTypes.test.ts: cannot resolve TypeScript binding 'url.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'import'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'setServerRunId'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'initializeSandbox'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'execFileSyncCall.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initialize.test.ts: cannot resolve TypeScript binding 'args.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/initializeSandbox.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'result1.content.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'c.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'result2.content.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs-cache.test.ts: cannot resolve TypeScript binding 'console.log'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'result.content.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'c.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'telemetryItem.text.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'c.text.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'item.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'dangerousIds.forEach'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJs.test.ts: cannot resolve TypeScript binding 'import'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'result.content.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'c.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'telemetryItem.text.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'item.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'c.text.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'result.content.filter'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsEphemeral.test.ts: cannot resolve TypeScript binding 'item.text.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'Math.floor'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'Math.random'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'fetch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'res.text'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'resAll.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'Array.isArray'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runJsListenOnPort.test.ts: cannot resolve TypeScript binding 'resSingle.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runMCPClient.test.ts: cannot resolve TypeScript binding 'client.connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runMCPClient.test.ts: cannot resolve TypeScript binding 'client.callTool'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runMCPClient.test.ts: cannot resolve TypeScript binding 'result.content.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/runMCPClient.test.ts: cannot resolve TypeScript binding 'item.text.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'searchMock.mockResolvedValue'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'getPackageMock.mockImplementation'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'Promise.resolve'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'mockPackageInfos.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'getPackageMock.mockResolvedValue'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/searchNpmPackages.test.ts: cannot resolve TypeScript binding 'searchMock.mockRejectedValue'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/snapshotUtils.test.ts: cannot resolve TypeScript binding 'tmpDir.removeCallback'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/snapshotUtils.test.ts: cannot resolve TypeScript binding 'Object.keys'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/snapshotUtils.test.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/snapshotUtils.test.ts: cannot resolve TypeScript binding 'setTimeout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/stopSandbox.test.ts: cannot resolve TypeScript binding 'import'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/stopSandbox.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/stopSandbox.test.ts: cannot resolve TypeScript binding 'dangerousIds.forEach'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/utils.test.ts: cannot resolve TypeScript binding 'Buffer.from'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "test/utils.ts: cannot resolve TypeScript binding 'hostPath.slice'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'port'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'creationTimestamp'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'memory'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'cpus'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/runUtils.ts: cannot resolve TypeScript binding 'dir'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/initialize.ts: cannot resolve TypeScript binding 'containerId'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/logger.ts: cannot resolve TypeScript binding 'message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/stop.ts: cannot resolve TypeScript binding 'container_id'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'localWorkspace.name'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'validId'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/dockerUtils.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/utils.ts: cannot resolve TypeScript binding 'port'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/snapshotUtils.ts: cannot resolve TypeScript binding 'fname'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJs.ts: cannot resolve TypeScript binding 'rawOutput'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'localWorkspace.name'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'containerId'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/runJsEphemeral.ts: cannot resolve TypeScript binding 'output'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'dep.name'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'sanitized'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/getDependencyTypes.ts: cannot resolve TypeScript binding 'typesName'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/tools/searchNpmPackages.ts: cannot resolve TypeScript binding 'params.searchTerm'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/initialize.ts:63: unresolved call to portOption.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/initialize.ts:60: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/initialize.ts:78: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:155: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:180: unresolved call to cmd.trim; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:182: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/exec.ts:44: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/runJs.ts:80: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/snapshotUtils.ts:43: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/runJs.ts:95: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/dockerUtils.ts:67: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:88: later while-loop iterations unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/runJs.ts:127: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/snapshotUtils.ts:118: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/stop.ts:35: unresolved call to execFileSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/stop.ts:36: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/stop.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/stop.ts:49: unresolved call to activeSandboxContainers.delete; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:44: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/utils.ts:45: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/getDependencyTypes.ts:48: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/getDependencyTypes.ts:54: unresolved call to dep.name.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/getDependencyTypes.ts:54: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/getDependencyTypes.ts:57: unresolved call to encodeURIComponent; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/logger.ts:35: unresolved call to internalServer.sendLoggingMessage; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/logger.ts:44: unresolved call to console.error; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/searchNpmPackages.ts:64: unsupported class inheritance, decorators or members; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/tools/searchNpmPackages.ts:176: unresolved call to tool.searchPackages; protection is not established"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'sandbox_initialize' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'sandbox_exec' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_description_unavailable",
+      "message": "Tool 'run_js' has no literal TypeScript description"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'run_js' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'sandbox_stop' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_description_unavailable",
+      "message": "Tool 'run_js_ephemeral' has no literal TypeScript description"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'run_js_ephemeral' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_description_unavailable",
+      "message": "Tool 'get_dependency_types' has no literal TypeScript description"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'get_dependency_types' uses an unsupported TypeScript schema"
+    },
+    {
+      "code": "typescript_tool_schema_unsupported",
+      "message": "Tool 'search_npm_packages' uses an unsupported TypeScript schema"
+    }
+  ]
+}

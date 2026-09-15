@@ -1,0 +1,298 @@
+--- baseline/minimized-vulnerable
++++ candidate/minimized-vulnerable
+@@ -4,6 +4,190 @@
+   "dynamic_analysis": null,
+   "executionSuccessful": true,
+   "findings": [
++    {
++      "baseline_matched": null,
++      "confidence": "high",
++      "dedup_key": "fa129e3cd6b8a4beeceb6f0fd38cc386327081d3468c6fb217f1863831f0ce71",
++      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
++      "evidence": {
++        "fingerprint": null,
++        "flow_locations": [
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 9,
++              "start_column": 1,
++              "start_line": 9
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 10,
++              "start_column": 1,
++              "start_line": 10
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 11,
++              "start_column": 1,
++              "start_line": 11
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 12,
++              "start_column": 1,
++              "start_line": 12
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 13,
++              "start_column": 1,
++              "start_line": 13
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/server.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 8,
++              "start_column": 1,
++              "start_line": 8
++            }
++          }
++        ],
++        "kind": "static",
++        "range": {
++          "end_column": 54,
++          "end_line": 13,
++          "start_column": 36,
++          "start_line": 13
++        },
++        "snippet": "execAsync(command)"
++      },
++      "exploitability": "theoretical",
++      "impact": "Critical",
++      "location": {
++        "kind": "file",
++        "path": "src/mcp-server/tools/gitInit/logic.ts",
++        "range": {
++          "end_column": 54,
++          "end_line": 13,
++          "start_column": 36,
++          "start_line": 13
++        }
++      },
++      "owasp_category": {
++        "id": "ASI05:2026",
++        "name": "Unexpected Code Execution"
++      },
++      "provenance": [
++        {
++          "evidence": {
++            "fingerprint": null,
++            "flow_locations": [
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 9,
++                  "start_column": 1,
++                  "start_line": 9
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 10,
++                  "start_column": 1,
++                  "start_line": 10
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 11,
++                  "start_column": 1,
++                  "start_line": 11
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 12,
++                  "start_column": 1,
++                  "start_line": 12
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 13,
++                  "start_column": 1,
++                  "start_line": 13
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/server.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 8,
++                  "start_column": 1,
++                  "start_line": 8
++                }
++              }
++            ],
++            "kind": "static",
++            "range": {
++              "end_column": 54,
++              "end_line": 13,
++              "start_column": 36,
++              "start_line": 13
++            },
++            "snippet": "execAsync(command)"
++          },
++          "review": null,
++          "rule_id": "SENT-002",
++          "source": "static"
++        }
++      ],
++      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
++      "review": null,
++      "review_disagrees": false,
++      "rule_id": "SENT-002",
++      "severity": "High",
++      "source": "static",
++      "status": "needs_review",
++      "suppression": null,
++      "title": "Unsafe execution from tool input"
++    },
+     {
+       "baseline_matched": null,
+       "confidence": "high",
+@@ -80,14 +264,14 @@
+       "unreviewed_count": null
+     },
+     "static": {
+-      "candidate_count": 1,
++      "candidate_count": 2,
+       "excluded_count": 0,
+       "modes": [],
+       "reason": "selected scan tier excludes this review stage",
+       "reviewed_count": 0,
+       "selected_count": 0,
+       "state": "not_requested",
+-      "unreviewed_count": 1
++      "unreviewed_count": 2
+     }
+   },
+   "schema_version": "1.7.0",
+@@ -204,20 +388,6 @@
+             "path": "src/mcp-server/tools/gitInit/logic.ts",
+             "range": {
+               "end_column": 2,
+-              "end_line": 13,
+-              "start_column": 1,
+-              "start_line": 13
+-            }
+-          },
+-          "message": "SENT-002 at src/mcp-server/tools/gitInit/logic.ts:13: unresolved call to execAsync; protection is not established"
+-        },
+-        {
+-          "code": "static_flow_unresolved",
+-          "location": {
+-            "kind": "file",
+-            "path": "src/mcp-server/tools/gitInit/logic.ts",
+-            "range": {
+-              "end_column": 2,
+               "end_line": 11,
+               "start_column": 1,
+               "start_line": 11
+@@ -337,7 +507,7 @@
+       },
+       {
+         "exemptions_by_reason": {},
+-        "match_count": 0,
++        "match_count": 1,
+         "rule_id": "SENT-002",
+         "skip_reason": null,
+         "status": "evaluated"
+@@ -428,12 +598,12 @@
+       "SENT-015",
+       "SENT-016"
+     ],
+-    "total_matches": 1
++    "total_matches": 2
+   },
+   "summary": {
+     "by_severity": {
+       "Critical": 0,
+-      "High": 0,
++      "High": 1,
+       "Informational": 0,
+       "Low": 1,
+       "Medium": 0
+@@ -441,10 +611,10 @@
+     "by_status": {
+       "confirmed": 0,
+       "likely_false_positive": 0,
+-      "needs_review": 1,
++      "needs_review": 2,
+       "suppressed": 0
+     },
+-    "total": 1
++    "total": 2
+   },
+   "target": {
+     "display_name": "minimized-vulnerable",
+@@ -460,8 +630,12 @@
+       "message": "SENT-002 at src/mcp-server/tools/gitInit/logic.ts:11: unresolved call to branchNameToUse.replace; protection is not established"
+     },
+     {
+-      "code": "static_flow_unresolved",
+-      "message": "SENT-002 at src/mcp-server/tools/gitInit/logic.ts:13: unresolved call to execAsync; protection is not established"
++      "code": "static_binding_unresolved",
++      "message": "src/server.ts: cannot resolve TypeScript binding 'tool'"
++    },
++    {
++      "code": "static_binding_unresolved",
++      "message": "src/server.ts: cannot resolve TypeScript binding 'connect'"
+     },
+     {
+       "code": "static_flow_unresolved",
+@@ -490,14 +664,6 @@
+     {
+       "code": "static_binding_unresolved",
+       "message": "src/mcp-server/tools/gitInit/logic.ts: cannot resolve TypeScript binding 'branchNameToUse.replace'"
+-    },
+-    {
+-      "code": "static_binding_unresolved",
+-      "message": "src/server.ts: cannot resolve TypeScript binding 'tool'"
+-    },
+-    {
+-      "code": "static_binding_unresolved",
+-      "message": "src/server.ts: cannot resolve TypeScript binding 'connect'"
+     },
+     {
+       "code": "static_binding_unresolved",

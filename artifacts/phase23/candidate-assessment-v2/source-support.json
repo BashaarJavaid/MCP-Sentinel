@@ -1,0 +1,855 @@
+[
+  {
+    "input_id": "full-vulnerable",
+    "observations": [
+      1,
+      8
+    ],
+    "judgment": "source_matched",
+    "reason": "Exact SENT-002 at logic.ts:138 includes emitted registration, imported wrapper errorHandler.ts:382 and full server startup flow locations. Separate source inspection binds the handler at registration.ts:74, nested callback at 100 and helper invocation at 160; those source lines are not all emitted flow locations. The unchanged schema admits initialBranch; object spread retains that field; quote-only replacement does not remove shell substitution. Unknown path sanitization does not sanitize initialBranch.",
+    "sink_witnesses": [
+      {
+        "index": 4,
+        "rule_id": "SENT-002",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 56,
+            "end_line": 138,
+            "start_column": 38,
+            "start_line": 138
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 159,
+              "start_column": 1,
+              "start_line": 159
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 368,
+              "start_column": 1,
+              "start_line": 368
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 445,
+              "start_column": 1,
+              "start_line": 445
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 482,
+              "start_column": 1,
+              "start_line": 482
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 122,
+              "start_column": 1,
+              "start_line": 122
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 124,
+              "start_column": 1,
+              "start_line": 124
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 130,
+              "start_column": 1,
+              "start_line": 130
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 131,
+              "start_column": 1,
+              "start_line": 131
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 134,
+              "start_column": 1,
+              "start_line": 134
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 138,
+              "start_column": 1,
+              "start_line": 138
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 68
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 102,
+              "start_column": 1,
+              "start_line": 102
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 109,
+              "start_column": 1,
+              "start_line": 109
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/internal/errorHandler.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 382,
+              "start_column": 1,
+              "start_line": 382
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/internal/requestContext.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/security/idGenerator.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 226,
+              "start_column": 1,
+              "start_line": 226
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/mcp-server/tools/gitInit/index.ts",
+        "sha256": "531edc63cca361ff8356af88886babd951dd5b24c6edce33bae4610d6fb3573e",
+        "text": "/**\n * @fileoverview Barrel file for the git_init tool.\n * Exports the registration function and the state accessor initializer.\n */\n\nexport {\n  registerGitInitTool,\n  initializeGitInitStateAccessors,\n} from \"./registration.js\";\n// Export types if needed elsewhere, e.g.:\n// export type { GitInitInput, GitInitResult } from './logic.js';\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "960e528b897ca6bdd0cb5e0678836f44573e24f62f4bf53367a3869841e84f66",
+        "text": "import { exec } from \"child_process\";\nimport fs from \"fs/promises\";\nimport path from \"path\";\nimport { promisify } from \"util\";\nimport { z } from \"zod\";\n// Import utils from barrel (logger from ../utils/internal/logger.js)\nimport { logger } from \"../../../utils/index.js\";\n// Import utils from barrel (RequestContext from ../utils/internal/requestContext.js)\nimport { BaseErrorCode, McpError } from \"../../../types-global/errors.js\"; // Keep direct import for types-global\nimport { RequestContext } from \"../../../utils/index.js\";\n// Import utils from barrel (sanitization from ../utils/security/sanitization.js)\nimport { sanitization } from \"../../../utils/index.js\";\n\nconst execAsync = promisify(exec);\n\n// Define the input schema for the git_init tool using Zod\nexport const GitInitInputSchema = z.object({\n  path: z\n    .string()\n    .min(1)\n    .optional()\n    .default(\".\")\n    .describe(\n      \"Path where the new Git repository should be initialized. Can be relative or absolute. If relative or '.', it resolves against the directory set via `git_set_working_dir` for the session. If absolute, it's used directly. If omitted, defaults to '.' (resolved against session git working directory).\",\n    ),\n  initialBranch: z\n    .string()\n    .optional()\n    .describe(\n      \"Optional name for the initial branch (e.g., 'main'). Uses Git's default if not specified.\",\n    ),\n  bare: z\n    .boolean()\n    .default(false)\n    .describe(\"Create a bare repository (no working directory).\"),\n  quiet: z\n    .boolean()\n    .default(false)\n    .describe(\n      \"Only print error and warning messages; all other output will be suppressed.\",\n    ),\n});\n\n// Infer the TypeScript type from the Zod schema\nexport type GitInitInput = z.infer<typeof GitInitInputSchema>;\n\n// Define the structure for the JSON output\nexport interface GitInitResult {\n  success: boolean;\n  message: string;\n  path: string; // The path where the repo was initialized\n  gitDirExists: boolean; // Confirms the .git directory was created (or equivalent for bare)\n}\n\n/**\n * Executes the 'git init' command to initialize a new Git repository.\n *\n * @param {GitInitInput} input - The validated input object.\n * @param {RequestContext} context - The request context for logging and error handling.\n * @returns {Promise<GitInitResult>} A promise that resolves with the structured init result.\n * @throws {McpError} Throws an McpError if path validation fails or the git command fails unexpectedly.\n */\nexport async function gitInitLogic(\n  input: GitInitInput,\n  context: RequestContext,\n): Promise<GitInitResult> {\n  const operation = \"gitInitLogic\";\n  logger.debug(`Executing ${operation}`, { ...context, input });\n\n  let targetPath: string;\n  try {\n    // Sanitize the provided absolute path\n    targetPath = sanitization.sanitizePath(input.path, {\n      allowAbsolute: true,\n    }).sanitizedPath;\n    logger.debug(\"Sanitized path\", {\n      ...context,\n      operation,\n      sanitizedPath: targetPath,\n    });\n\n    // Ensure the target directory exists before trying to init inside it\n    // git init creates the directory if it doesn't exist, but we might want to ensure the parent exists\n    const parentDir = path.dirname(targetPath);\n    try {\n      await fs.access(parentDir, fs.constants.W_OK); // Check write access in parent\n    } catch (accessError: any) {\n      logger.error(`Parent directory check failed for ${targetPath}`, {\n        ...context,\n        operation,\n        error: accessError.message,\n      });\n      if (accessError.code === \"ENOENT\") {\n        throw new McpError(\n          BaseErrorCode.VALIDATION_ERROR,\n          `Parent directory does not exist: ${parentDir}`,\n          { context, operation },\n        );\n      }\n      throw new McpError(\n        BaseErrorCode.VALIDATION_ERROR,\n        `Cannot access parent directory: ${parentDir}. Error: ${accessError.message}`,\n        { context, operation },\n      );\n    }\n  } catch (error) {\n    logger.error(\"Path validation or sanitization failed\", {\n      ...context,\n      operation,\n      error,\n    });\n    if (error instanceof McpError) throw error;\n    throw new McpError(\n      BaseErrorCode.VALIDATION_ERROR,\n      `Invalid path: ${error instanceof Error ? error.message : String(error)}`,\n      { context, operation, originalError: error },\n    );\n  }\n\n  try {\n    // Construct the git init command\n    let command = `git init`;\n    if (input.quiet) {\n      command += \" --quiet\";\n    }\n    if (input.bare) {\n      command += \" --bare\";\n    }\n    // Determine the initial branch name, defaulting to 'main' if not provided\n    const branchNameToUse = input.initialBranch || \"main\";\n    command += ` -b \"${branchNameToUse.replace(/\"/g, '\\\\\"')}\"`;\n\n    // Add the target directory path at the end\n    command += ` \"${targetPath}\"`;\n\n    logger.debug(`Executing command: ${command}`, { ...context, operation });\n\n    const { stdout, stderr } = await execAsync(command);\n\n    if (stderr && !input.quiet) {\n      // Log stderr as warning but proceed, as init might still succeed (e.g., reinitializing)\n      logger.warning(`Git init command produced stderr`, {\n        ...context,\n        operation,\n        stderr,\n      });\n    }\n    if (stdout && !input.quiet) {\n      // Log stdout at debug level for cleaner info logs\n      logger.debug(`Git init command produced stdout`, {\n        ...context,\n        operation,\n        stdout,\n      });\n    }\n\n    // Verify .git directory exists (or equivalent for bare repo)\n    const gitDirPath = input.bare ? targetPath : path.join(targetPath, \".git\");\n    let gitDirExists = false;\n    try {\n      await fs.access(gitDirPath);\n      gitDirExists = true;\n    } catch (e) {\n      logger.warning(\n        `Could not verify existence of ${gitDirPath} after git init`,\n        { ...context, operation },\n      );\n    }\n\n    const successMessage = `Successfully initialized Git repository in ${targetPath}`;\n    logger.info(successMessage, {\n      ...context,\n      operation,\n      path: targetPath,\n      bare: input.bare,\n      initialBranch: input.initialBranch || \"default\",\n    });\n    return {\n      success: true,\n      message: stdout.trim() || successMessage, // Return stdout to user if available\n      path: targetPath,\n      gitDirExists: gitDirExists,\n    };\n  } catch (error: any) {\n    const errorMessage = error.stderr || error.message || \"\";\n    logger.error(`Failed to execute git init command`, {\n      ...context,\n      operation,\n      path: targetPath,\n      error: errorMessage,\n      stderr: error.stderr,\n      stdout: error.stdout,\n    });\n\n    // Handle specific error cases\n    if (\n      errorMessage.toLowerCase().includes(\"already exists\") &&\n      errorMessage.toLowerCase().includes(\"git repository\")\n    ) {\n      // Reinitializing is often okay, treat as success but mention it.\n      logger.info(`Repository already exists, reinitialized: ${targetPath}`, {\n        ...context,\n        operation,\n      });\n      return {\n        success: true, // Treat reinitialization as success\n        message: `Reinitialized existing Git repository in ${targetPath}`,\n        path: targetPath,\n        gitDirExists: true, // Assume it exists if reinit message appears\n      };\n    }\n    if (errorMessage.toLowerCase().includes(\"permission denied\")) {\n      throw new McpError(\n        BaseErrorCode.FORBIDDEN,\n        `Permission denied to initialize repository at: ${targetPath}. Error: ${errorMessage}`,\n        { context, operation, originalError: error },\n      );\n    }\n\n    // Generic internal error for other failures\n    throw new McpError(\n      BaseErrorCode.INTERNAL_ERROR,\n      `Failed to initialize repository at: ${targetPath}. Error: ${errorMessage}`,\n      { context, operation, originalError: error },\n    );\n  }\n}\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/registration.ts",
+        "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+        "text": "import { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport {\n  CallToolResult,\n  TextContent,\n} from \"@modelcontextprotocol/sdk/types.js\";\nimport path from \"path\";\nimport { z } from \"zod\";\nimport { BaseErrorCode, McpError } from \"../../../types-global/errors.js\";\nimport {\n  ErrorHandler,\n  logger,\n  requestContextService,\n  sanitization,\n} from \"../../../utils/index.js\";\nimport {\n  GitInitInput,\n  GitInitInputSchema,\n  gitInitLogic,\n  GitInitResult,\n} from \"./logic.js\";\n\nconst TOOL_NAME = \"git_init\";\nconst TOOL_DESCRIPTION =\n  \"Initializes a new Git repository at the specified path. If path is relative or omitted, it resolves against the session working directory (if you have set the git_working_dir). Can optionally set the initial branch name and create a bare repository.\";\n\nconst RegistrationSchema = GitInitInputSchema.extend({\n  path: z.string().min(1).optional().default(\".\"),\n}).shape;\n\n// --- Module-level State Accessors ---\n// These will be populated by the initialize function called from server.ts\nlet _getWorkingDirectory: (\n  sessionId: string | undefined,\n) => string | undefined = () => undefined;\nlet _getSessionIdFromContext: (\n  context: Record<string, any>,\n) => string | undefined = () => undefined;\n\n/**\n * Initializes state accessor functions for the git_init tool.\n * This function is called by the main server setup to provide the tool\n * with a way to access session-specific state (like the working directory)\n * without needing direct access to the server or transport layer internals.\n *\n * @param getWorkingDirectory - Function to retrieve the working directory for a given session ID.\n * @param getSessionIdFromContext - Function to extract the session ID from a tool's execution context.\n */\nexport function initializeGitInitStateAccessors(\n  getWorkingDirectory: (sessionId: string | undefined) => string | undefined,\n  getSessionIdFromContext: (context: Record<string, any>) => string | undefined,\n): void {\n  _getWorkingDirectory = getWorkingDirectory;\n  _getSessionIdFromContext = getSessionIdFromContext;\n  logger.debug(`State accessors initialized for ${TOOL_NAME}`);\n}\n\n/**\n * Registers the git_init tool with the MCP server.\n *\n * @param {McpServer} server - The McpServer instance to register the tool with.\n * @returns {Promise<void>}\n * @throws {Error} If registration fails.\n */\nexport const registerGitInitTool = async (server: McpServer): Promise<void> => {\n  const operation = \"registerGitInitTool\";\n  const context = requestContextService.createRequestContext({ operation });\n\n  await ErrorHandler.tryCatch(\n    async () => {\n      server.tool<typeof RegistrationSchema>(\n        TOOL_NAME,\n        TOOL_DESCRIPTION,\n        RegistrationSchema,\n        async (validatedArgs, callContext): Promise<CallToolResult> => {\n          // Removed explicit type for callContext\n          const toolOperation = \"tool:git_init\";\n          const requestContext = requestContextService.createRequestContext({\n            operation: toolOperation,\n            parentContext: callContext,\n          });\n\n          // Use the initialized accessor to get the session ID\n          const sessionId = _getSessionIdFromContext(requestContext); // Pass the created context\n          if (!sessionId && !path.isAbsolute(validatedArgs.path)) {\n            // If path is relative, we NEED a session ID to resolve against a potential working dir\n            logger.error(\n              \"Session ID is missing in context, cannot resolve relative path\",\n              requestContext,\n            );\n            throw new McpError(\n              BaseErrorCode.INTERNAL_ERROR,\n              \"Session context is unavailable for relative path resolution.\",\n              { context: requestContext, operation: toolOperation },\n            );\n          }\n\n          logger.info(`Executing tool: ${TOOL_NAME}`, requestContext);\n\n          return await ErrorHandler.tryCatch<CallToolResult>(\n            async () => {\n              // Use the initialized accessor to get the working directory\n              const sessionWorkingDirectory = _getWorkingDirectory(sessionId);\n\n              const inputPath = validatedArgs.path;\n              let resolvedPath: string;\n\n              try {\n                if (path.isAbsolute(inputPath)) {\n                  resolvedPath = sanitization.sanitizePath(inputPath, {\n                    allowAbsolute: true,\n                  }).sanitizedPath;\n                  logger.debug(\n                    `Using absolute path: ${resolvedPath}`,\n                    requestContext,\n                  );\n                } else if (sessionWorkingDirectory) {\n                  resolvedPath = sanitization.sanitizePath(\n                    path.resolve(sessionWorkingDirectory, inputPath),\n                    { allowAbsolute: true },\n                  ).sanitizedPath;\n                  logger.debug(\n                    `Resolved relative path '${inputPath}' to absolute path: ${resolvedPath} using session CWD`,\n                    requestContext,\n                  );\n                } else {\n                  // This case should now only be hit if the path is relative AND there's no session CWD set.\n                  logger.error(\n                    `Relative path '${inputPath}' provided but no session working directory is set.`,\n                    requestContext,\n                  );\n                  throw new McpError(\n                    BaseErrorCode.VALIDATION_ERROR,\n                    `Relative path '${inputPath}' provided but no session working directory is set. Please provide an absolute path or set a working directory using git_set_working_dir.`,\n                    { context: requestContext, operation: toolOperation },\n                  );\n                }\n              } catch (error) {\n                logger.error(\"Path resolution or sanitization failed\", {\n                  ...requestContext,\n                  operation: toolOperation,\n                  error,\n                });\n                if (error instanceof McpError) throw error;\n                throw new McpError(\n                  BaseErrorCode.VALIDATION_ERROR,\n                  `Invalid path processing: ${error instanceof Error ? error.message : String(error)}`,\n                  {\n                    context: requestContext,\n                    operation: toolOperation,\n                    originalError: error,\n                  },\n                );\n              }\n\n              const logicArgs: GitInitInput = {\n                ...validatedArgs,\n                path: resolvedPath,\n              };\n\n              const initResult: GitInitResult = await gitInitLogic(\n                logicArgs,\n                requestContext,\n              );\n\n              const resultContent: TextContent = {\n                type: \"text\",\n                text: JSON.stringify(initResult, null, 2), // Pretty-print JSON\n                contentType: \"application/json\",\n              };\n\n              logger.info(\n                `Tool ${TOOL_NAME} executed successfully, returning JSON`,\n                requestContext,\n              );\n              return { content: [resultContent] };\n            },\n            {\n              operation: toolOperation,\n              context: requestContext,\n              input: validatedArgs,\n              errorCode: BaseErrorCode.INTERNAL_ERROR,\n            },\n          );\n        },\n      );\n\n      logger.info(`Tool registered: ${TOOL_NAME}`, context);\n    },\n    { operation, context, critical: true },\n  );\n};\n"
+      },
+      {
+        "path": "src/utils/internal/errorHandler.ts",
+        "sha256": "31623e9f2bedd0f3a83f83a3905391c3c8b26f4f5e32f1a7f3468da6cf494737",
+        "text": "import { BaseErrorCode, McpError } from \"../../types-global/errors.js\"; // Corrected path\nimport { logger } from \"./logger.js\";\nimport { sanitizeInputForLogging } from \"../index.js\"; // Import from main barrel file\n\n/**\n * Generic error context interface\n */\nexport interface ErrorContext {\n  /** Unique request or operation identifier */\n  requestId?: string;\n  /** Any additional context information */\n  [key: string]: unknown;\n}\n\n/**\n * Error handler options\n */\nexport interface ErrorHandlerOptions {\n  /** The context of the operation that caused the error */\n  context?: ErrorContext;\n  /** The name of the operation being performed */\n  operation: string;\n  /** The input that caused the error */\n  input?: unknown;\n  /** Whether to rethrow the error after handling */\n  rethrow?: boolean;\n  /** Custom error code to use when creating an McpError */\n  errorCode?: BaseErrorCode;\n  /** Custom error mapper function */\n  errorMapper?: (error: unknown) => Error;\n  /** Whether to include stack traces in logs */\n  includeStack?: boolean;\n  /** Whether this is a critical error that should abort operations */\n  critical?: boolean;\n}\n\n/**\n * Base error mapping rule\n */\nexport interface BaseErrorMapping {\n  /** Pattern to match in the error message */\n  pattern: string | RegExp;\n  /** Error code for mapped errors */\n  errorCode: BaseErrorCode;\n  /** Custom error message template */\n  messageTemplate?: string;\n}\n\n/**\n * Error mapping configuration\n */\nexport interface ErrorMapping<T extends Error = Error>\n  extends BaseErrorMapping {\n  /** Factory function to create the mapped error */\n  factory: (error: unknown, context?: Record<string, unknown>) => T;\n  /** Additional context to merge with error context */\n  additionalContext?: Record<string, unknown>;\n}\n\n/**\n * Simple mapper that maps error types to error codes\n */\nconst ERROR_TYPE_MAPPINGS: Record<string, BaseErrorCode> = {\n  SyntaxError: BaseErrorCode.VALIDATION_ERROR,\n  TypeError: BaseErrorCode.VALIDATION_ERROR,\n  ReferenceError: BaseErrorCode.INTERNAL_ERROR,\n  RangeError: BaseErrorCode.VALIDATION_ERROR,\n  URIError: BaseErrorCode.VALIDATION_ERROR,\n  EvalError: BaseErrorCode.INTERNAL_ERROR,\n};\n\n/**\n * Common error patterns for automatic classification\n */\nconst COMMON_ERROR_PATTERNS: BaseErrorMapping[] = [\n  // Authentication related errors\n  {\n    pattern:\n      /auth|unauthorized|unauthenticated|not.*logged.*in|invalid.*token|expired.*token/i,\n    errorCode: BaseErrorCode.UNAUTHORIZED,\n  },\n  // Permission related errors\n  {\n    pattern: /permission|forbidden|access.*denied|not.*allowed/i,\n    errorCode: BaseErrorCode.FORBIDDEN,\n  },\n  // Not found errors\n  {\n    pattern: /not.*found|missing|no.*such|doesn't.*exist|couldn't.*find/i,\n    errorCode: BaseErrorCode.NOT_FOUND,\n  },\n  // Validation errors\n  {\n    pattern: /invalid|validation|malformed|bad request|wrong format/i,\n    errorCode: BaseErrorCode.VALIDATION_ERROR,\n  },\n  // Conflict errors\n  {\n    pattern: /conflict|already.*exists|duplicate|unique.*constraint/i,\n    errorCode: BaseErrorCode.CONFLICT,\n  },\n  // Rate limiting\n  {\n    pattern: /rate.*limit|too.*many.*requests|throttled/i,\n    errorCode: BaseErrorCode.RATE_LIMITED,\n  },\n  // Timeout errors\n  {\n    pattern: /timeout|timed.*out|deadline.*exceeded/i,\n    errorCode: BaseErrorCode.TIMEOUT,\n  },\n  // External service errors\n  {\n    pattern: /service.*unavailable|bad.*gateway|gateway.*timeout/i,\n    errorCode: BaseErrorCode.SERVICE_UNAVAILABLE,\n  },\n];\n\n/**\n * Get a readable name for an error\n * @param error Error to get name for\n * @returns User-friendly error name\n */\nfunction getErrorName(error: unknown): string {\n  if (error instanceof Error) {\n    return error.name || \"Error\";\n  }\n\n  if (error === null) {\n    return \"NullError\";\n  }\n\n  if (error === undefined) {\n    return \"UndefinedError\";\n  }\n\n  return typeof error === \"object\" ? \"ObjectError\" : \"UnknownError\";\n}\n\n/**\n * Get a message from an error\n * @param error Error to get message from\n * @returns Error message\n */\nfunction getErrorMessage(error: unknown): string {\n  if (error instanceof Error) {\n    return error.message;\n  }\n\n  if (error === null) {\n    return \"Null error occurred\";\n  }\n\n  if (error === undefined) {\n    return \"Undefined error occurred\";\n  }\n\n  return typeof error === \"string\" ? error : String(error);\n}\n\n/**\n * Error handler utility class with various error handling methods\n */\nexport class ErrorHandler {\n  /**\n   * Determine the appropriate error code for an error based on patterns and type\n   * @param error The error to classify\n   * @returns The appropriate error code\n   */\n  public static determineErrorCode(error: unknown): BaseErrorCode {\n    // If it's already an McpError, use its code\n    if (error instanceof McpError) {\n      return error.code;\n    }\n\n    const errorName = getErrorName(error);\n    const errorMessage = getErrorMessage(error);\n\n    // Check if the error type has a direct mapping\n    if (errorName in ERROR_TYPE_MAPPINGS) {\n      return ERROR_TYPE_MAPPINGS[errorName as keyof typeof ERROR_TYPE_MAPPINGS];\n    }\n\n    // Check for common error patterns\n    for (const pattern of COMMON_ERROR_PATTERNS) {\n      const regex =\n        pattern.pattern instanceof RegExp\n          ? pattern.pattern\n          : new RegExp(pattern.pattern, \"i\");\n\n      if (regex.test(errorMessage) || regex.test(errorName)) {\n        return pattern.errorCode;\n      }\n    }\n\n    // Default to internal error if no pattern matches\n    return BaseErrorCode.INTERNAL_ERROR;\n  }\n\n  /**\n   * Handle operation errors with consistent logging and transformation\n   * @param error The error that occurred\n   * @param options Error handling options\n   * @returns The transformed error\n   */\n  public static handleError(\n    error: unknown,\n    options: ErrorHandlerOptions,\n  ): Error {\n    const {\n      context,\n      operation,\n      input,\n      rethrow = false,\n      errorCode: explicitErrorCode,\n      includeStack = true,\n      critical = false,\n    } = options;\n\n    // If it's already an McpError, use it directly but apply additional context\n    if (error instanceof McpError) {\n      // Add any additional context\n      if (context && Object.keys(context).length > 0) {\n        // Ensure details is an object before spreading\n        const existingDetails =\n          typeof error.details === \"object\" && error.details !== null\n            ? error.details\n            : {};\n        error.details = { ...existingDetails, ...context };\n      }\n\n      // Log the error with sanitized input\n      logger.error(`Error ${operation}: ${error.message}`, {\n        errorCode: error.code,\n        requestId: context?.requestId,\n        input: input ? sanitizeInputForLogging(input) : undefined,\n        stack: includeStack ? error.stack : undefined,\n        critical,\n        ...context,\n      });\n\n      if (rethrow) {\n        throw error;\n      }\n\n      // Ensure the function returns an Error type\n      return error;\n    }\n\n    // Sanitize input for logging\n    const sanitizedInput = input ? sanitizeInputForLogging(input) : undefined;\n\n    // Log the error with consistent format\n    logger.error(`Error ${operation}`, {\n      error: getErrorMessage(error), // Use helper function\n      errorType: getErrorName(error),\n      input: sanitizedInput,\n      requestId: context?.requestId,\n      stack: includeStack && error instanceof Error ? error.stack : undefined,\n      critical,\n      ...context,\n    });\n\n    // Choose the error code (explicit > determined > default)\n    const errorCode =\n      explicitErrorCode ||\n      ErrorHandler.determineErrorCode(error) ||\n      BaseErrorCode.INTERNAL_ERROR;\n\n    // Transform to appropriate error type\n    let transformedError: Error;\n    if (options.errorMapper) {\n      transformedError = options.errorMapper(error);\n    } else {\n      transformedError = new McpError(\n        errorCode,\n        `Error ${operation}: ${getErrorMessage(error)}`, // Use helper function\n        {\n          originalError: getErrorName(error),\n          ...context,\n        },\n      );\n    }\n\n    // Rethrow if requested\n    if (rethrow) {\n      throw transformedError;\n    }\n\n    // Ensure the function returns an Error type\n    return transformedError;\n  }\n\n  /**\n   * Map an error to a specific error type based on error message patterns\n   * @param error The error to map\n   * @param mappings Array of pattern and factory mappings\n   * @param defaultFactory Default factory function if no pattern matches\n   * @returns The mapped error\n   */\n  public static mapError<T extends Error>(\n    error: unknown,\n    mappings: ErrorMapping<T>[],\n    defaultFactory?: (error: unknown, context?: Record<string, unknown>) => T,\n  ): T | Error {\n    // If it's already the target type and we have a default factory to check against, return it\n    if (defaultFactory && error instanceof Error) {\n      const defaultInstance = defaultFactory(error);\n      if (error.constructor === defaultInstance.constructor) {\n        return error as T;\n      }\n    }\n\n    const errorMessage = getErrorMessage(error);\n\n    // Check each pattern and return the first match\n    for (const mapping of mappings) {\n      const matches =\n        mapping.pattern instanceof RegExp\n          ? mapping.pattern.test(errorMessage)\n          : errorMessage.includes(mapping.pattern);\n\n      if (matches) {\n        return mapping.factory(error, mapping.additionalContext);\n      }\n    }\n\n    // Return default or original error\n    if (defaultFactory) {\n      return defaultFactory(error);\n    }\n\n    return error instanceof Error ? error : new Error(String(error));\n  }\n\n  // Removed createErrorMapper method for simplification\n\n  /**\n   * Format an error for consistent response structure\n   * @param error The error to format\n   * @returns Formatted error object\n   */\n  public static formatError(error: unknown): Record<string, unknown> {\n    if (error instanceof McpError) {\n      return {\n        code: error.code,\n        message: error.message,\n        // Ensure details is an object\n        details:\n          typeof error.details === \"object\" && error.details !== null\n            ? error.details\n            : {},\n      };\n    }\n\n    if (error instanceof Error) {\n      return {\n        code: ErrorHandler.determineErrorCode(error),\n        message: error.message,\n        details: { errorType: error.name },\n      };\n    }\n\n    return {\n      code: BaseErrorCode.UNKNOWN_ERROR,\n      message: String(error),\n      details: { errorType: typeof error },\n    };\n  }\n\n  /**\n   * Safely execute a function and handle any errors\n   * @param fn Function to execute\n   * @param options Error handling options\n   * @returns The result of the function or error\n   */\n  public static async tryCatch<T>(\n    fn: () => Promise<T> | T,\n    options: ErrorHandlerOptions,\n  ): Promise<T> {\n    try {\n      return await fn();\n    } catch (error) {\n      throw ErrorHandler.handleError(error, { ...options, rethrow: true });\n    }\n  }\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "full-fixed",
+    "observations": [
+      2,
+      9
+    ],
+    "judgment": "established_for_selected_shell_condition",
+    "reason": "The complete report recognizes the git_init callback and records SENT-014 at the exact execFileAsync sink with registration and imported wrapper flow locations. Source binds immutable promisify(execFile), literal git, separate argv and no shell option. The shared ShellFlow uses that same proved factory/call path. initialBranch remains a scalar field through the object spread and is appended to argv after -b. Retained unresolved path sanitization, logging, fs access and JSON rendering calls do not change this proved execution mode; no protection is credited to them. This establishes only the selected shell condition, not option safety, filesystem safety, runtime success or other rules.",
+    "sink_witnesses": [
+      {
+        "index": 4,
+        "rule_id": "SENT-014",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 64,
+            "end_line": 141,
+            "start_column": 38,
+            "start_line": 141
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 159,
+              "start_column": 1,
+              "start_line": 159
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 368,
+              "start_column": 1,
+              "start_line": 368
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 445,
+              "start_column": 1,
+              "start_line": 445
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 482,
+              "start_column": 1,
+              "start_line": 482
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 130,
+              "start_column": 1,
+              "start_line": 130
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 141,
+              "start_column": 1,
+              "start_line": 141
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 68,
+              "start_column": 1,
+              "start_line": 68
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 102,
+              "start_column": 1,
+              "start_line": 102
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 109,
+              "start_column": 1,
+              "start_line": 109
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/registration.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 118,
+              "start_column": 1,
+              "start_line": 118
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/internal/errorHandler.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 382,
+              "start_column": 1,
+              "start_line": 382
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/internal/requestContext.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/utils/security/idGenerator.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 226,
+              "start_column": 1,
+              "start_line": 226
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/mcp-server/tools/gitInit/index.ts",
+        "sha256": "531edc63cca361ff8356af88886babd951dd5b24c6edce33bae4610d6fb3573e",
+        "text": "/**\n * @fileoverview Barrel file for the git_init tool.\n * Exports the registration function and the state accessor initializer.\n */\n\nexport {\n  registerGitInitTool,\n  initializeGitInitStateAccessors,\n} from \"./registration.js\";\n// Export types if needed elsewhere, e.g.:\n// export type { GitInitInput, GitInitResult } from './logic.js';\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "e78f59dc3aa57eef2385da3982f7870aebce620020418a4ce225376b7557fdca",
+        "text": "import { execFile } from \"child_process\";\nimport fs from \"fs/promises\";\nimport path from \"path\";\nimport { promisify } from \"util\";\nimport { z } from \"zod\";\n// Import utils from barrel (logger from ../utils/internal/logger.js)\nimport { logger } from \"../../../utils/index.js\";\n// Import utils from barrel (RequestContext from ../utils/internal/requestContext.js)\nimport { BaseErrorCode, McpError } from \"../../../types-global/errors.js\"; // Keep direct import for types-global\nimport { RequestContext } from \"../../../utils/index.js\";\n// Import utils from barrel (sanitization from ../utils/security/sanitization.js)\nimport { sanitization } from \"../../../utils/index.js\";\n\nconst execFileAsync = promisify(execFile);\n\n// Define the input schema for the git_init tool using Zod\nexport const GitInitInputSchema = z.object({\n  path: z\n    .string()\n    .min(1)\n    .optional()\n    .default(\".\")\n    .describe(\n      \"Path where the new Git repository should be initialized. Can be relative or absolute. If relative or '.', it resolves against the directory set via `git_set_working_dir` for the session. If absolute, it's used directly. If omitted, defaults to '.' (resolved against session git working directory).\",\n    ),\n  initialBranch: z\n    .string()\n    .optional()\n    .describe(\n      \"Optional name for the initial branch (e.g., 'main'). Uses Git's default if not specified.\",\n    ),\n  bare: z\n    .boolean()\n    .default(false)\n    .describe(\"Create a bare repository (no working directory).\"),\n  quiet: z\n    .boolean()\n    .default(false)\n    .describe(\n      \"Only print error and warning messages; all other output will be suppressed.\",\n    ),\n});\n\n// Infer the TypeScript type from the Zod schema\nexport type GitInitInput = z.infer<typeof GitInitInputSchema>;\n\n// Define the structure for the JSON output\nexport interface GitInitResult {\n  success: boolean;\n  message: string;\n  path: string; // The path where the repo was initialized\n  gitDirExists: boolean; // Confirms the .git directory was created (or equivalent for bare)\n}\n\n/**\n * Executes the 'git init' command to initialize a new Git repository.\n *\n * @param {GitInitInput} input - The validated input object.\n * @param {RequestContext} context - The request context for logging and error handling.\n * @returns {Promise<GitInitResult>} A promise that resolves with the structured init result.\n * @throws {McpError} Throws an McpError if path validation fails or the git command fails unexpectedly.\n */\nexport async function gitInitLogic(\n  input: GitInitInput,\n  context: RequestContext,\n): Promise<GitInitResult> {\n  const operation = \"gitInitLogic\";\n  logger.debug(`Executing ${operation}`, { ...context, input });\n\n  let targetPath: string;\n  try {\n    // Sanitize the provided absolute path\n    targetPath = sanitization.sanitizePath(input.path, {\n      allowAbsolute: true,\n    }).sanitizedPath;\n    logger.debug(\"Sanitized path\", {\n      ...context,\n      operation,\n      sanitizedPath: targetPath,\n    });\n\n    // Ensure the target directory exists before trying to init inside it\n    // git init creates the directory if it doesn't exist, but we might want to ensure the parent exists\n    const parentDir = path.dirname(targetPath);\n    try {\n      await fs.access(parentDir, fs.constants.W_OK); // Check write access in parent\n    } catch (accessError: any) {\n      logger.error(`Parent directory check failed for ${targetPath}`, {\n        ...context,\n        operation,\n        error: accessError.message,\n      });\n      if (accessError.code === \"ENOENT\") {\n        throw new McpError(\n          BaseErrorCode.VALIDATION_ERROR,\n          `Parent directory does not exist: ${parentDir}`,\n          { context, operation },\n        );\n      }\n      throw new McpError(\n        BaseErrorCode.VALIDATION_ERROR,\n        `Cannot access parent directory: ${parentDir}. Error: ${accessError.message}`,\n        { context, operation },\n      );\n    }\n  } catch (error) {\n    logger.error(\"Path validation or sanitization failed\", {\n      ...context,\n      operation,\n      error,\n    });\n    if (error instanceof McpError) throw error;\n    throw new McpError(\n      BaseErrorCode.VALIDATION_ERROR,\n      `Invalid path: ${error instanceof Error ? error.message : String(error)}`,\n      { context, operation, originalError: error },\n    );\n  }\n\n  try {\n    // Construct the git init command\n    const args: string[] = [\"init\"];\n    if (input.quiet) {\n      args.push(\"--quiet\");\n    }\n    if (input.bare) {\n      args.push(\"--bare\");\n    }\n    // Determine the initial branch name, defaulting to 'main' if not provided\n    const branchNameToUse = input.initialBranch || \"main\";\n    args.push(\"-b\", branchNameToUse);\n\n    // Add the target directory path at the end\n    args.push(targetPath);\n\n    logger.debug(`Executing command: git ${args.join(\" \")}`, {\n      ...context,\n      operation,\n    });\n\n    const { stdout, stderr } = await execFileAsync(\"git\", args);\n\n    if (stderr && !input.quiet) {\n      // Log stderr as warning but proceed, as init might still succeed (e.g., reinitializing)\n      logger.warning(`Git init command produced stderr`, {\n        ...context,\n        operation,\n        stderr,\n      });\n    }\n    if (stdout && !input.quiet) {\n      // Log stdout at debug level for cleaner info logs\n      logger.debug(`Git init command produced stdout`, {\n        ...context,\n        operation,\n        stdout,\n      });\n    }\n\n    // Verify .git directory exists (or equivalent for bare repo)\n    const gitDirPath = input.bare ? targetPath : path.join(targetPath, \".git\");\n    let gitDirExists = false;\n    try {\n      await fs.access(gitDirPath);\n      gitDirExists = true;\n    } catch (e) {\n      logger.warning(\n        `Could not verify existence of ${gitDirPath} after git init`,\n        { ...context, operation },\n      );\n    }\n\n    const successMessage = `Successfully initialized Git repository in ${targetPath}`;\n    logger.info(successMessage, {\n      ...context,\n      operation,\n      path: targetPath,\n      bare: input.bare,\n      initialBranch: input.initialBranch || \"default\",\n    });\n    return {\n      success: true,\n      message: stdout.trim() || successMessage, // Return stdout to user if available\n      path: targetPath,\n      gitDirExists: gitDirExists,\n    };\n  } catch (error: any) {\n    const errorMessage = error.stderr || error.message || \"\";\n    logger.error(`Failed to execute git init command`, {\n      ...context,\n      operation,\n      path: targetPath,\n      error: errorMessage,\n      stderr: error.stderr,\n      stdout: error.stdout,\n    });\n\n    // Handle specific error cases\n    if (\n      errorMessage.toLowerCase().includes(\"already exists\") &&\n      errorMessage.toLowerCase().includes(\"git repository\")\n    ) {\n      // Reinitializing is often okay, treat as success but mention it.\n      logger.info(`Repository already exists, reinitialized: ${targetPath}`, {\n        ...context,\n        operation,\n      });\n      return {\n        success: true, // Treat reinitialization as success\n        message: `Reinitialized existing Git repository in ${targetPath}`,\n        path: targetPath,\n        gitDirExists: true, // Assume it exists if reinit message appears\n      };\n    }\n    if (errorMessage.toLowerCase().includes(\"permission denied\")) {\n      throw new McpError(\n        BaseErrorCode.FORBIDDEN,\n        `Permission denied to initialize repository at: ${targetPath}. Error: ${errorMessage}`,\n        { context, operation, originalError: error },\n      );\n    }\n\n    // Generic internal error for other failures\n    throw new McpError(\n      BaseErrorCode.INTERNAL_ERROR,\n      `Failed to initialize repository at: ${targetPath}. Error: ${errorMessage}`,\n      { context, operation, originalError: error },\n    );\n  }\n}\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/registration.ts",
+        "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+        "text": "import { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport {\n  CallToolResult,\n  TextContent,\n} from \"@modelcontextprotocol/sdk/types.js\";\nimport path from \"path\";\nimport { z } from \"zod\";\nimport { BaseErrorCode, McpError } from \"../../../types-global/errors.js\";\nimport {\n  ErrorHandler,\n  logger,\n  requestContextService,\n  sanitization,\n} from \"../../../utils/index.js\";\nimport {\n  GitInitInput,\n  GitInitInputSchema,\n  gitInitLogic,\n  GitInitResult,\n} from \"./logic.js\";\n\nconst TOOL_NAME = \"git_init\";\nconst TOOL_DESCRIPTION =\n  \"Initializes a new Git repository at the specified path. If path is relative or omitted, it resolves against the session working directory (if you have set the git_working_dir). Can optionally set the initial branch name and create a bare repository.\";\n\nconst RegistrationSchema = GitInitInputSchema.extend({\n  path: z.string().min(1).optional().default(\".\"),\n}).shape;\n\n// --- Module-level State Accessors ---\n// These will be populated by the initialize function called from server.ts\nlet _getWorkingDirectory: (\n  sessionId: string | undefined,\n) => string | undefined = () => undefined;\nlet _getSessionIdFromContext: (\n  context: Record<string, any>,\n) => string | undefined = () => undefined;\n\n/**\n * Initializes state accessor functions for the git_init tool.\n * This function is called by the main server setup to provide the tool\n * with a way to access session-specific state (like the working directory)\n * without needing direct access to the server or transport layer internals.\n *\n * @param getWorkingDirectory - Function to retrieve the working directory for a given session ID.\n * @param getSessionIdFromContext - Function to extract the session ID from a tool's execution context.\n */\nexport function initializeGitInitStateAccessors(\n  getWorkingDirectory: (sessionId: string | undefined) => string | undefined,\n  getSessionIdFromContext: (context: Record<string, any>) => string | undefined,\n): void {\n  _getWorkingDirectory = getWorkingDirectory;\n  _getSessionIdFromContext = getSessionIdFromContext;\n  logger.debug(`State accessors initialized for ${TOOL_NAME}`);\n}\n\n/**\n * Registers the git_init tool with the MCP server.\n *\n * @param {McpServer} server - The McpServer instance to register the tool with.\n * @returns {Promise<void>}\n * @throws {Error} If registration fails.\n */\nexport const registerGitInitTool = async (server: McpServer): Promise<void> => {\n  const operation = \"registerGitInitTool\";\n  const context = requestContextService.createRequestContext({ operation });\n\n  await ErrorHandler.tryCatch(\n    async () => {\n      server.tool<typeof RegistrationSchema>(\n        TOOL_NAME,\n        TOOL_DESCRIPTION,\n        RegistrationSchema,\n        async (validatedArgs, callContext): Promise<CallToolResult> => {\n          // Removed explicit type for callContext\n          const toolOperation = \"tool:git_init\";\n          const requestContext = requestContextService.createRequestContext({\n            operation: toolOperation,\n            parentContext: callContext,\n          });\n\n          // Use the initialized accessor to get the session ID\n          const sessionId = _getSessionIdFromContext(requestContext); // Pass the created context\n          if (!sessionId && !path.isAbsolute(validatedArgs.path)) {\n            // If path is relative, we NEED a session ID to resolve against a potential working dir\n            logger.error(\n              \"Session ID is missing in context, cannot resolve relative path\",\n              requestContext,\n            );\n            throw new McpError(\n              BaseErrorCode.INTERNAL_ERROR,\n              \"Session context is unavailable for relative path resolution.\",\n              { context: requestContext, operation: toolOperation },\n            );\n          }\n\n          logger.info(`Executing tool: ${TOOL_NAME}`, requestContext);\n\n          return await ErrorHandler.tryCatch<CallToolResult>(\n            async () => {\n              // Use the initialized accessor to get the working directory\n              const sessionWorkingDirectory = _getWorkingDirectory(sessionId);\n\n              const inputPath = validatedArgs.path;\n              let resolvedPath: string;\n\n              try {\n                if (path.isAbsolute(inputPath)) {\n                  resolvedPath = sanitization.sanitizePath(inputPath, {\n                    allowAbsolute: true,\n                  }).sanitizedPath;\n                  logger.debug(\n                    `Using absolute path: ${resolvedPath}`,\n                    requestContext,\n                  );\n                } else if (sessionWorkingDirectory) {\n                  resolvedPath = sanitization.sanitizePath(\n                    path.resolve(sessionWorkingDirectory, inputPath),\n                    { allowAbsolute: true },\n                  ).sanitizedPath;\n                  logger.debug(\n                    `Resolved relative path '${inputPath}' to absolute path: ${resolvedPath} using session CWD`,\n                    requestContext,\n                  );\n                } else {\n                  // This case should now only be hit if the path is relative AND there's no session CWD set.\n                  logger.error(\n                    `Relative path '${inputPath}' provided but no session working directory is set.`,\n                    requestContext,\n                  );\n                  throw new McpError(\n                    BaseErrorCode.VALIDATION_ERROR,\n                    `Relative path '${inputPath}' provided but no session working directory is set. Please provide an absolute path or set a working directory using git_set_working_dir.`,\n                    { context: requestContext, operation: toolOperation },\n                  );\n                }\n              } catch (error) {\n                logger.error(\"Path resolution or sanitization failed\", {\n                  ...requestContext,\n                  operation: toolOperation,\n                  error,\n                });\n                if (error instanceof McpError) throw error;\n                throw new McpError(\n                  BaseErrorCode.VALIDATION_ERROR,\n                  `Invalid path processing: ${error instanceof Error ? error.message : String(error)}`,\n                  {\n                    context: requestContext,\n                    operation: toolOperation,\n                    originalError: error,\n                  },\n                );\n              }\n\n              const logicArgs: GitInitInput = {\n                ...validatedArgs,\n                path: resolvedPath,\n              };\n\n              const initResult: GitInitResult = await gitInitLogic(\n                logicArgs,\n                requestContext,\n              );\n\n              const resultContent: TextContent = {\n                type: \"text\",\n                text: JSON.stringify(initResult, null, 2), // Pretty-print JSON\n                contentType: \"application/json\",\n              };\n\n              logger.info(\n                `Tool ${TOOL_NAME} executed successfully, returning JSON`,\n                requestContext,\n              );\n              return { content: [resultContent] };\n            },\n            {\n              operation: toolOperation,\n              context: requestContext,\n              input: validatedArgs,\n              errorCode: BaseErrorCode.INTERNAL_ERROR,\n            },\n          );\n        },\n      );\n\n      logger.info(`Tool registered: ${TOOL_NAME}`, context);\n    },\n    { operation, context, critical: true },\n  );\n};\n"
+      },
+      {
+        "path": "src/utils/internal/errorHandler.ts",
+        "sha256": "31623e9f2bedd0f3a83f83a3905391c3c8b26f4f5e32f1a7f3468da6cf494737",
+        "text": "import { BaseErrorCode, McpError } from \"../../types-global/errors.js\"; // Corrected path\nimport { logger } from \"./logger.js\";\nimport { sanitizeInputForLogging } from \"../index.js\"; // Import from main barrel file\n\n/**\n * Generic error context interface\n */\nexport interface ErrorContext {\n  /** Unique request or operation identifier */\n  requestId?: string;\n  /** Any additional context information */\n  [key: string]: unknown;\n}\n\n/**\n * Error handler options\n */\nexport interface ErrorHandlerOptions {\n  /** The context of the operation that caused the error */\n  context?: ErrorContext;\n  /** The name of the operation being performed */\n  operation: string;\n  /** The input that caused the error */\n  input?: unknown;\n  /** Whether to rethrow the error after handling */\n  rethrow?: boolean;\n  /** Custom error code to use when creating an McpError */\n  errorCode?: BaseErrorCode;\n  /** Custom error mapper function */\n  errorMapper?: (error: unknown) => Error;\n  /** Whether to include stack traces in logs */\n  includeStack?: boolean;\n  /** Whether this is a critical error that should abort operations */\n  critical?: boolean;\n}\n\n/**\n * Base error mapping rule\n */\nexport interface BaseErrorMapping {\n  /** Pattern to match in the error message */\n  pattern: string | RegExp;\n  /** Error code for mapped errors */\n  errorCode: BaseErrorCode;\n  /** Custom error message template */\n  messageTemplate?: string;\n}\n\n/**\n * Error mapping configuration\n */\nexport interface ErrorMapping<T extends Error = Error>\n  extends BaseErrorMapping {\n  /** Factory function to create the mapped error */\n  factory: (error: unknown, context?: Record<string, unknown>) => T;\n  /** Additional context to merge with error context */\n  additionalContext?: Record<string, unknown>;\n}\n\n/**\n * Simple mapper that maps error types to error codes\n */\nconst ERROR_TYPE_MAPPINGS: Record<string, BaseErrorCode> = {\n  SyntaxError: BaseErrorCode.VALIDATION_ERROR,\n  TypeError: BaseErrorCode.VALIDATION_ERROR,\n  ReferenceError: BaseErrorCode.INTERNAL_ERROR,\n  RangeError: BaseErrorCode.VALIDATION_ERROR,\n  URIError: BaseErrorCode.VALIDATION_ERROR,\n  EvalError: BaseErrorCode.INTERNAL_ERROR,\n};\n\n/**\n * Common error patterns for automatic classification\n */\nconst COMMON_ERROR_PATTERNS: BaseErrorMapping[] = [\n  // Authentication related errors\n  {\n    pattern:\n      /auth|unauthorized|unauthenticated|not.*logged.*in|invalid.*token|expired.*token/i,\n    errorCode: BaseErrorCode.UNAUTHORIZED,\n  },\n  // Permission related errors\n  {\n    pattern: /permission|forbidden|access.*denied|not.*allowed/i,\n    errorCode: BaseErrorCode.FORBIDDEN,\n  },\n  // Not found errors\n  {\n    pattern: /not.*found|missing|no.*such|doesn't.*exist|couldn't.*find/i,\n    errorCode: BaseErrorCode.NOT_FOUND,\n  },\n  // Validation errors\n  {\n    pattern: /invalid|validation|malformed|bad request|wrong format/i,\n    errorCode: BaseErrorCode.VALIDATION_ERROR,\n  },\n  // Conflict errors\n  {\n    pattern: /conflict|already.*exists|duplicate|unique.*constraint/i,\n    errorCode: BaseErrorCode.CONFLICT,\n  },\n  // Rate limiting\n  {\n    pattern: /rate.*limit|too.*many.*requests|throttled/i,\n    errorCode: BaseErrorCode.RATE_LIMITED,\n  },\n  // Timeout errors\n  {\n    pattern: /timeout|timed.*out|deadline.*exceeded/i,\n    errorCode: BaseErrorCode.TIMEOUT,\n  },\n  // External service errors\n  {\n    pattern: /service.*unavailable|bad.*gateway|gateway.*timeout/i,\n    errorCode: BaseErrorCode.SERVICE_UNAVAILABLE,\n  },\n];\n\n/**\n * Get a readable name for an error\n * @param error Error to get name for\n * @returns User-friendly error name\n */\nfunction getErrorName(error: unknown): string {\n  if (error instanceof Error) {\n    return error.name || \"Error\";\n  }\n\n  if (error === null) {\n    return \"NullError\";\n  }\n\n  if (error === undefined) {\n    return \"UndefinedError\";\n  }\n\n  return typeof error === \"object\" ? \"ObjectError\" : \"UnknownError\";\n}\n\n/**\n * Get a message from an error\n * @param error Error to get message from\n * @returns Error message\n */\nfunction getErrorMessage(error: unknown): string {\n  if (error instanceof Error) {\n    return error.message;\n  }\n\n  if (error === null) {\n    return \"Null error occurred\";\n  }\n\n  if (error === undefined) {\n    return \"Undefined error occurred\";\n  }\n\n  return typeof error === \"string\" ? error : String(error);\n}\n\n/**\n * Error handler utility class with various error handling methods\n */\nexport class ErrorHandler {\n  /**\n   * Determine the appropriate error code for an error based on patterns and type\n   * @param error The error to classify\n   * @returns The appropriate error code\n   */\n  public static determineErrorCode(error: unknown): BaseErrorCode {\n    // If it's already an McpError, use its code\n    if (error instanceof McpError) {\n      return error.code;\n    }\n\n    const errorName = getErrorName(error);\n    const errorMessage = getErrorMessage(error);\n\n    // Check if the error type has a direct mapping\n    if (errorName in ERROR_TYPE_MAPPINGS) {\n      return ERROR_TYPE_MAPPINGS[errorName as keyof typeof ERROR_TYPE_MAPPINGS];\n    }\n\n    // Check for common error patterns\n    for (const pattern of COMMON_ERROR_PATTERNS) {\n      const regex =\n        pattern.pattern instanceof RegExp\n          ? pattern.pattern\n          : new RegExp(pattern.pattern, \"i\");\n\n      if (regex.test(errorMessage) || regex.test(errorName)) {\n        return pattern.errorCode;\n      }\n    }\n\n    // Default to internal error if no pattern matches\n    return BaseErrorCode.INTERNAL_ERROR;\n  }\n\n  /**\n   * Handle operation errors with consistent logging and transformation\n   * @param error The error that occurred\n   * @param options Error handling options\n   * @returns The transformed error\n   */\n  public static handleError(\n    error: unknown,\n    options: ErrorHandlerOptions,\n  ): Error {\n    const {\n      context,\n      operation,\n      input,\n      rethrow = false,\n      errorCode: explicitErrorCode,\n      includeStack = true,\n      critical = false,\n    } = options;\n\n    // If it's already an McpError, use it directly but apply additional context\n    if (error instanceof McpError) {\n      // Add any additional context\n      if (context && Object.keys(context).length > 0) {\n        // Ensure details is an object before spreading\n        const existingDetails =\n          typeof error.details === \"object\" && error.details !== null\n            ? error.details\n            : {};\n        error.details = { ...existingDetails, ...context };\n      }\n\n      // Log the error with sanitized input\n      logger.error(`Error ${operation}: ${error.message}`, {\n        errorCode: error.code,\n        requestId: context?.requestId,\n        input: input ? sanitizeInputForLogging(input) : undefined,\n        stack: includeStack ? error.stack : undefined,\n        critical,\n        ...context,\n      });\n\n      if (rethrow) {\n        throw error;\n      }\n\n      // Ensure the function returns an Error type\n      return error;\n    }\n\n    // Sanitize input for logging\n    const sanitizedInput = input ? sanitizeInputForLogging(input) : undefined;\n\n    // Log the error with consistent format\n    logger.error(`Error ${operation}`, {\n      error: getErrorMessage(error), // Use helper function\n      errorType: getErrorName(error),\n      input: sanitizedInput,\n      requestId: context?.requestId,\n      stack: includeStack && error instanceof Error ? error.stack : undefined,\n      critical,\n      ...context,\n    });\n\n    // Choose the error code (explicit > determined > default)\n    const errorCode =\n      explicitErrorCode ||\n      ErrorHandler.determineErrorCode(error) ||\n      BaseErrorCode.INTERNAL_ERROR;\n\n    // Transform to appropriate error type\n    let transformedError: Error;\n    if (options.errorMapper) {\n      transformedError = options.errorMapper(error);\n    } else {\n      transformedError = new McpError(\n        errorCode,\n        `Error ${operation}: ${getErrorMessage(error)}`, // Use helper function\n        {\n          originalError: getErrorName(error),\n          ...context,\n        },\n      );\n    }\n\n    // Rethrow if requested\n    if (rethrow) {\n      throw transformedError;\n    }\n\n    // Ensure the function returns an Error type\n    return transformedError;\n  }\n\n  /**\n   * Map an error to a specific error type based on error message patterns\n   * @param error The error to map\n   * @param mappings Array of pattern and factory mappings\n   * @param defaultFactory Default factory function if no pattern matches\n   * @returns The mapped error\n   */\n  public static mapError<T extends Error>(\n    error: unknown,\n    mappings: ErrorMapping<T>[],\n    defaultFactory?: (error: unknown, context?: Record<string, unknown>) => T,\n  ): T | Error {\n    // If it's already the target type and we have a default factory to check against, return it\n    if (defaultFactory && error instanceof Error) {\n      const defaultInstance = defaultFactory(error);\n      if (error.constructor === defaultInstance.constructor) {\n        return error as T;\n      }\n    }\n\n    const errorMessage = getErrorMessage(error);\n\n    // Check each pattern and return the first match\n    for (const mapping of mappings) {\n      const matches =\n        mapping.pattern instanceof RegExp\n          ? mapping.pattern.test(errorMessage)\n          : errorMessage.includes(mapping.pattern);\n\n      if (matches) {\n        return mapping.factory(error, mapping.additionalContext);\n      }\n    }\n\n    // Return default or original error\n    if (defaultFactory) {\n      return defaultFactory(error);\n    }\n\n    return error instanceof Error ? error : new Error(String(error));\n  }\n\n  // Removed createErrorMapper method for simplification\n\n  /**\n   * Format an error for consistent response structure\n   * @param error The error to format\n   * @returns Formatted error object\n   */\n  public static formatError(error: unknown): Record<string, unknown> {\n    if (error instanceof McpError) {\n      return {\n        code: error.code,\n        message: error.message,\n        // Ensure details is an object\n        details:\n          typeof error.details === \"object\" && error.details !== null\n            ? error.details\n            : {},\n      };\n    }\n\n    if (error instanceof Error) {\n      return {\n        code: ErrorHandler.determineErrorCode(error),\n        message: error.message,\n        details: { errorType: error.name },\n      };\n    }\n\n    return {\n      code: BaseErrorCode.UNKNOWN_ERROR,\n      message: String(error),\n      details: { errorType: typeof error },\n    };\n  }\n\n  /**\n   * Safely execute a function and handle any errors\n   * @param fn Function to execute\n   * @param options Error handling options\n   * @returns The result of the function or error\n   */\n  public static async tryCatch<T>(\n    fn: () => Promise<T> | T,\n    options: ErrorHandlerOptions,\n  ): Promise<T> {\n    try {\n      return await fn();\n    } catch (error) {\n      throw ErrorHandler.handleError(error, { ...options, rethrow: true });\n    }\n  }\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "minimized-vulnerable",
+    "observations": [
+      3,
+      10
+    ],
+    "judgment": "source_matched",
+    "reason": "SENT-002 exact sink/evidence ranges and cross-file flow include the inline SDK registration and command construction. Quote replacement is not credited as sanitization.",
+    "sink_witnesses": [
+      {
+        "index": 0,
+        "rule_id": "SENT-002",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 54,
+            "end_line": 13,
+            "start_column": 36,
+            "start_line": 13
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 9,
+              "start_column": 1,
+              "start_line": 9
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 11,
+              "start_column": 1,
+              "start_line": 11
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 8,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/server.ts",
+        "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { z } from \"zod\";\nimport { gitInitLogic } from \"./mcp-server/tools/gitInit/logic.js\";\n\nconst server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });\nserver.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });\nawait server.connect(new StdioServerTransport());\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "15b22742f221b413c26b1cccb3f95957fd0247f66ed68337ec3348efc41a56d0",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { exec } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\nexport async function gitInitLogic(input: { initialBranch?: string }) {\n  const targetPath = \"/tmp/phase23-git-init\";\n  let command = `git init`;\n  const branchNameToUse = input.initialBranch || \"main\";\n  command += ` -b \"${branchNameToUse.replace(/\"/g, '\\\\\"')}\"`;\n  command += ` \"${targetPath}\"`;\n  const { stdout, stderr } = await execAsync(command);\n  return { stdout, stderr };\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "minimized-fixed",
+    "observations": [
+      4,
+      11
+    ],
+    "judgment": "established_for_selected_shell_condition",
+    "reason": "The recognized inline SDK callback forwards its input directly to the included helper. Immutable imports bind util.promisify(child_process.execFile); the reviewed shared interpreter resolves this exact factory and ShellFlow handles the sink with literal git, separate argv and no shell option. SENT-014 at the same sink additionally establishes actual shared argv traversal, not shell vulnerability. The older per-file analyzer cannot follow the imported helper and emits its retained warning; its limitation is covered by the source-bound shared path. No claim about option injection or broader repository safety.",
+    "sink_witnesses": [
+      {
+        "index": 1,
+        "rule_id": "SENT-014",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 62,
+            "end_line": 13,
+            "start_column": 36,
+            "start_line": 13
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 8,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/server.ts",
+        "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { z } from \"zod\";\nimport { gitInitLogic } from \"./mcp-server/tools/gitInit/logic.js\";\n\nconst server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });\nserver.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });\nawait server.connect(new StdioServerTransport());\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "9e266d5d550298cecdc75adf92dc7018b920db85792c0ad2813675b09c8fa8b5",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { execFile } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execFileAsync = promisify(execFile);\n\nexport async function gitInitLogic(input: { initialBranch?: string }) {\n  const targetPath = \"/tmp/phase23-git-init\";\n  const args: string[] = [\"init\"];\n  const branchNameToUse = input.initialBranch || \"main\";\n  args.push(\"-b\", branchNameToUse);\n  args.push(targetPath);\n  const { stdout, stderr } = await execFileAsync(\"git\", args);\n  return { stdout, stderr };\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "safe-literal",
+    "observations": [
+      5,
+      12
+    ],
+    "judgment": "established_for_selected_shell_condition",
+    "reason": "The same recognized direct SDK/helper path and immutable promisify(exec) binding reach a literal command. The tainted replace/build result is not passed to the sink. The per-file imported-helper warning and replace warnings remain, but neither prevents assessment of this source-visible literal-only sink; shared ShellFlow recognizes this proved sink. No sanitization claim or general safety conclusion.",
+    "sink_witnesses": [],
+    "source_bindings": [
+      {
+        "path": "src/server.ts",
+        "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { z } from \"zod\";\nimport { gitInitLogic } from \"./mcp-server/tools/gitInit/logic.js\";\n\nconst server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });\nserver.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });\nawait server.connect(new StdioServerTransport());\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "e30c8e1ae81a1019319573eb5231833484e9bea1895f96e9705318b2ac6776ba",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { exec } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst execAsync = promisify(exec);\n\nexport async function gitInitLogic(input: { initialBranch?: string }) {\n  const targetPath = \"/tmp/phase23-git-init\";\n  let command = `git init`;\n  const branchNameToUse = input.initialBranch || \"main\";\n  command += ` -b \"${branchNameToUse.replace(/\"/g, '\\\\\"')}\"`;\n  command += ` \"${targetPath}\"`;\n  const { stdout, stderr } = await execAsync(\"git init -b main /tmp/phase23-git-init\");\n  return { stdout, stderr };\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "renamed-vulnerable",
+    "observations": [
+      6,
+      13
+    ],
+    "judgment": "source_matched",
+    "reason": "Renamed equivalent retains source-matched SENT-002 and cross-file SDK-to-sink evidence.",
+    "sink_witnesses": [
+      {
+        "index": 0,
+        "rule_id": "SENT-002",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 58,
+            "end_line": 13,
+            "start_column": 36,
+            "start_line": 13
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 9,
+              "start_column": 1,
+              "start_line": 9
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 11,
+              "start_column": 1,
+              "start_line": 11
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 8,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/server.ts",
+        "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { z } from \"zod\";\nimport { initializeRepository } from \"./mcp-server/tools/gitInit/logic.js\";\n\nconst mcpServer = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });\nmcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },\n  async (requestData) => {\n    await initializeRepository(requestData);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });\nawait mcpServer.connect(new StdioServerTransport());\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "22fd6d0608f14df5893bc6b15ef28f279c817a76e7e231d3242e00b130df76b1",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { exec } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst runShell = promisify(exec);\n\nexport async function initializeRepository(requestData: { branchLabel?: string }) {\n  const repositoryPath = \"/tmp/phase23-git-init\";\n  let shellCommand = `git init`;\n  const branchName = requestData.branchLabel || \"main\";\n  shellCommand += ` -b \"${branchName.replace(/\"/g, '\\\\\"')}\"`;\n  shellCommand += ` \"${repositoryPath}\"`;\n  const { stdout, stderr } = await runShell(shellCommand);\n  return { stdout, stderr };\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  },
+  {
+    "input_id": "renamed-fixed",
+    "observations": [
+      7,
+      14
+    ],
+    "judgment": "established_for_selected_shell_condition",
+    "reason": "Same proved immutable promisify(execFile), literal executable and argv path as minimized-fixed, with all frozen identifier renames. Retained per-file helper warning is covered by shared resolution; SENT-014 remains independently assessed.",
+    "sink_witnesses": [
+      {
+        "index": 1,
+        "rule_id": "SENT-014",
+        "location": {
+          "kind": "file",
+          "path": "src/mcp-server/tools/gitInit/logic.ts",
+          "range": {
+            "end_column": 56,
+            "end_line": 13,
+            "start_column": 36,
+            "start_line": 13
+          }
+        },
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 10,
+              "start_column": 1,
+              "start_line": 10
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/mcp-server/tools/gitInit/logic.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/server.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 8,
+              "start_column": 1,
+              "start_line": 8
+            }
+          }
+        ]
+      }
+    ],
+    "source_bindings": [
+      {
+        "path": "src/server.ts",
+        "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { McpServer } from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { z } from \"zod\";\nimport { initializeRepository } from \"./mcp-server/tools/gitInit/logic.js\";\n\nconst mcpServer = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });\nmcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },\n  async (requestData) => {\n    await initializeRepository(requestData);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });\nawait mcpServer.connect(new StdioServerTransport());\n"
+      },
+      {
+        "path": "src/mcp-server/tools/gitInit/logic.ts",
+        "sha256": "b5aa357b09aa338ba753f19d2d968e1e8e35280332a1e1344f95986b441e743d",
+        "text": "// Modified source reproduction for Phase 23; see MODIFICATIONS.md and LICENSE.\nimport { execFile } from \"child_process\";\nimport { promisify } from \"util\";\n\nconst runFile = promisify(execFile);\n\nexport async function initializeRepository(requestData: { branchLabel?: string }) {\n  const repositoryPath = \"/tmp/phase23-git-init\";\n  const argv: string[] = [\"init\"];\n  const branchName = requestData.branchLabel || \"main\";\n  argv.push(\"-b\", branchName);\n  argv.push(repositoryPath);\n  const { stdout, stderr } = await runFile(\"git\", argv);\n  return { stdout, stderr };\n}\n"
+      }
+    ],
+    "scope": "Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged."
+  }
+]

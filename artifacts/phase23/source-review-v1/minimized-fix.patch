@@ -1,0 +1,32 @@
+--- a/src/tools/stop.ts
++++ b/src/tools/stop.ts
+@@ -1,9 +1,16 @@
+ import { z } from 'zod';
+-import { execSync } from 'node:child_process';
++import { execFileSync } from 'node:child_process';
++import { sanitizeContainerId } from '../utils.ts';
+ 
+-export const argSchema = { container_id: z.string() };
++export const argSchema = {
++  container_id: z.string().regex(/^[a-zA-Z0-9_.-]+$/, 'Invalid container ID'),
++};
+ 
+ export default async function stopSandbox({ container_id }: { container_id: string }) {
+-  execSync(`docker rm -f ${container_id}`);
++  const validId = sanitizeContainerId(container_id);
++  if (!validId) {
++    return { content: [{ type: 'text' as const, text: 'Invalid container ID' }] };
++  }
++  execFileSync('docker', ['rm', '-f', validId]);
+   return { content: [{ type: 'text' as const, text: 'Container removed.' }] };
+ }
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -0,0 +1,7 @@
++export function sanitizeContainerId(id: string): string | null {
++  // Docker container names/IDs: https://docs.docker.com/engine/reference/commandline/run/#container-name
++  // Allow alphanumerics, underscores, periods, dashes. Must start with alphanumeric.
++  if (typeof id !== 'string') return null;
++  if (/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(id)) return id;
++  return null;
++}

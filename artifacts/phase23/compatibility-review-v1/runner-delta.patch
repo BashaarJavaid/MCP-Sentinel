@@ -1,0 +1,87 @@
+--- artifacts/phase22/integration/v86-regression-preparation/evaluate.py
++++ artifacts/phase23/compatibility-review-v1/evaluate.py
+@@ -1,4 +1,4 @@
+-"""Proposed111-observation local exposed regression and compatibility sequence; no execution without a new approval."""
++"""Proposed112-observation local exposed regression and compatibility sequence; no execution without a new approval."""
+ 
+ import importlib.util
+ import json
+@@ -12,11 +12,11 @@
+ from unittest.mock import patch
+ 
+ ASSETS = Path(__file__).resolve().parent
+-ROOT = ASSETS.parents[3]
++ROOT = ASSETS.parents[2]
+ PROPOSAL = ASSETS / "evaluation-proposal.json"
+ APPROVAL = ASSETS / "evaluation-authorization.json"
+ spec = importlib.util.spec_from_file_location(
+-    "prior", ASSETS.parent / "v43-four-fresh-preparation/runner.py"
++    "prior", ROOT / "artifacts/phase22/integration/v43-four-fresh-preparation/runner.py"
+ )
+ prior = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(prior)
+@@ -28,8 +28,8 @@
+     proposal = json.loads(PROPOSAL.read_text())
+     for name, digest in proposal["files_sha256"].items():
+         assert sha(ROOT / name) == digest, name
+-    assert proposal["bounds"]["native_observations"] == len(proposal["order"]) == 111
+-    assert len({(x["group"], x["input_id"]) for x in proposal["order"]}) == 63
++    assert proposal["bounds"]["native_observations"] == len(proposal["order"]) == 112
++    assert len({(x["group"], x["input_id"]) for x in proposal["order"]}) == 56
+     assert len(proposal["volatile_exclusions"]) == 11
+     assert set(proposal["volatile_exclusions"]) == prior.EXCLUDED
+     return proposal
+@@ -43,9 +43,9 @@
+     assert receipt["scanner"] == proposal["scanner"]
+     assert receipt["bounds"] == proposal["bounds"]
+     assert receipt["order"] == proposal["order"]
+-    assert receipt["rubric_sha256"] == sha(ASSETS / "scoring-rubric.json")
+-    assert receipt["intake_sha256"] == sha(ASSETS / "intake.json")
+-    assert not subprocess.check_output(["git", "diff", "HEAD", "--", "src", "scripts", "uv.lock", "pyproject.toml"])
++    assert receipt["affected_scope_sha256"] == proposal["affected_scope_sha256"]
++    from scripts.phase23_regression import execution_identity
++    assert execution_identity() == proposal["execution_identity"]
+     assert Path.cwd().resolve() == Path(proposal["frozen_checkout"]).resolve()
+     return proposal
+ 
+@@ -66,9 +66,9 @@
+     assert STATIC_TIMEOUT_SECONDS == 1800 and SEMGREP_TIMEOUT_SECONDS == 10
+     g = proposal["groups"][group]
+     assert sha(Path.cwd() / g["manifest"]) == g["manifest_sha256"]
+-    if g["corpus_kind"] == "unseen_v1_exposed":
++    if g.get("corpus_kind") == "unseen_v1_exposed":
+         from unseen_corpus import frozen as unseen_frozen
+-        manifest = unseen_frozen(approval_path=ASSETS / "source-freeze-authorization.json")
++        manifest = unseen_frozen(approval_path=ROOT / g["source_freeze_approval"])
+     else:
+         manifest = validate() if group.endswith("historical") else frozen(approval_path=Path.cwd() / g["source_freeze_approval"])
+     selected = [i for i in manifest.inputs if i.id in g["input_ids"]]
+@@ -142,8 +142,8 @@
+ 
+     from contextlib import nullcontext
+     from unseen_corpus import frozen as unseen_frozen
+-    unseen = g["corpus_kind"] == "unseen_v1_exposed"
+-    source_approval = (ASSETS / "source-freeze-authorization.json") if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_freeze_approval"] else None)
++    unseen = g.get("corpus_kind") == "unseen_v1_exposed"
++    source_approval = (ROOT / g["source_freeze_approval"]) if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_freeze_approval"] else None)
+     with patch.object(harness, "load_configuration", checked), (patch.object(harness, "frozen_phase22", unseen_frozen) if unseen else nullcontext()):
+         result = harness.measure(
+             manifest.model_copy(update={"inputs": [item]}),
+@@ -264,7 +264,7 @@
+             # Collection stops only on execution/identity/schema/timing/cleanup/repeat failure.
+             write(out / "packet.json", packet)
+             print(json.dumps(row), flush=True)
+-        assert len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 111 and not packet["unstarted"]
++        assert len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 112 and not packet["unstarted"]
+         packet["passed"] = True
+         packet["detection_and_coverage_gate_passed"] = None
+     except BaseException as error:
+@@ -308,7 +308,7 @@
+         if name.startswith(("OPENAI_", "SENTINEL_")):
+             os.environ.pop(name)
+     sys.path[:0] = [str(Path.cwd() / "src"), str(Path.cwd())]
+-    schema_spec = importlib.util.spec_from_file_location("unseen_corpus", ASSETS / "corpus.py")
++    schema_spec = importlib.util.spec_from_file_location("unseen_corpus", ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py")
+     schema = importlib.util.module_from_spec(schema_spec)
+     sys.modules["unseen_corpus"] = schema
+     schema_spec.loader.exec_module(schema)

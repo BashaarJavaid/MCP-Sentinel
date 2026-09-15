@@ -1,0 +1,21 @@
+--- a/src/sentinel/static/typescript_path_flow.py
++++ b/src/sentinel/static/typescript_path_flow.py
+@@ -2383,7 +2383,17 @@
+                 for site in [*self.call_sites, TypeScriptSymbol(file, node)]
+             ),
+         )
+-        self.function(callback, [caller, Value()], self.closures.get(args[2].key))
++        # SDK handlers run after registration, with a separate invocation stack.
++        # Keep the existing total nesting bound across synthetic SDK entries.
++        if len(self.normal_exits) >= 64:
++            self.warning(file, node, "registered callback nesting limit exceeded")
++            return
++        active = self.active
++        self.active = set()
++        try:
++            self.function(callback, [caller, Value()], self.closures.get(args[2].key))
++        finally:
++            self.active = active
+ 
+     def http_callbacks(self, values: list[Value], env: dict[str, Value]) -> list[Value]:
+         pending = list(reversed(values))

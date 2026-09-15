@@ -1,4 +1,4 @@
-"""Phase 13 public maintenance configuration checks."""
+"""Public maintenance configuration checks."""
 
 from __future__ import annotations
 
@@ -9,8 +9,10 @@ from typing import Any
 import pytest
 import yaml
 
+from sentinel.owasp_mapping import RULE_OWASP_IDS
+
 ROOT = Path(__file__).resolve().parents[1]
-RULE_IDS = [f"SENT-{number:03d}" for number in range(1, 12)]
+RULE_IDS = list(RULE_OWASP_IDS)
 
 
 def _yaml(path: str) -> dict[str, Any]:
@@ -25,50 +27,74 @@ def _fields(form: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 def test_issue_forms_are_bounded_and_reproducible() -> None:
     config = _yaml(".github/ISSUE_TEMPLATE/config.yml")
-    assert config == {"blank_issues_enabled": False, "contact_links": []}
-
-    false_positive = _yaml(".github/ISSUE_TEMPLATE/false-positive.yml")
-    assert false_positive["title"] == "[False positive] "
-    assert false_positive["labels"] == ["bug"]
-    false_fields = _fields(false_positive)
-    assert set(false_fields) == {
-        "version",
-        "rule",
-        "language-framework",
-        "command-configuration",
-        "finding",
-        "reproduction",
-        "expected",
-        "no-secrets",
-    }
-    assert false_fields["rule"]["attributes"]["options"] == RULE_IDS
-    assert all(
-        field.get("validations", {}).get("required") is True
-        for field in false_fields.values()
-        if field["type"] != "checkboxes"
+    assert config["blank_issues_enabled"] is False
+    assert config["contact_links"][0]["url"] == (
+        "https://github.com/BashaarJavaid/MCP-Sentinel/security/advisories/new"
     )
-    assert false_fields["no-secrets"]["attributes"]["options"][0]["required"]
-
-    proposal = _yaml(".github/ISSUE_TEMPLATE/rule-proposal.yml")
-    assert proposal["title"] == "[Rule proposal] "
-    assert proposal["labels"] == ["enhancement"]
-    proposal_fields = _fields(proposal)
-    assert set(proposal_fields) == {
-        "supported-scope",
-        "detection",
-        "owasp",
-        "impact",
-        "engine",
-        "vulnerable-example",
-        "clean-example",
-        "false-positive-risks",
-        "remediation",
+    required_fields = {
+        "false-positive": {
+            "version",
+            "rule",
+            "language-framework",
+            "command-configuration",
+            "finding",
+            "reproduction",
+            "expected",
+        },
+        "missed-vulnerability": {
+            "version",
+            "rule",
+            "language-framework",
+            "command-configuration",
+            "observed-report",
+            "reproduction",
+            "expected",
+            "fixed-safe",
+        },
+        "rule-proposal": {
+            "related-rule",
+            "environment-configuration",
+            "supported-scope",
+            "detection",
+            "owasp",
+            "impact",
+            "engine",
+            "vulnerable-example",
+            "clean-example",
+            "false-positive-risks",
+            "remediation",
+        },
     }
-    assert all(
-        field.get("validations", {}).get("required") is True
-        for field in proposal_fields.values()
-    )
-    assert "Maintainers assign stable rule IDs" in str(proposal["body"][-1])
+    for name, required in required_fields.items():
+        form = _yaml(f".github/ISSUE_TEMPLATE/{name}.yml")
+        assert len(form["body"]) <= 20
+        assert form["labels"] == ["enhancement" if name == "rule-proposal" else "bug"]
+        fields = _fields(form)
+        assert len(fields) == sum("id" in item for item in form["body"])
+        assert set(fields) == required | {
+            "source-rights",
+            "no-secrets",
+            "example-reuse",
+        }
+        rule_field = fields["related-rule" if name == "rule-proposal" else "rule"]
+        assert [
+            value
+            for value in rule_field["attributes"]["options"]
+            if value.startswith("SENT-")
+        ] == RULE_IDS
+        assert all(
+            field.get("validations", {}).get("required") is True
+            for field in fields.values()
+            if field["type"] != "checkboxes"
+        )
+        assert fields["no-secrets"]["attributes"]["options"][0]["required"] is True
+        consent = fields["example-reuse"]
+        assert consent["attributes"]["options"][0]["required"] is False
+        assert not consent.get("validations", {}).get("required", False)
+        assert "MIT license" in consent["attributes"]["options"][0]["label"]
+        assert "unreviewed" in str(form)
+        assert "private reporting" in str(form)
+        assert "upstream security policy" in str(form)
 
 
 def test_dependabot_updates_are_bounded() -> None:

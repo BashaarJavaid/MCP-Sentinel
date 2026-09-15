@@ -1,0 +1,26 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/bashaarjavaid/Projects/MCP-Sentinel
+configfile: pyproject.toml
+plugins: cov-6.3.0, anyio-4.14.2
+collected 1 item
+
+tests/test_maintenance.py F                                              [100%]
+
+=================================== FAILURES ===================================
+________________ test_issue_forms_are_bounded_and_reproducible _________________
+
+    def test_issue_forms_are_bounded_and_reproducible() -> None:
+        config = _yaml(".github/ISSUE_TEMPLATE/config.yml")
+>       assert config == {"blank_issues_enabled": False, "contact_links": []}
+E       AssertionError: assert {'blank_issue...intenance/'}]} == {'blank_issue...ct_links': []}
+E         
+E         Omitting 1 identical items, use -vv to show
+E         Differing items:
+E         {'contact_links': [{'about': 'Report Sentinel vulnerabilities privately; use the upstream security policy for third-pa...ame': 'Feedback and maintenance process', 'url': 'https://bashaarjavaid.github.io/MCP-Sentinel/phase23-maintenance/'}]} != {'contact_links': []}
+E         Use -v to get more diff
+
+tests/test_maintenance.py:28: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_maintenance.py::test_issue_forms_are_bounded_and_reproducible
+============================== 1 failed in 0.73s ===============================

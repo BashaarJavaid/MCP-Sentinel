@@ -1,0 +1,53 @@
+--- before/src/mcp-server/tools/gitInit/logic.ts
++++ after/src/mcp-server/tools/gitInit/logic.ts
+@@ -1,4 +1,4 @@
+-import { exec } from "child_process";
++import { execFile } from "child_process";
+ import fs from "fs/promises";
+ import path from "path";
+ import { promisify } from "util";
+@@ -11,7 +11,7 @@
+ // Import utils from barrel (sanitization from ../utils/security/sanitization.js)
+ import { sanitization } from "../../../utils/index.js";
+ 
+-const execAsync = promisify(exec);
++const execFileAsync = promisify(execFile);
+ 
+ // Define the input schema for the git_init tool using Zod
+ export const GitInitInputSchema = z.object({
+@@ -119,23 +119,26 @@
+ 
+   try {
+     // Construct the git init command
+-    let command = `git init`;
++    const args: string[] = ["init"];
+     if (input.quiet) {
+-      command += " --quiet";
++      args.push("--quiet");
+     }
+     if (input.bare) {
+-      command += " --bare";
++      args.push("--bare");
+     }
+     // Determine the initial branch name, defaulting to 'main' if not provided
+     const branchNameToUse = input.initialBranch || "main";
+-    command += ` -b "${branchNameToUse.replace(/"/g, '\\"')}"`;
++    args.push("-b", branchNameToUse);
+ 
+     // Add the target directory path at the end
+-    command += ` "${targetPath}"`;
+-
+-    logger.debug(`Executing command: ${command}`, { ...context, operation });
+-
+-    const { stdout, stderr } = await execAsync(command);
++    args.push(targetPath);
++
++    logger.debug(`Executing command: git ${args.join(" ")}`, {
++      ...context,
++      operation,
++    });
++
++    const { stdout, stderr } = await execFileAsync("git", args);
+ 
+     if (stderr && !input.quiet) {
+       // Log stderr as warning but proceed, as init might still succeed (e.g., reinitializing)

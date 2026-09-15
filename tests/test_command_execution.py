@@ -104,3 +104,197 @@ def test_cross_file_low_level_shell_dispatch(
     for finding in result.findings:
         assert isinstance(finding.location, FileLocation)
         assert finding.location.path == "commands.ts"
+
+
+@pytest.mark.parametrize(
+    "imports,factory,target",
+    [
+        (
+            'import {promisify as promise} from "node:util"; '
+            'import {exec as command, execFile} from "node:child_process";',
+            "promise",
+            "command",
+        ),
+        (
+            'import * as utility from "util"; import * as child from "child_process";',
+            "utility.promisify",
+            "child.exec",
+        ),
+        (
+            'import utility from "node:util"; import child from "node:child_process";',
+            "utility.promisify",
+            "child.exec",
+        ),
+        (
+            'import {promisify} from "util"; import {exec} from "child_process"; '
+            "const promise=promisify; const command=exec;",
+            "promise",
+            "command",
+        ),
+    ],
+)
+@pytest.mark.parametrize(
+    "case",
+    [
+        "tainted",
+        "literal",
+        "argv",
+        "wrapper-alias",
+        "escape",
+        "field-mutation",
+        "field-invocation",
+        "custom",
+        "reflect",
+        "target-escape",
+        "factory-rebound",
+        "branch",
+    ],
+)
+def test_promisified_shell_identity(
+    tmp_path: Path, imports: str, factory: str, target: str, case: str
+) -> None:
+    import time
+
+    from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+    from sentinel.static.typescript_discovery import TypeScriptProgram
+    from sentinel.static.typescript_execution import ShellFlow
+    from sentinel.static.typescript_path_flow import analyze
+
+    original = (
+        target
+        if case != "argv"
+        else target.rsplit(".", 1)[0] + ".execFile"
+        if "." in target
+        else "execFile"
+    )
+    if case == "argv" and "execFile" not in imports and "." not in target:
+        imports += 'import {execFile} from "child_process";'
+    mutation = {
+        "custom": f"{target}[{factory}.custom] = unknown;",
+        "reflect": f"Object.defineProperty({target}, "
+        'Symbol.for("nodejs.util.promisify.custom"), {value: unknown});',
+        "target-escape": f"unknown({target});",
+        "factory-rebound": f"{factory} = unknown;",
+    }.get(case, "")
+    local = {
+        "escape": "unknown(wrapped);",
+        "field-mutation": "const box={fn:wrapped}; box.fn.extra = unknown;",
+        "field-invocation": "const box={fn:wrapped}; wrapped.extra = unknown;",
+        "branch": "if (input.flag) wrapped = unknown;",
+        "wrapper-alias": "const alternate = wrapped;",
+    }.get(case, "")
+    invocation = (
+        "alternate(input.command)"
+        if case == "wrapper-alias"
+        else "box.fn(input.command)"
+        if case == "field-invocation"
+        else 'wrapped("literal")'
+        if case == "literal"
+        else 'wrapped("git", [input.command])'
+        if case == "argv"
+        else "wrapped(input.command)"
+    )
+    sources = {
+        "server.ts": "import {McpServer} from "
+        '"@modelcontextprotocol/sdk/server/mcp.js"; '
+        'import {run} from "./logic.js"; '
+        'const server=new McpServer({name:"test",version:"1"}); '
+        'server.tool("run", {}, async (input)=>run(input));',
+        "logic.ts": imports
+        + mutation
+        + f" export async function run(input) {{ let wrapped={factory}({original}); "
+        + f"{local} return await {invocation}; }}",
+    }
+    files = tuple(
+        TypeScriptSourceFile(tmp_path / name, name, source)
+        for name, source in sources.items()
+    )
+    program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
+    state = RuleRunState()
+    flow = ShellFlow(program, state)
+    analyze(program, state, flow=flow)
+    assert len(state.matches) == (1 if case in {"tainted", "wrapper-alias"} else 0)
+    if case in {"tainted", "wrapper-alias", "literal", "argv"}:
+        assert any("promisified" in s.node for s in flow.callables.values())
+        assert all(w.code == "static_binding_unresolved" for w in state.warnings)
+    else:
+        assert any(w.code == "static_flow_unresolved" for w in state.warnings)
+    for match in state.matches:
+        assert match.path == "logic.ts" and match.range.start_line == 1
+
+
+@pytest.mark.parametrize("fixed", [False, True])
+def test_promisified_registered_barrel_callback(tmp_path: Path, fixed: bool) -> None:
+    import time
+
+    from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+    from sentinel.static.rules.sent014 import TypeScriptOptionFlow
+    from sentinel.static.rules.sent015 import TypeScriptURLFlow
+    from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
+    from sentinel.static.typescript_discovery import TypeScriptProgram
+    from sentinel.static.typescript_execution import ShellFlow
+    from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+
+    sources = {
+        "server.ts": "import {McpServer} from "
+        '"@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import {register} from "./registration.js";\n'
+        "export async function build() {\n"
+        'const server=new McpServer({name:"test",version:"1"});\n'
+        "await register(server); return server; }\n",
+        "registration.ts": 'import {Boundary} from "./barrel.js";\n'
+        'import {perform} from "./logic.js";\n'
+        "export async function register(server) {\n"
+        "await Boundary.forward(async () => {\n"
+        'server.tool("operation", {}, async (input) =>\n'
+        "Boundary.forward(async () => perform(input)));\n"
+        "}); }\n",
+        "barrel.ts": 'export * from "./internal.js";\n'
+        'export * from "./unrelated.js";\n',
+        "internal.ts": 'export * from "./boundary.js";\n',
+        "unrelated.ts": 'export const other = "value";\n',
+        "boundary.ts": "export class Boundary {\n"
+        "public static async forward(fn) {\n"
+        "try { return await fn(); } catch(error) { throw error; }\n"
+        "} }\n",
+        "logic.ts": 'import {promisify} from "node:util";\n'
+        'import {exec, execFile} from "node:child_process";\n'
+        + (
+            "const operation=promisify(execFile);\n"
+            if fixed
+            else "const operation=promisify(exec);\n"
+        )
+        + "export async function perform(input) {\n"
+        + (
+            'return await operation("git", [input.branch]);\n'
+            if fixed
+            else 'return await operation("git init -b " + input.branch);\n'
+        )
+        + "}\n",
+    }
+    files = tuple(
+        TypeScriptSourceFile(tmp_path / name, name, source)
+        for name, source in sources.items()
+    )
+    program = TypeScriptProgram(files, deadline=time.monotonic() + 30)
+    assert len(program.tools()) == 1
+    for kind in (
+        ShellFlow,
+        TypeScriptPathFlow,
+        TypeScriptOptionFlow,
+        TypeScriptURLFlow,
+        TypeScriptCredentialFlow,
+    ):
+        state = RuleRunState()
+        flow = kind(program, state)
+        analyze(program, state, flow=flow)
+        assert any("promisified" in s.node for s in flow.callables.values()), (
+            kind.__name__,
+            [w.message for w in state.warnings],
+        )
+        assert not any("promisif" in w.message for w in state.warnings)
+        if kind is ShellFlow:
+            assert len(state.matches) == (0 if fixed else 1)
+            if state.matches:
+                assert state.matches[0].path == "logic.ts"
+                assert state.matches[0].range.start_line == 5

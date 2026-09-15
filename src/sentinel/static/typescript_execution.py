@@ -244,7 +244,7 @@ class ShellFlow(TypeScriptPathFlow):
     ) -> Value:
         callee, arguments = node["Call"]
         binding = (
-            self.callables.get(self.expression(file, callee, env).key)
+            self.callables.get(self.call_value(file, callee, env).key)
             if "Special" not in callee
             else None
         )

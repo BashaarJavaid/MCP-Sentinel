@@ -1,0 +1,5 @@
+Imported TypeScript registration wrappers and composed Zod metadata hid the reviewed `git_init.initialBranch` shell-injection path. Preserve proved local export, promisify and callback identities, then retain the corrected seven-input advisory case as a current-candidate offline CI gate. Add reviewed feedback intake and maintenance guidance.
+
+Validation: the approved advisory run completed 14 observations with seven equal report pairs; six vulnerable detections and eight supported negatives were human-reviewed. All 56 unrelated findings remain `needs_review`. Local `make check` passed 2,765 tests / 36 skips; a final portability-only test adjustment passed 48 focused checks. Wheel and sdist match all 134 scanner files.
+
+This draft retains the Phase22 closeout and historical failures. Historical compatibility, actual deliberate-regression rejection, hosted verification, final technical acceptance and approved release/version actions remain pending. No paid calls or advisory-target execution.

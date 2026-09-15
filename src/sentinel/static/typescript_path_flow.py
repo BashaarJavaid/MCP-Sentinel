@@ -103,6 +103,7 @@ class TypeScriptPathFlow:
         self.mobilecli_paths: set[str] = set()
         self.string_prefixes: dict[str, str] = {}
         self.zod_schemas: dict[str, tuple[str, dict[str, Value], Value | None]] = {}
+        self.zod_dependencies: dict[str, tuple[Value, ...]] = {}
         self.node_exit_bindings: dict[str, bool] = {}
 
     def node_exit_is_stable(self, file: TypeScriptSourceFile) -> bool:
@@ -1030,6 +1031,32 @@ class TypeScriptPathFlow:
             else field
         )
 
+    def zod_metadata_valid(self, value: Value, env: dict[str, Value]) -> bool:
+        if not self.program.zod_metadata_unmodified:
+            return False
+        pending = [(value, 0)]
+        seen: set[str] = set()
+        # ponytail: at most 256 metadata identities and 64 levels; larger shapes
+        # remain unsupported until a reviewed case needs a broader bound.
+        while pending and len(seen) < 256:
+            current, depth = pending.pop()
+            check_deadline(self.program.deadline)
+            root = self.record_roots.get(current.key, current.key)
+            if (
+                depth >= 64
+                or current.maybe_missing
+                or {current.key, root} & self.invalidated_objects
+                or env.get("#record:" + root, current).key != current.key
+            ):
+                return False
+            if current.key not in seen:
+                seen.add(current.key)
+                pending.extend(
+                    (dependency, depth + 1)
+                    for dependency in self.zod_dependencies.get(current.key, ())
+                )
+        return not pending
+
     def parsed_schema(
         self, schema: Value, value: Value, env: dict[str, Value], depth: int = 0
     ) -> Value:
@@ -1066,6 +1093,19 @@ class TypeScriptPathFlow:
             return result
         # Validation does not sanitize scalar caller input. Records retain taint;
         # their dynamic keys are not inferred from the schema.
+        return value
+
+    def proved_callable(
+        self, file: TypeScriptSourceFile, node: Any, value: Value
+    ) -> Value:
+        symbol = self.callables.get(value.key)
+        if (
+            symbol
+            and "promisified" in symbol.node
+            and (value.key in self.invalidated_objects or value.maybe_missing)
+        ):
+            self.warning(file, node, "promisified callable identity invalidated")
+            return replace(value, key="", contained=False)
         return value
 
     def expression(
@@ -1372,6 +1412,18 @@ class TypeScriptPathFlow:
             ):
                 return self.sdk_prototype(binding.external, file, node, env)
             if parent.key in self.zod_schemas:
+                kind, shape_fields, _ = self.zod_schemas[parent.key]
+                if member == "shape" and kind == "object":
+                    if not self.zod_metadata_valid(parent, env):
+                        self.warning(file, node, "Zod metadata identity unproved")
+                        return Value()
+                    value = self.record_state(
+                        _key("zod-shape", parent.key), shape_fields.copy()
+                    )
+                    self.record_roots[value.key] = value.key
+                    env.setdefault("#record:" + value.key, value)
+                    self.zod_dependencies[value.key] = (parent, *shape_fields.values())
+                    return value
                 return Value(key=_key(parent.key, member))
             if "http:request" in parent.sources:
                 if parent.key in self.invalidated_objects:
@@ -1485,8 +1537,8 @@ class TypeScriptPathFlow:
     ) -> Value:
         """Reuse actual callee/argument evaluation within one call only."""
         if self.call_values is not None and id(node) in self.call_values:
-            return self.call_values[id(node)]
-        value = self.expression(file, node, env)
+            return self.proved_callable(file, node, self.call_values[id(node)])
+        value = self.proved_callable(file, node, self.expression(file, node, env))
         if self.call_values is not None:
             self.call_values[id(node)] = value
         return value
@@ -1697,7 +1749,12 @@ class TypeScriptPathFlow:
                 schema = self.program.resolve_node(
                     file, schema_node
                 ) or TypeScriptSymbol(file, schema_node)
-                if (
+                proved_shape = (
+                    args[-2].key in self.zod_dependencies
+                    and args[-2].key in self.record_roots
+                    and self.zod_metadata_valid(args[-2], env)
+                )
+                if not proved_shape and (
                     ts._zod_object_schema(
                         self.program.text(schema.file, schema.node),
                         ts._constant_expressions(schema.file.source),
@@ -1734,6 +1791,24 @@ class TypeScriptPathFlow:
             collection_nonempty=False,
             locations=result.locations | {(file.relative_path, location.start_line)},
         )
+        if external == "util.promisify":
+            original = self.callables.get(args[0].key) if len(args) == 1 else None
+            target = (original.external or "").removeprefix("node:") if original else ""
+            if (
+                target in {"child_process.exec", "child_process.execFile"}
+                and not args[0].maybe_missing
+                and args[0].key not in self.invalidated_objects
+                and callable_value.key not in self.invalidated_objects
+                and self.program.promisify_unmodified
+            ):
+                self.callables[result.key] = TypeScriptSymbol(
+                    file, {"promisified": target}, target
+                )
+            else:
+                self.warning(
+                    file, node, "promisify factory or original identity unproved"
+                )
+            return result
         method = name_of(callee.get("DotAccess", [None, None, {}])[2])
         if external in {
             f"{namespace}.{kind}"
@@ -1768,12 +1843,45 @@ class TypeScriptPathFlow:
                 )
             ):
                 self.zod_schemas[result.key] = (kind, fields.copy(), None)
+                self.zod_dependencies[result.key] = tuple(args) + tuple(fields.values())
                 return result
         if (
             receiver.key in self.zod_schemas
             and receiver.key not in self.invalidated_objects
         ):
             kind, fields, default = self.zod_schemas[receiver.key]
+            if method in {"describe", "extend"}:
+                if not self.zod_metadata_valid(receiver, env):
+                    self.warning(file, node, "Zod metadata identity unproved")
+                    return result
+                if (
+                    method == "describe"
+                    and len(args) == 1
+                    and args[0].key in self.string_literals
+                ):
+                    self.zod_schemas[result.key] = (kind, fields, default)
+                    self.zod_dependencies[result.key] = (receiver,)
+                    return result
+                if (
+                    method == "extend"
+                    and kind == "object"
+                    and len(args) == 1
+                    and args[0].key in self.record_roots
+                    and self.zod_metadata_valid(args[0], env)
+                    and all(
+                        value.key in self.zod_schemas
+                        and self.zod_metadata_valid(value, env)
+                        for value in self.object_fields(args[0], env).values()
+                    )
+                ):
+                    updated = {**fields, **self.object_fields(args[0], env)}
+                    self.zod_schemas[result.key] = (kind, updated, default)
+                    self.zod_dependencies[result.key] = (
+                        receiver,
+                        args[0],
+                        *updated.values(),
+                    )
+                    return result
             if (
                 (method == "optional" and not args)
                 or (method == "url" and kind == "string" and not args)
@@ -1794,6 +1902,7 @@ class TypeScriptPathFlow:
                     fields,
                     args[0] if method == "default" else default,
                 )
+                self.zod_dependencies[result.key] = (receiver,)
                 return result
             if method == "parse" and len(args) == 1:
                 return self.parsed_schema(receiver, args[0], env)
@@ -2245,6 +2354,11 @@ class TypeScriptPathFlow:
                 ):
                     self.invalidate(value)
                 callable_symbol = self.callables.get(value.key)
+                if callable_symbol and "promisified" in callable_symbol.node:
+                    self.invalidate(value)
+                    self.warning(
+                        file, node, "promisified callable escapes to an unresolved call"
+                    )
                 if value.key in self.sdk_instances or (
                     callable_symbol
                     and (callable_symbol.external or "").partition(".prototype.")[0]
@@ -2347,7 +2461,17 @@ class TypeScriptPathFlow:
                 for site in [*self.call_sites, TypeScriptSymbol(file, node)]
             ),
         )
-        self.function(callback, [caller, Value()], self.closures.get(args[2].key))
+        # SDK handlers run after registration, with a separate invocation stack.
+        # Keep the existing total nesting bound across synthetic SDK entries.
+        if len(self.normal_exits) >= 64:
+            self.warning(file, node, "registered callback nesting limit exceeded")
+            return
+        active = self.active
+        self.active = set()
+        try:
+            self.function(callback, [caller, Value()], self.closures.get(args[2].key))
+        finally:
+            self.active = active
 
     def http_callbacks(self, values: list[Value], env: dict[str, Value]) -> list[Value]:
         pending = list(reversed(values))

@@ -1,0 +1,35 @@
+E501 Line too long (93 > 88)
+   --> scripts/phase23_regression.py:614:89
+    |
+612 |     environment = baseline_environment(output)
+613 |     configurations = json.loads(
+614 |         (ROOT / "artifacts/phase23/candidate-execution-review-v2/proposal.json").read_bytes()
+    |                                                                                         ^^^^^
+615 |     )["configurations"]
+616 |     ledger: dict[str, Any] = {
+    |
+
+E501 Line too long (100 > 88)
+  --> tests/test_phase23.py:44:89
+   |
+42 |         (
+43 |             ROOT
+44 |             / "artifacts/phase23/corrected-candidate-v2/observations/01-full-vulnerable/report.json"
+   |                                                                                         ^^^^^^^^^^^^
+45 |         ).read_bytes()
+46 |     )
+   |
+
+RUF043 Pattern passed to `match=` contains metacharacters but is neither escaped nor raw
+  --> tests/test_phase23.py:65:46
+   |
+63 |         report["findings"][4]["location"]["range"]["end_line"] = 139
+64 |     if change in {"incomplete", "miss"}:
+65 |         with pytest.raises(ValueError, match="incomplete|shell condition"):
+   |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+66 |             ci_report_difference(report, reference, manifest["inputs"][0])
+67 |     else:
+   |
+help: Use a raw string or `re.escape()` to make the intention explicit
+
+Found 3 errors.

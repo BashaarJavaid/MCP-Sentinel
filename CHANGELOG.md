@@ -12,6 +12,14 @@ new rule IDs.
 
 ### Fixed
 
+- Follow unique local TypeScript star exports while retaining ambiguity, rebinding,
+  source-root and default-export boundaries.
+- Preserve proved Node promisify wrappers around exec/execFile for static rule
+  analysis, rejecting unproved factory/target identities and escaped wrappers.
+- Analyze registered MCP handlers with a separate invocation stack, preserving
+  genuine recursion checks, nesting limits and registration-stack restoration.
+- Follow proved composed Zod field metadata through describe, extend and shape,
+  preserving source descriptions, original schemas and mutation/escape boundaries.
 - Recover source-established Python module-table tool dispatch, preserving
   unsupported status for ambiguous, replaced or escaped routing bindings.
 - Preserve module-table dispatch through literal dictionary metadata copies,
@@ -38,6 +46,13 @@ new rule IDs.
   Preserve the original Phase 20 measurements separately from this correction.
 
 ### Added
+
+- Add a seven-input, current-candidate offline advisory regression to routine
+  PR and release CI, with reviewed complete-report references and retained
+  failures, diagnostics and support evidence.
+- Missed-vulnerability intake, current rule choices, optional example reuse consent,
+  and maintainer guidance for source label review, weekly SDK/advisory checks,
+  lifecycle timing evidence and offline regression releases.
 
 - Native report schema 1.6.0: observed static handler inventory and actual rule
   visits, per-session runtime discovery and sent-call flags, and separate static

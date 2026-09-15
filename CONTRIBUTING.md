@@ -44,3 +44,14 @@ changes. Internal refactors and test-only changes do not need one.
 The full process is documented in the [contribution
 guide](https://bashaarjavaid.github.io/MCP-Sentinel/contributing/). This project
 does not require a DCO, CLA, Code of Conduct, or CODEOWNERS approval.
+
+## Feedback and maintained regressions
+
+Use the separate false-positive, missed-vulnerability and rule-proposal forms.
+Reporter expectations require maintainer label review. Include sanitized source,
+revision/configuration and complete report evidence; use private reporting for
+sensitive Sentinel vulnerabilities and upstream policies for third-party issues.
+Example reuse under MIT requires separate optional consent or an applicable
+license, with notices retained. AI-assisted drafts receive the same review.
+See the [maintenance process](https://bashaarjavaid.github.io/MCP-Sentinel/phase23-maintenance/)
+for reproductions, offline regression gates, timings and reviewed releases.

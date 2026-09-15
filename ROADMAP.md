@@ -3483,7 +3483,40 @@ while keeping the supported boundary explicit.
 
 ## 26. Phase 23 — Maintained feedback and regression releases
 
-**Status: planned.** Depends on Phase 22.
+**Status: in progress; narrow advisory gate and CI references reviewed;
+CI engineering, historical compatibility and release verification remain.**
+The approved metadata candidate completed **14 observations / seven equal entire
+ordered pairs** in **188.804086 seconds**, with verified cleanup and a closed budget.
+All three vulnerable inputs match SENT-002 in both passes; all four negative inputs
+have reviewed narrow shell support. The full-source blocker is resolved.
+The user approved these source judgments and exact complete CI references;
+**56 unrelated findings remain needs_review with exploitability unestablished**.
+All **62 findings, 8,754 warnings, 3,940 unresolved-flow occurrences and 50 surfaces**
+are retained and source-assessed in `artifacts/phase23/candidate-assessment-v2/`.
+Both failed baselines and the earlier failed corrected candidate remain unchanged.
+
+The bounded helper now compares seven current-candidate reports once per routine
+PR/release CI run, inside the existing Linux network namespace. Complete ordered
+reference equality retains all findings, warnings and support evidence. Only the
+approved clock/UUID exclusions and expected installed scanner-version rule apply;
+there is no automatic reference promotion. Full local **make check passed: 2,765
+tests / 36 skips**, **90.52% combined / 86.58% branch coverage**. A final
+portability-only test adjustment passed all 48 focused checks. Local wheel/sdist
+builds match all 134 scanner files. Hosted gates have not run. Detector source remains the same as the
+reviewed advisory candidate. Previous local metadata engineering passed **2,748
+tests / 36 skips**, with **90.52% combined / 86.58% branch coverage**.
+
+Separate exact packets prepare **14 first-advisory compatibility observations,
+112 historical TypeScript observations and one deliberate-regression observation**.
+They remain unapproved/unexecuted. All 56 historical source/configuration bindings
+validate. Synthetic reverse-fix/cleanup checks use retained reports and establish
+no actual regression-rejection observation. FAF is last under normal 1,800-second
+limits; its earlier uncapped completion does not establish ordinary completion.
+Historical failures, helper preparation failures and prior engineering evidence
+retain their actual outcomes. Zero new paid calls or advisory-target executions.
+Final technical acceptance, approved release contents/version/actions and verified
+publication remain. Phase22 accepted closeout, Proxmox/FAF optimization and pilot/
+benchmark deferrals, and Phase24/15 gates are unchanged.
 
 ### Objective
 

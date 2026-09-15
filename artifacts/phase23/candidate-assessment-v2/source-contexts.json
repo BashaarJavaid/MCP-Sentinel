@@ -1,0 +1,4711 @@
+[
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitCheckout/logic.ts",
+    "sha256": "1b649087f74a78419fb928559936f951ce608928a3098ef28bc2d23a71b55109",
+    "lines": [
+      {
+        "line": 81,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 82,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 83,
+        "text": "    } else {"
+      },
+      {
+        "line": 84,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 85,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 86,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 87,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 91,
+        "text": "      }"
+      },
+      {
+        "line": 92,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 93,
+        "text": "    }"
+      },
+      {
+        "line": 94,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 95,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 96,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 97,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 114,
+        "text": "  }"
+      },
+      {
+        "line": 115,
+        "text": ""
+      },
+      {
+        "line": 116,
+        "text": "  // Basic sanitization for branch/path argument"
+      },
+      {
+        "line": 117,
+        "text": "  const safeBranchOrPath = input.branchOrPath.replace(/[`$&;*()|<>]/g, \"\"); // Remove potentially dangerous characters"
+      },
+      {
+        "line": 118,
+        "text": ""
+      },
+      {
+        "line": 119,
+        "text": "  try {"
+      },
+      {
+        "line": 120,
+        "text": "    // Construct the git checkout command"
+      },
+      {
+        "line": 121,
+        "text": "    let command = `git -C \"${targetPath}\" checkout`;"
+      },
+      {
+        "line": 122,
+        "text": ""
+      },
+      {
+        "line": 123,
+        "text": "    if (input.force) {"
+      },
+      {
+        "line": 124,
+        "text": "      command += \" --force\";"
+      },
+      {
+        "line": 125,
+        "text": "    }"
+      },
+      {
+        "line": 126,
+        "text": "    if (input.newBranch) {"
+      },
+      {
+        "line": 127,
+        "text": "      const safeNewBranch = input.newBranch.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\"); // Sanitize new branch name"
+      },
+      {
+        "line": 128,
+        "text": "      command += ` -b ${safeNewBranch}`;"
+      },
+      {
+        "line": 129,
+        "text": "    }"
+      },
+      {
+        "line": 130,
+        "text": ""
+      },
+      {
+        "line": 131,
+        "text": "    command += ` ${safeBranchOrPath}`; // Add the target branch/path"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 134,
+        "text": ""
+      },
+      {
+        "line": 135,
+        "text": "    // Execute command. Checkout often uses stderr for status messages."
+      },
+      {
+        "line": 136,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 137,
+        "text": ""
+      },
+      {
+        "line": 138,
+        "text": "    const message = stderr.trim() || stdout.trim();"
+      },
+      {
+        "line": 139,
+        "text": "    logger.debug(`Git checkout stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 144,
+        "text": "    // Get the current branch name after the checkout operation"
+      },
+      {
+        "line": 145,
+        "text": "    let currentBranch: string | undefined;"
+      },
+      {
+        "line": 146,
+        "text": "    try {"
+      },
+      {
+        "line": 147,
+        "text": "      const { stdout: branchStdout } = await execAsync("
+      },
+      {
+        "line": 148,
+        "text": "        `git -C \"${targetPath}\" branch --show-current`,"
+      },
+      {
+        "line": 149,
+        "text": "      );"
+      },
+      {
+        "line": 150,
+        "text": "      currentBranch = branchStdout.trim();"
+      },
+      {
+        "line": 151,
+        "text": "    } catch (e) {"
+      },
+      {
+        "line": 152,
+        "text": "      // This can fail in detached HEAD state, which is not an error for checkout"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/index.ts",
+    "sha256": "c2521dafe0ebd30bc611053e5016f15c8ef24e0cfe12d1d07104f7bb7af72c5f",
+    "lines": [
+      {
+        "line": 156,
+        "text": ""
+      },
+      {
+        "line": 157,
+        "text": "    // Start the server transport. This returns the McpServer instance for stdio"
+      },
+      {
+        "line": 158,
+        "text": "    // or the http.Server instance for http."
+      },
+      {
+        "line": 159,
+        "text": "    const serverOrHttpInstance = await initializeAndStartServer();"
+      },
+      {
+        "line": 160,
+        "text": ""
+      },
+      {
+        "line": 161,
+        "text": "    if ("
+      },
+      {
+        "line": 162,
+        "text": "      transportType === \"stdio\" &&"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/server.ts",
+    "sha256": "82d7a9c853bc56d2351cb90c7ab6d42d7dbf5a7dd5e7035f33730cba108e092c",
+    "lines": [
+      {
+        "line": 357,
+        "text": "    logger.debug(\"Registering Git tools...\", context);"
+      },
+      {
+        "line": 358,
+        "text": "    await registerGitAddTool(server);"
+      },
+      {
+        "line": 359,
+        "text": "    await registerGitBranchTool(server);"
+      },
+      {
+        "line": 360,
+        "text": "    await registerGitCheckoutTool(server);"
+      },
+      {
+        "line": 361,
+        "text": "    await registerGitCherryPickTool(server);"
+      },
+      {
+        "line": 362,
+        "text": "    await registerGitCleanTool(server);"
+      },
+      {
+        "line": 363,
+        "text": "    await registerGitClearWorkingDirTool(server);"
+      },
+      {
+        "line": 364,
+        "text": "    await registerGitCloneTool(server);"
+      },
+      {
+        "line": 365,
+        "text": "    await registerGitCommitTool(server);"
+      },
+      {
+        "line": 366,
+        "text": "    await registerGitDiffTool(server);"
+      },
+      {
+        "line": 367,
+        "text": "    await registerGitFetchTool(server);"
+      },
+      {
+        "line": 368,
+        "text": "    await registerGitInitTool(server);"
+      },
+      {
+        "line": 369,
+        "text": "    await registerGitLogTool(server);"
+      },
+      {
+        "line": 370,
+        "text": "    await registerGitMergeTool(server);"
+      },
+      {
+        "line": 371,
+        "text": "    await registerGitPullTool(server);"
+      },
+      {
+        "line": 372,
+        "text": "    await registerGitPushTool(server);"
+      },
+      {
+        "line": 373,
+        "text": "    await registerGitRebaseTool(server);"
+      },
+      {
+        "line": 374,
+        "text": "    await registerGitRemoteTool(server);"
+      },
+      {
+        "line": 375,
+        "text": "    await registerGitResetTool(server);"
+      },
+      {
+        "line": 376,
+        "text": "    await registerGitSetWorkingDirTool(server);"
+      },
+      {
+        "line": 377,
+        "text": "    await registerGitShowTool(server);"
+      },
+      {
+        "line": 378,
+        "text": "    await registerGitStashTool(server);"
+      },
+      {
+        "line": 379,
+        "text": "    await registerGitStatusTool(server);"
+      },
+      {
+        "line": 380,
+        "text": "    await registerGitTagTool(server);"
+      },
+      {
+        "line": 381,
+        "text": "    await registerGitWorktreeTool(server);"
+      },
+      {
+        "line": 382,
+        "text": "    await registerGitWrapupInstructionsTool(server);"
+      },
+      {
+        "line": 442,
+        "text": "    );"
+      },
+      {
+        "line": 443,
+        "text": "    // For stdio, there's typically one persistent connection managed by a parent process."
+      },
+      {
+        "line": 444,
+        "text": "    // Create a single McpServer instance for the entire process lifetime."
+      },
+      {
+        "line": 445,
+        "text": "    const server = await createMcpServerInstance();"
+      },
+      {
+        "line": 446,
+        "text": "    logger.debug(\"Delegating to connectStdioTransport...\", context);"
+      },
+      {
+        "line": 447,
+        "text": "    // Connect the server instance to the stdio transport handler."
+      },
+      {
+        "line": 448,
+        "text": "    await connectStdioTransport(server, context);"
+      },
+      {
+        "line": 479,
+        "text": "  logger.info(\"MCP Server initialization sequence started.\", context);"
+      },
+      {
+        "line": 480,
+        "text": "  try {"
+      },
+      {
+        "line": 481,
+        "text": "    // Initiate the transport setup based on configuration."
+      },
+      {
+        "line": 482,
+        "text": "    const result = await startTransport();"
+      },
+      {
+        "line": 483,
+        "text": "    logger.info("
+      },
+      {
+        "line": 484,
+        "text": "      \"MCP Server initialization sequence completed successfully.\","
+      },
+      {
+        "line": 485,
+        "text": "      context,"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitCheckout/registration.ts",
+    "sha256": "f31c4868c1dcb7fc6e702ac66da12ce8e89d13e7ba17359415f722f9a28dcbd4",
+    "lines": [
+      {
+        "line": 71,
+        "text": "  const operation = \"registerGitCheckoutTool\";"
+      },
+      {
+        "line": 72,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 73,
+        "text": ""
+      },
+      {
+        "line": 74,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 75,
+        "text": "    async () => {"
+      },
+      {
+        "line": 76,
+        "text": "      server.tool<typeof GitCheckoutInputSchema.shape>("
+      },
+      {
+        "line": 77,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 78,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 79,
+        "text": "        GitCheckoutInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/utils/internal/errorHandler.ts",
+    "sha256": "31623e9f2bedd0f3a83f83a3905391c3c8b26f4f5e32f1a7f3468da6cf494737",
+    "lines": [
+      {
+        "line": 379,
+        "text": "    options: ErrorHandlerOptions,"
+      },
+      {
+        "line": 380,
+        "text": "  ): Promise<T> {"
+      },
+      {
+        "line": 381,
+        "text": "    try {"
+      },
+      {
+        "line": 382,
+        "text": "      return await fn();"
+      },
+      {
+        "line": 383,
+        "text": "    } catch (error) {"
+      },
+      {
+        "line": 384,
+        "text": "      throw ErrorHandler.handleError(error, { ...options, rethrow: true });"
+      },
+      {
+        "line": 385,
+        "text": "    }"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitClean/logic.ts",
+    "sha256": "599e0cc1c4171e6f97422ef8abe4b99c688c4c287ddfe5b82b935c20243dd8bb",
+    "lines": [
+      {
+        "line": 106,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 107,
+        "text": "  try {"
+      },
+      {
+        "line": 108,
+        "text": "    // Resolve and sanitize the target path"
+      },
+      {
+        "line": 109,
+        "text": "    const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 110,
+        "text": "    targetPath ="
+      },
+      {
+        "line": 111,
+        "text": "      input.path && input.path !== \".\" ? input.path : (workingDir ?? \".\");"
+      },
+      {
+        "line": 112,
+        "text": ""
+      },
+      {
+        "line": 115,
+        "text": "        \"Executing git clean in server's CWD as no path provided and no session WD set.\","
+      },
+      {
+        "line": 116,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 117,
+        "text": "      );"
+      },
+      {
+        "line": 118,
+        "text": "      targetPath = process.cwd();"
+      },
+      {
+        "line": 119,
+        "text": "    } else if (targetPath === \".\" && workingDir) {"
+      },
+      {
+        "line": 120,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 121,
+        "text": "      logger.debug(`Using session working directory: ${targetPath}`, {"
+      },
+      {
+        "line": 130,
+        "text": "      });"
+      },
+      {
+        "line": 131,
+        "text": "    }"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 134,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 135,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 136,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 155,
+        "text": "  try {"
+      },
+      {
+        "line": 156,
+        "text": "    // Construct the command"
+      },
+      {
+        "line": 157,
+        "text": "    // Force (-f) is always added because the logic checks input.force"
+      },
+      {
+        "line": 158,
+        "text": "    let command = `git -C \"${targetPath}\" clean -f`;"
+      },
+      {
+        "line": 159,
+        "text": "    if (input.dryRun) {"
+      },
+      {
+        "line": 160,
+        "text": "      command += \" -n\";"
+      },
+      {
+        "line": 161,
+        "text": "    }"
+      },
+      {
+        "line": 162,
+        "text": "    if (input.directories) {"
+      },
+      {
+        "line": 163,
+        "text": "      command += \" -d\";"
+      },
+      {
+        "line": 164,
+        "text": "    }"
+      },
+      {
+        "line": 165,
+        "text": "    if (input.ignored) {"
+      },
+      {
+        "line": 166,
+        "text": "      command += \" -x\";"
+      },
+      {
+        "line": 167,
+        "text": "    }"
+      },
+      {
+        "line": 168,
+        "text": ""
+      },
+      {
+        "line": 169,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 170,
+        "text": ""
+      },
+      {
+        "line": 171,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 172,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 174,
+        "text": "      // Log stderr as warning, as git clean might report non-fatal issues here"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitClean/registration.ts",
+    "sha256": "4b0f9246693b89d149303a1ef0e7ac35c808125d7ccf1bbbf3461d65f3ae05da",
+    "lines": [
+      {
+        "line": 68,
+        "text": "  const operation = \"registerGitCleanTool\";"
+      },
+      {
+        "line": 69,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 72,
+        "text": "    async () => {"
+      },
+      {
+        "line": 73,
+        "text": "      // Register the tool using the schema's shape (no refinements here)"
+      },
+      {
+        "line": 74,
+        "text": "      server.tool<typeof GitCleanInputSchema.shape>("
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 76,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 77,
+        "text": "        GitCleanInputSchema.shape, // Use the shape directly"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitFetch/logic.ts",
+    "sha256": "9c12840eee2036c44e6b655ce1e11c135d7d4696db2c316b8021ee4e6dc4166a",
+    "lines": [
+      {
+        "line": 79,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 80,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 81,
+        "text": "    } else {"
+      },
+      {
+        "line": 82,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 83,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 84,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 85,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 89,
+        "text": "      }"
+      },
+      {
+        "line": 90,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 91,
+        "text": "    }"
+      },
+      {
+        "line": 92,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 93,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 94,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 95,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 112,
+        "text": "  }"
+      },
+      {
+        "line": 113,
+        "text": ""
+      },
+      {
+        "line": 114,
+        "text": "  // Basic sanitization for remote name"
+      },
+      {
+        "line": 115,
+        "text": "  const safeRemote = input.remote?.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\");"
+      },
+      {
+        "line": 116,
+        "text": ""
+      },
+      {
+        "line": 117,
+        "text": "  try {"
+      },
+      {
+        "line": 118,
+        "text": "    // Construct the git fetch command"
+      },
+      {
+        "line": 119,
+        "text": "    let command = `git -C \"${targetPath}\" fetch`;"
+      },
+      {
+        "line": 120,
+        "text": ""
+      },
+      {
+        "line": 121,
+        "text": "    if (input.prune) {"
+      },
+      {
+        "line": 122,
+        "text": "      command += \" --prune\";"
+      },
+      {
+        "line": 123,
+        "text": "    }"
+      },
+      {
+        "line": 124,
+        "text": "    if (input.tags) {"
+      },
+      {
+        "line": 125,
+        "text": "      command += \" --tags\";"
+      },
+      {
+        "line": 126,
+        "text": "    }"
+      },
+      {
+        "line": 127,
+        "text": "    if (input.all) {"
+      },
+      {
+        "line": 128,
+        "text": "      command += \" --all\";"
+      },
+      {
+        "line": 129,
+        "text": "    } else if (safeRemote) {"
+      },
+      {
+        "line": 130,
+        "text": "      command += ` ${safeRemote}`; // Fetch specific remote if 'all' is not used"
+      },
+      {
+        "line": 131,
+        "text": "    }"
+      },
+      {
+        "line": 132,
+        "text": "    // If neither 'all' nor 'remote' is specified, git fetch defaults to 'origin' or configured upstream."
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "    // Execute command. Fetch output is primarily on stderr."
+      },
+      {
+        "line": 137,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 138,
+        "text": ""
+      },
+      {
+        "line": 139,
+        "text": "    logger.debug(`Git fetch stdout: ${stdout}`, { ...context, operation }); // stdout is usually empty"
+      },
+      {
+        "line": 140,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitFetch/registration.ts",
+    "sha256": "2526aa4b0a55da4f5d2c9d828f58fe945dabd619bb8027dcc1aee79632c0e4da",
+    "lines": [
+      {
+        "line": 67,
+        "text": "  const operation = \"registerGitFetchTool\";"
+      },
+      {
+        "line": 68,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 69,
+        "text": ""
+      },
+      {
+        "line": 70,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 71,
+        "text": "    async () => {"
+      },
+      {
+        "line": 72,
+        "text": "      server.tool<typeof GitFetchInputSchema.shape>("
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 75,
+        "text": "        GitFetchInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "960e528b897ca6bdd0cb5e0678836f44573e24f62f4bf53367a3869841e84f66",
+    "lines": [
+      {
+        "line": 70,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 71,
+        "text": "  try {"
+      },
+      {
+        "line": 72,
+        "text": "    // Sanitize the provided absolute path"
+      },
+      {
+        "line": 73,
+        "text": "    targetPath = sanitization.sanitizePath(input.path, {"
+      },
+      {
+        "line": 74,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 75,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 76,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 119,
+        "text": ""
+      },
+      {
+        "line": 120,
+        "text": "  try {"
+      },
+      {
+        "line": 121,
+        "text": "    // Construct the git init command"
+      },
+      {
+        "line": 122,
+        "text": "    let command = `git init`;"
+      },
+      {
+        "line": 123,
+        "text": "    if (input.quiet) {"
+      },
+      {
+        "line": 124,
+        "text": "      command += \" --quiet\";"
+      },
+      {
+        "line": 125,
+        "text": "    }"
+      },
+      {
+        "line": 126,
+        "text": "    if (input.bare) {"
+      },
+      {
+        "line": 127,
+        "text": "      command += \" --bare\";"
+      },
+      {
+        "line": 128,
+        "text": "    }"
+      },
+      {
+        "line": 129,
+        "text": "    // Determine the initial branch name, defaulting to 'main' if not provided"
+      },
+      {
+        "line": 130,
+        "text": "    const branchNameToUse = input.initialBranch || \"main\";"
+      },
+      {
+        "line": 131,
+        "text": "    command += ` -b \"${branchNameToUse.replace(/\"/g, '\\\\\"')}\"`;"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "    // Add the target directory path at the end"
+      },
+      {
+        "line": 134,
+        "text": "    command += ` \"${targetPath}\"`;"
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 137,
+        "text": ""
+      },
+      {
+        "line": 138,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 139,
+        "text": ""
+      },
+      {
+        "line": 140,
+        "text": "    if (stderr && !input.quiet) {"
+      },
+      {
+        "line": 141,
+        "text": "      // Log stderr as warning but proceed, as init might still succeed (e.g., reinitializing)"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitInit/registration.ts",
+    "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+    "lines": [
+      {
+        "line": 65,
+        "text": "  const operation = \"registerGitInitTool\";"
+      },
+      {
+        "line": 66,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 67,
+        "text": ""
+      },
+      {
+        "line": 68,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 69,
+        "text": "    async () => {"
+      },
+      {
+        "line": 70,
+        "text": "      server.tool<typeof RegistrationSchema>("
+      },
+      {
+        "line": 71,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 73,
+        "text": "        RegistrationSchema,"
+      },
+      {
+        "line": 80,
+        "text": "          });"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "          // Use the initialized accessor to get the session ID"
+      },
+      {
+        "line": 83,
+        "text": "          const sessionId = _getSessionIdFromContext(requestContext); // Pass the created context"
+      },
+      {
+        "line": 84,
+        "text": "          if (!sessionId && !path.isAbsolute(validatedArgs.path)) {"
+      },
+      {
+        "line": 85,
+        "text": "            // If path is relative, we NEED a session ID to resolve against a potential working dir"
+      },
+      {
+        "line": 86,
+        "text": "            logger.error("
+      },
+      {
+        "line": 99,
+        "text": "          return await ErrorHandler.tryCatch<CallToolResult>("
+      },
+      {
+        "line": 100,
+        "text": "            async () => {"
+      },
+      {
+        "line": 101,
+        "text": "              // Use the initialized accessor to get the working directory"
+      },
+      {
+        "line": 102,
+        "text": "              const sessionWorkingDirectory = _getWorkingDirectory(sessionId);"
+      },
+      {
+        "line": 103,
+        "text": ""
+      },
+      {
+        "line": 104,
+        "text": "              const inputPath = validatedArgs.path;"
+      },
+      {
+        "line": 105,
+        "text": "              let resolvedPath: string;"
+      },
+      {
+        "line": 106,
+        "text": ""
+      },
+      {
+        "line": 107,
+        "text": "              try {"
+      },
+      {
+        "line": 108,
+        "text": "                if (path.isAbsolute(inputPath)) {"
+      },
+      {
+        "line": 109,
+        "text": "                  resolvedPath = sanitization.sanitizePath(inputPath, {"
+      },
+      {
+        "line": 110,
+        "text": "                    allowAbsolute: true,"
+      },
+      {
+        "line": 111,
+        "text": "                  }).sanitizedPath;"
+      },
+      {
+        "line": 112,
+        "text": "                  logger.debug("
+      },
+      {
+        "line": 114,
+        "text": "                    requestContext,"
+      },
+      {
+        "line": 115,
+        "text": "                  );"
+      },
+      {
+        "line": 116,
+        "text": "                } else if (sessionWorkingDirectory) {"
+      },
+      {
+        "line": 117,
+        "text": "                  resolvedPath = sanitization.sanitizePath("
+      },
+      {
+        "line": 118,
+        "text": "                    path.resolve(sessionWorkingDirectory, inputPath),"
+      },
+      {
+        "line": 119,
+        "text": "                    { allowAbsolute: true },"
+      },
+      {
+        "line": 120,
+        "text": "                  ).sanitizedPath;"
+      },
+      {
+        "line": 121,
+        "text": "                  logger.debug("
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/utils/internal/requestContext.ts",
+    "sha256": "0cdba21422a77e4257f422cde1df49b1e73a75c1eb33b16ed5edac3257731b0d",
+    "lines": [
+      {
+        "line": 70,
+        "text": "    additionalContext: Record<string, unknown> = {},"
+      },
+      {
+        "line": 71,
+        "text": "  ): RequestContext {"
+      },
+      {
+        "line": 72,
+        "text": "    const requestId = generateUUID(); // Use imported generateUUID"
+      },
+      {
+        "line": 73,
+        "text": "    const timestamp = new Date().toISOString();"
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "    return {"
+      },
+      {
+        "line": 76,
+        "text": "      requestId,"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/utils/security/idGenerator.ts",
+    "sha256": "ce0d29c430e5196d02207aade963cc8da74db9a2da5ff3658eaff51805632a5f",
+    "lines": [
+      {
+        "line": 223,
+        "text": ""
+      },
+      {
+        "line": 224,
+        "text": "// For standalone use as a UUID generator"
+      },
+      {
+        "line": 225,
+        "text": "export const generateUUID = (): string => {"
+      },
+      {
+        "line": 226,
+        "text": "  return cryptoRandomUUID(); // Use imported cryptoRandomUUID"
+      },
+      {
+        "line": 227,
+        "text": "};"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitMerge/logic.ts",
+    "sha256": "e1831ccfcae790c1b5ff2492cbc3c91bb7ac63762c6140056c522d4a9665941b",
+    "lines": [
+      {
+        "line": 92,
+        "text": "      // Assuming input.path could be relative *to the server's CWD* if no session WD is set,"
+      },
+      {
+        "line": 93,
+        "text": "      // but it's safer to require absolute paths or rely on session WD."
+      },
+      {
+        "line": 94,
+        "text": "      // For simplicity, let's assume input.path is intended relative to session WD if set, or absolute otherwise."
+      },
+      {
+        "line": 95,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 96,
+        "text": "      if (workingDir) {"
+      },
+      {
+        "line": 97,
+        "text": "        resolvedPath = path.resolve(workingDir, input.path); // Resolve relative to session WD"
+      },
+      {
+        "line": 98,
+        "text": "      } else if (path.isAbsolute(input.path)) {"
+      },
+      {
+        "line": 99,
+        "text": "        resolvedPath = input.path; // Use absolute path directly"
+      },
+      {
+        "line": 100,
+        "text": "      } else {"
+      },
+      {
+        "line": 110,
+        "text": "        operation,"
+      },
+      {
+        "line": 111,
+        "text": "      });"
+      },
+      {
+        "line": 112,
+        "text": "    } else {"
+      },
+      {
+        "line": 113,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 114,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 115,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 116,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 129,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 130,
+        "text": "    // We assume the resolved path should be absolute for git commands."
+      },
+      {
+        "line": 131,
+        "text": "    // sanitizePath checks for traversal and normalizes."
+      },
+      {
+        "line": 132,
+        "text": "    targetPath = sanitization.sanitizePath(resolvedPath, {"
+      },
+      {
+        "line": 133,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 134,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 135,
+        "text": "    logger.debug(`Sanitized path: ${targetPath}`, { ...context, operation });"
+      },
+      {
+        "line": 150,
+        "text": "  }"
+      },
+      {
+        "line": 151,
+        "text": ""
+      },
+      {
+        "line": 152,
+        "text": "  // --- Construct the git merge command ---"
+      },
+      {
+        "line": 153,
+        "text": "  let command = `git -C \"${targetPath}\" merge`;"
+      },
+      {
+        "line": 154,
+        "text": ""
+      },
+      {
+        "line": 155,
+        "text": "  if (input.abort) {"
+      },
+      {
+        "line": 156,
+        "text": "    command += \" --abort\";"
+      },
+      {
+        "line": 157,
+        "text": "  } else {"
+      },
+      {
+        "line": 158,
+        "text": "    // Standard merge options"
+      },
+      {
+        "line": 159,
+        "text": "    if (input.noFf) command += \" --no-ff\";"
+      },
+      {
+        "line": 160,
+        "text": "    if (input.squash) command += \" --squash\";"
+      },
+      {
+        "line": 161,
+        "text": "    if (input.commitMessage && !input.squash) {"
+      },
+      {
+        "line": 162,
+        "text": "      // Commit message only relevant if not squashing (squash requires separate commit)"
+      },
+      {
+        "line": 163,
+        "text": "      command += ` -m \"${input.commitMessage.replace(/\"/g, '\\\\\"')}\"`;"
+      },
+      {
+        "line": 164,
+        "text": "    } else if (input.squash && input.commitMessage) {"
+      },
+      {
+        "line": 165,
+        "text": "      logger.warning("
+      },
+      {
+        "line": 166,
+        "text": "        \"Commit message provided with --squash, but it will be ignored. Squash requires a separate commit.\","
+      },
+      {
+        "line": 167,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 168,
+        "text": "      );"
+      },
+      {
+        "line": 169,
+        "text": "    }"
+      },
+      {
+        "line": 170,
+        "text": "    command += ` \"${input.branch.replace(/\"/g, '\\\\\"')}\"`; // Add branch to merge"
+      },
+      {
+        "line": 171,
+        "text": "  }"
+      },
+      {
+        "line": 172,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "  logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": "  // --- Execute and Parse ---"
+      },
+      {
+        "line": 176,
+        "text": "  try {"
+      },
+      {
+        "line": 177,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 178,
+        "text": "    logger.debug(`Command stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 179,
+        "text": "    if (stderr)"
+      },
+      {
+        "line": 180,
+        "text": "      logger.debug(`Command stderr: ${stderr}`, { ...context, operation }); // Log stderr even on success"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitMerge/registration.ts",
+    "sha256": "ea5b0d2f8d853efda2782ca97936306ab3f61e3eabbf4e73f3b7eaed654ca308",
+    "lines": [
+      {
+        "line": 66,
+        "text": "  const operation = \"registerGitMergeTool\";"
+      },
+      {
+        "line": 67,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 70,
+        "text": "    async () => {"
+      },
+      {
+        "line": 71,
+        "text": "      server.tool<typeof GitMergeInputSchema.shape>("
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 74,
+        "text": "        GitMergeInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitPull/logic.ts",
+    "sha256": "a2631772c77319e6669dba920b0e43246a6efc3526f2ca01a3f4062110e2854b",
+    "lines": [
+      {
+        "line": 85,
+        "text": "        operation,"
+      },
+      {
+        "line": 86,
+        "text": "      });"
+      },
+      {
+        "line": 87,
+        "text": "    } else {"
+      },
+      {
+        "line": 88,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 89,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 90,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 91,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 101,
+        "text": "      });"
+      },
+      {
+        "line": 102,
+        "text": "    }"
+      },
+      {
+        "line": 103,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 104,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 105,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 106,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 107,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 125,
+        "text": ""
+      },
+      {
+        "line": 126,
+        "text": "  try {"
+      },
+      {
+        "line": 127,
+        "text": "    // Construct the git pull command"
+      },
+      {
+        "line": 128,
+        "text": "    let command = `git -C \"${targetPath}\" pull`;"
+      },
+      {
+        "line": 129,
+        "text": ""
+      },
+      {
+        "line": 130,
+        "text": "    if (input.rebase) {"
+      },
+      {
+        "line": 131,
+        "text": "      command += \" --rebase\";"
+      },
+      {
+        "line": 132,
+        "text": "    }"
+      },
+      {
+        "line": 133,
+        "text": "    if (input.ffOnly) {"
+      },
+      {
+        "line": 134,
+        "text": "      command += \" --ff-only\";"
+      },
+      {
+        "line": 135,
+        "text": "    }"
+      },
+      {
+        "line": 136,
+        "text": "    if (input.remote) {"
+      },
+      {
+        "line": 137,
+        "text": "      // Sanitize remote and branch names - basic alphanumeric + common chars"
+      },
+      {
+        "line": 138,
+        "text": "      const safeRemote = input.remote.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\");"
+      },
+      {
+        "line": 139,
+        "text": "      command += ` ${safeRemote}`;"
+      },
+      {
+        "line": 140,
+        "text": "      if (input.branch) {"
+      },
+      {
+        "line": 141,
+        "text": "        const safeBranch = input.branch.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\");"
+      },
+      {
+        "line": 142,
+        "text": "        command += ` ${safeBranch}`;"
+      },
+      {
+        "line": 143,
+        "text": "      }"
+      },
+      {
+        "line": 144,
+        "text": "    } else if (input.branch) {"
+      },
+      {
+        "line": 145,
+        "text": "      // If only branch is specified, assume 'origin' or tracked remote"
+      },
+      {
+        "line": 146,
+        "text": "      const safeBranch = input.branch.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\");"
+      },
+      {
+        "line": 147,
+        "text": "      command += ` origin ${safeBranch}`; // Defaulting to origin if remote not specified but branch is"
+      },
+      {
+        "line": 148,
+        "text": "      logger.warning("
+      },
+      {
+        "line": 149,
+        "text": "        `Remote not specified, defaulting to 'origin' for branch pull`,"
+      },
+      {
+        "line": 150,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 153,
+        "text": ""
+      },
+      {
+        "line": 154,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 155,
+        "text": ""
+      },
+      {
+        "line": 156,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 157,
+        "text": ""
+      },
+      {
+        "line": 158,
+        "text": "    logger.debug(`Git pull stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 159,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitPull/registration.ts",
+    "sha256": "ff2cc211529ed3c043f49d39d87cecb0d82aee88337d7a04e1b3a1e67f324b5d",
+    "lines": [
+      {
+        "line": 68,
+        "text": "  const operation = \"registerGitPullTool\";"
+      },
+      {
+        "line": 69,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 72,
+        "text": "    async () => {"
+      },
+      {
+        "line": 73,
+        "text": "      server.tool<typeof GitPullInputSchema.shape>("
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 76,
+        "text": "        GitPullInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitPush/logic.ts",
+    "sha256": "8aa8c94fa9c47c33834cacb594faa50f86b6cf7e5d725a3888add018d805c8c1",
+    "lines": [
+      {
+        "line": 111,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 112,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 113,
+        "text": "    } else {"
+      },
+      {
+        "line": 114,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 115,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 116,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 117,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 121,
+        "text": "      }"
+      },
+      {
+        "line": 122,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 123,
+        "text": "    }"
+      },
+      {
+        "line": 124,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 125,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 126,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 127,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 171,
+        "text": ""
+      },
+      {
+        "line": 172,
+        "text": "  try {"
+      },
+      {
+        "line": 173,
+        "text": "    // Construct the git push command"
+      },
+      {
+        "line": 174,
+        "text": "    let command = `git -C \"${targetPath}\" push`;"
+      },
+      {
+        "line": 175,
+        "text": ""
+      },
+      {
+        "line": 176,
+        "text": "    if (input.force) {"
+      },
+      {
+        "line": 177,
+        "text": "      command += \" --force\";"
+      },
+      {
+        "line": 178,
+        "text": "    } else if (input.forceWithLease) {"
+      },
+      {
+        "line": 179,
+        "text": "      command += \" --force-with-lease\";"
+      },
+      {
+        "line": 180,
+        "text": "    }"
+      },
+      {
+        "line": 181,
+        "text": ""
+      },
+      {
+        "line": 182,
+        "text": "    if (input.setUpstream) {"
+      },
+      {
+        "line": 183,
+        "text": "      command += \" --set-upstream\";"
+      },
+      {
+        "line": 184,
+        "text": "    }"
+      },
+      {
+        "line": 185,
+        "text": "    if (input.tags) {"
+      },
+      {
+        "line": 186,
+        "text": "      command += \" --tags\";"
+      },
+      {
+        "line": 187,
+        "text": "    }"
+      },
+      {
+        "line": 188,
+        "text": "    if (input.delete) {"
+      },
+      {
+        "line": 189,
+        "text": "      command += \" --delete\";"
+      },
+      {
+        "line": 190,
+        "text": "    }"
+      },
+      {
+        "line": 191,
+        "text": ""
+      },
+      {
+        "line": 192,
+        "text": "    // Add remote and branch specification"
+      },
+      {
+        "line": 193,
+        "text": "    const remote = input.remote"
+      },
+      {
+        "line": 194,
+        "text": "      ? input.remote.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\")"
+      },
+      {
+        "line": 195,
+        "text": "      : \"origin\"; // Default to origin"
+      },
+      {
+        "line": 196,
+        "text": "    command += ` ${remote}`;"
+      },
+      {
+        "line": 197,
+        "text": ""
+      },
+      {
+        "line": 198,
+        "text": "    if (input.branch) {"
+      },
+      {
+        "line": 199,
+        "text": "      const localBranch = input.branch.replace(/[^a-zA-Z0-9_.\\-/]/g, \"\");"
+      },
+      {
+        "line": 200,
+        "text": "      command += ` ${localBranch}`;"
+      },
+      {
+        "line": 201,
+        "text": "      if (input.remoteBranch && !input.delete) {"
+      },
+      {
+        "line": 202,
+        "text": "        // remoteBranch only makes sense if not deleting"
+      },
+      {
+        "line": 203,
+        "text": "        const remoteBranch = input.remoteBranch.replace("
+      },
+      {
+        "line": 204,
+        "text": "          /[^a-zA-Z0-9_.\\-/]/g,"
+      },
+      {
+        "line": 205,
+        "text": "          \"\","
+      },
+      {
+        "line": 206,
+        "text": "        );"
+      },
+      {
+        "line": 207,
+        "text": "        command += `:${remoteBranch}`;"
+      },
+      {
+        "line": 208,
+        "text": "      }"
+      },
+      {
+        "line": 209,
+        "text": "    } else if (!input.tags && !input.delete) {"
+      },
+      {
+        "line": 210,
+        "text": "      // If no branch, tags, or delete specified, push the current branch by default"
+      },
+      {
+        "line": 219,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 220,
+        "text": ""
+      },
+      {
+        "line": 221,
+        "text": "    // Execute command. Note: Git push often uses stderr for progress and success messages."
+      },
+      {
+        "line": 222,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 223,
+        "text": ""
+      },
+      {
+        "line": 224,
+        "text": "    logger.debug(`Git push stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 225,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitPush/registration.ts",
+    "sha256": "f1f85f89975ae2d3ff065320602db2c26ccbc37ea7592dcfadb460ea0cf981ad",
+    "lines": [
+      {
+        "line": 67,
+        "text": "  const operation = \"registerGitPushTool\";"
+      },
+      {
+        "line": 68,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 69,
+        "text": ""
+      },
+      {
+        "line": 70,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 71,
+        "text": "    async () => {"
+      },
+      {
+        "line": 72,
+        "text": "      server.tool<typeof GitPushInputSchema.shape>("
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 75,
+        "text": "        GitPushInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitShow/logic.ts",
+    "sha256": "bb32344973543295f4318bacbda9a531ef667bc746009685f0aaee0c7ef42978",
+    "lines": [
+      {
+        "line": 70,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 71,
+        "text": "  try {"
+      },
+      {
+        "line": 72,
+        "text": "    // Resolve and sanitize the target path"
+      },
+      {
+        "line": 73,
+        "text": "    const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 74,
+        "text": "    targetPath ="
+      },
+      {
+        "line": 75,
+        "text": "      input.path && input.path !== \".\" ? input.path : (workingDir ?? \".\");"
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "        \"Executing git show in server's CWD as no path provided and no session WD set.\","
+      },
+      {
+        "line": 80,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 81,
+        "text": "      );"
+      },
+      {
+        "line": 82,
+        "text": "      targetPath = process.cwd();"
+      },
+      {
+        "line": 83,
+        "text": "    } else if (targetPath === \".\" && workingDir) {"
+      },
+      {
+        "line": 84,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 85,
+        "text": "      logger.debug(`Using session working directory: ${targetPath}`, {"
+      },
+      {
+        "line": 94,
+        "text": "      });"
+      },
+      {
+        "line": 95,
+        "text": "    }"
+      },
+      {
+        "line": 96,
+        "text": ""
+      },
+      {
+        "line": 97,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 98,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 99,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 100,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 137,
+        "text": "  try {"
+      },
+      {
+        "line": 138,
+        "text": "    // Construct the refspec, combining ref and filePath if needed"
+      },
+      {
+        "line": 139,
+        "text": "    const refSpec = input.filePath"
+      },
+      {
+        "line": 140,
+        "text": "      ? `${input.ref}:\"${input.filePath}\"`"
+      },
+      {
+        "line": 141,
+        "text": "      : `\"${input.ref}\"`;"
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": "    // Construct the command"
+      },
+      {
+        "line": 144,
+        "text": "    const command = `git -C \"${targetPath}\" show ${refSpec}`;"
+      },
+      {
+        "line": 145,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 146,
+        "text": ""
+      },
+      {
+        "line": 147,
+        "text": "    // Execute command. Note: git show might write to stderr for non-error info (like commit details before diff)"
+      },
+      {
+        "line": 148,
+        "text": "    // We primarily care about stdout for the content. Errors usually have non-zero exit code."
+      },
+      {
+        "line": 149,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 150,
+        "text": ""
+      },
+      {
+        "line": 151,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 152,
+        "text": "      // Log stderr as debug info, as it might contain commit details etc."
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitShow/registration.ts",
+    "sha256": "3a04e8dd7f2c42e9ecff2c4f8863c012c27ec402bf1e14cbecd7184a7e90f15b",
+    "lines": [
+      {
+        "line": 65,
+        "text": "  const operation = \"registerGitShowTool\";"
+      },
+      {
+        "line": 66,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 67,
+        "text": ""
+      },
+      {
+        "line": 68,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 69,
+        "text": "    async () => {"
+      },
+      {
+        "line": 70,
+        "text": "      // Register the tool using the schema's shape (no refinements here)"
+      },
+      {
+        "line": 71,
+        "text": "      server.tool<typeof GitShowInputSchema.shape>("
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 74,
+        "text": "        GitShowInputSchema.shape, // Use the shape directly"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitStatus/logic.ts",
+    "sha256": "12f91590cd035272daefedc84e25e368a9176934fcaf18405606f8208b59a0e3",
+    "lines": [
+      {
+        "line": 212,
+        "text": "      });"
+      },
+      {
+        "line": 213,
+        "text": "    } else {"
+      },
+      {
+        "line": 214,
+        "text": "      // Path is '.' or undefined, try to get the session's working directory"
+      },
+      {
+        "line": 215,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 216,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 217,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 218,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 229,
+        "text": "    }"
+      },
+      {
+        "line": 230,
+        "text": ""
+      },
+      {
+        "line": 231,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 232,
+        "text": "    const sanitizedPathInfo = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 233,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 234,
+        "text": "    });"
+      },
+      {
+        "line": 235,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 257,
+        "text": "  try {"
+      },
+      {
+        "line": 258,
+        "text": "    // Using --porcelain=v1 for stable, scriptable output and -b for branch info"
+      },
+      {
+        "line": 259,
+        "text": "    // Ensure the path passed to -C is correctly quoted for the shell"
+      },
+      {
+        "line": 260,
+        "text": "    const command = `git -C \"${targetPath}\" status --porcelain=v1 -b`;"
+      },
+      {
+        "line": 261,
+        "text": "    logger.debug(`Executing command: ${command}`, { ...context, operation });"
+      },
+      {
+        "line": 262,
+        "text": ""
+      },
+      {
+        "line": 263,
+        "text": "    const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 264,
+        "text": ""
+      },
+      {
+        "line": 265,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 266,
+        "text": "      // Log stderr as warning but proceed to parse stdout"
+      },
+      {
+        "line": 283,
+        "text": "    // This handles the case of an empty repo after init but before first commit"
+      },
+      {
+        "line": 284,
+        "text": "    if (structuredResult.is_clean && !structuredResult.current_branch) {"
+      },
+      {
+        "line": 285,
+        "text": "      try {"
+      },
+      {
+        "line": 286,
+        "text": "        const branchCommand = `git -C \"${targetPath}\" rev-parse --abbrev-ref HEAD`;"
+      },
+      {
+        "line": 287,
+        "text": "        const { stdout: branchStdout } = await execAsync(branchCommand);"
+      },
+      {
+        "line": 288,
+        "text": "        const currentBranchName = branchStdout.trim(); // Renamed variable for clarity"
+      },
+      {
+        "line": 289,
+        "text": "        if (currentBranchName && currentBranchName !== \"HEAD\") {"
+      },
+      {
+        "line": 290,
+        "text": "          structuredResult.current_branch = currentBranchName;"
+      }
+    ]
+  },
+  {
+    "input_id": "full-vulnerable",
+    "path": "src/mcp-server/tools/gitStatus/registration.ts",
+    "sha256": "5eeacb2e49eceee9d6d06277616a0681b5a34aabbe7966775f78637f9f35bec3",
+    "lines": [
+      {
+        "line": 69,
+        "text": "  const operation = \"registerGitStatusTool\";"
+      },
+      {
+        "line": 70,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 71,
+        "text": ""
+      },
+      {
+        "line": 72,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 73,
+        "text": "    async () => {"
+      },
+      {
+        "line": 74,
+        "text": "      server.tool<typeof GitStatusInputSchema.shape>("
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 76,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 77,
+        "text": "        GitStatusInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitCheckout/logic.ts",
+    "sha256": "f8219cc8da76317168f8b86dbb20c574cff418ac20b53556b944ae895cc9237a",
+    "lines": [
+      {
+        "line": 81,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 82,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 83,
+        "text": "    } else {"
+      },
+      {
+        "line": 84,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 85,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 86,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 87,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 91,
+        "text": "      }"
+      },
+      {
+        "line": 92,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 93,
+        "text": "    }"
+      },
+      {
+        "line": 94,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 95,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 96,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 97,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 132,
+        "text": "    });"
+      },
+      {
+        "line": 133,
+        "text": ""
+      },
+      {
+        "line": 134,
+        "text": "    // Execute command. Checkout often uses stderr for status messages."
+      },
+      {
+        "line": 135,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "    const message = stderr.trim() || stdout.trim();"
+      },
+      {
+        "line": 138,
+        "text": "    logger.debug(`Git checkout stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 143,
+        "text": "    // Get the current branch name after the checkout operation"
+      },
+      {
+        "line": 144,
+        "text": "    let currentBranch: string | undefined;"
+      },
+      {
+        "line": 145,
+        "text": "    try {"
+      },
+      {
+        "line": 146,
+        "text": "      const { stdout: branchStdout } = await execFileAsync(\"git\", ["
+      },
+      {
+        "line": 147,
+        "text": "        \"-C\","
+      },
+      {
+        "line": 148,
+        "text": "        targetPath,"
+      },
+      {
+        "line": 149,
+        "text": "        \"branch\","
+      },
+      {
+        "line": 150,
+        "text": "        \"--show-current\","
+      },
+      {
+        "line": 151,
+        "text": "      ]);"
+      },
+      {
+        "line": 152,
+        "text": "      currentBranch = branchStdout.trim();"
+      },
+      {
+        "line": 153,
+        "text": "    } catch (e) {"
+      },
+      {
+        "line": 154,
+        "text": "      // This can fail in detached HEAD state, which is not an error for checkout"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/index.ts",
+    "sha256": "c2521dafe0ebd30bc611053e5016f15c8ef24e0cfe12d1d07104f7bb7af72c5f",
+    "lines": [
+      {
+        "line": 156,
+        "text": ""
+      },
+      {
+        "line": 157,
+        "text": "    // Start the server transport. This returns the McpServer instance for stdio"
+      },
+      {
+        "line": 158,
+        "text": "    // or the http.Server instance for http."
+      },
+      {
+        "line": 159,
+        "text": "    const serverOrHttpInstance = await initializeAndStartServer();"
+      },
+      {
+        "line": 160,
+        "text": ""
+      },
+      {
+        "line": 161,
+        "text": "    if ("
+      },
+      {
+        "line": 162,
+        "text": "      transportType === \"stdio\" &&"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/server.ts",
+    "sha256": "82d7a9c853bc56d2351cb90c7ab6d42d7dbf5a7dd5e7035f33730cba108e092c",
+    "lines": [
+      {
+        "line": 357,
+        "text": "    logger.debug(\"Registering Git tools...\", context);"
+      },
+      {
+        "line": 358,
+        "text": "    await registerGitAddTool(server);"
+      },
+      {
+        "line": 359,
+        "text": "    await registerGitBranchTool(server);"
+      },
+      {
+        "line": 360,
+        "text": "    await registerGitCheckoutTool(server);"
+      },
+      {
+        "line": 361,
+        "text": "    await registerGitCherryPickTool(server);"
+      },
+      {
+        "line": 362,
+        "text": "    await registerGitCleanTool(server);"
+      },
+      {
+        "line": 363,
+        "text": "    await registerGitClearWorkingDirTool(server);"
+      },
+      {
+        "line": 364,
+        "text": "    await registerGitCloneTool(server);"
+      },
+      {
+        "line": 365,
+        "text": "    await registerGitCommitTool(server);"
+      },
+      {
+        "line": 366,
+        "text": "    await registerGitDiffTool(server);"
+      },
+      {
+        "line": 367,
+        "text": "    await registerGitFetchTool(server);"
+      },
+      {
+        "line": 368,
+        "text": "    await registerGitInitTool(server);"
+      },
+      {
+        "line": 369,
+        "text": "    await registerGitLogTool(server);"
+      },
+      {
+        "line": 370,
+        "text": "    await registerGitMergeTool(server);"
+      },
+      {
+        "line": 371,
+        "text": "    await registerGitPullTool(server);"
+      },
+      {
+        "line": 372,
+        "text": "    await registerGitPushTool(server);"
+      },
+      {
+        "line": 373,
+        "text": "    await registerGitRebaseTool(server);"
+      },
+      {
+        "line": 374,
+        "text": "    await registerGitRemoteTool(server);"
+      },
+      {
+        "line": 375,
+        "text": "    await registerGitResetTool(server);"
+      },
+      {
+        "line": 376,
+        "text": "    await registerGitSetWorkingDirTool(server);"
+      },
+      {
+        "line": 377,
+        "text": "    await registerGitShowTool(server);"
+      },
+      {
+        "line": 378,
+        "text": "    await registerGitStashTool(server);"
+      },
+      {
+        "line": 379,
+        "text": "    await registerGitStatusTool(server);"
+      },
+      {
+        "line": 380,
+        "text": "    await registerGitTagTool(server);"
+      },
+      {
+        "line": 381,
+        "text": "    await registerGitWorktreeTool(server);"
+      },
+      {
+        "line": 382,
+        "text": "    await registerGitWrapupInstructionsTool(server);"
+      },
+      {
+        "line": 442,
+        "text": "    );"
+      },
+      {
+        "line": 443,
+        "text": "    // For stdio, there's typically one persistent connection managed by a parent process."
+      },
+      {
+        "line": 444,
+        "text": "    // Create a single McpServer instance for the entire process lifetime."
+      },
+      {
+        "line": 445,
+        "text": "    const server = await createMcpServerInstance();"
+      },
+      {
+        "line": 446,
+        "text": "    logger.debug(\"Delegating to connectStdioTransport...\", context);"
+      },
+      {
+        "line": 447,
+        "text": "    // Connect the server instance to the stdio transport handler."
+      },
+      {
+        "line": 448,
+        "text": "    await connectStdioTransport(server, context);"
+      },
+      {
+        "line": 479,
+        "text": "  logger.info(\"MCP Server initialization sequence started.\", context);"
+      },
+      {
+        "line": 480,
+        "text": "  try {"
+      },
+      {
+        "line": 481,
+        "text": "    // Initiate the transport setup based on configuration."
+      },
+      {
+        "line": 482,
+        "text": "    const result = await startTransport();"
+      },
+      {
+        "line": 483,
+        "text": "    logger.info("
+      },
+      {
+        "line": 484,
+        "text": "      \"MCP Server initialization sequence completed successfully.\","
+      },
+      {
+        "line": 485,
+        "text": "      context,"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitCheckout/registration.ts",
+    "sha256": "f31c4868c1dcb7fc6e702ac66da12ce8e89d13e7ba17359415f722f9a28dcbd4",
+    "lines": [
+      {
+        "line": 71,
+        "text": "  const operation = \"registerGitCheckoutTool\";"
+      },
+      {
+        "line": 72,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 73,
+        "text": ""
+      },
+      {
+        "line": 74,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 75,
+        "text": "    async () => {"
+      },
+      {
+        "line": 76,
+        "text": "      server.tool<typeof GitCheckoutInputSchema.shape>("
+      },
+      {
+        "line": 77,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 78,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 79,
+        "text": "        GitCheckoutInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/utils/internal/errorHandler.ts",
+    "sha256": "31623e9f2bedd0f3a83f83a3905391c3c8b26f4f5e32f1a7f3468da6cf494737",
+    "lines": [
+      {
+        "line": 379,
+        "text": "    options: ErrorHandlerOptions,"
+      },
+      {
+        "line": 380,
+        "text": "  ): Promise<T> {"
+      },
+      {
+        "line": 381,
+        "text": "    try {"
+      },
+      {
+        "line": 382,
+        "text": "      return await fn();"
+      },
+      {
+        "line": 383,
+        "text": "    } catch (error) {"
+      },
+      {
+        "line": 384,
+        "text": "      throw ErrorHandler.handleError(error, { ...options, rethrow: true });"
+      },
+      {
+        "line": 385,
+        "text": "    }"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitClean/logic.ts",
+    "sha256": "3ddd80be7fcf20d95999222e259779308444bdd1385708c667243e85f5ef4eaf",
+    "lines": [
+      {
+        "line": 106,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 107,
+        "text": "  try {"
+      },
+      {
+        "line": 108,
+        "text": "    // Resolve and sanitize the target path"
+      },
+      {
+        "line": 109,
+        "text": "    const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 110,
+        "text": "    targetPath ="
+      },
+      {
+        "line": 111,
+        "text": "      input.path && input.path !== \".\" ? input.path : (workingDir ?? \".\");"
+      },
+      {
+        "line": 112,
+        "text": ""
+      },
+      {
+        "line": 115,
+        "text": "        \"Executing git clean in server's CWD as no path provided and no session WD set.\","
+      },
+      {
+        "line": 116,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 117,
+        "text": "      );"
+      },
+      {
+        "line": 118,
+        "text": "      targetPath = process.cwd();"
+      },
+      {
+        "line": 119,
+        "text": "    } else if (targetPath === \".\" && workingDir) {"
+      },
+      {
+        "line": 120,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 121,
+        "text": "      logger.debug(`Using session working directory: ${targetPath}`, {"
+      },
+      {
+        "line": 130,
+        "text": "      });"
+      },
+      {
+        "line": 131,
+        "text": "    }"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 134,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 135,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 136,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 171,
+        "text": "      operation,"
+      },
+      {
+        "line": 172,
+        "text": "    });"
+      },
+      {
+        "line": 173,
+        "text": ""
+      },
+      {
+        "line": 174,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 175,
+        "text": ""
+      },
+      {
+        "line": 176,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 177,
+        "text": "      // Log stderr as warning, as git clean might report non-fatal issues here"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitClean/registration.ts",
+    "sha256": "4b0f9246693b89d149303a1ef0e7ac35c808125d7ccf1bbbf3461d65f3ae05da",
+    "lines": [
+      {
+        "line": 68,
+        "text": "  const operation = \"registerGitCleanTool\";"
+      },
+      {
+        "line": 69,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 72,
+        "text": "    async () => {"
+      },
+      {
+        "line": 73,
+        "text": "      // Register the tool using the schema's shape (no refinements here)"
+      },
+      {
+        "line": 74,
+        "text": "      server.tool<typeof GitCleanInputSchema.shape>("
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 76,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 77,
+        "text": "        GitCleanInputSchema.shape, // Use the shape directly"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitFetch/logic.ts",
+    "sha256": "634cc22e3ce8c0f0dc6e2e8d02842a6092041355285386cf6d80e350383267d8",
+    "lines": [
+      {
+        "line": 79,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 80,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 81,
+        "text": "    } else {"
+      },
+      {
+        "line": 82,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 83,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 84,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 85,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 89,
+        "text": "      }"
+      },
+      {
+        "line": 90,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 91,
+        "text": "    }"
+      },
+      {
+        "line": 92,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 93,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 94,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 95,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 134,
+        "text": "    });"
+      },
+      {
+        "line": 135,
+        "text": ""
+      },
+      {
+        "line": 136,
+        "text": "    // Execute command. Fetch output is primarily on stderr."
+      },
+      {
+        "line": 137,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 138,
+        "text": ""
+      },
+      {
+        "line": 139,
+        "text": "    logger.debug(`Git fetch stdout: ${stdout}`, { ...context, operation }); // stdout is usually empty"
+      },
+      {
+        "line": 140,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitFetch/registration.ts",
+    "sha256": "2526aa4b0a55da4f5d2c9d828f58fe945dabd619bb8027dcc1aee79632c0e4da",
+    "lines": [
+      {
+        "line": 67,
+        "text": "  const operation = \"registerGitFetchTool\";"
+      },
+      {
+        "line": 68,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 69,
+        "text": ""
+      },
+      {
+        "line": 70,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 71,
+        "text": "    async () => {"
+      },
+      {
+        "line": 72,
+        "text": "      server.tool<typeof GitFetchInputSchema.shape>("
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 75,
+        "text": "        GitFetchInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "e78f59dc3aa57eef2385da3982f7870aebce620020418a4ce225376b7557fdca",
+    "lines": [
+      {
+        "line": 70,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 71,
+        "text": "  try {"
+      },
+      {
+        "line": 72,
+        "text": "    // Sanitize the provided absolute path"
+      },
+      {
+        "line": 73,
+        "text": "    targetPath = sanitization.sanitizePath(input.path, {"
+      },
+      {
+        "line": 74,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 75,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 76,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 127,
+        "text": "      args.push(\"--bare\");"
+      },
+      {
+        "line": 128,
+        "text": "    }"
+      },
+      {
+        "line": 129,
+        "text": "    // Determine the initial branch name, defaulting to 'main' if not provided"
+      },
+      {
+        "line": 130,
+        "text": "    const branchNameToUse = input.initialBranch || \"main\";"
+      },
+      {
+        "line": 131,
+        "text": "    args.push(\"-b\", branchNameToUse);"
+      },
+      {
+        "line": 132,
+        "text": ""
+      },
+      {
+        "line": 133,
+        "text": "    // Add the target directory path at the end"
+      },
+      {
+        "line": 138,
+        "text": "      operation,"
+      },
+      {
+        "line": 139,
+        "text": "    });"
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": "    if (stderr && !input.quiet) {"
+      },
+      {
+        "line": 144,
+        "text": "      // Log stderr as warning but proceed, as init might still succeed (e.g., reinitializing)"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitInit/registration.ts",
+    "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+    "lines": [
+      {
+        "line": 65,
+        "text": "  const operation = \"registerGitInitTool\";"
+      },
+      {
+        "line": 66,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 67,
+        "text": ""
+      },
+      {
+        "line": 68,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 69,
+        "text": "    async () => {"
+      },
+      {
+        "line": 70,
+        "text": "      server.tool<typeof RegistrationSchema>("
+      },
+      {
+        "line": 71,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 73,
+        "text": "        RegistrationSchema,"
+      },
+      {
+        "line": 80,
+        "text": "          });"
+      },
+      {
+        "line": 81,
+        "text": ""
+      },
+      {
+        "line": 82,
+        "text": "          // Use the initialized accessor to get the session ID"
+      },
+      {
+        "line": 83,
+        "text": "          const sessionId = _getSessionIdFromContext(requestContext); // Pass the created context"
+      },
+      {
+        "line": 84,
+        "text": "          if (!sessionId && !path.isAbsolute(validatedArgs.path)) {"
+      },
+      {
+        "line": 85,
+        "text": "            // If path is relative, we NEED a session ID to resolve against a potential working dir"
+      },
+      {
+        "line": 86,
+        "text": "            logger.error("
+      },
+      {
+        "line": 99,
+        "text": "          return await ErrorHandler.tryCatch<CallToolResult>("
+      },
+      {
+        "line": 100,
+        "text": "            async () => {"
+      },
+      {
+        "line": 101,
+        "text": "              // Use the initialized accessor to get the working directory"
+      },
+      {
+        "line": 102,
+        "text": "              const sessionWorkingDirectory = _getWorkingDirectory(sessionId);"
+      },
+      {
+        "line": 103,
+        "text": ""
+      },
+      {
+        "line": 104,
+        "text": "              const inputPath = validatedArgs.path;"
+      },
+      {
+        "line": 105,
+        "text": "              let resolvedPath: string;"
+      },
+      {
+        "line": 106,
+        "text": ""
+      },
+      {
+        "line": 107,
+        "text": "              try {"
+      },
+      {
+        "line": 108,
+        "text": "                if (path.isAbsolute(inputPath)) {"
+      },
+      {
+        "line": 109,
+        "text": "                  resolvedPath = sanitization.sanitizePath(inputPath, {"
+      },
+      {
+        "line": 110,
+        "text": "                    allowAbsolute: true,"
+      },
+      {
+        "line": 111,
+        "text": "                  }).sanitizedPath;"
+      },
+      {
+        "line": 112,
+        "text": "                  logger.debug("
+      },
+      {
+        "line": 114,
+        "text": "                    requestContext,"
+      },
+      {
+        "line": 115,
+        "text": "                  );"
+      },
+      {
+        "line": 116,
+        "text": "                } else if (sessionWorkingDirectory) {"
+      },
+      {
+        "line": 117,
+        "text": "                  resolvedPath = sanitization.sanitizePath("
+      },
+      {
+        "line": 118,
+        "text": "                    path.resolve(sessionWorkingDirectory, inputPath),"
+      },
+      {
+        "line": 119,
+        "text": "                    { allowAbsolute: true },"
+      },
+      {
+        "line": 120,
+        "text": "                  ).sanitizedPath;"
+      },
+      {
+        "line": 121,
+        "text": "                  logger.debug("
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/utils/internal/requestContext.ts",
+    "sha256": "0cdba21422a77e4257f422cde1df49b1e73a75c1eb33b16ed5edac3257731b0d",
+    "lines": [
+      {
+        "line": 70,
+        "text": "    additionalContext: Record<string, unknown> = {},"
+      },
+      {
+        "line": 71,
+        "text": "  ): RequestContext {"
+      },
+      {
+        "line": 72,
+        "text": "    const requestId = generateUUID(); // Use imported generateUUID"
+      },
+      {
+        "line": 73,
+        "text": "    const timestamp = new Date().toISOString();"
+      },
+      {
+        "line": 74,
+        "text": ""
+      },
+      {
+        "line": 75,
+        "text": "    return {"
+      },
+      {
+        "line": 76,
+        "text": "      requestId,"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/utils/security/idGenerator.ts",
+    "sha256": "ce0d29c430e5196d02207aade963cc8da74db9a2da5ff3658eaff51805632a5f",
+    "lines": [
+      {
+        "line": 223,
+        "text": ""
+      },
+      {
+        "line": 224,
+        "text": "// For standalone use as a UUID generator"
+      },
+      {
+        "line": 225,
+        "text": "export const generateUUID = (): string => {"
+      },
+      {
+        "line": 226,
+        "text": "  return cryptoRandomUUID(); // Use imported cryptoRandomUUID"
+      },
+      {
+        "line": 227,
+        "text": "};"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitMerge/logic.ts",
+    "sha256": "52941de007a4a5635e4334962b0a503bedf03f44d2ad6d8d3b8cc6c8bcbdffef",
+    "lines": [
+      {
+        "line": 92,
+        "text": "      // Assuming input.path could be relative *to the server's CWD* if no session WD is set,"
+      },
+      {
+        "line": 93,
+        "text": "      // but it's safer to require absolute paths or rely on session WD."
+      },
+      {
+        "line": 94,
+        "text": "      // For simplicity, let's assume input.path is intended relative to session WD if set, or absolute otherwise."
+      },
+      {
+        "line": 95,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 96,
+        "text": "      if (workingDir) {"
+      },
+      {
+        "line": 97,
+        "text": "        resolvedPath = path.resolve(workingDir, input.path); // Resolve relative to session WD"
+      },
+      {
+        "line": 98,
+        "text": "      } else if (path.isAbsolute(input.path)) {"
+      },
+      {
+        "line": 99,
+        "text": "        resolvedPath = input.path; // Use absolute path directly"
+      },
+      {
+        "line": 100,
+        "text": "      } else {"
+      },
+      {
+        "line": 110,
+        "text": "        operation,"
+      },
+      {
+        "line": 111,
+        "text": "      });"
+      },
+      {
+        "line": 112,
+        "text": "    } else {"
+      },
+      {
+        "line": 113,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 114,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 115,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 116,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 129,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 130,
+        "text": "    // We assume the resolved path should be absolute for git commands."
+      },
+      {
+        "line": 131,
+        "text": "    // sanitizePath checks for traversal and normalizes."
+      },
+      {
+        "line": 132,
+        "text": "    targetPath = sanitization.sanitizePath(resolvedPath, {"
+      },
+      {
+        "line": 133,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 134,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 135,
+        "text": "    logger.debug(`Sanitized path: ${targetPath}`, { ...context, operation });"
+      },
+      {
+        "line": 181,
+        "text": ""
+      },
+      {
+        "line": 182,
+        "text": "  // --- Execute and Parse ---"
+      },
+      {
+        "line": 183,
+        "text": "  try {"
+      },
+      {
+        "line": 184,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 185,
+        "text": "    logger.debug(`Command stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 186,
+        "text": "    if (stderr)"
+      },
+      {
+        "line": 187,
+        "text": "      logger.debug(`Command stderr: ${stderr}`, { ...context, operation }); // Log stderr even on success"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitMerge/registration.ts",
+    "sha256": "ea5b0d2f8d853efda2782ca97936306ab3f61e3eabbf4e73f3b7eaed654ca308",
+    "lines": [
+      {
+        "line": 66,
+        "text": "  const operation = \"registerGitMergeTool\";"
+      },
+      {
+        "line": 67,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 68,
+        "text": ""
+      },
+      {
+        "line": 69,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 70,
+        "text": "    async () => {"
+      },
+      {
+        "line": 71,
+        "text": "      server.tool<typeof GitMergeInputSchema.shape>("
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 74,
+        "text": "        GitMergeInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitPull/logic.ts",
+    "sha256": "f417865e2c9343b59948246db9586f8068954727e7ee2acd743fe4afc7b45dcf",
+    "lines": [
+      {
+        "line": 85,
+        "text": "        operation,"
+      },
+      {
+        "line": 86,
+        "text": "      });"
+      },
+      {
+        "line": 87,
+        "text": "    } else {"
+      },
+      {
+        "line": 88,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 89,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 90,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 91,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 101,
+        "text": "      });"
+      },
+      {
+        "line": 102,
+        "text": "    }"
+      },
+      {
+        "line": 103,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 104,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 105,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 106,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 107,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 152,
+        "text": "      operation,"
+      },
+      {
+        "line": 153,
+        "text": "    });"
+      },
+      {
+        "line": 154,
+        "text": ""
+      },
+      {
+        "line": 155,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 156,
+        "text": ""
+      },
+      {
+        "line": 157,
+        "text": "    logger.debug(`Git pull stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 158,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitPull/registration.ts",
+    "sha256": "ff2cc211529ed3c043f49d39d87cecb0d82aee88337d7a04e1b3a1e67f324b5d",
+    "lines": [
+      {
+        "line": 68,
+        "text": "  const operation = \"registerGitPullTool\";"
+      },
+      {
+        "line": 69,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 70,
+        "text": ""
+      },
+      {
+        "line": 71,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 72,
+        "text": "    async () => {"
+      },
+      {
+        "line": 73,
+        "text": "      server.tool<typeof GitPullInputSchema.shape>("
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 76,
+        "text": "        GitPullInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitPush/logic.ts",
+    "sha256": "8a8f1de46dd2a390cc5e0b670e6836e472de5f0293e982cfc5ee16e2ea11ca23",
+    "lines": [
+      {
+        "line": 111,
+        "text": "    if (input.path && input.path !== \".\") {"
+      },
+      {
+        "line": 112,
+        "text": "      targetPath = input.path;"
+      },
+      {
+        "line": 113,
+        "text": "    } else {"
+      },
+      {
+        "line": 114,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 115,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 116,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 117,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 121,
+        "text": "      }"
+      },
+      {
+        "line": 122,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 123,
+        "text": "    }"
+      },
+      {
+        "line": 124,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 125,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 126,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 127,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 190,
+        "text": "    }"
+      },
+      {
+        "line": 191,
+        "text": ""
+      },
+      {
+        "line": 192,
+        "text": "    // Add remote and branch specification"
+      },
+      {
+        "line": 193,
+        "text": "    const remote = input.remote || \"origin\"; // Default to origin"
+      },
+      {
+        "line": 194,
+        "text": "    args.push(remote);"
+      },
+      {
+        "line": 195,
+        "text": ""
+      },
+      {
+        "line": 196,
+        "text": "    if (input.branch) {"
+      },
+      {
+        "line": 197,
+        "text": "      if (input.remoteBranch && !input.delete) {"
+      },
+      {
+        "line": 198,
+        "text": "        args.push(`${input.branch}:${input.remoteBranch}`);"
+      },
+      {
+        "line": 199,
+        "text": "      } else {"
+      },
+      {
+        "line": 200,
+        "text": "        args.push(input.branch);"
+      },
+      {
+        "line": 201,
+        "text": "      }"
+      },
+      {
+        "line": 213,
+        "text": "    });"
+      },
+      {
+        "line": 214,
+        "text": ""
+      },
+      {
+        "line": 215,
+        "text": "    // Execute command. Note: Git push often uses stderr for progress and success messages."
+      },
+      {
+        "line": 216,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 217,
+        "text": ""
+      },
+      {
+        "line": 218,
+        "text": "    logger.debug(`Git push stdout: ${stdout}`, { ...context, operation });"
+      },
+      {
+        "line": 219,
+        "text": "    if (stderr) {"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitPush/registration.ts",
+    "sha256": "f1f85f89975ae2d3ff065320602db2c26ccbc37ea7592dcfadb460ea0cf981ad",
+    "lines": [
+      {
+        "line": 67,
+        "text": "  const operation = \"registerGitPushTool\";"
+      },
+      {
+        "line": 68,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 69,
+        "text": ""
+      },
+      {
+        "line": 70,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 71,
+        "text": "    async () => {"
+      },
+      {
+        "line": 72,
+        "text": "      server.tool<typeof GitPushInputSchema.shape>("
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 74,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 75,
+        "text": "        GitPushInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitShow/logic.ts",
+    "sha256": "a0d95eb877d6c4f07b13771cb7f2e2bcbe7d6e0177fa67bdbe731bb5fb97a850",
+    "lines": [
+      {
+        "line": 70,
+        "text": "  let targetPath: string;"
+      },
+      {
+        "line": 71,
+        "text": "  try {"
+      },
+      {
+        "line": 72,
+        "text": "    // Resolve and sanitize the target path"
+      },
+      {
+        "line": 73,
+        "text": "    const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 74,
+        "text": "    targetPath ="
+      },
+      {
+        "line": 75,
+        "text": "      input.path && input.path !== \".\" ? input.path : (workingDir ?? \".\");"
+      },
+      {
+        "line": 76,
+        "text": ""
+      },
+      {
+        "line": 79,
+        "text": "        \"Executing git show in server's CWD as no path provided and no session WD set.\","
+      },
+      {
+        "line": 80,
+        "text": "        { ...context, operation },"
+      },
+      {
+        "line": 81,
+        "text": "      );"
+      },
+      {
+        "line": 82,
+        "text": "      targetPath = process.cwd();"
+      },
+      {
+        "line": 83,
+        "text": "    } else if (targetPath === \".\" && workingDir) {"
+      },
+      {
+        "line": 84,
+        "text": "      targetPath = workingDir;"
+      },
+      {
+        "line": 85,
+        "text": "      logger.debug(`Using session working directory: ${targetPath}`, {"
+      },
+      {
+        "line": 94,
+        "text": "      });"
+      },
+      {
+        "line": 95,
+        "text": "    }"
+      },
+      {
+        "line": 96,
+        "text": ""
+      },
+      {
+        "line": 97,
+        "text": "    targetPath = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 98,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 99,
+        "text": "    }).sanitizedPath;"
+      },
+      {
+        "line": 100,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 136,
+        "text": ""
+      },
+      {
+        "line": 137,
+        "text": "  try {"
+      },
+      {
+        "line": 138,
+        "text": "    // Construct the refspec, combining ref and filePath if needed"
+      },
+      {
+        "line": 139,
+        "text": "    const refSpec = input.filePath ? `${input.ref}:${input.filePath}` : input.ref;"
+      },
+      {
+        "line": 140,
+        "text": ""
+      },
+      {
+        "line": 141,
+        "text": "    // Construct the command"
+      },
+      {
+        "line": 142,
+        "text": "    const args = [\"-C\", targetPath, \"show\", refSpec];"
+      },
+      {
+        "line": 147,
+        "text": ""
+      },
+      {
+        "line": 148,
+        "text": "    // Execute command. Note: git show might write to stderr for non-error info (like commit details before diff)"
+      },
+      {
+        "line": 149,
+        "text": "    // We primarily care about stdout for the content. Errors usually have non-zero exit code."
+      },
+      {
+        "line": 150,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 151,
+        "text": ""
+      },
+      {
+        "line": 152,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 153,
+        "text": "      // Log stderr as debug info, as it might contain commit details etc."
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitShow/registration.ts",
+    "sha256": "3a04e8dd7f2c42e9ecff2c4f8863c012c27ec402bf1e14cbecd7184a7e90f15b",
+    "lines": [
+      {
+        "line": 65,
+        "text": "  const operation = \"registerGitShowTool\";"
+      },
+      {
+        "line": 66,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 67,
+        "text": ""
+      },
+      {
+        "line": 68,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 69,
+        "text": "    async () => {"
+      },
+      {
+        "line": 70,
+        "text": "      // Register the tool using the schema's shape (no refinements here)"
+      },
+      {
+        "line": 71,
+        "text": "      server.tool<typeof GitShowInputSchema.shape>("
+      },
+      {
+        "line": 72,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 73,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 74,
+        "text": "        GitShowInputSchema.shape, // Use the shape directly"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitStatus/logic.ts",
+    "sha256": "99efe4316c52f75afd7c39e62a39b0b000f6e77e9fce35daeee91bf9e6a5d45f",
+    "lines": [
+      {
+        "line": 212,
+        "text": "      });"
+      },
+      {
+        "line": 213,
+        "text": "    } else {"
+      },
+      {
+        "line": 214,
+        "text": "      // Path is '.' or undefined, try to get the session's working directory"
+      },
+      {
+        "line": 215,
+        "text": "      const workingDir = context.getWorkingDirectory();"
+      },
+      {
+        "line": 216,
+        "text": "      if (!workingDir) {"
+      },
+      {
+        "line": 217,
+        "text": "        throw new McpError("
+      },
+      {
+        "line": 218,
+        "text": "          BaseErrorCode.VALIDATION_ERROR,"
+      },
+      {
+        "line": 229,
+        "text": "    }"
+      },
+      {
+        "line": 230,
+        "text": ""
+      },
+      {
+        "line": 231,
+        "text": "    // Sanitize the resolved path"
+      },
+      {
+        "line": 232,
+        "text": "    const sanitizedPathInfo = sanitization.sanitizePath(targetPath, {"
+      },
+      {
+        "line": 233,
+        "text": "      allowAbsolute: true,"
+      },
+      {
+        "line": 234,
+        "text": "    });"
+      },
+      {
+        "line": 235,
+        "text": "    logger.debug(\"Sanitized path\", {"
+      },
+      {
+        "line": 262,
+        "text": "      operation,"
+      },
+      {
+        "line": 263,
+        "text": "    });"
+      },
+      {
+        "line": 264,
+        "text": ""
+      },
+      {
+        "line": 265,
+        "text": "    const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 266,
+        "text": ""
+      },
+      {
+        "line": 267,
+        "text": "    if (stderr) {"
+      },
+      {
+        "line": 268,
+        "text": "      // Log stderr as warning but proceed to parse stdout"
+      },
+      {
+        "line": 286,
+        "text": "    if (structuredResult.is_clean && !structuredResult.current_branch) {"
+      },
+      {
+        "line": 287,
+        "text": "      try {"
+      },
+      {
+        "line": 288,
+        "text": "        const branchArgs = [\"-C\", targetPath, \"rev-parse\", \"--abbrev-ref\", \"HEAD\"];"
+      },
+      {
+        "line": 289,
+        "text": "        const { stdout: branchStdout } = await execFileAsync(\"git\", branchArgs);"
+      },
+      {
+        "line": 290,
+        "text": "        const currentBranchName = branchStdout.trim(); // Renamed variable for clarity"
+      },
+      {
+        "line": 291,
+        "text": "        if (currentBranchName && currentBranchName !== \"HEAD\") {"
+      },
+      {
+        "line": 292,
+        "text": "          structuredResult.current_branch = currentBranchName;"
+      }
+    ]
+  },
+  {
+    "input_id": "full-fixed",
+    "path": "src/mcp-server/tools/gitStatus/registration.ts",
+    "sha256": "5eeacb2e49eceee9d6d06277616a0681b5a34aabbe7966775f78637f9f35bec3",
+    "lines": [
+      {
+        "line": 69,
+        "text": "  const operation = \"registerGitStatusTool\";"
+      },
+      {
+        "line": 70,
+        "text": "  const context = requestContextService.createRequestContext({ operation });"
+      },
+      {
+        "line": 71,
+        "text": ""
+      },
+      {
+        "line": 72,
+        "text": "  await ErrorHandler.tryCatch("
+      },
+      {
+        "line": 73,
+        "text": "    async () => {"
+      },
+      {
+        "line": 74,
+        "text": "      server.tool<typeof GitStatusInputSchema.shape>("
+      },
+      {
+        "line": 75,
+        "text": "        TOOL_NAME,"
+      },
+      {
+        "line": 76,
+        "text": "        TOOL_DESCRIPTION,"
+      },
+      {
+        "line": 77,
+        "text": "        GitStatusInputSchema.shape, // Provide the Zod schema shape"
+      }
+    ]
+  },
+  {
+    "input_id": "minimized-vulnerable",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "15b22742f221b413c26b1cccb3f95957fd0247f66ed68337ec3348efc41a56d0",
+    "lines": [
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "export async function gitInitLogic(input: { initialBranch?: string }) {"
+      },
+      {
+        "line": 8,
+        "text": "  const targetPath = \"/tmp/phase23-git-init\";"
+      },
+      {
+        "line": 9,
+        "text": "  let command = `git init`;"
+      },
+      {
+        "line": 10,
+        "text": "  const branchNameToUse = input.initialBranch || \"main\";"
+      },
+      {
+        "line": 11,
+        "text": "  command += ` -b \"${branchNameToUse.replace(/\"/g, '\\\\\"')}\"`;"
+      },
+      {
+        "line": 12,
+        "text": "  command += ` \"${targetPath}\"`;"
+      },
+      {
+        "line": 13,
+        "text": "  const { stdout, stderr } = await execAsync(command);"
+      },
+      {
+        "line": 14,
+        "text": "  return { stdout, stderr };"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      }
+    ]
+  },
+  {
+    "input_id": "minimized-vulnerable",
+    "path": "src/server.ts",
+    "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+    "lines": [
+      {
+        "line": 5,
+        "text": "import { gitInitLogic } from \"./mcp-server/tools/gitInit/logic.js\";"
+      },
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "const server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });"
+      },
+      {
+        "line": 8,
+        "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },"
+      },
+      {
+        "line": 9,
+        "text": "  async (input) => {"
+      },
+      {
+        "line": 10,
+        "text": "    await gitInitLogic(input);"
+      },
+      {
+        "line": 11,
+        "text": "    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };"
+      },
+      {
+        "line": 12,
+        "text": "  });"
+      },
+      {
+        "line": 13,
+        "text": "await server.connect(new StdioServerTransport());"
+      }
+    ]
+  },
+  {
+    "input_id": "minimized-fixed",
+    "path": "src/server.ts",
+    "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+    "lines": [
+      {
+        "line": 5,
+        "text": "import { gitInitLogic } from \"./mcp-server/tools/gitInit/logic.js\";"
+      },
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "const server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });"
+      },
+      {
+        "line": 8,
+        "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },"
+      },
+      {
+        "line": 9,
+        "text": "  async (input) => {"
+      },
+      {
+        "line": 10,
+        "text": "    await gitInitLogic(input);"
+      },
+      {
+        "line": 11,
+        "text": "    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };"
+      },
+      {
+        "line": 12,
+        "text": "  });"
+      },
+      {
+        "line": 13,
+        "text": "await server.connect(new StdioServerTransport());"
+      }
+    ]
+  },
+  {
+    "input_id": "minimized-fixed",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "9e266d5d550298cecdc75adf92dc7018b920db85792c0ad2813675b09c8fa8b5",
+    "lines": [
+      {
+        "line": 7,
+        "text": "export async function gitInitLogic(input: { initialBranch?: string }) {"
+      },
+      {
+        "line": 8,
+        "text": "  const targetPath = \"/tmp/phase23-git-init\";"
+      },
+      {
+        "line": 9,
+        "text": "  const args: string[] = [\"init\"];"
+      },
+      {
+        "line": 10,
+        "text": "  const branchNameToUse = input.initialBranch || \"main\";"
+      },
+      {
+        "line": 11,
+        "text": "  args.push(\"-b\", branchNameToUse);"
+      },
+      {
+        "line": 12,
+        "text": "  args.push(targetPath);"
+      },
+      {
+        "line": 13,
+        "text": "  const { stdout, stderr } = await execFileAsync(\"git\", args);"
+      },
+      {
+        "line": 14,
+        "text": "  return { stdout, stderr };"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      }
+    ]
+  },
+  {
+    "input_id": "safe-literal",
+    "path": "src/server.ts",
+    "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+    "lines": [
+      {
+        "line": 7,
+        "text": "const server = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });"
+      },
+      {
+        "line": 8,
+        "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },"
+      },
+      {
+        "line": 9,
+        "text": "  async (input) => {"
+      },
+      {
+        "line": 10,
+        "text": "    await gitInitLogic(input);"
+      },
+      {
+        "line": 11,
+        "text": "    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };"
+      },
+      {
+        "line": 12,
+        "text": "  });"
+      },
+      {
+        "line": 13,
+        "text": "await server.connect(new StdioServerTransport());"
+      }
+    ]
+  },
+  {
+    "input_id": "renamed-vulnerable",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "22fd6d0608f14df5893bc6b15ef28f279c817a76e7e231d3242e00b130df76b1",
+    "lines": [
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "export async function initializeRepository(requestData: { branchLabel?: string }) {"
+      },
+      {
+        "line": 8,
+        "text": "  const repositoryPath = \"/tmp/phase23-git-init\";"
+      },
+      {
+        "line": 9,
+        "text": "  let shellCommand = `git init`;"
+      },
+      {
+        "line": 10,
+        "text": "  const branchName = requestData.branchLabel || \"main\";"
+      },
+      {
+        "line": 11,
+        "text": "  shellCommand += ` -b \"${branchName.replace(/\"/g, '\\\\\"')}\"`;"
+      },
+      {
+        "line": 12,
+        "text": "  shellCommand += ` \"${repositoryPath}\"`;"
+      },
+      {
+        "line": 13,
+        "text": "  const { stdout, stderr } = await runShell(shellCommand);"
+      },
+      {
+        "line": 14,
+        "text": "  return { stdout, stderr };"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      }
+    ]
+  },
+  {
+    "input_id": "renamed-vulnerable",
+    "path": "src/server.ts",
+    "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+    "lines": [
+      {
+        "line": 5,
+        "text": "import { initializeRepository } from \"./mcp-server/tools/gitInit/logic.js\";"
+      },
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "const mcpServer = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });"
+      },
+      {
+        "line": 8,
+        "text": "mcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },"
+      },
+      {
+        "line": 9,
+        "text": "  async (requestData) => {"
+      },
+      {
+        "line": 10,
+        "text": "    await initializeRepository(requestData);"
+      },
+      {
+        "line": 11,
+        "text": "    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };"
+      },
+      {
+        "line": 12,
+        "text": "  });"
+      },
+      {
+        "line": 13,
+        "text": "await mcpServer.connect(new StdioServerTransport());"
+      }
+    ]
+  },
+  {
+    "input_id": "renamed-fixed",
+    "path": "src/server.ts",
+    "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+    "lines": [
+      {
+        "line": 5,
+        "text": "import { initializeRepository } from \"./mcp-server/tools/gitInit/logic.js\";"
+      },
+      {
+        "line": 6,
+        "text": ""
+      },
+      {
+        "line": 7,
+        "text": "const mcpServer = new McpServer({ name: \"phase23-git-init\", version: \"1.0.0\" });"
+      },
+      {
+        "line": 8,
+        "text": "mcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },"
+      },
+      {
+        "line": 9,
+        "text": "  async (requestData) => {"
+      },
+      {
+        "line": 10,
+        "text": "    await initializeRepository(requestData);"
+      },
+      {
+        "line": 11,
+        "text": "    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };"
+      },
+      {
+        "line": 12,
+        "text": "  });"
+      },
+      {
+        "line": 13,
+        "text": "await mcpServer.connect(new StdioServerTransport());"
+      }
+    ]
+  },
+  {
+    "input_id": "renamed-fixed",
+    "path": "src/mcp-server/tools/gitInit/logic.ts",
+    "sha256": "b5aa357b09aa338ba753f19d2d968e1e8e35280332a1e1344f95986b441e743d",
+    "lines": [
+      {
+        "line": 7,
+        "text": "export async function initializeRepository(requestData: { branchLabel?: string }) {"
+      },
+      {
+        "line": 8,
+        "text": "  const repositoryPath = \"/tmp/phase23-git-init\";"
+      },
+      {
+        "line": 9,
+        "text": "  const argv: string[] = [\"init\"];"
+      },
+      {
+        "line": 10,
+        "text": "  const branchName = requestData.branchLabel || \"main\";"
+      },
+      {
+        "line": 11,
+        "text": "  argv.push(\"-b\", branchName);"
+      },
+      {
+        "line": 12,
+        "text": "  argv.push(repositoryPath);"
+      },
+      {
+        "line": 13,
+        "text": "  const { stdout, stderr } = await runFile(\"git\", argv);"
+      },
+      {
+        "line": 14,
+        "text": "  return { stdout, stderr };"
+      },
+      {
+        "line": 15,
+        "text": "}"
+      }
+    ]
+  }
+]

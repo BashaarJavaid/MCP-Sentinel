@@ -1,0 +1,490 @@
+"""Phase 23 preparation checks never import or execute advisory source."""
+
+from __future__ import annotations
+
+import copy
+import json
+import os
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from scripts.phase20_corpus import ROOT
+from scripts.phase23_regression import CORPORA, MANIFEST, source_files, validate
+
+
+def test_ci_approved_reference_integrity() -> None:
+    from scripts.phase23_regression import ORDER, ci_references
+
+    manifest, references = ci_references()
+    assert manifest["case_id"] == "GHSA-3q26-f695-pp76"
+    assert tuple(references) == ORDER
+
+
+@pytest.mark.parametrize("index", range(7))
+def test_ci_complete_reviewed_report(index: int) -> None:
+    from scripts.phase23_regression import ci_report_difference
+
+    proposal = json.loads(
+        (ROOT / "artifacts/phase23/ci-review-v1/proposal.json").read_bytes()
+    )
+    entry = proposal["reports"][index]
+    manifest = json.loads((ROOT / proposal["manifest"]["path"]).read_bytes())
+    report = json.loads((ROOT / entry["source_report"]).read_bytes())
+    reference = json.loads((ROOT / entry["report"]).read_bytes())
+    assert ci_report_difference(report, reference, manifest["inputs"][index]) == ""
+
+
+@pytest.mark.parametrize(
+    "change", ["warning", "support", "order", "version", "incomplete", "miss"]
+)
+def test_ci_rejects_report_drift(change: str) -> None:
+    from scripts.phase23_regression import ci_report_difference, ordered_report
+
+    report = json.loads(
+        (
+            ROOT
+            / "artifacts/phase23/corrected-candidate-v2/observations"
+            / "01-full-vulnerable/report.json"
+        ).read_bytes()
+    )
+    reference = ordered_report(report)
+    manifest = json.loads(
+        (ROOT / "tests/evals/phase23/candidate-v2/manifest.json").read_bytes()
+    )
+    if change == "warning":
+        report["warnings"][0]["message"] += " changed"
+    elif change == "support":
+        report["static_analysis"]["coverage"]["surfaces"].clear()
+    elif change == "order":
+        report["findings"].reverse()
+    elif change == "version":
+        report["sentinel_version"] = "0.0.0"
+    elif change == "incomplete":
+        report["analysisComplete"] = False
+    else:
+        report["findings"][4]["location"]["range"]["start_line"] = 139
+        report["findings"][4]["location"]["range"]["end_line"] = 139
+    if change in {"incomplete", "miss"}:
+        with pytest.raises(ValueError, match=r"incomplete|shell condition"):
+            ci_report_difference(report, reference, manifest["inputs"][0])
+    else:
+        assert ci_report_difference(report, reference, manifest["inputs"][0])
+
+
+def test_ci_requires_explicit_reference_review(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import phase23_regression as helper
+
+    monkeypatch.setattr(helper, "ROOT", tmp_path)
+    review = tmp_path / "artifacts/phase23/ci-review-v1"
+    review.mkdir(parents=True)
+    (review / "proposal.json").write_text("{}")
+    (review.parent / "ci-reference-approval.json").write_text(
+        '{"decision": null, "proposal_sha256": null}'
+    )
+    with pytest.raises(ValueError, match="approval missing"):
+        helper.run_ci(tmp_path / "run")
+    assert not (tmp_path / "run").exists()
+
+
+@pytest.mark.skipif(os.name != "posix", reason="CI supervision requires POSIX")
+@pytest.mark.parametrize("incomplete", [False, True])
+def test_ci_one_pass_and_incomplete_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, incomplete: bool
+) -> None:
+    from scripts import phase23_regression as helper
+
+    manifest = json.loads(
+        (ROOT / "tests/evals/phase23/candidate-v2/manifest.json").read_bytes()
+    )
+    references = {
+        item["id"]: json.loads(
+            (
+                ROOT / "artifacts/phase23/ci-review-v1/reports" / (item["id"] + ".json")
+            ).read_bytes()
+        )
+        for item in manifest["inputs"]
+    }
+    monkeypatch.setattr(helper, "ci_references", lambda: (manifest, references))
+    monkeypatch.setattr(helper, "execution_identity", lambda: {"synthetic": True})
+    seen = []
+
+    def observe(
+        item: dict[str, Any], destination: Path, *args: Any
+    ) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        seen.append(item["id"])
+        destination.mkdir()
+        if incomplete:
+            return {"input_id": item["id"], "state": "incomplete"}, None
+        report = json.loads(
+            (
+                ROOT
+                / "artifacts/phase23/corrected-candidate-v2/observations"
+                / destination.name
+                / "report.json"
+            ).read_bytes()
+        )
+        return {"input_id": item["id"], "state": "completed"}, report
+
+    monkeypatch.setattr(helper, "_observe", observe)
+    output = tmp_path / "ci"
+    assert helper.run_ci(output) == int(incomplete)
+    ledger = json.loads((output / "results.json").read_bytes())
+    assert seen == list(helper.ORDER)[: 1 if incomplete else 7]
+    assert ledger["unstarted_closed"] == list(helper.ORDER)[len(seen) :]
+    assert ledger["remaining_observations"] == 0
+    assert ledger["status"] == ("failed" if incomplete else "passed")
+
+
+def test_proposed_corpus_integrity() -> None:
+    manifest = validate()
+    assert len(manifest["snapshots"]) == 2
+    assert manifest["independent_advisory_count"] == 1
+    assert all(
+        i["support"]["status"] == "pending_evaluation" for i in manifest["inputs"]
+    )
+
+
+def test_replacement_source_freeze_integrity() -> None:
+    from scripts.phase20_corpus import digest
+
+    manifest_name, freeze_name = CORPORA["GHSA-3q26-f695-pp76"]
+    path = ROOT / manifest_name
+    manifest = validate(path)
+    freeze = json.loads((ROOT / freeze_name).read_bytes())
+    assert freeze["status"] == "accepted_source_freeze"
+    assert freeze["manifest"] == {
+        "path": manifest_name,
+        "sha256": digest(path.read_bytes()),
+    }
+    assert manifest["case_id"] == "GHSA-3q26-f695-pp76"
+    assert len(manifest["inputs"]) == 7
+    assert freeze["scanner_execution_approved"] is False
+
+
+@pytest.mark.parametrize("field", ["files", "tree_sha256"])
+def test_source_integrity_rejects_drift(field: str) -> None:
+    item = copy.deepcopy(json.loads(MANIFEST.read_bytes())["inputs"][2])
+    item[field] = {} if field == "files" else "0" * 64
+    with pytest.raises(ValueError, match=r"source .* mismatch"):
+        source_files(item)
+
+
+@pytest.mark.parametrize("change", ["label", "order", "sink", "approval"])
+def test_proposal_rejects_scope_or_source_drift(tmp_path: Path, change: str) -> None:
+    manifest = json.loads(MANIFEST.read_bytes())
+    if change == "label":
+        manifest["inputs"][0]["proposed_label"] = "fixed"
+    elif change == "order":
+        manifest["proposed_order"].reverse()
+    elif change == "sink":
+        manifest["inputs"][0]["match"]["source_text"] = "unrelated line"
+    else:
+        manifest["freeze_approved"] = True
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match=r"scope|source mismatch"):
+        validate(path)
+
+
+def test_ordered_comparison_only_excludes_declared_volatile_fields() -> None:
+    from scripts.phase23_regression import ordered_report
+
+    first: dict[str, Any] = {
+        "scan_id": "a",
+        "started_at": "first",
+        "completed_at": "first",
+        "static_analysis": {"duration_ms": 1, "coverage": ["first", "second"]},
+        "findings": [
+            {
+                "finding_id": "x",
+                "scan_id": "a",
+                "timestamp": "first",
+                "provenance": [{"timestamp": "first", "evidence": "same"}],
+                "evidence": {"duration_ms": 7},
+            }
+        ],
+        "warnings": ["keep"],
+        "future_field": {"timestamp": "keep"},
+    }
+    changed = copy.deepcopy(first)
+    changed["scan_id"] = "b"
+    changed["findings"][0]["finding_id"] = "y"
+    changed["static_analysis"]["duration_ms"] = 2
+    changed["findings"][0]["provenance"][0]["timestamp"] = "later"
+    assert ordered_report(first) == ordered_report(changed)
+    changed["static_analysis"]["coverage"].reverse()
+    assert ordered_report(first) != ordered_report(changed)
+    changed = copy.deepcopy(first)
+    changed["findings"][0]["evidence"]["duration_ms"] = 8
+    assert ordered_report(first) != ordered_report(changed)
+    changed = copy.deepcopy(first)
+    changed["future_field"]["timestamp"] = "changed"
+    assert ordered_report(first) != ordered_report(changed)
+    assert first["scan_id"] == "a"
+
+
+def test_missing_approval_cannot_access_sources(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import phase23_regression as helper
+
+    def forbidden(*args: Any, **kwargs: Any) -> Any:
+        raise AssertionError("source access without approval")
+
+    monkeypatch.setattr(helper, "source_files", forbidden)
+    with pytest.raises(FileNotFoundError):
+        helper.run_stage(
+            tmp_path / "proposal.json", tmp_path / "missing.json", tmp_path / "out"
+        )
+    assert not (tmp_path / "out").exists()
+
+
+@pytest.mark.skipif(
+    os.name != "posix", reason="baseline supervision uses POSIX process groups"
+)
+@pytest.mark.parametrize("mode", ["complete", "incomplete", "timeout", "cancel"])
+def test_observation_completion_and_cleanup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mode: str,
+) -> None:
+    from scripts import phase23_regression as helper
+    from sentinel.report.json_report import render_json
+    from sentinel.report.model import (
+        ScanReport,
+        ScanTarget,
+        StageName,
+        StageRecord,
+        StageStatus,
+        summarize,
+    )
+    from tests.conftest import NOW, SCAN_ID
+
+    synthetic = ScanReport(
+        scan_id=SCAN_ID,
+        sentinel_version="1.3.0",
+        started_at=NOW,
+        completed_at=NOW,
+        target=ScanTarget(display_name="synthetic-supervisor-check"),
+        analysis_complete=mode == "complete",
+        execution_successful=True,
+        stages=tuple(
+            StageRecord(name=name, status=StageStatus.SUCCEEDED) for name in StageName
+        ),
+        summary=summarize(()),
+        warnings=(),
+        findings=(),
+        static_analysis=None,
+        gpt_review=None,
+    )
+    monkeypatch.setattr(
+        helper, "source_files", lambda item: {"inert.txt": b"synthetic"}
+    )
+    monkeypatch.setattr(helper, "baseline_configuration", lambda *args: {})
+    original_popen = subprocess.Popen
+    processes: list[subprocess.Popen[bytes]] = []
+
+    def synthetic_child(command: list[str], **kwargs: Any) -> subprocess.Popen[bytes]:
+        assert command[1:4] == ["-I", "-m", "sentinel"]
+        if mode in {"timeout", "cancel"}:
+            child_command = [sys.executable, "-I", "-c", "import time; time.sleep(60)"]
+        else:
+            output = command[command.index("--output") + 1]
+            child_command = [
+                sys.executable,
+                "-I",
+                "-c",
+                "import pathlib,sys; pathlib.Path(sys.argv[1]).write_text(sys.argv[2])",
+                output,
+                render_json(synthetic),
+            ]
+        process = original_popen(child_command, **kwargs)
+        if mode == "timeout":
+            wait = process.wait
+            monkeypatch.setattr(
+                process, "wait", lambda timeout=None: wait(timeout=0.05)
+            )
+        if mode == "cancel":
+            original_wait = process.wait
+            calls = 0
+
+            def cancelled_wait(timeout: float | None = None) -> int:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    helper._cancelled(signal.SIGTERM, None)
+                return original_wait(timeout=timeout)
+
+            monkeypatch.setattr(process, "wait", cancelled_wait)
+        processes.append(process)
+        return process
+
+    monkeypatch.setattr("scripts.phase23_regression.subprocess.Popen", synthetic_child)
+    previous_handler = signal.signal(signal.SIGALRM, helper._expired)
+    try:
+        outcome, report = helper._observe(
+            {
+                "id": "synthetic",
+                "match": {
+                    "rule_id": "SENT-002",
+                    "sink_path": "stop.ts",
+                    "sink_line": 7,
+                },
+            },
+            tmp_path / "observation",
+            tmp_path / "source",
+            helper.baseline_environment(tmp_path),
+            time.monotonic() + 60,
+            {},
+        )
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
+    assert outcome["state"] == ("completed" if mode == "complete" else "incomplete")
+    assert outcome["scanner_started"] is True
+    assert outcome["cleanup"] == "verified"
+    assert outcome["cleanup_seconds"] < 15
+    assert not (tmp_path / "source").exists()
+    assert all(process.poll() is not None for process in processes)
+    if mode in {"complete", "incomplete"}:
+        assert report is not None
+        assert (tmp_path / "observation/report.sarif").is_file()
+
+
+@pytest.mark.skipif(
+    os.name != "posix", reason="baseline supervision uses POSIX process groups"
+)
+@pytest.mark.parametrize("case_id", tuple(CORPORA))
+@pytest.mark.parametrize("stage", ["baseline", "corrected-candidate"])
+@pytest.mark.parametrize(
+    "mode", ["identity_failure", "case_drift", "freeze_drift", "complete"]
+)
+def test_one_use_stage_budget(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str, case_id: str, stage: str
+) -> None:
+    from scripts import phase23_regression as helper
+    from scripts.phase20_corpus import digest
+
+    monkeypatch.setattr(helper, "ROOT", tmp_path)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(helper, "execution_identity", lambda: {"actual": True})
+    output = tmp_path / "run"
+    manifest_name, freeze_name = CORPORA[case_id]
+    manifest_bytes = (ROOT / manifest_name).read_bytes()
+    manifest_path = tmp_path / manifest_name
+    manifest_path.parent.mkdir(parents=True)
+    manifest_path.write_bytes(manifest_bytes)
+    manifest_sha = digest(manifest_bytes)
+    freeze = tmp_path / freeze_name
+    freeze.parent.mkdir(parents=True)
+    freeze.write_text(
+        json.dumps(
+            {
+                "status": "accepted_source_freeze",
+                "manifest": {
+                    "path": "wrong.json" if mode == "freeze_drift" else manifest_name,
+                    "sha256": manifest_sha,
+                },
+            }
+        )
+    )
+    proposal = {
+        "stage": stage,
+        "case_id": case_id,
+        "observations": 14,
+        "output": "run",
+        "order": list(helper.ORDER) * 2,
+        "volatile_paths": list(helper.VOLATILE_PATHS),
+        "limits": {
+            "input_seconds": 1800,
+            "semgrep_seconds": 10,
+            "cleanup_seconds": 15,
+            "maximum_workers": 4,
+            "outer_seconds": 26400,
+        },
+        "identity": (
+            {"expected": True} if mode == "identity_failure" else {"actual": True}
+        ),
+        "environment": helper.baseline_environment(output),
+        "configurations": {name: {} for name in helper.ORDER},
+        "manifest_sha256": manifest_sha,
+        "source_freeze_sha256": digest(freeze.read_bytes()),
+    }
+    proposal_path = tmp_path / "proposal.json"
+    proposal_path.write_text(json.dumps(proposal))
+    approval = tmp_path / "approval.json"
+    approval.write_text(
+        json.dumps(
+            {
+                "decision": "approved",
+                "proposal_sha256": digest(proposal_path.read_bytes()),
+            }
+        )
+    )
+
+    def observe(
+        item: dict[str, Any], destination: Path, source: Path, *args: Any
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        assert source.is_absolute()
+        assert destination.is_absolute()
+        return {"input_id": item["id"], "state": "completed"}, {
+            "findings": [],
+            "input": item["id"],
+        }
+
+    monkeypatch.setattr(helper, "_observe", observe)
+    monkeypatch.setattr(
+        helper,
+        "validate",
+        lambda path: {
+            "case_id": "wrong-case" if mode == "case_drift" else case_id,
+            "inputs": [{"id": name} for name in helper.ORDER],
+        },
+    )
+    assert helper.run_stage(proposal_path, approval, Path("run")) == (
+        0 if mode == "complete" else 2
+    )
+    ledger = json.loads((output / "results.json").read_bytes())
+    assert ledger["status"] == (
+        "completed" if mode == "complete" else "closed_incomplete"
+    )
+    assert ledger["remaining_observations"] == 0
+    assert len(ledger["unstarted_closed"]) == (0 if mode == "complete" else 14)
+    assert len(ledger["outcomes"]) == (14 if mode == "complete" else 0)
+    assert len(ledger["ordered_pairs"]) == (7 if mode == "complete" else 0)
+    assert approval.with_suffix(".used.json").exists()
+    with pytest.raises(ValueError, match="already exists"):
+        helper.run_stage(proposal_path, approval, output)
+
+
+def test_finding_match_requires_rule_and_both_source_ranges() -> None:
+    from scripts.phase23_regression import matching_indexes
+
+    item = {"match": {"rule_id": "SENT-002", "sink_path": "stop.ts", "sink_line": 7}}
+    finding: dict[str, Any] = {
+        "rule_id": "SENT-002",
+        "location": {
+            "kind": "file",
+            "path": "stop.ts",
+            "range": {"start_line": 7, "end_line": 7},
+        },
+        "evidence": {"kind": "static", "range": {"start_line": 7, "end_line": 7}},
+    }
+    assert matching_indexes({"findings": [finding]}, item) == [0]
+    for section, field, value in [
+        ("location", "path", "unrelated.ts"),
+        ("evidence", "range", {"start_line": 1, "end_line": 1}),
+    ]:
+        changed = copy.deepcopy(finding)
+        changed[section][field] = value
+        assert matching_indexes({"findings": [changed]}, item) == []
+    finding["rule_id"] = "SENT-014"
+    assert matching_indexes({"findings": [finding]}, item) == []

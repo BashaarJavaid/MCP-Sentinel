@@ -1,0 +1,206 @@
+{
+  "method": "Read-only source and Python AST caller inspection; no Semgrep/scanner/target execution. Exact caller list supplements retained correction-review-v1/callers.json.",
+  "source_conditions": [
+    {
+      "path": "src/sentinel/static/typescript_path_flow.py",
+      "sha256": "813d560fac459c0ca26d322ba1b6201430861508659afa81013318d084afc272",
+      "start_line": 1380,
+      "end_line": 1400,
+      "text": "                    \"@modelcontextprotocol/sdk/server/mcp.js.McpServer\",\n                    \"@modelcontextprotocol/sdk/server/index.js.Server\",\n                }\n                and parent.key not in self.invalidated_objects\n                and binding.external not in self.invalidated_objects\n            ):\n                return self.sdk_prototype(binding.external, file, node, env)\n            if parent.key in self.zod_schemas:\n                return Value(key=_key(parent.key, member))\n            if \"http:request\" in parent.sources:\n                if parent.key in self.invalidated_objects:\n                    parent = replace(parent, key=_key(\"invalidated\", parent.key))\n                marker = self.instance_marker(parent, member)\n                if marker in env:\n                    return env[marker]\n            class_key = self.instances.get(parent.key, parent.key)\n            if class_key in self.classes:\n                value = env.get(\n                    self.instance_marker(parent, member),\n                    Value(key=_key(parent.key, member)),\n                )"
+    },
+    {
+      "path": "src/sentinel/static/typescript_path_flow.py",
+      "sha256": "813d560fac459c0ca26d322ba1b6201430861508659afa81013318d084afc272",
+      "start_line": 1700,
+      "end_line": 1733,
+      "text": "            if not self.sdk_instances[receiver.key].endswith(\".McpServer\"):\n                self.warning(file, node, \"unsupported low-level SDK registration\")\n                return Value()\n            if name.endswith(\".tool\"):\n                # ponytail: follow schema-bearing legacy overloads only; other\n                # layouts need SDK argument disambiguation before expansion.\n                if len(args) not in {3, 4}:\n                    self.warning(file, node, \"unsupported registration arguments\")\n                    return Value()\n                schema_node = arguments[1][-2].get(\"Arg\", {})\n                schema = self.program.resolve_node(\n                    file, schema_node\n                ) or TypeScriptSymbol(file, schema_node)\n                if (\n                    ts._zod_object_schema(\n                        self.program.text(schema.file, schema.node),\n                        ts._constant_expressions(schema.file.source),\n                    )\n                    is None\n                ):\n                    self.warning(file, node, \"ambiguous legacy tool metadata\")\n                    return Value()\n                fields = {\"inputSchema\": args[-2]}\n                if len(args) == 4:\n                    fields[\"description\"] = args[1]\n                config = self.record_state(\n                    _key(\n                        \"legacy-tool\",\n                        file.relative_path,\n                        str(self.program.source_range(node, file)),\n                    ),\n                    fields,\n                )\n                args = [args[0], config, args[-1]]"
+    },
+    {
+      "path": "src/sentinel/static/typescript_path_flow.py",
+      "sha256": "813d560fac459c0ca26d322ba1b6201430861508659afa81013318d084afc272",
+      "start_line": 1770,
+      "end_line": 1840,
+      "text": "            f\"{namespace}.{kind}\"\n            for namespace in (\"zod.z\", \"zod.default\", \"zod\")\n            for kind in (\"string\", \"number\", \"boolean\", \"object\", \"record\")\n        }:\n            kind = external.rsplit(\".\", 1)[1]\n            fields = (\n                self.object_fields(args[0], env) if args and kind == \"object\" else {}\n            )\n            if (\n                (kind in {\"string\", \"number\", \"boolean\"} and not args)\n                or (\n                    kind == \"object\"\n                    and len(args) == 1\n                    and args[0].key in self.record_roots\n                    and args[0].key not in self.invalidated_objects\n                    and all(\n                        v.key in self.zod_schemas\n                        and v.key not in self.invalidated_objects\n                        for v in fields.values()\n                    )\n                )\n                or (\n                    kind == \"record\"\n                    and len(args) in {1, 2}\n                    and all(\n                        v.key in self.zod_schemas\n                        and v.key not in self.invalidated_objects\n                        for v in args\n                    )\n                )\n            ):\n                self.zod_schemas[result.key] = (kind, fields.copy(), None)\n                return result\n        if (\n            receiver.key in self.zod_schemas\n            and receiver.key not in self.invalidated_objects\n        ):\n            kind, fields, default = self.zod_schemas[receiver.key]\n            if (\n                (method == \"optional\" and not args)\n                or (method == \"url\" and kind == \"string\" and not args)\n                or (method == \"int\" and kind == \"number\" and not args)\n                or (\n                    method in {\"min\", \"max\"}\n                    and kind in {\"number\", \"string\"}\n                    and len(args) == 1\n                )\n                or (\n                    method == \"default\"\n                    and len(args) == 1\n                    and args[0].key not in self.callables\n                )\n            ):\n                self.zod_schemas[result.key] = (\n                    kind,\n                    fields,\n                    args[0] if method == \"default\" else default,\n                )\n                return result\n            if method == \"parse\" and len(args) == 1:\n                return self.parsed_schema(receiver, args[0], env)\n        if logical_returns is not None:\n            tainted_returns = [(v, state) for v, state in logical_returns if v.sources]\n            if tainted_returns and all(\n                state.get(\"#guard:lexical:\" + v.key, Value()).contained\n                for v, state in tainted_returns\n            ):\n                env[\"#guard:lexical:\" + result.key] = Value(contained=True)\n        if result.sources:\n            self.origins[result.key] = frozenset().union(\n                *("
+    },
+    {
+      "path": "src/sentinel/static/typescript.py",
+      "sha256": "93e29a2e24cd738e544c3a596f5223240f9fbeff74396d7c2e56a773e6876ce9",
+      "start_line": 617,
+      "end_line": 656,
+      "text": "def _zod_object_schema(\n    expression: str, constants: dict[str, str]\n) -> dict[str, Any] | None:\n    expression = expression.strip()\n    expression = constants.get(expression, expression)\n    object_match = re.search(r\"(?:\\bz\\.)?object\\s*\\(\\s*{\", expression)\n    if object_match:\n        open_brace = expression.find(\"{\", object_match.start())\n    elif expression.startswith(\"{\"):\n        open_brace = 0\n    else:\n        reference = re.fullmatch(r\"\\s*z\\.object\\s*\\(\\s*(\\w+)\\s*\\)\\s*\", expression)\n        if reference and reference.group(1) in constants:\n            return _zod_object_schema(constants[reference.group(1)], constants)\n        return None\n    close = _matching(expression, open_brace, \"{\", \"}\")\n    if close is None:\n        return None\n    properties: dict[str, Any] = {}\n    required: list[str] = []\n    for item in _split_top_level(expression[open_brace + 1 : close]):\n        if \":\" not in item:\n            return None\n        raw_name, value = item.split(\":\", 1)\n        name = raw_name.strip().strip(\"'\\\"\")\n        if not re.fullmatch(_IDENTIFIER, name):\n            return None\n        schema = _zod_type(value.strip(), constants)\n        if schema is None:\n            return None\n        properties[name] = schema\n        if not re.search(r\"\\.(?:optional|default)\\s*\\(\", value):\n            required.append(name)\n    result: dict[str, Any] = {\n        \"type\": \"object\",\n        \"properties\": properties,\n        \"additionalProperties\": False,\n    }\n    if required:\n        result[\"required\"] = required"
+    },
+    {
+      "path": "src/sentinel/static/typescript_registration_flow.py",
+      "sha256": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+      "start_line": 27,
+      "end_line": 62,
+      "text": "\n    def expression(\n        self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]\n    ) -> Value:\n        result = super().expression(file, node, env)\n        if isinstance(node, dict) and any(\n            key in node for key in (\"L\", \"Record\", \"Call\")\n        ):\n            self.values.setdefault(result.key, TypeScriptSymbol(file, node))\n        return result\n\n    def registered(\n        self,\n        file: TypeScriptSourceFile,\n        node: dict[str, Any],\n        args: list[Value],\n        env: dict[str, Value],\n    ) -> None:\n        if len(args) != 3:\n            self.program.unresolved(file, \"factory registration arguments\")\n            return\n        config = self.object_fields(args[1], env)\n        self.found.append(\n            TypeScriptBinding(\n                self.program.literal(self.values.get(args[0].key)),\n                self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node),\n                self.callables.get(args[2].key),\n                self.values.get(config.get(\"inputSchema\", Value()).key),\n                self.values.get(config.get(\"description\", Value()).key),\n                self.factory,\n                TypeScriptSymbol(file, node),\n            )\n        )\n\n\ndef factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:"
+    },
+    {
+      "path": "artifacts/phase23/candidate-review-v2/source/cyanheads-vulnerable/src/mcp-server/tools/gitInit/registration.ts",
+      "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+      "start_line": 26,
+      "end_line": 28,
+      "text": "const RegistrationSchema = GitInitInputSchema.extend({\n  path: z.string().min(1).optional().default(\".\"),\n}).shape;"
+    },
+    {
+      "path": "artifacts/phase23/candidate-review-v2/source/cyanheads-vulnerable/src/mcp-server/tools/gitInit/registration.ts",
+      "sha256": "a02c5405d99f27f0246b2f85042e16cd181a312e8da4a137529006a303abe34e",
+      "start_line": 68,
+      "end_line": 75,
+      "text": "  await ErrorHandler.tryCatch(\n    async () => {\n      server.tool<typeof RegistrationSchema>(\n        TOOL_NAME,\n        TOOL_DESCRIPTION,\n        RegistrationSchema,\n        async (validatedArgs, callContext): Promise<CallToolResult> => {\n          // Removed explicit type for callContext"
+    },
+    {
+      "path": "artifacts/phase23/candidate-review-v2/source/cyanheads-vulnerable/src/mcp-server/tools/gitInit/logic.ts",
+      "sha256": "960e528b897ca6bdd0cb5e0678836f44573e24f62f4bf53367a3869841e84f66",
+      "start_line": 17,
+      "end_line": 45,
+      "text": "export const GitInitInputSchema = z.object({\n  path: z\n    .string()\n    .min(1)\n    .optional()\n    .default(\".\")\n    .describe(\n      \"Path where the new Git repository should be initialized. Can be relative or absolute. If relative or '.', it resolves against the directory set via `git_set_working_dir` for the session. If absolute, it's used directly. If omitted, defaults to '.' (resolved against session git working directory).\",\n    ),\n  initialBranch: z\n    .string()\n    .optional()\n    .describe(\n      \"Optional name for the initial branch (e.g., 'main'). Uses Git's default if not specified.\",\n    ),\n  bare: z\n    .boolean()\n    .default(false)\n    .describe(\"Create a bare repository (no working directory).\"),\n  quiet: z\n    .boolean()\n    .default(false)\n    .describe(\n      \"Only print error and warning messages; all other output will be suppressed.\",\n    ),\n});\n\n// Infer the TypeScript type from the Zod schema\nexport type GitInitInput = z.infer<typeof GitInitInputSchema>;"
+    }
+  ],
+  "callers": [
+    {
+      "path": "src/sentinel/static/coverage.py",
+      "sha256": "841f0e043c8353c62bf234830adf9c0f17772081cdc328e58eed20bc18732f90",
+      "occurrences": [
+        {
+          "line": 45,
+          "call": "ts._zod_object_schema"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/rules/sent014.py",
+      "sha256": "b59017ed36b51beb0120f4ef8b3931f447cac844f4e676e351751eb0bfd64d16",
+      "occurrences": [
+        {
+          "line": 400,
+          "subclass": "TypeScriptOptionFlow"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/rules/sent015.py",
+      "sha256": "1cdb4c8a357bacef5f9fe242e399f4580560a82eaa4c3ce90ed52a9069b3995c",
+      "occurrences": [
+        {
+          "line": 986,
+          "subclass": "TypeScriptURLFlow"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/rules/sent016.py",
+      "sha256": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291",
+      "occurrences": [
+        {
+          "line": 675,
+          "subclass": "TypeScriptCredentialFlow"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/typescript.py",
+      "sha256": "93e29a2e24cd738e544c3a596f5223240f9fbeff74396d7c2e56a773e6876ce9",
+      "occurrences": [
+        {
+          "line": 90,
+          "call": "_zod_object_schema"
+        },
+        {
+          "line": 630,
+          "call": "_zod_object_schema"
+        },
+        {
+          "line": 665,
+          "call": "_zod_object_schema"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/typescript_execution.py",
+      "sha256": "fb1370866d49800665355353a7a1ccba54292fc9639caa3cadc4e37623b85d6d",
+      "occurrences": [
+        {
+          "line": 237,
+          "subclass": "ShellFlow"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/typescript_path_flow.py",
+      "sha256": "813d560fac459c0ca26d322ba1b6201430861508659afa81013318d084afc272",
+      "occurrences": [
+        {
+          "line": 654,
+          "call": "self.record_state"
+        },
+        {
+          "line": 980,
+          "call": "self.record_state"
+        },
+        {
+          "line": 1055,
+          "call": "self.parsed_schema"
+        },
+        {
+          "line": 1063,
+          "call": "self.record_state"
+        },
+        {
+          "line": 1326,
+          "call": "self.record_state"
+        },
+        {
+          "line": 1664,
+          "call": "self.http_registered"
+        },
+        {
+          "line": 1696,
+          "call": "self.registered"
+        },
+        {
+          "line": 1714,
+          "call": "ts._zod_object_schema"
+        },
+        {
+          "line": 1725,
+          "call": "self.record_state"
+        },
+        {
+          "line": 1734,
+          "call": "self.registered"
+        },
+        {
+          "line": 1830,
+          "call": "self.parsed_schema"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/typescript_registration_flow.py",
+      "sha256": "a5fae15466887f46380d36fabeb79f7c50295eeccd71e955fca2efc623bcaaef",
+      "occurrences": [
+        {
+          "line": 21,
+          "subclass": "RegistrationFlow"
+        },
+        {
+          "line": 179,
+          "subclass": "HTTPRegistrationFlow"
+        }
+      ]
+    },
+    {
+      "path": "src/sentinel/static/typescript_safety.py",
+      "sha256": "26ea8a04ae4ecdce75cb5fe3a1010327a7a43cc682db9332865c212f070fc4bf",
+      "occurrences": [
+        {
+          "line": 211,
+          "call": "_zod_object_schema"
+        }
+      ]
+    }
+  ],
+  "assessment": "The shared legacy overload guard rejects the imported extended shape before registered(). A sufficient blocker, not a runtime trace or downstream support proof."
+}

@@ -1,0 +1,207 @@
+--- original-baseline/renamed-fixed
++++ metadata-candidate/renamed-fixed
+@@ -65,6 +65,130 @@
+       "status": "needs_review",
+       "suppression": null,
+       "title": "Missing tool input validation"
++    },
++    {
++      "baseline_matched": null,
++      "confidence": "high",
++      "dedup_key": "cddb7a392d42a0ef5fb4a1c364ad0076eb124a2d54ebcbb016ca135252276c13",
++      "description": "Caller-controlled references reach command option positions without enforced rejection.",
++      "evidence": {
++        "fingerprint": null,
++        "flow_locations": [
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 10,
++              "start_column": 1,
++              "start_line": 10
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/mcp-server/tools/gitInit/logic.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 13,
++              "start_column": 1,
++              "start_line": 13
++            }
++          },
++          {
++            "kind": "file",
++            "path": "src/server.ts",
++            "range": {
++              "end_column": 2,
++              "end_line": 8,
++              "start_column": 1,
++              "start_line": 8
++            }
++          }
++        ],
++        "kind": "static",
++        "range": {
++          "end_column": 56,
++          "end_line": 13,
++          "start_column": 36,
++          "start_line": 13
++        },
++        "snippet": "runFile(\"git\", argv)"
++      },
++      "exploitability": "theoretical",
++      "impact": "Critical",
++      "location": {
++        "kind": "file",
++        "path": "src/mcp-server/tools/gitInit/logic.ts",
++        "range": {
++          "end_column": 56,
++          "end_line": 13,
++          "start_column": 36,
++          "start_line": 13
++        }
++      },
++      "owasp_category": {
++        "id": "ASI05:2026",
++        "name": "Unexpected Code Execution"
++      },
++      "provenance": [
++        {
++          "evidence": {
++            "fingerprint": null,
++            "flow_locations": [
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 10,
++                  "start_column": 1,
++                  "start_line": 10
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/mcp-server/tools/gitInit/logic.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 13,
++                  "start_column": 1,
++                  "start_line": 13
++                }
++              },
++              {
++                "kind": "file",
++                "path": "src/server.ts",
++                "range": {
++                  "end_column": 2,
++                  "end_line": 8,
++                  "start_column": 1,
++                  "start_line": 8
++                }
++              }
++            ],
++            "kind": "static",
++            "range": {
++              "end_column": 56,
++              "end_line": 13,
++              "start_column": 36,
++              "start_line": 13
++            },
++            "snippet": "runFile(\"git\", argv)"
++          },
++          "review": null,
++          "rule_id": "SENT-014",
++          "source": "static"
++        }
++      ],
++      "remediation": "Reject option-like references before invocation or use command-specific option terminators and safe object APIs.",
++      "review": null,
++      "review_disagrees": false,
++      "rule_id": "SENT-014",
++      "severity": "High",
++      "source": "static",
++      "status": "needs_review",
++      "suppression": null,
++      "title": "Command option injection"
+     }
+   ],
+   "gpt_review": null,
+@@ -80,14 +204,14 @@
+       "unreviewed_count": null
+     },
+     "static": {
+-      "candidate_count": 1,
++      "candidate_count": 2,
+       "excluded_count": 0,
+       "modes": [],
+       "reason": "selected scan tier excludes this review stage",
+       "reviewed_count": 0,
+       "selected_count": 0,
+       "state": "not_requested",
+-      "unreviewed_count": 1
++      "unreviewed_count": 2
+     }
+   },
+   "schema_version": "1.7.0",
+@@ -253,7 +377,7 @@
+       },
+       {
+         "exemptions_by_reason": {},
+-        "match_count": 0,
++        "match_count": 1,
+         "rule_id": "SENT-014",
+         "skip_reason": null,
+         "status": "evaluated"
+@@ -288,12 +412,12 @@
+       "SENT-015",
+       "SENT-016"
+     ],
+-    "total_matches": 1
++    "total_matches": 2
+   },
+   "summary": {
+     "by_severity": {
+       "Critical": 0,
+-      "High": 0,
++      "High": 1,
+       "Informational": 0,
+       "Low": 1,
+       "Medium": 0
+@@ -301,10 +425,10 @@
+     "by_status": {
+       "confirmed": 0,
+       "likely_false_positive": 0,
+-      "needs_review": 1,
++      "needs_review": 2,
+       "suppressed": 0
+     },
+-    "total": 1
++    "total": 2
+   },
+   "target": {
+     "display_name": "renamed-fixed",
+@@ -317,15 +441,15 @@
+     },
+     {
+       "code": "static_binding_unresolved",
+-      "message": "src/mcp-server/tools/gitInit/logic.ts: cannot resolve TypeScript binding 'argv.push'"
+-    },
+-    {
+-      "code": "static_binding_unresolved",
+       "message": "src/server.ts: cannot resolve TypeScript binding 'tool'"
+     },
+     {
+       "code": "static_binding_unresolved",
+       "message": "src/server.ts: cannot resolve TypeScript binding 'connect'"
++    },
++    {
++      "code": "static_binding_unresolved",
++      "message": "src/mcp-server/tools/gitInit/logic.ts: cannot resolve TypeScript binding 'argv.push'"
+     }
+   ]
+ }

@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "case_id": "GHSA-5w57-2ccq-8w95",
+  "status": "source_review_pending",
+  "owner": "BashaarJavaid",
+  "advisory": {
+    "url": "https://github.com/alfonsograziano/node-code-sandbox-mcp/security/advisories/GHSA-5w57-2ccq-8w95",
+    "published_at_utc": "2025-07-08T06:35:04Z",
+    "publication_evidence": [
+      "artifacts/phase23/source-review-v1/provenance/advisory.json"
+    ]
+  },
+  "intake": {
+    "received_at_utc": null,
+    "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+    "evidence": [
+      "Conversation: user supplied the Phase 23 implementation plan naming this advisory; exact message receipt time is unavailable."
+    ],
+    "channel": "public_advisory",
+    "scope": "sandbox_stop.container_id shell injection; source-only; one advisory",
+    "proposed_revisions": {
+      "vulnerable_1.2.0": "7fd7fb88be2cb2a03702915d05d03bdf6bc8ac80",
+      "fixed_1.3.0": "19a1ff3386c5bc00eb1f2052a4fa8f8379bb8fea"
+    }
+  },
+  "source_rights": {
+    "status": "explicit_license_identified_pending_human_review",
+    "license": "MIT permission text in each upstream README",
+    "consent": null,
+    "evidence": [
+      "artifacts/phase23/source-review-v1/source/vulnerable/README.md",
+      "artifacts/phase23/source-review-v1/source/fixed/README.md"
+    ],
+    "reviewed_by": null,
+    "reviewed_at_utc": null
+  },
+  "reporter_expectation": {
+    "rule_id": "SENT-002",
+    "condition": "container_id reaches a shell-interpreted command",
+    "expected_behavior": "source-matched finding on vulnerable inputs; supported absence on paired negatives",
+    "evidence": []
+  },
+  "reviewed_labels": [],
+  "identities": {
+    "corpus_version": "phase23-ghsa-5w57-v1-proposed",
+    "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+    "source_inventory_sha256": null,
+    "scanner_revision": null,
+    "scanner_tree_sha256": null,
+    "rule_tree_sha256": null,
+    "helper_sha256": "9bec84f63bf5a5a6fe2a49421eab3c71db561a87a2c5bd52cf679eae76f51778",
+    "configuration_sha256": null
+  },
+  "milestones": [
+    {
+      "event": "triage",
+      "occurred_at_utc": "2026-09-15T15:14:30.644861Z",
+      "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+      "actor": "Codex",
+      "status": "completed_source_only",
+      "evidence": [
+        "artifacts/phase23/source-review-v1/README.md",
+        "tests/evals/phase23/manifest.json"
+      ],
+      "identities": {
+        "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e"
+      }
+    },
+    {
+      "event": "source_reproduction_prepared",
+      "occurred_at_utc": "2026-09-15T15:14:30.644861Z",
+      "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+      "actor": "Codex",
+      "status": "completed_source_only",
+      "evidence": [
+        "artifacts/phase23/source-review-v1/README.md",
+        "tests/evals/phase23/manifest.json"
+      ],
+      "identities": {
+        "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e"
+      }
+    }
+  ],
+  "waiting_intervals": [
+    {
+      "reason": "Checkpoint 1 wording review (approved); message delivery and approval timestamps are unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/intake-adoption.json"
+      ]
+    },
+    {
+      "reason": "Checkpoint 2 source review pending; delivery time has not been observed.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/source-review-v1/freeze-proposal.json"
+      ]
+    }
+  ],
+  "elapsed_seconds": {
+    "advisory_to_intake": null,
+    "intake_to_triage": null,
+    "intake_to_reproduction": null,
+    "intake_to_fix_verification": null,
+    "intake_to_human_review": null,
+    "intake_to_publication": null
+  },
+  "evaluations": [],
+  "release": {
+    "version": null,
+    "reviewed_contents": null,
+    "revision": null,
+    "package_hashes": null,
+    "package_pins": null,
+    "action_exact_pin": null,
+    "action_alias": null,
+    "approvals": null,
+    "workflow": null,
+    "assets": null,
+    "provenance": null,
+    "rollback": null,
+    "released_regression_evidence": null
+  }
+}

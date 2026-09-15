@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "status": "proposed_not_executed",
+  "representative_source": {
+    "schema.ts": "import {z} from \"zod\";\nexport const Base=z.object({branch:z.string().optional().describe(\"branch\"),path:z.string().default(\".\").describe(\"path\"),bare:z.boolean().default(false).describe(\"bare\")});\n",
+    "server.ts": "import {McpServer} from \"@modelcontextprotocol/sdk/server/mcp.js\";\nimport {z} from \"zod\";\nimport {Base} from \"./schema.js\";\nimport {operation} from \"./logic.js\";\nconst Schema=Base.extend({path:z.string().min(1).optional().default(\".\")}).shape;\nconst server=new McpServer({name:\"unit\",version:\"1\"});\nserver.tool(\"initialize\",\"Initialize\",Schema,args=>operation(args));\n",
+    "logic.ts": "import {promisify} from \"node:util\";\nimport {exec} from \"node:child_process\";\nconst run=promisify(exec);\nexport function operation(args) { return run(`git init -b \"${args.branch}\" /tmp/unit`); }\n"
+  },
+  "positive_controls": [
+    "Exact composed schema across imported source files: recognized initialize surface, correct source identity, branch/path/bare fields retained.",
+    "Vulnerable operation yields source-matched SENT-002; replace operation with promisify(execFile)(\"git\", [\"init\",\"-b\",args.branch,\"/tmp/unit\"]) for supported shell negative; literal exec command for supported negative.",
+    "Exercise same schema-bearing entry with existing SENT-012 path, SENT-014 option, SENT-015 URL and SENT-016 credential fixture sinks; retain their rule-specific outcomes.",
+    "Right-hand field replacement preserves new default/type and leaves original Base fields/defaults unchanged.",
+    "Three- and four-argument legacy metadata layouts and existing registerTool layouts preserve established outputs."
+  ],
+  "negative_controls": [
+    "Counterfeit local z/object/describe/extend functions and rebound imported namespace do not gain new support.",
+    "Unknown computed or spread extension fields and unknown schema-valued fields do not gain new support.",
+    "Unknown/nonliteral describe argument or transform/refine/merge chain stays unresolved.",
+    "Direct and alias mutation/escape of base schema, extension map, shape or member schema invalidates new proof; Object.defineProperty, replacement methods and prototype mutation included.",
+    "Missing/extra arguments and annotation-only legacy overloads remain rejected.",
+    "Depth/deadline interruption and real recursion remain bounded; no new target execution."
+  ],
+  "required_before_after": "Retain the currently failing composed-schema discovery check before correction; no advisory corpus scan during development.",
+  "existing_checks": [
+    "tests/test_typescript_discovery.py",
+    "tests/test_command_execution.py",
+    "tests/test_typescript_classes.py",
+    "tests/test_typescript_sdk_wrappers.py",
+    "tests/test_phase23.py"
+  ],
+  "interfaces": "Canonical Finding/report/schema interfaces and existing rule meanings unchanged; no source-metadata fabrication."
+}

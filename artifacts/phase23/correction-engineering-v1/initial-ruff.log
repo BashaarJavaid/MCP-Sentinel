@@ -1,0 +1,152 @@
+B023 Function definition does not bind loop variable `path`
+   --> src/sentinel/static/typescript_discovery.py:488:60
+    |
+486 |             def external(node: dict[str, Any]) -> str:
+487 |                 name = name_of(node) or ""
+488 |                 if name.split(".")[0] not in self.bindings[path]:
+    |                                                            ^^^^
+489 |                     return ""
+490 |                 if name not in resolved:
+    |
+
+B023 Function definition does not bind loop variable `resolved`
+   --> src/sentinel/static/typescript_discovery.py:490:32
+    |
+488 |                 if name.split(".")[0] not in self.bindings[path]:
+489 |                     return ""
+490 |                 if name not in resolved:
+    |                                ^^^^^^^^
+491 |                     symbol = self.resolve(file, name)
+492 |                     resolved[name] = (
+    |
+
+B023 Function definition does not bind loop variable `file`
+   --> src/sentinel/static/typescript_discovery.py:491:43
+    |
+489 |                     return ""
+490 |                 if name not in resolved:
+491 |                     symbol = self.resolve(file, name)
+    |                                           ^^^^
+492 |                     resolved[name] = (
+493 |                         (symbol.external or "").removeprefix("node:") if symbol else ""
+    |
+
+B023 Function definition does not bind loop variable `resolved`
+   --> src/sentinel/static/typescript_discovery.py:492:21
+    |
+490 |                 if name not in resolved:
+491 |                     symbol = self.resolve(file, name)
+492 |                     resolved[name] = (
+    |                     ^^^^^^^^
+493 |                         (symbol.external or "").removeprefix("node:") if symbol else ""
+494 |                     )
+    |
+
+B023 Function definition does not bind loop variable `resolved`
+   --> src/sentinel/static/typescript_discovery.py:495:24
+    |
+493 |                         (symbol.external or "").removeprefix("node:") if symbol else ""
+494 |                     )
+495 |                 return resolved[name]
+    |                        ^^^^^^^^
+496 |
+497 |             allowed: set[int] = set()
+    |
+
+B023 Function definition does not bind loop variable `allowed`
+   --> src/sentinel/static/typescript_discovery.py:505:21
+    |
+503 |                     and name.count(".") > 1
+504 |                 ):
+505 |                     allowed.update(id(part) for part in walk(node))
+    |                     ^^^^^^^
+506 |
+507 |             for statement in tree["Pr"]:
+    |
+
+SIM102 Use a single `if` statement instead of nested `if` statements
+   --> src/sentinel/static/typescript_discovery.py:531:17
+    |
+529 |               for node in walk(tree):
+530 |                   check_deadline(self.deadline)
+531 | /                 if node.keys() & {"N", "DotAccess"} and id(node) not in allowed:
+532 | |                     if external(node).split(".")[0] in {"util", "child_process"}:
+    | |_________________________________________________________________________________^
+533 |                           return False
+534 |           return True
+    |
+help: Combine `if` statements using `and`
+
+E501 Line too long (124 > 88)
+   --> tests/test_command_execution.py:113:89
+    |
+111 |     [
+112 |         (
+113 |             'import {promisify as promise} from "node:util"; import {exec as command, execFile} from "node:child_process";',
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+114 |             "promise",
+115 |             "command",
+    |
+
+E501 Line too long (127 > 88)
+   --> tests/test_command_execution.py:128:89
+    |
+126 |         ),
+127 |         (
+128 |             'import {promisify} from "util"; import {exec} from "child_process"; const promise=promisify; const command=exec;',
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+129 |             "promise",
+130 |             "command",
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/test_command_execution.py:153:5
+    |
+151 |       tmp_path: Path, imports: str, factory: str, target: str, case: str
+152 |   ) -> None:
+153 | /     import time
+154 | |     from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+155 | |     from sentinel.static.typescript_discovery import TypeScriptProgram
+156 | |     from sentinel.static.typescript_execution import ShellFlow
+157 | |     from sentinel.static.typescript_path_flow import analyze
+    | |____________________________________________________________^
+158 |
+159 |       original = (
+    |
+help: Organize imports
+
+E501 Line too long (119 > 88)
+   --> tests/test_command_execution.py:170:89
+    |
+168 |     mutation = {
+169 |         "custom": f"{target}[{factory}.custom] = unknown;",
+170 |         "reflect": f'Object.defineProperty({target}, Symbol.for("nodejs.util.promisify.custom"), {{value: unknown}});',
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+171 |         "target-escape": f"unknown({target});",
+172 |         "factory-rebound": f"{factory} = unknown;",
+    |
+
+E501 Line too long (228 > 88)
+   --> tests/test_command_execution.py:190:89
+    |
+188 | …
+189 | …
+190 | ….js"; import {run} from "./logic.js"; const server=new McpServer({name:"test",version:"1"}); server.tool("run", {}, async (input)=>run(input));',
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+191 | …
+192 | …
+    |
+
+E501 Line too long (123 > 88)
+   --> tests/test_command_execution.py:193:89
+    |
+191 |         "logic.ts": imports
+192 |         + mutation
+193 |         + f" export async function run(input) {{ let wrapped={factory}({original}); {local} return await {invocation}; }}",
+    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+194 |     }
+195 |     files = tuple(
+    |
+
+Found 13 errors.
+[*] 1 fixable with the `--fix` option.

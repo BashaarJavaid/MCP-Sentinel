@@ -1,0 +1,417 @@
+[
+  {
+    "observations": [
+      3,
+      10
+    ],
+    "input_id": "minimized-vulnerable",
+    "index": 0,
+    "finding": {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "81508582875ac8732706660281131c4c68e6a5692d88e9882f98066be4e4b57f",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [],
+        "kind": "static",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        },
+        "snippet": "input);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "bc47dc0a-6860-41dc-a207-33f73c3e7bee",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [],
+            "kind": "static",
+            "range": {
+              "end_column": 31,
+              "end_line": 10,
+              "start_column": 24,
+              "start_line": 10
+            },
+            "snippet": "input);"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-15T17:05:46.350679Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "4ecf5cd5-40ee-4f46-996d-fee34158f232",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T17:05:46.350679Z",
+      "title": "Missing tool input validation"
+    },
+    "classification": "unrelated_validation_finding_pending_human_review",
+    "assessment": "The source declares an official SDK schema with one optional string field, then forwards the whole input object to the helper. SENT-003 checks proved fields, not whole-object validation; it flags that handoff. This finding does not establish a missing branch-name type check or validate shell safety. Retain unchanged for human review; no SENT-003 correction or suppression is proposed.",
+    "source_context": {
+      "path": "src/server.ts",
+      "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+      "start_line": 8,
+      "end_line": 12,
+      "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });"
+    }
+  },
+  {
+    "observations": [
+      4,
+      11
+    ],
+    "input_id": "minimized-fixed",
+    "index": 0,
+    "finding": {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "81508582875ac8732706660281131c4c68e6a5692d88e9882f98066be4e4b57f",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [],
+        "kind": "static",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        },
+        "snippet": "input);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "6f5a5075-65cc-41b8-9942-f5311ffd4180",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [],
+            "kind": "static",
+            "range": {
+              "end_column": 31,
+              "end_line": 10,
+              "start_column": 24,
+              "start_line": 10
+            },
+            "snippet": "input);"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-15T17:05:51.746351Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "dd6e685d-5926-418f-b584-dc2d1e715a07",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T17:05:51.746351Z",
+      "title": "Missing tool input validation"
+    },
+    "classification": "unrelated_validation_finding_pending_human_review",
+    "assessment": "The source declares an official SDK schema with one optional string field, then forwards the whole input object to the helper. SENT-003 checks proved fields, not whole-object validation; it flags that handoff. This finding does not establish a missing branch-name type check or validate shell safety. Retain unchanged for human review; no SENT-003 correction or suppression is proposed.",
+    "source_context": {
+      "path": "src/server.ts",
+      "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+      "start_line": 8,
+      "end_line": 12,
+      "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });"
+    }
+  },
+  {
+    "observations": [
+      5,
+      12
+    ],
+    "input_id": "safe-literal",
+    "index": 0,
+    "finding": {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "81508582875ac8732706660281131c4c68e6a5692d88e9882f98066be4e4b57f",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [],
+        "kind": "static",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        },
+        "snippet": "input);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "99577627-b5bf-426a-b7d5-7f1b64db8cd2",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 31,
+          "end_line": 10,
+          "start_column": 24,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [],
+            "kind": "static",
+            "range": {
+              "end_column": 31,
+              "end_line": 10,
+              "start_column": 24,
+              "start_line": 10
+            },
+            "snippet": "input);"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-15T17:05:56.021745Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "619f71b2-7873-4fe0-ab0a-07193f266d57",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T17:05:56.021745Z",
+      "title": "Missing tool input validation"
+    },
+    "classification": "unrelated_validation_finding_pending_human_review",
+    "assessment": "The source declares an official SDK schema with one optional string field, then forwards the whole input object to the helper. SENT-003 checks proved fields, not whole-object validation; it flags that handoff. This finding does not establish a missing branch-name type check or validate shell safety. Retain unchanged for human review; no SENT-003 correction or suppression is proposed.",
+    "source_context": {
+      "path": "src/server.ts",
+      "sha256": "68d2ecda7d99a4fe56a581bb751f4ced269a549eb2095c0ba32bc455dbd2c38b",
+      "start_line": 8,
+      "end_line": 12,
+      "text": "server.tool(\"git_init\", \"Initialize a Git repository\", { initialBranch: z.string().optional() },\n  async (input) => {\n    await gitInitLogic(input);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });"
+    }
+  },
+  {
+    "observations": [
+      6,
+      13
+    ],
+    "input_id": "renamed-vulnerable",
+    "index": 0,
+    "finding": {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "be7d0129dc69a79ae79edf932f06e6449c8244aa83d886482da80d003a5fb34c",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [],
+        "kind": "static",
+        "range": {
+          "end_column": 45,
+          "end_line": 10,
+          "start_column": 32,
+          "start_line": 10
+        },
+        "snippet": "requestData);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "75fd66fa-8550-4873-b4ff-79728f15cbf5",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 45,
+          "end_line": 10,
+          "start_column": 32,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [],
+            "kind": "static",
+            "range": {
+              "end_column": 45,
+              "end_line": 10,
+              "start_column": 32,
+              "start_line": 10
+            },
+            "snippet": "requestData);"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-15T17:06:00.056559Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "dfb0d1a1-d5ca-45af-ae0f-4c9bc3ba9176",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T17:06:00.056559Z",
+      "title": "Missing tool input validation"
+    },
+    "classification": "unrelated_validation_finding_pending_human_review",
+    "assessment": "The source declares an official SDK schema with one optional string field, then forwards the whole input object to the helper. SENT-003 checks proved fields, not whole-object validation; it flags that handoff. This finding does not establish a missing branch-name type check or validate shell safety. Retain unchanged for human review; no SENT-003 correction or suppression is proposed.",
+    "source_context": {
+      "path": "src/server.ts",
+      "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+      "start_line": 8,
+      "end_line": 12,
+      "text": "mcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },\n  async (requestData) => {\n    await initializeRepository(requestData);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });"
+    }
+  },
+  {
+    "observations": [
+      7,
+      14
+    ],
+    "input_id": "renamed-fixed",
+    "index": 0,
+    "finding": {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "be7d0129dc69a79ae79edf932f06e6449c8244aa83d886482da80d003a5fb34c",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [],
+        "kind": "static",
+        "range": {
+          "end_column": 45,
+          "end_line": 10,
+          "start_column": 32,
+          "start_line": 10
+        },
+        "snippet": "requestData);"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "2574afbd-bde8-4a40-aaa8-9c079067c1b3",
+      "impact": "Medium",
+      "location": {
+        "kind": "file",
+        "path": "src/server.ts",
+        "range": {
+          "end_column": 45,
+          "end_line": 10,
+          "start_column": 32,
+          "start_line": 10
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [],
+            "kind": "static",
+            "range": {
+              "end_column": 45,
+              "end_line": 10,
+              "start_column": 32,
+              "start_line": 10
+            },
+            "snippet": "requestData);"
+          },
+          "review": null,
+          "rule_id": "SENT-003",
+          "source": "static",
+          "timestamp": "2026-09-15T17:06:04.480754Z"
+        }
+      ],
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-003",
+      "scan_id": "de1be5ad-1233-4840-9a28-7f6d7c713acf",
+      "severity": "Low",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T17:06:04.480754Z",
+      "title": "Missing tool input validation"
+    },
+    "classification": "unrelated_validation_finding_pending_human_review",
+    "assessment": "The source declares an official SDK schema with one optional string field, then forwards the whole input object to the helper. SENT-003 checks proved fields, not whole-object validation; it flags that handoff. This finding does not establish a missing branch-name type check or validate shell safety. Retain unchanged for human review; no SENT-003 correction or suppression is proposed.",
+    "source_context": {
+      "path": "src/server.ts",
+      "sha256": "c0c6050d2514ed3a6654a03a66a8dd324ca1744b20ec10b3ba9b54f2e361a9f9",
+      "start_line": 8,
+      "end_line": 12,
+      "text": "mcpServer.tool(\"git_init\", \"Initialize a Git repository\", { branchLabel: z.string().optional() },\n  async (requestData) => {\n    await initializeRepository(requestData);\n    return { content: [{ type: \"text\" as const, text: \"Complete\" }] };\n  });"
+    }
+  }
+]

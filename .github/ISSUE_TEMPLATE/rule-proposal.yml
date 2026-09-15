@@ -1,9 +1,49 @@
 name: Rule proposal
 description: Propose a new detection within Sentinel's supported scope.
-title: "[Rule proposal] "
+title: '[Rule proposal] '
 labels:
   - enhancement
 body:
+  - type: markdown
+    attributes:
+      value: Submit only sanitized, publicly shareable evidence. For sensitive Sentinel vulnerabilities,
+        use [private reporting](https://github.com/BashaarJavaid/MCP-Sentinel/security/advisories/new).
+        For third-party vulnerabilities, follow the upstream security policy before public
+        disclosure. Reporter expectations are unreviewed proposals; maintainers review labels
+        and changes. See the [maintenance process](https://bashaarjavaid.github.io/MCP-Sentinel/phase23-maintenance/).
+  - type: dropdown
+    id: related-rule
+    attributes:
+      label: Related current rule
+      options:
+        - New rule / unsure
+        - SENT-001
+        - SENT-002
+        - SENT-003
+        - SENT-004
+        - SENT-005
+        - SENT-006
+        - SENT-007
+        - SENT-008
+        - SENT-009
+        - SENT-010
+        - SENT-011
+        - SENT-012
+        - SENT-013
+        - SENT-014
+        - SENT-015
+        - SENT-016
+    validations:
+      required: true
+  - type: textarea
+    id: environment-configuration
+    attributes:
+      label: Reproduction environment and configuration
+      description: Give the Sentinel version/commit, language/SDK versions, command, sanitized
+        configuration including ignores/baselines/suppressions, and existing report/diagnostics
+        if available. For a source-only proposal, say not run.
+    validations:
+      required: true
   - type: dropdown
     id: supported-scope
     attributes:
@@ -18,7 +58,7 @@ body:
   - type: textarea
     id: detection
     attributes:
-      label: Detection
+      label: Proposed detection (unreviewed)
       description: Define the exact insecure behavior and detection boundary.
     validations:
       required: true
@@ -59,7 +99,9 @@ body:
     id: clean-example
     attributes:
       label: Clean example
-      description: Provide the paired safe example that must not be reported.
+      description: Provide paired fixed and safe-control source that should not be reported,
+        or explain what is unavailable. Empty output without established support is not evidence
+        of safety.
       render: text
     validations:
       required: true
@@ -79,4 +121,34 @@ body:
       required: true
   - type: markdown
     attributes:
-      value: Maintainers assign stable rule IDs after accepting a proposal.
+      value: Maintainers review labels and allocate a new stable rule ID only for an accepted
+        new detection meaning. Corrections preserve existing IDs. AI-assisted drafts receive
+        the same source, test and human review; no automatic promotion.
+  - type: textarea
+    id: source-rights
+    attributes:
+      label: Source provenance and reuse rights
+      description: Give public source URLs, immutable revisions, file paths and applicable
+        license/notice links. For your own examples, state authorship. If rights are unknown,
+        say unknown. Public posting alone does not authorize corpus reuse.
+    validations:
+      required: true
+  - type: checkboxes
+    id: no-secrets
+    attributes:
+      label: Sensitive data confirmation
+      options:
+        - label: I removed secrets, credentials, personal data, internal endpoints and private
+            source, and this report is suitable for public disclosure.
+          required: true
+  - type: checkboxes
+    id: example-reuse
+    attributes:
+      label: Optional example reuse consent
+      description: This is separate from sanitization and is not required to report an issue.
+        Without consent or an applicable license, maintainers must obtain permission before
+        incorporating examples.
+      options:
+        - label: I have the right to license my submitted examples and permit their reuse
+            and modification in Sentinel's regression corpus under the project's MIT license.
+          required: false

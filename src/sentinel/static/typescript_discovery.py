@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import posixpath
+import re
 from collections import OrderedDict, defaultdict
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
@@ -72,6 +73,7 @@ class TypeScriptBinding:
     description: TypeScriptSymbol | None
     factory: TypeScriptSymbol | None = None
     sdk_registration: TypeScriptSymbol | None = None
+    schema_fields: tuple[tuple[str, TypeScriptSymbol], ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -149,6 +151,13 @@ class TypeScriptProgram:
                 other = directive.get("OtherDirective")
                 if other and other[0][0] == "Export":
                     exports.update(item["I"][0] for item in other[1] if "I" in item)
+                elif other and other[0][0] == "ReExportNamespace":
+                    # The parser also uses this node for `export * as name`.
+                    # Only an ordinary star forwards individual bindings.
+                    module = next((v["Str"][1][0] for v in other[1] if "Str" in v), "")
+                    if not re.match(r"export\s*\*\s*from\b", self.text(file, node)):
+                        module = ""
+                    bindings["*"].append({"import": (module, "")})
             # A write anywhere can rebind a module-level handler at runtime.
             for node in walk(tree):
                 assignment = node.get("Assign", node.get("AssignOp"))
@@ -466,6 +475,196 @@ class TypeScriptProgram:
             return None
         return self.resolve_node(file, nodes[0], rest, seen | {key})
 
+    @cached_property
+    def promisify_unmodified(self) -> bool:
+        """Prove imported Node functions only occur in bounded, nonescaping uses."""
+        # ponytail: local function aliases are rejected; add lexical alias proof
+        # only when a reviewed case needs it. Module/import aliases already resolve.
+        for path, tree in self.trees.items():
+            file = self.files[path]
+            resolved: dict[str, str] = {}
+
+            def external(
+                node: dict[str, Any],
+                path: str = path,
+                file: TypeScriptSourceFile = file,
+                resolved: dict[str, str] = resolved,
+            ) -> str:
+                name = name_of(node) or ""
+                if name.split(".")[0] not in self.bindings[path]:
+                    return ""
+                if name not in resolved:
+                    symbol = self.resolve(file, name)
+                    resolved[name] = (
+                        (symbol.external or "").removeprefix("node:") if symbol else ""
+                    )
+                return resolved[name]
+
+            allowed: set[int] = set()
+
+            def permit(
+                node: dict[str, Any],
+                external: Callable[[dict[str, Any]], str] = external,
+                allowed: set[int] = allowed,
+            ) -> None:
+                name = external(node)
+                if name_of(node) and not (
+                    name.split(".")[0] in {"util", "child_process"}
+                    and name.count(".") > 1
+                ):
+                    allowed.update(id(part) for part in walk(node))
+
+            for statement in tree["Pr"]:
+                declaration = statement.get("DefStmt")
+                if declaration:
+                    entity, definition = declaration
+                    initializer = (definition.get("VarDef", {}).get("vinit") or {}).get(
+                        "some", {}
+                    )
+                    name = name_of(entity["name"])
+                    if len(self.bindings[path].get(name or "", [])) == 1:
+                        permit(initializer)
+            for node in walk(tree):
+                check_deadline(self.deadline)
+                call = node.get("Call")
+                if call:
+                    permit(call[0])
+                    if external(call[0]) == "util.promisify" and len(call[1][1]) == 1:
+                        original = call[1][1][0].get("Arg", {})
+                        if external(original) in {
+                            "child_process.exec",
+                            "child_process.execFile",
+                        }:
+                            permit(original)
+            for node in walk(tree):
+                check_deadline(self.deadline)
+                if (
+                    node.keys() & {"N", "DotAccess"}
+                    and id(node) not in allowed
+                    and external(node).split(".")[0] in {"util", "child_process"}
+                ):
+                    return False
+        return True
+
+    @cached_property
+    def zod_metadata_unmodified(self) -> bool:
+        """New metadata proof requires included Zod imports to remain nonescaping."""
+        for path, tree in self.trees.items():
+            file = self.files[path]
+            allowed: set[int] = set()
+            for node in walk(tree):
+                check_deadline(self.deadline)
+                call = node.get("Call")
+                if call:
+                    name = name_of(call[0]) or ""
+                    if name.split(".")[0] not in self.bindings[path]:
+                        continue
+                    symbol = self.resolve(file, name)
+                    external = symbol.external if symbol else None
+                    if external and external.rsplit(".", 1)[0] in {
+                        "zod",
+                        "zod.z",
+                        "zod.default",
+                    }:
+                        allowed.update(id(part) for part in walk(call[0]))
+            for node in walk(tree):
+                check_deadline(self.deadline)
+                name = name_of(node) or ""
+                if (
+                    node.keys() & {"N", "DotAccess"}
+                    and id(node) not in allowed
+                    and name.split(".")[0] in self.bindings[path]
+                ):
+                    symbol = self.resolve(file, name)
+                    if symbol and (symbol.external or "").split(".")[0] == "zod":
+                        return False
+        return True
+
+    def included_file(
+        self,
+        file: TypeScriptSourceFile,
+        module: str,
+        target: str,
+        bases: tuple[str, ...],
+    ) -> TypeScriptSourceFile | None:
+        included_paths = set()
+        for base in bases:
+            if base == ".." or base.startswith("../") or base.startswith("/"):
+                self.unresolved(file, module)
+                return None
+            stem, extension = posixpath.splitext(base)
+            candidates = {base}
+            if extension in {".js", ".mjs", ".cjs"}:
+                candidates.update(stem + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
+            elif not extension:
+                candidates.update(base + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
+                candidates.update(
+                    base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+                )
+            matches = candidates.intersection(self.files)
+            if len(matches) != 1:
+                self.unresolved(file, module + ":" + target)
+                return None
+            included_paths.update(matches)
+        included = [self.files[path] for path in sorted(included_paths)]
+        if len(included) != 1:
+            self.unresolved(file, module + ":" + target)
+            return None
+        return included[0]
+
+    def exported(
+        self,
+        file: TypeScriptSourceFile,
+        target: str,
+        seen: frozenset[tuple[str, str]],
+    ) -> list[TypeScriptSymbol] | None:
+        """Collect unique local providers; None means an unproved export edge."""
+        check_deadline(self.deadline)
+        if target.split(".")[0] in self.exports[file.relative_path]:
+            symbol = self.resolve(file, target, seen)
+            return [symbol] if symbol else None
+        key = (file.relative_path, "*:" + target)
+        if len(seen) >= 64:
+            return None
+        if key in seen:
+            return []
+        if target.split(".")[0] == "default":
+            return []
+        found: list[TypeScriptSymbol] = []
+        for binding in self.bindings[file.relative_path].get("*", []):
+            module = binding["import"][0]
+            local, bases = (
+                self.modules.resolve(file.relative_path, module)
+                if self.modules is not None
+                else (
+                    module.startswith("."),
+                    (
+                        posixpath.normpath(
+                            posixpath.join(
+                                posixpath.dirname(file.relative_path), module
+                            )
+                        ),
+                    ),
+                )
+            )
+            if not local:
+                return None
+            included = self.included_file(file, module, target, bases)
+            if included is None:
+                return None
+            candidates = self.exported(included, target, seen | {key})
+            if candidates is None:
+                return None
+            for candidate in candidates:
+                if not any(
+                    candidate.file == old.file
+                    and candidate.node is old.node
+                    and candidate.external == old.external
+                    for old in found
+                ):
+                    found.append(candidate)
+        return found
+
     def resolve_node(
         self,
         file: TypeScriptSourceFile,
@@ -509,45 +708,23 @@ class TypeScriptProgram:
                     "path/posix",
                     "path/win32",
                     "child_process",
+                    "util",
                     "net",
                 }:
                     target = rest
                 return TypeScriptSymbol(
                     file, node, module + ("." + target if target else "")
                 )
-            included_paths = set()
-            for base in bases:
-                if base == ".." or base.startswith("../") or base.startswith("/"):
-                    self.unresolved(file, module)
-                    return None
-                stem, extension = posixpath.splitext(base)
-                candidates = {base}
-                if extension in {".js", ".mjs", ".cjs"}:
-                    candidates.update(
-                        stem + ext for ext in (".ts", ".mts", ".cts", ".tsx")
-                    )
-                elif not extension:
-                    candidates.update(
-                        base + ext for ext in (".ts", ".mts", ".cts", ".tsx")
-                    )
-                    candidates.update(
-                        base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
-                    )
-                matches = candidates.intersection(self.files)
-                if len(matches) != 1:
-                    self.unresolved(file, module + ":" + target)
-                    return None
-                included_paths.update(matches)
-            included = [self.files[path] for path in sorted(included_paths)]
-            if len(included) != 1:
-                self.unresolved(file, module + ":" + target)
+            included = self.included_file(file, module, target, bases)
+            if included is None:
                 return None
             if not target:
                 return TypeScriptSymbol(file, node)
-            if target.split(".")[0] not in self.exports[included[0].relative_path]:
+            candidates = self.exported(included, target, seen)
+            if candidates is None or len(candidates) != 1:
                 self.unresolved(file, module + ":" + target)
                 return None
-            return self.resolve(included[0], target, seen)
+            return candidates[0]
         alias = name_of(node)
         if alias:
             return self.resolve(file, alias + ("." + rest if rest else ""), seen)
