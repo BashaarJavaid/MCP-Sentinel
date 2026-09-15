@@ -1,6 +1,53 @@
-# Integration evidence, batches 1–103 and closeout audit
+# Integration evidence, batches 1–104 and closeout audit
 
-## Current Python-correction proposal evidence seal 103
+## Current literal metadata correction and regression evidence seal 104
+
+[Seal 104](evidence-v104.json) retains **1415 members / 572,380,143 raw bytes**;
+archive SHA-256 `676c83112a58f1f1f539ab87543cdd74128e56e17dc23a247b885440e9e379d2`. All 103 previous archives and every new member were verified.
+The closed V87 collection has 111 observations / 48 equal ordered pairs at `884d376`, with Proxmox still failing.
+The literal metadata correction passes 2,596 tests / 36 skips locally and all 12 hosted suites,
+29 normal jobs/docs, six zero-call production requests and 19 approved runtime bindings.
+The exact six-observation Proxmox follow-up is prepared, unapproved and unexecuted.
+All 479 requirements and 28 unaccepted limitation proposals retain their history.
+
+Restore after seals 1–103 in numeric order into separate staging; verify every member,
+reject unsafe paths and stop on unexplained conflicts. Post-seal documentation and actual
+draft-delivery receipts remain supplemental. **Phase 22 incomplete; zero new paid calls.**
+
+## Current v89 literal metadata correction: engineering passed, regression approval pending
+
+The approved V87 regression at **`884d376`** completed **111 observations / 48 equal
+entire ordered pairs**, with verified cleanup and zero remaining budget. Taskwarrior,
+Lightning, Engram and prior Python conditions retain their exact qualifications,
+including two Meta nominal-fixed operator errata. **Proxmox still fails: two missed
+vulnerable reads and four unsupported negatives.** All 3,959 findings, 343,791
+diagnostic occurrences, 5,686 surfaces and complete ordered differences are assessed.
+Ten Meta reports retain 268 assessed changed occurrences; original failures remain.
+
+The authorized literal metadata correction is engineering-verified at **`5142a3f`**:
+**2,596 tests / 36 skips** locally and all 12 hosted suites, **29 normal jobs and docs**,
+coverage **90.28% combined / 86.23% branch-only**. Six zero-call production
+requests and 19 approved runtime bindings pass. Literal dictionary copies preserve
+dispatch only with proved builtin, mapping and mutation/escape boundaries. Initial
+deletion and typing failures remain preserved. No current candidate corpus scan or
+speedup is claimed.
+
+The exact **six-observation Proxmox regression is unapproved and unexecuted**:
+three unchanged exposed inputs, vulnerable/fixed/safe then repeat, three entire ordered
+pairs. Normal **1,800-second input / 10-second Semgrep / 15-second cleanup / four-worker**
+limits remain; **200 minutes plus 15 seconds outer cleanup** is a worst-case cap.
+Source-only inventory proves the other 105 V87 observations cannot reach the changed
+metadata code; their original `884d376` report/source bindings remain, with no new scans.
+
+All **479 requirements** and **28 unaccepted limitation proposals** remain. Ordinary
+FAF completion within 1,800 seconds is unestablished; V68 stays unapproved/unimplemented.
+**Phase 22 is incomplete**, pending the remaining actual gate, updated complete review,
+explicit human technical acceptance and verified accepted-closeout delivery. Git remains
+312/1,040 incomplete, 728 deferred; paid benchmark/pilots deferred, Phase 21 incomplete
+and Phase 24/15 unchanged. Historical spend **$0.071799; zero new paid calls**.
+No merge, ready-state change, release, outreach or Phase 23 is authorized.
+
+## Historical Python-correction proposal evidence seal 103
 
 [Seal 103](evidence-v103.json) retains **1338 members / 55,070,194 raw bytes**;
 archive SHA-256 `f9ebebcb1ed7721f1909e4bee1d60943953a52d7bb3989326be6dfd5abb3596b`. All 102 prior archives and every new member were verified.
@@ -14,7 +61,7 @@ Restore after seals 1–102 in numeric order into separate staging; reject unsaf
 verify every member and stop on unexplained conflicts. Post-seal documentation and
 actual draft-delivery receipts are supplemental. **Phase 22 incomplete; zero new paid calls.**
 
-## Current v86 correctness recovery: engineering passed, regression approval pending
+## Historical v86 correctness recovery: engineering passed, regression approval pending
 
 The approved Python module-dispatch and conservative global receiver correction
 is engineering-verified at **`884d376`**: **2,553 tests / 36 skips** locally and in
