@@ -1,0 +1,13 @@
+--- artifacts/phase23/compatibility-review-v1/launch.py
++++ artifacts/phase23/compatibility-recovery-review-v1/launch.py
+@@ -12,8 +12,8 @@
+ spec = importlib.util.spec_from_file_location("recovery_runner", ASSETS / "evaluate.py")
+ r = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(r)
+-OUT = ASSETS.parent / "compatibility-v1"
+-BINDING = ASSETS / "launcher-binding-revised-v3.json"
++OUT = ASSETS.parent / "compatibility-v2"
++BINDING = ASSETS / "launcher-binding.json"
+ 
+ 
+ def preflight():

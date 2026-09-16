@@ -1336,7 +1336,7 @@ Use Sentinel from pre-commit:
 ```yaml
 repos:
   - repo: https://github.com/BashaarJavaid/MCP-Sentinel
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: mcp-sentinel
 ```

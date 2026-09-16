@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,7 @@ def test_ci_complete_reviewed_report(index: int) -> None:
     entry = proposal["reports"][index]
     manifest = json.loads((ROOT / proposal["manifest"]["path"]).read_bytes())
     report = json.loads((ROOT / entry["source_report"]).read_bytes())
+    report["sentinel_version"] = version("portunusmcp-sentinel")
     reference = json.loads((ROOT / entry["report"]).read_bytes())
     assert ci_report_difference(report, reference, manifest["inputs"][index]) == ""
 
@@ -57,6 +59,8 @@ def test_ci_rejects_report_drift(change: str) -> None:
     manifest = json.loads(
         (ROOT / "tests/evals/phase23/candidate-v2/manifest.json").read_bytes()
     )
+    report["sentinel_version"] = version("portunusmcp-sentinel")
+    assert ci_report_difference(report, reference, manifest["inputs"][0]) == ""
     if change == "warning":
         report["warnings"][0]["message"] += " changed"
     elif change == "support":
@@ -131,6 +135,7 @@ def test_ci_one_pass_and_incomplete_budget(
                 / "report.json"
             ).read_bytes()
         )
+        report["sentinel_version"] = version("portunusmcp-sentinel")
         return {"input_id": item["id"], "state": "completed"}, report
 
     monkeypatch.setattr(helper, "_observe", observe)

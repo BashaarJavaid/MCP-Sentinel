@@ -1,6 +1,118 @@
 # AGENTS.md
 
-## Current Phase 23: offline CI verified; Windows correction review pending
+## Current Phase 23: technical result accepted; release review pending
+
+The user explicitly accepted `artifacts/phase23/technical-review-v1/proposal.json`
+SHA-256 `d153cc83576e21ee22ce1fead0d3c123128dc623cd53b55d90d04fd65fb6bfd9`,
+including the current FAF limitation. The immutable receipt is
+`artifacts/phase23/technical-acceptance-v1/receipt.json`. All 60 bound evidence
+files were verified before acceptance was recorded. Prior proposal/raw results
+remain unchanged; actual user message time is unknown and remains null.
+
+The accepted result retains 106 non-FAF reports /53 equal pairs, the reviewed
+advisory gate, full local/hosted engineering and actual regression-rejection proof.
+FAF's 1,800.011759-second timeout remains failed: no report, five unstarted closed,
+zero remaining. Current FAF detection/support/repeat compatibility is explicitly
+accepted as unestablished; recovery/optimization remain deferred. All historical
+failures, unrelated findings and Phase22 accepted limitations remain visible.
+
+The user selected release version **1.4.0**. Its exact ten-file version patch
+and dated changelog are applied; see
+`artifacts/phase23/release-review-v2/version-receipt.json`. Release contents and
+required push/merge/tag/publication/Action alias steps still need exact review. No release action is authorized by technical
+acceptance. Phase23 remains incomplete pending verified reviewed publication and
+explicit final acceptance. Phase21 and Phase24/15 remain unchanged. Zero new
+paid calls or advisory-target executions.
+
+## Historical Phase 23: 53 historical pairs passed; FAF timeout and technical review pending
+
+The approved remaining sequence completed **83 new observations**, retaining **23
+completed first reports**, for **106 non-FAF reports / 53 equal entire ordered
+pairs**. All 742 findings and 1,856 surfaces equal historical references. All
+91,458 warnings and 49,314 unresolved-flow occurrences are retained; every changed
+diagnostic and narrow support judgment is source-assessed. All reports validate
+as native JSON/canonical SARIF. No unrelated finding is silently promoted.
+
+The next FAF vulnerable input **timed out after 1,800.011759 seconds**, with no
+report. Cleanup passed within its 15-second allowance. **One incomplete, five
+unstarted closed, zero remaining**; current FAF detection, support and repeat
+compatibility remain unestablished. The full historical gate did not pass. No
+retry, profile, correction, optimization or deadline extension occurred. Original
+FAF failures and uncapped results retain their actual source/limit identities.
+
+`artifacts/phase23/technical-review-v1/` proposes explicit technical acceptance
+with that current FAF limitation, all source judgments and retained failures.
+It is unapproved. Existing all30 hosted CI jobs/docs and12 native suites, the
+14-observation advisory gate,14 first-advisory compatibility observations and
+one actual deliberate-regression rejection remain verified at unchanged scanner
+source. All earlier failed hosted/local attempts remain failed.
+
+The complete accepted-main release inventory is prepared; Unreleased notes name
+SENT-012–016 and correct the stale Phase19 pending-acceptance sentence. Version,
+release contents/actions and publication remain separately unapproved. PR40 stays
+draft; this continuation adds local evidence and documentation only. Phase23
+remains incomplete pending technical acceptance and verified reviewed release.
+Phase22 accepted closeout, Proxmox/FAF recovery, pilots/benchmarks and Phase24/15
+remain unchanged. Zero paid calls or advisory-target execution.
+
+## Historical Phase 23: historical metadata failure retained; 89-observation review pending
+
+The separately approved historical attempt completed **23 evaluations**, then
+stopped on calculator scoring metadata: **one incomplete evaluation with a complete
+native report, 88 unstarted closed, zero remaining, no repeated pairs yet**.
+All24 native JSON/canonical SARIF reports validate and cleanup passed. All139 ordered
+findings and550 registration surfaces equal their frozen references. There are
+235 added unresolved-binding warnings and six removed SDK warning/flow occurrences,
+all retained with source contexts; no broad support or fresh accuracy is inferred.
+
+Five calculator records used old v21 candidate identities with newer v75 reports.
+The exact accepted v75 source assessment already includes the two unrelated added
+findings. The proposed correction copies those five assessment maps unchanged;
+labels and matching keys stay intact. All39 scored reference records now validate.
+The next exact packet proposes **89 new observations**, retaining the23 completed
+first reports as hash-bound repeat references, to finish56 pairs across56 inputs.
+The failed calculator evaluation stays failed and its input is scanned again first.
+FAF remains last under normal1800-second limits. No automatic retry.
+
+Evidence: `artifacts/phase23/compatibility-metadata-review-v1/`,
+`compatibility-partial-assessment-v1/` and `compatibility-v2/`.
+The replacement is unapproved/unexecuted. No detector, public report, dependency or
+resource-limit change. Existing all30 hosted CI jobs/docs,12 native suites,
+14 first-advisory compatibility observations and one deliberate rejection proof
+remain passed at unchanged scanner source. Both hosted failures and the earlier
+sandbox launch failure stay retained. Historical completion, human technical
+acceptance and reviewed versioned publication remain pending. Phase22 accepted
+closeout and all deferrals remain unchanged. Zero paid calls or target execution.
+
+## Historical Phase 23: hosted gates and rejection proof passed; historical launch review pending
+
+Approved draft revision `4bc28d0` passed **all30 normal CI jobs and documentation**
+in runs **35026207558 /35026207535**. All eight Linux/macOS suites passed
+**2,766 tests /36 skips**; all four native Windows suites passed **2,744 /58**.
+Seven network-isolated reports equal the reviewed references: three vulnerable
+detections and four supported negatives. Both earlier failed hosted attempts remain
+failed. Packages match all134 scanner files and20 bundled wheel files.
+
+The original advisory compatibility check passed **14 observations /7 equal pairs**:
+six vulnerable detections /eight supported negatives, unchanged22 findings and
+coverage. All68 added unresolved-warning occurrences are retained and source-assessed.
+The one deliberate regression completed and failed the actual CI source-match
+assertion after reversing only the approved promisify block; cleanup passed.
+
+The historical112-observation launcher then failed **before any observation** when
+the restricted sandbox rejected its read-only `sysctl` hardware query. Cleanup
+passed; all112 slots are closed unstarted. No automatic retry. A separate exact
+replacement packet preserves this failure and uses the existing supervisor outside
+the sandbox, with new approval/output paths and unchanged source, order and limits.
+Evidence: `artifacts/phase23/compatibility-recovery-review-v1/`,
+`hosted-verification-v3/`, `compatibility-advisory-assessment-v1/` and
+`regression-rejection-v1/`. No detector correction or new hosted run is proposed.
+
+Historical compatibility, final human technical acceptance and reviewed versioned
+publication remain pending. Phase22 accepted closeout, Proxmox/FAF optimization,
+pilots/benchmarks and Phase24/15 remain unchanged. Zero paid calls or target execution.
+
+## Historical Phase 23: offline CI verified; Windows correction review pending
 
 Approved draft PR #40 revision `f42df80` completed its second hosted attempt:
 **26 CI jobs passed / four failed / four optional skips**, and docs passed.

@@ -1,0 +1,23 @@
+{
+  "original_make_check": {
+    "exit_code": 2,
+    "passed": 2758,
+    "failed": 8,
+    "skipped": 36,
+    "pytest_seconds": 1340.85,
+    "log": "artifacts/phase23/release-review-v2/make-check.log"
+  },
+  "root_cause": "Three test callers loaded immutable 1.3.0 captures as synthetic current reports; production comparator correctly requires the installed candidate version (now 1.4.0). Seven equality cases and one complete mock run failed. Other drift tests could pass for the wrong version difference.",
+  "correction": "Set sentinel_version only on in-memory synthetic current reports in all three callers; assert unchanged current report passes before each deliberate drift. Historical reference bytes and production code unchanged.",
+  "focused_checks": {
+    "passed": 52,
+    "seconds": 7.78,
+    "log": "artifacts/phase23/release-review-v2/version-correction-focused.log"
+  },
+  "production_helper_sha256": "f19741a308201668d0bab06e8c1cb86b67633c73f2b91ccb493998bf17862cb7",
+  "tests_before_sha256": "ee94763c1cf6067ce457f648f10456ad54b351eec63f37c48d14913d4d389d80",
+  "tests_after_sha256": "acc75dd9f7297fb361f93b1f9251dee421099cfdbf409850e01fa960e6ad0755",
+  "new_advisory_observations": 0,
+  "paid_calls": 0,
+  "historical_failures_preserved": true
+}

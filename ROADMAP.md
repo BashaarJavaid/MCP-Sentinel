@@ -3483,7 +3483,61 @@ while keeping the supported boundary explicit.
 
 ## 26. Phase 23 — Maintained feedback and regression releases
 
-Current continuation: second hosted attempt at `f42df80` passed 26 CI jobs and docs;
+Current continuation: **the technical result is explicitly accepted**, including
+current FAF compatibility remaining unestablished. The approval receipt is
+`artifacts/phase23/technical-acceptance-v1/receipt.json`, bound to exact proposal
+`d153cc83576e21ee22ce1fead0d3c123128dc623cd53b55d90d04fd65fb6bfd9`.
+The 106 non-FAF reports/53 pairs, advisory gate, local/hosted engineering and actual
+regression rejection remain verified. FAF's timeout stays failed; its five
+unstarted observations stay closed. No retry/recovery/optimization is authorized.
+The user selected **1.4.0**; its version changes and dated release notes are
+prepared in `artifacts/phase23/release-review-v2/`. Release contents and publication
+actions remain unapproved; **Phase23 is incomplete until a verified reviewed
+release and explicit final acceptance**.
+Phase22 accepted closeout and all deferrals, Phase21 and Phase24/15 remain unchanged.
+
+Historical continuation (superseded by the acceptance above): the approved remaining attempt completed **83 new +23
+retained reports**, forming **53 equal non-FAF pairs**. All742 findings and1,856
+surfaces retain exact historical identities; all91,458 warnings and49,314 flow
+occurrences are retained with complete source assessment. Native JSON/canonical
+SARIF and all cleanup checks pass. The next FAF vulnerable input timed out at
+**1,800.011759 seconds**, with no report: **one incomplete, five unstarted closed,
+zero remaining**. Current FAF detection/support/repeat compatibility is unestablished;
+the complete historical gate did not pass. No retry or timeout extension occurred.
+`artifacts/phase23/technical-review-v1/` proposes acceptance of the technical result
+with this explicit limitation and all source judgments/failures retained. Human
+technical acceptance remains pending. Existing hosted gates, advisory controls and
+actual deliberate regression rejection remain verified. The release inventory
+includes all accepted main changes; exact version/actions/publication remain
+separate decisions. Phase23 is incomplete. Phase22 closeout and deferrals remain.
+
+Historical continuation (superseded by the results above): the approved historical attempt completed23 evaluations,
+then stopped on a stale calculator assessment identity: one incomplete evaluation
+with a complete native report,88 unstarted closed,zero remaining,no repeat pairs.
+All24 native reports/canonical SARIF validate; cleanup passed. All139 ordered
+findings and550 surfaces match historical references. Added235 binding warnings
+and removed six SDK warning/flow occurrences are retained and source-assessed.
+Five calculator assessment identities are corrected only by copying their exact
+accepted v75 maps; labels/matching keys do not change. All39 scoring records
+validate. `artifacts/phase23/compatibility-metadata-review-v1/` proposes89 remaining
+observations using23 exact completed first reports, forming56 pairs if complete.
+It is unapproved/unexecuted; the failed evaluation is not promoted. Normal limits,
+FAF-last order, prior failures, accepted Phase22 closeout and deferrals remain.
+
+Historical continuation (superseded by the results above): approved `4bc28d0` passed all30 normal CI jobs and docs;
+all12 native quality suites passed (Linux/macOS2,766/36; Windows2,744/58).
+Seven isolated reports match the reviewed references. First-advisory compatibility
+passed14 observations/7 equal pairs; findings and coverage stay unchanged and68
+added warnings remain source-assessed. One actual deliberate regression was rejected
+by the routine CI assertion, with verified cleanup. The historical112-observation
+launch failed before any scan because the sandbox denied its read-only hardware
+query. All112 slots are closed unstarted; no automatic retry. The separate replacement
+review in `artifacts/phase23/compatibility-recovery-review-v1/` keeps identical
+source, order, limits and existing supervision, with new approval/output paths and
+execution outside the sandbox. Earlier failures remain failed. Historical
+compatibility, human technical acceptance and reviewed publication remain pending.
+
+Historical continuation (superseded by the results above): second hosted attempt at `f42df80` passed 26 CI jobs and docs;
 all 8 Linux/macOS suites passed 2,765/36. Four Windows jobs failed 24 POSIX type errors.
 The seven-input isolated regression now has verified retained reports, with 3
 vulnerable detections and 4 supported negatives; all complete references agree.
@@ -3495,7 +3549,7 @@ unstarted. A new exact execution review is required. See
 `artifacts/phase23/windows-review-v1/` and `hosted-verification-v2/`.
 
 **Status: in progress; narrow advisory gate and CI references reviewed;
-CI engineering, historical compatibility and release verification remain.**
+historical compatibility, final technical acceptance and release verification remain.**
 The approved metadata candidate completed **14 observations / seven equal entire
 ordered pairs** in **188.804086 seconds**, with verified cleanup and a closed budget.
 All three vulnerable inputs match SENT-002 in both passes; all four negative inputs

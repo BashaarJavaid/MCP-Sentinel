@@ -1,0 +1,13 @@
+sysctl: sysctl fmt -1 1024 1: Operation not permitted
+Traceback (most recent call last):
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/compatibility-review-v1/evaluate.py", line 503, in <module>
+    run(out)
+  File "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/compatibility-review-v1/evaluate.py", line 332, in run
+    "cpu_topology": subprocess.check_output(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.13_2/Frameworks/Python.framework/Versions/3.12/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['sysctl', 'hw.ncpu', 'hw.memsize']' returned non-zero exit status 1.

@@ -1,0 +1,1667 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-15T23:18:53.863800Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "15f08e7724ca0c152bb21783706f43939fb91c926b1630b492a6207eab0f78d3",
+      "description": "The source rejects private literal IPv4 destinations for this caller URL before the request. Complete scheme and destination restrictions remain unestablished; this candidate does not allege an initial literal IPv4 loopback bypass. DNS, redirects and broader IPv6 protection are not established by that address check.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 27
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 139,
+              "start_column": 1,
+              "start_line": 139
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 9,
+          "end_line": 33,
+          "start_column": 30,
+          "start_line": 27
+        },
+        "snippet": "fetch(url, {\n        headers: {\n          \"User-Agent\":\n            \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n          ...headers,\n        },\n      })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "3bf91062-8d82-4d17-9698-d3e33f42ec77",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/Fetcher.ts",
+        "range": {
+          "end_column": 9,
+          "end_line": 33,
+          "start_column": 30,
+          "start_line": 27
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/Fetcher.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 27,
+                  "start_column": 1,
+                  "start_line": 27
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 139,
+                  "start_column": 1,
+                  "start_line": 139
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 9,
+              "end_line": 33,
+              "start_column": 30,
+              "start_line": 27
+            },
+            "snippet": "fetch(url, {\n        headers: {\n          \"User-Agent\":\n            \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\n          ...headers,\n        },\n      })"
+          },
+          "review": null,
+          "rule_id": "SENT-015",
+          "source": "static",
+          "timestamp": "2026-09-15T23:18:53.863800Z"
+        }
+      ],
+      "remediation": "Permit only required HTTP(S) destinations, reject private and loopback addresses, and enforce checks on every requested URL and redirect.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-015",
+      "scan_id": "61b46e7b-0b78-4120-88c5-b0419fd781e6",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:18:53.863800Z",
+      "title": "Server-side request forgery"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 1,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 1
+    }
+  },
+  "scan_id": "61b46e7b-0b78-4120-88c5-b0419fd781e6",
+  "schema_version": "1.7.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-15T23:18:53.862572Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 161,
+              "start_column": 55,
+              "start_line": 139
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 161,
+              "start_column": 1,
+              "start_line": 139
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "ambiguous_dispatch",
+              "location": {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 3,
+                  "end_line": 161,
+                  "start_column": 1,
+                  "start_line": 139
+                }
+              },
+              "message": "tool dispatch, handler or schema cannot be fully resolved"
+            }
+          ],
+          "status": "unresolved"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 22,
+              "start_column": 1,
+              "start_line": 22
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 27
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 51,
+              "start_column": 1,
+              "start_line": 51
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 72,
+              "start_column": 1,
+              "start_line": 72
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 102,
+              "start_column": 1,
+              "start_line": 102
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 134,
+              "start_column": 1,
+              "start_line": 134
+            }
+          },
+          "message": "SENT-002 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 22,
+              "start_column": 1,
+              "start_line": 22
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 27
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 51,
+              "start_column": 1,
+              "start_line": 51
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 72,
+              "start_column": 1,
+              "start_line": 72
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 102,
+              "start_column": 1,
+              "start_line": 102
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 134,
+              "start_column": 1,
+              "start_line": 134
+            }
+          },
+          "message": "SENT-012 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 22,
+              "start_column": 1,
+              "start_line": 22
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 27
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 51,
+              "start_column": 1,
+              "start_line": 51
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 72,
+              "start_column": 1,
+              "start_line": 72
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 73,
+              "start_column": 1,
+              "start_line": 73
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 102,
+              "start_column": 1,
+              "start_line": 102
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 104,
+              "start_column": 1,
+              "start_line": 104
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 105,
+              "start_column": 1,
+              "start_line": 105
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 108,
+              "start_column": 1,
+              "start_line": 108
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 134,
+              "start_column": 1,
+              "start_line": 134
+            }
+          },
+          "message": "SENT-014 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          "message": "SENT-015 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          "message": "SENT-015 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 22,
+              "start_column": 1,
+              "start_line": 22
+            }
+          },
+          "message": "SENT-016 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 12,
+              "start_column": 1,
+              "start_line": 12
+            }
+          },
+          "message": "SENT-016 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/Fetcher.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 13,
+              "start_column": 1,
+              "start_line": 13
+            }
+          },
+          "message": "SENT-016 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+        }
+      ],
+      "workspace": null
+    },
+    "duration_ms": 2836,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-013",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-014",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-015",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-016",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 8,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012",
+      "SENT-013",
+      "SENT-014",
+      "SENT-015",
+      "SENT-016"
+    ],
+    "total_matches": 1
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 1
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 0
+    },
+    "total": 1
+  },
+  "target": {
+    "display_name": "fetchmcp-public-ipv4-safe",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding 'Headers'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'Number'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'Number.parseInt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'process.env.DEFAULT_LIMIT'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'URL'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'fetch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'e'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'e.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'Math'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'Math.min'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'Array'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'Array.from'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'dynamic tool description'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:27: unresolved call to fetch; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:51: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:72: unresolved call to response.json; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:73: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:97: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:102: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:103: unresolved call to document.getElementsByTagName; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:104: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:104: unresolved call to script.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:105: unresolved call to Array.from; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:105: unresolved call to style.remove; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:108: unresolved call to text.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:108: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:132: unresolved call to response.text; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/Fetcher.ts:134: unresolved call to turndownService.turndown; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding 'Promise.resolve'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'txt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.txt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding 'req'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'markdown'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.markdown'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'html'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.fixture.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.html'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding 'mockResolvedValueOnce'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.html'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding 'mockRejectedValueOnce'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.txt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.test.ts: cannot resolve TypeScript binding './Fetcher:Fetcher.markdown'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'text.substring'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'this._fetch'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'response.text'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'this.applyLengthLimits'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'response.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'document.getElementsByTagName'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'script.remove'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'style.remove'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'text.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'turndownService.turndown'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'setRequestHandler'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/types.ts: cannot resolve TypeScript binding 'parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding './types.js:RequestPayloadSchema.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding './Fetcher.js:Fetcher.html'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding './Fetcher.js:Fetcher.json'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding './Fetcher.js:Fetcher.txt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding './Fetcher.js:Fetcher.markdown'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'url'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'response.status'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/Fetcher.ts: cannot resolve TypeScript binding 'startIndex'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/Fetcher.ts:22: unresolved call to is_ip_private; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/Fetcher.ts:12: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/Fetcher.ts:13: unresolved call to text.substring; protection is not established"
+    }
+  ]
+}

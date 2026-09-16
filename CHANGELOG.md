@@ -10,6 +10,8 @@ new rule IDs.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-16
+
 ### Fixed
 
 - Follow unique local TypeScript star exports while retaining ambiguity, rebinding,
@@ -47,6 +49,10 @@ new rule IDs.
 
 ### Added
 
+- Source-flow rules for path containment (`SENT-012`), tool-description poisoning
+  (`SENT-013`), command option injection (`SENT-014`), server-side request forgery
+  (`SENT-015`), and unauthorized operator-credential fallback (`SENT-016`), with
+  bounded Python/TypeScript support and explicit unresolved-source limitations.
 - Add a seven-input, current-candidate offline advisory regression to routine
   PR and release CI, with reviewed complete-report references and retained
   failures, diagnostics and support evidence.
@@ -54,9 +60,11 @@ new rule IDs.
   and maintainer guidance for source label review, weekly SDK/advisory checks,
   lifecycle timing evidence and offline regression releases.
 
-- Native report schema 1.6.0: observed static handler inventory and actual rule
+- Native report schema 1.7.0: observed static handler inventory and actual rule
   visits, per-session runtime discovery and sent-call flags, and separate static
-  and dynamic review activity. Unknown historical coverage remains null.
+  and dynamic review activity. Ordered runtime attempts and workspace coverage
+  preserve explicit eligibility, completion and unavailable-source information.
+  Unknown historical coverage remains null.
 - Default console and SARIF messages show bounded decisive evidence, remediation,
   recognition gaps, unprobed tools/fields, and explicit coverage limits.
 
@@ -73,10 +81,9 @@ new rule IDs.
   source checks while retaining the full platform matrix and release gates.
 - Empty enabled review uses `not_run`; it does not imply live/replay activity.
   Baseline resolved counts are qualified as findings not observed in this scan.
-- Accept native 1.3–1.6 baselines through in-memory migration, preserving matching,
+- Accept native 1.3–1.7 baselines through in-memory migration, preserving matching,
   canonical findings, suppressions, model contracts, and exit-code semantics.
-  Phase 19 acceptance is pending; package version and historical captures remain
-  unchanged.
+  Phase 19's final gate is accepted; historical captures remain unchanged.
 
 ## [1.3.0] - 2026-09-06
 
@@ -218,7 +225,8 @@ new rule IDs.
   replay, four Docker-isolated dynamic probes, console/JSON/SARIF reports, and a
   composite GitHub Action.
 
-[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/BashaarJavaid/MCP-Sentinel/compare/v1.0.0...v1.2.0
