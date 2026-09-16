@@ -1,0 +1,268 @@
+{
+  "status": "proposed_not_authorized",
+  "merge_revision_binding": "The placeholder verified_merge_revision is the actual merge output, permitted only with the exact reviewed tree and parents; it is not a version/content choice.",
+  "sequence": [
+    {
+      "stage": "ready",
+      "argv": [
+        "gh",
+        "pr",
+        "ready",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel"
+      ]
+    },
+    {
+      "stage": "merge",
+      "argv": [
+        "gh",
+        "pr",
+        "merge",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--merge",
+        "--match-head-commit",
+        "d5365dce6184707248dab17a921b3257cc508069",
+        "--subject",
+        "Release 1.4.0 with maintained feedback and regression verification",
+        "--body-file",
+        "artifacts/phase23/publication-review-v1/merge-message.md"
+      ],
+      "precondition": "Approved head/base and all reviewed hosted gates still match. No admin bypass or branch deletion."
+    },
+    {
+      "stage": "verify_merge_and_main_gates",
+      "read_only": true,
+      "required_tree": "a736214212f90dbfec34f4b6362b4e3c741a3922",
+      "required_parents": [
+        "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+        "d5365dce6184707248dab17a921b3257cc508069"
+      ],
+      "ordinary_main_CI_advisory_observations": 7,
+      "required": "All main CI plus documentation deployment pass. Record actual merge revision, bind M only after verifying its tree/parents and remote main identity."
+    },
+    {
+      "stage": "fetch_verified_main",
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "main",
+        "--no-tags"
+      ]
+    },
+    {
+      "stage": "sign_version",
+      "argv": [
+        "git",
+        "tag",
+        "-s",
+        "v1.4.0",
+        "{verified_merge_revision}",
+        "-m",
+        "Release 1.4.0"
+      ],
+      "precondition": "Tag absent, package 1.4.0 absent from both indexes, remote main equals M, signing remains SSH with approved local release key."
+    },
+    {
+      "stage": "verify_local_version_signature",
+      "argv": [
+        "git",
+        "verify-tag",
+        "v1.4.0"
+      ]
+    },
+    {
+      "stage": "push_version",
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "refs/tags/v1.4.0"
+      ]
+    },
+    {
+      "stage": "release_workflow",
+      "workflow": ".github/workflows/release.yml",
+      "trigger": "the single v1.4.0 tag push",
+      "advisory_observations": 7,
+      "required": [
+        "verified signed tag at main HEAD",
+        "full reusable CI",
+        "TestPyPI publication and verification",
+        "PyPI publication and provenance/hash verification",
+        "full public installation matrix"
+      ],
+      "automatic_retry": false,
+      "preserve_environment_protections": true
+    },
+    {
+      "stage": "download_published_distributions",
+      "directory": "/private/tmp/phase23-published-dist",
+      "metadata": "https://pypi.org/pypi/portunusmcp-sentinel/1.4.0/json",
+      "required": "Require exactly reviewed wheel/sdist names, download public bytes, compare both approved hashes, and verify provenance against M using the existing release workflow attestations. Retain all metadata and actual upload times."
+    },
+    {
+      "stage": "install_downloaded_wheel",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "--target",
+        "/private/tmp/phase23-released-wheel-review/src",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl"
+      ],
+      "precondition": "Public wheel hash matches the reviewed wheel; isolated environment and helper/evidence identities match prepared preflight."
+    },
+    {
+      "stage": "published_wheel_identity",
+      "argv": [
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/released-wheel-v1-identity.json"
+      ]
+    },
+    {
+      "stage": "published_wheel_regression",
+      "cwd": "/private/tmp/phase23-released-wheel-review",
+      "argv": [
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "-m",
+        "scripts.phase23_regression",
+        "ci",
+        "--output",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/released-wheel-v1"
+      ],
+      "advisory_observations": 7,
+      "input_seconds": 1800,
+      "semgrep_seconds": 10,
+      "cleanup_seconds": 15,
+      "maximum_workers": 4,
+      "outer_seconds": 13200,
+      "precondition": "Successful exact published-wheel identity, output absent and one-use approval unused. Use existing helper environment and comparison; retain complete results and stop on any failure."
+    },
+    {
+      "stage": "github_release",
+      "argv": [
+        "gh",
+        "release",
+        "create",
+        "v1.4.0",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0.tar.gz",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--verify-tag",
+        "--title",
+        "PortunusMCP Sentinel 1.4.0",
+        "--notes-file",
+        "artifacts/phase23/publication-review-v1/release-notes.md"
+      ],
+      "precondition": "Public artifacts/provenance and all seven released-wheel observations pass; release absent."
+    },
+    {
+      "stage": "external_proof_branch",
+      "cwd": "/private/tmp/phase23-action-release-proof",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/phase23-1.4.0-release-proof:",
+        "origin",
+        "26615d0da25c8af1b9944010397b79765cc365d5:refs/heads/phase23-1.4.0-release-proof"
+      ],
+      "precondition": "External main remains d15df2851771f331849d1f0e1c4531090de7bd3e; proof branch absent; exact local proof tree/patch verified. No main push or PR creation."
+    },
+    {
+      "stage": "exact_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=exact"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Package 1.4.0 public and verified; exact external branch matches proof commit. Wait for successful clean output/version/SARIF checks before alias action."
+    },
+    {
+      "stage": "sign_alias",
+      "argv": [
+        "git",
+        "tag",
+        "-f",
+        "-s",
+        "v1",
+        "{verified_merge_revision}",
+        "-m",
+        "Release 1.4.0"
+      ],
+      "precondition": "Exact proof passed; current remote alias object remains 089adf0891465ddcb78100e06ecf2a2228566c51; verified immutable version tag and main still point to M."
+    },
+    {
+      "stage": "verify_local_alias_signature",
+      "argv": [
+        "git",
+        "verify-tag",
+        "v1"
+      ]
+    },
+    {
+      "stage": "push_alias",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/tags/v1:089adf0891465ddcb78100e06ecf2a2228566c51",
+        "origin",
+        "refs/tags/v1"
+      ]
+    },
+    {
+      "stage": "alias_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=alias"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Remote alias is SSH-signed, verified, and resolves to M. Wait for successful clean output/version/SARIF checks."
+    },
+    {
+      "stage": "retain_release_evidence_and_request_final_acceptance",
+      "required": [
+        "actual UTC publication and verification times",
+        "public hashes and provenance at reviewed revision",
+        "exact Action and alias proof",
+        "released-wheel seven-input results",
+        "all retained limitations and historical failures"
+      ],
+      "phase23_closed": false,
+      "extra_main_commit_or_branch_cleanup": false
+    }
+  ],
+  "total_new_advisory_observations": 21,
+  "new_external_clean_Action_invocations": 2,
+  "new_paid_calls": 0,
+  "automatic_retries": false
+}

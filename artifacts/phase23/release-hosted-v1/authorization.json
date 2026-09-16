@@ -1,0 +1,72 @@
+{
+  "decision": "approved",
+  "user_message": "approved",
+  "approval_occurred_at_utc": null,
+  "recorded_at_utc": "2026-09-16T01:26:20.477482+00:00",
+  "proposal_sha256": "02580e2ecac97b630b72adbe4ecec7442deb5f09bd889f2c78431fa0f72b1666",
+  "candidate": "d5365dce6184707248dab17a921b3257cc508069",
+  "tree": "a736214212f90dbfec34f4b6362b4e3c741a3922",
+  "proposal_bindings_verified": 17,
+  "changed_blob_hashes_verified": 1532,
+  "remote_preconditions_verified": true,
+  "authorized_actions": [
+    {
+      "action": "push_reviewed_descendant_to_existing_draft_branch",
+      "command": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/phase23/maintained-feedback-20260915:4bc28d050bdbfcbf675bb0cf0c77c82f855acd7f",
+        "origin",
+        "d5365dce6184707248dab17a921b3257cc508069:refs/heads/phase23/maintained-feedback-20260915"
+      ]
+    },
+    {
+      "action": "update_existing_draft_title_and_description",
+      "command": [
+        "gh",
+        "pr",
+        "edit",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--title",
+        "Prepare 1.4.0 with maintained advisory regression and feedback",
+        "--body-file",
+        "artifacts/phase23/release-review-v2/pr-body.md"
+      ]
+    },
+    {
+      "action": "observe_one_automatic_PR_CI_and_docs_run_and_retain_all_results",
+      "new_advisory_observations": 7,
+      "historical_corpus_observations": 0,
+      "model_calls": 0,
+      "target_executions": 0,
+      "limits": {
+        "input_seconds": 1800,
+        "semgrep_seconds": 10,
+        "cleanup_seconds": 15,
+        "maximum_workers": 4,
+        "helper_outer_seconds": 13200,
+        "hosted_job_minutes_including_setup_and_evidence": 230
+      },
+      "command_in_existing_workflow": "sudo unshare --net -- \"$PWD/.venv/bin/python\" -m scripts.phase23_regression ci --output \"${{ runner.temp }}/phase23-regression\"",
+      "workflow_paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/docs.yml"
+      ],
+      "retain_existing_required_gates": true,
+      "automatic_retry": false
+    }
+  ],
+  "not_authorized": [
+    "ready-state change",
+    "merge",
+    "main push",
+    "version tag",
+    "TestPyPI or PyPI publication",
+    "GitHub release/assets",
+    "Action alias update",
+    "released-wheel observations"
+  ],
+  "new_paid_calls": 0
+}

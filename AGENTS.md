@@ -1,6 +1,125 @@
 # AGENTS.md
 
-## Current Phase 23: technical result accepted; release review pending
+## Current Phase 23: accepted complete — verified 1.4.0 release
+
+The user explicitly accepted the final Phase23 evidence in
+`artifacts/phase23/final-acceptance-v1/` (proposal SHA-256
+`0ca824266bfbe2f4a760cc5ac770b88a37b9fd12b48840931846c7b8e95d9a13`).
+The acceptance receipt and complete requirement map are in
+`artifacts/phase23/accepted-closeout-v1/`. **Phase23 is complete.**
+
+The reviewed1.4.0 release, public artifact hashes/provenance, signed version/alias,
+both external Action proofs, released-wheel regression, real deliberate regression
+rejection and delivered maintenance/contribution guidance are verified. Main30 CI
+jobs plus docs and release47 jobs passed, including the full platform and public
+installation matrices. All21 publication advisory observations passed their narrow
+reviewed conditions. Zero paid calls or advisory-target execution.
+
+The user additionally authorized consolidating all project work/evidence and user
+documents on main, pushing the closeout, relocating project temporary material
+into this repository, and deleting stale branches after delivery. This supersedes
+older restrictions on main evidence commits and branch cleanup below. Recovered
+source/evidence is retained in the closeout archive; dependency environments,
+caches and Git internals remain local under ignored `artifacts/phase23/local-workspaces/recovered-temp/`.
+Routine main CI remains required. Immutable release tags/artifacts stay unchanged.
+
+Accepted Phase22v93 and every historical failure/qualification remain preserved.
+Current FAF compatibility remains unestablished after its failed1,800-second
+observation; Proxmox remains unsupported. The56 unrelated finding occurrences
+remain needs_review. Recovery/optimization, pilots and paid benchmarks stay
+deferred; Phase21 and Phase24/15 are unchanged. Maintenance remains owned by
+BashaarJavaid, Mondays09:00 America/Los_Angeles; next review2026-09-21 is scheduled.
+
+## Historical Phase 23: 1.4.0 release verified; final human acceptance pending
+
+The user approved the exact publication and continuation packets. PR40 is merged
+at `fd10cba1297a32ec35ec647e17f3491dbb3b0979`, with the reviewed tree and parents.
+Main CI (30 jobs plus deployed docs), release workflow (47 jobs), both12-platform
+suites and12 public installation jobs passed. TestPyPI/PyPI distributions and
+provenance, GitHub release assets, SSH-signed `v1.4.0` and signed `v1` are verified.
+Both external Action proofs passed: correct1.4.0 version/revision, complete zero
+findings, valid uploaded SARIF and rules-only skipped model/dynamic stages.
+
+All21 approved publication advisory observations passed: seven main CI, seven
+release CI and seven from the downloaded wheel. Each group matches all seven
+reviewed reports (three detections/four supported negatives), with cleanup verified.
+The actual deliberate regression-rejection proof and shipped/live contribution
+and maintenance guidance are verified. Owner cadence remains Monday09:00
+America/Los_Angeles; next review2026-09-21 is scheduled, not claimed complete.
+
+The final evidence is `artifacts/phase23/final-acceptance-v1/README.md`.
+**Phase23 remains open solely for explicit final human acceptance.** Approval of
+publication did not imply that acceptance. All earlier automatic-review denials
+remain retained; GitHub recorded the separate owner PyPI environment approval,
+and the subsequent explicit continuation approval authorized the remaining steps.
+No denied command was bypassed. No extra main commit or branch cleanup occurred.
+
+The accepted Phase22 closeout, failed current FAF timeout/current compatibility
+unestablished, unsupported Proxmox, all historical failures and56 unrelated
+finding occurrences remain preserved. Recovery/optimization/pilots/benchmarks
+stay deferred; Phase21 and Phase24/15 are unchanged. Zero new paid calls or
+advisory-target execution. These post-release status/evidence records remain local.
+
+## Historical Phase 23: 1.4.0 published on PyPI; GitHub release and Action verification pending
+
+The user explicitly approved publication packet `40cf8a21f0576c062a9016a650b5e980fee268c033926de1fde0d56bb01fcc30`.
+That newer approval supersedes older pending-authorization status below. PR40 is
+merged at `fd10cba1297a32ec35ec647e17f3491dbb3b0979`, with the exact reviewed tree
+and parents. All30 main CI jobs, documentation deployment and12 platform suites
+passed. GitHub verifies the SSH-signed `v1.4.0` tag at that merge. The release
+workflow passed all47 jobs, including TestPyPI, PyPI provenance and12 public
+installation jobs. Both public distributions match the reviewed hashes.
+
+All21 approved advisory observations are complete: seven main CI, seven release
+CI and seven from the downloaded released wheel. Each group matches all seven
+reviewed reports, with three detections/four supported negatives and verified
+cleanup. Zero paid calls or advisory-target execution. See
+`artifacts/phase23/publication-v1/summary.json`.
+
+Automatic review rejected two protected PyPI approval POSTs before execution.
+GitHub separately records the owner's environment approval; publication then
+succeeded. Automatic review subsequently rejected GitHub release creation before
+execution, citing older AGENTS authorization text. No workaround was attempted.
+The GitHub release is absent, external Action proof runs are unstarted, and `v1`
+remains unchanged. The exact remaining sequence awaits explicit continuation
+approval in `artifacts/phase23/publication-continuation-v1/README.md`.
+No additional package publication, advisory scan, retry or source change is needed.
+
+Phase23 remains open pending GitHub release/assets, exact Action/alias proofs and
+explicit final acceptance. The accepted Phase22 closeout, failed FAF timeout,
+unsupported Proxmox, all historical failures and56 unrelated finding occurrences
+remain preserved. Pilots/benchmarks/recovery/optimization remain deferred;
+Phase21 and Phase24/15 are unchanged. These are local evidence/status updates;
+no extra main commit or branch cleanup is authorized.
+
+## Historical Phase 23: 1.4.0 hosted verification passed; publication approval pending
+
+The user approved exact draft delivery of `d5365dce6184707248dab17a921b3257cc508069`.
+PR40 remains draft at that commit. All **30 CI jobs, documentation and 12 native
+platform suites passed** in CI `35044116114` and docs `35044116088`: Linux/macOS
+2,766 tests / 36 skips; Windows 2,744 / 58. The seven-input offline regression
+passes with three source-matched detections, four reviewed supported negatives,
+complete ordered references equal, and verified cleanup. Both hosted package
+hashes equal the reviewed 1.4.0 local builds. See
+`artifacts/phase23/release-hosted-v1/summary.json`.
+
+Version 1.4.0 and the technical result are accepted. The exact publication review
+is `artifacts/phase23/publication-review-v1/README.md`; merge, signed tag,
+TestPyPI/PyPI/GitHub publication, Action alias/proofs and released-wheel observations
+are still unapproved and unexecuted. Preparation reuses the unchanged regression
+helper with an identity-verified installed wheel; it launches no advisory scans.
+The external Action proof is a local two-file commit on a proposed separate branch;
+no external push or workflow dispatch occurred.
+
+The current FAF timeout remains failed and its compatibility unestablished;
+Proxmox remains unsupported. All historical failures, accepted Phase22 limitations,
+56 unrelated advisory finding occurrences and deferred recovery/optimization,
+pilots/benchmarks remain. Phase21 and Phase24/15 are unchanged. Phase23 stays open
+until a verified reviewed release and explicit final acceptance. Zero new paid
+calls or advisory-target execution. These post-delivery evidence/status records
+are local; the approved release candidate tree remains immutable.
+
+## Historical Phase 23: technical result accepted; release candidate preparation
 
 The user explicitly accepted `artifacts/phase23/technical-review-v1/proposal.json`
 SHA-256 `d153cc83576e21ee22ce1fead0d3c123128dc623cd53b55d90d04fd65fb6bfd9`,

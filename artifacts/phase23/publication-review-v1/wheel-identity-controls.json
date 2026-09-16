@@ -1,0 +1,26 @@
+{
+  "status": "all_three_rejections_passed",
+  "controls": [
+    {
+      "control": "wrong-wheel",
+      "exit_code": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt\", line 15, in <module>\n    assert hashlib.sha256(wheel.read_bytes()).hexdigest() == expected_sha256, 'wheel hash'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: wheel hash\n",
+      "no_success_record": true
+    },
+    {
+      "control": "wrong-interpreter",
+      "exit_code": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt\", line 16, in <module>\n    assert Path(sys.prefix).resolve() == checkout / '.venv', 'isolated interpreter'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: isolated interpreter\n",
+      "no_success_record": true
+    },
+    {
+      "control": "changed-installed-schema",
+      "exit_code": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt\", line 41, in <module>\n    assert installed.read_bytes() == data, name\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: sentinel/_schemas/report.schema.json\n",
+      "no_success_record": true
+    }
+  ],
+  "installed_schema_restored": true,
+  "advisory_scans": 0,
+  "script_sha256": "8f61113d877700f862a1f8424b941ad3ad4b4537f3ea8c622f4892a01ef1d220"
+}

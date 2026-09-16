@@ -6,6 +6,14 @@ installation or operations guide.
 
 ## Completion record
 
+Phase23 is **complete and explicitly accepted** after the verified
+[1.4.0 release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.4.0).
+The advisory correction, offline regression and deliberate rejection, public
+package and Action proofs, and maintenance/contribution guidance are retained in
+[the accepted closeout](https://github.com/BashaarJavaid/MCP-Sentinel/tree/main/artifacts/phase23/accepted-closeout-v1).
+All historical failures/accepted limitations and deferred pilots/benchmarks remain;
+Phase21 and Phase24/15 are unchanged.
+
 Phase 5 is **complete**. Its repository implementation and verification gates
 passed, the `v0.1.0` GitHub Release was published with the tested wheel,
 `/feedback` was submitted from the primary Codex thread recorded in `README.md`,

@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_release_publication_approval",
+  "recorded_at_utc": "2026-09-16T02:26:23.809884+00:00",
+  "version": "1.4.0",
+  "version_selected": true,
+  "technical_result_previously_accepted": true,
+  "current_hosted_gate": "passed",
+  "repository": "BashaarJavaid/MCP-Sentinel",
+  "pr": 40,
+  "candidate_revision": "d5365dce6184707248dab17a921b3257cc508069",
+  "candidate_tree": "a736214212f90dbfec34f4b6362b4e3c741a3922",
+  "required_main_before_merge": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+  "test_merge_revision": "e2369146346fc9bd590a9f46c9657126983e3291",
+  "merge_revision": null,
+  "merge_revision_rule": "Permit only actual merge output whose parents are the reviewed main and candidate and whose tree equals the reviewed candidate tree. Bind that verified revision for tags, publication and provenance; stop on drift.",
+  "package_pin": "portunusmcp-sentinel==1.4.0",
+  "exact_action_pin": "BashaarJavaid/MCP-Sentinel@d5365dce6184707248dab17a921b3257cc508069",
+  "version_tag": "v1.4.0",
+  "mutable_alias": "v1",
+  "required_old_alias_tag_object": "089adf0891465ddcb78100e06ecf2a2228566c51",
+  "package_sha256": {
+    "portunusmcp_sentinel-1.4.0.tar.gz": "3f61b8a914f6fe4fe3a8d10521c031dfa00a1e80132291b35d719640f371d4c6",
+    "portunusmcp_sentinel-1.4.0-py3-none-any.whl": "fc9c0155b08687e2a50e327cca4ebc8b7be759539eaef3e4aa4e08801d23f1af"
+  },
+  "sequence": [
+    {
+      "stage": "ready",
+      "argv": [
+        "gh",
+        "pr",
+        "ready",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel"
+      ]
+    },
+    {
+      "stage": "merge",
+      "argv": [
+        "gh",
+        "pr",
+        "merge",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--merge",
+        "--match-head-commit",
+        "d5365dce6184707248dab17a921b3257cc508069",
+        "--subject",
+        "Release 1.4.0 with maintained feedback and regression verification",
+        "--body-file",
+        "artifacts/phase23/publication-review-v1/merge-message.md"
+      ],
+      "precondition": "Approved head/base and all reviewed hosted gates still match. No admin bypass or branch deletion."
+    },
+    {
+      "stage": "verify_merge_and_main_gates",
+      "read_only": true,
+      "required_tree": "a736214212f90dbfec34f4b6362b4e3c741a3922",
+      "required_parents": [
+        "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+        "d5365dce6184707248dab17a921b3257cc508069"
+      ],
+      "ordinary_main_CI_advisory_observations": 7,
+      "required": "All main CI plus documentation deployment pass. Record actual merge revision, bind M only after verifying its tree/parents and remote main identity."
+    },
+    {
+      "stage": "fetch_verified_main",
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "main",
+        "--no-tags"
+      ]
+    },
+    {
+      "stage": "sign_version",
+      "argv": [
+        "git",
+        "tag",
+        "-s",
+        "v1.4.0",
+        "{verified_merge_revision}",
+        "-m",
+        "Release 1.4.0"
+      ],
+      "precondition": "Tag absent, package 1.4.0 absent from both indexes, remote main equals M, signing remains SSH with approved local release key."
+    },
+    {
+      "stage": "verify_local_version_signature",
+      "argv": [
+        "git",
+        "verify-tag",
+        "v1.4.0"
+      ]
+    },
+    {
+      "stage": "push_version",
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "refs/tags/v1.4.0"
+      ]
+    },
+    {
+      "stage": "release_workflow",
+      "workflow": ".github/workflows/release.yml",
+      "trigger": "the single v1.4.0 tag push",
+      "advisory_observations": 7,
+      "required": [
+        "verified signed tag at main HEAD",
+        "full reusable CI",
+        "TestPyPI publication and verification",
+        "PyPI publication and provenance/hash verification",
+        "full public installation matrix"
+      ],
+      "automatic_retry": false,
+      "preserve_environment_protections": true
+    },
+    {
+      "stage": "download_published_distributions",
+      "directory": "/private/tmp/phase23-published-dist",
+      "metadata": "https://pypi.org/pypi/portunusmcp-sentinel/1.4.0/json",
+      "required": "Require exactly reviewed wheel/sdist names, download public bytes, compare both approved hashes, and verify provenance against M using the existing release workflow attestations. Retain all metadata and actual upload times."
+    },
+    {
+      "stage": "install_downloaded_wheel",
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "--target",
+        "/private/tmp/phase23-released-wheel-review/src",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl"
+      ],
+      "precondition": "Public wheel hash matches the reviewed wheel; isolated environment and helper/evidence identities match prepared preflight."
+    },
+    {
+      "stage": "published_wheel_identity",
+      "argv": [
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/released-wheel-v1-identity.json"
+      ]
+    },
+    {
+      "stage": "published_wheel_regression",
+      "cwd": "/private/tmp/phase23-released-wheel-review",
+      "argv": [
+        "/private/tmp/phase23-released-wheel-review/.venv/bin/python",
+        "-m",
+        "scripts.phase23_regression",
+        "ci",
+        "--output",
+        "/Users/bashaarjavaid/Projects/MCP-Sentinel/artifacts/phase23/released-wheel-v1"
+      ],
+      "advisory_observations": 7,
+      "input_seconds": 1800,
+      "semgrep_seconds": 10,
+      "cleanup_seconds": 15,
+      "maximum_workers": 4,
+      "outer_seconds": 13200,
+      "precondition": "Successful exact published-wheel identity, output absent and one-use approval unused. Use existing helper environment and comparison; retain complete results and stop on any failure."
+    },
+    {
+      "stage": "github_release",
+      "argv": [
+        "gh",
+        "release",
+        "create",
+        "v1.4.0",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0.tar.gz",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--verify-tag",
+        "--title",
+        "PortunusMCP Sentinel 1.4.0",
+        "--notes-file",
+        "artifacts/phase23/publication-review-v1/release-notes.md"
+      ],
+      "precondition": "Public artifacts/provenance and all seven released-wheel observations pass; release absent."
+    },
+    {
+      "stage": "external_proof_branch",
+      "cwd": "/private/tmp/phase23-action-release-proof",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/phase23-1.4.0-release-proof:",
+        "origin",
+        "26615d0da25c8af1b9944010397b79765cc365d5:refs/heads/phase23-1.4.0-release-proof"
+      ],
+      "precondition": "External main remains d15df2851771f331849d1f0e1c4531090de7bd3e; proof branch absent; exact local proof tree/patch verified. No main push or PR creation."
+    },
+    {
+      "stage": "exact_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=exact"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Package 1.4.0 public and verified; exact external branch matches proof commit. Wait for successful clean output/version/SARIF checks before alias action."
+    },
+    {
+      "stage": "sign_alias",
+      "argv": [
+        "git",
+        "tag",
+        "-f",
+        "-s",
+        "v1",
+        "{verified_merge_revision}",
+        "-m",
+        "Release 1.4.0"
+      ],
+      "precondition": "Exact proof passed; current remote alias object remains 089adf0891465ddcb78100e06ecf2a2228566c51; verified immutable version tag and main still point to M."
+    },
+    {
+      "stage": "verify_local_alias_signature",
+      "argv": [
+        "git",
+        "verify-tag",
+        "v1"
+      ]
+    },
+    {
+      "stage": "push_alias",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/tags/v1:089adf0891465ddcb78100e06ecf2a2228566c51",
+        "origin",
+        "refs/tags/v1"
+      ]
+    },
+    {
+      "stage": "alias_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=alias"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Remote alias is SSH-signed, verified, and resolves to M. Wait for successful clean output/version/SARIF checks."
+    },
+    {
+      "stage": "retain_release_evidence_and_request_final_acceptance",
+      "required": [
+        "actual UTC publication and verification times",
+        "public hashes and provenance at reviewed revision",
+        "exact Action and alias proof",
+        "released-wheel seven-input results",
+        "all retained limitations and historical failures"
+      ],
+      "phase23_closed": false,
+      "extra_main_commit_or_branch_cleanup": false
+    }
+  ],
+  "new_advisory_observations": 21,
+  "advisory_observation_breakdown": {
+    "main_CI": 7,
+    "release_CI": 7,
+    "downloaded_released_wheel": 7
+  },
+  "new_external_clean_Action_invocations": 2,
+  "external_action_proof": {
+    "commit": "26615d0da25c8af1b9944010397b79765cc365d5",
+    "tree": "01f5adf94c7e183adf23c4aefcd00095db0a178e",
+    "parent": "d15df2851771f331849d1f0e1c4531090de7bd3e",
+    "branch": "phase23-1.4.0-release-proof",
+    "changed_files": 2,
+    "workflow_dispatch_only": true,
+    "explicit_empty_credentials_and_rules_only": true,
+    "pushed": false,
+    "runs_started": 0
+  },
+  "preserve_existing_required_gates": true,
+  "new_paid_calls": 0,
+  "advisory_target_executions": 0,
+  "automatic_retry": false,
+  "timeout_extension": false,
+  "reference_promotion": false,
+  "unsupported_negatives_can_pass": false,
+  "stop_conditions": [
+    "Any changed head/base/tree/package/helper/corpus/reference identity.",
+    "Any failed/incomplete required stage, report drift or changed source-support judgment.",
+    "Any pre-existing version/tag/package collision or unexpected external proof branch/alias state."
+  ],
+  "retained_limitations": [
+    "Current FAF timeout remains failed and current compatibility unestablished; five observations unstarted closed.",
+    "Proxmox unsupported and recovery deferred.",
+    "All historical failures and accepted Phase22 limitations remain; 56 unrelated advisory finding occurrences remain needs_review.",
+    "Pilots, paid benchmark, recovery and optimization deferred; Phase21 and Phase24/15 unchanged."
+  ],
+  "not_in_this_approval": [
+    "Additional detector or report-contract changes",
+    "Additional corpus observations or retries",
+    "Paid/model calls or advisory-target execution",
+    "Adoption outreach, pilots or launch acceptance",
+    "Extra main evidence/status commit or branch cleanup",
+    "Final Phase23 acceptance"
+  ],
+  "publication_authorized": false,
+  "published_at_utc": null,
+  "phase23_complete": false,
+  "requires_final_explicit_acceptance_after_verification": true,
+  "post_candidate_local_records": "New hosted/publication/lifecycle evidence and current local AGENTS/ROADMAP status are retained outside the immutable candidate; no extra main commit is included.",
+  "files_sha256": {
+    ".github/workflows/ci.yml": "d8b41dd6962cabb96c2199baf1cdf3b1ce95867a93aa25d490b881d3392398d2",
+    ".github/workflows/docs.yml": "f7bcb6b0eec71bf252d1c70935039ad52228a3e4a25e0b536a175d63dd26e539",
+    ".github/workflows/release.yml": "a7319ba8747cee5b5c283393ceefab30fb5e78d97b8415690c3da85fc621be69",
+    "AGENTS.md": "5ece1ec7aed4f4198d5a653ffb1dcaa07a608148a3b39db90820b0d02ddce9b7",
+    "ROADMAP.md": "acbc47be3486b2a568d4d5b0297308244f6e592920201131d51b13f3f195f376",
+    "action.yml": "6be7a64bab92c6ef12006edcb59ee41abcfd772fe97bf8d951b73033d8d4eca6",
+    "artifacts/phase23/lifecycle/ghsa-3q26-v19-release-review.json": "c5faa4c53b509976979fcf583fb6bd448916c4c2c12d22d5b4b57f84e31327a4",
+    "artifacts/phase23/publication-review-v1/AGENTS.md.before.txt": "9c49ce965a23499ebe3a568125612877469780c91c982fc61242bdfb7328a42b",
+    "artifacts/phase23/publication-review-v1/README.md": "06eab28a4a6d2410dd8aa79815a041b4742e27e8e0ee07f4004c42aa60110145",
+    "artifacts/phase23/publication-review-v1/ROADMAP.md.before.txt": "e3dac6ef27d4b256e97be58806eda2d8fde9b98d60d396dca62e681d65ef10f1",
+    "artifacts/phase23/publication-review-v1/action-demo-adoption.before.yml": "0e34311777daaa33efa27f652470a16244e93c3c68a70732581f9cb05fcda106",
+    "artifacts/phase23/publication-review-v1/action-demo-adoption.json": "ad7715725375c72eee8184f1cd780a97b16db2c9f26ed0196f48a6611cd9bee1",
+    "artifacts/phase23/publication-review-v1/action-demo-clone.log": "291f06d2de202c6ed0602ab861bfafb64e3f93519d22760f64449ac0f43a1086",
+    "artifacts/phase23/publication-review-v1/action-demo-phase15.before.yml": "37b3e3362efd83ac07097b648e98d477cbe1ea3ded3955f7646bd98087d3ea7b",
+    "artifacts/phase23/publication-review-v1/action-demo-phase15.json": "1381726e0bd91fffa8a311751da6469744d3914b29d6d63cb8b379b724cdc0ee",
+    "artifacts/phase23/publication-review-v1/action-demo-refs-before.txt": "461e186e5e85d85ac3c5b08f6b57e82bdd05fa78676e0a5d66644d04b7363368",
+    "artifacts/phase23/publication-review-v1/action-demo-sentinel.before.yml": "27e88c2729ac62806e461d4311cf5bcf3a6ce3e1103eb2df4f2a8ed6eb9a0477",
+    "artifacts/phase23/publication-review-v1/action-demo-sentinel.json": "67349abd5c3d6649931daa7b34ac7dad26a4e6a99f336a4443fc45da2d755033",
+    "artifacts/phase23/publication-review-v1/action-demo-workflows.json": "8e448d2c906b93494c8f9827691ee09e54bd1d1c6484a7e7e4d85fd0e4dc7146",
+    "artifacts/phase23/publication-review-v1/action-proof-checks.json": "b821e5e8162b63f02b2e9de58c20da2068fb9b3b650849474d720c839b070bbe",
+    "artifacts/phase23/publication-review-v1/action-proof-commit.json": "6a653ca5c8513014f450cfc83fa3e0aca39d44df971fc91d61b11393d969f524",
+    "artifacts/phase23/publication-review-v1/action-proof-phase15.yml": "5affc30720e87277f382118f4a2274d72dcda0d31df3e551978dc5998e9ea4eb",
+    "artifacts/phase23/publication-review-v1/action-proof-source.json": "06b823c66bb7e85acac5d305666134d7a4993701f10b0144612a169ab64ce6e6",
+    "artifacts/phase23/publication-review-v1/action-proof-verify_action_outputs.py": "7e5bf84bd50b97e7e65eca8f0f2abd08e3fb5c77b3860e1f5b351a364201b324",
+    "artifacts/phase23/publication-review-v1/action-proof.patch": "e7e1d41548156a6bf5e9aa1e698c55f2c8c4fe7e577439a9d36f4a8c3e09bee3",
+    "artifacts/phase23/publication-review-v1/action-v1-before.json": "bdbffed7133dff781ea0ed97aab9e7a4ce258c7068f0602a6bf4313f6c91d28f",
+    "artifacts/phase23/publication-review-v1/commands.json": "11450088cf6d97365954249bc149f74481eec5d1965761f4cc0c01247f520650",
+    "artifacts/phase23/publication-review-v1/docs-check.log": "bec1e15b9ef41bb0f9b317a9b424bab081ea50a1754d52c97e03592a52788b3d",
+    "artifacts/phase23/publication-review-v1/merge-message.md": "6d9c8fb175b201c10fb9bf378a3bc2fd4e43e50d5649b9acd2fff97f238bab57",
+    "artifacts/phase23/publication-review-v1/preparation-notes.json": "4dadca60f6a33fb28854708b8fcdd76e8b4ff62d67e36b0573e9771144b916da",
+    "artifacts/phase23/publication-review-v1/pypi-before.json": "d96bc89b2e12015f539a41b418b2359975ca700ed3c9a3b1342316eae0d100da",
+    "artifacts/phase23/publication-review-v1/release-notes.md": "cb05a42306d99921ccac6bf214d78f1f66103eab358af7f3c8bab07c17c0d68f",
+    "artifacts/phase23/publication-review-v1/rule-corpus-identities.json": "b4d059e5d86d2731ec9906460139c27b5c61ed4d825d2bea466cdb405c244a3d",
+    "artifacts/phase23/publication-review-v1/testpypi-before.json": "1ebed284cb43d3f253ec1c35647009a8ad6d618d0013e5c2c9bd0ff2527094dc",
+    "artifacts/phase23/publication-review-v1/verify_installed_wheel.py.txt": "8f61113d877700f862a1f8424b941ad3ad4b4537f3ea8c622f4892a01ef1d220",
+    "artifacts/phase23/publication-review-v1/version-tag-before.json": "e2e3c64edab172132f77ce89a0e8c190db1cd30936a096344f45893bd5b75f8a",
+    "artifacts/phase23/publication-review-v1/version-tag-before.stderr": "d2c8985c89b29a842ac4946d13bdbc297709f44f20bb968faf9682664b211db6",
+    "artifacts/phase23/publication-review-v1/wheel-environment.log": "20778a6df7adec404c762b1a18fe85b28d61639512cf422995257bd5f422259c",
+    "artifacts/phase23/publication-review-v1/wheel-identity-controls.json": "540a1d6363089c64812ad418546bbc7df7a2b5943a152aa1d3b0a10d96d5ef06",
+    "artifacts/phase23/publication-review-v1/wheel-identity.json": "c540852773679d5af3527a1a34b5c530323e796f80756604b8010f0c464717a1",
+    "artifacts/phase23/publication-review-v1/wheel-identity.log": "e11ce9b7108a4a8440dadd7c9566bb501695ce5ad763c5fed889d16d149f6b00",
+    "artifacts/phase23/release-hosted-v1/authorization.json": "ddd49444d6430a7824cb23bcaa1afed5fd901610cf8bd8c2566ecb1197b489e1",
+    "artifacts/phase23/release-hosted-v1/binding.json": "9462133e34496d47087050bcf0253a7bf35b9a26636b2149870b02a27db14abf",
+    "artifacts/phase23/release-hosted-v1/main-final.json": "4155e83c0700cfcac6b454d9beaeefb9235f3278693f0678cee64504d62edb1f",
+    "artifacts/phase23/release-hosted-v1/package-content-verification.json": "9ea21d143e345771ba2d976011d1885b223e7b42ea1e6972289096029576c9cb",
+    "artifacts/phase23/release-hosted-v1/package-hashes.json": "7597d11c42770b88a31c4f7ed58a992c040dada65ce52d83429d37f00ee129dc",
+    "artifacts/phase23/release-hosted-v1/pr-final.json": "4d11b94f3a62b70d8207d7191c1fa5437d56cc80f6a99144a0d4d9b546ccde3d",
+    "artifacts/phase23/release-hosted-v1/regression-assessment.json": "4cfffbede394f06c7f28c4238618439d93093895dad6d9d2c52c8709d3e27e3e",
+    "artifacts/phase23/release-hosted-v1/summary.json": "5fe219b6e0892910d405a3d064da89fcb324d5f82744860e1d68df5d21f3e01f",
+    "artifacts/phase23/release-review-v2/contents.json": "86162c7cf4c9d00e9d9d7ca1cc63e1db29919212ad749001318187a3babd843a",
+    "artifacts/phase23/release-review-v2/delivery-proposal.json": "02580e2ecac97b630b72adbe4ecec7442deb5f09bd889f2c78431fa0f72b1666",
+    "artifacts/phase23/release-review-v2/local-checks.json": "00416b61b9d1fe72b6dd891e90dda8208114d10034d8582fd6b0adbf0db5931b",
+    "artifacts/phase23/technical-acceptance-v1/receipt.json": "cd751704d99b12c5c37ef4f8aed665e0a5d3b813fede53ef2a78b42756037233",
+    "scripts/phase23_regression.py": "f19741a308201668d0bab06e8c1cb86b67633c73f2b91ccb493998bf17862cb7",
+    "tests/evals/phase23/candidate-v2/manifest.json": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c",
+    "tests/test_phase23.py": "acc75dd9f7297fb361f93b1f9251dee421099cfdbf409850e01fa960e6ad0755"
+  }
+}

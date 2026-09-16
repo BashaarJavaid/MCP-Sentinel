@@ -1,0 +1,292 @@
+{
+  "candidate_commit": "d5365dce6184707248dab17a921b3257cc508069",
+  "rule_count": 16,
+  "static_rules": 12,
+  "dynamic_rules": 4,
+  "new_rules_since_1_3_0": [
+    "SENT-012",
+    "SENT-013",
+    "SENT-014",
+    "SENT-015",
+    "SENT-016"
+  ],
+  "rules": [
+    {
+      "rule_id": "SENT-001",
+      "title": "Overly broad tool permission scope",
+      "description": "The tool declares filesystem or network access broader than its handler uses.",
+      "impact": "High",
+      "remediation": "Narrow each declared scope to the resources the handler actually requires.",
+      "false_positive_risk": "Medium: legitimately broad tools require an explicit capability justification.",
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-001"
+    },
+    {
+      "rule_id": "SENT-002",
+      "title": "Unsafe execution from tool input",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "impact": "Critical",
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "false_positive_risk": "Low: fixed literal subprocess argument vectors are excluded.",
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "engine": "semgrep",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-002"
+    },
+    {
+      "rule_id": "SENT-003",
+      "title": "Missing tool input validation",
+      "description": "A tool handler consumes parameters before framework or explicit validation.",
+      "impact": "Medium",
+      "remediation": "Use an official input schema or explicit validation before first use.",
+      "false_positive_risk": "Medium: custom validators outside the supported boundary may not be recognized.",
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-003"
+    },
+    {
+      "rule_id": "SENT-004",
+      "title": "Unsanitized tool content in prompt",
+      "description": "Tool output or description flows into a later model prompt without a trusted sanitizer.",
+      "impact": "High",
+      "remediation": "Pass tool-controlled text through a configured sanitizer before prompt construction.",
+      "false_positive_risk": "Medium-High: intraprocedural prompt-flow analysis is intentionally heuristic.",
+      "owasp_category": {
+        "id": "ASI01:2026",
+        "name": "Agent Goal Hijack"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-004"
+    },
+    {
+      "rule_id": "SENT-005",
+      "title": "Hardcoded secret",
+      "description": "Source or configuration contains a credential signature or contextual high-entropy secret.",
+      "impact": "Critical",
+      "remediation": "Load credentials from an external secret store or environment at runtime.",
+      "false_positive_risk": "Low-Medium: high-entropy test values require paired path/fingerprint allowlisting.",
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "engine": "semgrep",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-005"
+    },
+    {
+      "rule_id": "SENT-006",
+      "title": "Missing or ineffective route authentication",
+      "description": "An HTTP route lacks inherited authentication or uses a no-op verifier.",
+      "impact": "High",
+      "remediation": "Require credential verification and an explicit rejection path before route execution.",
+      "false_positive_risk": "Low: intentional public routes must be explicitly configured.",
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-006"
+    },
+    {
+      "rule_id": "SENT-007",
+      "title": "Unverified tool manifest",
+      "description": "Manifest bytes reach registration without a trusted hash or signature verification.",
+      "impact": "Medium",
+      "remediation": "Verify a pinned SHA-256 digest or trusted detached signature before parsing and use.",
+      "false_positive_risk": "Low: custom verification beyond the supported crypto APIs may require later coverage.",
+      "owasp_category": {
+        "id": "ASI04:2026",
+        "name": "Agentic Supply Chain Vulnerabilities"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-007"
+    },
+    {
+      "rule_id": "SENT-008",
+      "title": "Out-of-scope tool execution",
+      "description": "After a successful granted-tool control, the server processed valid arguments through a listed tool omitted from its declared tool-name grants.",
+      "impact": "Critical",
+      "remediation": "Reject tool calls that are not granted by the active capability policy.",
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      }
+    },
+    {
+      "rule_id": "SENT-009",
+      "title": "Oversized argument violates a limit or crashes the target",
+      "description": "After a successful baseline, the server processed an explicit size-limit violation or suffered an observed OOM/crash on an oversized argument.",
+      "impact": "Medium",
+      "remediation": "Enforce schema and byte-size limits before invoking tool handlers.",
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      }
+    },
+    {
+      "rule_id": "SENT-010",
+      "title": "Injection payload executed",
+      "description": "A tool argument caused the Sentinel scratch canary side effect.",
+      "impact": "Critical",
+      "remediation": "Treat tool arguments as inert data and remove dynamic execution sinks.",
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      }
+    },
+    {
+      "rule_id": "SENT-011",
+      "title": "Malformed schema input processed",
+      "description": "After a successful baseline, the server processed locally verified invalid arguments that violate a required-field or type constraint.",
+      "impact": "Low",
+      "remediation": "Validate required fields and declared types before handler execution.",
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      }
+    },
+    {
+      "rule_id": "SENT-012",
+      "title": "Path containment failure",
+      "description": "Caller-controlled paths reach filesystem access without enforced containment within the intended directory or repository.",
+      "impact": "High",
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "false_positive_risk": "Medium: intentionally unrestricted file tools and unsupported custom validators require review; string prefixes alone do not prove containment.",
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "engine": "hybrid",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-012"
+    },
+    {
+      "rule_id": "SENT-013",
+      "title": "Tool-description poisoning",
+      "description": "Recoverable tool metadata instructs an agent to override instructions, disclose secrets, or redirect execution to another tool.",
+      "impact": "High",
+      "remediation": "Remove instruction overrides, secret-disclosure requests and unrelated tool redirection from tool and parameter descriptions.",
+      "false_positive_risk": "Medium: legitimate security tooling may quote attack instructions; explicit quoted warnings are excluded, and remaining candidates need review.",
+      "owasp_category": {
+        "id": "ASI01:2026",
+        "name": "Agent Goal Hijack"
+      },
+      "engine": "ast",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-013"
+    },
+    {
+      "rule_id": "SENT-014",
+      "title": "Command option injection",
+      "description": "Caller-controlled references reach command option positions without enforced rejection.",
+      "impact": "Critical",
+      "remediation": "Reject option-like references before invocation or use command-specific option terminators and safe object APIs.",
+      "false_positive_risk": "Medium: custom validation and unsupported command wrappers need review; argv lists alone do not prevent option injection.",
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "engine": "ast",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-014"
+    },
+    {
+      "rule_id": "SENT-015",
+      "title": "Server-side request forgery",
+      "description": "A caller URL reaches an outbound request without enforced scheme and destination restrictions.",
+      "impact": "High",
+      "remediation": "Permit only required HTTP(S) destinations, reject private and loopback addresses, and enforce checks on every requested URL and redirect.",
+      "false_positive_risk": "Medium: custom clients and unsupported validators require review; DNS rebinding is outside this rule's claim.",
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "engine": "ast",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-015"
+    },
+    {
+      "rule_id": "SENT-016",
+      "title": "Unauthorized operator credential fallback",
+      "description": "An HTTP caller without its own credential can select an operator credential for an authenticated request.",
+      "impact": "High",
+      "remediation": "Reject missing caller credentials before forwarding the request; keep operator credentials outside caller-selectable fallback paths.",
+      "false_positive_risk": "Medium: intended delegation needs an enforced authorization policy. Middleware presence or a nearby check alone does not establish one.",
+      "owasp_category": {
+        "id": "ASI03:2026",
+        "name": "Identity & Privilege Abuse"
+      },
+      "engine": "ast",
+      "help_uri": "https://github.com/BashaarJavaid/MCP-Sentinel/blob/main/docs/rules.md#sent-016"
+    }
+  ],
+  "rule_catalog_json_sha256": "980bd646a9750be4f313a2239bd7b28ef36bd50ca0553af261dfd5edf63b27a2",
+  "static_and_dynamic_source_tree_sha256": "524f435ba57795faea95966da9cabfe8e82210e967d595ce397fdbf42992733e",
+  "source_files_sha256": {
+    "src/sentinel/static/catalog.py": "244b8d4e9d0fb81a3cddd3d59edf6a3c39e88b81febbdb791681908a2c1484a4",
+    "src/sentinel/static/suppression.py": "86d9d5b000f2957af3e80a1197e4fa73d1e1e7360a100a0efc6e65174aaadb12",
+    "src/sentinel/static/semgrep_adapter.py": "2436aa9b7d43614e611ed19224c738b62285125f59d65725dbe053e0d837d2eb",
+    "src/sentinel/static/path_flow.py": "d03ef4e6a20332cb9622db068a2a52e75ef8ff1ee73e84f8d95e26e4989615ef",
+    "src/sentinel/static/execution.py": "217f3b2f31127dc7751ff8e171b361c30cfea2c941d233ac0a0935aaf47746cc",
+    "src/sentinel/static/http_context.py": "fac60a7f50ea9f2af99478be60e8fee928fe68dddf9849e80cdd0fa707563a6d",
+    "src/sentinel/static/registration_flow.py": "1f18d72c56cf7ec08547243f8257fc4d21fd4ea057b21bda3e0a92e641daefed",
+    "src/sentinel/static/discovery.py": "0424fb44079504c710af667f4760e653fc6ae686f46aa399de7a311524b9f9e3",
+    "src/sentinel/static/typescript.py": "93e29a2e24cd738e544c3a596f5223240f9fbeff74396d7c2e56a773e6876ce9",
+    "src/sentinel/static/traversal.py": "7fcc2c5371be495a78268babf9ddd99bd7a9491206e07d05fcf0008af0386a25",
+    "src/sentinel/static/__init__.py": "926a1a25f2081624e5b42c7174e1fe7c98c33d11d27264bb38f8c0a8931a04f8",
+    "src/sentinel/static/coverage.py": "92748952f207c1c499d1b84d487f94d95667d0910a91b0cded5f2a95a6ba8d95",
+    "src/sentinel/static/model.py": "0ea4efa4e80a056c3972d4a2da35910673bf050c3f3f9d032985fffc8460d0c5",
+    "src/sentinel/static/module_dispatch.py": "f4c97d46948ed01290af179564620e4d3ba3f9de4e3e3286f1cb441dbab133bb",
+    "src/sentinel/static/launches.py": "5e3cbd9c7e41f7de7e1752ba201bc5e4d1cc4083a6e514fc02cfca3614e1ff9c",
+    "src/sentinel/static/engine.py": "a50ab1334974b7429a4ac62cad70b005d8facb2d3a2298a1a2c54137df52efe5",
+    "src/sentinel/static/ast_utils.py": "e02f54f0bc3976be901ec54bd5946389a3fddabf5c58bf3aad1c299f4c08b099",
+    "src/sentinel/static/http_discovery.py": "426e2027f49068097a116d19e6c08a4804c1f8048ebdffcab1b1a32454887d21",
+    "src/sentinel/static/typescript_modules.py": "c3a151781808f6b59c17637a760a41bcae4114efd864f2726685834bce811926",
+    "src/sentinel/static/typescript_safety.py": "26ea8a04ae4ecdce75cb5fe3a1010327a7a43cc682db9332865c212f070fc4bf",
+    "src/sentinel/static/typescript_registration_flow.py": "0820fe29429ae474d93c1ba11fbd3b61577fc63271e588fb832810923a8ad774",
+    "src/sentinel/static/typescript_execution.py": "fb1370866d49800665355353a7a1ccba54292fc9639caa3cadc4e37623b85d6d",
+    "src/sentinel/static/safety.py": "8e153788747de4031442351f01e5983b390c0921a786a00ad08a0ee440fcbe13",
+    "src/sentinel/static/workers.py": "ecefa91292fbd863fed600b339a8cdf4f94b1a93ba4b7a245941e01f9c692afc",
+    "src/sentinel/static/typescript_discovery.py": "d45d70436ea6638be70aa2c2ef1bc1ccd2d21e4422ad76b7cbb278e9e34d08cf",
+    "src/sentinel/static/semgrep_ast.py": "c832ab34b53a40a0714c78505261f8c38d55e3ebeb9c7665362379a930fac787",
+    "src/sentinel/static/typescript_path_flow.py": "2bf7749298d1d3957fb42dacd7f0c0d7af0919fa1bb019930145c22fbcc4fe17",
+    "src/sentinel/static/lifespan.py": "bfcf887a14ce8c6b35a56abae6e4c883e984b9109654a09946bd75565dd3349a",
+    "src/sentinel/static/semgrep/sent003_typescript.yaml": "eed8c5dd19f397b972548b4ac4d3749d187890a00931655c5167644f5c0533d5",
+    "src/sentinel/static/semgrep/sent004_typescript.yaml": "7ae47c7946bc6d1d2fb9df217a2769c63e135ce6f1525bc47bb9cb20d4391a88",
+    "src/sentinel/static/semgrep/sent002_typescript.yaml": "4f309e825a59cd65791758e8764dbb9b4bfe32eb4d6995f3bf472fa1060fb245",
+    "src/sentinel/static/semgrep/sent007_typescript.yaml": "9a88c93ee12e71913dcabf9b9370bacefe5d26d71e011b32cc1401601b53c2fd",
+    "src/sentinel/static/semgrep/typescript_tool_catalog.yaml": "00f14c65ea5ed0f62623afca2afc853e165019c37ea9620644605ae51013fa39",
+    "src/sentinel/static/semgrep/sent002.yaml": "b231859ee9e191af60bc58df962f94711f63d5d9ee1f3ef31807fd1aa61cdcea",
+    "src/sentinel/static/semgrep/typescript_parse_gate.yaml": "443b6275ad173d01296db728e6bf673a889bcfb279449d39a642c3a8a5dd1f54",
+    "src/sentinel/static/semgrep/sent005.yaml": "5703943b4afb0da1c62231ae86e43336c586485f541db8b9aa9d6ce0242b423c",
+    "src/sentinel/static/semgrep/sent001_typescript.yaml": "46e7858578966925721494908575a28ed20b2c3a32661b27fd4e8fd089be5575",
+    "src/sentinel/static/semgrep/sent006_typescript.yaml": "9edf1f714773c4c96c9d2317522c91f56a115e86cf820fdf74d8cfa7b76c5eb5",
+    "src/sentinel/static/rules/sent014.py": "b59017ed36b51beb0120f4ef8b3931f447cac844f4e676e351751eb0bfd64d16",
+    "src/sentinel/static/rules/sent004.py": "1eacab3d66d71d92a58f0d3208e84fbe1e8cea6623f254f6594c2a8b67bc47a3",
+    "src/sentinel/static/rules/sent015.py": "1cdb4c8a357bacef5f9fe242e399f4580560a82eaa4c3ce90ed52a9069b3995c",
+    "src/sentinel/static/rules/__init__.py": "2caa23ab42c308ca3c81ae15cc98c2b5c64f80305e1ec9e1a30162618e12cdef",
+    "src/sentinel/static/rules/sent005.py": "41c959ca1fa1f6e98a8012862d28d5001ccd8ef5a7a0a6625954a6ad612dd63b",
+    "src/sentinel/static/rules/sent001.py": "76df15893ca887b4bb3929288be5351c93fd8d3e4568ec3631d276c53d830f0f",
+    "src/sentinel/static/rules/sent016.py": "2503e59a7fb2d824ae0c7fe3104a9f03d51773b63636c3fec0e9ff0ed16dd291",
+    "src/sentinel/static/rules/sent006.py": "2834b5c29656f55f5f3bfb91b3863f84c4d90986fc04b4435c21fcb92e8f1b6c",
+    "src/sentinel/static/rules/sent012.py": "d161f035b6460f76b0934d48d4826daabaa0e6d6be9277f6b286c9702786efee",
+    "src/sentinel/static/rules/sent002.py": "9341440414174cd061ea9e6e35a7553c53a13053e37532af7f23ec429d8cb57d",
+    "src/sentinel/static/rules/sent013.py": "4a488840104aa1fad29e67df906933fadb30acc83e963ca125f3e87129f61183",
+    "src/sentinel/static/rules/sent003.py": "2bbddbdf097f492116079dbefc0553839b268b78e642e35624cb4ab273c30a78",
+    "src/sentinel/static/rules/sent007.py": "0b55c6aa2bda6f42289df2ec9ac6701a09b46cc001974a2e7ead0b6aa1e44346",
+    "src/sentinel/dynamic/catalog.py": "caf759acf20c5d5a1b925feb205d2aaa895b5fb30a265f85e903ca22ec2db9fb",
+    "src/sentinel/dynamic/merge.py": "c4e739a099360f768fc6e76952534249e20775bb0cddded7e2b28302b5a5aa4e",
+    "src/sentinel/dynamic/arguments.py": "4b09b279a5ab6a842079e87318cba818930933a58e5ce6d2faff45eac34bfbbb",
+    "src/sentinel/dynamic/__init__.py": "0de57b4166806a7b444d7ee5c4ce967843918b148898a5e11c48fe4d071aa9e7",
+    "src/sentinel/dynamic/coverage.py": "5c53e789f8fb1ccb92c8f30ea5e4a7ec54dc1c43bac773f586c13e6e9eb0bc8f",
+    "src/sentinel/dynamic/sandbox.py": "4237b003932f8e9b5b80a97a0091055991b93a962319d1ec5a4b725b2eef46b3",
+    "src/sentinel/dynamic/prober.py": "80c74e811cf4221652c88e7fa74ee16ec7b3c23e95988e458e4ccd48ed7dfe16"
+  },
+  "corpus_manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c",
+  "independent_advisory_count": 1,
+  "correlated_inputs": 7
+}

@@ -1,0 +1,147 @@
+name: MCP Sentinel Phase 12 adoption proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Action reference to prove
+        required: true
+        default: exact
+        type: choice
+        options: [exact, alias]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  exact:
+    if: inputs.release == 'exact'
+    name: Exact v1.2.0 baseline proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proof targets
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Scan unchanged baseline target
+        id: unchanged
+        uses: BashaarJavaid/MCP-Sentinel@v1.2.0
+        with:
+          target-path: baseline_server
+          baseline: baseline_server/sentinel-baseline.json
+          fail-on: high
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Preserve unchanged SARIF
+        shell: bash
+        env:
+          SARIF_PATH: ${{ steps.unchanged.outputs.sarif-path }}
+        run: cp "$SARIF_PATH" "$RUNNER_TEMP/phase12-unchanged.sarif"
+
+      - name: Add one inert secret
+        shell: bash
+        run: echo 'new_fixture_token = "ghp_abcdefghijklmnopqrstuvwxyz1234567890"' >> baseline_server/server.py
+
+      - name: Scan target with one new finding
+        id: changed
+        continue-on-error: true
+        uses: BashaarJavaid/MCP-Sentinel@v1.2.0
+        with:
+          target-path: baseline_server
+          baseline: baseline_server/sentinel-baseline.json
+          fail-on: high
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Preserve changed SARIF
+        if: always()
+        shell: bash
+        env:
+          SARIF_PATH: ${{ steps.changed.outputs.sarif-path }}
+        run: cp "$SARIF_PATH" "$RUNNER_TEMP/phase12-changed.sarif"
+
+      - name: Verify exact baseline behavior and budget
+        if: always()
+        shell: bash
+        env:
+          UNCHANGED_OUTCOME: ${{ steps.unchanged.outcome }}
+          UNCHANGED_COUNT: ${{ steps.unchanged.outputs.findings-count }}
+          UNCHANGED_HIGHEST: ${{ steps.unchanged.outputs.highest-severity }}
+          CHANGED_OUTCOME: ${{ steps.changed.outcome }}
+          CHANGED_COUNT: ${{ steps.changed.outputs.findings-count }}
+          CHANGED_HIGHEST: ${{ steps.changed.outputs.highest-severity }}
+        run: |
+          [[ "$UNCHANGED_OUTCOME" == "success" ]]
+          [[ "$CHANGED_OUTCOME" == "failure" ]]
+          python verify_adoption_outputs.py \
+            "$RUNNER_TEMP/phase12-unchanged.sarif" \
+            "$UNCHANGED_COUNT" "$UNCHANGED_HIGHEST" 5 0 \
+            --additional-sarif "$RUNNER_TEMP/phase12-changed.sarif"
+          python verify_adoption_outputs.py \
+            "$RUNNER_TEMP/phase12-changed.sarif" \
+            "$CHANGED_COUNT" "$CHANGED_HIGHEST" 5 1
+
+      - name: Preserve exact SARIF reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sentinel-phase12-exact-sarif
+          path: ${{ runner.temp }}/phase12-*.sarif
+          retention-days: 90
+          if-no-files-found: error
+
+  pre-commit:
+    if: inputs.release == 'exact'
+    name: Exact v1.2.0 pre-commit proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proof targets
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit
+        run: python -m pip install pre-commit==4.6.2
+
+      - name: Run clean, vulnerable, and suppressed cases
+        run: python run_pre_commit_proof.py
+
+  alias:
+    if: inputs.release == 'alias'
+    name: Signed v1 alias baseline proof
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out proof target
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Scan unchanged baseline target through v1
+        id: sentinel
+        uses: BashaarJavaid/MCP-Sentinel@v1
+        with:
+          target-path: baseline_server
+          baseline: baseline_server/sentinel-baseline.json
+          fail-on: high
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Verify alias baseline behavior and budget
+        shell: bash
+        env:
+          STEP_OUTCOME: ${{ steps.sentinel.outcome }}
+          SARIF_PATH: ${{ steps.sentinel.outputs.sarif-path }}
+          FINDINGS_COUNT: ${{ steps.sentinel.outputs.findings-count }}
+          HIGHEST_SEVERITY: ${{ steps.sentinel.outputs.highest-severity }}
+        run: |
+          [[ "$STEP_OUTCOME" == "success" ]]
+          python verify_adoption_outputs.py \
+            "$SARIF_PATH" "$FINDINGS_COUNT" "$HIGHEST_SEVERITY" 5 0
+
+      - name: Preserve alias SARIF
+        if: always() && steps.sentinel.outputs.sarif-path != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sentinel-phase12-alias-sarif
+          path: ${{ steps.sentinel.outputs.sarif-path }}
+          retention-days: 90
+          if-no-files-found: error

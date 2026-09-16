@@ -182,6 +182,9 @@ version tags and artifacts. Roll back by selecting a previously verified exact
 package version and Action commit; record the loss of newer fixes. Moving the
 mutable `v1` alias back requires an explicit reviewed action.
 
-Phase 23 remains incomplete until the reviewed advisory loop reaches a verified
-release, offline CI rejects the deliberate regression, contribution guidance is
-delivered, and the maintainer explicitly accepts the final evidence.
+Phase 23 is **complete and explicitly accepted**. The reviewed advisory loop
+reached the verified1.4.0 release; offline CI rejected the deliberate regression,
+and contribution guidance and final evidence were delivered and accepted.
+The [accepted closeout](https://github.com/BashaarJavaid/MCP-Sentinel/tree/main/artifacts/phase23/accepted-closeout-v1)
+preserves every historical failure and accepted limitation. Ongoing maintenance
+continues on the cadence above; Phase21 and Phase24/15 remain unchanged.

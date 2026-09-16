@@ -1,5 +1,14 @@
 # PortunusMCP Sentinel
 
+## Phase 23 complete: maintained feedback and regression releases
+
+The maintainer accepted the verified [1.4.0 release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.4.0),
+including the advisory correction, offline regression and deliberate-regression
+rejection, package/Action proofs and contribution guidance.
+[Accepted closeout](artifacts/phase23/accepted-closeout-v1/README.md) retains the
+full evidence and all historical limitations. Pilots, recovery and benchmarks
+remain deferred; Phase21 and Phase24/15 are unchanged.
+
 ## Current v93 accepted Phase 22 closeout
 
 **Phase 22 is technically complete under the explicitly accepted revised scope.**

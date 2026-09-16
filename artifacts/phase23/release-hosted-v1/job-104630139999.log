@@ -1,0 +1,339 @@
+﻿2026-09-16T01:26:53.8247486Z Current runner version: '2.337.0'
+2026-09-16T01:26:53.8282590Z ##[group]Runner Image Provisioner
+2026-09-16T01:26:53.8284087Z Hosted Compute Agent
+2026-09-16T01:26:53.8285100Z Version: 20260828.587
+2026-09-16T01:26:53.8286125Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-16T01:26:53.8287478Z Build Date: 2026-08-28T16:44:25Z
+2026-09-16T01:26:53.8288568Z Worker ID: {6caafe34-7e52-4e8d-859a-15d87ad6ea63}
+2026-09-16T01:26:53.8289877Z Azure Region: eastus
+2026-09-16T01:26:53.8290827Z ##[endgroup]
+2026-09-16T01:26:53.8293709Z ##[group]Operating System
+2026-09-16T01:26:53.8294989Z Ubuntu
+2026-09-16T01:26:53.8295814Z 24.04.5
+2026-09-16T01:26:53.8296724Z LTS
+2026-09-16T01:26:53.8297633Z ##[endgroup]
+2026-09-16T01:26:53.8298515Z ##[group]Runner Image
+2026-09-16T01:26:53.8299561Z Image: ubuntu-24.04
+2026-09-16T01:26:53.8300493Z Version: 20260907.300.1
+2026-09-16T01:26:53.8302964Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-16T01:26:53.8305590Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-16T01:26:53.8307373Z ##[endgroup]
+2026-09-16T01:26:53.8309259Z ##[group]GITHUB_TOKEN Permissions
+2026-09-16T01:26:53.8312162Z Contents: read
+2026-09-16T01:26:53.8313194Z Metadata: read
+2026-09-16T01:26:53.8314171Z ##[endgroup]
+2026-09-16T01:26:53.8317163Z Secret source: Actions
+2026-09-16T01:26:53.8318803Z Cache mode: write
+2026-09-16T01:26:53.8319939Z Prepare workflow directory
+2026-09-16T01:26:53.8794080Z Prepare all required actions
+2026-09-16T01:26:53.8866914Z Getting action download info
+2026-09-16T01:26:54.1026069Z Download action repository 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-09-16T01:26:54.2126344Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-16T01:26:54.2918024Z Download action repository 'astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e' (SHA:d0cc045d04ccac9d8b7881df0226f9e82c39688e)
+2026-09-16T01:26:54.5192228Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-09-16T01:26:54.7294579Z Complete job name: Build canonical distributions
+2026-09-16T01:26:54.8077215Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:26:54.8086418Z ##[group]Run actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+2026-09-16T01:26:54.8087351Z with:
+2026-09-16T01:26:54.8087822Z   repository: BashaarJavaid/MCP-Sentinel
+2026-09-16T01:26:54.8091710Z   token: ***
+2026-09-16T01:26:54.8092155Z   ssh-strict: true
+2026-09-16T01:26:54.8092599Z   ssh-user: git
+2026-09-16T01:26:54.8093075Z   persist-credentials: true
+2026-09-16T01:26:54.8093581Z   clean: true
+2026-09-16T01:26:54.8094040Z   sparse-checkout-cone-mode: true
+2026-09-16T01:26:54.8094569Z   fetch-depth: 1
+2026-09-16T01:26:54.8095018Z   fetch-tags: false
+2026-09-16T01:26:54.8095466Z   show-progress: true
+2026-09-16T01:26:54.8095947Z   lfs: false
+2026-09-16T01:26:54.8096373Z   submodules: false
+2026-09-16T01:26:54.8096830Z   set-safe-directory: true
+2026-09-16T01:26:54.8097576Z ##[endgroup]
+2026-09-16T01:26:54.9200368Z Syncing repository: BashaarJavaid/MCP-Sentinel
+2026-09-16T01:26:54.9203537Z ##[group]Getting Git version info
+2026-09-16T01:26:54.9204851Z Working directory is '/home/runner/work/MCP-Sentinel/MCP-Sentinel'
+2026-09-16T01:26:54.9206796Z [command]/usr/bin/git version
+2026-09-16T01:26:54.9302401Z git version 2.55.0
+2026-09-16T01:26:54.9312685Z ##[endgroup]
+2026-09-16T01:26:54.9331165Z Temporarily overriding HOME='/home/runner/work/_temp/0a311b1a-bbba-4145-88fa-1f3398a904f9' before making global git config changes
+2026-09-16T01:26:54.9334411Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-16T01:26:54.9337832Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T01:26:54.9422538Z Deleting the contents of '/home/runner/work/MCP-Sentinel/MCP-Sentinel'
+2026-09-16T01:26:54.9443409Z ##[group]Initializing the repository
+2026-09-16T01:26:54.9444346Z [command]/usr/bin/git init /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T01:26:54.9522755Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-16T01:26:54.9524506Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-16T01:26:54.9526092Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-16T01:26:54.9527305Z hint: call:
+2026-09-16T01:26:54.9528272Z hint:
+2026-09-16T01:26:54.9528866Z hint: 	git config --global init.defaultBranch <name>
+2026-09-16T01:26:54.9529556Z hint:
+2026-09-16T01:26:54.9530158Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-16T01:26:54.9531585Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-16T01:26:54.9532378Z hint:
+2026-09-16T01:26:54.9532808Z hint: 	git branch -m <name>
+2026-09-16T01:26:54.9533308Z hint:
+2026-09-16T01:26:54.9533952Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-16T01:26:54.9535017Z Initialized empty Git repository in /home/runner/work/MCP-Sentinel/MCP-Sentinel/.git/
+2026-09-16T01:26:54.9538020Z [command]/usr/bin/git remote add origin https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-16T01:26:54.9591995Z ##[endgroup]
+2026-09-16T01:26:54.9593338Z ##[group]Disabling automatic garbage collection
+2026-09-16T01:26:54.9677928Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-16T01:26:54.9709455Z ##[endgroup]
+2026-09-16T01:26:54.9711113Z ##[group]Setting up auth
+2026-09-16T01:26:54.9712674Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-16T01:26:54.9716998Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-16T01:26:55.0073510Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-16T01:26:55.0115672Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-16T01:26:55.0353860Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-16T01:26:55.0390706Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-16T01:26:55.0617987Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-16T01:26:55.0658578Z ##[endgroup]
+2026-09-16T01:26:55.0659506Z ##[group]Fetching the repository
+2026-09-16T01:26:55.0669095Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e2369146346fc9bd590a9f46c9657126983e3291:refs/remotes/pull/40/merge
+2026-09-16T01:27:13.7459324Z From https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-16T01:27:13.7460868Z  * [new ref]         e2369146346fc9bd590a9f46c9657126983e3291 -> pull/40/merge
+2026-09-16T01:27:13.7464410Z ##[endgroup]
+2026-09-16T01:27:13.7477653Z ##[group]Determining the checkout info
+2026-09-16T01:27:13.7478626Z ##[endgroup]
+2026-09-16T01:27:13.7479274Z [command]/usr/bin/git sparse-checkout disable
+2026-09-16T01:27:13.7533176Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-16T01:27:13.7570839Z ##[group]Checking out the ref
+2026-09-16T01:27:13.7574830Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/40/merge
+2026-09-16T01:27:15.3007289Z Updating files:  41% (3919/9489)
+2026-09-16T01:27:15.7732818Z Updating files:  42% (3986/9489)
+2026-09-16T01:27:15.9301531Z Updating files:  42% (4044/9489)
+2026-09-16T01:27:16.2995789Z Updating files:  43% (4081/9489)
+2026-09-16T01:27:16.3058927Z Updating files:  44% (4176/9489)
+2026-09-16T01:27:16.3206116Z Updating files:  45% (4271/9489)
+2026-09-16T01:27:16.3599098Z Updating files:  46% (4365/9489)
+2026-09-16T01:27:16.3682672Z Updating files:  47% (4460/9489)
+2026-09-16T01:27:16.3838326Z Updating files:  48% (4555/9489)
+2026-09-16T01:27:16.4107733Z Updating files:  49% (4650/9489)
+2026-09-16T01:27:16.4244017Z Updating files:  50% (4745/9489)
+2026-09-16T01:27:16.4375952Z Updating files:  51% (4840/9489)
+2026-09-16T01:27:16.4472173Z Updating files:  52% (4935/9489)
+2026-09-16T01:27:16.4605108Z Updating files:  53% (5030/9489)
+2026-09-16T01:27:16.4718940Z Updating files:  54% (5125/9489)
+2026-09-16T01:27:16.4796403Z Updating files:  55% (5219/9489)
+2026-09-16T01:27:16.5203710Z Updating files:  56% (5314/9489)
+2026-09-16T01:27:16.5330842Z Updating files:  57% (5409/9489)
+2026-09-16T01:27:16.5448304Z Updating files:  58% (5504/9489)
+2026-09-16T01:27:16.5605457Z Updating files:  59% (5599/9489)
+2026-09-16T01:27:16.5859959Z Updating files:  60% (5694/9489)
+2026-09-16T01:27:16.6332024Z Updating files:  61% (5789/9489)
+2026-09-16T01:27:16.7076195Z Updating files:  62% (5884/9489)
+2026-09-16T01:27:16.7468465Z Updating files:  63% (5979/9489)
+2026-09-16T01:27:16.7677934Z Updating files:  64% (6073/9489)
+2026-09-16T01:27:16.7706434Z Updating files:  65% (6168/9489)
+2026-09-16T01:27:16.8122469Z Updating files:  65% (6198/9489)
+2026-09-16T01:27:16.8919952Z Updating files:  66% (6263/9489)
+2026-09-16T01:27:16.9170108Z Updating files:  67% (6358/9489)
+2026-09-16T01:27:16.9233488Z Updating files:  68% (6453/9489)
+2026-09-16T01:27:16.9419841Z Updating files:  69% (6548/9489)
+2026-09-16T01:27:16.9599532Z Updating files:  70% (6643/9489)
+2026-09-16T01:27:16.9662587Z Updating files:  71% (6738/9489)
+2026-09-16T01:27:16.9721039Z Updating files:  72% (6833/9489)
+2026-09-16T01:27:16.9869656Z Updating files:  73% (6927/9489)
+2026-09-16T01:27:16.9928108Z Updating files:  74% (7022/9489)
+2026-09-16T01:27:17.0115259Z Updating files:  75% (7117/9489)
+2026-09-16T01:27:17.0293331Z Updating files:  76% (7212/9489)
+2026-09-16T01:27:17.0455078Z Updating files:  77% (7307/9489)
+2026-09-16T01:27:17.0600534Z Updating files:  78% (7402/9489)
+2026-09-16T01:27:17.0788785Z Updating files:  79% (7497/9489)
+2026-09-16T01:27:17.0986528Z Updating files:  80% (7592/9489)
+2026-09-16T01:27:17.1146999Z Updating files:  81% (7687/9489)
+2026-09-16T01:27:17.1239506Z Updating files:  82% (7781/9489)
+2026-09-16T01:27:17.1413337Z Updating files:  83% (7876/9489)
+2026-09-16T01:27:17.1508039Z Updating files:  84% (7971/9489)
+2026-09-16T01:27:17.1595008Z Updating files:  85% (8066/9489)
+2026-09-16T01:27:17.1683812Z Updating files:  86% (8161/9489)
+2026-09-16T01:27:17.1893338Z Updating files:  87% (8256/9489)
+2026-09-16T01:27:17.2069956Z Updating files:  88% (8351/9489)
+2026-09-16T01:27:17.2148592Z Updating files:  89% (8446/9489)
+2026-09-16T01:27:17.2293524Z Updating files:  90% (8541/9489)
+2026-09-16T01:27:17.2367194Z Updating files:  91% (8635/9489)
+2026-09-16T01:27:17.2483257Z Updating files:  92% (8730/9489)
+2026-09-16T01:27:17.2603845Z Updating files:  93% (8825/9489)
+2026-09-16T01:27:17.2693799Z Updating files:  94% (8920/9489)
+2026-09-16T01:27:17.2757037Z Updating files:  95% (9015/9489)
+2026-09-16T01:27:17.2851931Z Updating files:  96% (9110/9489)
+2026-09-16T01:27:17.2936545Z Updating files:  97% (9205/9489)
+2026-09-16T01:27:17.3062034Z Updating files:  98% (9300/9489)
+2026-09-16T01:27:17.3157509Z Updating files:  99% (9395/9489)
+2026-09-16T01:27:17.3158187Z Updating files: 100% (9489/9489)
+2026-09-16T01:27:17.3158720Z Updating files: 100% (9489/9489), done.
+2026-09-16T01:27:17.6872638Z Note: switching to 'refs/remotes/pull/40/merge'.
+2026-09-16T01:27:17.6873099Z 
+2026-09-16T01:27:17.6873364Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-16T01:27:17.6874359Z changes and commit them, and you can discard any commits you make in this
+2026-09-16T01:27:17.6874895Z state without impacting any branches by switching back to a branch.
+2026-09-16T01:27:17.6875202Z 
+2026-09-16T01:27:17.6875525Z If you want to create a new branch to retain commits you create, you may
+2026-09-16T01:27:17.6876040Z do so (now or later) by using -c with the switch command. Example:
+2026-09-16T01:27:17.6876327Z 
+2026-09-16T01:27:17.6876440Z   git switch -c <new-branch-name>
+2026-09-16T01:27:17.6876636Z 
+2026-09-16T01:27:17.6876742Z Or undo this operation with:
+2026-09-16T01:27:17.6876919Z 
+2026-09-16T01:27:17.6877016Z   git switch -
+2026-09-16T01:27:17.6877149Z 
+2026-09-16T01:27:17.6877386Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-16T01:27:17.6877724Z 
+2026-09-16T01:27:17.6878116Z HEAD is now at e236914 Merge d5365dce6184707248dab17a921b3257cc508069 into dd9101ddfead19d65b7a84b374e4cf7e85462ff7
+2026-09-16T01:27:17.7478734Z ##[endgroup]
+2026-09-16T01:27:17.7827778Z [command]/usr/bin/git log -1 --format=%H
+2026-09-16T01:27:17.7852284Z e2369146346fc9bd590a9f46c9657126983e3291
+2026-09-16T01:27:17.8133686Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:17.8135544Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+2026-09-16T01:27:17.8135931Z with:
+2026-09-16T01:27:17.8136133Z   python-version: 3.12
+2026-09-16T01:27:17.8136367Z   check-latest: false
+2026-09-16T01:27:17.8138699Z   token: ***
+2026-09-16T01:27:17.8138916Z   update-environment: true
+2026-09-16T01:27:17.8139173Z   allow-prereleases: false
+2026-09-16T01:27:17.8139405Z   freethreaded: false
+2026-09-16T01:27:17.8139621Z ##[endgroup]
+2026-09-16T01:27:17.9458220Z ##[group]Installed versions
+2026-09-16T01:27:17.9548282Z (node:2274) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T01:27:17.9549561Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T01:27:17.9550304Z Successfully set up CPython (3.12.14)
+2026-09-16T01:27:17.9551536Z ##[endgroup]
+2026-09-16T01:27:17.9821976Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:17.9824310Z ##[group]Run astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+2026-09-16T01:27:17.9824919Z with:
+2026-09-16T01:27:17.9825219Z   version: 0.8.22
+2026-09-16T01:27:17.9825557Z   enable-cache: true
+2026-09-16T01:27:17.9825970Z   activate-environment: false
+2026-09-16T01:27:17.9826546Z   working-directory: /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T01:27:17.9827177Z   server-url: https://github.com
+2026-09-16T01:27:17.9831919Z   github-token: ***
+2026-09-16T01:27:17.9832958Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-09-16T01:27:17.9834044Z   restore-cache: true
+2026-09-16T01:27:17.9834398Z   save-cache: true
+2026-09-16T01:27:17.9834740Z   prune-cache: true
+2026-09-16T01:27:17.9835117Z   ignore-nothing-to-cache: false
+2026-09-16T01:27:17.9835561Z   ignore-empty-workdir: false
+2026-09-16T01:27:17.9835982Z   add-problem-matchers: true
+2026-09-16T01:27:17.9836369Z env:
+2026-09-16T01:27:17.9836784Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:17.9837530Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-16T01:27:17.9838265Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:17.9839161Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:17.9839814Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:17.9840473Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-16T01:27:17.9841206Z ##[endgroup]
+2026-09-16T01:27:18.1746481Z (node:2282) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T01:27:18.1747300Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T01:27:18.1882583Z manifest-file not provided, reading from local file.
+2026-09-16T01:27:18.1932843Z manifest-file does not contain version 0.8.22, arch x86_64, platform unknown-linux-gnu. Falling back to GitHub releases.
+2026-09-16T01:27:18.1934584Z Downloading uv from "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-unknown-linux-gnu.tar.gz" ...
+2026-09-16T01:27:18.6169420Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/48796a0c-08ac-4e06-876f-0b38f51d0403 -f /home/runner/work/_temp/c3aec799-9900-4b55-90c8-9374cf862000
+2026-09-16T01:27:19.2337429Z Added /home/runner/.local/bin to the path
+2026-09-16T01:27:19.2338170Z Added /opt/hostedtoolcache/uv/0.8.22/x86_64 to the path
+2026-09-16T01:27:19.2349065Z Set UV_CACHE_DIR to /home/runner/work/_temp/setup-uv-cache
+2026-09-16T01:27:19.2349765Z Successfully installed uv version 0.8.22
+2026-09-16T01:27:19.2353265Z Searching files using cache dependency glob: /home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*requirements*.txt,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*requirements*.in,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*constraints*.txt,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*constraints*.in,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/pyproject.toml,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/uv.lock,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*.py.lock
+2026-09-16T01:27:19.9232223Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/artifacts/phase22/git-environment-v1-tested/requirements.txt
+2026-09-16T01:27:20.5392819Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/artifacts/phase23/dependency-audit-review-v1/requirements.txt
+2026-09-16T01:27:20.6577160Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/pyproject.toml
+2026-09-16T01:27:20.6987345Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/clean_server/pyproject.toml
+2026-09-16T01:27:20.7005934Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/gpt_review_eval/pyproject.toml
+2026-09-16T01:27:20.7036106Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/vulnerable_server/pyproject.toml
+2026-09-16T01:27:20.7043123Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/vulnerable_server/requirements.txt
+2026-09-16T01:27:20.7097751Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/uv.lock
+2026-09-16T01:27:20.7112854Z Found 8 files to hash.
+2026-09-16T01:27:20.8345464Z Trying to restore uv cache from GitHub Actions cache with key: setup-uv-1-x86_64-unknown-linux-gnu-3.12.14-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T01:27:20.8801613Z No GitHub Actions cache found for key: setup-uv-1-x86_64-unknown-linux-gnu-3.12.14-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T01:27:20.8960420Z ##[group]Run uv build
+2026-09-16T01:27:20.8960724Z [36;1muv build[0m
+2026-09-16T01:27:20.9003364Z shell: /usr/bin/bash -e {0}
+2026-09-16T01:27:20.9003634Z env:
+2026-09-16T01:27:20.9003909Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:20.9004373Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-16T01:27:20.9004826Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:20.9005234Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:20.9005620Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:20.9006005Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-16T01:27:20.9006588Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T01:27:20.9006887Z ##[endgroup]
+2026-09-16T01:27:20.9162970Z Building source distribution...
+2026-09-16T01:27:21.8573940Z Building wheel from source distribution...
+2026-09-16T01:27:22.2641962Z Successfully built dist/portunusmcp_sentinel-1.4.0.tar.gz
+2026-09-16T01:27:22.2643264Z Successfully built dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl
+2026-09-16T01:27:22.2748136Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:22.2749527Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-09-16T01:27:22.2749920Z with:
+2026-09-16T01:27:22.2750141Z   name: portunusmcp-sentinel-dist
+2026-09-16T01:27:22.2750420Z   path: dist/*.whl
+dist/*.tar.gz
+
+2026-09-16T01:27:22.2750676Z   if-no-files-found: error
+2026-09-16T01:27:22.2751203Z   retention-days: 90
+2026-09-16T01:27:22.2751439Z   compression-level: 6
+2026-09-16T01:27:22.2751658Z   overwrite: false
+2026-09-16T01:27:22.2751879Z   include-hidden-files: false
+2026-09-16T01:27:22.2752114Z env:
+2026-09-16T01:27:22.2752364Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:22.2752816Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-16T01:27:22.2753247Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:22.2753625Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:22.2754004Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-16T01:27:22.2754384Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-16T01:27:22.2754752Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T01:27:22.2755051Z ##[endgroup]
+2026-09-16T01:27:22.4439117Z (node:2329) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T01:27:22.4439938Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T01:27:22.4497626Z With the provided path, there will be 2 files uploaded
+2026-09-16T01:27:22.4504188Z Artifact name is valid!
+2026-09-16T01:27:22.4504937Z Root directory input is valid!
+2026-09-16T01:27:22.6526481Z Beginning upload of artifact content to blob storage
+2026-09-16T01:27:22.7179399Z (node:2329) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-16T01:27:22.8031562Z Uploaded bytes 1010891
+2026-09-16T01:27:22.8218976Z Finished uploading artifact content to blob storage!
+2026-09-16T01:27:22.8220105Z SHA256 digest of uploaded artifact zip is f9a30a7c47daa07f6eedafdc77d053d1c3cac04462088a4f3a1c6dc59f9842e3
+2026-09-16T01:27:22.8223147Z Finalizing artifact upload
+2026-09-16T01:27:23.0285167Z Artifact portunusmcp-sentinel-dist.zip successfully finalized. Artifact ID 10426730229
+2026-09-16T01:27:23.0286461Z Artifact portunusmcp-sentinel-dist has been successfully uploaded! Final size is 1010891 bytes. Artifact ID is 10426730229
+2026-09-16T01:27:23.0293963Z Artifact download URL: https://github.com/BashaarJavaid/MCP-Sentinel/actions/runs/35044116114/artifacts/10426730229
+2026-09-16T01:27:23.0482181Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:23.0483429Z Post job cleanup.
+2026-09-16T01:27:23.1758303Z Pruning cache...
+2026-09-16T01:27:23.1770635Z (node:2342) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T01:27:23.1772348Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T01:27:23.1816850Z [command]/opt/hostedtoolcache/uv/0.8.22/x86_64/uv cache prune --ci
+2026-09-16T01:27:23.1912927Z Pruning cache at: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T01:27:23.1981257Z Removed 196 files (1.2MiB)
+2026-09-16T01:27:23.2044336Z Saving cache path: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T01:27:23.2201449Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/MCP-Sentinel/MCP-Sentinel --files-from manifest.txt --use-compress-program zstdmt
+2026-09-16T01:27:23.3470180Z (node:2342) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-16T01:27:23.4062022Z Sent 87102 of 87102 (100.0%), 1.2 MBs/sec
+2026-09-16T01:27:23.4779752Z cache saved with the key: setup-uv-1-x86_64-unknown-linux-gnu-3.12.14-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T01:27:23.4920266Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:23.4921924Z Post job cleanup.
+2026-09-16T01:27:23.6137479Z (node:2365) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T01:27:23.6138803Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T01:27:23.6295227Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T01:27:23.6296513Z Post job cleanup.
+2026-09-16T01:27:23.7165744Z [command]/usr/bin/git version
+2026-09-16T01:27:23.7211206Z git version 2.55.0
+2026-09-16T01:27:23.7255585Z Temporarily overriding HOME='/home/runner/work/_temp/65f69fda-111e-4acc-a0db-533e0419b08e' before making global git config changes
+2026-09-16T01:27:23.7256986Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-16T01:27:23.7261480Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T01:27:23.7300243Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-16T01:27:23.7336476Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-16T01:27:23.7609415Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-16T01:27:23.7637597Z http.https://github.com/.extraheader
+2026-09-16T01:27:23.7658133Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-16T01:27:23.7697517Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-16T01:27:23.8001895Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-16T01:27:23.8057055Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-16T01:27:23.8558867Z Cleaning up orphan processes
+2026-09-16T01:27:23.8865051Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02, astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

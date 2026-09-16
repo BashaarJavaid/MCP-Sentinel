@@ -1,0 +1,76 @@
+"""One release's identity preflight only; never launches a regression."""
+
+import hashlib
+import importlib.metadata
+import json
+import subprocess
+import sys
+import zipfile
+from pathlib import Path
+
+checkout = Path('/private/tmp/phase23-released-wheel-review')
+wheel = Path(sys.argv[1]).resolve()
+output = Path(sys.argv[2]).resolve()
+expected_sha256 = 'fc9c0155b08687e2a50e327cca4ebc8b7be759539eaef3e4aa4e08801d23f1af'
+assert hashlib.sha256(wheel.read_bytes()).hexdigest() == expected_sha256, 'wheel hash'
+assert Path(sys.prefix).resolve() == checkout / '.venv', 'isolated interpreter'
+sys.path.insert(0, str(checkout))
+
+import sentinel
+from scripts import phase23_regression as helper
+
+assert Path(sentinel.__file__).resolve().parent == checkout / 'src/sentinel'
+assert importlib.metadata.version('portunusmcp-sentinel') == '1.4.0'
+assert subprocess.check_output(
+    ['git', 'rev-parse', 'HEAD'], cwd=checkout, text=True
+).strip() == 'd5365dce6184707248dab17a921b3257cc508069'
+assert hashlib.sha256((checkout / 'scripts/phase23_regression.py').read_bytes()).hexdigest() == (
+    'f19741a308201668d0bab06e8c1cb86b67633c73f2b91ccb493998bf17862cb7'
+)
+
+verified = {}
+with zipfile.ZipFile(wheel) as archive:
+    for name in archive.namelist():
+        if name.endswith('/') or name.endswith('.dist-info/RECORD'):
+            continue
+        path = Path(name)
+        assert not path.is_absolute() and '..' not in path.parts
+        installed = checkout / 'src' / path
+        assert installed.is_file() and not installed.is_symlink(), name
+        data = archive.read(name)
+        assert installed.read_bytes() == data, name
+        verified[name] = hashlib.sha256(data).hexdigest()
+    expected_package_files = {
+        name for name in verified if name.startswith('sentinel/')
+    }
+actual_package_files = {
+    p.relative_to(checkout / 'src').as_posix()
+    for p in (checkout / 'src/sentinel').rglob('*')
+    if p.is_file() and '__pycache__' not in p.parts
+}
+assert actual_package_files == expected_package_files
+isolated = json.loads(subprocess.check_output([
+    sys.executable, '-I', '-c',
+    'import sentinel,importlib.metadata,json; '
+    'print(json.dumps([sentinel.__file__, '
+    'importlib.metadata.version("portunusmcp-sentinel")]))',
+], cwd=checkout, text=True))
+assert isolated == [str(checkout / 'src/sentinel/__init__.py'), '1.4.0']
+manifest, references = helper.ci_references()
+identity = helper.execution_identity()
+assert identity['static_timeout_seconds'] == 1800
+assert identity['semgrep_timeout_seconds'] == 10
+assert identity['maximum_flow_workers'] == 4
+assert len(manifest['inputs']) == len(references) == 7
+output.write_text(json.dumps({
+    'status': 'installed_wheel_and_unchanged_helper_identity_verified',
+    'wheel': str(wheel),
+    'wheel_sha256': expected_sha256,
+    'installed_files_sha256': verified,
+    'isolated_child_import_verified': True,
+    'identity': identity,
+    'advisory_scans': 0,
+    'target_executions': 0,
+    'paid_calls': 0,
+}, indent=2) + '\n')
+print('Installed wheel identity verified; zero advisory scans.')

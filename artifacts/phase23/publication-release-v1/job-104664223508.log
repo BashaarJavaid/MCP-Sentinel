@@ -1,0 +1,598 @@
+﻿2026-09-16T04:22:27.1875415Z Current runner version: '2.337.0'
+2026-09-16T04:22:27.1903174Z ##[group]Runner Image Provisioner
+2026-09-16T04:22:27.1904111Z Hosted Compute Agent
+2026-09-16T04:22:27.1904699Z Version: 20260828.587
+2026-09-16T04:22:27.1905438Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-16T04:22:27.1906175Z Build Date: 2026-08-28T16:44:25Z
+2026-09-16T04:22:27.1906950Z Worker ID: {e38d4e06-5111-4b36-a882-9a6ee3aaaf2d}
+2026-09-16T04:22:27.1907718Z Azure Region: westus
+2026-09-16T04:22:27.1908320Z ##[endgroup]
+2026-09-16T04:22:27.1910059Z ##[group]Operating System
+2026-09-16T04:22:27.1910745Z Ubuntu
+2026-09-16T04:22:27.1911344Z 24.04.5
+2026-09-16T04:22:27.1911893Z LTS
+2026-09-16T04:22:27.1912419Z ##[endgroup]
+2026-09-16T04:22:27.1913387Z ##[group]Runner Image
+2026-09-16T04:22:27.1914042Z Image: ubuntu-24.04
+2026-09-16T04:22:27.1914608Z Version: 20260907.300.1
+2026-09-16T04:22:27.1915971Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-16T04:22:27.1917591Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-16T04:22:27.1918618Z ##[endgroup]
+2026-09-16T04:22:27.1919802Z ##[group]GITHUB_TOKEN Permissions
+2026-09-16T04:22:27.1921716Z Contents: read
+2026-09-16T04:22:27.1923223Z Metadata: read
+2026-09-16T04:22:27.1923947Z ##[endgroup]
+2026-09-16T04:22:27.1926171Z Secret source: Actions
+2026-09-16T04:22:27.1927209Z Cache mode: write
+2026-09-16T04:22:27.1927935Z Prepare workflow directory
+2026-09-16T04:22:27.2279927Z Prepare all required actions
+2026-09-16T04:22:27.2329555Z Getting action download info
+2026-09-16T04:22:27.6849396Z Download action repository 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-09-16T04:22:27.8249667Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-16T04:22:27.9053557Z Download action repository 'astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e' (SHA:d0cc045d04ccac9d8b7881df0226f9e82c39688e)
+2026-09-16T04:22:28.5325375Z Complete job name: Public install (ubuntu-latest, Python 3.10)
+2026-09-16T04:22:28.6220516Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:22:28.6229757Z ##[group]Run actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+2026-09-16T04:22:28.6230718Z with:
+2026-09-16T04:22:28.6231223Z   repository: BashaarJavaid/MCP-Sentinel
+2026-09-16T04:22:28.6235509Z   token: ***
+2026-09-16T04:22:28.6235989Z   ssh-strict: true
+2026-09-16T04:22:28.6236454Z   ssh-user: git
+2026-09-16T04:22:28.6236937Z   persist-credentials: true
+2026-09-16T04:22:28.6237451Z   clean: true
+2026-09-16T04:22:28.6237921Z   sparse-checkout-cone-mode: true
+2026-09-16T04:22:28.6238490Z   fetch-depth: 1
+2026-09-16T04:22:28.6238940Z   fetch-tags: false
+2026-09-16T04:22:28.6239406Z   show-progress: true
+2026-09-16T04:22:28.6239917Z   lfs: false
+2026-09-16T04:22:28.6240355Z   submodules: false
+2026-09-16T04:22:28.6240840Z   set-safe-directory: true
+2026-09-16T04:22:28.6241656Z ##[endgroup]
+2026-09-16T04:22:28.7299487Z Syncing repository: BashaarJavaid/MCP-Sentinel
+2026-09-16T04:22:28.7302660Z ##[group]Getting Git version info
+2026-09-16T04:22:28.7304381Z Working directory is '/home/runner/work/MCP-Sentinel/MCP-Sentinel'
+2026-09-16T04:22:28.7306249Z [command]/usr/bin/git version
+2026-09-16T04:22:28.7361676Z git version 2.55.0
+2026-09-16T04:22:28.7385712Z ##[endgroup]
+2026-09-16T04:22:28.7401443Z Temporarily overriding HOME='/home/runner/work/_temp/083daca7-4d09-474b-8b45-5386642d2b97' before making global git config changes
+2026-09-16T04:22:28.7404181Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-16T04:22:28.7407788Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T04:22:28.7462575Z Deleting the contents of '/home/runner/work/MCP-Sentinel/MCP-Sentinel'
+2026-09-16T04:22:28.7467277Z ##[group]Initializing the repository
+2026-09-16T04:22:28.7472909Z [command]/usr/bin/git init /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T04:22:28.7614545Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-16T04:22:28.7621863Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-16T04:22:28.7623783Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-16T04:22:28.7625391Z hint: call:
+2026-09-16T04:22:28.7626049Z hint:
+2026-09-16T04:22:28.7626927Z hint: 	git config --global init.defaultBranch <name>
+2026-09-16T04:22:28.7628075Z hint:
+2026-09-16T04:22:28.7629045Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-16T04:22:28.7630594Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-16T04:22:28.7631921Z hint:
+2026-09-16T04:22:28.7632683Z hint: 	git branch -m <name>
+2026-09-16T04:22:28.7633802Z hint:
+2026-09-16T04:22:28.7635003Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-16T04:22:28.7636960Z Initialized empty Git repository in /home/runner/work/MCP-Sentinel/MCP-Sentinel/.git/
+2026-09-16T04:22:28.7639616Z [command]/usr/bin/git remote add origin https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-16T04:22:28.7688717Z ##[endgroup]
+2026-09-16T04:22:28.7690155Z ##[group]Disabling automatic garbage collection
+2026-09-16T04:22:28.7692063Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-16T04:22:28.7726802Z ##[endgroup]
+2026-09-16T04:22:28.7727933Z ##[group]Setting up auth
+2026-09-16T04:22:28.7736657Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-16T04:22:28.7780827Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-16T04:22:28.8257752Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-16T04:22:28.8309685Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-16T04:22:28.8565356Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-16T04:22:28.8613489Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-16T04:22:28.8854520Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-16T04:22:28.8898481Z ##[endgroup]
+2026-09-16T04:22:28.8899802Z ##[group]Fetching the repository
+2026-09-16T04:22:28.8908976Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +fd10cba1297a32ec35ec647e17f3491dbb3b0979:refs/tags/v1.4.0
+2026-09-16T04:22:52.0858679Z From https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-16T04:22:52.0859843Z  * [new ref]         fd10cba1297a32ec35ec647e17f3491dbb3b0979 -> v1.4.0
+2026-09-16T04:22:52.0866518Z ##[endgroup]
+2026-09-16T04:22:52.0867808Z ##[group]Determining the checkout info
+2026-09-16T04:22:52.0868916Z ##[endgroup]
+2026-09-16T04:22:52.0871474Z [command]/usr/bin/git sparse-checkout disable
+2026-09-16T04:22:52.0926172Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-16T04:22:52.0960174Z ##[group]Checking out the ref
+2026-09-16T04:22:52.0964639Z [command]/usr/bin/git checkout --progress --force refs/tags/v1.4.0
+2026-09-16T04:22:53.6576766Z Updating files:  41% (3917/9489)
+2026-09-16T04:22:54.1330334Z Updating files:  42% (3986/9489)
+2026-09-16T04:22:54.2918811Z Updating files:  42% (4044/9489)
+2026-09-16T04:22:54.6582185Z Updating files:  43% (4081/9489)
+2026-09-16T04:22:54.6638889Z Updating files:  44% (4176/9489)
+2026-09-16T04:22:54.6762248Z Updating files:  45% (4271/9489)
+2026-09-16T04:22:54.7129931Z Updating files:  46% (4365/9489)
+2026-09-16T04:22:54.7215849Z Updating files:  47% (4460/9489)
+2026-09-16T04:22:54.7361921Z Updating files:  48% (4555/9489)
+2026-09-16T04:22:54.7650735Z Updating files:  49% (4650/9489)
+2026-09-16T04:22:54.7775328Z Updating files:  50% (4745/9489)
+2026-09-16T04:22:54.7881679Z Updating files:  51% (4840/9489)
+2026-09-16T04:22:54.7976614Z Updating files:  52% (4935/9489)
+2026-09-16T04:22:54.8127016Z Updating files:  53% (5030/9489)
+2026-09-16T04:22:54.8217086Z Updating files:  54% (5125/9489)
+2026-09-16T04:22:54.8331316Z Updating files:  55% (5219/9489)
+2026-09-16T04:22:54.8766462Z Updating files:  56% (5314/9489)
+2026-09-16T04:22:54.8897432Z Updating files:  57% (5409/9489)
+2026-09-16T04:22:54.9029593Z Updating files:  58% (5504/9489)
+2026-09-16T04:22:54.9198796Z Updating files:  59% (5599/9489)
+2026-09-16T04:22:54.9460734Z Updating files:  60% (5694/9489)
+2026-09-16T04:22:54.9921703Z Updating files:  61% (5789/9489)
+2026-09-16T04:22:55.0700242Z Updating files:  62% (5884/9489)
+2026-09-16T04:22:55.1077022Z Updating files:  63% (5979/9489)
+2026-09-16T04:22:55.1113809Z Updating files:  64% (6073/9489)
+2026-09-16T04:22:55.1304517Z Updating files:  64% (6094/9489)
+2026-09-16T04:22:55.1800575Z Updating files:  65% (6168/9489)
+2026-09-16T04:22:55.2617275Z Updating files:  66% (6263/9489)
+2026-09-16T04:22:55.2872199Z Updating files:  67% (6358/9489)
+2026-09-16T04:22:55.2932161Z Updating files:  68% (6453/9489)
+2026-09-16T04:22:55.3117243Z Updating files:  69% (6548/9489)
+2026-09-16T04:22:55.3310383Z Updating files:  70% (6643/9489)
+2026-09-16T04:22:55.3373734Z Updating files:  71% (6738/9489)
+2026-09-16T04:22:55.3432681Z Updating files:  72% (6833/9489)
+2026-09-16T04:22:55.3582047Z Updating files:  73% (6927/9489)
+2026-09-16T04:22:55.3637650Z Updating files:  74% (7022/9489)
+2026-09-16T04:22:55.3828462Z Updating files:  75% (7117/9489)
+2026-09-16T04:22:55.4009958Z Updating files:  76% (7212/9489)
+2026-09-16T04:22:55.4184715Z Updating files:  77% (7307/9489)
+2026-09-16T04:22:55.4351027Z Updating files:  78% (7402/9489)
+2026-09-16T04:22:55.4557315Z Updating files:  79% (7497/9489)
+2026-09-16T04:22:55.4794912Z Updating files:  80% (7592/9489)
+2026-09-16T04:22:55.4989029Z Updating files:  81% (7687/9489)
+2026-09-16T04:22:55.5094203Z Updating files:  82% (7781/9489)
+2026-09-16T04:22:55.5306921Z Updating files:  83% (7876/9489)
+2026-09-16T04:22:55.5434452Z Updating files:  84% (7971/9489)
+2026-09-16T04:22:55.5526968Z Updating files:  85% (8066/9489)
+2026-09-16T04:22:55.5636818Z Updating files:  86% (8161/9489)
+2026-09-16T04:22:55.5868276Z Updating files:  87% (8256/9489)
+2026-09-16T04:22:55.6095761Z Updating files:  88% (8351/9489)
+2026-09-16T04:22:55.6178294Z Updating files:  89% (8446/9489)
+2026-09-16T04:22:55.6341382Z Updating files:  90% (8541/9489)
+2026-09-16T04:22:55.6416612Z Updating files:  91% (8635/9489)
+2026-09-16T04:22:55.6525029Z Updating files:  92% (8730/9489)
+2026-09-16T04:22:55.6654873Z Updating files:  93% (8825/9489)
+2026-09-16T04:22:55.6753526Z Updating files:  94% (8920/9489)
+2026-09-16T04:22:55.6819583Z Updating files:  95% (9015/9489)
+2026-09-16T04:22:55.6916014Z Updating files:  96% (9110/9489)
+2026-09-16T04:22:55.6998348Z Updating files:  97% (9205/9489)
+2026-09-16T04:22:55.7128530Z Updating files:  98% (9300/9489)
+2026-09-16T04:22:55.7222591Z Updating files:  99% (9395/9489)
+2026-09-16T04:22:55.7224030Z Updating files: 100% (9489/9489)
+2026-09-16T04:22:55.7224543Z Updating files: 100% (9489/9489), done.
+2026-09-16T04:22:55.9090594Z Note: switching to 'refs/tags/v1.4.0'.
+2026-09-16T04:22:55.9090943Z 
+2026-09-16T04:22:55.9091210Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-16T04:22:55.9092063Z changes and commit them, and you can discard any commits you make in this
+2026-09-16T04:22:55.9093198Z state without impacting any branches by switching back to a branch.
+2026-09-16T04:22:55.9093873Z 
+2026-09-16T04:22:55.9094288Z If you want to create a new branch to retain commits you create, you may
+2026-09-16T04:22:55.9095106Z do so (now or later) by using -c with the switch command. Example:
+2026-09-16T04:22:55.9095436Z 
+2026-09-16T04:22:55.9095751Z   git switch -c <new-branch-name>
+2026-09-16T04:22:55.9096159Z 
+2026-09-16T04:22:55.9096363Z Or undo this operation with:
+2026-09-16T04:22:55.9096846Z 
+2026-09-16T04:22:55.9096984Z   git switch -
+2026-09-16T04:22:55.9097190Z 
+2026-09-16T04:22:55.9097460Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-16T04:22:55.9097987Z 
+2026-09-16T04:22:55.9098404Z HEAD is now at fd10cba Release 1.4.0 with maintained feedback and regression verification
+2026-09-16T04:22:55.9275731Z ##[endgroup]
+2026-09-16T04:22:55.9595752Z [command]/usr/bin/git log -1 --format=%H
+2026-09-16T04:22:55.9627929Z fd10cba1297a32ec35ec647e17f3491dbb3b0979
+2026-09-16T04:22:55.9973094Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:22:55.9975155Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+2026-09-16T04:22:55.9975545Z with:
+2026-09-16T04:22:55.9975766Z   python-version: 3.10
+2026-09-16T04:22:55.9976013Z   check-latest: false
+2026-09-16T04:22:55.9978611Z   token: ***
+2026-09-16T04:22:55.9978841Z   update-environment: true
+2026-09-16T04:22:55.9979105Z   allow-prereleases: false
+2026-09-16T04:22:55.9979351Z   freethreaded: false
+2026-09-16T04:22:55.9979573Z ##[endgroup]
+2026-09-16T04:22:56.1350860Z ##[group]Installed versions
+2026-09-16T04:22:56.1445369Z (node:2328) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T04:22:56.1446328Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T04:22:56.1447182Z Successfully set up CPython (3.10.21)
+2026-09-16T04:22:56.1448095Z ##[endgroup]
+2026-09-16T04:22:56.1759673Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:22:56.1761110Z ##[group]Run astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+2026-09-16T04:22:56.1761494Z with:
+2026-09-16T04:22:56.1761695Z   version: 0.8.22
+2026-09-16T04:22:56.1761914Z   enable-cache: true
+2026-09-16T04:22:56.1762154Z   activate-environment: false
+2026-09-16T04:22:56.1762510Z   working-directory: /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T04:22:56.1763311Z   server-url: https://github.com
+2026-09-16T04:22:56.1766064Z   github-token: ***
+2026-09-16T04:22:56.1766721Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-09-16T04:22:56.1767358Z   restore-cache: true
+2026-09-16T04:22:56.1767588Z   save-cache: true
+2026-09-16T04:22:56.1767808Z   prune-cache: true
+2026-09-16T04:22:56.1768046Z   ignore-nothing-to-cache: false
+2026-09-16T04:22:56.1768327Z   ignore-empty-workdir: false
+2026-09-16T04:22:56.1768595Z   add-problem-matchers: true
+2026-09-16T04:22:56.1768838Z env:
+2026-09-16T04:22:56.1769110Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:56.1769582Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib/pkgconfig
+2026-09-16T04:22:56.1770027Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:56.1770436Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:56.1770834Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:56.1771503Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib
+2026-09-16T04:22:56.1771840Z ##[endgroup]
+2026-09-16T04:22:56.3664648Z (node:2336) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T04:22:56.3665948Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T04:22:56.3818773Z manifest-file not provided, reading from local file.
+2026-09-16T04:22:56.3849729Z manifest-file does not contain version 0.8.22, arch x86_64, platform unknown-linux-gnu. Falling back to GitHub releases.
+2026-09-16T04:22:56.3859642Z Downloading uv from "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-unknown-linux-gnu.tar.gz" ...
+2026-09-16T04:22:56.7491760Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/763275b4-40b4-46c5-8b4d-05d3829da8a3 -f /home/runner/work/_temp/9091361e-3800-4fd4-903d-d4721bbfb430
+2026-09-16T04:22:57.4181533Z Added /home/runner/.local/bin to the path
+2026-09-16T04:22:57.4184784Z Added /opt/hostedtoolcache/uv/0.8.22/x86_64 to the path
+2026-09-16T04:22:57.4195127Z Set UV_CACHE_DIR to /home/runner/work/_temp/setup-uv-cache
+2026-09-16T04:22:57.4195537Z Successfully installed uv version 0.8.22
+2026-09-16T04:22:57.4197366Z Searching files using cache dependency glob: /home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*requirements*.txt,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*requirements*.in,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*constraints*.txt,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*constraints*.in,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/pyproject.toml,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/uv.lock,/home/runner/work/MCP-Sentinel/MCP-Sentinel/**/*.py.lock
+2026-09-16T04:22:58.1003064Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/artifacts/phase22/git-environment-v1-tested/requirements.txt
+2026-09-16T04:22:58.6662157Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/artifacts/phase23/dependency-audit-review-v1/requirements.txt
+2026-09-16T04:22:58.7895307Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/pyproject.toml
+2026-09-16T04:22:58.8311090Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/clean_server/pyproject.toml
+2026-09-16T04:22:58.8330082Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/gpt_review_eval/pyproject.toml
+2026-09-16T04:22:58.8358457Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/vulnerable_server/pyproject.toml
+2026-09-16T04:22:58.8365322Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/tests/fixtures/vulnerable_server/requirements.txt
+2026-09-16T04:22:58.8415919Z /home/runner/work/MCP-Sentinel/MCP-Sentinel/uv.lock
+2026-09-16T04:22:58.8431002Z Found 8 files to hash.
+2026-09-16T04:22:59.3901695Z Trying to restore uv cache from GitHub Actions cache with key: setup-uv-1-x86_64-unknown-linux-gnu-3.12.3-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T04:22:59.6208158Z Cache hit for: setup-uv-1-x86_64-unknown-linux-gnu-3.12.3-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T04:22:59.6364254Z (node:2336) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-16T04:22:59.9628096Z Received 1355 of 1355 (100.0%), 0.0 MBs/sec
+2026-09-16T04:22:59.9628737Z Cache Size: ~0 MB (1355 B)
+2026-09-16T04:22:59.9658489Z [command]/usr/bin/tar -xf /home/runner/work/_temp/abba44db-d61f-4c1e-bb23-e1f1e263591b/cache.tzst -P -C /home/runner/work/MCP-Sentinel/MCP-Sentinel --use-compress-program unzstd
+2026-09-16T04:22:59.9737025Z Cache restored successfully
+2026-09-16T04:22:59.9741685Z uv cache restored from GitHub Actions cache with key: setup-uv-1-x86_64-unknown-linux-gnu-3.12.3-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115
+2026-09-16T04:22:59.9910364Z ##[group]Run python -m pip install pipx==1.16.0
+2026-09-16T04:22:59.9911008Z [36;1mpython -m pip install pipx==1.16.0[0m
+2026-09-16T04:22:59.9954151Z shell: /usr/bin/bash -e {0}
+2026-09-16T04:22:59.9954443Z env:
+2026-09-16T04:22:59.9954750Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:59.9955226Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib/pkgconfig
+2026-09-16T04:22:59.9955697Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:59.9956100Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:59.9956500Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:22:59.9956906Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib
+2026-09-16T04:22:59.9957298Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T04:22:59.9957623Z ##[endgroup]
+2026-09-16T04:23:00.9069175Z Collecting pipx==1.16.0
+2026-09-16T04:23:01.0050564Z   Downloading pipx-1.16.0-py3-none-any.whl.metadata (4.2 kB)
+2026-09-16T04:23:01.0436203Z Collecting argcomplete>=1.9.4 (from pipx==1.16.0)
+2026-09-16T04:23:01.0634991Z   Downloading argcomplete-3.7.2-py3-none-any.whl.metadata (16 kB)
+2026-09-16T04:23:01.0960984Z Collecting filelock>=3.16 (from pipx==1.16.0)
+2026-09-16T04:23:01.1157985Z   Downloading filelock-3.32.7-py3-none-any.whl.metadata (2.0 kB)
+2026-09-16T04:23:01.1334853Z Collecting packaging>=20 (from pipx==1.16.0)
+2026-09-16T04:23:01.1534735Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-09-16T04:23:01.1733385Z Collecting platformdirs>=4.6 (from pipx==1.16.0)
+2026-09-16T04:23:01.1930981Z   Downloading platformdirs-4.11.8-py3-none-any.whl.metadata (5.5 kB)
+2026-09-16T04:23:01.2199511Z Collecting tomli (from pipx==1.16.0)
+2026-09-16T04:23:01.2397940Z   Downloading tomli-2.4.1-py3-none-any.whl.metadata (10 kB)
+2026-09-16T04:23:01.2545356Z Collecting userpath!=1.9,>=1.6 (from pipx==1.16.0)
+2026-09-16T04:23:01.2742220Z   Downloading userpath-1.9.2-py3-none-any.whl.metadata (3.0 kB)
+2026-09-16T04:23:01.2959882Z Collecting click (from userpath!=1.9,>=1.6->pipx==1.16.0)
+2026-09-16T04:23:01.3154616Z   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+2026-09-16T04:23:01.3421425Z Downloading pipx-1.16.0-py3-none-any.whl (150 kB)
+2026-09-16T04:23:01.4022995Z Downloading argcomplete-3.7.2-py3-none-any.whl (43 kB)
+2026-09-16T04:23:01.4249620Z Downloading filelock-3.32.7-py3-none-any.whl (100 kB)
+2026-09-16T04:23:01.4509250Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-09-16T04:23:01.4772951Z Downloading platformdirs-4.11.8-py3-none-any.whl (24 kB)
+2026-09-16T04:23:01.4993784Z Downloading userpath-1.9.2-py3-none-any.whl (9.1 kB)
+2026-09-16T04:23:01.5220564Z Downloading click-8.5.0-py3-none-any.whl (125 kB)
+2026-09-16T04:23:01.5471907Z Downloading tomli-2.4.1-py3-none-any.whl (14 kB)
+2026-09-16T04:23:01.6077862Z Installing collected packages: tomli, platformdirs, packaging, filelock, click, argcomplete, userpath, pipx
+2026-09-16T04:23:02.0157675Z 
+2026-09-16T04:23:02.0177587Z Successfully installed argcomplete-3.7.2 click-8.5.0 filelock-3.32.7 packaging-26.3 pipx-1.16.0 platformdirs-4.11.8 tomli-2.4.1 userpath-1.9.2
+2026-09-16T04:23:02.0879464Z ##[group]Run python scripts/smoke_wheel.py index portunusmcp-sentinel==1.4.0
+2026-09-16T04:23:02.0880163Z [36;1mpython scripts/smoke_wheel.py index portunusmcp-sentinel==1.4.0[0m
+2026-09-16T04:23:02.0918646Z shell: /usr/bin/bash -e {0}
+2026-09-16T04:23:02.0918923Z env:
+2026-09-16T04:23:02.0919224Z   pythonLocation: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:23:02.0919718Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib/pkgconfig
+2026-09-16T04:23:02.0920180Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:23:02.0920591Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:23:02.0921031Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.21/x64
+2026-09-16T04:23:02.0921473Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.21/x64/lib
+2026-09-16T04:23:02.0921872Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+2026-09-16T04:23:02.0922381Z ##[endgroup]
+2026-09-16T04:23:02.6097820Z creating virtual environment...
+2026-09-16T04:23:02.7690033Z creating shared libraries...
+2026-09-16T04:23:06.9007937Z upgrading shared libraries...
+2026-09-16T04:23:09.0838912Z installing portunusmcp-sentinel from spec 'portunusmcp-sentinel==1.4.0'...
+2026-09-16T04:23:26.7975199Z ⚠️  Note: '/tmp/sentinel-pipx-smoke-np122ccc/bin' is not on your PATH
+2026-09-16T04:23:26.7976332Z     environment variable. These apps will not be globally accessible until
+2026-09-16T04:23:26.7977190Z     your PATH is updated. Run `pipx ensurepath` to automatically add it, or
+2026-09-16T04:23:26.7977979Z     manually modify your PATH in your shell's config file (e.g. ~/.bashrc).
+2026-09-16T04:23:26.7978672Z done! ✨ 🌟 ✨
+2026-09-16T04:23:26.7983789Z   installed package portunusmcp-sentinel 1.4.0, installed using Python 3.10.21
+2026-09-16T04:23:26.7993597Z   These apps are now available
+2026-09-16T04:23:26.7994063Z     - sentinel
+2026-09-16T04:23:28.6255066Z 1.4.0
+2026-09-16T04:23:30.3056784Z [1m                                                                                [0m
+2026-09-16T04:23:30.3058061Z [1m [0m[1;33mUsage: [0m[1msentinel init [OPTIONS] [path][0m[1m                                         [0m[1m [0m
+2026-09-16T04:23:30.3059156Z [1m                                                                                [0m
+2026-09-16T04:23:30.3083284Z  Inspect a local MCP repository and generate starter configuration.             
+2026-09-16T04:23:30.3084489Z                                                                                 
+2026-09-16T04:23:30.3110856Z [2m╭─[0m[2m Arguments [0m[2m─────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:30.3111938Z [2m│[0m   path      [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m  Local MCP repository path. [2m[default: .][0m                   [2m│[0m
+2026-09-16T04:23:30.3113026Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:30.3140171Z [2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:30.3141242Z [2m│[0m [1;36m-[0m[1;36m-dynamic[0m          Also scaffold Python Docker launch configuration.         [2m│[0m
+2026-09-16T04:23:30.3142201Z [2m│[0m [1;36m-[0m[1;36m-force[0m            Replace generated regular files.                          [2m│[0m
+2026-09-16T04:23:30.3143603Z [2m│[0m [1;36m-[0m[1;36m-help[0m             Show this message and exit.                               [2m│[0m
+2026-09-16T04:23:30.3144419Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:30.3144788Z 
+2026-09-16T04:23:31.9687557Z [1m                                                                                [0m
+2026-09-16T04:23:31.9688932Z [1m [0m[1;33mUsage: [0m[1msentinel scan [OPTIONS] {path}[0m[1m                                         [0m[1m [0m
+2026-09-16T04:23:31.9690349Z [1m                                                                                [0m
+2026-09-16T04:23:31.9714799Z  Scan with GPT and Docker by default; select [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m for offline use.      
+2026-09-16T04:23:31.9715985Z                                                                                 
+2026-09-16T04:23:31.9743865Z [2m╭─[0m[2m Arguments [0m[2m─────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:31.9745046Z [2m│[0m [31m*[0m    path      [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m  Local MCP repository path. [2;31m[required][0m                 [2m│[0m
+2026-09-16T04:23:31.9746016Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:31.9929118Z [2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:31.9930771Z [2m│[0m [1;36m-[0m[1;36m-format[0m                                [1;2;33m<[0m[1;33mconsole[0m[1;2;33m|[0m[1;33mjson[0m[1;2;33m|[0m[1;33msar[0m                    [2m│[0m
+2026-09-16T04:23:31.9932282Z [2m│[0m                                         [1;33mif[0m[1;2;33m>[0m[1;33m              [0m                    [2m│[0m
+2026-09-16T04:23:31.9933836Z [2m│[0m [1;36m-[0m[1;36m-output[0m                                [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m[1;33m           [0m                    [2m│[0m
+2026-09-16T04:23:31.9935037Z [2m│[0m [1;36m-[0m[1;36m-baseline[0m                              [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m[1;33m           [0m  Compare against a [2m│[0m
+2026-09-16T04:23:31.9935919Z [2m│[0m                                                            prior native JSON [2m│[0m
+2026-09-16T04:23:31.9955964Z [2m│[0m                                                            report.           [2m│[0m
+2026-09-16T04:23:31.9956637Z [2m│[0m [1;36m-[0m[1;36m-json[0m                                  [1;33m                 [0m  Alias for         [2m│[0m
+2026-09-16T04:23:31.9957332Z [2m│[0m                                                            [1;36m-[0m[1;36m-format[0m json.    [2m│[0m
+2026-09-16T04:23:31.9958223Z [2m│[0m [1;36m-[0m[1;36m-fail[0m[1;36m-on[0m                               [1;2;33m<[0m[1;33mcritical[0m[1;2;33m|[0m[1;33mhigh[0m[1;2;33m|[0m[1;33mme[0m                    [2m│[0m
+2026-09-16T04:23:31.9959164Z [2m│[0m                                         [1;33mdium[0m[1;2;33m|[0m[1;33mlow[0m[1;2;33m|[0m[1;33minformat[0m                    [2m│[0m
+2026-09-16T04:23:31.9959907Z [2m│[0m                                         [1;33mional[0m[1;2;33m>[0m[1;33m           [0m                    [2m│[0m
+2026-09-16T04:23:31.9960659Z [2m│[0m [1;36m-[0m[1;36m-allow[0m[1;36m-degraded[0m                        [1;33m                 [0m  Permit            [2m│[0m
+2026-09-16T04:23:31.9961316Z [2m│[0m                                                            unavailable GPT   [2m│[0m
+2026-09-16T04:23:31.9962087Z [2m│[0m                                                            review; does not  [2m│[0m
+2026-09-16T04:23:31.9962673Z [2m│[0m                                                            disable model     [2m│[0m
+2026-09-16T04:23:31.9963398Z [2m│[0m                                                            calls. No         [2m│[0m
+2026-09-16T04:23:31.9963897Z [2m│[0m                                                            additional effect [2m│[0m
+2026-09-16T04:23:31.9964390Z [2m│[0m                                                            with              [2m│[0m
+2026-09-16T04:23:31.9964974Z [2m│[0m                                                            [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m.     [2m│[0m
+2026-09-16T04:23:31.9965814Z [2m│[0m [1;36m-[0m[1;36m-target[0m[1;36m-launch-…[0m                       [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:31.9966856Z [2m│[0m [1;36m-[0m[1;36m-static[0m[1;36m-only[0m                           [1;33m                 [0m  Skip Docker,      [2m│[0m
+2026-09-16T04:23:31.9967485Z [2m│[0m                                                            retain GPT        [2m│[0m
+2026-09-16T04:23:31.9967999Z [2m│[0m                                                            review. No        [2m│[0m
+2026-09-16T04:23:31.9968501Z [2m│[0m                                                            additional effect [2m│[0m
+2026-09-16T04:23:31.9969001Z [2m│[0m                                                            with              [2m│[0m
+2026-09-16T04:23:31.9969580Z [2m│[0m                                                            [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m.     [2m│[0m
+2026-09-16T04:23:31.9970422Z [2m│[0m [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m         [1;35m-[0m[1;35m-no[0m[1;35m-rules-only[0m    [1;33m                 [0m  Offline rules: no [2m│[0m
+2026-09-16T04:23:31.9971172Z [2m│[0m                                                            GPT, review       [2m│[0m
+2026-09-16T04:23:31.9971686Z [2m│[0m                                                            cache, Docker, or [2m│[0m
+2026-09-16T04:23:31.9972184Z [2m│[0m                                                            target execution. [2m│[0m
+2026-09-16T04:23:31.9973121Z [2m│[0m [1;36m-[0m[1;36m-rules[0m                                 [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:31.9974086Z [2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-probe-atte…[0m                       [1;2;33m<[0m[1;33mint[0m[1;2;33m>[0m[1;33m            [0m  Maximum started   [2m│[0m
+2026-09-16T04:23:31.9974827Z [2m│[0m                                                            runtime attempts  [2m│[0m
+2026-09-16T04:23:31.9975341Z [2m│[0m                                                            (default 24).     [2m│[0m
+2026-09-16T04:23:31.9976144Z [2m│[0m [1;36m-[0m[1;36m-campaign[0m[1;36m-timeo…[0m                       [1;2;33m<[0m[1;33mint[0m[1;2;33m>[0m[1;33m            [0m  Runtime campaign  [2m│[0m
+2026-09-16T04:23:31.9976873Z [2m│[0m                                                            budget including  [2m│[0m
+2026-09-16T04:23:31.9977430Z [2m│[0m                                                            discovery         [2m│[0m
+2026-09-16T04:23:31.9977924Z [2m│[0m                                                            (default 120s).   [2m│[0m
+2026-09-16T04:23:31.9978671Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-model[0m                             [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:31.9979622Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-reasoning-…[0m                       [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:31.9980719Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-base-url[0m                          [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:31.9981588Z [2m│[0m [1;36m-[0m[1;36m-trust[0m[1;36m-llm-endp…[0m                       [1;33m                 [0m                    [2m│[0m
+2026-09-16T04:23:31.9982328Z [2m│[0m [1;36m-[0m[1;36m-verbose[0m                               [1;33m                 [0m  Show extended     [2m│[0m
+2026-09-16T04:23:31.9983097Z [2m│[0m                                                            provenance and    [2m│[0m
+2026-09-16T04:23:31.9983610Z [2m│[0m                                                            model reasoning.  [2m│[0m
+2026-09-16T04:23:31.9984335Z [2m│[0m [1;36m-[0m[1;36m-color[0m              [1;35m-[0m[1;35m-no[0m[1;35m-color[0m         [1;33m                 [0m  Override terminal [2m│[0m
+2026-09-16T04:23:31.9985183Z [2m│[0m                                                            color detection.  [2m│[0m
+2026-09-16T04:23:31.9985815Z [2m│[0m [1;36m-[0m[1;36m-help[0m                                  [1;33m                 [0m  Show this message [2m│[0m
+2026-09-16T04:23:31.9986413Z [2m│[0m                                                            and exit.         [2m│[0m
+2026-09-16T04:23:31.9986961Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:31.9987260Z 
+2026-09-16T04:23:35.1622423Z Resolved 83 packages in 2.18s
+2026-09-16T04:23:35.1940272Z Downloading openai (1.6MiB)
+2026-09-16T04:23:35.2047056Z Downloading cryptography (4.6MiB)
+2026-09-16T04:23:35.2068827Z Downloading pygments (1.2MiB)
+2026-09-16T04:23:35.2078656Z Downloading pydantic-core (2.0MiB)
+2026-09-16T04:23:35.2094010Z Downloading tiktoken (1.2MiB)
+2026-09-16T04:23:35.2096693Z Downloading semgrep (67.3MiB)
+2026-09-16T04:23:35.5372034Z  Downloading tiktoken
+2026-09-16T04:23:35.5583961Z  Downloading pydantic-core
+2026-09-16T04:23:35.6791110Z  Downloading cryptography
+2026-09-16T04:23:35.7668139Z  Downloading pygments
+2026-09-16T04:23:36.2745357Z  Downloading openai
+2026-09-16T04:23:36.2796834Z  Downloading semgrep
+2026-09-16T04:23:36.2799634Z Prepared 83 packages in 1.11s
+2026-09-16T04:23:36.3384545Z Installed 83 packages in 58ms
+2026-09-16T04:23:36.3385197Z  + annotated-doc==0.0.5
+2026-09-16T04:23:36.3385746Z  + annotated-types==0.8.0
+2026-09-16T04:23:36.3386265Z  + anyio==4.15.1
+2026-09-16T04:23:36.3386731Z  + attrs==26.1.0
+2026-09-16T04:23:36.3387470Z  + boltons==21.0.0
+2026-09-16T04:23:36.3387948Z  + bracex==3.0.1
+2026-09-16T04:23:36.3388414Z  + certifi==2026.7.22
+2026-09-16T04:23:36.3388898Z  + cffi==2.1.1
+2026-09-16T04:23:36.3389373Z  + charset-normalizer==3.5.1
+2026-09-16T04:23:36.3389930Z  + click==8.4.2
+2026-09-16T04:23:36.3390415Z  + click-option-group==0.5.9
+2026-09-16T04:23:36.3390958Z  + colorama==0.4.6
+2026-09-16T04:23:36.3391443Z  + cryptography==50.0.1
+2026-09-16T04:23:36.3391975Z  + distro==1.9.0
+2026-09-16T04:23:36.3392474Z  + exceptiongroup==1.2.2
+2026-09-16T04:23:36.3393157Z  + face==26.0.1
+2026-09-16T04:23:36.3393660Z  + glom==25.12.0
+2026-09-16T04:23:36.3394164Z  + googleapis-common-protos==1.75.3
+2026-09-16T04:23:36.3394783Z  + h11==0.16.0
+2026-09-16T04:23:36.3395218Z  + httpcore==1.0.9
+2026-09-16T04:23:36.3395686Z  + httpx==0.28.1
+2026-09-16T04:23:36.3396136Z  + httpx-sse==0.4.3
+2026-09-16T04:23:36.3396582Z  + idna==3.19
+2026-09-16T04:23:36.3397040Z  + importlib-metadata==8.7.1
+2026-09-16T04:23:36.3397579Z  + jiter==0.17.0
+2026-09-16T04:23:36.3398026Z  + jsonschema==4.25.1
+2026-09-16T04:23:36.3398548Z  + jsonschema-specifications==2025.9.1
+2026-09-16T04:23:36.3399159Z  + markdown-it-py==4.2.0
+2026-09-16T04:23:36.3399664Z  + mcp==1.29.0
+2026-09-16T04:23:36.3400102Z  + mdurl==0.1.2
+2026-09-16T04:23:36.3400507Z  + openai==2.54.0
+2026-09-16T04:23:36.3400905Z  + opentelemetry-api==1.37.0
+2026-09-16T04:23:36.3401469Z  + opentelemetry-exporter-otlp-proto-common==1.37.0
+2026-09-16T04:23:36.3402446Z  + opentelemetry-exporter-otlp-proto-http==1.37.0
+2026-09-16T04:23:36.3403372Z  + opentelemetry-instrumentation==0.58b0
+2026-09-16T04:23:36.3403999Z  + opentelemetry-instrumentation-requests==0.58b0
+2026-09-16T04:23:36.3404687Z  + opentelemetry-instrumentation-threading==0.58b0
+2026-09-16T04:23:36.3405300Z  + opentelemetry-proto==1.37.0
+2026-09-16T04:23:36.3405786Z  + opentelemetry-sdk==1.37.0
+2026-09-16T04:23:36.3406320Z  + opentelemetry-semantic-conventions==0.58b0
+2026-09-16T04:23:36.3406899Z  + opentelemetry-util-http==0.58b0
+2026-09-16T04:23:36.3407371Z  + packaging==25.0
+2026-09-16T04:23:36.3407759Z  + pathspec==1.1.1
+2026-09-16T04:23:36.3408137Z  + pbr==7.0.3
+2026-09-16T04:23:36.3408509Z  + peewee==3.19.0
+2026-09-16T04:23:36.3408895Z  + platformdirs==4.11.8
+2026-09-16T04:23:36.3409350Z  + portunusmcp-sentinel==1.4.0
+2026-09-16T04:23:36.3409798Z  + protobuf==6.33.6
+2026-09-16T04:23:36.3410180Z  + pycparser==3.0
+2026-09-16T04:23:36.3410567Z  + pydantic==2.13.5
+2026-09-16T04:23:36.3411181Z  + pydantic-core==2.46.5
+2026-09-16T04:23:36.3411625Z  + pydantic-settings==2.15.0
+2026-09-16T04:23:36.3412060Z  + pygments==2.21.0
+2026-09-16T04:23:36.3412447Z  + pyjwt==2.13.0
+2026-09-16T04:23:36.3420181Z  + python-dotenv==1.2.3
+2026-09-16T04:23:36.3420577Z  + python-multipart==0.0.32
+2026-09-16T04:23:36.3420905Z  + pyyaml==6.0.3
+2026-09-16T04:23:36.3421200Z  + referencing==0.37.0
+2026-09-16T04:23:36.3421495Z  + regex==2026.9.10
+2026-09-16T04:23:36.3421794Z  + requests==2.34.2
+2026-09-16T04:23:36.3422053Z  + rich==15.0.0
+2026-09-16T04:23:36.3422361Z  + rpds-py==0.30.0
+2026-09-16T04:23:36.3422981Z  + ruamel-yaml==0.19.1
+2026-09-16T04:23:36.3423296Z  + ruamel-yaml-clib==0.2.15
+2026-09-16T04:23:36.3423602Z  + sarif-om==1.0.4
+2026-09-16T04:23:36.3423868Z  + semantic-version==2.10.0
+2026-09-16T04:23:36.3424160Z  + semgrep==1.176.0
+2026-09-16T04:23:36.3424437Z  + setuptools==84.0.0
+2026-09-16T04:23:36.3424719Z  + shellingham==1.5.4
+2026-09-16T04:23:36.3425004Z  + sniffio==1.3.1
+2026-09-16T04:23:36.3425284Z  + sse-starlette==3.4.11
+2026-09-16T04:23:36.3425570Z  + starlette==1.6.0
+2026-09-16T04:23:36.3425825Z  + tiktoken==0.14.0
+2026-09-16T04:23:36.3426100Z  + tomli==2.4.1
+2026-09-16T04:23:36.3426357Z  + tqdm==4.70.1
+2026-09-16T04:23:36.3426615Z  + typer==0.27.2
+2026-09-16T04:23:36.3426985Z  + typing-extensions==4.16.0
+2026-09-16T04:23:36.3427315Z  + typing-inspection==0.4.4
+2026-09-16T04:23:36.3427611Z  + urllib3==2.8.0
+2026-09-16T04:23:36.3427881Z  + uvicorn==0.53.0
+2026-09-16T04:23:36.3428145Z  + wcmatch==8.5.2
+2026-09-16T04:23:36.3428398Z  + wrapt==1.17.3
+2026-09-16T04:23:36.3428664Z  + zipp==4.1.0
+2026-09-16T04:23:36.3441713Z Installed 1 executable: sentinel
+2026-09-16T04:23:36.3445434Z warning: `/tmp/sentinel-uv-smoke-axf0hncd/bin` is not on your PATH. To use installed tools, run `export PATH="/tmp/sentinel-uv-smoke-axf0hncd/bin:$PATH"` or `uv tool update-shell`.
+2026-09-16T04:23:39.0758441Z 1.4.0
+2026-09-16T04:23:40.7624608Z [1m                                                                                [0m
+2026-09-16T04:23:40.7625991Z [1m [0m[1;33mUsage: [0m[1msentinel init [OPTIONS] [path][0m[1m                                         [0m[1m [0m
+2026-09-16T04:23:40.7627066Z [1m                                                                                [0m
+2026-09-16T04:23:40.7803553Z  Inspect a local MCP repository and generate starter configuration.             
+2026-09-16T04:23:40.7804463Z                                                                                 
+2026-09-16T04:23:40.7831400Z [2m╭─[0m[2m Arguments [0m[2m─────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:40.7833172Z [2m│[0m   path      [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m  Local MCP repository path. [2m[default: .][0m                   [2m│[0m
+2026-09-16T04:23:40.7834574Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:40.7863350Z [2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:40.7864775Z [2m│[0m [1;36m-[0m[1;36m-dynamic[0m          Also scaffold Python Docker launch configuration.         [2m│[0m
+2026-09-16T04:23:40.7866066Z [2m│[0m [1;36m-[0m[1;36m-force[0m            Replace generated regular files.                          [2m│[0m
+2026-09-16T04:23:40.7867243Z [2m│[0m [1;36m-[0m[1;36m-help[0m             Show this message and exit.                               [2m│[0m
+2026-09-16T04:23:40.7868451Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:40.7868921Z 
+2026-09-16T04:23:42.4515882Z [1m                                                                                [0m
+2026-09-16T04:23:42.4516952Z [1m [0m[1;33mUsage: [0m[1msentinel scan [OPTIONS] {path}[0m[1m                                         [0m[1m [0m
+2026-09-16T04:23:42.4517729Z [1m                                                                                [0m
+2026-09-16T04:23:42.4543626Z  Scan with GPT and Docker by default; select [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m for offline use.      
+2026-09-16T04:23:42.4544250Z                                                                                 
+2026-09-16T04:23:42.4572980Z [2m╭─[0m[2m Arguments [0m[2m─────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:42.4574648Z [2m│[0m [31m*[0m    path      [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m  Local MCP repository path. [2;31m[required][0m                 [2m│[0m
+2026-09-16T04:23:42.4576048Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:42.4804426Z [2m╭─[0m[2m Options [0m[2m───────────────────────────────────────────────────────────────────[0m[2m─╮[0m
+2026-09-16T04:23:42.4806063Z [2m│[0m [1;36m-[0m[1;36m-format[0m                                [1;2;33m<[0m[1;33mconsole[0m[1;2;33m|[0m[1;33mjson[0m[1;2;33m|[0m[1;33msar[0m                    [2m│[0m
+2026-09-16T04:23:42.4807523Z [2m│[0m                                         [1;33mif[0m[1;2;33m>[0m[1;33m              [0m                    [2m│[0m
+2026-09-16T04:23:42.4808812Z [2m│[0m [1;36m-[0m[1;36m-output[0m                                [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m[1;33m           [0m                    [2m│[0m
+2026-09-16T04:23:42.4810289Z [2m│[0m [1;36m-[0m[1;36m-baseline[0m                              [1;2;33m<[0m[1;33mpath[0m[1;2;33m>[0m[1;33m           [0m  Compare against a [2m│[0m
+2026-09-16T04:23:42.4811411Z [2m│[0m                                                            prior native JSON [2m│[0m
+2026-09-16T04:23:42.4812207Z [2m│[0m                                                            report.           [2m│[0m
+2026-09-16T04:23:42.4813425Z [2m│[0m [1;36m-[0m[1;36m-json[0m                                  [1;33m                 [0m  Alias for         [2m│[0m
+2026-09-16T04:23:42.4814830Z [2m│[0m                                                            [1;36m-[0m[1;36m-format[0m json.    [2m│[0m
+2026-09-16T04:23:42.4816236Z [2m│[0m [1;36m-[0m[1;36m-fail[0m[1;36m-on[0m                               [1;2;33m<[0m[1;33mcritical[0m[1;2;33m|[0m[1;33mhigh[0m[1;2;33m|[0m[1;33mme[0m                    [2m│[0m
+2026-09-16T04:23:42.4817709Z [2m│[0m                                         [1;33mdium[0m[1;2;33m|[0m[1;33mlow[0m[1;2;33m|[0m[1;33minformat[0m                    [2m│[0m
+2026-09-16T04:23:42.4818875Z [2m│[0m                                         [1;33mional[0m[1;2;33m>[0m[1;33m           [0m                    [2m│[0m
+2026-09-16T04:23:42.4820062Z [2m│[0m [1;36m-[0m[1;36m-allow[0m[1;36m-degraded[0m                        [1;33m                 [0m  Permit            [2m│[0m
+2026-09-16T04:23:42.4821059Z [2m│[0m                                                            unavailable GPT   [2m│[0m
+2026-09-16T04:23:42.4822093Z [2m│[0m                                                            review; does not  [2m│[0m
+2026-09-16T04:23:42.4823054Z [2m│[0m                                                            disable model     [2m│[0m
+2026-09-16T04:23:42.4823821Z [2m│[0m                                                            calls. No         [2m│[0m
+2026-09-16T04:23:42.4824598Z [2m│[0m                                                            additional effect [2m│[0m
+2026-09-16T04:23:42.4825428Z [2m│[0m                                                            with              [2m│[0m
+2026-09-16T04:23:42.4826307Z [2m│[0m                                                            [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m.     [2m│[0m
+2026-09-16T04:23:42.4827627Z [2m│[0m [1;36m-[0m[1;36m-target[0m[1;36m-launch-…[0m                       [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:42.4828998Z [2m│[0m [1;36m-[0m[1;36m-static[0m[1;36m-only[0m                           [1;33m                 [0m  Skip Docker,      [2m│[0m
+2026-09-16T04:23:42.4829984Z [2m│[0m                                                            retain GPT        [2m│[0m
+2026-09-16T04:23:42.4830752Z [2m│[0m                                                            review. No        [2m│[0m
+2026-09-16T04:23:42.4831514Z [2m│[0m                                                            additional effect [2m│[0m
+2026-09-16T04:23:42.4832271Z [2m│[0m                                                            with              [2m│[0m
+2026-09-16T04:23:42.4833416Z [2m│[0m                                                            [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m.     [2m│[0m
+2026-09-16T04:23:42.4834743Z [2m│[0m [1;36m-[0m[1;36m-rules[0m[1;36m-only[0m         [1;35m-[0m[1;35m-no[0m[1;35m-rules-only[0m    [1;33m                 [0m  Offline rules: no [2m│[0m
+2026-09-16T04:23:42.4835947Z [2m│[0m                                                            GPT, review       [2m│[0m
+2026-09-16T04:23:42.4836708Z [2m│[0m                                                            cache, Docker, or [2m│[0m
+2026-09-16T04:23:42.4837476Z [2m│[0m                                                            target execution. [2m│[0m
+2026-09-16T04:23:42.4838582Z [2m│[0m [1;36m-[0m[1;36m-rules[0m                                 [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:42.4840098Z [2m│[0m [1;36m-[0m[1;36m-max[0m[1;36m-probe-atte…[0m                       [1;2;33m<[0m[1;33mint[0m[1;2;33m>[0m[1;33m            [0m  Maximum started   [2m│[0m
+2026-09-16T04:23:42.4841234Z [2m│[0m                                                            runtime attempts  [2m│[0m
+2026-09-16T04:23:42.4842021Z [2m│[0m                                                            (default 24).     [2m│[0m
+2026-09-16T04:23:42.4843627Z [2m│[0m [1;36m-[0m[1;36m-campaign[0m[1;36m-timeo…[0m                       [1;2;33m<[0m[1;33mint[0m[1;2;33m>[0m[1;33m            [0m  Runtime campaign  [2m│[0m
+2026-09-16T04:23:42.4844859Z [2m│[0m                                                            budget including  [2m│[0m
+2026-09-16T04:23:42.4845638Z [2m│[0m                                                            discovery         [2m│[0m
+2026-09-16T04:23:42.4846419Z [2m│[0m                                                            (default 120s).   [2m│[0m
+2026-09-16T04:23:42.4847574Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-model[0m                             [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:42.4849088Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-reasoning-…[0m                       [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:42.4850856Z [2m│[0m [1;36m-[0m[1;36m-llm[0m[1;36m-base-url[0m                          [1;2;33m<[0m[1;33mstr[0m[1;2;33m>[0m[1;33m            [0m                    [2m│[0m
+2026-09-16T04:23:42.4852185Z [2m│[0m [1;36m-[0m[1;36m-trust[0m[1;36m-llm-endp…[0m                       [1;33m                 [0m                    [2m│[0m
+2026-09-16T04:23:42.4853544Z [2m│[0m [1;36m-[0m[1;36m-verbose[0m                               [1;33m                 [0m  Show extended     [2m│[0m
+2026-09-16T04:23:42.4854475Z [2m│[0m                                                            provenance and    [2m│[0m
+2026-09-16T04:23:42.4855285Z [2m│[0m                                                            model reasoning.  [2m│[0m
+2026-09-16T04:23:42.4856448Z [2m│[0m [1;36m-[0m[1;36m-color[0m              [1;35m-[0m[1;35m-no[0m[1;35m-color[0m         [1;33m                 [0m  Override terminal [2m│[0m
+2026-09-16T04:23:42.4857527Z [2m│[0m                                                            color detection.  [2m│[0m
+2026-09-16T04:23:42.4858512Z [2m│[0m [1;36m-[0m[1;36m-help[0m                                  [1;33m                 [0m  Show this message [2m│[0m
+2026-09-16T04:23:42.4859413Z [2m│[0m                                                            and exit.         [2m│[0m
+2026-09-16T04:23:42.4860273Z [2m╰──────────────────────────────────────────────────────────────────────────────╯[0m
+2026-09-16T04:23:42.4860728Z 
+2026-09-16T04:23:43.4164342Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:23:43.4165640Z Post job cleanup.
+2026-09-16T04:23:43.5458541Z Cache hit occurred on key setup-uv-1-x86_64-unknown-linux-gnu-3.12.3-pruned-a7adf29204b1dd5f03b5d7fa7ca04c6aad92af6cb12a6dac1bb176ed3dde3115, not saving cache.
+2026-09-16T04:23:43.5460570Z (node:2572) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T04:23:43.5461394Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T04:23:43.5600275Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:23:43.5601548Z Post job cleanup.
+2026-09-16T04:23:43.6884842Z (node:2580) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-16T04:23:43.6886180Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-16T04:23:43.7076050Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-16T04:23:43.7077355Z Post job cleanup.
+2026-09-16T04:23:43.7981386Z [command]/usr/bin/git version
+2026-09-16T04:23:43.8028745Z git version 2.55.0
+2026-09-16T04:23:43.8070266Z Temporarily overriding HOME='/home/runner/work/_temp/251ec130-5206-46b5-bca8-79d491d0f37a' before making global git config changes
+2026-09-16T04:23:43.8071699Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-16T04:23:43.8076823Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MCP-Sentinel/MCP-Sentinel
+2026-09-16T04:23:43.8120824Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-16T04:23:43.8167127Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-16T04:23:43.8444646Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-16T04:23:43.8483836Z http.https://github.com/.extraheader
+2026-09-16T04:23:43.8507551Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-16T04:23:43.8535157Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-16T04:23:43.8835681Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-16T04:23:43.8882577Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-16T04:23:43.9287136Z Cleaning up orphan processes
+2026-09-16T04:23:43.9607006Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

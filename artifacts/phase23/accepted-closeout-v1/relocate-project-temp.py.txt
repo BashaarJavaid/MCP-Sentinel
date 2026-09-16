@@ -1,0 +1,68 @@
+from pathlib import Path
+import os,json,hashlib,tarfile,subprocess,shutil,datetime,re
+root=Path.cwd();out=root/'artifacts/phase23/accepted-closeout-v1';storage=root/'.local/recovered-temp';entries=[]
+for label,base in [('tmp',Path('/private/tmp')),('runner-temp',Path('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T'))]:
+ for p in sorted(base.iterdir()):
+  name=p.name
+  selected=(any(s in name for s in ['phase23','phase18','phase19','phase20']) or name.startswith(('mcp-sentinel-','portunusmcp-sentinel-','sentinel-'))) if label=='tmp' else name.startswith(('phase20-','sentinel-'))
+  if not selected:continue
+  runtime=any(s in name for s in ['cache','venv','wheel-env','py313','smoke-runner','replay-tools','replay-bin','wheel-verify'])
+  entries.append({'source':str(p),'destination':str(storage/label/name),'archive_prefix':label+'/'+name,'runtime_only':runtime})
+assert entries
+archive=out/'temporary-project-material.tar.gz';index=[];skipped=[]
+published_blobs=set()
+for repo,rev in [(str(root),'origin/main'),(str(root),'8824014e961722980757bb589009dc59b78d9a37'),('/private/tmp/phase23-action-release-proof','HEAD')]:
+ for line in subprocess.check_output(['git','-C',repo,'ls-tree','-r','-z',rev]).split(b'\0'):
+  if line:published_blobs.add(line.split(b'\t',1)[0].split()[2].decode())
+public_fixture_exceptions=[]
+def digest(p):
+ with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+def selected_members(p):
+ if not p.is_dir() or p.is_symlink():yield p;return
+ yield p
+ for directory,dirs,files in os.walk(p,followlinks=False):
+  dirs[:]=sorted(x for x in dirs if x not in {'.git','.venv','venv','__pycache__','.pytest_cache','.mypy_cache','.ruff_cache','.cache'})
+  for n in dirs:yield Path(directory)/n
+  for n in sorted(files):
+   f=Path(directory)/n
+   if n=='.git' or n.endswith(('.pyc','.pyo')) or (n.startswith('.env') and n!='.env.example'):skipped.append(str(f));continue
+   yield f
+with tarfile.open(archive,'w:gz',dereference=False) as tar:
+ for e in entries:
+  p=Path(e['source'])
+  if e['runtime_only']:continue
+  for f in selected_members(p):
+   rel=Path(e['archive_prefix'])/f.relative_to(p) if f!=p else Path(e['archive_prefix']);row={'archive_path':str(rel),'original_path':str(f)}
+   if f.is_symlink():row.update(type='symlink',target=os.readlink(f))
+   elif f.is_file():
+    data=f.read_bytes()
+    if f.suffix in {'.py','.json','.txt','.log','.md','.yml','.yaml'}:
+     if re.search(rb'(?:ghp_|github_pat_|sk-proj-)[A-Za-z0-9_-]{35,}',data):
+      blob=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+      assert blob in published_blobs,f'Unpublished credential-like content needs review: {f}'
+      public_fixture_exceptions.append({'path':str(f),'published_git_blob':blob})
+    row.update(type='file',size=len(data),sha256=hashlib.sha256(data).hexdigest())
+   elif f.is_dir():row['type']='directory'
+   else:skipped.append(str(f));continue
+   tar.add(f,arcname=str(rel),recursive=False);index.append(row)
+with tarfile.open(archive,'r:gz') as tar:
+ members=tar.getmembers();assert len(members)==len(index)
+ for member,row in zip(members,index,strict=True):
+  assert member.name.rstrip('/')==row['archive_path'].rstrip('/')
+  if row['type']=='file':assert hashlib.sha256(tar.extractfile(member).read()).hexdigest()==row['sha256']
+  if row['type']=='symlink':assert member.linkname==row['target']
+(out/'temporary-archive-index.json').write_text(json.dumps({'archive':str(archive.relative_to(root)),'sha256':digest(archive),'members':index,'not_archived_paths':skipped,'unchanged_public_fixture_files':public_fixture_exceptions,'runtime_and_git_metadata':'Preserved locally in relocated directories; dependencies/caches and Git internals are not published.'},indent=2)+'\n')
+external=Path('/private/tmp/phase23-action-release-proof');bundle=out/'external-action-proof.bundle';subprocess.run(['git','-C',str(external),'bundle','create',str(bundle),'--all'],check=True);subprocess.run(['git','bundle','verify',str(bundle)],check=True,capture_output=True)
+worktrees=set()
+for line in subprocess.check_output(['git','worktree','list','--porcelain'],text=True).splitlines():
+ if line.startswith('worktree '):worktrees.add(line.removeprefix('worktree '))
+for e in entries:
+ p=Path(e['source']);dest=Path(e['destination']);dest.parent.mkdir(parents=True,exist_ok=True);assert not dest.exists()
+ if str(p) in worktrees:subprocess.run(['git','worktree','move',str(p),str(dest)],check=True)
+ else:shutil.move(str(p),str(dest))
+ assert not p.exists() and (dest.exists() or dest.is_symlink())
+for row in index:
+ if row['type']!='file':continue
+ e=next(e for e in entries if row['original_path']==e['source'] or row['original_path'].startswith(e['source']+'/'));dest=Path(e['destination'])/Path(row['original_path']).relative_to(e['source']);assert digest(dest)==row['sha256']
+(out/'temporary-relocation.json').write_text(json.dumps({'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z'),'status':'moved_and_verified_original_paths_absent','entries':entries,'archived_members':len(index),'archived_bytes':archive.stat().st_size,'external_proof_bundle_sha256':digest(bundle),'shared_application_temporary_paths':'Unrelated application/service temporary directories were not selected.'},indent=2)+'\n')
+print('Moved',len(entries),'project temp entries; archived',len(index),'members;',archive.stat().st_size,'compressed bytes. Originals absent, archived bytes verified.')

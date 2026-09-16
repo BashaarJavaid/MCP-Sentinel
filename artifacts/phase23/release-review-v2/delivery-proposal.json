@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_draft_update_and_hosted_verification_approval",
+  "recorded_at_utc": "2026-09-16T01:21:40.676418+00:00",
+  "selected_version": "1.4.0",
+  "candidate": {
+    "recorded_at_utc": "2026-09-16T01:20:26.757092+00:00",
+    "commit": "d5365dce6184707248dab17a921b3257cc508069",
+    "parent": "4bc28d050bdbfcbf675bb0cf0c77c82f855acd7f",
+    "tree": "a736214212f90dbfec34f4b6362b4e3c741a3922",
+    "local_branch": "phase23/release-1.4.0-review",
+    "remote_delivery_branch": "phase23/maintained-feedback-20260915",
+    "changed_files_verified": 1533,
+    "contents_sha256": "86162c7cf4c9d00e9d9d7ca1cc63e1db29919212ad749001318187a3babd843a",
+    "all_changed_blob_bytes_verified": true,
+    "current_HEAD_and_user_index_unchanged": true,
+    "pushed": false,
+    "publication_authorized": false
+  },
+  "required_remote_main": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+  "required_remote_pr_head": "4bc28d050bdbfcbf675bb0cf0c77c82f855acd7f",
+  "pr": 40,
+  "repository": "BashaarJavaid/MCP-Sentinel",
+  "package_pin": "portunusmcp-sentinel==1.4.0",
+  "prospective_immutable_action_pin": "BashaarJavaid/MCP-Sentinel@d5365dce6184707248dab17a921b3257cc508069",
+  "requested_actions": [
+    {
+      "action": "push_reviewed_descendant_to_existing_draft_branch",
+      "command": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/phase23/maintained-feedback-20260915:4bc28d050bdbfcbf675bb0cf0c77c82f855acd7f",
+        "origin",
+        "d5365dce6184707248dab17a921b3257cc508069:refs/heads/phase23/maintained-feedback-20260915"
+      ]
+    },
+    {
+      "action": "update_existing_draft_title_and_description",
+      "command": [
+        "gh",
+        "pr",
+        "edit",
+        "40",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--title",
+        "Prepare 1.4.0 with maintained advisory regression and feedback",
+        "--body-file",
+        "artifacts/phase23/release-review-v2/pr-body.md"
+      ]
+    },
+    {
+      "action": "observe_one_automatic_PR_CI_and_docs_run_and_retain_all_results",
+      "new_advisory_observations": 7,
+      "historical_corpus_observations": 0,
+      "model_calls": 0,
+      "target_executions": 0,
+      "limits": {
+        "input_seconds": 1800,
+        "semgrep_seconds": 10,
+        "cleanup_seconds": 15,
+        "maximum_workers": 4,
+        "helper_outer_seconds": 13200,
+        "hosted_job_minutes_including_setup_and_evidence": 230
+      },
+      "command_in_existing_workflow": "sudo unshare --net -- \"$PWD/.venv/bin/python\" -m scripts.phase23_regression ci --output \"${{ runner.temp }}/phase23-regression\"",
+      "workflow_paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/docs.yml"
+      ],
+      "retain_existing_required_gates": true,
+      "automatic_retry": false
+    }
+  ],
+  "preconditions": [
+    "Remote main and PR40 head must equal the required exact revisions; otherwise stop for review.",
+    "Candidate tree and all changed blobs must match the retained contents manifest.",
+    "PR40 must remain open and draft.",
+    "Candidate must descend from the expected remote PR head.",
+    "On failed or incomplete hosted checks, retain all evidence and stop for review; no retry or timeout extension."
+  ],
+  "local_verification": {
+    "make_check_passed": true,
+    "tests_passed": 2766,
+    "tests_skipped": 36,
+    "focused_passed": 52,
+    "original_failures_retained": 8,
+    "correction_scope": "Five added test lines; no production comparator or frozen reference change."
+  },
+  "package_artifacts": {
+    "artifacts/phase23/release-review-v2/distributions/portunusmcp_sentinel-1.4.0-py3-none-any.whl": "fc9c0155b08687e2a50e327cca4ebc8b7be759539eaef3e4aa4e08801d23f1af",
+    "artifacts/phase23/release-review-v2/distributions/portunusmcp_sentinel-1.4.0.tar.gz": "3f61b8a914f6fe4fe3a8d10521c031dfa00a1e80132291b35d719640f371d4c6"
+  },
+  "not_authorized": [
+    "ready-state change",
+    "merge",
+    "main push",
+    "version tag",
+    "TestPyPI or PyPI publication",
+    "GitHub release/assets",
+    "Action alias update",
+    "released-wheel observations"
+  ],
+  "next_checkpoint": "After exact hosted artifacts and required gates pass, prepare the final merge/tag/publication/Action and released-wheel verification packet for explicit approval.",
+  "phase23_complete": false,
+  "paid_calls": 0,
+  "files_sha256": {
+    "artifacts/phase23/release-review-v2/README.md": "7441c9cd98c127053e657e2aba9c8a4c11293fe759c46e826b3ec738cfc749e0",
+    "artifacts/phase23/release-review-v2/local-commit.json": "91771b38c8161dfb5f89019ad461b035e611ab6a57ace6726f3f3c442e7bfb7a",
+    "artifacts/phase23/release-review-v2/contents.json": "86162c7cf4c9d00e9d9d7ca1cc63e1db29919212ad749001318187a3babd843a",
+    "artifacts/phase23/release-review-v2/local-checks.json": "00416b61b9d1fe72b6dd891e90dda8208114d10034d8582fd6b0adbf0db5931b",
+    "artifacts/phase23/release-review-v2/version-receipt.json": "dde887b6d564c46fb6b4045c2a397ab0d47356bf161198531ea88fc16d9d5775",
+    "artifacts/phase23/release-review-v2/version-test-correction.json": "5bb633c9fab5a7328c47008b7e097e2a6587c12e50a715efd21251ff7fc85f19",
+    "artifacts/phase23/release-review-v2/version-test-correction.patch": "322a10fceeb47833716e480f7edefec21fcb1087dc1a218e0602eb915de8e39a",
+    "artifacts/phase23/release-review-v2/mock-version-differences.json": "8950b2a617956b4732eb332ad5024def9c8588198a328c2321365f22ec37b6bd",
+    "artifacts/phase23/release-review-v2/package-verification.json": "989f348eaff2da8ab795a62fe2f802f176da1b93422d00efa91e5be750ddd342",
+    "artifacts/phase23/release-review-v2/pr-body.md": "89c64586d81d56dea4935a111d55885d2a4ada6881c4e1d0cc1205b00e73e8d9",
+    "artifacts/phase23/release-review-v2/release-notes.md": "1802c83c7587e0690c90e7a2d9363070bc3e6af67615de9d72a40a044fa89a2a",
+    "artifacts/phase23/release-review-v2/pr-preflight.json": "8bcdaf5d9d3ff60005b7d8454169700ce35d73fce253fc3bd485d71b2890d9ce",
+    "artifacts/phase23/release-review-v2/main-preflight.json": "4155e83c0700cfcac6b454d9beaeefb9235f3278693f0678cee64504d62edb1f",
+    ".github/workflows/ci.yml": "d8b41dd6962cabb96c2199baf1cdf3b1ce95867a93aa25d490b881d3392398d2",
+    ".github/workflows/docs.yml": "f7bcb6b0eec71bf252d1c70935039ad52228a3e4a25e0b536a175d63dd26e539",
+    ".github/workflows/release.yml": "a7319ba8747cee5b5c283393ceefab30fb5e78d97b8415690c3da85fc621be69",
+    "artifacts/phase23/technical-acceptance-v1/receipt.json": "cd751704d99b12c5c37ef4f8aed665e0a5d3b813fede53ef2a78b42756037233"
+  }
+}

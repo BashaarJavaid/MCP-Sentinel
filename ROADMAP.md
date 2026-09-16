@@ -3483,6 +3483,61 @@ while keeping the supported boundary explicit.
 
 ## 26. Phase 23 — Maintained feedback and regression releases
 
+**Status: complete — explicitly accepted by the maintainer.**
+The reviewed1.4.0 advisory correction reached a verified TestPyPI/PyPI/GitHub
+release with signed version/alias, exact and alias Action proofs, complete
+released-wheel regression and delivered contribution/maintenance guidance.
+Acceptance and all13 requirement rows are retained in
+`artifacts/phase23/accepted-closeout-v1/`; prior evidence remains immutable.
+
+- [x] Public advisory → reproduction → approved correction → reviewed regression.
+- [x] Durable offline CI and actual rejection of the deliberately reversed fix.
+- [x] Versioned1.4.0 publication, artifact/provenance and Action verification.
+- [x] Contribution guidance, maintenance cadence and explicit final human acceptance.
+
+All historical failures and accepted limits remain: current FAF compatibility
+unestablished, Proxmox unsupported and56 unrelated finding occurrences needs_review.
+Phase22 accepted closeout, deferred pilots/benchmarks/recovery/optimization,
+Phase21 and Phase24/15 are unchanged. The maintainer authorized delivery of all
+project evidence/documents on main, relocation of project temporary files and
+stale-branch cleanup after main delivery. Zero paid calls or target execution.
+
+Historical continuation (superseded by explicit final acceptance above):
+Current continuation: **the reviewed1.4.0 release is fully verified; final human
+acceptance is pending.** Main CI30 jobs plus deployed docs, release workflow47
+jobs, both12-platform suites and12 public installs passed. All21 approved advisory
+observations and both exact/alias Action proofs passed. Public packages/provenance,
+GitHub assets, signed version/alias and live maintenance/contribution guidance are
+verified. The actual deliberate regression rejection remains retained.
+
+Final evidence: `artifacts/phase23/final-acceptance-v1/README.md`.
+**Phase23 remains open solely for explicit final acceptance.** Earlier approval
+blocks and all historical failures remain recorded. Current FAF compatibility
+stays unestablished and Proxmox unsupported; accepted Phase22 closeout and all
+pilot/benchmark/recovery/optimization deferrals remain. Phase21 and Phase24/15
+are unchanged. Zero new paid calls or advisory-target execution; no extra main
+commit or branch cleanup. Maintenance next due2026-09-21 09:00 America/Los_Angeles.
+
+Historical continuation (superseded by full release verification above):
+Current continuation: **1.4.0 is published and verified on TestPyPI/PyPI** at
+reviewed merge `fd10cba`. Main CI (30 jobs plus deployed docs), release workflow
+(47 jobs), both12-platform suites and public installation matrix pass. The signed
+version tag, public artifact hashes/provenance and all21 approved advisory
+observations are verified. The downloaded wheel matches all seven reviewed
+reports: three vulnerable detections and four supported negatives.
+
+Automatic approval review rejected GitHub release creation before execution,
+citing older authorization status despite the newer publication approval.
+The GitHub release is absent; two external Action proofs and the `v1` update remain
+unstarted. The exact continuation is `artifacts/phase23/publication-continuation-v1/`;
+completed evidence is `artifacts/phase23/publication-v1/summary.json`.
+**Phase23 remains incomplete until those release steps and explicit final acceptance.**
+No new advisory observations, package publication or detector changes are proposed.
+All accepted limitations, historical failures and Phase22 closeout remain;
+pilots/benchmarks/recovery/optimization stay deferred; Phase21 and Phase24/15 unchanged.
+Zero new paid calls or advisory-target execution.
+
+Historical continuation (superseded by the publication above):
 Current continuation: **the technical result is explicitly accepted**, including
 current FAF compatibility remaining unestablished. The approval receipt is
 `artifacts/phase23/technical-acceptance-v1/receipt.json`, bound to exact proposal
@@ -3490,10 +3545,13 @@ current FAF compatibility remaining unestablished. The approval receipt is
 The 106 non-FAF reports/53 pairs, advisory gate, local/hosted engineering and actual
 regression rejection remain verified. FAF's timeout stays failed; its five
 unstarted observations stay closed. No retry/recovery/optimization is authorized.
-The user selected **1.4.0**; its version changes and dated release notes are
-prepared in `artifacts/phase23/release-review-v2/`. Release contents and publication
-actions remain unapproved; **Phase23 is incomplete until a verified reviewed
-release and explicit final acceptance**.
+The user selected **1.4.0** and approved draft delivery of `d5365dc`. All30 hosted
+CI jobs, docs and12 native suites pass; seven offline advisory reports match
+reviewed references, and both package hashes match the local reviewed builds.
+The exact publication packet is `artifacts/phase23/publication-review-v1/`.
+Merge/tag/publication, Action alias/proofs and released-wheel checks remain
+unapproved. **Phase23 is incomplete until a verified reviewed release and
+explicit final acceptance**.
 Phase22 accepted closeout and all deferrals, Phase21 and Phase24/15 remain unchanged.
 
 Historical continuation (superseded by the acceptance above): the approved remaining attempt completed **83 new +23
@@ -3801,7 +3859,7 @@ are conditional/optional and do not block the required product path.
 | 20 | Independent benchmark | Pinned vulnerable/fixed corpus, held-out cases, honest denominators, and reproducible tier comparisons. |
 | 21 | Maintainer problem validation | Five external pilots attempt their workflows and establish a bounded improvement priority. |
 | 22 | Broader useful MCP coverage | Verified controls/campaigns and source-assessed results; explicit acceptance of retained failures and limitations, then verified closeout. Pilots remain deferred. |
-| 23 | Maintained detection feedback | A report/advisory reaches a tested, reviewed, reproducible release with recorded timings. |
+| 23 | Maintained detection feedback | **Complete and accepted:** advisory correction, durable regression rejection and verified1.4.0 release; recorded timings and retained limitations. |
 | 24 | Retained adoption | Three of five pilots meet onboarding/30-day retention goals and an independent useful catch is verified. |
 | 25 | Independent AI discovery | Conditional; held-out incremental findings justify noise/cost, with advisory provenance and no execution. |
 | 26 | Stateful security testing | Conditional; isolated identity/tool sequences prove violations on vulnerable cases and defenses on fixed cases. |

@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_continuation_approval_after_automatic_review_rejection",
+  "recorded_at_utc": "2026-09-16T04:34:34.917688+00:00",
+  "original_publication_proposal_sha256": "40cf8a21f0576c062a9016a650b5e980fee268c033926de1fde0d56bb01fcc30",
+  "version": "1.4.0",
+  "verified_merge_revision": "fd10cba1297a32ec35ec647e17f3491dbb3b0979",
+  "candidate_revision": "d5365dce6184707248dab17a921b3257cc508069",
+  "completed_advisory_observations": 21,
+  "new_advisory_observations": 0,
+  "remaining_external_action_proofs": 2,
+  "new_paid_calls": 0,
+  "automatic_retry": false,
+  "extra_main_commit_or_cleanup": false,
+  "final_phase23_acceptance_included": false,
+  "commands": "artifacts/phase23/publication-continuation-v1/commands.json",
+  "sequence": [
+    {
+      "stage": "github_release",
+      "argv": [
+        "gh",
+        "release",
+        "create",
+        "v1.4.0",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0-py3-none-any.whl",
+        "/private/tmp/phase23-published-dist/portunusmcp_sentinel-1.4.0.tar.gz",
+        "--repo",
+        "BashaarJavaid/MCP-Sentinel",
+        "--verify-tag",
+        "--title",
+        "PortunusMCP Sentinel 1.4.0",
+        "--notes-file",
+        "artifacts/phase23/publication-review-v1/release-notes.md"
+      ],
+      "precondition": "Public artifacts/provenance and all seven released-wheel observations pass; release absent."
+    },
+    {
+      "stage": "external_proof_branch",
+      "cwd": "/private/tmp/phase23-action-release-proof",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/heads/phase23-1.4.0-release-proof:",
+        "origin",
+        "26615d0da25c8af1b9944010397b79765cc365d5:refs/heads/phase23-1.4.0-release-proof"
+      ],
+      "precondition": "External main remains d15df2851771f331849d1f0e1c4531090de7bd3e; proof branch absent; exact local proof tree/patch verified. No main push or PR creation."
+    },
+    {
+      "stage": "exact_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=exact"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Package 1.4.0 public and verified; exact external branch matches proof commit. Wait for successful clean output/version/SARIF checks before alias action."
+    },
+    {
+      "stage": "sign_alias",
+      "argv": [
+        "git",
+        "tag",
+        "-f",
+        "-s",
+        "v1",
+        "{verified_merge_revision}",
+        "-m",
+        "Release 1.4.0"
+      ],
+      "precondition": "Exact proof passed; current remote alias object remains 089adf0891465ddcb78100e06ecf2a2228566c51; verified immutable version tag and main still point to M."
+    },
+    {
+      "stage": "verify_local_alias_signature",
+      "argv": [
+        "git",
+        "verify-tag",
+        "v1"
+      ]
+    },
+    {
+      "stage": "push_alias",
+      "argv": [
+        "git",
+        "push",
+        "--force-with-lease=refs/tags/v1:089adf0891465ddcb78100e06ecf2a2228566c51",
+        "origin",
+        "refs/tags/v1"
+      ]
+    },
+    {
+      "stage": "alias_action_proof",
+      "argv": [
+        "gh",
+        "workflow",
+        "run",
+        "phase15.yml",
+        "--repo",
+        "BashaarJavaid/mcp-sentinel-action-demo",
+        "--ref",
+        "phase23-1.4.0-release-proof",
+        "-f",
+        "release=alias"
+      ],
+      "runs": 1,
+      "paid_calls": 0,
+      "precondition": "Remote alias is SSH-signed, verified, and resolves to M. Wait for successful clean output/version/SARIF checks."
+    },
+    {
+      "stage": "retain_release_evidence_and_request_final_acceptance",
+      "required": [
+        "actual UTC publication and verification times",
+        "public hashes and provenance at reviewed revision",
+        "exact Action and alias proof",
+        "released-wheel seven-input results",
+        "all retained limitations and historical failures"
+      ],
+      "phase23_closed": false,
+      "extra_main_commit_or_branch_cleanup": false
+    }
+  ],
+  "approval_scope": "Explicitly authorize the remaining GitHub release/assets, prepared separate external proof branch and two rules-only proof runs, and signed v1 alias update; supersede older pending-authorization text. No repeat package publication or advisory scans.",
+  "files_sha256": {
+    "AGENTS.md": "f601e81484950508f9c29014ad569b7e7a7ed07aeed237f4b1c92f1bb633a543",
+    "ROADMAP.md": "1a31a34173521091b5e7721cb445b952b24c072602aef3924a909ed5e9d044b3",
+    "artifacts/phase23/publication-review-v1/proposal.json": "40cf8a21f0576c062a9016a650b5e980fee268c033926de1fde0d56bb01fcc30",
+    "artifacts/phase23/publication-v1/summary.json": "39ba296ae30425b955cfd72273bb529f84738a825c498c4c4b6c7ee6953c3e32",
+    "artifacts/phase23/publication-v1/evidence-manifest.json": "be3b73ccedddf1134b180a7cebf171bbe777dfd294d8a24122f6425b1ac298b4",
+    "artifacts/phase23/lifecycle/ghsa-3q26-v20-pypi-published.json": "86537ee7eed46bde18533e7710e1ae68e449d0bb12eb4c167a20fdde08efb6a8",
+    "artifacts/phase23/publication-continuation-v1/AGENTS.md.before.txt": "5ece1ec7aed4f4198d5a653ffb1dcaa07a608148a3b39db90820b0d02ddce9b7",
+    "artifacts/phase23/publication-continuation-v1/README.md": "0f56514fadc3108782f3a9403c06665c0c7fa08859e8777f8f900f225c1ff529",
+    "artifacts/phase23/publication-continuation-v1/ROADMAP.md.before.txt": "acbc47be3486b2a568d4d5b0297308244f6e592920201131d51b13f3f195f376",
+    "artifacts/phase23/publication-continuation-v1/commands.json": "da21f3e2d6755144891211eeb5010b41d425c0ead1533ff83e6fc4a0c1e31d1d",
+    "artifacts/phase23/publication-continuation-v1/docs-check.log": "dac5325cbed49bb18124e371dedc97fea6d59b60cabb12cbec44743f30f6ffe1"
+  }
+}
