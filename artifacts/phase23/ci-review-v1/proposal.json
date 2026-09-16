@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_reference_review",
+  "case_id": "GHSA-3q26-f695-pp76",
+  "manifest": {
+    "path": "tests/evals/phase23/candidate-v2/manifest.json",
+    "sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+  },
+  "assessment": {
+    "path": "artifacts/phase23/candidate-assessment-v2/summary.json",
+    "sha256": "dd0893634b68395b16df001e95aa0e4258ba03cc4efbf159b4b65595a95a0a7b"
+  },
+  "support": {
+    "path": "artifacts/phase23/candidate-assessment-v2/source-support.json",
+    "sha256": "85dbcbcfbdb6a389892363d1b7adbdcffe802b4a781a9f69a65cc61d8bc97da7"
+  },
+  "dispositions": {
+    "path": "artifacts/phase23/candidate-assessment-v2/finding-dispositions.json",
+    "sha256": "cdb58f5fa73996d9131b3d6d9e6fdf143940d9b35081b3817a993182dd3be2f4"
+  },
+  "reports": [
+    {
+      "input_id": "full-vulnerable",
+      "report": "artifacts/phase23/ci-review-v1/reports/full-vulnerable.json",
+      "sha256": "43d2bec716534f6a405fae952ea85127ee037714a9cfd3e34680e267fe3f24d1",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/01-full-vulnerable/report.json",
+      "source_report_sha256": "6cfa86f398dc55a6ee4c2a08b3fc3b90c622cefa477c24c5339c0642924cd1ce",
+      "source_support": "source_matched"
+    },
+    {
+      "input_id": "full-fixed",
+      "report": "artifacts/phase23/ci-review-v1/reports/full-fixed.json",
+      "sha256": "fe5f3508fc6626b39f2fe591f51c2f2f906a0f2e6cde222468bc515431ae0560",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/02-full-fixed/report.json",
+      "source_report_sha256": "43ba8efae2bbb33d5eac47b6df1513475cabd7a24b62998cd0cd3acda6af80bf",
+      "source_support": "established_for_selected_shell_condition"
+    },
+    {
+      "input_id": "minimized-vulnerable",
+      "report": "artifacts/phase23/ci-review-v1/reports/minimized-vulnerable.json",
+      "sha256": "df5e65a431e7baeaef905cbde953ed0ef5ce46b117487927700e1c421d56f1df",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/03-minimized-vulnerable/report.json",
+      "source_report_sha256": "9818de07c8abdb0b246e10d903fdf9683f3f521884ac52a8a6820a6b2147c30f",
+      "source_support": "source_matched"
+    },
+    {
+      "input_id": "minimized-fixed",
+      "report": "artifacts/phase23/ci-review-v1/reports/minimized-fixed.json",
+      "sha256": "4db4094b9408c692860f1f12aadc9af21eb7475c4511a58751f08772362665e7",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/04-minimized-fixed/report.json",
+      "source_report_sha256": "fa4043737537bd32d4dba363044db985ea1ef79a74c47b82a11ad86c7f957e8e",
+      "source_support": "established_for_selected_shell_condition"
+    },
+    {
+      "input_id": "safe-literal",
+      "report": "artifacts/phase23/ci-review-v1/reports/safe-literal.json",
+      "sha256": "6e65490f8f8e8b7e00f7257887f3b831947a435b3236e19c5c5f5f8ee968849b",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/05-safe-literal/report.json",
+      "source_report_sha256": "785556dc20718ceed03628acb58ffbd2a963accb9f5e692157f6e0d191932914",
+      "source_support": "established_for_selected_shell_condition"
+    },
+    {
+      "input_id": "renamed-vulnerable",
+      "report": "artifacts/phase23/ci-review-v1/reports/renamed-vulnerable.json",
+      "sha256": "8c4ba5ab4e0f2121be8a2fd4c7bd26dbf54844560f86e84a1583f3b153657f4e",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/06-renamed-vulnerable/report.json",
+      "source_report_sha256": "b8831ad206b25a4189641cbe74aa7a9929eeca15c5811f46ccfbabcf1ec83093",
+      "source_support": "source_matched"
+    },
+    {
+      "input_id": "renamed-fixed",
+      "report": "artifacts/phase23/ci-review-v1/reports/renamed-fixed.json",
+      "sha256": "aa8ef5fa7c6c5cf57f1e15d1f5a74fdf0cf23509b8a473ac5c5d55d20f130401",
+      "source_report": "artifacts/phase23/corrected-candidate-v2/observations/07-renamed-fixed/report.json",
+      "source_report_sha256": "f3a11f2d96a05354c94a07c7e4a7d31a53221d9cfe189227479aafc214b93bc2",
+      "source_support": "established_for_selected_shell_condition"
+    }
+  ],
+  "ordered_report_exclusions": [
+    "/scan_id",
+    "/started_at",
+    "/completed_at",
+    "/static_analysis/duration_ms",
+    "/findings/*/finding_id",
+    "/findings/*/scan_id",
+    "/findings/*/timestamp",
+    "/findings/*/provenance/*/timestamp"
+  ],
+  "ci_version_handling": "Set only the expected sentinel_version to the installed candidate version; require the actual report to contain that exact version. All other nonvolatile fields and array ordering must match the reviewed report. This is a CI reference rule, not a change to historical repeat comparisons.",
+  "routine_execution": "Seven frozen inputs once, current checkout scanner, existing 1800/10/15-second input/Semgrep/cleanup limits, maximum four workers, 220-minute outer cap plus active cleanup; no retry. Linux network namespace after dependency installation. Full reports retained.",
+  "acceptance_requested": "Approve the narrow source-support judgments and retaining all unrelated findings as needs_review with exploitability unestablished, and these complete reports as CI references under the explicit version rule. This is not final technical acceptance, historical execution approval, negative-control execution approval or publication approval."
+}

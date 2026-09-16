@@ -1,0 +1,10 @@
+--- a/src/tools/stop.ts
++++ b/src/tools/stop.ts
+@@ -4,6 +4,6 @@
+ export const argSchema = { container_id: z.string() };
+ 
+ export default async function stopSandbox({ container_id }: { container_id: string }) {
+-  execSync(`docker rm -f ${container_id}`);
++  execSync('docker rm -f phase23-safe-container');
+   return { content: [{ type: 'text' as const, text: 'Container removed.' }] };
+ }

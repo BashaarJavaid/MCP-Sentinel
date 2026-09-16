@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_execution_and_hosted_delivery_approval",
+  "recorded_at_utc": "2026-09-15T20:16:13.129220+00:00",
+  "local_engineering": {
+    "path": "artifacts/phase23/ci-engineering-v1/summary.json",
+    "sha256": "939b011d3bba70d2f3aa350ffcf49cacf2b03c003cc72c316cef1442eb834bf9"
+  },
+  "reviewed_case": {
+    "path": "artifacts/phase23/candidate-assessment-v2/review-acceptance.json",
+    "sha256": "1af1faeddc69f8b83ecd064f4c21b6723db8c5bf1f944d554ecd6c9fe9365bc7"
+  },
+  "local_observations": 127,
+  "routine_hosted_advisory_observations": 7,
+  "local_execution_order": [
+    {
+      "name": "original-advisory-compatibility",
+      "observations": 14,
+      "packet": {
+        "path": "artifacts/phase23/compatibility-advisory-review-v1/proposal.json",
+        "sha256": "0b1aaa4d327d8ca36eb23a758ee276775250247e93035eea1ed3dafc2abb793c"
+      }
+    },
+    {
+      "name": "deliberate-regression-rejection",
+      "observations": 1,
+      "packet": {
+        "path": "artifacts/phase23/regression-rejection-review-v1/proposal.json",
+        "sha256": "a13c5545f103d714b68e8203ec3a76adb2253130dab265adc425fdc14aa12bd8"
+      }
+    },
+    {
+      "name": "historical-typescript-compatibility",
+      "observations": 112,
+      "packet": {
+        "path": "artifacts/phase23/compatibility-review-v1/evaluation-proposal.json",
+        "sha256": "b9e4169af9f5f29ca6de204c84138343661854fef3d3d0e9a76facc9c2756b27"
+      }
+    }
+  ],
+  "hosted_delivery": {
+    "repository": "BashaarJavaid/MCP-Sentinel",
+    "branch": "phase23/maintained-feedback-20260915",
+    "commit": "f015c005ff40aa660452b730fda4c86c07ff1772",
+    "tree": "a889c89d7b5de5d2719765ea7ce8ea0b9a17bdcf",
+    "base": "main",
+    "required_base_revision": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+    "contents": {
+      "path": "artifacts/phase23/delivery-review-v1/contents.json",
+      "sha256": "1f51ed7120242ebf63b7316b0a68db00ef057630286c1bfabf71ce9de69ea68b"
+    },
+    "local_commit_receipt": {
+      "path": "artifacts/phase23/delivery-review-v1/local-commit.json",
+      "sha256": "d3c95ef35a00f412b4da6694c185f63b2b2552218a95c2926bd6a1500b7a7531"
+    },
+    "pr_body": {
+      "path": "artifacts/phase23/delivery-review-v1/pr-body.md",
+      "sha256": "269d0e9176d6230fe1e0a4ae68b94be0f1e6bf4d8b8372e3a4c7378988f75f6a"
+    },
+    "preconditions": [
+      "Remote main must still equal required_base_revision; otherwise stop for review.",
+      "Remote branch must not exist. The empty expected lease permits creation only.",
+      "Every reviewed local commit blob and working scanner/helper identity must still match."
+    ],
+    "push_command": [
+      "git",
+      "push",
+      "--force-with-lease=refs/heads/phase23/maintained-feedback-20260915:",
+      "origin",
+      "f015c005ff40aa660452b730fda4c86c07ff1772:refs/heads/phase23/maintained-feedback-20260915"
+    ],
+    "draft_pr_command": [
+      "gh",
+      "pr",
+      "create",
+      "--repo",
+      "BashaarJavaid/MCP-Sentinel",
+      "--base",
+      "main",
+      "--head",
+      "phase23/maintained-feedback-20260915",
+      "--draft",
+      "--title",
+      "Maintain reviewed advisory regression and offline CI",
+      "--body-file",
+      "artifacts/phase23/delivery-review-v1/pr-body.md"
+    ],
+    "hosted_checks": "Existing full CI and documentation workflows, including all 12 platform suites, packaging, replay, isolation, dependency/schema/docs gates and the new seven-input isolated regression. Retain results at exact head/merge tree; no workflow retry. No ready-state change or merge."
+  },
+  "policy": "First deliver the exact draft and wait for hosted checks. If hosted gates pass, execute the three local stages in listed order. Any unexpected gate failure or incomplete stage stops later stages for review; no automatic retry or deadline extension. All source/diagnostic/finding changes and historical limitations remain visible. FAF is last under normal limits; no uncapped run or optimization.",
+  "exclusions": "No merge, ready-state change, version selection, tag, package/release publication, Action alias movement, target execution, paid model calls, Proxmox recovery, FAF optimization, pilots or deferred benchmarks.",
+  "human_technical_acceptance": false
+}

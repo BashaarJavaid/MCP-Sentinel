@@ -23,14 +23,29 @@ class RegistrationFlow(TypeScriptPathFlow):
         super().__init__(program, RuleRunState())
         self.factory = factory
         self.values: dict[str, TypeScriptSymbol] = {}
-        self.found: list[TypeScriptBinding] = []
+        self._found: list[TypeScriptBinding] = []
+        self.metadata_checks: dict[int, tuple[Value, dict[str, Value]]] = {}
+
+    @property
+    def found(self) -> list[TypeScriptBinding]:
+        result = []
+        for binding in self._found:
+            check = self.metadata_checks.get(id(binding))
+            if check and not self.zod_metadata_valid(*check):
+                self.program.unresolved(
+                    binding.registration.file,
+                    "composed metadata changed after registration",
+                )
+            else:
+                result.append(binding)
+        return result
 
     def expression(
         self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
     ) -> Value:
         result = super().expression(file, node, env)
         if isinstance(node, dict) and any(
-            key in node for key in ("L", "Record", "Call")
+            key in node for key in ("L", "Record", "Call", "DotAccess")
         ):
             self.values.setdefault(result.key, TypeScriptSymbol(file, node))
         return result
@@ -46,7 +61,19 @@ class RegistrationFlow(TypeScriptPathFlow):
             self.program.unresolved(file, "factory registration arguments")
             return
         config = self.object_fields(args[1], env)
-        self.found.append(
+        schema_value = config.get("inputSchema", Value())
+        schema_fields = None
+        if (
+            schema_value.key in self.record_roots
+            and schema_value.key in self.zod_dependencies
+            and self.zod_metadata_valid(schema_value, env)
+        ):
+            fields = self.object_fields(schema_value, env)
+            if all(value.key in self.values for value in fields.values()):
+                schema_fields = tuple(
+                    (name, self.values[value.key]) for name, value in fields.items()
+                )
+        self._found.append(
             TypeScriptBinding(
                 self.program.literal(self.values.get(args[0].key)),
                 self.call_sites[0] if self.call_sites else TypeScriptSymbol(file, node),
@@ -55,8 +82,11 @@ class RegistrationFlow(TypeScriptPathFlow):
                 self.values.get(config.get("description", Value()).key),
                 self.factory,
                 TypeScriptSymbol(file, node),
+                schema_fields,
             )
         )
+        if schema_fields is not None:
+            self.metadata_checks[id(self._found[-1])] = (schema_value, env)
 
 
 def factory_tools(program: TypeScriptProgram) -> tuple[TypeScriptBinding, ...]:

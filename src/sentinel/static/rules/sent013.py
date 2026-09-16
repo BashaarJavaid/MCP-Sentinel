@@ -157,13 +157,15 @@ def python_descriptions(
 
 
 def typescript_descriptions(program: TypeScriptProgram) -> Iterator[TypeScriptSymbol]:
-    metadata = list(program.listed_tools())
+    metadata = [(symbol, False) for symbol in program.listed_tools()]
     for binding in program.tools():
         if binding.description:
             yield binding.description
-        if binding.schema:
-            metadata.append(binding.schema)
-    for root in metadata:
+        if binding.schema_fields is not None:
+            metadata.extend((symbol, True) for _, symbol in binding.schema_fields)
+        elif binding.schema:
+            metadata.append((binding.schema, False))
+    for root, composed in metadata:
         for node in walk(root.node):
             definition = node.get("F", {}).get("DefStmt")
             if definition and name_of(definition[0]["name"]) == "description":
@@ -175,7 +177,13 @@ def typescript_descriptions(program: TypeScriptProgram) -> Iterator[TypeScriptSy
                     if resolved:
                         yield resolved
             call = node.get("Call")
-            if call and (name_of(call[0]) or "").endswith(".describe"):
+            if call and (
+                (name_of(call[0]) or "").endswith(".describe")
+                or (
+                    composed
+                    and name_of(call[0].get("DotAccess", [{}, {}, {}])[2]) == "describe"
+                )
+            ):
                 for argument in call[1][1][:1]:
                     if "Arg" in argument:
                         resolved = program.resolve_node(root.file, argument["Arg"])

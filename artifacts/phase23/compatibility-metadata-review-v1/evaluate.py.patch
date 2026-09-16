@@ -1,0 +1,48 @@
+--- artifacts/phase23/compatibility-recovery-review-v1/evaluate.py
++++ artifacts/phase23/compatibility-metadata-review-v1/evaluate.py
+@@ -1,4 +1,4 @@
+-"""Proposed112-observation local exposed regression and compatibility sequence.
++"""Proposed89-observation local exposed regression and compatibility sequence.
+ 
+ No execution without a new approval.
+ """
+@@ -31,7 +31,7 @@
+     proposal = json.loads(PROPOSAL.read_text())
+     for name, digest in proposal["files_sha256"].items():
+         assert sha(ROOT / name) == digest, name
+-    assert proposal["bounds"]["native_observations"] == len(proposal["order"]) == 112
++    assert proposal["bounds"]["native_observations"] == len(proposal["order"]) == 89
+     assert len({(x["group"], x["input_id"]) for x in proposal["order"]}) == 56
+     assert len(proposal["volatile_exclusions"]) == 11
+     assert set(proposal["volatile_exclusions"]) == prior.EXCLUDED
+@@ -333,6 +333,7 @@
+             ["sysctl", "hw.ncpu", "hw.memsize"], text=True
+         ),
+         "attempts": [],
++        "retained_first_passes": proposal["retained_first_passes"],
+         "unstarted": order,
+         "passed": False,
+         "model_calls": 0,
+@@ -357,7 +358,12 @@
+             )
+         supervisor.selfcheck(out)
+         selfcheck()
+-        previous = {}
++        previous = {
++            row["input_id"]: supervisor.clean(
++                json.loads((ROOT / row["report"]).read_text()), prior.EXCLUDED
++            )
++            for row in proposal["retained_first_passes"]
++        }
+         for n, observation in enumerate(order):
+             assert time.monotonic() + 1815 < stop, "Insufficient whole-input allowance"
+             identity(observation["group"])
+@@ -407,7 +413,7 @@
+             write(out / "packet.json", packet)
+             print(json.dumps(row), flush=True)
+         assert (
+-            len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 112
++            len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 89
+             and not packet["unstarted"]
+         )
+         packet["passed"] = True

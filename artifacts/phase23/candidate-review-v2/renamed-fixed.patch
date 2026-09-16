@@ -1,0 +1,25 @@
+--- before/src/mcp-server/tools/gitInit/logic.ts
++++ after/src/mcp-server/tools/gitInit/logic.ts
+@@ -2,14 +2,14 @@
+ import { execFile } from "child_process";
+ import { promisify } from "util";
+ 
+-const execFileAsync = promisify(execFile);
++const runFile = promisify(execFile);
+ 
+-export async function gitInitLogic(input: { initialBranch?: string }) {
+-  const targetPath = "/tmp/phase23-git-init";
+-  const args: string[] = ["init"];
+-  const branchNameToUse = input.initialBranch || "main";
+-  args.push("-b", branchNameToUse);
+-  args.push(targetPath);
+-  const { stdout, stderr } = await execFileAsync("git", args);
++export async function initializeRepository(requestData: { branchLabel?: string }) {
++  const repositoryPath = "/tmp/phase23-git-init";
++  const argv: string[] = ["init"];
++  const branchName = requestData.branchLabel || "main";
++  argv.push("-b", branchName);
++  argv.push(repositoryPath);
++  const { stdout, stderr } = await runFile("git", argv);
+   return { stdout, stderr };
+ }

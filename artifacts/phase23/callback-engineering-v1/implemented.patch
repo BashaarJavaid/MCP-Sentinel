@@ -1,0 +1,727 @@
+diff --git a/src/sentinel/static/typescript_discovery.py b/src/sentinel/static/typescript_discovery.py
+index 292e24d..43057eb 100644
+--- a/src/sentinel/static/typescript_discovery.py
++++ b/src/sentinel/static/typescript_discovery.py
+@@ -3,8 +3,9 @@
+ from __future__ import annotations
+ 
+ import posixpath
++import re
+ from collections import OrderedDict, defaultdict
+-from collections.abc import Iterator
++from collections.abc import Callable, Iterator
+ from dataclasses import dataclass
+ from functools import cached_property
+ from typing import Any
+@@ -149,6 +150,13 @@ class TypeScriptProgram:
+                 other = directive.get("OtherDirective")
+                 if other and other[0][0] == "Export":
+                     exports.update(item["I"][0] for item in other[1] if "I" in item)
++                elif other and other[0][0] == "ReExportNamespace":
++                    # The parser also uses this node for `export * as name`.
++                    # Only an ordinary star forwards individual bindings.
++                    module = next((v["Str"][1][0] for v in other[1] if "Str" in v), "")
++                    if not re.match(r"export\s*\*\s*from\b", self.text(file, node)):
++                        module = ""
++                    bindings["*"].append({"import": (module, "")})
+             # A write anywhere can rebind a module-level handler at runtime.
+             for node in walk(tree):
+                 assignment = node.get("Assign", node.get("AssignOp"))
+@@ -466,6 +474,162 @@ class TypeScriptProgram:
+             return None
+         return self.resolve_node(file, nodes[0], rest, seen | {key})
+ 
++    @cached_property
++    def promisify_unmodified(self) -> bool:
++        """Prove imported Node functions only occur in bounded, nonescaping uses."""
++        # ponytail: local function aliases are rejected; add lexical alias proof
++        # only when a reviewed case needs it. Module/import aliases already resolve.
++        for path, tree in self.trees.items():
++            file = self.files[path]
++            resolved: dict[str, str] = {}
++
++            def external(
++                node: dict[str, Any],
++                path: str = path,
++                file: TypeScriptSourceFile = file,
++                resolved: dict[str, str] = resolved,
++            ) -> str:
++                name = name_of(node) or ""
++                if name.split(".")[0] not in self.bindings[path]:
++                    return ""
++                if name not in resolved:
++                    symbol = self.resolve(file, name)
++                    resolved[name] = (
++                        (symbol.external or "").removeprefix("node:") if symbol else ""
++                    )
++                return resolved[name]
++
++            allowed: set[int] = set()
++
++            def permit(
++                node: dict[str, Any],
++                external: Callable[[dict[str, Any]], str] = external,
++                allowed: set[int] = allowed,
++            ) -> None:
++                name = external(node)
++                if name_of(node) and not (
++                    name.split(".")[0] in {"util", "child_process"}
++                    and name.count(".") > 1
++                ):
++                    allowed.update(id(part) for part in walk(node))
++
++            for statement in tree["Pr"]:
++                declaration = statement.get("DefStmt")
++                if declaration:
++                    entity, definition = declaration
++                    initializer = (definition.get("VarDef", {}).get("vinit") or {}).get(
++                        "some", {}
++                    )
++                    name = name_of(entity["name"])
++                    if len(self.bindings[path].get(name or "", [])) == 1:
++                        permit(initializer)
++            for node in walk(tree):
++                check_deadline(self.deadline)
++                call = node.get("Call")
++                if call:
++                    permit(call[0])
++                    if external(call[0]) == "util.promisify" and len(call[1][1]) == 1:
++                        original = call[1][1][0].get("Arg", {})
++                        if external(original) in {
++                            "child_process.exec",
++                            "child_process.execFile",
++                        }:
++                            permit(original)
++            for node in walk(tree):
++                check_deadline(self.deadline)
++                if (
++                    node.keys() & {"N", "DotAccess"}
++                    and id(node) not in allowed
++                    and external(node).split(".")[0] in {"util", "child_process"}
++                ):
++                    return False
++        return True
++
++    def included_file(
++        self,
++        file: TypeScriptSourceFile,
++        module: str,
++        target: str,
++        bases: tuple[str, ...],
++    ) -> TypeScriptSourceFile | None:
++        included_paths = set()
++        for base in bases:
++            if base == ".." or base.startswith("../") or base.startswith("/"):
++                self.unresolved(file, module)
++                return None
++            stem, extension = posixpath.splitext(base)
++            candidates = {base}
++            if extension in {".js", ".mjs", ".cjs"}:
++                candidates.update(stem + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
++            elif not extension:
++                candidates.update(base + ext for ext in (".ts", ".mts", ".cts", ".tsx"))
++                candidates.update(
++                    base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
++                )
++            matches = candidates.intersection(self.files)
++            if len(matches) != 1:
++                self.unresolved(file, module + ":" + target)
++                return None
++            included_paths.update(matches)
++        included = [self.files[path] for path in sorted(included_paths)]
++        if len(included) != 1:
++            self.unresolved(file, module + ":" + target)
++            return None
++        return included[0]
++
++    def exported(
++        self,
++        file: TypeScriptSourceFile,
++        target: str,
++        seen: frozenset[tuple[str, str]],
++    ) -> list[TypeScriptSymbol] | None:
++        """Collect unique local providers; None means an unproved export edge."""
++        check_deadline(self.deadline)
++        if target.split(".")[0] in self.exports[file.relative_path]:
++            symbol = self.resolve(file, target, seen)
++            return [symbol] if symbol else None
++        key = (file.relative_path, "*:" + target)
++        if len(seen) >= 64:
++            return None
++        if key in seen:
++            return []
++        if target.split(".")[0] == "default":
++            return []
++        found: list[TypeScriptSymbol] = []
++        for binding in self.bindings[file.relative_path].get("*", []):
++            module = binding["import"][0]
++            local, bases = (
++                self.modules.resolve(file.relative_path, module)
++                if self.modules is not None
++                else (
++                    module.startswith("."),
++                    (
++                        posixpath.normpath(
++                            posixpath.join(
++                                posixpath.dirname(file.relative_path), module
++                            )
++                        ),
++                    ),
++                )
++            )
++            if not local:
++                return None
++            included = self.included_file(file, module, target, bases)
++            if included is None:
++                return None
++            candidates = self.exported(included, target, seen | {key})
++            if candidates is None:
++                return None
++            for candidate in candidates:
++                if not any(
++                    candidate.file == old.file
++                    and candidate.node is old.node
++                    and candidate.external == old.external
++                    for old in found
++                ):
++                    found.append(candidate)
++        return found
++
+     def resolve_node(
+         self,
+         file: TypeScriptSourceFile,
+@@ -509,45 +673,23 @@ class TypeScriptProgram:
+                     "path/posix",
+                     "path/win32",
+                     "child_process",
++                    "util",
+                     "net",
+                 }:
+                     target = rest
+                 return TypeScriptSymbol(
+                     file, node, module + ("." + target if target else "")
+                 )
+-            included_paths = set()
+-            for base in bases:
+-                if base == ".." or base.startswith("../") or base.startswith("/"):
+-                    self.unresolved(file, module)
+-                    return None
+-                stem, extension = posixpath.splitext(base)
+-                candidates = {base}
+-                if extension in {".js", ".mjs", ".cjs"}:
+-                    candidates.update(
+-                        stem + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+-                    )
+-                elif not extension:
+-                    candidates.update(
+-                        base + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+-                    )
+-                    candidates.update(
+-                        base + "/index" + ext for ext in (".ts", ".mts", ".cts", ".tsx")
+-                    )
+-                matches = candidates.intersection(self.files)
+-                if len(matches) != 1:
+-                    self.unresolved(file, module + ":" + target)
+-                    return None
+-                included_paths.update(matches)
+-            included = [self.files[path] for path in sorted(included_paths)]
+-            if len(included) != 1:
+-                self.unresolved(file, module + ":" + target)
++            included = self.included_file(file, module, target, bases)
++            if included is None:
+                 return None
+             if not target:
+                 return TypeScriptSymbol(file, node)
+-            if target.split(".")[0] not in self.exports[included[0].relative_path]:
++            candidates = self.exported(included, target, seen)
++            if candidates is None or len(candidates) != 1:
+                 self.unresolved(file, module + ":" + target)
+                 return None
+-            return self.resolve(included[0], target, seen)
++            return candidates[0]
+         alias = name_of(node)
+         if alias:
+             return self.resolve(file, alias + ("." + rest if rest else ""), seen)
+diff --git a/src/sentinel/static/typescript_execution.py b/src/sentinel/static/typescript_execution.py
+index bbfd057..da517b5 100644
+--- a/src/sentinel/static/typescript_execution.py
++++ b/src/sentinel/static/typescript_execution.py
+@@ -244,7 +244,7 @@ class ShellFlow(TypeScriptPathFlow):
+     ) -> Value:
+         callee, arguments = node["Call"]
+         binding = (
+-            self.callables.get(self.expression(file, callee, env).key)
++            self.callables.get(self.call_value(file, callee, env).key)
+             if "Special" not in callee
+             else None
+         )
+diff --git a/src/sentinel/static/typescript_path_flow.py b/src/sentinel/static/typescript_path_flow.py
+index 51bb97b..8dbf07a 100644
+--- a/src/sentinel/static/typescript_path_flow.py
++++ b/src/sentinel/static/typescript_path_flow.py
+@@ -1068,6 +1068,19 @@ class TypeScriptPathFlow:
+         # their dynamic keys are not inferred from the schema.
+         return value
+ 
++    def proved_callable(
++        self, file: TypeScriptSourceFile, node: Any, value: Value
++    ) -> Value:
++        symbol = self.callables.get(value.key)
++        if (
++            symbol
++            and "promisified" in symbol.node
++            and (value.key in self.invalidated_objects or value.maybe_missing)
++        ):
++            self.warning(file, node, "promisified callable identity invalidated")
++            return replace(value, key="", contained=False)
++        return value
++
+     def expression(
+         self, file: TypeScriptSourceFile, node: Any, env: dict[str, Value]
+     ) -> Value:
+@@ -1485,8 +1498,8 @@ class TypeScriptPathFlow:
+     ) -> Value:
+         """Reuse actual callee/argument evaluation within one call only."""
+         if self.call_values is not None and id(node) in self.call_values:
+-            return self.call_values[id(node)]
+-        value = self.expression(file, node, env)
++            return self.proved_callable(file, node, self.call_values[id(node)])
++        value = self.proved_callable(file, node, self.expression(file, node, env))
+         if self.call_values is not None:
+             self.call_values[id(node)] = value
+         return value
+@@ -1734,6 +1747,24 @@ class TypeScriptPathFlow:
+             collection_nonempty=False,
+             locations=result.locations | {(file.relative_path, location.start_line)},
+         )
++        if external == "util.promisify":
++            original = self.callables.get(args[0].key) if len(args) == 1 else None
++            target = (original.external or "").removeprefix("node:") if original else ""
++            if (
++                target in {"child_process.exec", "child_process.execFile"}
++                and not args[0].maybe_missing
++                and args[0].key not in self.invalidated_objects
++                and callable_value.key not in self.invalidated_objects
++                and self.program.promisify_unmodified
++            ):
++                self.callables[result.key] = TypeScriptSymbol(
++                    file, {"promisified": target}, target
++                )
++            else:
++                self.warning(
++                    file, node, "promisify factory or original identity unproved"
++                )
++            return result
+         method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+         if external in {
+             f"{namespace}.{kind}"
+@@ -2245,6 +2276,11 @@ class TypeScriptPathFlow:
+                 ):
+                     self.invalidate(value)
+                 callable_symbol = self.callables.get(value.key)
++                if callable_symbol and "promisified" in callable_symbol.node:
++                    self.invalidate(value)
++                    self.warning(
++                        file, node, "promisified callable escapes to an unresolved call"
++                    )
+                 if value.key in self.sdk_instances or (
+                     callable_symbol
+                     and (callable_symbol.external or "").partition(".prototype.")[0]
+@@ -2347,7 +2383,17 @@ class TypeScriptPathFlow:
+                 for site in [*self.call_sites, TypeScriptSymbol(file, node)]
+             ),
+         )
+-        self.function(callback, [caller, Value()], self.closures.get(args[2].key))
++        # SDK handlers run after registration, with a separate invocation stack.
++        # Keep the existing total nesting bound across synthetic SDK entries.
++        if len(self.normal_exits) >= 64:
++            self.warning(file, node, "registered callback nesting limit exceeded")
++            return
++        active = self.active
++        self.active = set()
++        try:
++            self.function(callback, [caller, Value()], self.closures.get(args[2].key))
++        finally:
++            self.active = active
+ 
+     def http_callbacks(self, values: list[Value], env: dict[str, Value]) -> list[Value]:
+         pending = list(reversed(values))
+diff --git a/tests/test_command_execution.py b/tests/test_command_execution.py
+index 77e8311..847f049 100644
+--- a/tests/test_command_execution.py
++++ b/tests/test_command_execution.py
+@@ -104,3 +104,197 @@ def test_cross_file_low_level_shell_dispatch(
+     for finding in result.findings:
+         assert isinstance(finding.location, FileLocation)
+         assert finding.location.path == "commands.ts"
++
++
++@pytest.mark.parametrize(
++    "imports,factory,target",
++    [
++        (
++            'import {promisify as promise} from "node:util"; '
++            'import {exec as command, execFile} from "node:child_process";',
++            "promise",
++            "command",
++        ),
++        (
++            'import * as utility from "util"; import * as child from "child_process";',
++            "utility.promisify",
++            "child.exec",
++        ),
++        (
++            'import utility from "node:util"; import child from "node:child_process";',
++            "utility.promisify",
++            "child.exec",
++        ),
++        (
++            'import {promisify} from "util"; import {exec} from "child_process"; '
++            "const promise=promisify; const command=exec;",
++            "promise",
++            "command",
++        ),
++    ],
++)
++@pytest.mark.parametrize(
++    "case",
++    [
++        "tainted",
++        "literal",
++        "argv",
++        "wrapper-alias",
++        "escape",
++        "field-mutation",
++        "field-invocation",
++        "custom",
++        "reflect",
++        "target-escape",
++        "factory-rebound",
++        "branch",
++    ],
++)
++def test_promisified_shell_identity(
++    tmp_path: Path, imports: str, factory: str, target: str, case: str
++) -> None:
++    import time
++
++    from sentinel.static.model import RuleRunState, TypeScriptSourceFile
++    from sentinel.static.typescript_discovery import TypeScriptProgram
++    from sentinel.static.typescript_execution import ShellFlow
++    from sentinel.static.typescript_path_flow import analyze
++
++    original = (
++        target
++        if case != "argv"
++        else target.rsplit(".", 1)[0] + ".execFile"
++        if "." in target
++        else "execFile"
++    )
++    if case == "argv" and "execFile" not in imports and "." not in target:
++        imports += 'import {execFile} from "child_process";'
++    mutation = {
++        "custom": f"{target}[{factory}.custom] = unknown;",
++        "reflect": f"Object.defineProperty({target}, "
++        'Symbol.for("nodejs.util.promisify.custom"), {value: unknown});',
++        "target-escape": f"unknown({target});",
++        "factory-rebound": f"{factory} = unknown;",
++    }.get(case, "")
++    local = {
++        "escape": "unknown(wrapped);",
++        "field-mutation": "const box={fn:wrapped}; box.fn.extra = unknown;",
++        "field-invocation": "const box={fn:wrapped}; wrapped.extra = unknown;",
++        "branch": "if (input.flag) wrapped = unknown;",
++        "wrapper-alias": "const alternate = wrapped;",
++    }.get(case, "")
++    invocation = (
++        "alternate(input.command)"
++        if case == "wrapper-alias"
++        else "box.fn(input.command)"
++        if case == "field-invocation"
++        else 'wrapped("literal")'
++        if case == "literal"
++        else 'wrapped("git", [input.command])'
++        if case == "argv"
++        else "wrapped(input.command)"
++    )
++    sources = {
++        "server.ts": "import {McpServer} from "
++        '"@modelcontextprotocol/sdk/server/mcp.js"; '
++        'import {run} from "./logic.js"; '
++        'const server=new McpServer({name:"test",version:"1"}); '
++        'server.tool("run", {}, async (input)=>run(input));',
++        "logic.ts": imports
++        + mutation
++        + f" export async function run(input) {{ let wrapped={factory}({original}); "
++        + f"{local} return await {invocation}; }}",
++    }
++    files = tuple(
++        TypeScriptSourceFile(tmp_path / name, name, source)
++        for name, source in sources.items()
++    )
++    program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
++    state = RuleRunState()
++    flow = ShellFlow(program, state)
++    analyze(program, state, flow=flow)
++    assert len(state.matches) == (1 if case in {"tainted", "wrapper-alias"} else 0)
++    if case in {"tainted", "wrapper-alias", "literal", "argv"}:
++        assert any("promisified" in s.node for s in flow.callables.values())
++        assert all(w.code == "static_binding_unresolved" for w in state.warnings)
++    else:
++        assert any(w.code == "static_flow_unresolved" for w in state.warnings)
++    for match in state.matches:
++        assert match.path == "logic.ts" and match.range.start_line == 1
++
++
++@pytest.mark.parametrize("fixed", [False, True])
++def test_promisified_registered_barrel_callback(tmp_path: Path, fixed: bool) -> None:
++    import time
++
++    from sentinel.static.model import RuleRunState, TypeScriptSourceFile
++    from sentinel.static.rules.sent014 import TypeScriptOptionFlow
++    from sentinel.static.rules.sent015 import TypeScriptURLFlow
++    from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
++    from sentinel.static.typescript_discovery import TypeScriptProgram
++    from sentinel.static.typescript_execution import ShellFlow
++    from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
++
++    sources = {
++        "server.ts": "import {McpServer} from "
++        '"@modelcontextprotocol/sdk/server/mcp.js";\n'
++        'import {register} from "./registration.js";\n'
++        "export async function build() {\n"
++        'const server=new McpServer({name:"test",version:"1"});\n'
++        "await register(server); return server; }\n",
++        "registration.ts": 'import {Boundary} from "./barrel.js";\n'
++        'import {perform} from "./logic.js";\n'
++        "export async function register(server) {\n"
++        "await Boundary.forward(async () => {\n"
++        'server.tool("operation", {}, async (input) =>\n'
++        "Boundary.forward(async () => perform(input)));\n"
++        "}); }\n",
++        "barrel.ts": 'export * from "./internal.js";\n'
++        'export * from "./unrelated.js";\n',
++        "internal.ts": 'export * from "./boundary.js";\n',
++        "unrelated.ts": 'export const other = "value";\n',
++        "boundary.ts": "export class Boundary {\n"
++        "public static async forward(fn) {\n"
++        "try { return await fn(); } catch(error) { throw error; }\n"
++        "} }\n",
++        "logic.ts": 'import {promisify} from "node:util";\n'
++        'import {exec, execFile} from "node:child_process";\n'
++        + (
++            "const operation=promisify(execFile);\n"
++            if fixed
++            else "const operation=promisify(exec);\n"
++        )
++        + "export async function perform(input) {\n"
++        + (
++            'return await operation("git", [input.branch]);\n'
++            if fixed
++            else 'return await operation("git init -b " + input.branch);\n'
++        )
++        + "}\n",
++    }
++    files = tuple(
++        TypeScriptSourceFile(tmp_path / name, name, source)
++        for name, source in sources.items()
++    )
++    program = TypeScriptProgram(files, deadline=time.monotonic() + 30)
++    assert len(program.tools()) == 1
++    for kind in (
++        ShellFlow,
++        TypeScriptPathFlow,
++        TypeScriptOptionFlow,
++        TypeScriptURLFlow,
++        TypeScriptCredentialFlow,
++    ):
++        state = RuleRunState()
++        flow = kind(program, state)
++        analyze(program, state, flow=flow)
++        assert any("promisified" in s.node for s in flow.callables.values()), (
++            kind.__name__,
++            [w.message for w in state.warnings],
++        )
++        assert not any("promisif" in w.message for w in state.warnings)
++        if kind is ShellFlow:
++            assert len(state.matches) == (0 if fixed else 1)
++            if state.matches:
++                assert state.matches[0].path == "logic.ts"
++                assert state.matches[0].range.start_line == 5
+diff --git a/tests/test_typescript_classes.py b/tests/test_typescript_classes.py
+index 90275c5..9e12493 100644
+--- a/tests/test_typescript_classes.py
++++ b/tests/test_typescript_classes.py
+@@ -338,3 +338,91 @@ def test_rule_delegation_does_not_repeat_callee_or_argument_effects(
+     monkeypatch.setattr(flow, "call", call)
+     analyze(program, state, flow=flow)
+     assert len(observed) == count
++
++
++@pytest.mark.parametrize("mutual", [False, True])
++def test_sdk_handler_recursion_remains_unresolved(tmp_path: Path, mutual: bool) -> None:
++    source = (
++        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
++        'const server = new McpServer({name:"test",version:"1"});\n'
++        + ("function second(input) { return first(input); }\n" if mutual else "")
++        + "function first(input) { return "
++        + ("second(input); }\n" if mutual else "first(input); }\n")
++        + 'server.tool("recursive", {}, first);\n'
++    )
++    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
++    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
++    state = RuleRunState()
++    flow = TypeScriptPathFlow(program, state)
++    analyze(program, state, flow=flow)
++    assert not state.matches
++    assert any("recursive or unsupported handler" in w.message for w in state.warnings)
++    assert not flow.active and not flow.normal_exits
++
++
++@pytest.mark.parametrize("depth", [0, 63, 64])
++def test_nested_sdk_callback_total_bound(tmp_path: Path, depth: int) -> None:
++    from sentinel.static.typescript_discovery import TypeScriptSymbol
++
++    source = (
++        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
++        'import fs from "node:fs";\n'
++        'const server = new McpServer({name:"test",version:"1"});\n'
++        "function handler(input) {\n"
++        'server.tool("nested", {}, async () => fs.readFileSync(input.path));\n'
++        "}\n"
++    )
++    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
++    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
++    state = RuleRunState()
++    flow = TypeScriptPathFlow(program, state)
++    flow.initialize(TypeScriptSymbol(file, program.trees["server.ts"]))
++    handler = program.resolve(file, "handler")
++    assert handler is not None
++    flow.callables["callback"] = handler
++    original = {("registration.ts", 1, 1)}
++    flow.active = original
++    flow.normal_exits = [[] for _ in range(depth)]
++    flow.registered(
++        file, handler.node, [Value(key="tool"), Value(), Value(key="callback")], {}
++    )
++    assert flow.active is original and original == {("registration.ts", 1, 1)}
++    assert len(flow.normal_exits) == depth
++    assert len(state.matches) == (1 if depth == 0 else 0)
++    assert any("nesting limit" in w.message for w in state.warnings) == (depth != 0)
++
++
++@pytest.mark.parametrize("failure", ["exception", "deadline"])
++def test_sdk_callback_restores_registration_stack(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
++) -> None:
++    from sentinel.errors import InfrastructureError
++
++    file = TypeScriptSourceFile(
++        tmp_path / "handler.ts",
++        "handler.ts",
++        "export function handler(input) { return input; }",
++    )
++    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
++    flow = TypeScriptPathFlow(program, RuleRunState())
++    handler = program.resolve(file, "handler")
++    assert handler is not None
++    flow.callables["callback"] = handler
++    original = {("registration.ts", 1, 1)}
++    flow.active = original
++    invoke = flow.function
++
++    def interrupted(*args: Any, **kwargs: Any) -> Value:
++        assert flow.active == set() and flow.active is not original
++        if failure == "exception":
++            raise RuntimeError("synthetic callback interruption")
++        program.deadline = 0
++        return invoke(*args, **kwargs)
++
++    monkeypatch.setattr(flow, "function", interrupted)
++    with pytest.raises(RuntimeError if failure == "exception" else InfrastructureError):
++        flow.registered(
++            file, handler.node, [Value(key="tool"), Value(), Value(key="callback")], {}
++        )
++    assert flow.active is original and original == {("registration.ts", 1, 1)}
++    assert not flow.normal_exits
+diff --git a/tests/test_typescript_discovery.py b/tests/test_typescript_discovery.py
+index a8813c3..495bb4a 100644
+--- a/tests/test_typescript_discovery.py
++++ b/tests/test_typescript_discovery.py
+@@ -913,3 +913,76 @@ def _object_url_flow(tmp_path: Path, body: str) -> RuleRunState:
+     state = RuleRunState()
+     analyze(program, state, flow=TypeScriptURLFlow(program, state))
+     return state
++
++
++@pytest.mark.parametrize(
++    ("barrel", "second", "expected"),
++    [
++        ('export * from "./first.js";', "", True),
++        ('export * from "./second.js";', 'export * from "./first.js";', True),
++        (
++            'export * from "./first.js"; export * from "./second.js";',
++            "export const value = 2;",
++            False,
++        ),
++        (
++            'export {value} from "./first.js"; export * from "./second.js";',
++            "export const value = 2;",
++            True,
++        ),
++        (
++            'export * from "./first.js"; export * from "./second.js";',
++            "export const other = 2;",
++            True,
++        ),
++        (
++            'export * from "./first.js"; export * from "./second.js";',
++            'export * from "./first.js";',
++            True,
++        ),
++        ('export * from "./second.js";', 'export * from "./barrel.js";', False),
++        ('export * from "./first.js"; export * from "missing";', "", False),
++        ('export * from "./first.js"; export * from "./missing.js";', "", False),
++        ('export * from "./first.js"; export * from "../escape.js";', "", False),
++        ('export * as named from "./first.js";', "", False),
++    ],
++)
++def test_local_star_export_providers(
++    tmp_path: Path, barrel: str, second: str, expected: bool
++) -> None:
++    sources = {
++        "entry.ts": 'import {value} from "./barrel.js";',
++        "barrel.ts": barrel,
++        "first.ts": 'export const value = "known";',
++        "second.ts": second,
++    }
++    files = tuple(
++        TypeScriptSourceFile(tmp_path / name, name, source)
++        for name, source in sources.items()
++    )
++    program = TypeScriptProgram(files, deadline=time.monotonic() + 15)
++    result = program.resolve(files[0], "value")
++    assert (result is not None) == expected
++    if result:
++        assert result.file.relative_path == "first.ts"
++    else:
++        assert program.warnings
++
++
++@pytest.mark.parametrize(
++    "source", ["export default function value() {}", "export let value = 1; value = 2;"]
++)
++def test_star_does_not_export_default_or_rebound_value(
++    tmp_path: Path, source: str
++) -> None:
++    name = "default" if "default" in source else "value"
++    files = tuple(
++        TypeScriptSourceFile(tmp_path / path, path, text)
++        for path, text in {
++            "barrel.ts": 'export * from "./origin.js";',
++            "origin.ts": source,
++            "entry.ts": f'import {{ {name} as chosen }} from "./barrel.js";',
++        }.items()
++    )
++    program = TypeScriptProgram(files, deadline=time.monotonic() + 15)
++    assert program.resolve(files[2], "chosen") is None

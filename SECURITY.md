@@ -24,3 +24,12 @@ policy. Ordinary bugs and feature requests belong in public issues.
 `pip-audit` is a blocking CI gate with no active advisory exceptions. Do not
 add wildcard advisory or package exceptions; resolve or explicitly review every
 reported vulnerability before release.
+
+## Public detector feedback
+
+After disclosure is appropriate, submit sanitized false-positive or
+missed-vulnerability evidence through the separate issue forms. Reporter labels
+require maintainer review. Public submission does not by itself grant corpus
+reuse rights: retain an applicable license or obtain separate optional MIT
+example reuse consent before incorporation. See the [maintenance
+process](https://bashaarjavaid.github.io/MCP-Sentinel/phase23-maintenance/).

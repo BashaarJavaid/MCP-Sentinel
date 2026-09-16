@@ -1,0 +1,77 @@
+.................................F...F                                   [100%]
+=================================== FAILURES ===================================
+_________________ test_composed_zod_field_sources_and_defaults _________________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1131/test_composed_zod_field_source0')
+
+    def test_composed_zod_field_sources_and_defaults(tmp_path: Path) -> None:
+        from sentinel.static.typescript_path_flow import TypeScriptPathFlow
+        from sentinel.static.typescript_registration_flow import RegistrationFlow
+        from sentinel.static.rules.sent013 import typescript_descriptions
+    
+        program = composed_zod_program(tmp_path, "return run(args.branch);")
+        (binding,) = program.tools()
+        assert binding.schema_fields is not None
+        fields = dict(binding.schema_fields)
+        assert set(fields) == {"branch", "path", "bare"}
+        assert fields["branch"].file.relative_path == "schema.ts"
+        assert fields["path"].file.relative_path == "server.ts"
+        assert program.text(fields["path"].file, fields["path"].node).endswith(
+            '.default("/fixed")'
+        )
+>       assert [program.literal(s) for s in typescript_descriptions(program)] == [
+            "Initialize",
+            "branch",
+            "bare",
+        ]
+E       AssertionError: assert ['Initialize'] == ['Initialize'...anch', 'bare']
+E         
+E         Right contains 2 more items, first extra item: 'branch'
+E         Use -v to get more diff
+
+tests/test_typescript_discovery.py:1129: AssertionError
+________________ test_composed_zod_shared_flow_rules[SENT-016] _________________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1131/test_composed_zod_shared_flow_3')
+kind = 'SENT-016'
+
+    @pytest.mark.parametrize("kind", ["SENT-012", "SENT-014", "SENT-015", "SENT-016"])
+    def test_composed_zod_shared_flow_rules(tmp_path: Path, kind: str) -> None:
+        from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+        from sentinel.static.rules.sent014 import TypeScriptOptionFlow
+        from sentinel.static.rules.sent015 import TypeScriptURLFlow
+        from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
+    
+        classes = {
+            "SENT-012": TypeScriptPathFlow,
+            "SENT-014": TypeScriptOptionFlow,
+            "SENT-015": TypeScriptURLFlow,
+            "SENT-016": TypeScriptCredentialFlow,
+        }
+        bodies = {
+            "SENT-012": "return fs.readFile(args.branch);",
+            "SENT-014": 'return runFile("git",["show",args.branch]);',
+            "SENT-015": "return fetch(args.branch);",
+            "SENT-016": 'const token=args.branch || process.env.OPERATOR_TOKEN; return fetch("https://example.com",{headers:{Authorization:token}});',
+        }
+        program = composed_zod_program(tmp_path, bodies[kind])
+        files = tuple(
+            replace(f, source='import fs from "node:fs/promises";\n' + f.source)
+            if f.relative_path == "logic.ts"
+            else f
+            for f in program.files.values()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 30)
+        state = RuleRunState()
+        flow = classes[kind](program, state)
+        analyze(program, state, flow=flow)
+>       assert len(state.matches) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = RuleRunState(matches=[], exemptions={}, skip_reason=None, warnings=[ReportWarning(code='static_binding_unresolved', me...ipt binding 'fetch'")], visits=[('server.ts', SourceRange(start_line=11, start_column=1, end_line=11, end_column=68))]).matches
+
+tests/test_typescript_discovery.py:1184: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_typescript_discovery.py::test_composed_zod_field_sources_and_defaults
+FAILED tests/test_typescript_discovery.py::test_composed_zod_shared_flow_rules[SENT-016]
+2 failed, 36 passed, 120 deselected in 14.53s

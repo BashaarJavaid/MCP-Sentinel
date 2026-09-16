@@ -1,0 +1,45 @@
+"""Phase 23 preparation checks never import or execute advisory source."""
+
+from __future__ import annotations
+
+import copy
+import json
+from pathlib import Path
+
+import pytest
+
+from scripts.phase23_regression import MANIFEST, source_files, validate
+
+
+def test_proposed_corpus_integrity() -> None:
+    manifest = validate()
+    assert len(manifest["snapshots"]) == 2
+    assert manifest["independent_advisory_count"] == 1
+    assert all(
+        i["support"]["status"] == "pending_evaluation" for i in manifest["inputs"]
+    )
+
+
+@pytest.mark.parametrize("field", ["files", "tree_sha256"])
+def test_source_integrity_rejects_drift(field: str) -> None:
+    item = copy.deepcopy(json.loads(MANIFEST.read_bytes())["inputs"][2])
+    item[field] = {} if field == "files" else "0" * 64
+    with pytest.raises(ValueError, match=r"source .* mismatch"):
+        source_files(item)
+
+
+@pytest.mark.parametrize("change", ["label", "order", "sink", "approval"])
+def test_proposal_rejects_scope_or_source_drift(tmp_path: Path, change: str) -> None:
+    manifest = json.loads(MANIFEST.read_bytes())
+    if change == "label":
+        manifest["inputs"][0]["proposed_label"] = "fixed"
+    elif change == "order":
+        manifest["proposed_order"].reverse()
+    elif change == "sink":
+        manifest["inputs"][0]["match"]["source_text"] = "unrelated line"
+    else:
+        manifest["freeze_approved"] = True
+    path = tmp_path / "manifest.json"
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match=r"scope|source mismatch"):
+        validate(path)

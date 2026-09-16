@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_replacement_historical_execution_approval",
+  "recorded_at_utc": "2026-09-15T22:29:29.051889+00:00",
+  "prior_user_approval": {
+    "path": "artifacts/phase23/windows-review-v1/authorization.json",
+    "sha256": "ded49123e01ab39cf715ee201e5aa504f904a95c142c74411801dd2f4d774a26"
+  },
+  "completed_prerequisites": {
+    "artifacts/phase23/hosted-verification-v3/summary.json": "a98334049762580c9d791252e09620a5ec56dbf8041345d562b1f6b55d76d21d",
+    "artifacts/phase23/compatibility-advisory-assessment-v1/summary.json": "a79da3581f34b430770056cdaaae619927387a4b828a11342ae879e7665eac91",
+    "artifacts/phase23/regression-rejection-v1/verification.json": "0196e78325a1e7516cbcfccc94fcf58a6b3983de30e137f561f15e3b329fe9a2"
+  },
+  "failed_launch": {
+    "path": "artifacts/phase23/compatibility-recovery-review-v1/failed-launch.json",
+    "sha256": "4bc5060a118f09c83fcbdf1a3fde194c0b126d8c50ef86c76103a9ae3b754ef1"
+  },
+  "proposal": {
+    "path": "artifacts/phase23/compatibility-recovery-review-v1/proposal.json",
+    "sha256": "d92be5022ae9ca70cf2477bb821f1cba85f7126bd63d23305407ea7559b6dc21"
+  },
+  "launcher_binding": {
+    "path": "artifacts/phase23/compatibility-recovery-review-v1/launcher-binding.json",
+    "sha256": "de6552e7124a10c3b69e45313e0d8d4be9af05a51869f02348e1a915373afc19"
+  },
+  "checks": {
+    "path": "artifacts/phase23/compatibility-recovery-review-v1/checks.json",
+    "sha256": "07bc1b6cf5902a739cf566fb95fa1337c2fc802e9bdcc97e3d90a73693e8f9f1"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-I",
+    "artifacts/phase23/compatibility-recovery-review-v1/launch.py"
+  ],
+  "execution_context": "tools.exec_command sandbox_permissions=require_escalated; existing read-only sysctl/process inspection and process-group supervision. Scanner still rules-only with model transport forbidden; no advisory-target execution.",
+  "approval_path": "artifacts/phase23/compatibility-recovery-review-v1/authorization.json",
+  "output": "artifacts/phase23/compatibility-v2",
+  "attempts": 1,
+  "observations": 112,
+  "distinct_inputs": 56,
+  "ordered_pairs": 56,
+  "bounds": {
+    "native_observations": 112,
+    "distinct_input_records": 56,
+    "entire_ordered_pairs": 56,
+    "input_seconds": 1800,
+    "cleanup_seconds_per_input": 15,
+    "semgrep_rule_timeout_seconds": 10,
+    "maximum_existing_flow_workers_per_input": 4,
+    "simultaneous_inputs": 1,
+    "sequence_maximum_minutes": 3520,
+    "internal_stop_minutes": 3519,
+    "retries": 0,
+    "paid_calls": 0,
+    "target_execution": false,
+    "outer_supervisor_cleanup_seconds": 15
+  },
+  "change": "Only new packet/approval/binding/output paths; exact previous runner AST otherwise. No scanner/helper/test/dependency/label/order/comparison/limit change.",
+  "stop_policy": "Any incomplete observation, cleanup or ordered-repeat failure closes all remaining budget. No automatic retry, timeout extension, FAF optimization or uncapped run.",
+  "exclusions": "No new hosted CI, git push, merge, ready-state change, version/tag/package/release publication, Action alias, paid call, target execution, Proxmox recovery, pilot or deferred benchmark.",
+  "human_technical_acceptance": false
+}

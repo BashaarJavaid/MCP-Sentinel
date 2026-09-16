@@ -1,0 +1,551 @@
+[
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 0,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/dockerUtils.ts",
+      "sha256": "5b42565b94d79c173376c5f9a9098a0ab58e5bbfe1658882108b5afbd4baf401",
+      "start_line": 56,
+      "end_line": 65,
+      "text": "  const runStart = Date.now();\n\n  try {\n    const output = execSync(\n      `docker exec ${containerId} /bin/sh -c  ${JSON.stringify(command)}`,\n      { encoding: 'utf8', timeout: timeoutMs }\n    );\n    return { output, error: null, duration: Date.now() - runStart };\n  } catch (err) {\n    const error = err instanceof Error ? err : new Error(String(err));"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/dockerUtils.ts",
+        "sha256": "5b42565b94d79c173376c5f9a9098a0ab58e5bbfe1658882108b5afbd4baf401",
+        "start_line": 56,
+        "end_line": 62,
+        "text": "  const runStart = Date.now();\n\n  try {\n    const output = execSync(\n      `docker exec ${containerId} /bin/sh -c  ${JSON.stringify(command)}`,\n      { encoding: 'utf8', timeout: timeoutMs }\n    );"
+      },
+      {
+        "path": "src/dockerUtils.ts",
+        "sha256": "5b42565b94d79c173376c5f9a9098a0ab58e5bbfe1658882108b5afbd4baf401",
+        "start_line": 57,
+        "end_line": 63,
+        "text": "\n  try {\n    const output = execSync(\n      `docker exec ${containerId} /bin/sh -c  ${JSON.stringify(command)}`,\n      { encoding: 'utf8', timeout: timeoutMs }\n    );\n    return { output, error: null, duration: Date.now() - runStart };"
+      },
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 1,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/tools/exec.ts",
+      "sha256": "d6ea17fc3ba9f076d80394d1bcf43093e7878d09541ff52d139015ee415a9804",
+      "start_line": 24,
+      "end_line": 35,
+      "text": "  const output: string[] = [];\n  for (const cmd of commands) {\n    output.push(\n      execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(cmd)}`,\n        {\n          encoding: 'utf8',\n        }\n      )\n    );\n  }\n  return { content: [textContent(output.join('\\n'))] };"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 60,
+        "end_line": 66,
+        "text": "  initializeSandbox\n);\n\nserver.tool(\n  'sandbox_exec',\n  'Execute one or more shell commands inside a running sandbox container. Requires a sandbox initialized beforehand.',\n  execSchema,"
+      },
+      {
+        "path": "src/tools/exec.ts",
+        "sha256": "d6ea17fc3ba9f076d80394d1bcf43093e7878d09541ff52d139015ee415a9804",
+        "start_line": 22,
+        "end_line": 28,
+        "text": "  }\n\n  const output: string[] = [];\n  for (const cmd of commands) {\n    output.push(\n      execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(cmd)}`,"
+      },
+      {
+        "path": "src/tools/exec.ts",
+        "sha256": "d6ea17fc3ba9f076d80394d1bcf43093e7878d09541ff52d139015ee415a9804",
+        "start_line": 24,
+        "end_line": 30,
+        "text": "  const output: string[] = [];\n  for (const cmd of commands) {\n    output.push(\n      execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(cmd)}`,\n        {\n          encoding: 'utf8',"
+      },
+      {
+        "path": "src/tools/exec.ts",
+        "sha256": "d6ea17fc3ba9f076d80394d1bcf43093e7878d09541ff52d139015ee415a9804",
+        "start_line": 25,
+        "end_line": 31,
+        "text": "  for (const cmd of commands) {\n    output.push(\n      execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(cmd)}`,\n        {\n          encoding: 'utf8',\n        }"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 2,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/tools/initialize.ts",
+      "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+      "start_line": 57,
+      "end_line": 68,
+      "text": "  const mountFlag = getMountFlag();\n\n  try {\n    execSync(\n      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here\n      `--name ${containerId} ${image} tail -f /dev/null`\n    );\n\n    // Register the container only after successful creation\n    activeSandboxContainers.set(containerId, creationTimestamp);"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/config.ts",
+        "sha256": "e59f23b238935c1d72ad908b7ced81f81b94c800d7164d4a5db1dadbdd93624d",
+        "start_line": 34,
+        "end_line": 40,
+        "text": "});\n\nfunction loadConfig() {\n  const parsedEnv = envSchema.safeParse(process.env);\n\n  if (!parsedEnv.success) {\n    throw new Error('Invalid environment variables');"
+      },
+      {
+        "path": "src/config.ts",
+        "sha256": "e59f23b238935c1d72ad908b7ced81f81b94c800d7164d4a5db1dadbdd93624d",
+        "start_line": 44,
+        "end_line": 50,
+        "text": "  let seconds = DEFAULT_TIMEOUT_SECONDS;\n\n  if (timeoutString) {\n    const parsedSeconds = parseInt(timeoutString, 10);\n    if (!isNaN(parsedSeconds) && parsedSeconds > 0) {\n      seconds = parsedSeconds;\n    }"
+      },
+      {
+        "path": "src/config.ts",
+        "sha256": "e59f23b238935c1d72ad908b7ced81f81b94c800d7164d4a5db1dadbdd93624d",
+        "start_line": 54,
+        "end_line": 60,
+        "text": "  let runScriptTimeoutMilliseconds = DEFAULT_RUN_SCRIPT_TIMEOUT;\n\n  if (runScriptTimeoutMillisecondsString) {\n    const parsedSeconds = parseInt(runScriptTimeoutMillisecondsString, 10);\n    if (!isNaN(parsedSeconds) && parsedSeconds > 0) {\n      runScriptTimeoutMilliseconds = parsedSeconds;\n    }"
+      },
+      {
+        "path": "src/config.ts",
+        "sha256": "e59f23b238935c1d72ad908b7ced81f81b94c800d7164d4a5db1dadbdd93624d",
+        "start_line": 60,
+        "end_line": 66,
+        "text": "    }\n  }\n\n  const milliseconds = seconds * 1000;\n  const memRaw = parsedEnv.data.SANDBOX_MEMORY_LIMIT;\n  const cpuRaw = parsedEnv.data.SANDBOX_CPU_LIMIT;\n  const filesDir = parsedEnv.data.FILES_DIR;"
+      },
+      {
+        "path": "src/config.ts",
+        "sha256": "e59f23b238935c1d72ad908b7ced81f81b94c800d7164d4a5db1dadbdd93624d",
+        "start_line": 65,
+        "end_line": 71,
+        "text": "  const cpuRaw = parsedEnv.data.SANDBOX_CPU_LIMIT;\n  const filesDir = parsedEnv.data.FILES_DIR;\n\n  return configSchema.parse({\n    containerTimeoutSeconds: seconds,\n    containerTimeoutMilliseconds: milliseconds,\n    runScriptTimeoutMilliseconds: runScriptTimeoutMilliseconds,"
+      },
+      {
+        "path": "src/runUtils.ts",
+        "sha256": "f42a2edc9834449e4f4f0120814f4487a23476c07b6ea11c71fc9c3e3d4d6582",
+        "start_line": 94,
+        "end_line": 100,
+        "text": "\n// This FILES_DIR is an env var coming from the user\nexport const getFilesDir = (): string   => {\n  return getConfig().filesDir!;             \n};\n\nexport const getMountFlag = (): string  => {"
+      },
+      {
+        "path": "src/runUtils.ts",
+        "sha256": "f42a2edc9834449e4f4f0120814f4487a23476c07b6ea11c71fc9c3e3d4d6582",
+        "start_line": 99,
+        "end_line": 103,
+        "text": "\nexport const getMountFlag = (): string  => {\n  const dir = getFilesDir();\n  return dir ? `-v ${dir}:/workspace/files` : '';\n};"
+      },
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 53,
+        "end_line": 59,
+        "text": "setServerInstance(server);\n\n// Configure server tools and resources\nserver.tool(\n  'sandbox_initialize',\n  'Start a new isolated Docker container running Node.js. Used to set up a sandbox session for multiple commands and scripts.',\n  initializeSchema,"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 41,
+        "end_line": 47,
+        "text": "    };\n  }\n\n  const containerId = `js-sbx-${randomUUID()}`;\n  const creationTimestamp = Date.now();\n\n  const portOption = port ? `-p ${port}:${port}` : `--network host`; // prefer --network host if no explicit port mapping"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 44,
+        "end_line": 50,
+        "text": "  const containerId = `js-sbx-${randomUUID()}`;\n  const creationTimestamp = Date.now();\n\n  const portOption = port ? `-p ${port}:${port}` : `--network host`; // prefer --network host if no explicit port mapping\n\n  // Construct labels\n  const labels = ["
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 52,
+        "end_line": 58,
+        "text": "    `mcp-server-run-id=${serverRunId}`,\n    `mcp-creation-timestamp=${creationTimestamp}`,\n  ];\n  const labelArgs = labels.map((label) => `--label \"${label}\"`).join(' ');\n  const { memFlag, cpuFlag } = computeResourceLimits(image);\n  const mountFlag = getMountFlag();\n"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 57,
+        "end_line": 63,
+        "text": "  const mountFlag = getMountFlag();\n\n  try {\n    execSync(\n      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 58,
+        "end_line": 64,
+        "text": "\n  try {\n    execSync(\n      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here\n      `--name ${containerId} ${image} tail -f /dev/null`"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 59,
+        "end_line": 65,
+        "text": "  try {\n    execSync(\n      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here\n      `--name ${containerId} ${image} tail -f /dev/null`\n    );"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 60,
+        "end_line": 66,
+        "text": "    execSync(\n      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here\n      `--name ${containerId} ${image} tail -f /dev/null`\n    );\n"
+      },
+      {
+        "path": "src/tools/initialize.ts",
+        "sha256": "903e2da45ee52ddcd42d4d16a2e1c2626065b3f7214d26fc9e07b9264e145985",
+        "start_line": 61,
+        "end_line": 67,
+        "text": "      `docker run -d ${portOption} ${memFlag} ${cpuFlag} ` +\n      `--workdir /workspace ${mountFlag} ` +\n      `${labelArgs} ` + // Add labels here\n      `--name ${containerId} ${image} tail -f /dev/null`\n    );\n\n    // Register the container only after successful creation"
+      },
+      {
+        "path": "src/utils.ts",
+        "sha256": "38b61a0db0c4b0bf55f756bf301c21c13f5140ffacce5ade971b455b9157d3ba",
+        "start_line": 129,
+        "end_line": 135,
+        "text": "  if (!image) return base;\n\n  const def =\n    Object.entries(IMAGE_DEFAULTS).find(([key]) => image.includes(key))?.[1] ??\n    {};\n\n  const memory = getConfig().rawMemoryLimit ?? def.memory;"
+      },
+      {
+        "path": "src/utils.ts",
+        "sha256": "38b61a0db0c4b0bf55f756bf301c21c13f5140ffacce5ade971b455b9157d3ba",
+        "start_line": 137,
+        "end_line": 143,
+        "text": "\n  return {\n    ...base,\n    memFlag: memory ? `--memory ${memory}` : '',\n    cpuFlag: cpus ? `--cpus ${cpus}` : '',\n  };\n}"
+      },
+      {
+        "path": "src/utils.ts",
+        "sha256": "38b61a0db0c4b0bf55f756bf301c21c13f5140ffacce5ade971b455b9157d3ba",
+        "start_line": 138,
+        "end_line": 143,
+        "text": "  return {\n    ...base,\n    memFlag: memory ? `--memory ${memory}` : '',\n    cpuFlag: cpus ? `--cpus ${cpus}` : '',\n  };\n}"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 3,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/tools/runJs.ts",
+      "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+      "start_line": 71,
+      "end_line": 77,
+      "text": "\n  // Create workspace in container\n  const localWorkspace = await prepareWorkspace({ code, dependenciesRecord });\n  execSync(`docker cp ${localWorkspace.name}/. ${container_id}:/workspace`);\n\n  let rawOutput: string = '';\n"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/runUtils.ts",
+        "sha256": "f42a2edc9834449e4f4f0120814f4487a23476c07b6ea11c71fc9c3e3d4d6582",
+        "start_line": 14,
+        "end_line": 20,
+        "text": "  code: string;\n  dependenciesRecord: Record<string, string>;\n}) {\n  const localTmp = tmp.dirSync({ unsafeCleanup: true });\n\n  await fs.writeFile(path.join(localTmp.name, 'index.js'), code);\n  await fs.writeFile("
+      },
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 71,
+        "end_line": 77,
+        "text": "\n  // Create workspace in container\n  const localWorkspace = await prepareWorkspace({ code, dependenciesRecord });\n  execSync(`docker cp ${localWorkspace.name}/. ${container_id}:/workspace`);\n\n  let rawOutput: string = '';\n"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 4,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/tools/runJs.ts",
+      "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+      "start_line": 82,
+      "end_line": 93,
+      "text": "  if (listenOnPort) {\n    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(\n          `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`\n        )}`,\n        { encoding: 'utf8' }\n      );\n      telemetry.installTimeMs = Date.now() - installStart;\n      telemetry.installOutput = installOutput;\n    } else {"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 82,
+        "end_line": 88,
+        "text": "  if (listenOnPort) {\n    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(\n          `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`\n        )}`,"
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 83,
+        "end_line": 89,
+        "text": "    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(\n          `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`\n        )}`,\n        { encoding: 'utf8' }"
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 84,
+        "end_line": 90,
+        "text": "      const installStart = Date.now();\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(\n          `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`\n        )}`,\n        { encoding: 'utf8' }\n      );"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 5,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "other_shell_sink_retained",
+    "assessment": "The reported source contains a shell-interpreted Docker command outside sandbox_stop. Retain the alert and its input-flow evidence; exploitability and fixed-version behavior at this other sink are outside the selected case.",
+    "source_context": {
+      "path": "src/tools/runJs.ts",
+      "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+      "start_line": 108,
+      "end_line": 117,
+      "text": "    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const fullCmd = `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`;\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(fullCmd)}`,\n        { encoding: 'utf8' }\n      );\n      telemetry.installTimeMs = Date.now() - installStart;\n      telemetry.installOutput = installOutput;\n    } else {"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 107,
+        "end_line": 113,
+        "text": "  } else {\n    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const fullCmd = `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`;\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(fullCmd)}`,\n        { encoding: 'utf8' }"
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 108,
+        "end_line": 114,
+        "text": "    if (dependencies.length > 0) {\n      const installStart = Date.now();\n      const fullCmd = `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`;\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(fullCmd)}`,\n        { encoding: 'utf8' }\n      );"
+      },
+      {
+        "path": "src/tools/runJs.ts",
+        "sha256": "09ddd3c3fab00947124a4a082d8be4198ecb415f2df92578f1a9acbce8c54b00",
+        "start_line": 109,
+        "end_line": 115,
+        "text": "      const installStart = Date.now();\n      const fullCmd = `npm install --omit=dev --prefer-offline --no-audit --loglevel=error`;\n      const installOutput = execSync(\n        `docker exec ${container_id} /bin/sh -c ${JSON.stringify(fullCmd)}`,\n        { encoding: 'utf8' }\n      );\n      telemetry.installTimeMs = Date.now() - installStart;"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 6,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "source_matched_advisory",
+    "assessment": "Registered input interpolates into the shell command at the frozen stop sink. This is one of three correlated variants, not an independent vulnerability.",
+    "source_context": {
+      "path": "src/tools/stop.ts",
+      "sha256": "ab1bc38753edd0ab445de92aa289e0c28fbd2bed8193bdd7f4cab2ec2a36936a",
+      "start_line": 19,
+      "end_line": 25,
+      "text": "\n  try {\n    // Directly use execSync for removing the container as expected by the test\n    execSync(`docker rm -f ${container_id}`);\n    activeSandboxContainers.delete(container_id);\n    // console.log(\n    //   `[stopSandbox] Removed container ${container_id} from registry.`"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 77,
+        "end_line": 83,
+        "text": "  runJs\n);\n\nserver.tool(\n  'sandbox_stop',\n  'Terminate and remove a running sandbox container. Should be called after finishing work in a sandbox initialized with sandbox_initialize.',\n  stopSchema,"
+      },
+      {
+        "path": "src/tools/stop.ts",
+        "sha256": "ab1bc38753edd0ab445de92aa289e0c28fbd2bed8193bdd7f4cab2ec2a36936a",
+        "start_line": 19,
+        "end_line": 25,
+        "text": "\n  try {\n    // Directly use execSync for removing the container as expected by the test\n    execSync(`docker rm -f ${container_id}`);\n    activeSandboxContainers.delete(container_id);\n    // console.log(\n    //   `[stopSandbox] Removed container ${container_id} from registry.`"
+      }
+    ]
+  },
+  {
+    "observations": [
+      1,
+      8
+    ],
+    "finding_index": 7,
+    "input_id": "full-vulnerable",
+    "rule_id": "SENT-015",
+    "classification": "localhost_http_poll_retained",
+    "assessment": "waitForPortHttp interpolates port into a localhost URL and calls fetch. This is an HTTP/SSRF alert outside sandbox_stop; no runtime exploitability, false-positive disposition or broader fixed-version safety is established.",
+    "source_context": {
+      "path": "src/utils.ts",
+      "sha256": "38b61a0db0c4b0bf55f756bf301c21c13f5140ffacce5ade971b455b9157d3ba",
+      "start_line": 87,
+      "end_line": 93,
+      "text": "\n  while (Date.now() - start < timeoutMs) {\n    try {\n      const res = await fetch(`http://localhost:${port}`);\n      if (res.ok || res.status === 404) return; // server is up\n    } catch {\n      // server not ready"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      },
+      {
+        "path": "src/utils.ts",
+        "sha256": "38b61a0db0c4b0bf55f756bf301c21c13f5140ffacce5ade971b455b9157d3ba",
+        "start_line": 87,
+        "end_line": 93,
+        "text": "\n  while (Date.now() - start < timeoutMs) {\n    try {\n      const res = await fetch(`http://localhost:${port}`);\n      if (res.ok || res.status === 404) return; // server is up\n    } catch {\n      // server not ready"
+      }
+    ]
+  },
+  {
+    "observations": [
+      2,
+      9
+    ],
+    "finding_index": 0,
+    "input_id": "full-fixed",
+    "rule_id": "SENT-015",
+    "classification": "localhost_http_poll_retained",
+    "assessment": "waitForPortHttp interpolates port into a localhost URL and calls fetch. This is an HTTP/SSRF alert outside sandbox_stop; no runtime exploitability, false-positive disposition or broader fixed-version safety is established.",
+    "source_context": {
+      "path": "src/utils.ts",
+      "sha256": "82e9d5a3ea0aefbe0daf7c8ae2535cac9ebd4b919cd697d615cf76c0ed38a88b",
+      "start_line": 87,
+      "end_line": 93,
+      "text": "\n  while (Date.now() - start < timeoutMs) {\n    try {\n      const res = await fetch(`http://localhost:${port}`);\n      if (res.ok || res.status === 404) return; // server is up\n    } catch {\n      // server not ready"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "9c3193f23beee5b0e35f5771f5feff946fa756595a5181000d1ca51b9b9d497b",
+        "start_line": 67,
+        "end_line": 73,
+        "text": "  execInSandbox\n);\n\nserver.tool(\n  'run_js',\n  `Install npm dependencies and run JavaScript code inside a running sandbox container.\n  After running, you must manually stop the sandbox to free resources."
+      },
+      {
+        "path": "src/utils.ts",
+        "sha256": "82e9d5a3ea0aefbe0daf7c8ae2535cac9ebd4b919cd697d615cf76c0ed38a88b",
+        "start_line": 87,
+        "end_line": 93,
+        "text": "\n  while (Date.now() - start < timeoutMs) {\n    try {\n      const res = await fetch(`http://localhost:${port}`);\n      if (res.ok || res.status === 404) return; // server is up\n    } catch {\n      // server not ready"
+      }
+    ]
+  },
+  {
+    "observations": [
+      3,
+      10
+    ],
+    "finding_index": 0,
+    "input_id": "minimized-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "source_matched_advisory",
+    "assessment": "Registered input interpolates into the shell command at the frozen stop sink. This is one of three correlated variants, not an independent vulnerability.",
+    "source_context": {
+      "path": "src/tools/stop.ts",
+      "sha256": "c061e3824b54bded24a2521c2185ab7e6a4ffc6fb277eb9b4a55ce2c712dfa8c",
+      "start_line": 4,
+      "end_line": 9,
+      "text": "export const argSchema = { container_id: z.string() };\n\nexport default async function stopSandbox({ container_id }: { container_id: string }) {\n  execSync(`docker rm -f ${container_id}`);\n  return { content: [{ type: 'text' as const, text: 'Container removed.' }] };\n}"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "eb12d1adb01de7679e8df08866ca6f32be5ef751bba97c5781ab56a5df676b8e",
+        "start_line": 3,
+        "end_line": 7,
+        "text": "import stopSandbox, { argSchema as stopSchema } from './tools/stop.ts';\n\nconst server = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });\nserver.tool('sandbox_stop', 'Remove a sandbox container.', stopSchema, stopSandbox);\nawait server.connect(new StdioServerTransport());"
+      },
+      {
+        "path": "src/tools/stop.ts",
+        "sha256": "c061e3824b54bded24a2521c2185ab7e6a4ffc6fb277eb9b4a55ce2c712dfa8c",
+        "start_line": 4,
+        "end_line": 9,
+        "text": "export const argSchema = { container_id: z.string() };\n\nexport default async function stopSandbox({ container_id }: { container_id: string }) {\n  execSync(`docker rm -f ${container_id}`);\n  return { content: [{ type: 'text' as const, text: 'Container removed.' }] };\n}"
+      }
+    ]
+  },
+  {
+    "observations": [
+      6,
+      13
+    ],
+    "finding_index": 0,
+    "input_id": "renamed-vulnerable",
+    "rule_id": "SENT-002",
+    "classification": "source_matched_advisory",
+    "assessment": "Registered input interpolates into the shell command at the frozen stop sink. This is one of three correlated variants, not an independent vulnerability.",
+    "source_context": {
+      "path": "src/tools/stop.ts",
+      "sha256": "e7136fa3fe1c29b3fd7d8554cbc07c91e6fd1d8387fd0879c10d40dc236b5cdf",
+      "start_line": 4,
+      "end_line": 9,
+      "text": "export const argumentsSchema = { sandbox_ref: z.string() };\n\nexport default async function removeSandbox({ sandbox_ref }: { sandbox_ref: string }) {\n  execSync(`docker rm -f ${sandbox_ref}`);\n  return { content: [{ type: 'text' as const, text: 'Container removed.' }] };\n}"
+    },
+    "flow_contexts": [
+      {
+        "path": "src/server.ts",
+        "sha256": "205caa3717878ab2df42b536304a362146671ac16da726db9f77fb3afbc07826",
+        "start_line": 3,
+        "end_line": 7,
+        "text": "import removeSandbox, { argumentsSchema as inputSchema } from './tools/stop.ts';\n\nconst mcpServer = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });\nmcpServer.tool('sandbox_stop', 'Remove a sandbox container.', inputSchema, removeSandbox);\nawait mcpServer.connect(new StdioServerTransport());"
+      },
+      {
+        "path": "src/tools/stop.ts",
+        "sha256": "e7136fa3fe1c29b3fd7d8554cbc07c91e6fd1d8387fd0879c10d40dc236b5cdf",
+        "start_line": 4,
+        "end_line": 9,
+        "text": "export const argumentsSchema = { sandbox_ref: z.string() };\n\nexport default async function removeSandbox({ sandbox_ref }: { sandbox_ref: string }) {\n  execSync(`docker rm -f ${sandbox_ref}`);\n  return { content: [{ type: 'text' as const, text: 'Container removed.' }] };\n}"
+      }
+    ]
+  }
+]

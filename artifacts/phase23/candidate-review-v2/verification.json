@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-15T16:49:44.244137Z",
+  "status": "source_packet_verified_unscanned",
+  "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c",
+  "upstream_blob_count_verified": 244,
+  "snapshots_complete": true,
+  "direct_parent_pair": true,
+  "input_count": 7,
+  "source_inventories_verified": true,
+  "match_lines_verified": true,
+  "exact_vulnerable_quote_statement_retained": true,
+  "safe_single_execution_argument_change_verified": true,
+  "paired_identifier_map_verified": true,
+  "licenses_readmes_and_modification_notices_verified": true,
+  "historical_source_exposure": {
+    "artifacts/phase22/corpus-four-fresh-v1/novelty.json": "f159cebdb7b5f90c8800a8379cb2b671708a9fc1dc8a2cf654a87d114f8fe20d",
+    "artifacts/phase22/corpus-four-fresh-v2/novelty.json": "f159cebdb7b5f90c8800a8379cb2b671708a9fc1dc8a2cf654a87d114f8fe20d",
+    "artifacts/phase22/corpus-replacement-v6/provenance/novelty.json": "23c37750190a3523bf8909faaba0506b66e20ff43e1984a10df7b32f64936fbb",
+    "artifacts/phase22/corpus-replacement-v7/provenance/novelty.json": "3470fc2b5d237cfeb5afc0f321e5e6481d1a3f3477cfcbef40087dd31f9aa41f"
+  },
+  "unchanged_scanner_tree_sha256": {
+    "revision": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+    "source_sha256": "b1f044ed710e9997a9572ad3a28dcce01254dc0134bb638a53334541160a8f77",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "original_baseline_results_sha256": "8fdb9439e545286e1d0786b567e35c7be96ef409343cc97b821cec430b620806",
+  "candidate_scans": 0,
+  "target_executions": 0,
+  "paid_calls": 0,
+  "detector_changes": 0,
+  "helper_changes": 0,
+  "full_suite_or_hosted_claim": "No new full-suite/hosted pass; source-only preparation.",
+  "failures_retained": [
+    {
+      "action": "initial GitHub metadata reads",
+      "result": "sandbox network errors",
+      "resolution": "public reads completed with approved network escalation"
+    },
+    {
+      "action": "mcp-ssh vulnerable tag lookup without v prefix",
+      "result": "404 retained in provenance/vulnerable-tag.json",
+      "resolution": "tag listing identified v1.3.4; not selected because full .mjs support is absent"
+    },
+    {
+      "action": "initial selected-corpus preparation",
+      "result": "AssertionError checking MIT license before writing any input or manifest",
+      "resolution": "Read actual Apache-2.0 license and package metadata; retain full license, source attribution and modification notices. No license substitution."
+    }
+  ],
+  "research_sources": [
+    {
+      "url": "https://github.com/cyanheads/git-mcp-server/security/advisories/GHSA-3q26-f695-pp76",
+      "scope": "selected case and exact source pair"
+    },
+    {
+      "url": "https://github.com/AiondaDotCom/mcp-ssh/security/advisories/GHSA-p4h8-56qp-hpgv",
+      "scope": "source-screened .mjs alternative"
+    },
+    {
+      "url": "https://github.com/jamubc/gemini-mcp-tool/security/advisories/GHSA-4h5r-5jm8-jxjm",
+      "scope": "advisory and tag screening only"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-f5pj-2738-996m",
+      "scope": "public advisory search screening only"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-v6wj-c83f-v46x",
+      "scope": "public advisory search screening only"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-fhh6-4qxv-rpqj",
+      "scope": "public advisory search screening only"
+    }
+  ],
+  "bound_files": {
+    "artifacts/phase23/candidate-review-v2/README.md": "565071450f41a2c042f03a648f15ec06aee98b444aac6aac2db0dcee44c4de49",
+    "artifacts/phase23/candidate-review-v2/freeze-proposal.json": "dea7b67ca7efe7088cf21f402b02a7695b434e921ccb559f5722deb7ffb5baed",
+    "artifacts/phase23/candidate-review-v2/minimized-fix.patch": "e1125fa623abeb9cc0658cd21e6d9daf81399f4a0e302aba65c3e5e7bf248d15",
+    "artifacts/phase23/candidate-review-v2/renamed-fixed.patch": "9a56574c22755f2dab23df87673c4bd5f6e7f3ee6b4968cb7f57f42226d2f1ee",
+    "artifacts/phase23/candidate-review-v2/renamed-registration.patch": "61269597ed8728f427281642054de8b81faf0ef385d4b43efd431e32ae9354a6",
+    "artifacts/phase23/candidate-review-v2/renamed-vulnerable.patch": "278a2080132cb679bd44f5f28a97e6802afdcd4f4d33727b35e642b2d297b485",
+    "artifacts/phase23/candidate-review-v2/safe-literal.patch": "3332753818f4c19ec801608bcc81b3510808c7e964d044109b618db5d80d2200",
+    "artifacts/phase23/candidate-review-v2/upstream-logic-fix.patch": "a84aaa67bdef37697c6aa09758f5d692e8dc68952bfe6f870db6a4db3601097b",
+    "artifacts/phase23/candidate-review-v2/provenance/advisory.json": "96cafea27e93cda825eb0d50493ccf27921d43f829964a8a2cabd2c57a9bd501",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-advisory.json": "a14b60dcf9d35ee8fbcfd4c8594699abcf586860d3f808818a6def628f8215bc",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-fixed-commit.json": "22763495ae38dd1d412ceb1fdee28f7b83e963bbdf31ed22e13770e98c0aa6b0",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-fixed-tag.json": "790ef8bbe3bb6ee4905fd7caa502436777c07fae75c7f1caf00346353494dc62",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-fixed-tree.json": "16e6f602bd23e03f44674c3c32f3a5c0380b2c4df142116ad25b04361dec2630",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-fixed.tar.gz": "b6ba02c60e0fbd2aa63c06994bb93ff9b6410bed7ad60b69b491c759eebbc460",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-vulnerable-commit.json": "81d818fc41df3f4b4d16a11cb0ca6ffe468fa819fa479c2d065af50e47d2442a",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-vulnerable-tag.json": "ebbac3e5877ae298b554f26a536db62416c23bea754074c7d63cbbb1f6b2d87d",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-vulnerable-tree.json": "a4225628ddc1286c7625a15dc9892c8b7faf4f7326100c6aaae2e6cdca892e90",
+    "artifacts/phase23/candidate-review-v2/provenance/cyanheads-vulnerable.tar.gz": "10e131767b78b507a47cf0d59ca756a4481c0082814fcc88f26c3d3cf1169048",
+    "artifacts/phase23/candidate-review-v2/provenance/fixed-commit.json": "6d69ca0b642d5cc2525c7368e8b7a99e92b011a9a0267cd85fa76669c7254d6e",
+    "artifacts/phase23/candidate-review-v2/provenance/fixed-tag.json": "190165ccb52c8d42b843c74d1d758a659bf1e5e9bdaedf2e42a0ec2fd4a9bf4b",
+    "artifacts/phase23/candidate-review-v2/provenance/fixed.tar.gz": "3b7aff64a476123b309c82e08a3ac5471fcad746b73397a8469fe46a88c12c0f",
+    "artifacts/phase23/candidate-review-v2/provenance/gemini-advisory.json": "d020ed7e4bb238354d41cf0dc4a166c7b4a107d86a570bf0a9a1f22f509a7585",
+    "artifacts/phase23/candidate-review-v2/provenance/gemini-tags.json": "c20d2528471ecd7987f098bcda5d0502373db73c25887bfd67096b04aae87649",
+    "artifacts/phase23/candidate-review-v2/provenance/issue-9.json": "84e42b09a2b20d29159e722873b3dd73073b94abfac5ad7c0936eba3011869b3",
+    "artifacts/phase23/candidate-review-v2/provenance/tags.json": "eec9e92978ffca0e1c0af70e23222622dcf4aeec9c56179c32d1a320dbac13e5",
+    "artifacts/phase23/candidate-review-v2/provenance/vulnerable-tag.json": "e2e3c64edab172132f77ce89a0e8c190db1cd30936a096344f45893bd5b75f8a",
+    "artifacts/phase23/candidate-review-v2/provenance/vulnerable.tar.gz": "67cb48b72853708310e558d06e9093a2adba47ab59b9632145f09f9f01eb822d",
+    "AGENTS.md": "256db5b3d30cc83f2d5abe29f9e7138b1eed2af901d0f12333f345a304e9e50f",
+    "ROADMAP.md": "1929bb08edd15ff4ca66847811e9c5269c5631783de04dc7245016917f7b7735",
+    "artifacts/phase23/candidate-review-v2/docs-check.log": "35b07973c4d7647995c2eda884866c6ebba62ec8ab6b1379e055f5538d79f0ff",
+    "artifacts/phase23/lifecycle/ghsa-3q26-v1-source-preparation.json": "dfaf4ae6e38bc446b99a6c80598de7bfa29169d4db7a170f9ac55fa219f059db"
+  },
+  "strict_docs": "passed; docs-check.log",
+  "git_diff_check": "passed"
+}

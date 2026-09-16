@@ -1,0 +1,25 @@
+--- before/src/mcp-server/tools/gitInit/logic.ts
++++ after/src/mcp-server/tools/gitInit/logic.ts
+@@ -2,14 +2,14 @@
+ import { exec } from "child_process";
+ import { promisify } from "util";
+ 
+-const execAsync = promisify(exec);
++const runShell = promisify(exec);
+ 
+-export async function gitInitLogic(input: { initialBranch?: string }) {
+-  const targetPath = "/tmp/phase23-git-init";
+-  let command = `git init`;
+-  const branchNameToUse = input.initialBranch || "main";
+-  command += ` -b "${branchNameToUse.replace(/"/g, '\\"')}"`;
+-  command += ` "${targetPath}"`;
+-  const { stdout, stderr } = await execAsync(command);
++export async function initializeRepository(requestData: { branchLabel?: string }) {
++  const repositoryPath = "/tmp/phase23-git-init";
++  let shellCommand = `git init`;
++  const branchName = requestData.branchLabel || "main";
++  shellCommand += ` -b "${branchName.replace(/"/g, '\\"')}"`;
++  shellCommand += ` "${repositoryPath}"`;
++  const { stdout, stderr } = await runShell(shellCommand);
+   return { stdout, stderr };
+ }

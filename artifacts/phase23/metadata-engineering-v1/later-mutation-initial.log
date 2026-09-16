@@ -1,0 +1,82 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______ test_composed_zod_later_mutation_stays_unproved[unknown(Schema);] _______
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1134/test_composed_zod_later_mutati0')
+mutation = 'unknown(Schema);'
+
+    @pytest.mark.parametrize(
+        "mutation", ["unknown(Schema);", "Schema.branch=unknown;", "unknown(Extended);"]
+    )
+    def test_composed_zod_later_mutation_stays_unproved(
+        tmp_path: Path, mutation: str
+    ) -> None:
+        program = composed_zod_program(tmp_path, "return run(args.branch);")
+        files = tuple(
+            replace(
+                f, source=f.source.replace("return server;", mutation + "return server;")
+            )
+            for f in program.files.values()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
+>       assert not program.tools()
+E       AssertionError: assert not (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-q14ucyft/source.ts'}}}]]}, external=None)))),)
+E        +  where (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-q14ucyft/source.ts'}}}]]}, external=None)))),) = tools()
+E        +    where tools = <sentinel.static.typescript_discovery.TypeScriptProgram object at 0x11133fb30>.tools
+
+tests/test_typescript_discovery.py:1316: AssertionError
+___ test_composed_zod_later_mutation_stays_unproved[Schema.branch=unknown;] ____
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1134/test_composed_zod_later_mutati1')
+mutation = 'Schema.branch=unknown;'
+
+    @pytest.mark.parametrize(
+        "mutation", ["unknown(Schema);", "Schema.branch=unknown;", "unknown(Extended);"]
+    )
+    def test_composed_zod_later_mutation_stays_unproved(
+        tmp_path: Path, mutation: str
+    ) -> None:
+        program = composed_zod_program(tmp_path, "return run(args.branch);")
+        files = tuple(
+            replace(
+                f, source=f.source.replace("return server;", mutation + "return server;")
+            )
+            for f in program.files.values()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
+>       assert not program.tools()
+E       AssertionError: assert not (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-cztr29ou/source.ts'}}}]]}, external=None)))),)
+E        +  where (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-cztr29ou/source.ts'}}}]]}, external=None)))),) = tools()
+E        +    where tools = <sentinel.static.typescript_discovery.TypeScriptProgram object at 0x1134d1820>.tools
+
+tests/test_typescript_discovery.py:1316: AssertionError
+_____ test_composed_zod_later_mutation_stays_unproved[unknown(Extended);] ______
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1134/test_composed_zod_later_mutati2')
+mutation = 'unknown(Extended);'
+
+    @pytest.mark.parametrize(
+        "mutation", ["unknown(Schema);", "Schema.branch=unknown;", "unknown(Extended);"]
+    )
+    def test_composed_zod_later_mutation_stays_unproved(
+        tmp_path: Path, mutation: str
+    ) -> None:
+        program = composed_zod_program(tmp_path, "return run(args.branch);")
+        files = tuple(
+            replace(
+                f, source=f.source.replace("return server;", mutation + "return server;")
+            )
+            for f in program.files.values()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 20)
+>       assert not program.tools()
+E       AssertionError: assert not (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-_jpxxb7x/source.ts'}}}]]}, external=None)))),)
+E        +  where (TypeScriptBinding(name='initialize', registration=TypeScriptSymbol(file=TypeScriptSourceFile(path=PosixPath('/private...': '/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/sentinel-typescript-_jpxxb7x/source.ts'}}}]]}, external=None)))),) = tools()
+E        +    where tools = <sentinel.static.typescript_discovery.TypeScriptProgram object at 0x1134d3890>.tools
+
+tests/test_typescript_discovery.py:1316: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_typescript_discovery.py::test_composed_zod_later_mutation_stays_unproved[unknown(Schema);]
+FAILED tests/test_typescript_discovery.py::test_composed_zod_later_mutation_stays_unproved[Schema.branch=unknown;]
+FAILED tests/test_typescript_discovery.py::test_composed_zod_later_mutation_stays_unproved[unknown(Extended);]
+3 failed, 167 deselected in 2.50s

@@ -1,0 +1,98 @@
+"""Check Phase 23 source identities offline; this command does not run a scan."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+from scripts.phase20_corpus import (
+    ROOT,
+    Artifact,
+    archive_files,
+    digest,
+    relative_path,
+    tree_digest,
+)
+
+MANIFEST = ROOT / "tests/evals/phase23/manifest.json"
+ORDER = (
+    "full-vulnerable",
+    "full-fixed",
+    "minimized-vulnerable",
+    "minimized-fixed",
+    "safe-literal",
+    "renamed-vulnerable",
+    "renamed-fixed",
+)
+LABELS = ("vulnerable", "fixed", "vulnerable", "fixed", "safe", "vulnerable", "fixed")
+
+
+def source_files(item: dict[str, Any], root: Path = ROOT) -> dict[str, bytes]:
+    """Verify every file before it can become a later regression input."""
+    source = item["source"]
+    if source["kind"] == "archive":
+        data = Artifact.model_validate(source["artifact"]).read(root)
+        files = archive_files(data, strip_root=source["strip_root"])
+    elif source["kind"] == "directory":
+        directory = root / relative_path(source["path"])
+        if any(p.is_symlink() for p in (directory, *directory.parents)):
+            raise ValueError("symlink source directory")
+        entries = tuple(directory.rglob("*"))
+        if any(p.is_symlink() or not (p.is_dir() or p.is_file()) for p in entries):
+            raise ValueError("source links and special files are forbidden")
+        files = {
+            relative_path(p.relative_to(directory).as_posix()): p.read_bytes()
+            for p in entries
+            if p.is_file()
+        }
+    else:
+        raise ValueError("unknown source kind")
+    if {name: digest(data) for name, data in files.items()} != item["files"]:
+        raise ValueError("source inventory mismatch")
+    if tree_digest(files) != item["tree_sha256"]:
+        raise ValueError("source tree hash mismatch")
+    return files
+
+
+def validate(path: Path = MANIFEST, root: Path = ROOT) -> dict[str, Any]:
+    """Validate a proposed corpus without treating proposed labels as approved."""
+    manifest: dict[str, Any] = json.loads(path.read_bytes())
+    if (
+        manifest["schema_version"] != 1
+        or manifest["status"] != "proposed_pending_user_freeze"
+        or manifest["freeze_approved"] is not False
+        or manifest["case_id"] != "GHSA-5w57-2ccq-8w95"
+        or manifest["source_only"] is not True
+        or tuple(manifest["proposed_order"]) != ORDER
+        or tuple(item["id"] for item in manifest["inputs"]) != ORDER
+        or tuple(item["proposed_label"] for item in manifest["inputs"]) != LABELS
+    ):
+        raise ValueError("unexpected Phase 23 proposal scope or order")
+    for binding in manifest["provenance"]:
+        Artifact.model_validate(binding).read(root)
+    for item in manifest["inputs"]:
+        files = source_files(item, root)
+        for evidence in item["evidence"]:
+            data = files[evidence["path"]]
+            if digest(data) != evidence["sha256"] or not (
+                1
+                <= evidence["start_line"]
+                <= evidence["end_line"]
+                <= len(data.decode().splitlines())
+            ):
+                raise ValueError("source evidence mismatch")
+        match = item["match"]
+        lines = files[match["sink_path"]].decode().splitlines()
+        if (
+            match["rule_id"] != "SENT-002"
+            or not 1 <= match["sink_line"] <= len(lines)
+            or lines[match["sink_line"] - 1].strip() != match["source_text"]
+        ):
+            raise ValueError("finding match source mismatch")
+    return manifest
+
+
+if __name__ == "__main__":
+    validate()
+    print("Seven proposed inputs verified; freeze and scanning remain unapproved.")

@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-15T15:16:06.632389Z",
+  "status": "source_preparation_verified",
+  "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+  "source_checks": {
+    "result": "passed",
+    "input_count": 7,
+    "upstream_file_count": 173,
+    "independent_advisory_count": 1,
+    "git_blob_sha1_verification": true,
+    "full_sha256_inventory_verification": true,
+    "complete_nontruncated_git_trees": true,
+    "annotated_tag_resolution": true,
+    "package_version_bindings": true,
+    "exact_convenience_copies": true,
+    "retained_readme_licenses": true,
+    "one_line_safe_control": true,
+    "same_identifier_map_on_both_parents": true,
+    "fixed_validator_copied_byte_for_byte": true
+  },
+  "focused_checks": {
+    "maintenance_and_archive": "41 passed, 7 deselected; ../intake-and-archive-checks.log",
+    "new_preparation": "7 passed; preparation-tests.log",
+    "ruff": "passed for helper and affected tests",
+    "mypy": "configured full invocation passed in make check; limited positional invocation below was invalid",
+    "docs": "passed; ../intake-docs-check-approved.log"
+  },
+  "full_local_gate": {
+    "status": "passed",
+    "log": "artifacts/phase23/preparation-make-check.log",
+    "log_sha256": "bbf6287b79552a972f160bd6bc7e13ca5b514561b8e835902c38e7f0f3f9d05f",
+    "scope": "Adopted intake guidance and source-only preparation helper, before the separately prepared baseline runner extension.",
+    "helper_snapshot": "artifacts/phase23/source-review-v1/preparation-helper.py.txt",
+    "test_snapshot": "artifacts/phase23/source-review-v1/preparation-tests.py.txt"
+  },
+  "failures_retained": [
+    {
+      "action": "initial gh advisory fetch",
+      "result": "error connecting to api.github.com; sandbox network blocked",
+      "resolution": "read-only retrieval succeeded after sandbox escalation"
+    },
+    {
+      "action": "initial make docs-check",
+      "result": "uv cache Operation not permitted",
+      "evidence": "artifacts/phase23/intake-docs-check.log",
+      "resolution": "approved cache access; docs passed in intake-docs-check-approved.log"
+    },
+    {
+      "action": "commit-addressed Git tree identity assertion",
+      "result": "AssertionError: commit tree SHA differed from echoed commit-addressed tree response SHA; stopped before source generation",
+      "evidence": [
+        "provenance/vulnerable-tree-by-commit.json",
+        "provenance/fixed-tree-by-commit.json"
+      ],
+      "resolution": "fetched exact commit-referenced tree objects, verified all blobs and asserted tree identity"
+    },
+    {
+      "action": "existing maintenance form test",
+      "result": "failed old expectation of empty contact links; also retained old 11-rule assumptions",
+      "evidence": "artifacts/phase23/intake-form-check-before.log",
+      "resolution": "updated the affected test for approved form changes and canonical catalog; 41 focused checks passed"
+    },
+    {
+      "action": "initial new-test Ruff check",
+      "result": "two RUF043 regex strings required raw literals",
+      "resolution": "made both intended regex strings raw; Ruff and focused tests passed"
+    },
+    {
+      "action": "limited positional mypy invocation",
+      "result": "import-untyped: sentinel.owasp_mapping not included as source in the limited invocation",
+      "resolution": "configured full mypy invocation in make check discovers src and passed; no suppression or source change"
+    }
+  ],
+  "adopted_path_note": "The approved patch spells .github/PULL_REQUEST_TEMPLATE.md; this case-insensitive checkout maps it to the existing tracked .github/pull_request_template.md. Actual tracked lowercase path is preserved. Applied bytes match the approved hash.",
+  "bound_files": {
+    "scripts/phase23_regression.py": "9bec84f63bf5a5a6fe2a49421eab3c71db561a87a2c5bd52cf679eae76f51778",
+    "tests/test_phase23.py": "e00c7d16cefa9c2831aae6ac817dc758c71cdec505d674bb953f330a7c341616",
+    "tests/test_maintenance.py": "1a8d7f81060018d10f4eeb2d6362d809dc0f938237ee58abd7e368b14e6f8a53",
+    "artifacts/phase23/source-review-v1/README.md": "4180f625f966210f0ea649ea4d616902e7f60da88aa1d1d4b5d95643b208a0da",
+    "artifacts/phase23/source-review-v1/freeze-proposal.json": "f9f470edd52e718ca2132a2f73502ba7ef78b99b3471fd1d7592ce8a1ffc8b22"
+  },
+  "advisory_target_executions": 0,
+  "paid_calls": 0,
+  "freeze_approved": true,
+  "hosted_checks": "not dispatched",
+  "advisory_scans": 0,
+  "test_scope": "Existing synthetic/reference fixture tests may invoke Sentinel; no Phase 23 advisory input is scanned or executed.",
+  "freeze_receipt": "artifacts/phase23/source-freeze.json"
+}

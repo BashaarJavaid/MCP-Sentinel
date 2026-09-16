@@ -1,0 +1,48 @@
+--- a/src/server.ts
++++ b/src/server.ts
+@@ -1,7 +1,7 @@
+ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+-import stopSandbox, { argSchema as stopSchema } from './tools/stop.ts';
++import removeSandbox, { argumentsSchema as inputSchema } from './tools/stop.ts';
+ 
+-const server = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });
+-server.tool('sandbox_stop', 'Remove a sandbox container.', stopSchema, stopSandbox);
+-await server.connect(new StdioServerTransport());
++const mcpServer = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });
++mcpServer.tool('sandbox_stop', 'Remove a sandbox container.', inputSchema, removeSandbox);
++await mcpServer.connect(new StdioServerTransport());
+--- a/src/tools/stop.ts
++++ b/src/tools/stop.ts
+@@ -1,16 +1,16 @@
+ import { z } from 'zod';
+ import { execFileSync } from 'node:child_process';
+-import { sanitizeContainerId } from '../utils.ts';
++import { validateSandboxRef } from '../utils.ts';
+ 
+-export const argSchema = {
+-  container_id: z.string().regex(/^[a-zA-Z0-9_.-]+$/, 'Invalid container ID'),
++export const argumentsSchema = {
++  sandbox_ref: z.string().regex(/^[a-zA-Z0-9_.-]+$/, 'Invalid container ID'),
+ };
+ 
+-export default async function stopSandbox({ container_id }: { container_id: string }) {
+-  const validId = sanitizeContainerId(container_id);
+-  if (!validId) {
++export default async function removeSandbox({ sandbox_ref }: { sandbox_ref: string }) {
++  const checkedRef = validateSandboxRef(sandbox_ref);
++  if (!checkedRef) {
+     return { content: [{ type: 'text' as const, text: 'Invalid container ID' }] };
+   }
+-  execFileSync('docker', ['rm', '-f', validId]);
++  execFileSync('docker', ['rm', '-f', checkedRef]);
+   return { content: [{ type: 'text' as const, text: 'Container removed.' }] };
+ }
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -1,4 +1,4 @@
+-export function sanitizeContainerId(id: string): string | null {
++export function validateSandboxRef(id: string): string | null {
+   // Docker container names/IDs: https://docs.docker.com/engine/reference/commandline/run/#container-name
+   // Allow alphanumerics, underscores, periods, dashes. Must start with alphanumeric.
+   if (typeof id !== 'string') return null;

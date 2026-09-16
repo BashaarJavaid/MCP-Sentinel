@@ -1,0 +1,27 @@
+--- a/src/sentinel/static/typescript_path_flow.py
++++ b/src/sentinel/static/typescript_path_flow.py
+@@ -1791,24 +1791,6 @@
+             collection_nonempty=False,
+             locations=result.locations | {(file.relative_path, location.start_line)},
+         )
+-        if external == "util.promisify":
+-            original = self.callables.get(args[0].key) if len(args) == 1 else None
+-            target = (original.external or "").removeprefix("node:") if original else ""
+-            if (
+-                target in {"child_process.exec", "child_process.execFile"}
+-                and not args[0].maybe_missing
+-                and args[0].key not in self.invalidated_objects
+-                and callable_value.key not in self.invalidated_objects
+-                and self.program.promisify_unmodified
+-            ):
+-                self.callables[result.key] = TypeScriptSymbol(
+-                    file, {"promisified": target}, target
+-                )
+-            else:
+-                self.warning(
+-                    file, node, "promisify factory or original identity unproved"
+-                )
+-            return result
+         method = name_of(callee.get("DotAccess", [None, None, {}])[2])
+         if external in {
+             f"{namespace}.{kind}"

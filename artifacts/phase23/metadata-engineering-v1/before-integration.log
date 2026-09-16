@@ -1,0 +1,73 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+____________ test_composed_zod_registration_shell_flow[vulnerable] _____________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1129/test_composed_zod_registration0')
+case = 'vulnerable'
+
+    @pytest.mark.parametrize("case", ["vulnerable", "argv", "literal"])
+    def test_composed_zod_registration_shell_flow(tmp_path: Path, case: str) -> None:
+        from sentinel.static.typescript_execution import ShellFlow
+        from sentinel.static.typescript_path_flow import analyze
+    
+        body = {
+            "vulnerable": 'return run(`git init -b "${args.branch}" /tmp/unit`);',
+            "argv": 'return runFile("git", ["init","-b",args.branch,"/tmp/unit"]);',
+            "literal": 'return run("git init -b main /tmp/unit");',
+        }[case]
+        program = composed_zod_program(tmp_path, body)
+        bindings = program.tools()
+>       assert len(bindings) == 1
+E       assert 0 == 1
+E        +  where 0 = len(())
+
+tests/test_typescript_discovery.py:1030: AssertionError
+_______________ test_composed_zod_registration_shell_flow[argv] ________________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1129/test_composed_zod_registration1')
+case = 'argv'
+
+    @pytest.mark.parametrize("case", ["vulnerable", "argv", "literal"])
+    def test_composed_zod_registration_shell_flow(tmp_path: Path, case: str) -> None:
+        from sentinel.static.typescript_execution import ShellFlow
+        from sentinel.static.typescript_path_flow import analyze
+    
+        body = {
+            "vulnerable": 'return run(`git init -b "${args.branch}" /tmp/unit`);',
+            "argv": 'return runFile("git", ["init","-b",args.branch,"/tmp/unit"]);',
+            "literal": 'return run("git init -b main /tmp/unit");',
+        }[case]
+        program = composed_zod_program(tmp_path, body)
+        bindings = program.tools()
+>       assert len(bindings) == 1
+E       assert 0 == 1
+E        +  where 0 = len(())
+
+tests/test_typescript_discovery.py:1030: AssertionError
+______________ test_composed_zod_registration_shell_flow[literal] ______________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1129/test_composed_zod_registration2')
+case = 'literal'
+
+    @pytest.mark.parametrize("case", ["vulnerable", "argv", "literal"])
+    def test_composed_zod_registration_shell_flow(tmp_path: Path, case: str) -> None:
+        from sentinel.static.typescript_execution import ShellFlow
+        from sentinel.static.typescript_path_flow import analyze
+    
+        body = {
+            "vulnerable": 'return run(`git init -b "${args.branch}" /tmp/unit`);',
+            "argv": 'return runFile("git", ["init","-b",args.branch,"/tmp/unit"]);',
+            "literal": 'return run("git init -b main /tmp/unit");',
+        }[case]
+        program = composed_zod_program(tmp_path, body)
+        bindings = program.tools()
+>       assert len(bindings) == 1
+E       assert 0 == 1
+E        +  where 0 = len(())
+
+tests/test_typescript_discovery.py:1030: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_typescript_discovery.py::test_composed_zod_registration_shell_flow[vulnerable]
+FAILED tests/test_typescript_discovery.py::test_composed_zod_registration_shell_flow[argv]
+FAILED tests/test_typescript_discovery.py::test_composed_zod_registration_shell_flow[literal]
+3 failed, 120 deselected in 1.81s

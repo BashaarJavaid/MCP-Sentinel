@@ -1,0 +1,1491 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-15T23:23:41.236971Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "257d45308840841ba3d965a16d58cecbb0ba026cf10b23e46d646dadfe087777",
+      "description": "A caller URL reaches an outbound request without enforced scheme and destination restrictions.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 27,
+              "start_column": 1,
+              "start_line": 27
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 46,
+              "start_column": 1,
+              "start_line": 46
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 381,
+              "start_column": 1,
+              "start_line": 381
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 63,
+          "end_line": 244,
+          "start_column": 34,
+          "start_line": 244
+        },
+        "snippet": "lighthouse(args.url, options)"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "ab8bc260-3b87-4da8-8fef-62f1a46e67ba",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/index.ts",
+        "range": {
+          "end_column": 63,
+          "end_line": 244,
+          "start_column": 34,
+          "start_line": 244
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 27,
+                  "start_column": 1,
+                  "start_line": 27
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 46,
+                  "start_column": 1,
+                  "start_line": 46
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 100,
+                  "start_column": 1,
+                  "start_line": 100
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 172,
+                  "start_column": 1,
+                  "start_line": 172
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 244,
+                  "start_column": 1,
+                  "start_line": 244
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 381,
+                  "start_column": 1,
+                  "start_line": 381
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 63,
+              "end_line": 244,
+              "start_column": 34,
+              "start_line": 244
+            },
+            "snippet": "lighthouse(args.url, options)"
+          },
+          "review": null,
+          "rule_id": "SENT-015",
+          "source": "static",
+          "timestamp": "2026-09-15T23:23:41.236971Z"
+        }
+      ],
+      "remediation": "Permit only required HTTP(S) destinations, reject private and loopback addresses, and enforce checks on every requested URL and redirect.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-015",
+      "scan_id": "83061ef0-a4f4-4729-aa54-3e3aadbf020e",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:23:41.236971Z",
+      "title": "Server-side request forgery"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 1,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 1
+    }
+  },
+  "scan_id": "83061ef0-a4f4-4729-aa54-3e3aadbf020e",
+  "schema_version": "1.7.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-15T23:23:41.235951Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 6,
+              "end_line": 184,
+              "start_column": 64,
+              "start_line": 172
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 38,
+              "end_line": 381,
+              "start_column": 16,
+              "start_line": 381
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "ambiguous_dispatch",
+              "location": {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 38,
+                  "end_line": 381,
+                  "start_column": 16,
+                  "start_line": 381
+                }
+              },
+              "message": "tool dispatch, handler or schema cannot be fully resolved"
+            }
+          ],
+          "status": "unresolved"
+        },
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 6,
+              "end_line": 184,
+              "start_column": 64,
+              "start_line": 172
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 38,
+              "end_line": 381,
+              "start_column": 16,
+              "start_line": 381
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "ambiguous_dispatch",
+              "location": {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 38,
+                  "end_line": 381,
+                  "start_column": 16,
+                  "start_line": 381
+                }
+              },
+              "message": "tool dispatch, handler or schema cannot be fully resolved"
+            }
+          ],
+          "status": "unresolved"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-002 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-002 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 268,
+              "start_column": 1,
+              "start_line": 268
+            }
+          },
+          "message": "SENT-002 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 269,
+              "start_column": 1,
+              "start_line": 269
+            }
+          },
+          "message": "SENT-002 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 292,
+              "start_column": 1,
+              "start_line": 292
+            }
+          },
+          "message": "SENT-002 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 307,
+              "start_column": 1,
+              "start_line": 307
+            }
+          },
+          "message": "SENT-002 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-002 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-002 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 356,
+              "start_column": 1,
+              "start_line": 356
+            }
+          },
+          "message": "SENT-002 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-002 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-012 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-012 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 268,
+              "start_column": 1,
+              "start_line": 268
+            }
+          },
+          "message": "SENT-012 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 269,
+              "start_column": 1,
+              "start_line": 269
+            }
+          },
+          "message": "SENT-012 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 292,
+              "start_column": 1,
+              "start_line": 292
+            }
+          },
+          "message": "SENT-012 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 307,
+              "start_column": 1,
+              "start_line": 307
+            }
+          },
+          "message": "SENT-012 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-012 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-012 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 356,
+              "start_column": 1,
+              "start_line": 356
+            }
+          },
+          "message": "SENT-012 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-014 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-014 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 268,
+              "start_column": 1,
+              "start_line": 268
+            }
+          },
+          "message": "SENT-014 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 269,
+              "start_column": 1,
+              "start_line": 269
+            }
+          },
+          "message": "SENT-014 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 292,
+              "start_column": 1,
+              "start_line": 292
+            }
+          },
+          "message": "SENT-014 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 307,
+              "start_column": 1,
+              "start_line": 307
+            }
+          },
+          "message": "SENT-014 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-014 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-014 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 356,
+              "start_column": 1,
+              "start_line": 356
+            }
+          },
+          "message": "SENT-014 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-014 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-015 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 269,
+              "start_column": 1,
+              "start_line": 269
+            }
+          },
+          "message": "SENT-015 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-015 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-015 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-016 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 244,
+              "start_column": 1,
+              "start_line": 244
+            }
+          },
+          "message": "SENT-016 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 268,
+              "start_column": 1,
+              "start_line": 268
+            }
+          },
+          "message": "SENT-016 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 269,
+              "start_column": 1,
+              "start_line": 269
+            }
+          },
+          "message": "SENT-016 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 292,
+              "start_column": 1,
+              "start_line": 292
+            }
+          },
+          "message": "SENT-016 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 307,
+              "start_column": 1,
+              "start_line": 307
+            }
+          },
+          "message": "SENT-016 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 345,
+              "start_column": 1,
+              "start_line": 345
+            }
+          },
+          "message": "SENT-016 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 356,
+              "start_column": 1,
+              "start_line": 356
+            }
+          },
+          "message": "SENT-016 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-016 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 376,
+              "start_column": 1,
+              "start_line": 376
+            }
+          },
+          "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+        }
+      ],
+      "workspace": null
+    },
+    "duration_ms": 2255,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-013",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-014",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 1,
+        "rule_id": "SENT-015",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-016",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 6,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012",
+      "SENT-013",
+      "SENT-014",
+      "SENT-015",
+      "SENT-016"
+    ],
+    "total_matches": 1
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 1
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 1,
+      "suppressed": 0
+    },
+    "total": 1
+  },
+  "target": {
+    "display_name": "lighthouse-linklocal-vulnerable-mutation",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Server'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.server'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'err'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Array'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Array.isArray'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.on'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'console'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Object.entries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'category'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'category.title'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'category.score'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'category.description'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'key'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'dynamic tool description'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:345: indexed array alias unresolved; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Server.prototype.setRequestHandler.call'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'args.categories.every'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.setupToolHandlers'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.close'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.exit'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.setRequestHandler'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.handleRunAudit'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.handleGetPerformanceScore'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'chrome.kill'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'this.server.connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'run'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'request.params.name'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:75: unresolved call to Array.isArray; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:244: unresolved call to lighthouse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:268: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:269: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:292: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:307: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:345: unresolved call to JSON.parse; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:356: unresolved call to JSON.stringify; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:376: SDK instance escapes to an unresolved call; protection is not established"
+    }
+  ]
+}

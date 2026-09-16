@@ -1,0 +1,10 @@
+--- before/src/mcp-server/tools/gitInit/logic.ts
++++ after/src/mcp-server/tools/gitInit/logic.ts
+@@ -10,6 +10,6 @@
+   const branchNameToUse = input.initialBranch || "main";
+   command += ` -b "${branchNameToUse.replace(/"/g, '\\"')}"`;
+   command += ` "${targetPath}"`;
+-  const { stdout, stderr } = await execAsync(command);
++  const { stdout, stderr } = await execAsync("git init -b main /tmp/phase23-git-init");
+   return { stdout, stderr };
+ }

@@ -1,0 +1,20 @@
+--- artifacts/phase23/compatibility-recovery-review-v1/launch.py
++++ artifacts/phase23/compatibility-metadata-review-v1/launch.py
+@@ -12,7 +12,7 @@
+ spec = importlib.util.spec_from_file_location("recovery_runner", ASSETS / "evaluate.py")
+ r = importlib.util.module_from_spec(spec)
+ spec.loader.exec_module(r)
+-OUT = ASSETS.parent / "compatibility-v2"
++OUT = ASSETS.parent / "compatibility-v3"
+ BINDING = ASSETS / "launcher-binding.json"
+ 
+ 
+@@ -77,7 +77,7 @@
+                 "approval_sha256": r.sha(r.APPROVAL),
+                 "launcher_binding_sha256": r.sha(BINDING),
+                 "sequence_limit_seconds": limit,
+-                "observations_maximum": 112,
++                "observations_maximum": 89,
+                 "paid_calls": 0,
+             },
+             stream,

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-15T16:57:29.962448Z",
+  "status": "replacement_baseline_packet_verified_unexecuted",
+  "case_id": "GHSA-3q26-f695-pp76",
+  "bound_files": {
+    "artifacts/phase23/baseline-review-v2/README.md": "75638dcdddd121856e9df42b1c5dc1262d7ad2898a905c50e783f9587ce72233",
+    "artifacts/phase23/baseline-review-v2/authorization-template.json": "c68df659b93a2f05389163fb62e306b6d3b81b3c8cddce3ee0446b3f461c7204",
+    "artifacts/phase23/baseline-review-v2/docs.log": "44c12255d191c0f8542a1180491e3cc403f65d598db03c49f9a98d7736a0c96a",
+    "artifacts/phase23/baseline-review-v2/format.log": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+    "artifacts/phase23/baseline-review-v2/mypy-before-import-fix.log": "87ea4c7903f07f3c15d1e8c2d997a4815e59e07c62090ac00732aa30181a3dfc",
+    "artifacts/phase23/baseline-review-v2/mypy.log": "467364859149a6d51b16354d7d71beef180cec376644e32fbdc65429522ad603",
+    "artifacts/phase23/baseline-review-v2/proposal-before-import-fix.json": "8b73b73338c0ca73935f6cf0c4ef4ff03cb47322454714934ecd3c1a10530983",
+    "artifacts/phase23/baseline-review-v2/proposal.json": "d17bd9b0313c50a90fee81caf43f0f60b1eacf2c9ca027e5c526c0d634290465",
+    "artifacts/phase23/baseline-review-v2/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "artifacts/phase23/baseline-review-v2/tests.log": "894f67a156ed19e8a7ece85c209014e8edbd88a1113807fc7bedef45c35a1549",
+    "artifacts/phase23/candidate-review-v2/source-freeze.json": "28807d7da8f593700131f5e38a1af006d71fbd6d26da532db330f3ccf472de28",
+    "tests/evals/phase23/candidate-v2/manifest.json": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c",
+    "AGENTS.md": "61c03bdba7a028804fe8ad87e1b6c00cfc5b700c53070c1f217f14e6670599a4",
+    "ROADMAP.md": "acd8683e8df8e387ee27a1d4d01174c55de3cc2f4673bc86e53d08729c1fc732",
+    "scripts/phase23_regression.py": "99199da846863f12403dc306ac6b8831278732050b6fea2a5f07b24bd6d30d46",
+    "tests/test_phase23.py": "8e525231af7e38e9e2e2bc83ea2f0341b0371e90fe0e5783d94767b4cbcf3c8b",
+    "artifacts/phase23/lifecycle/ghsa-3q26-v2-source-frozen.json": "fc62a35a646e47d3d97df585533ff748ba2874af2714d7ee90e46a4caab5b006"
+  },
+  "checks": {
+    "source_freeze": "accepted; exact receipt/manifest identities verified",
+    "sources": "both seven-input source inventories pass",
+    "resolved_configuration": "all seven equal; read-only materialization/config loading, no scanner invocation",
+    "focused_tests": "23 passed",
+    "mypy": "154 source files passed",
+    "ruff": "passed",
+    "format": "passed",
+    "strict_docs": "passed",
+    "git_diff_check": "passed",
+    "production_scanner_and_historical_evidence": "unchanged",
+    "previous_executed_helper_and_tests": "archived with original proposal hashes verified"
+  },
+  "failures_retained": [
+    {
+      "action": "initial configured typing check",
+      "result": "test imported ROOT through helper without explicit re-export",
+      "resolution": "Import ROOT directly from defining phase20_corpus module; no ignore or scanner change",
+      "evidence": "mypy-before-import-fix.log"
+    }
+  ],
+  "compatibility": "Existing first-case default remains; new explicit case selects its own manifest and receipt. Receipt path/case/manifest drift closes the one-use attempt before observation. Native Finding/report schemas and exclusions unchanged.",
+  "full_suite_or_hosted_claim": "No new full-suite/hosted pass; earlier preparation 2603/36 applies only to its retained historical bytes.",
+  "replacement_execution_approved": false,
+  "replacement_observations": 0,
+  "original_observations_retained": 14,
+  "advisory_target_executions": 0,
+  "paid_calls": 0,
+  "detector_changes": 0,
+  "technical_acceptance": "pending",
+  "release_approval": "pending"
+}

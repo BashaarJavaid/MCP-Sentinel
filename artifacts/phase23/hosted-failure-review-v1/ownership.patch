@@ -1,0 +1,15 @@
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -48,6 +48,12 @@
+         run: uv sync --frozen --extra dev --python 3.12
+       - name: Compare seven current-candidate reports in an isolated network namespace
+         run: sudo unshare --net -- "$PWD/.venv/bin/python" -m scripts.phase23_regression ci --output "${{ runner.temp }}/phase23-regression"
++      - name: Restore regression evidence ownership for upload
++        if: always()
++        run: |
++          if [ -d "${{ runner.temp }}/phase23-regression" ]; then
++            sudo chown -R "$(id -u):$(id -g)" -- "${{ runner.temp }}/phase23-regression"
++          fi
+       - name: Retain complete regression evidence
+         if: always()
+         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

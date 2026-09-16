@@ -39,6 +39,8 @@ def inventory(
     bindings = context.python_program.tools()
 
     def schema_supported(binding: TypeScriptBinding | None) -> bool:
+        if binding and binding.schema_fields is not None:
+            return True
         return bool(
             binding
             and binding.schema
