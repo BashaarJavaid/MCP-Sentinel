@@ -1,0 +1,46 @@
+import collections,difflib,hashlib,json
+from pathlib import Path
+from datetime import datetime,timezone
+from scripts.phase23_regression import validate,source_files,execution_identity,ordered_report
+from sentinel.report.validate_json import validate_report_data
+from sentinel.report.validate_sarif import validate_sarif_data
+r=Path('artifacts/phase23');a=r/'candidate-assessment-v2';b=r/'corrected-candidate-v2'
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def put(n,v):
+ with (a/n).open('x') as f:f.write(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
+m=validate(Path('tests/evals/phase23/candidate-v2/manifest.json'));validate(Path('tests/evals/phase23/manifest.json'))
+items={i['id']:i for i in m['inputs']};files={k:source_files(v) for k,v in items.items()}
+obs=json.loads((a/'observations.json').read_text());findings=json.loads((a/'findings.json').read_text());summary=json.loads((a/'summary.json').read_text())
+contexts=[];support=[];comparisons=[]
+for o in obs:
+ p=Path(o['report']);d=json.loads(p.read_text());validate_report_data(d);validate_sarif_data(json.loads(p.with_suffix('.sarif').read_text()))
+ if o['observation']>7:continue
+ id=o['input_id'];fs=files[id]
+ references=collections.defaultdict(set)
+ for f in d['findings']:
+  for loc in [f['location'],*f['evidence'].get('flow_locations',[])]:
+   if loc['path'] in fs:
+    for line in range(max(1,loc['range']['start_line']-3),min(len(fs[loc['path']].decode().splitlines()),loc['range']['end_line']+3)+1):references[loc['path']].add(line)
+ # Whole selected source path is small and makes the manual support judgment reviewable.
+ selected=[p for p in fs if ('gitInit/' in p or p=='src/server.ts' or p=='src/utils/internal/errorHandler.ts') and p.endswith('.ts')]
+ selected_bindings=[]
+ for path in selected:
+  selected_bindings.append({'path':path,'sha256':hashlib.sha256(fs[path]).hexdigest(),'text':fs[path].decode()})
+ for path,lines in references.items():
+  source=fs[path].decode().splitlines();contexts.append({'input_id':id,'path':path,'sha256':hashlib.sha256(fs[path]).hexdigest(),'lines':[{'line':line,'text':source[line-1]} for line in sorted(lines)]})
+ witnesses=[{'index':i,'rule_id':f['rule_id'],'location':f['location'],'flow_locations':f['evidence'].get('flow_locations',[])} for i,f in enumerate(d['findings']) if f['location']['path']==items[id]['match']['sink_path'] and f['location']['range']['start_line']<=items[id]['match']['sink_line']<=f['location']['range']['end_line']]
+ if id=='full-fixed':
+  assert len(witnesses)==1 and witnesses[0]['rule_id']=='SENT-014'
+  locations={(v['path'],v['range']['start_line']) for v in witnesses[0]['flow_locations']}
+  assert ('src/utils/internal/errorHandler.ts',382) in locations
+  assert ('src/mcp-server/tools/gitInit/registration.ts',70) in locations
+ support.append({'input_id':id,'observations':[o['observation'],o['observation']+7],'judgment':o['analysis_support'],'reason':o['support_evidence'],'sink_witnesses':witnesses,'source_bindings':selected_bindings,'scope':'Selected SENT-002 shell condition only. Human review pending; raw warnings and unrelated findings remain unchanged.'})
+ oldp=r/'baseline-v2/observations'/p.parent.name/'report.json';old=ordered_report(json.loads(oldp.read_text()));new=ordered_report(d)
+ diff=''.join(difflib.unified_diff(json.dumps(old,indent=2,sort_keys=True).splitlines(True),json.dumps(new,indent=2,sort_keys=True).splitlines(True),fromfile='original-baseline/'+id,tofile='metadata-candidate/'+id));dp=a/f'original-baseline-{id}.diff';dp.write_text(diff)
+ comparisons.append({'input_id':id,'baseline':str(oldp),'baseline_sha256':sha(oldp),'candidate':str(p),'candidate_sha256':sha(p),'complete_ordered_diff':str(dp),'sha256':sha(dp)})
+put('source-contexts.json',contexts);put('source-support.json',support);put('original-baseline-comparisons.json',comparisons)
+put('finding-dispositions.json',{'status':'pending_human_review','by_rule_occurrences':dict(collections.Counter(f['finding']['rule_id'] for f in findings for _ in f['observations'])),'by_classification_occurrences':dict(collections.Counter(f['classification'] for f in findings for _ in f['observations'])),'proposal':'Accept the narrow source-assessed shell gate and retain all unrelated findings as needs_review with exploitability unestablished. No raw severity/status suppression, new vulnerability count, rule meaning change or general safety conclusion. SENT-014 operand/option grammar remains outside this correction.'})
+# Preserve the actual assessment programs as evidence; neither executes target code.
+(a/'assessment.py.txt').write_bytes(Path('/private/tmp/phase23_assess_candidate_v2.py').read_bytes())
+(a/'source-verification.py.txt').write_bytes(Path(__file__).read_bytes())
+print(json.dumps({'counts':summary['counts'],'finding_dispositions':json.loads((a/'finding-dispositions.json').read_text()),'source_contexts':len(contexts),'offline_json_sarif_valid':14},indent=2))

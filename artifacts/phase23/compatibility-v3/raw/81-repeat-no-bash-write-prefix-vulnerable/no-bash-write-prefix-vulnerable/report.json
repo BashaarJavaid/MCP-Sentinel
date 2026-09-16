@@ -1,0 +1,5603 @@
+{
+  "analysisComplete": true,
+  "baseline": null,
+  "completed_at": "2026-09-15T23:33:21.632977Z",
+  "dynamic_analysis": null,
+  "executionSuccessful": true,
+  "findings": [
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "9f66be4118f183db55fb8ad237450b499b2af9be5e13edc12aae4b7a1f0598fd",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 7,
+          "end_line": 19,
+          "start_column": 20,
+          "start_line": 15
+        },
+        "snippet": "execSync(`git commit -m \"${message.replace(/\"/g, '\\\\\"')}\"`, {\n      cwd: workspaceRoot,\n      stdio: 'pipe',\n      encoding: 'utf8',\n    })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "8693437c-8421-4f79-a762-2259cb175f86",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "src/git.ts",
+        "range": {
+          "end_column": 7,
+          "end_line": 19,
+          "start_column": 20,
+          "start_line": 15
+        }
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/git.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 15,
+                  "start_column": 1,
+                  "start_line": 15
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 7,
+              "end_line": 19,
+              "start_column": 20,
+              "start_line": 15
+            },
+            "snippet": "execSync(`git commit -m \"${message.replace(/\"/g, '\\\\\"')}\"`, {\n      cwd: workspaceRoot,\n      stdio: 'pipe',\n      encoding: 'utf8',\n    })"
+          },
+          "review": null,
+          "rule_id": "SENT-002",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-002",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Unsafe execution from tool input"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "07df6469a35407c7cb41477a3c6952e3dc7e81a8a1469db2358c7ac3717707eb",
+      "description": "Tool-controlled input reaches an unsafe execution or deserialization sink.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 1,
+              "start_line": 59
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 7,
+          "end_line": 63,
+          "start_column": 20,
+          "start_line": 59
+        },
+        "snippet": "execSync(`npm run ${scriptName}`, {\n      cwd: workspaceRoot,\n      encoding: 'utf8',\n      stdio: 'pipe',\n    })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "83eed037-031c-4a97-8d10-db2f497dacf5",
+      "impact": "Critical",
+      "location": {
+        "kind": "file",
+        "path": "src/system.ts",
+        "range": {
+          "end_column": 7,
+          "end_line": 63,
+          "start_column": 20,
+          "start_line": 59
+        }
+      },
+      "owasp_category": {
+        "id": "ASI05:2026",
+        "name": "Unexpected Code Execution"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/system.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 59,
+                  "start_column": 1,
+                  "start_line": 59
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 7,
+              "end_line": 63,
+              "start_column": 20,
+              "start_line": 59
+            },
+            "snippet": "execSync(`npm run ${scriptName}`, {\n      cwd: workspaceRoot,\n      encoding: 'utf8',\n      stdio: 'pipe',\n    })"
+          },
+          "review": null,
+          "rule_id": "SENT-002",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Replace dynamic execution with explicit parsers and fixed command allowlists.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-002",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "High",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Unsafe execution from tool input"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "1027d18613c1bad6a5d11303f3866374d32fc9fa0778c6db8d83e7ddef7dc422",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 31,
+              "start_column": 1,
+              "start_line": 31
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 67,
+          "end_line": 31,
+          "start_column": 19,
+          "start_line": 31
+        },
+        "snippet": "fs.readdirSync(dirPath, { withFileTypes: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "73b574b4-d862-46ec-b2b8-057e85e21289",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 67,
+          "end_line": 31,
+          "start_column": 19,
+          "start_line": 31
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 31,
+                  "start_column": 1,
+                  "start_line": 31
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 67,
+              "end_line": 31,
+              "start_column": 19,
+              "start_line": 31
+            },
+            "snippet": "fs.readdirSync(dirPath, { withFileTypes: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "5c92183ebb84b23d6e4c298389aa23a550d9c0430d7a5cd595aac13bb6f5e483",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 86,
+              "start_column": 1,
+              "start_line": 86
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 48,
+          "end_line": 86,
+          "start_column": 21,
+          "start_line": 86
+        },
+        "snippet": "fs.readFileSync(ap, 'utf8')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "1d3c02e7-6fc8-4a88-90ce-1b93f5907b6f",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 48,
+          "end_line": 86,
+          "start_column": 21,
+          "start_line": 86
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 86,
+                  "start_column": 1,
+                  "start_line": 86
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 48,
+              "end_line": 86,
+              "start_column": 21,
+              "start_line": 86
+            },
+            "snippet": "fs.readFileSync(ap, 'utf8')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "e5ba3baf55cc29a1ac4b93d22698ff23361ffdc011a06b00de4f5e7bb0d854c9",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 127,
+              "start_column": 1,
+              "start_line": 127
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 129,
+              "start_column": 1,
+              "start_line": 129
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 45,
+          "end_line": 129,
+          "start_column": 7,
+          "start_line": 129
+        },
+        "snippet": "fs.mkdirSync(dir, { recursive: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "a2e2392b-99ba-4f2b-89b1-889538d7260e",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 45,
+          "end_line": 129,
+          "start_column": 7,
+          "start_line": 129
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 127,
+                  "start_column": 1,
+                  "start_line": 127
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 129,
+                  "start_column": 1,
+                  "start_line": 129
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 318,
+                  "start_column": 1,
+                  "start_line": 318
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 45,
+              "end_line": 129,
+              "start_column": 7,
+              "start_line": 129
+            },
+            "snippet": "fs.mkdirSync(dir, { recursive: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "83387f4cbde2b428945691a0186b89bec45fdcf9477cf9c3a14a1149fac8b812",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 137,
+              "start_column": 1,
+              "start_line": 137
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 66,
+          "end_line": 137,
+          "start_column": 7,
+          "start_line": 137
+        },
+        "snippet": "fs.appendFileSync(validation.absolutePath, content, 'utf8')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "28efc517-8609-4207-aa55-61cac1f00202",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 66,
+          "end_line": 137,
+          "start_column": 7,
+          "start_line": 137
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 137,
+                  "start_column": 1,
+                  "start_line": 137
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 318,
+                  "start_column": 1,
+                  "start_line": 318
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 66,
+              "end_line": 137,
+              "start_column": 7,
+              "start_line": 137
+            },
+            "snippet": "fs.appendFileSync(validation.absolutePath, content, 'utf8')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "c499ef2434408cb97620eb65838441ceb7b9bb3a597531fc0a88b6166ccbf674",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 139,
+              "start_column": 1,
+              "start_line": 139
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 65,
+          "end_line": 139,
+          "start_column": 7,
+          "start_line": 139
+        },
+        "snippet": "fs.writeFileSync(validation.absolutePath, content, 'utf8')"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "c5e71ebb-a2eb-4315-8233-54177ff857d3",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 65,
+          "end_line": 139,
+          "start_column": 7,
+          "start_line": 139
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 139,
+                  "start_column": 1,
+                  "start_line": 139
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 318,
+                  "start_column": 1,
+                  "start_line": 318
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 65,
+              "end_line": 139,
+              "start_column": 7,
+              "start_line": 139
+            },
+            "snippet": "fs.writeFileSync(validation.absolutePath, content, 'utf8')"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    },
+    {
+      "baseline_matched": null,
+      "confidence": "high",
+      "dedup_key": "83f357618ecb4084f15f2829e2c179ce4ccaac67734f4e56280c903c8a34f244",
+      "description": "The originating caller path passed a normalized root-prefix check; filesystem paths derived afterward still lack complete containment guarantees.",
+      "evidence": {
+        "fingerprint": null,
+        "flow_locations": [
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 240,
+              "start_column": 1,
+              "start_line": 240
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 241,
+              "start_column": 1,
+              "start_line": 241
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 249,
+              "start_column": 1,
+              "start_line": 249
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 251,
+              "start_column": 1,
+              "start_line": 251
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 33,
+              "start_column": 1,
+              "start_line": 33
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 265,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 17,
+              "start_column": 1,
+              "start_line": 17
+            }
+          },
+          {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 21,
+              "start_column": 1,
+              "start_line": 21
+            }
+          }
+        ],
+        "kind": "static",
+        "range": {
+          "end_column": 49,
+          "end_line": 251,
+          "start_column": 7,
+          "start_line": 251
+        },
+        "snippet": "fs.mkdirSync(destDir, { recursive: true })"
+      },
+      "exploitability": "theoretical",
+      "finding_id": "5e781f53-5ad6-479d-820d-043611f0e6ab",
+      "impact": "High",
+      "location": {
+        "kind": "file",
+        "path": "src/fileSystem.ts",
+        "range": {
+          "end_column": 49,
+          "end_line": 251,
+          "start_column": 7,
+          "start_line": 251
+        }
+      },
+      "owasp_category": {
+        "id": "ASI02:2026",
+        "name": "Tool Misuse & Exploitation"
+      },
+      "provenance": [
+        {
+          "evidence": {
+            "fingerprint": null,
+            "flow_locations": [
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 240,
+                  "start_column": 1,
+                  "start_line": 240
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 241,
+                  "start_column": 1,
+                  "start_line": 241
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 249,
+                  "start_column": 1,
+                  "start_line": 249
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/fileSystem.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 251,
+                  "start_column": 1,
+                  "start_line": 251
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 33,
+                  "start_column": 1,
+                  "start_line": 33
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 265,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 17,
+                  "start_column": 1,
+                  "start_line": 17
+                }
+              },
+              {
+                "kind": "file",
+                "path": "src/security.ts",
+                "range": {
+                  "end_column": 2,
+                  "end_line": 21,
+                  "start_column": 1,
+                  "start_line": 21
+                }
+              }
+            ],
+            "kind": "static",
+            "range": {
+              "end_column": 49,
+              "end_line": 251,
+              "start_column": 7,
+              "start_line": 251
+            },
+            "snippet": "fs.mkdirSync(destDir, { recursive: true })"
+          },
+          "review": null,
+          "rule_id": "SENT-012",
+          "source": "static",
+          "timestamp": "2026-09-15T23:33:21.632977Z"
+        }
+      ],
+      "remediation": "Resolve the requested path and allowed root, reject paths outside the root using component-aware containment, and use the validated value.",
+      "review": null,
+      "review_disagrees": false,
+      "rule_id": "SENT-012",
+      "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+      "severity": "Medium",
+      "source": "static",
+      "status": "needs_review",
+      "suppression": null,
+      "timestamp": "2026-09-15T23:33:21.632977Z",
+      "title": "Path containment failure"
+    }
+  ],
+  "gpt_review": null,
+  "review_activity": {
+    "dynamic": {
+      "candidate_count": null,
+      "excluded_count": null,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": null
+    },
+    "static": {
+      "candidate_count": 8,
+      "excluded_count": 0,
+      "modes": [],
+      "reason": "selected scan tier excludes this review stage",
+      "reviewed_count": 0,
+      "selected_count": 0,
+      "state": "not_requested",
+      "unreviewed_count": 8
+    }
+  },
+  "scan_id": "73d2f4ca-b22c-4862-b756-b4baffe05286",
+  "schema_version": "1.7.0",
+  "sentinel_version": "1.3.0",
+  "stages": [
+    {
+      "name": "static",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "gpt_static",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "gpt_dynamic",
+      "reason": "rules-only scan requested",
+      "status": "skipped"
+    },
+    {
+      "name": "merge",
+      "reason": null,
+      "status": "succeeded"
+    },
+    {
+      "name": "reporting",
+      "reason": null,
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-09-15T23:33:21.632090Z",
+  "static_analysis": {
+    "coverage": {
+      "excluded_rule_ids": [],
+      "file_wide_rule_ids": [
+        "SENT-005",
+        "SENT-007"
+      ],
+      "surfaces": [
+        {
+          "examined_rule_ids": [
+            "SENT-002",
+            "SENT-012",
+            "SENT-014",
+            "SENT-015",
+            "SENT-016"
+          ],
+          "handler": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 506,
+              "start_column": 55,
+              "start_line": 265
+            }
+          },
+          "kind": "tool",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 3,
+              "end_line": 506,
+              "start_column": 1,
+              "start_line": 265
+            }
+          },
+          "name": null,
+          "reasons": [
+            {
+              "code": "ambiguous_dispatch",
+              "location": {
+                "kind": "file",
+                "path": "src/index.ts",
+                "range": {
+                  "end_column": 3,
+                  "end_line": 506,
+                  "start_column": 1,
+                  "start_line": 265
+                }
+              },
+              "message": "tool dispatch, handler or schema cannot be fully resolved"
+            }
+          ],
+          "status": "unresolved"
+        }
+      ],
+      "total_possible_surfaces": null,
+      "unresolved_flows": [
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-002 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 39
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 47
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-002 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-002 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 77,
+              "start_column": 1,
+              "start_line": 77
+            }
+          },
+          "message": "SENT-002 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 111,
+              "start_column": 1,
+              "start_line": 111
+            }
+          },
+          "message": "SENT-002 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          "message": "SENT-002 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 87,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 94,
+              "start_column": 1,
+              "start_line": 94
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          "message": "SENT-002 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 136,
+              "start_column": 1,
+              "start_line": 136
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 162,
+              "start_column": 1,
+              "start_line": 162
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 175,
+              "start_column": 1,
+              "start_line": 175
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 194,
+              "start_column": 1,
+              "start_line": 194
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 250,
+              "start_column": 1,
+              "start_line": 250
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 255,
+              "start_column": 1,
+              "start_line": 255
+            }
+          },
+          "message": "SENT-002 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-002 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-002 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-002 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          "message": "SENT-002 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-002 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-012 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 39
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 47
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-012 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-012 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 77,
+              "start_column": 1,
+              "start_line": 77
+            }
+          },
+          "message": "SENT-012 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 111,
+              "start_column": 1,
+              "start_line": 111
+            }
+          },
+          "message": "SENT-012 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          "message": "SENT-012 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 87,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 94,
+              "start_column": 1,
+              "start_line": 94
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          "message": "SENT-012 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 136,
+              "start_column": 1,
+              "start_line": 136
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 162,
+              "start_column": 1,
+              "start_line": 162
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 175,
+              "start_column": 1,
+              "start_line": 175
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 194,
+              "start_column": 1,
+              "start_line": 194
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 250,
+              "start_column": 1,
+              "start_line": 250
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 255,
+              "start_column": 1,
+              "start_line": 255
+            }
+          },
+          "message": "SENT-012 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-012 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 1,
+              "start_line": 59
+            }
+          },
+          "message": "SENT-012 at src/system.ts:59: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-012 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-012 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          "message": "SENT-012 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-012 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-012 at src/git.ts:15: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-014 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 39
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 47
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-014 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-014 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 77,
+              "start_column": 1,
+              "start_line": 77
+            }
+          },
+          "message": "SENT-014 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 111,
+              "start_column": 1,
+              "start_line": 111
+            }
+          },
+          "message": "SENT-014 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          "message": "SENT-014 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 87,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 94,
+              "start_column": 1,
+              "start_line": 94
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          "message": "SENT-014 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 136,
+              "start_column": 1,
+              "start_line": 136
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 162,
+              "start_column": 1,
+              "start_line": 162
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 175,
+              "start_column": 1,
+              "start_line": 175
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 194,
+              "start_column": 1,
+              "start_line": 194
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 250,
+              "start_column": 1,
+              "start_line": 250
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 255,
+              "start_column": 1,
+              "start_line": 255
+            }
+          },
+          "message": "SENT-014 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-014 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 1,
+              "start_line": 59
+            }
+          },
+          "message": "SENT-014 at src/system.ts:59: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-014 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-014 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          "message": "SENT-014 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-014 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-014 at src/git.ts:15: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-015 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 39
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 47
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-015 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-015 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 77,
+              "start_column": 1,
+              "start_line": 77
+            }
+          },
+          "message": "SENT-015 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 111,
+              "start_column": 1,
+              "start_line": 111
+            }
+          },
+          "message": "SENT-015 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          "message": "SENT-015 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 87,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 94,
+              "start_column": 1,
+              "start_line": 94
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          "message": "SENT-015 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 136,
+              "start_column": 1,
+              "start_line": 136
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 162,
+              "start_column": 1,
+              "start_line": 162
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 175,
+              "start_column": 1,
+              "start_line": 175
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 194,
+              "start_column": 1,
+              "start_line": 194
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 250,
+              "start_column": 1,
+              "start_line": 250
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 255,
+              "start_column": 1,
+              "start_line": 255
+            }
+          },
+          "message": "SENT-015 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-015 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 1,
+              "start_line": 59
+            }
+          },
+          "message": "SENT-015 at src/system.ts:59: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-015 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-015 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          "message": "SENT-015 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-015 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-015 at src/git.ts:15: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-016 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 39,
+              "start_column": 1,
+              "start_line": 39
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 40,
+              "start_column": 1,
+              "start_line": 40
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 42,
+              "start_column": 1,
+              "start_line": 42
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 47,
+              "start_column": 1,
+              "start_line": 47
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 30,
+              "start_column": 1,
+              "start_line": 30
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-016 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 75,
+              "start_column": 1,
+              "start_line": 75
+            }
+          },
+          "message": "SENT-016 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/audit.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 77,
+              "start_column": 1,
+              "start_line": 77
+            }
+          },
+          "message": "SENT-016 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 111,
+              "start_column": 1,
+              "start_line": 111
+            }
+          },
+          "message": "SENT-016 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 117,
+              "start_column": 1,
+              "start_line": 117
+            }
+          },
+          "message": "SENT-016 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 87,
+              "start_column": 1,
+              "start_line": 87
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 94,
+              "start_column": 1,
+              "start_line": 94
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 97,
+              "start_column": 1,
+              "start_line": 97
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 100,
+              "start_column": 1,
+              "start_line": 100
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 103,
+              "start_column": 1,
+              "start_line": 103
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 318,
+              "start_column": 1,
+              "start_line": 318
+            }
+          },
+          "message": "SENT-016 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 128,
+              "start_column": 1,
+              "start_line": 128
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 132,
+              "start_column": 1,
+              "start_line": 132
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 136,
+              "start_column": 1,
+              "start_line": 136
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 172,
+              "start_column": 1,
+              "start_line": 172
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 162,
+              "start_column": 1,
+              "start_line": 162
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 175,
+              "start_column": 1,
+              "start_line": 175
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 181,
+              "start_column": 1,
+              "start_line": 181
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 183,
+              "start_column": 1,
+              "start_line": 183
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 184,
+              "start_column": 1,
+              "start_line": 184
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 194,
+              "start_column": 1,
+              "start_line": 194
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 250,
+              "start_column": 1,
+              "start_line": 250
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/fileSystem.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 255,
+              "start_column": 1,
+              "start_line": 255
+            }
+          },
+          "message": "SENT-016 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 32,
+              "start_column": 1,
+              "start_line": 32
+            }
+          },
+          "message": "SENT-016 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/system.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 59,
+              "start_column": 1,
+              "start_line": 59
+            }
+          },
+          "message": "SENT-016 at src/system.ts:59: unresolved call to execSync; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/index.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 413,
+              "start_column": 1,
+              "start_line": 413
+            }
+          },
+          "message": "SENT-016 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 70,
+              "start_column": 1,
+              "start_line": 70
+            }
+          },
+          "message": "SENT-016 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/security.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 83,
+              "start_column": 1,
+              "start_line": 83
+            }
+          },
+          "message": "SENT-016 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-016 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+        },
+        {
+          "code": "static_flow_unresolved",
+          "location": {
+            "kind": "file",
+            "path": "src/git.ts",
+            "range": {
+              "end_column": 2,
+              "end_line": 15,
+              "start_column": 1,
+              "start_line": 15
+            }
+          },
+          "message": "SENT-016 at src/git.ts:15: unresolved call to execSync; protection is not established"
+        }
+      ],
+      "workspace": null
+    },
+    "duration_ms": 4190,
+    "ignored_file_count": 0,
+    "rule_outcomes": [
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-001",
+        "skip_reason": "sentinel.permissions.yaml is absent",
+        "status": "skipped"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 2,
+        "rule_id": "SENT-002",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-003",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-004",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-005",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-006",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-007",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 6,
+        "rule_id": "SENT-012",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-013",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-014",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-015",
+        "skip_reason": null,
+        "status": "evaluated"
+      },
+      {
+        "exemptions_by_reason": {},
+        "match_count": 0,
+        "rule_id": "SENT-016",
+        "skip_reason": null,
+        "status": "evaluated"
+      }
+    ],
+    "scanned_file_count": 16,
+    "selected_rule_ids": [
+      "SENT-001",
+      "SENT-002",
+      "SENT-003",
+      "SENT-004",
+      "SENT-005",
+      "SENT-006",
+      "SENT-007",
+      "SENT-012",
+      "SENT-013",
+      "SENT-014",
+      "SENT-015",
+      "SENT-016"
+    ],
+    "total_matches": 8
+  },
+  "summary": {
+    "by_severity": {
+      "Critical": 0,
+      "High": 2,
+      "Informational": 0,
+      "Low": 0,
+      "Medium": 6
+    },
+    "by_status": {
+      "confirmed": 0,
+      "likely_false_positive": 0,
+      "needs_review": 8,
+      "suppressed": 0
+    },
+    "total": 8
+  },
+  "target": {
+    "display_name": "no-bash-write-prefix-vulnerable",
+    "root": "."
+  },
+  "warnings": [
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-002 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'RegExp'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'URL'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'RegExp'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'connect'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'Promise'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Date'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Date.now'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.WORKSPACE_ROOT'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.cwd'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.ALLOW_DELETION'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.NETWORK_ALLOWLIST'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.NETWORK_ALLOWLIST.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'parseInt'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.MAX_FILE_SIZE_MB'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.env.HITL_ENABLED'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'recursive'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'Object.entries'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'key'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'key.toLowerCase'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'value'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'process.cwd'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'console'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'Error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'JSON.stringify'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'Math'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'Math.max'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'Math.min'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'mode'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'JSON'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'JSON.parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'Object'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'Object.keys'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'process'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'process.stdin'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'process.stdin.isTTY'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'process.stdout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'error.stdout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'error.stderr'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'error.status'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/git.ts: cannot resolve TypeScript binding 'error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/git.ts: cannot resolve TypeScript binding 'error.stderr'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/git.ts: cannot resolve TypeScript binding 'error.message'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/system.ts:59: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-012 at src/git.ts:15: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/system.ts:59: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-014 at src/git.ts:15: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/system.ts:59: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-015 at src/git.ts:15: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'content.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/audit.ts: cannot resolve TypeScript binding 'line.trim'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.test.ts: cannot resolve TypeScript binding 'process.cwd'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.test.ts: cannot resolve TypeScript binding 'result.entries.find'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'item.isDirectory'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'entries.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'scan'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'content.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'lines.slice'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'selectedLines.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'item.name.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'filePattern.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'globRegex.test'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'fileContent.split'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'lines.forEach'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'line.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'matches.push'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'line.trim'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/git.ts: cannot resolve TypeScript binding 'message.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/git.ts: cannot resolve TypeScript binding 'hashResult.trim'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'setTimeout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'rl.close'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'console.log'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'resolve'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'rl.question'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'clearTimeout'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/hitl.ts: cannot resolve TypeScript binding 'answer.trim'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'fn'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'setRequestHandler'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'parse'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'result.matches.map'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'result.commitHash.slice'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'logEntries.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'console.error'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'process.exit'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'res.on'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'resolve'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'req.on'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'req.write'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'req.end'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/network.ts: cannot resolve TypeScript binding 'String'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'absolutePath.startsWith'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'requestedPath.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'privateIpRegexes.some'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'regex.test'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'allowlist.some'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'pattern.replace'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'allowlist.join'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'fileSizeMb.toFixed'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'allowedScripts.includes'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'requestedPath'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'end'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'result.totalLines'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'path'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/fileSystem.ts: cannot resolve TypeScript binding 'index'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'm.file'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'result.matches.length'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/system.ts: cannot resolve TypeScript binding 'scriptName'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/security.ts: cannot resolve TypeScript binding 'hostname'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'result.statusCode'"
+    },
+    {
+      "code": "static_binding_unresolved",
+      "message": "src/index.ts: cannot resolve TypeScript binding 'name'"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/security.ts:30: unresolved call to requestedPath.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:39: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:40: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:40: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:42: unresolved call to fs.statSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:42: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:47: unresolved call to item.isDirectory; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:30: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/audit.ts:70: unresolved call to Object.entries; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/audit.ts:75: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/audit.ts:77: computed or prototype member assignment; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/security.ts:111: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/security.ts:117: unresolved call to fileSizeMb.toFixed; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:87: unresolved call to content.split; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:94: unresolved call to Math.max; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:97: unresolved call to Math.min; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:100: unresolved call to lines.slice; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:103: unresolved call to selectedLines.join; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:318: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:128: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:132: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:136: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:172: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:162: recursive or unsupported handler; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:175: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:181: unresolved call to filePattern.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:181: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:183: unresolved call to globRegex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:184: unsupported control flow; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:194: unresolved call to line.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:250: unresolved call to fs.existsSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/fileSystem.ts:255: unresolved call to fs.renameSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/system.ts:32: unresolved call to allowedScripts.includes; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/system.ts:59: unresolved call to execSync; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/index.ts:413: unresolved call to dynamic call; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/security.ts:70: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/security.ts:83: unresolved call to regex.test; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/git.ts:15: unresolved call to message.replace; protection is not established"
+    },
+    {
+      "code": "static_flow_unresolved",
+      "message": "SENT-016 at src/git.ts:15: unresolved call to execSync; protection is not established"
+    }
+  ]
+}

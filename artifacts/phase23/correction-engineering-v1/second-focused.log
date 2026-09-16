@@ -1,0 +1,154 @@
+............................................FF                           [100%]
+=================================== FAILURES ===================================
+______________ test_promisified_registered_barrel_callback[False] ______________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1120/test_promisified_registered_ba0')
+fixed = False
+
+    @pytest.mark.parametrize("fixed", [False, True])
+    def test_promisified_registered_barrel_callback(tmp_path: Path, fixed: bool) -> None:
+        import time
+    
+        from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+        from sentinel.static.rules.sent014 import TypeScriptOptionFlow
+        from sentinel.static.rules.sent015 import TypeScriptURLFlow
+        from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
+        from sentinel.static.typescript_discovery import TypeScriptProgram
+        from sentinel.static.typescript_execution import ShellFlow
+        from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+    
+        sources = {
+            "server.ts": 'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+            'import {register} from "./registration.js";\n'
+            "export async function build() {\n"
+            'const server=new McpServer({name:"test",version:"1"});\n'
+            "await register(server); return server; }\n",
+            "registration.ts": 'import {Boundary} from "./barrel.js";\n'
+            'import {perform} from "./logic.js";\n'
+            "export async function register(server) {\n"
+            "await Boundary.forward(async () => {\n"
+            'server.tool("operation", {}, async (input) =>\n'
+            "Boundary.forward(async () => perform(input)));\n"
+            "}); }\n",
+            "barrel.ts": 'export * from "./internal.js";\n'
+            'export * from "./unrelated.js";\n',
+            "internal.ts": 'export * from "./boundary.js";\n',
+            "unrelated.ts": 'export const other = "value";\n',
+            "boundary.ts": "export class Boundary {\n"
+            "public static async forward(fn) {\n"
+            "try { return await fn(); } catch(error) { throw error; }\n"
+            "} }\n",
+            "logic.ts": 'import {promisify} from "node:util";\n'
+            'import {exec, execFile} from "node:child_process";\n'
+            + (
+                "const operation=promisify(execFile);\n"
+                if fixed
+                else "const operation=promisify(exec);\n"
+            )
+            + "export async function perform(input) {\n"
+            + (
+                'return await operation("git", [input.branch]);\n'
+                if fixed
+                else 'return await operation("git init -b " + input.branch);\n'
+            )
+            + "}\n",
+        }
+        files = tuple(
+            TypeScriptSourceFile(tmp_path / name, name, source)
+            for name, source in sources.items()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 30)
+        assert len(program.tools()) == 1
+        for kind in (
+            ShellFlow,
+            TypeScriptPathFlow,
+            TypeScriptOptionFlow,
+            TypeScriptURLFlow,
+            TypeScriptCredentialFlow,
+        ):
+            state = RuleRunState()
+            flow = kind(program, state)
+            analyze(program, state, flow=flow)
+>           assert any("promisified" in s.node for s in flow.callables.values())
+E           assert False
+E            +  where False = any(<generator object test_promisified_registered_barrel_callback.<locals>.<genexpr> at 0x106b412f0>)
+
+tests/test_command_execution.py:286: AssertionError
+______________ test_promisified_registered_barrel_callback[True] _______________
+
+tmp_path = PosixPath('/private/var/folders/gb/sj8zzc0j67z_8t_7g8l7v8cr0000gn/T/pytest-of-bashaarjavaid/pytest-1120/test_promisified_registered_ba1')
+fixed = True
+
+    @pytest.mark.parametrize("fixed", [False, True])
+    def test_promisified_registered_barrel_callback(tmp_path: Path, fixed: bool) -> None:
+        import time
+    
+        from sentinel.static.model import RuleRunState, TypeScriptSourceFile
+        from sentinel.static.rules.sent014 import TypeScriptOptionFlow
+        from sentinel.static.rules.sent015 import TypeScriptURLFlow
+        from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
+        from sentinel.static.typescript_discovery import TypeScriptProgram
+        from sentinel.static.typescript_execution import ShellFlow
+        from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+    
+        sources = {
+            "server.ts": 'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+            'import {register} from "./registration.js";\n'
+            "export async function build() {\n"
+            'const server=new McpServer({name:"test",version:"1"});\n'
+            "await register(server); return server; }\n",
+            "registration.ts": 'import {Boundary} from "./barrel.js";\n'
+            'import {perform} from "./logic.js";\n'
+            "export async function register(server) {\n"
+            "await Boundary.forward(async () => {\n"
+            'server.tool("operation", {}, async (input) =>\n'
+            "Boundary.forward(async () => perform(input)));\n"
+            "}); }\n",
+            "barrel.ts": 'export * from "./internal.js";\n'
+            'export * from "./unrelated.js";\n',
+            "internal.ts": 'export * from "./boundary.js";\n',
+            "unrelated.ts": 'export const other = "value";\n',
+            "boundary.ts": "export class Boundary {\n"
+            "public static async forward(fn) {\n"
+            "try { return await fn(); } catch(error) { throw error; }\n"
+            "} }\n",
+            "logic.ts": 'import {promisify} from "node:util";\n'
+            'import {exec, execFile} from "node:child_process";\n'
+            + (
+                "const operation=promisify(execFile);\n"
+                if fixed
+                else "const operation=promisify(exec);\n"
+            )
+            + "export async function perform(input) {\n"
+            + (
+                'return await operation("git", [input.branch]);\n'
+                if fixed
+                else 'return await operation("git init -b " + input.branch);\n'
+            )
+            + "}\n",
+        }
+        files = tuple(
+            TypeScriptSourceFile(tmp_path / name, name, source)
+            for name, source in sources.items()
+        )
+        program = TypeScriptProgram(files, deadline=time.monotonic() + 30)
+        assert len(program.tools()) == 1
+        for kind in (
+            ShellFlow,
+            TypeScriptPathFlow,
+            TypeScriptOptionFlow,
+            TypeScriptURLFlow,
+            TypeScriptCredentialFlow,
+        ):
+            state = RuleRunState()
+            flow = kind(program, state)
+            analyze(program, state, flow=flow)
+>           assert any("promisified" in s.node for s in flow.callables.values())
+E           assert False
+E            +  where False = any(<generator object test_promisified_registered_barrel_callback.<locals>.<genexpr> at 0x106bf4c70>)
+
+tests/test_command_execution.py:286: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_command_execution.py::test_promisified_registered_barrel_callback[False]
+FAILED tests/test_command_execution.py::test_promisified_registered_barrel_callback[True]
+2 failed, 44 passed, 22 deselected in 9.10s

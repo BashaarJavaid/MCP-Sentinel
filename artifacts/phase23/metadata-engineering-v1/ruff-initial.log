@@ -1,0 +1,40 @@
+E501 Line too long (91 > 88)
+    --> tests/test_typescript_discovery.py:999:89
+     |
+ 997 |         'path:z.string().default(".").describe("path"),'
+ 998 |         'bare:z.boolean().default(false).describe("bare")});\n',
+ 999 |         "server.ts": 'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+     |                                                                                         ^^^
+1000 |         'import {z} from "zod";\nimport {Base} from "./schema.js";\n'
+1001 |         'import {operation} from "./logic.js";\n'
+     |
+
+I001 [*] Import block is un-sorted or un-formatted
+    --> tests/test_typescript_discovery.py:1115:5
+     |
+1114 |   def test_composed_zod_field_sources_and_defaults(tmp_path: Path) -> None:
+1115 | /     from sentinel.static.typescript_registration_flow import RegistrationFlow
+1116 | |     from sentinel.static.rules.sent013 import typescript_descriptions
+     | |_____________________________________________________________________^
+1117 |
+1118 |       program = composed_zod_program(tmp_path, "return run(args.branch);")
+     |
+help: Organize imports
+
+I001 [*] Import block is un-sorted or un-formatted
+    --> tests/test_typescript_discovery.py:1155:5
+     |
+1153 |   @pytest.mark.parametrize("kind", ["SENT-012", "SENT-014", "SENT-015", "SENT-016"])
+1154 |   def test_composed_zod_shared_flow_rules(tmp_path: Path, kind: str) -> None:
+1155 | /     from sentinel.static.typescript_path_flow import TypeScriptPathFlow, analyze
+1156 | |     from sentinel.static.rules.sent014 import TypeScriptOptionFlow
+1157 | |     from sentinel.static.rules.sent015 import TypeScriptURLFlow
+1158 | |     from sentinel.static.rules.sent016 import TypeScriptCredentialFlow
+     | |______________________________________________________________________^
+1159 |
+1160 |       classes = {
+     |
+help: Organize imports
+
+Found 3 errors.
+[*] 2 fixable with the `--fix` option.

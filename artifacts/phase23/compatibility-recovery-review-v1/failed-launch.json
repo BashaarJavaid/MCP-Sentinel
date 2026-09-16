@@ -1,0 +1,28 @@
+{
+  "recorded_at_utc": "2026-09-15T22:27:29.593221+00:00",
+  "status": "failed_before_packet_and_first_observation",
+  "completed_observations": 0,
+  "started_observations": 0,
+  "unstarted_closed": 112,
+  "remaining_budget": 0,
+  "cause": "Sandbox rejected read-only sysctl hw.ncpu hw.memsize; CalledProcessError before packet construction/selfchecks/consumption/scanner launch.",
+  "agent_error": "Historical launcher was started inside the restricted sandbox; its existing hardware query needs execution outside that sandbox.",
+  "cleanup_verified": true,
+  "files": {
+    "artifacts/phase23/compatibility-v1/sequence.log": "88ef0c66fdf7c65b7882ddb42417bc7840ec7cad573cf4d407144be4c6f0c9c0",
+    "artifacts/phase23/compatibility-v1/launch.json": "37faa4458709185052721342ac9839f6fcb3049083f9c12141843aa522d01a62",
+    "artifacts/phase23/compatibility-v1/execution.json": "6ccaf6b68b34b4b4530fc6f9343a3428d9e22e9dbf4f551f9c6031126d2825da"
+  },
+  "diagnostic_probe": {
+    "command": [
+      "sysctl",
+      "hw.ncpu",
+      "hw.memsize"
+    ],
+    "execution_context": "require_escalated read-only diagnostic",
+    "exit_code": 0,
+    "stdout": "hw.ncpu: 8\nhw.memsize: 8589934592\n",
+    "target_or_scanner_execution": false
+  },
+  "policy": "Old one-use attempt closed even though execution-consumed receipt was not reached. No automatic retry."
+}

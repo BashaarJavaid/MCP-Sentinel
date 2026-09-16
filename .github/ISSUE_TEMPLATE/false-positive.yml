@@ -1,15 +1,22 @@
 name: False positive
 description: Report a reproducible Sentinel finding that should not be emitted.
-title: "[False positive] "
+title: '[False positive] '
 labels:
   - bug
 body:
+  - type: markdown
+    attributes:
+      value: Submit only sanitized, publicly shareable evidence. For sensitive Sentinel vulnerabilities,
+        use [private reporting](https://github.com/BashaarJavaid/MCP-Sentinel/security/advisories/new).
+        For third-party vulnerabilities, follow the upstream security policy before public
+        disclosure. Reporter expectations are unreviewed proposals; maintainers review labels
+        and changes. See the [maintenance process](https://bashaarjavaid.github.io/MCP-Sentinel/phase23-maintenance/).
   - type: input
     id: version
     attributes:
       label: Sentinel version
-      description: Run `sentinel --version` and paste the result.
-      placeholder: 1.2.0
+      description: Paste sentinel --version and the commit if using a source checkout.
+      placeholder: Version or exact commit
     validations:
       required: true
   - type: dropdown
@@ -28,6 +35,11 @@ body:
         - SENT-009
         - SENT-010
         - SENT-011
+        - SENT-012
+        - SENT-013
+        - SENT-014
+        - SENT-015
+        - SENT-016
     validations:
       required: true
   - type: input
@@ -41,14 +53,17 @@ body:
     id: command-configuration
     attributes:
       label: Command and configuration
-      description: Include the command and relevant redacted Sentinel configuration.
+      description: Include the exact command and sanitized configuration, scan mode, rule
+        selection, ignores, baselines and suppressions. Remove credentials and internal endpoints.
     validations:
       required: true
   - type: textarea
     id: finding
     attributes:
       label: Redacted finding
-      description: Paste the finding without credentials, tokens, or private source.
+      description: Include the matching finding and complete sanitized JSON/SARIF report,
+        exit status, diagnostics and analysis/support status. Link a sanitized attachment
+        if needed.
       render: json
     validations:
       required: true
@@ -56,14 +71,26 @@ body:
     id: reproduction
     attributes:
       label: Redacted minimal reproduction
-      description: Provide the smallest source and manifest example that reproduces the finding.
+      description: Provide minimal publicly shareable source, manifests and relevant SDK versions.
+        Include a vulnerable counterpart if known, or say unavailable. Do not execute an unsafe
+        target to report it.
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Expected behavior
-      description: Explain why the rule should not report this code.
+      label: Reporter expectation (unreviewed)
+      description: Explain the exact source condition that makes this finding a false positive,
+        including file/line evidence. Maintainers must review the label.
+    validations:
+      required: true
+  - type: textarea
+    id: source-rights
+    attributes:
+      label: Source provenance and reuse rights
+      description: Give public source URLs, immutable revisions, file paths and applicable
+        license/notice links. For your own examples, state authorship. If rights are unknown,
+        say unknown. Public posting alone does not authorize corpus reuse.
     validations:
       required: true
   - type: checkboxes
@@ -71,5 +98,17 @@ body:
     attributes:
       label: Sensitive data confirmation
       options:
-        - label: I removed all secrets, credentials, personal data, and private source from this report.
+        - label: I removed secrets, credentials, personal data, internal endpoints and private
+            source, and this report is suitable for public disclosure.
           required: true
+  - type: checkboxes
+    id: example-reuse
+    attributes:
+      label: Optional example reuse consent
+      description: This is separate from sanitization and is not required to report an issue.
+        Without consent or an applicable license, maintainers must obtain permission before
+        incorporating examples.
+      options:
+        - label: I have the right to license my submitted examples and permit their reuse
+            and modification in Sentinel's regression corpus under the project's MIT license.
+          required: false

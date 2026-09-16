@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "implemented_with_required_integration_failures_additional_semantics_approval_pending",
+  "recorded_at_utc": "2026-09-15T17:40:13.108155+00:00",
+  "authorization": "artifacts/phase23/correction-authorization-v1.json",
+  "authorization_sha256": "ff646e074ebd06dd57cd3d0c4e0a256f1c8a7aec9f04f98a80d667266fa3f254",
+  "scanner": {
+    "revision": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+    "source_sha256": "165abd9490adce32e1370822187c44d0a3cf0c2d513a92a27691bd9b5eda59cd",
+    "harness_sha256": "9bfc9229b7ec7d23580c44f2306edb9274bc1d2a3c2261d01db0445b8b480add"
+  },
+  "checks": {
+    "initial_focused": "169 passed, 16 failed: overbroad no-warning assertions; all outputs retained",
+    "second_focused": "44 passed, 2 failed, 22 deselected: real registered-callback recursion blocker",
+    "callback_confirmation": "2 failed, 65 deselected: same blocker retained",
+    "affected_focused": "288 passed, 2 deselected (known failing registered callback tests)",
+    "mypy": "passed 154 source files",
+    "ruff": "passed",
+    "format": "passed 161 files",
+    "schemas": "passed",
+    "source_manifests": "both frozen seven-input manifests passed",
+    "git_diff_check": "passed",
+    "proposed_callback_patch": "git apply --check passed; not applied",
+    "strict_docs": "passed"
+  },
+  "make_check": "not run while required integration controls fail; full engineering not established",
+  "hosted_gates": "not run or newly authorized",
+  "required_failed_tests": [
+    "test_promisified_registered_barrel_callback[False]",
+    "test_promisified_registered_barrel_callback[True]"
+  ],
+  "followup_proposal": "artifacts/phase23/callback-review-v1/proposal.json",
+  "followup_proposal_sha256": "ae829ab39b2b14d3c9b36b1c65183bfb5e015a64ee039a1f8f8fda3b62226fa7",
+  "bound_files": {
+    "artifacts/phase23/correction-engineering-v1/README.md": "b4f0c02950607f325351e83f88d6c753a02eacf7640f0b4435f5ef0cfecec0d0",
+    "artifacts/phase23/correction-engineering-v1/affected-focused.log": "51614e157603af14f5906dcb5de11e76cf1e552250073a11a59a8448dd84df0b",
+    "artifacts/phase23/correction-engineering-v1/callback-failure.log": "164d6a32cd1b62f10b122c0cd135afd95a0ac972d368e4fb1384c914fd8d4a33",
+    "artifacts/phase23/correction-engineering-v1/format.log": "2c0a2eb94d0401d19014e3b9c3885c0ef8d3131946f919437d2d6b28c6e0b60f",
+    "artifacts/phase23/correction-engineering-v1/implemented.patch": "81f936f9bea781b7ccc383dec3100c0519c8e2031f0bd6aa878849c236dec8e0",
+    "artifacts/phase23/correction-engineering-v1/initial-focused.log": "5170bd9bd85c5f7325d362b32805e7fb8ec7f7793b5e62f27948f1f2aae6a5ff",
+    "artifacts/phase23/correction-engineering-v1/initial-mypy.log": "467364859149a6d51b16354d7d71beef180cec376644e32fbdc65429522ad603",
+    "artifacts/phase23/correction-engineering-v1/initial-ruff.log": "bcdcc9c6ba658a169100f14c89e4a4f1f25ba46bee80ce860d62648c11d7b2d9",
+    "artifacts/phase23/correction-engineering-v1/mypy.log": "467364859149a6d51b16354d7d71beef180cec376644e32fbdc65429522ad603",
+    "artifacts/phase23/correction-engineering-v1/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "artifacts/phase23/correction-engineering-v1/schema.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/phase23/correction-engineering-v1/second-focused.log": "2d81175345320233d68d73e2da60d332da0270354200604230401f1e1e66f581",
+    "artifacts/phase23/correction-engineering-v1/docs.log": "bec1e15b9ef41bb0f9b317a9b424bab081ea50a1754d52c97e03592a52788b3d"
+  },
+  "candidate_corpus_observations": 0,
+  "paid_calls": 0,
+  "advisory_target_executions": 0,
+  "full_engineering_passed": false
+}

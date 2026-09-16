@@ -1,5 +1,433 @@
 # AGENTS.md
 
+## Current Phase 23: technical result accepted; release review pending
+
+The user explicitly accepted `artifacts/phase23/technical-review-v1/proposal.json`
+SHA-256 `d153cc83576e21ee22ce1fead0d3c123128dc623cd53b55d90d04fd65fb6bfd9`,
+including the current FAF limitation. The immutable receipt is
+`artifacts/phase23/technical-acceptance-v1/receipt.json`. All 60 bound evidence
+files were verified before acceptance was recorded. Prior proposal/raw results
+remain unchanged; actual user message time is unknown and remains null.
+
+The accepted result retains 106 non-FAF reports /53 equal pairs, the reviewed
+advisory gate, full local/hosted engineering and actual regression-rejection proof.
+FAF's 1,800.011759-second timeout remains failed: no report, five unstarted closed,
+zero remaining. Current FAF detection/support/repeat compatibility is explicitly
+accepted as unestablished; recovery/optimization remain deferred. All historical
+failures, unrelated findings and Phase22 accepted limitations remain visible.
+
+The user selected release version **1.4.0**. Its exact ten-file version patch
+and dated changelog are applied; see
+`artifacts/phase23/release-review-v2/version-receipt.json`. Release contents and
+required push/merge/tag/publication/Action alias steps still need exact review. No release action is authorized by technical
+acceptance. Phase23 remains incomplete pending verified reviewed publication and
+explicit final acceptance. Phase21 and Phase24/15 remain unchanged. Zero new
+paid calls or advisory-target executions.
+
+## Historical Phase 23: 53 historical pairs passed; FAF timeout and technical review pending
+
+The approved remaining sequence completed **83 new observations**, retaining **23
+completed first reports**, for **106 non-FAF reports / 53 equal entire ordered
+pairs**. All 742 findings and 1,856 surfaces equal historical references. All
+91,458 warnings and 49,314 unresolved-flow occurrences are retained; every changed
+diagnostic and narrow support judgment is source-assessed. All reports validate
+as native JSON/canonical SARIF. No unrelated finding is silently promoted.
+
+The next FAF vulnerable input **timed out after 1,800.011759 seconds**, with no
+report. Cleanup passed within its 15-second allowance. **One incomplete, five
+unstarted closed, zero remaining**; current FAF detection, support and repeat
+compatibility remain unestablished. The full historical gate did not pass. No
+retry, profile, correction, optimization or deadline extension occurred. Original
+FAF failures and uncapped results retain their actual source/limit identities.
+
+`artifacts/phase23/technical-review-v1/` proposes explicit technical acceptance
+with that current FAF limitation, all source judgments and retained failures.
+It is unapproved. Existing all30 hosted CI jobs/docs and12 native suites, the
+14-observation advisory gate,14 first-advisory compatibility observations and
+one actual deliberate-regression rejection remain verified at unchanged scanner
+source. All earlier failed hosted/local attempts remain failed.
+
+The complete accepted-main release inventory is prepared; Unreleased notes name
+SENT-012–016 and correct the stale Phase19 pending-acceptance sentence. Version,
+release contents/actions and publication remain separately unapproved. PR40 stays
+draft; this continuation adds local evidence and documentation only. Phase23
+remains incomplete pending technical acceptance and verified reviewed release.
+Phase22 accepted closeout, Proxmox/FAF recovery, pilots/benchmarks and Phase24/15
+remain unchanged. Zero paid calls or advisory-target execution.
+
+## Historical Phase 23: historical metadata failure retained; 89-observation review pending
+
+The separately approved historical attempt completed **23 evaluations**, then
+stopped on calculator scoring metadata: **one incomplete evaluation with a complete
+native report, 88 unstarted closed, zero remaining, no repeated pairs yet**.
+All24 native JSON/canonical SARIF reports validate and cleanup passed. All139 ordered
+findings and550 registration surfaces equal their frozen references. There are
+235 added unresolved-binding warnings and six removed SDK warning/flow occurrences,
+all retained with source contexts; no broad support or fresh accuracy is inferred.
+
+Five calculator records used old v21 candidate identities with newer v75 reports.
+The exact accepted v75 source assessment already includes the two unrelated added
+findings. The proposed correction copies those five assessment maps unchanged;
+labels and matching keys stay intact. All39 scored reference records now validate.
+The next exact packet proposes **89 new observations**, retaining the23 completed
+first reports as hash-bound repeat references, to finish56 pairs across56 inputs.
+The failed calculator evaluation stays failed and its input is scanned again first.
+FAF remains last under normal1800-second limits. No automatic retry.
+
+Evidence: `artifacts/phase23/compatibility-metadata-review-v1/`,
+`compatibility-partial-assessment-v1/` and `compatibility-v2/`.
+The replacement is unapproved/unexecuted. No detector, public report, dependency or
+resource-limit change. Existing all30 hosted CI jobs/docs,12 native suites,
+14 first-advisory compatibility observations and one deliberate rejection proof
+remain passed at unchanged scanner source. Both hosted failures and the earlier
+sandbox launch failure stay retained. Historical completion, human technical
+acceptance and reviewed versioned publication remain pending. Phase22 accepted
+closeout and all deferrals remain unchanged. Zero paid calls or target execution.
+
+## Historical Phase 23: hosted gates and rejection proof passed; historical launch review pending
+
+Approved draft revision `4bc28d0` passed **all30 normal CI jobs and documentation**
+in runs **35026207558 /35026207535**. All eight Linux/macOS suites passed
+**2,766 tests /36 skips**; all four native Windows suites passed **2,744 /58**.
+Seven network-isolated reports equal the reviewed references: three vulnerable
+detections and four supported negatives. Both earlier failed hosted attempts remain
+failed. Packages match all134 scanner files and20 bundled wheel files.
+
+The original advisory compatibility check passed **14 observations /7 equal pairs**:
+six vulnerable detections /eight supported negatives, unchanged22 findings and
+coverage. All68 added unresolved-warning occurrences are retained and source-assessed.
+The one deliberate regression completed and failed the actual CI source-match
+assertion after reversing only the approved promisify block; cleanup passed.
+
+The historical112-observation launcher then failed **before any observation** when
+the restricted sandbox rejected its read-only `sysctl` hardware query. Cleanup
+passed; all112 slots are closed unstarted. No automatic retry. A separate exact
+replacement packet preserves this failure and uses the existing supervisor outside
+the sandbox, with new approval/output paths and unchanged source, order and limits.
+Evidence: `artifacts/phase23/compatibility-recovery-review-v1/`,
+`hosted-verification-v3/`, `compatibility-advisory-assessment-v1/` and
+`regression-rejection-v1/`. No detector correction or new hosted run is proposed.
+
+Historical compatibility, final human technical acceptance and reviewed versioned
+publication remain pending. Phase22 accepted closeout, Proxmox/FAF optimization,
+pilots/benchmarks and Phase24/15 remain unchanged. Zero paid calls or target execution.
+
+## Historical Phase 23: offline CI verified; Windows correction review pending
+
+Approved draft PR #40 revision `f42df80` completed its second hosted attempt:
+**26 CI jobs passed / four failed / four optional skips**, and docs passed.
+All eight Linux/macOS quality suites passed **2,765 tests /36 skips**. The four
+Windows suites stopped at **24 POSIX-API type errors**, before tests. The seven
+isolated advisory reports were retained, schema/SARIF validated and equal to the
+reviewed complete references: **three vulnerable detections /four supported
+negatives**, 31 findings /4,377 warnings, 91.592541 seconds. Hosted wheel/sdist
+match all 134 scanner files. Original lint/upload failures and missing reports stay
+failed/unavailable. All127 local observations remain unstarted; no automatic retry.
+
+Five explicit Windows guards now reject unsupported supervision before effects;
+portable validators remain available. A new boundary test covers all five paths.
+The POSIX helper AST is unchanged after removing only those guards. A separate
+forced-CRLF check exposed frozen-byte conversion; one Git attribute now preserves
+all 56 corpus files exactly. No detector, public report contract, dependency,
+comparison condition or resource limit changed. Original packets remain; separate
+revised filenames bind the new helper/test bytes and prevent stale approval reuse.
+
+Local full `make check` passes **2,766 tests /36 skips**, **90.52% combined /
+86.58% branch coverage**. Windows-targeted mypy passes all 154 configured files;
+49 focused checks pass. Native Windows verification needs a new approved hosted
+attempt. Evidence: `artifacts/phase23/windows-review-v1/` and
+`artifacts/phase23/hosted-verification-v2/`. Final technical acceptance and release
+remain pending. Phase22 acceptance and all deferrals stay unchanged. Zero paid
+calls or advisory-target executions.
+
+## Historical Phase 23: draft delivered; hosted failure retained; correction review pending
+
+Draft PR #40 delivered approved `f015c005` at the exact reviewed merge tree.
+Original CI `35019572654` completed with **17 passed / 13 failed / four optional
+skips**; documentation `35019572664` passed. All 12 quality jobs stopped on the
+same **89 lint errors in four review-packet scripts**, before tests. The new
+seven-input isolated scan step succeeded, but its root-owned mode-0600 evidence
+could not be uploaded. **No raw Phase23 reports survived that upload**, so it
+cannot establish verified hosted regression evidence. All 127 local observations
+remain unstarted under the approved failure-stop policy. No retry occurred.
+
+The local correction formats those four scripts, removes three unused imports,
+fixes the historical launch receipt count from 111 to 112, and restores output
+ownership before upload. Original script bytes and proposal JSON remain retained;
+separate revised binding/approval filenames prevent stale approval reuse.
+Repository-wide lint/format checks, 48 helper tests, both missing-approval
+boundaries and 56 historical source/configuration checks pass. Detector, bounded
+helper, source corpora, reference comparisons and runtime limits are unchanged.
+Evidence: `artifacts/phase23/hosted-failure-review-v1/` and
+`artifacts/phase23/hosted-verification-v1/`. New hosted execution requires review.
+
+Earlier local **2,765 tests / 36 skips** and its final test-portability qualification
+remain historical evidence; no new full platform test pass is claimed. Final
+technical acceptance and versioned publication remain pending. Phase22 accepted
+closeout and all deferrals remain unchanged; zero paid calls or target execution.
+
+## Historical Phase 23: reviewed advisory gate passed; CI engineering and compatibility pending
+
+The approved metadata candidate completed **14 observations / seven equal entire
+ordered pairs** in **188.804086 seconds**, with verified cleanup and zero remaining
+budget. The user approved the narrow source judgments: **six vulnerable detections
+and eight supported negatives**, including both complete upstream sources.
+All **62 findings, 8,754 warnings, 3,940 unresolved-flow occurrences and 50 surfaces**
+remain visible. The 56 unrelated findings retain `needs_review` and unestablished
+exploitability. Earlier failed baselines/candidates remain failed and unchanged.
+Evidence: `artifacts/phase23/candidate-assessment-v2/` and its review receipt.
+
+The exact complete CI references and version comparison rule are approved in
+`artifacts/phase23/ci-reference-approval.json`. The bounded helper and a single
+Linux network-isolated job are implemented; release CI reuses that job. All 48
+focused helper checks pass. Full local `make check` passed: **2,765 tests / 36
+skips**, **90.52% combined / 86.58% branch coverage**. A final portability-only
+test adjustment separately passed all 48 helper tests. Local wheel/sdist builds
+match all 134 scanner files. Hosted CI has not run. Detector source
+remains `2fa09818900817337863f90c41b71ab6d9e27458f11b8b1d80e1b882682c051d`.
+
+Separate proposals prepare 14 first-advisory compatibility observations,
+112 historical TypeScript observations and one deliberate-regression observation;
+none is approved or executed. All 56 historical source/configuration bindings
+verify. Synthetic rejection/cleanup checks use retained reports, not new scans.
+FAF remains last under normal 1,800-second limits; its accepted historical
+uncapped completion is not a normal-deadline pass. Final technical acceptance,
+hosted verification and approved verified publication remain. Phase22 accepted
+closeout, Proxmox/FAF optimization and pilot/benchmark deferrals, and Phase24/15
+remain unchanged. Zero new paid calls or advisory-target executions.
+
+## Historical Phase 23 metadata correction: local engineering passed; execution approval pending
+
+The user approved `artifacts/phase23/metadata-review-v1/proposal.json`.
+Bounded Zod describe/extend/shape support is implemented at source
+`2fa09818900817337863f90c41b71ab6d9e27458f11b8b1d80e1b882682c051d`.
+Original field symbols feed TypeScript coverage and description analysis through
+one optional private binding field; public Finding/report interfaces are unchanged.
+Metadata proof is rechecked after registration functions complete, retaining
+later mutation and escape rejection. All **410 affected tests pass**, including
+51 new metadata checks. Full local **`make check` passed in one uninterrupted
+run: 2,748 passed / 36 skipped**, with loopback permission. Lint, format, typing,
+schemas, dependency audit, notices and strict docs pass. Coverage is **90.52%
+combined / 86.58% branch-only**. Original failed attempts remain. Hosted gates
+are not yet established for this candidate.
+
+No new advisory scan, profile, retry, target execution or paid call occurred.
+The earlier 14-observation candidate remains failed on both full-source inputs;
+its derived support judgments and unrelated SENT-014 findings await human review.
+Historical compatibility, durable offline CI/rejection proof, technical acceptance
+and verified approved release remain. Phase22 accepted closeout, Proxmox/FAF
+optimization and pilot/benchmark deferrals, and Phase24/15 remain unchanged.
+Current evidence: `artifacts/phase23/metadata-engineering-v1/`. The next exact
+14-observation packet is prepared in `artifacts/phase23/candidate-execution-review-v2/`,
+unapproved/unexecuted, proposal SHA-256
+`e6b22fa31f77330975a5bee3c80a9f4deca4d5f0db102564c9f26c0c6128a7d7`.
+Normal 1,800/10/15-second limits, four-worker maximum and 440-minute outer cap
+plus cleanup remain unchanged. This local pass does not establish advisory support.
+
+## Historical Phase 23 candidate: partial recovery, full-source gate failed
+
+The approved corrected candidate at source
+`2f7aea302270efe6f99e676835219629872e60beac2bfe2190dc7c33a64b7e21`
+completed **14 observations / seven equal entire ordered pairs**, cleanup verified,
+in **151.922077 seconds**. The budget is closed. Minimized/renamed vulnerable
+inputs yield four matching SENT-002 findings; six derived negative observations
+have source-assessed narrow shell support. **Both full vulnerable reads are missed;
+both full fixed observations are unsupported. The overall case gate fails.**
+
+Full-source registration rejects `GitInitInputSchema.extend({...}).shape` as
+ambiguous legacy metadata. All **18 findings, 4,994 warnings, 824 unresolved-flow
+occurrences and 10 surfaces**, and complete baseline differences are retained.
+Four new SENT-014 findings have unestablished exploitability and await disposition;
+ten SENT-003 findings remain. Per-file helper warnings stay visible; supported
+derived negatives rely on the separately proved shared path. These source
+judgments are not human acceptance. Evidence: `artifacts/phase23/candidate-assessment-v1/`.
+
+`artifacts/phase23/metadata-review-v1/` proposes bounded Zod describe/extend/shape
+support and legacy metadata disambiguation, synthetic controls and local checks.
+It is **unapproved/unimplemented**, proposal SHA-256
+`2deee79010b2ccdabf73ce510dc1e7ae4f567219ac3f79ea1d465e9f17bced9c`.
+No new retry, profile, target execution, paid call or detector change occurred.
+Local engineering retains 2,697 passing outcomes across retained runs / 36 skips;
+no new full suite or hosted pass is claimed. Phase23 remains incomplete;
+historical compatibility, offline CI rejection proof, technical acceptance and
+verified approved release remain. Phase22 accepted closeout, Proxmox/FAF
+optimization and pilot/benchmark deferrals, and Phase24/15 are unchanged.
+
+## Historical Phase 23 local verification: complete across retained runs; candidate approval pending
+
+The user explicitly approved the dependency audit payload and PyPI destination.
+The audit passed: **82 pinned dependencies, no known vulnerabilities**. All local
+`make check` components now have passing evidence across the retained runs:
+**2,697 passing test outcomes / 36 skips**, including four separately rerun
+loopback tests. The original full attempt remains failed; no single uninterrupted
+suite pass or hosted pass is claimed. Source and both frozen manifests are unchanged.
+Evidence: `artifacts/phase23/callback-engineering-v1/local-completion.json`.
+
+The corrected-candidate execution packet at
+`artifacts/phase23/candidate-execution-review-v1/` remains unapproved/unexecuted:
+14 observations, normal 1,800/10/15-second limits, maximum four workers and
+440-minute outer cap plus cleanup. Its proposal SHA-256 is
+`3975a06ec6fec3d7dc66a6e84b9de9342c842ff0f1befabbc892681be680710b`.
+No new corpus scan, target execution, paid call or publication occurred.
+Historical compatibility, hosted engineering, offline CI rejection proof,
+technical acceptance and approved release remain. Phase22 accepted closeout,
+Proxmox/FAF optimization and pilot/benchmark deferrals, and Phase24/15 are unchanged.
+
+## Historical Phase 23 callback correction: tests passed; dependency audit permission pending
+
+The approved MCP callback-boundary patch is implemented. Both retained integration
+failures now pass; seven boundary controls and all 297 focused checks pass. The
+updated bounded helper passes 31 checks, with exact baseline versions archived.
+The actual scanner source tree is
+`2f7aea302270efe6f99e676835219629872e60beac2bfe2190dc7c33a64b7e21`.
+
+The full `make check` attempt remains **failed: 2,693 passed / 36 skipped / four
+loopback bind PermissionErrors**. Exactly those four tests then passed with
+loopback permission and unchanged code. All **2,697 tests have passing outcomes
+across the two runs**, not a single uninterrupted suite pass. Combined coverage
+**90.41%**, branch-only **86.39%**. Lint, formatting, typing, schemas, notices and
+strict docs pass. Original failed logs and coverage remain preserved.
+
+**The dependency audit is unexecuted and requires explicit permission.** Automatic
+approval review rejected transmission of dependency/version metadata without
+specific payload/destination approval. `artifacts/phase23/dependency-audit-review-v1/`
+contains the exact 84-record export (82 active here), PyPI GET URLs and command.
+The full local gate and all hosted gates remain incomplete.
+
+The exact corrected-candidate 14-observation packet is prepared at
+`artifacts/phase23/candidate-execution-review-v1/`, unapproved/unexecuted, with
+unchanged 1,800/10/15-second limits, four workers and 440-minute outer cap plus
+cleanup. No new corpus observation, paid call, advisory-target execution or
+publication. Both baselines, Phase22 accepted limitations and all deferrals remain.
+Phase23 is incomplete; Proxmox/FAF optimization, pilots/benchmarks and Phase24/15
+stay unchanged. Current evidence: `artifacts/phase23/callback-engineering-v1/`.
+
+## Historical Phase 23 callback correction: approved and implemented; engineering running
+
+The user approved `artifacts/phase23/callback-review-v1/proposal.json`; the exact
+MCP handler invocation-stack patch is implemented. Both previously failing
+synthetic integration cases now pass. Seven new controls preserve real recursion,
+the 64-frame total nesting bound, and original-stack restoration on exceptions
+and deadlines. All **297 affected focused tests pass without exclusions**.
+The bounded helper now labels corrected-candidate runs; **31 helper checks pass**,
+and its exact executed baseline-v2 version is archived with that proposal.
+
+The full `make check` is running; no full local or hosted pass is claimed yet.
+`artifacts/phase23/candidate-execution-review-v1/README.md` prepares the exact
+**unapproved, unexecuted 14-observation corrected-candidate packet**, normal
+1,800/10/15-second limits, four-worker maximum and 440-minute outer cap plus
+cleanup. No new corpus scan, target execution, paid call or publication occurred.
+Original baselines, failures and limitations remain. Phase23 is incomplete;
+Phase22 accepted closeout, Proxmox/FAF optimization and pilot/benchmark deferrals,
+and Phase24/15 gates remain unchanged.
+
+## Historical Phase 23 correction: implemented; callback boundary review pending
+
+The approved bounded export-star and promisify(exec/execFile) corrections are
+implemented in shared TypeScript analysis. **Full engineering is not passed.**
+The required synthetic registered-wrapper check fails for vulnerable and fixed
+variants: discovery recognizes the tool, then the handler's reuse of its wrapper
+is rejected because the registration wrapper remains on the active recursion stack.
+The two failing tests remain active; no failure is converted into a pass.
+
+The affected focused subset passes **288 tests / 2 deselected known failures**;
+configured typing (154 files), Ruff, formatting (161 files) and schemas pass.
+The earlier 16 overly broad no-warning assertion failures and lint failures remain
+recorded. No make-check or hosted pass is claimed for this candidate. Evidence:
+`artifacts/phase23/correction-engineering-v1/`. Both frozen source manifests pass.
+
+`artifacts/phase23/callback-review-v1/README.md` contains an **unapproved, unapplied**
+exact patch for a separate MCP handler recursion stack with restoration and a
+64-frame total nesting bound. The approved correction requires explicit review
+before additional callback semantics. No further production change is authorized.
+
+No new corpus observation, target execution, paid call, retry or publication.
+The original and replacement baselines retain their 14 observations each and
+actual passing/failed source assessments. The later proposed 140-observation
+compatibility scope remains unapproved; FAF's accepted uncapped-only result and
+normal 1,800-second limitation remain. Phase23 is incomplete; Phase22 accepted
+closeout, Proxmox/pilot/benchmark deferrals and Phase24/15 gates remain unchanged.
+
+## Historical Phase 23 replacement baseline: failed; correction review pending
+
+The separately approved GHSA-3q26-f695-pp76 baseline completed **14 observations /
+seven equal entire ordered pairs**, verified cleanup and zero remaining budget.
+All three vulnerable inputs were missed twice; all four fixed/safe inputs have
+unestablished analysis support. Full-source reports recognize no tool surfaces.
+All **10 findings, 4,690 warnings, 276 coverage unresolved-flow occurrences and
+10 surfaces** are retained and indexed in `artifacts/phase23/baseline-assessment-v2/`.
+Actual stage time **146.037580 seconds**, longest input **26.223858 seconds**.
+No timeout, retry, target execution or paid call occurred.
+
+`artifacts/phase23/correction-review-v1/README.md` presents the **unapproved,
+unimplemented** bounded correction: local export-star resolution and proved
+Node promisify(exec/execFile) identity through existing shared TypeScript flow.
+The exact affected list contains 56 historical TypeScript inputs plus the first
+Phase23 case; later candidate/compatibility execution needs its own packet.
+FAF remains potentially affected and retains its accepted uncapped-only result;
+no normal-deadline compatibility, optimization or uncapped retry is established.
+
+No production code changed. Source/hash/output-accounting and documentation
+verification are separate from engineering; no new full-suite/hosted pass is
+claimed. The first advisory's passing assessment and 14 observations remain
+unchanged. Human result review, correction approval/engineering, current-candidate
+regression, offline CI rejection proof and reviewed release remain. Phase 23 is
+incomplete; all Phase 22 accepted limitations, Proxmox/pilot/benchmark deferrals
+and Phase24/15 gates remain. No scan, merge, tag or publication is newly authorized.
+
+## Historical Phase 23 baseline: replacement frozen; execution approval pending
+
+The user approved the intake/maintenance wording, exact seven-input source freeze
+and one-use 14-observation baseline packet. Approval receipts and immutable
+proposals remain in `artifacts/phase23/`. The baseline completed all 14 observations
+with seven equal entire ordered pairs, verified cleanup and zero remaining budget.
+The source assessment is `artifacts/phase23/baseline-assessment-v1/README.md`.
+
+All three vulnerable inputs produce source-matched SENT-002 findings on both
+passes. All four negatives have supported absence for the bounded shell sink:
+fixed argv execution and a safe literal command. Validator/schema uncertainties,
+other findings and unsupported surfaces remain explicit; this does not establish
+broader safety. All 22 findings, 1,908 warnings, 748 coverage unresolved-flow
+occurrences and 42 surfaces are retained and assessed. Actual stage time was
+88.467303 seconds under the approved normal limits and 440-minute outer cap.
+
+The existing detector already meets this case gate by source assessment. Per the
+plan, no detector correction is manufactured. Human review of this result remains
+pending. The user authorized replacement research and approved its exact source
+freeze, recorded below. Phase 23 remains incomplete; no fix,
+current-candidate CI regression, deliberate regression rejection or release is
+claimed. No new full-suite/hosted pass is claimed for this evidence-only stage.
+The earlier preparation gate remains 2,603 tests / 36 skips and the later runner
+extension's 16 focused checks, full typing, Ruff and formatting remain passed.
+
+BashaarJavaid owns maintenance, labels, changes, publication approval and final
+technical acceptance. Zero new paid calls, target executions or retries. Phase 22
+accepted closeout and historical limitations remain unchanged. Proxmox recovery,
+FAF optimization, paid benchmarks and pilots remain deferred; Phase 21 incomplete,
+Phase 24/15 unchanged. No replacement scan, merge, tag, release version or
+publication is authorized. Historical sections retain their original context.
+
+The recommended replacement is GHSA-3q26-f695-pp76 in
+`cyanheads/git-mcp-server`, bounded to `git_init.initialBranch` shell injection.
+`artifacts/phase23/candidate-review-v2/README.md` presents the exact seven-input
+source-freeze checkpoint, manifest SHA-256
+`8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c`.
+Both full upstream revisions and all 244 Git blobs are verified; five derived
+inputs preserve Apache-2.0 license/README bytes and modification notices.
+The wrapper-identity gap is a source hypothesis, not a measured miss. Source
+exposure in historical screening is disclosed. No new scan or detector change
+occurred. The user accepted the replacement source freeze; its separate receipt
+preserves the unchanged proposed manifest.
+
+`artifacts/phase23/baseline-review-v2/README.md` is the unapproved execution
+checkpoint: 14 observations, normal 1,800-second input / 10-second Semgrep /
+15-second cleanup, four-worker maximum and 440-minute outer cap plus cleanup.
+The helper now selects and verifies the two explicit case/receipt pairs; original
+executed helper/tests are archived. All 23 focused checks, full configured mypy,
+Ruff and formatting pass. One initial typing import failure is preserved.
+No current full-suite/hosted pass is claimed. Replacement scanning remains
+unapproved and unexecuted; the first baseline's 14 observations remain unchanged.
+
 ## Current v93 accepted Phase 22 closeout
 
 **Phase 22 is technically complete under the explicitly accepted revised scope.**

@@ -99,7 +99,9 @@ regenerated for a documentation-only change.
 
 ## Ordered attempts and workspaces (native 1.7.0)
 
-This is the Phase 22 integration contract, with final verification pending.
+This is the accepted Phase 22 integration contract under the revised scope.
+The [accepted implementation status](phase22-implementation-status.md) retains
+its verification evidence and limitations.
 Planned bindings, baseline/attack snapshots and outcomes join by unique attempt
 ID; a campaign discovery snapshot has no attempt ID. IDs use probe, tool,
 argument path and mutation, independent of schema fingerprints and timings.

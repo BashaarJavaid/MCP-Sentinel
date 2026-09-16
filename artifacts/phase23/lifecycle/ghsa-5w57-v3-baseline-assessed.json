@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "case_id": "GHSA-5w57-2ccq-8w95",
+  "status": "baseline_gate_passed_source_assessment_pending_human_review_and_replacement",
+  "owner": "BashaarJavaid",
+  "advisory": {
+    "url": "https://github.com/alfonsograziano/node-code-sandbox-mcp/security/advisories/GHSA-5w57-2ccq-8w95",
+    "published_at_utc": "2025-07-08T06:35:04Z",
+    "publication_evidence": [
+      "artifacts/phase23/source-review-v1/provenance/advisory.json"
+    ]
+  },
+  "intake": {
+    "received_at_utc": null,
+    "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+    "evidence": [
+      "Conversation: user supplied the Phase 23 implementation plan naming this advisory; exact message receipt time is unavailable."
+    ],
+    "channel": "public_advisory",
+    "scope": "sandbox_stop.container_id shell injection; source-only; one advisory",
+    "proposed_revisions": {
+      "vulnerable_1.2.0": "7fd7fb88be2cb2a03702915d05d03bdf6bc8ac80",
+      "fixed_1.3.0": "19a1ff3386c5bc00eb1f2052a4fa8f8379bb8fea"
+    }
+  },
+  "source_rights": {
+    "status": "source_incorporation_approved_with_retained_mit_text",
+    "license": "MIT permission text in each upstream README",
+    "consent": null,
+    "evidence": [
+      "artifacts/phase23/source-review-v1/source/vulnerable/README.md",
+      "artifacts/phase23/source-review-v1/source/fixed/README.md",
+      "artifacts/phase23/source-freeze.json"
+    ],
+    "reviewed_by": "BashaarJavaid",
+    "reviewed_at_utc": null
+  },
+  "reporter_expectation": {
+    "rule_id": "SENT-002",
+    "condition": "container_id reaches a shell-interpreted command",
+    "expected_behavior": "source-matched finding on vulnerable inputs; supported absence on paired negatives",
+    "evidence": []
+  },
+  "reviewed_labels": [
+    {
+      "input_id": "full-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "full-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "minimized-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "minimized-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "safe-literal",
+      "label": "safe",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "renamed-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "input_id": "renamed-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    }
+  ],
+  "identities": {
+    "corpus_version": "phase23-ghsa-5w57-v1-proposed",
+    "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+    "source_inventory_sha256": null,
+    "scanner_revision": null,
+    "scanner_tree_sha256": null,
+    "rule_tree_sha256": null,
+    "helper_sha256": "9bec84f63bf5a5a6fe2a49421eab3c71db561a87a2c5bd52cf679eae76f51778",
+    "configuration_sha256": null
+  },
+  "milestones": [
+    {
+      "event": "triage",
+      "occurred_at_utc": "2026-09-15T15:14:30.644861Z",
+      "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+      "actor": "Codex",
+      "status": "completed_source_only",
+      "evidence": [
+        "artifacts/phase23/source-review-v1/README.md",
+        "tests/evals/phase23/manifest.json"
+      ],
+      "identities": {
+        "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e"
+      }
+    },
+    {
+      "event": "source_reproduction_prepared",
+      "occurred_at_utc": "2026-09-15T15:14:30.644861Z",
+      "recorded_at_utc": "2026-09-15T15:14:30.644861Z",
+      "actor": "Codex",
+      "status": "completed_source_only",
+      "evidence": [
+        "artifacts/phase23/source-review-v1/README.md",
+        "tests/evals/phase23/manifest.json"
+      ],
+      "identities": {
+        "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e"
+      }
+    },
+    {
+      "event": "source_freeze_approved",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T15:20:35.306102Z",
+      "actor": "BashaarJavaid",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ],
+      "identities": {
+        "manifest_sha256": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e"
+      }
+    },
+    {
+      "event": "baseline_execution_packet_prepared",
+      "occurred_at_utc": "2026-09-15T15:50:59.618837Z",
+      "recorded_at_utc": "2026-09-15T15:50:59.618837Z",
+      "actor": "Codex",
+      "status": "pending_execution_approval",
+      "evidence": [
+        "artifacts/phase23/baseline-review-v1/README.md",
+        "artifacts/phase23/baseline-review-v1/proposal.json"
+      ],
+      "identities": {
+        "proposal_sha256": "8612c2e645e08b78a9cf6ab0cc5b4a6314c0c0702b722ffbd7f3b0dace74a83b"
+      }
+    },
+    {
+      "event": "baseline_execution_approved",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T15:52:00.443625Z",
+      "actor": "BashaarJavaid",
+      "status": "approved",
+      "evidence": [
+        "artifacts/phase23/baseline-authorization.json"
+      ],
+      "identities": {
+        "proposal_sha256": "8612c2e645e08b78a9cf6ab0cc5b4a6314c0c0702b722ffbd7f3b0dace74a83b"
+      }
+    },
+    {
+      "event": "baseline_execution_completed",
+      "occurred_at_utc": "2026-09-15T15:53:29.948347Z",
+      "recorded_at_utc": "2026-09-15T15:58:19.213088Z",
+      "actor": "Codex",
+      "status": "completed",
+      "evidence": [
+        "artifacts/phase23/baseline-v1/results.json"
+      ],
+      "identities": {
+        "results_sha256": "8fdb9439e545286e1d0786b567e35c7be96ef409343cc97b821cec430b620806"
+      }
+    },
+    {
+      "event": "baseline_source_assessment_completed",
+      "occurred_at_utc": "2026-09-15T15:58:19.213088Z",
+      "recorded_at_utc": "2026-09-15T15:58:19.213088Z",
+      "actor": "Codex",
+      "status": "case_gate_passed_pending_human_review",
+      "evidence": [
+        "artifacts/phase23/baseline-assessment-v1/README.md",
+        "artifacts/phase23/baseline-assessment-v1/summary.json"
+      ],
+      "identities": {
+        "summary_sha256": "dcb29485d9db63436bb5f19c7e281d12c921000d5959e85a6cd19cc16267728c"
+      }
+    }
+  ],
+  "waiting_intervals": [
+    {
+      "reason": "Checkpoint 1 wording review (approved); message delivery and approval timestamps are unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/intake-adoption.json"
+      ]
+    },
+    {
+      "reason": "Checkpoint 2 source freeze approved; actual message delivery and approval times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/source-freeze.json"
+      ]
+    },
+    {
+      "reason": "Checkpoint 3 baseline execution approved; actual message delivery/approval timestamps unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/baseline-authorization.json"
+      ]
+    },
+    {
+      "reason": "Baseline source assessment review and replacement advisory decision pending.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/baseline-assessment-v1/README.md"
+      ]
+    }
+  ],
+  "elapsed_seconds": {
+    "advisory_to_intake": null,
+    "intake_to_triage": null,
+    "intake_to_reproduction": null,
+    "intake_to_fix_verification": null,
+    "intake_to_human_review": null,
+    "intake_to_publication": null
+  },
+  "evaluations": [
+    {
+      "stage": "baseline",
+      "started_at_utc": "2026-09-15T15:52:01.481044Z",
+      "completed_at_utc": "2026-09-15T15:53:29.948347Z",
+      "elapsed_seconds": 88.467303,
+      "observations": 14,
+      "equal_ordered_pairs": 7,
+      "gate": "passed_by_source_assessment",
+      "human_review": "pending",
+      "evidence": [
+        "artifacts/phase23/baseline-v1/results.json",
+        "artifacts/phase23/baseline-assessment-v1/summary.json"
+      ]
+    }
+  ],
+  "release": {
+    "version": null,
+    "reviewed_contents": null,
+    "revision": null,
+    "package_hashes": null,
+    "package_pins": null,
+    "action_exact_pin": null,
+    "action_alias": null,
+    "approvals": null,
+    "workflow": null,
+    "assets": null,
+    "provenance": null,
+    "rollback": null,
+    "released_regression_evidence": null
+  },
+  "recorded_at_utc": "2026-09-15T15:58:19.213088Z",
+  "previous_record": {
+    "path": "artifacts/phase23/lifecycle/ghsa-5w57-v2-source-frozen.json",
+    "sha256": "9616d8ad61a46492c1f88869e9f5f9389a706b8664e3b7b42aa53cf805fa3a76"
+  },
+  "identity_scope_note": "Original identity fields retain source-preparation bindings. Baseline summary binds the actual unchanged scanner and its completed observations."
+}

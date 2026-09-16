@@ -1,0 +1,827 @@
+{
+  "schema_version": 1,
+  "case_id": "GHSA-3q26-f695-pp76",
+  "status": "historical_compatibility_stopped_on_stale_scoring_identity_replacement_review_pending",
+  "owner": "BashaarJavaid",
+  "advisory": {
+    "url": "https://github.com/cyanheads/git-mcp-server/security/advisories/GHSA-3q26-f695-pp76",
+    "published_at_utc": "2025-06-29T11:39:32Z",
+    "publication_evidence": [
+      "artifacts/phase23/candidate-review-v2/provenance/cyanheads-advisory.json"
+    ]
+  },
+  "intake": {
+    "received_at_utc": null,
+    "recorded_at_utc": "2026-09-15T16:50:46.574768Z",
+    "channel": "public_advisory_research",
+    "scope": "git_init.initialBranch reaches the local shell via promisify(exec); fixed promisify(execFile) argv handling",
+    "evidence": [
+      "User authorized research and preparation of a replacement candidate; exact message receipt time unavailable.",
+      "artifacts/phase23/candidate-review-v2/README.md"
+    ]
+  },
+  "source_rights": {
+    "status": "applicable_license_retained_source_freeze_accepted",
+    "license": "Apache-2.0",
+    "consent": null,
+    "evidence": [
+      "artifacts/phase23/candidate-review-v2/source/cyanheads-vulnerable/LICENSE",
+      "artifacts/phase23/candidate-review-v2/source/cyanheads-fixed/LICENSE"
+    ],
+    "reviewed_by": "BashaarJavaid",
+    "reviewed_at_utc": null
+  },
+  "reporter_expectation": {
+    "rule_id": "SENT-002",
+    "condition": "git_init.initialBranch reaches the local shell via promisify(exec); fixed promisify(execFile) argv handling",
+    "evidence": [
+      "tests/evals/phase23/candidate-v2/manifest.json"
+    ]
+  },
+  "reviewed_labels": [
+    {
+      "input_id": "full-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "full-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "minimized-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "minimized-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "safe-literal",
+      "label": "safe",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "renamed-vulnerable",
+      "label": "vulnerable",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    },
+    {
+      "input_id": "renamed-fixed",
+      "label": "fixed",
+      "reviewer": "BashaarJavaid",
+      "reviewed_at_utc": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+    }
+  ],
+  "identities": {
+    "corpus_version": "phase23-ghsa-3q26-v1-proposed",
+    "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c",
+    "scanner_revision": "dd9101ddfead19d65b7a84b374e4cf7e85462ff7",
+    "scanner_tree_sha256": "b1f044ed710e9997a9572ad3a28dcce01254dc0134bb638a53334541160a8f77",
+    "rule_tree_sha256": null,
+    "helper_sha256": "99199da846863f12403dc306ac6b8831278732050b6fea2a5f07b24bd6d30d46",
+    "configuration_sha256": null
+  },
+  "milestones": [
+    {
+      "event": "replacement_triage_and_source_reproduction_prepared",
+      "occurred_at_utc": "2026-09-15T16:50:46.574768Z",
+      "recorded_at_utc": "2026-09-15T16:50:46.574768Z",
+      "actor": "Codex",
+      "status": "completed_source_only_pending_human_review",
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/README.md",
+        "artifacts/phase23/candidate-review-v2/verification.json"
+      ],
+      "identities": {
+        "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+      }
+    },
+    {
+      "event": "replacement_source_freeze_approved",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T16:53:11.641192Z",
+      "actor": "BashaarJavaid",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ],
+      "identities": {
+        "manifest_sha256": "8a489a5593bf9397382519beccb1e01b6e5add3a7dfd1fba9b1cf070e5011d5c"
+      }
+    },
+    {
+      "event": "replacement_baseline_packet_prepared",
+      "occurred_at_utc": "2026-09-15T16:56:35.487764Z",
+      "recorded_at_utc": "2026-09-15T16:56:35.487764Z",
+      "actor": "Codex",
+      "status": "pending_execution_approval",
+      "evidence": [
+        "artifacts/phase23/baseline-review-v2/proposal.json"
+      ],
+      "identities": {
+        "proposal_sha256": "d17bd9b0313c50a90fee81caf43f0f60b1eacf2c9ca027e5c526c0d634290465"
+      }
+    },
+    {
+      "event": "replacement_baseline_approved",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T17:19:20.210986Z",
+      "actor": "BashaarJavaid",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/baseline-authorization-v2.json"
+      ],
+      "identities": {
+        "sha256": "eea9874a4a464d97919b88c64049e799430af052a1fcbbdccd32318f1053c2ec"
+      }
+    },
+    {
+      "event": "replacement_baseline_started",
+      "occurred_at_utc": "2026-09-15T17:04:53.298550Z",
+      "recorded_at_utc": "2026-09-15T17:19:20.210986Z",
+      "actor": "Codex",
+      "status": "started",
+      "evidence": [
+        "artifacts/phase23/baseline-v2/results.json"
+      ],
+      "identities": {
+        "sha256": "be436d58a72e335ab6314cc63181cbac56417ce795bcbaee6a902eab44d15a45"
+      }
+    },
+    {
+      "event": "replacement_baseline_completed",
+      "occurred_at_utc": "2026-09-15T17:07:19.336130Z",
+      "recorded_at_utc": "2026-09-15T17:19:20.210986Z",
+      "actor": "Codex",
+      "status": "completed_case_gate_failed",
+      "evidence": [
+        "artifacts/phase23/baseline-v2/results.json"
+      ],
+      "identities": {
+        "sha256": "be436d58a72e335ab6314cc63181cbac56417ce795bcbaee6a902eab44d15a45"
+      }
+    },
+    {
+      "event": "replacement_baseline_source_assessed",
+      "occurred_at_utc": "2026-09-15T17:16:31.161321Z",
+      "recorded_at_utc": "2026-09-15T17:19:20.210986Z",
+      "actor": "Codex",
+      "status": "failed_pending_human_review",
+      "evidence": [
+        "artifacts/phase23/baseline-assessment-v2/summary.json"
+      ],
+      "identities": {
+        "sha256": "5bb58a1c90cc2ca8154a66225e8e1465518df964615f6535f23d92f31eafba45"
+      }
+    },
+    {
+      "event": "bounded_correction_proposed",
+      "occurred_at_utc": "2026-09-15T17:19:20.210986Z",
+      "recorded_at_utc": "2026-09-15T17:19:20.210986Z",
+      "actor": "Codex",
+      "status": "pending_approval",
+      "evidence": [
+        "artifacts/phase23/correction-review-v1/proposal.json"
+      ],
+      "identities": {
+        "sha256": "02fe141702b203a526f09b1b225829ea9f876b8f1376090768b93aa91492d63d"
+      }
+    },
+    {
+      "event": "bounded_correction_approved",
+      "actor": "BashaarJavaid",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T17:40:13.108155+00:00",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/correction-authorization-v1.json"
+      ],
+      "identities": {
+        "sha256": "ff646e074ebd06dd57cd3d0c4e0a256f1c8a7aec9f04f98a80d667266fa3f254"
+      }
+    },
+    {
+      "event": "bounded_correction_implemented",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T17:40:13.108155+00:00",
+      "status": "required_integration_failed",
+      "evidence": [
+        "artifacts/phase23/correction-engineering-v1/summary.json"
+      ],
+      "identities": {
+        "sha256": "bf608b6887a4a6aaeac9bc1d3cecf9398e75f810609d0fedd3919535988f8def"
+      }
+    },
+    {
+      "event": "callback_boundary_proposed",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T17:40:13.108155+00:00",
+      "status": "pending_approval",
+      "evidence": [
+        "artifacts/phase23/callback-review-v1/proposal.json"
+      ],
+      "identities": {
+        "sha256": "ae829ab39b2b14d3c9b36b1c65183bfb5e015a64ee039a1f8f8fda3b62226fa7"
+      }
+    },
+    {
+      "event": "callback_boundary_approved",
+      "actor": "BashaarJavaid",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:16:10.645545+00:00",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/callback-authorization-v1.json"
+      ],
+      "identities": {
+        "sha256": "00fdafa170b7729244fcf9f261eb8cb60955a24d099b823bbf33be754be9d2cb"
+      }
+    },
+    {
+      "event": "callback_boundary_implemented_and_tested",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:16:10.645545+00:00",
+      "status": "local_dependency_gate_pending",
+      "evidence": [
+        "artifacts/phase23/callback-engineering-v1/summary.json"
+      ],
+      "identities": {
+        "sha256": "16bd1110335159e3fcaa4a0bf4e409ca110f97ecfa7bd2ac87a07380cde49243"
+      }
+    },
+    {
+      "event": "dependency_audit_rejected",
+      "actor": "automatic_approval_review",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:16:10.645545+00:00",
+      "status": "explicit_payload_destination_approval_required",
+      "evidence": [
+        "artifacts/phase23/callback-engineering-v1/audit-approval-rejection.json"
+      ],
+      "identities": {
+        "sha256": "9b3b765d5997caad7d7782a335758a980ed3a45afa5763a13a408b3ae5481bae"
+      }
+    },
+    {
+      "event": "dependency_audit_explicitly_approved",
+      "actor": "BashaarJavaid",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:21:01.041615+00:00",
+      "status": "approved",
+      "evidence": [
+        "artifacts/phase23/dependency-audit-authorization-v1.json"
+      ],
+      "identities": {
+        "sha256": "7f86eb233007fca8b60f078f47b13a0aca202e5e1c0e289a3047c6605aeb11a0"
+      }
+    },
+    {
+      "event": "dependency_audit_and_local_components_completed",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:21:01.041615+00:00",
+      "status": "passed_across_retained_runs",
+      "evidence": [
+        "artifacts/phase23/callback-engineering-v1/local-completion.json"
+      ],
+      "identities": {
+        "sha256": "52e98a0f6ec848ac9c47c5dc33427ad7e638ebe629938372e037e33f68e8615e"
+      }
+    },
+    {
+      "event": "corrected_candidate_execution_approved",
+      "actor": "BashaarJavaid",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:32:27.584578+00:00",
+      "status": "accepted",
+      "evidence": [
+        "artifacts/phase23/candidate-authorization-v1.json"
+      ],
+      "identities": {
+        "sha256": "6317c40bcec5461a8e37e3c9f6c0c94f914852cc61b54d2d31463a021fba6103"
+      }
+    },
+    {
+      "event": "corrected_candidate_started",
+      "actor": "Codex",
+      "occurred_at_utc": "2026-09-15T18:23:22.282405Z",
+      "recorded_at_utc": "2026-09-15T18:32:27.584578+00:00",
+      "status": "started",
+      "evidence": [
+        "artifacts/phase23/corrected-candidate-v1/results.json"
+      ],
+      "identities": {
+        "sha256": "64ed04a23c1ee1f7613af0015be2a1375a3d179a60623f93a34e8f927f58c16a"
+      }
+    },
+    {
+      "event": "corrected_candidate_completed",
+      "actor": "Codex",
+      "occurred_at_utc": "2026-09-15T18:25:54.204482Z",
+      "recorded_at_utc": "2026-09-15T18:32:27.584578+00:00",
+      "status": "completed_case_gate_failed",
+      "evidence": [
+        "artifacts/phase23/corrected-candidate-v1/results.json"
+      ],
+      "identities": {
+        "sha256": "64ed04a23c1ee1f7613af0015be2a1375a3d179a60623f93a34e8f927f58c16a"
+      }
+    },
+    {
+      "event": "corrected_candidate_source_assessed",
+      "actor": "Codex",
+      "occurred_at_utc": "2026-09-15T18:28:26.307896+00:00",
+      "recorded_at_utc": "2026-09-15T18:32:27.584578+00:00",
+      "status": "partial_recovery_full_source_failed",
+      "evidence": [
+        "artifacts/phase23/candidate-assessment-v1/summary.json"
+      ],
+      "identities": {
+        "sha256": "d19e3afa21bb1d84766bb8de1a7c783c45a7240a4b79229b67d68ae14334c0e3"
+      }
+    },
+    {
+      "event": "bounded_metadata_correction_proposed",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:32:27.584578+00:00",
+      "status": "pending_approval",
+      "evidence": [
+        "artifacts/phase23/metadata-review-v1/proposal.json"
+      ],
+      "identities": {
+        "sha256": "2deee79010b2ccdabf73ce510dc1e7ae4f567219ac3f79ea1d465e9f17bced9c"
+      }
+    },
+    {
+      "event": "metadata_correction_approved",
+      "actor": "BashaarJavaid",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:56:48.064084+00:00",
+      "status": "approved",
+      "evidence": [
+        "artifacts/phase23/metadata-authorization-v1.json"
+      ],
+      "identities": {
+        "sha256": "a35d5759ecdae36d819c0c552be2d5c481a6d4d28d3cab8f98be62b035420332"
+      }
+    },
+    {
+      "event": "metadata_correction_focused_checks_completed",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:56:48.064084+00:00",
+      "status": "410_passed",
+      "evidence": [
+        "artifacts/phase23/metadata-engineering-v1/focused-v2.log"
+      ],
+      "identities": {
+        "sha256": "5abc4c3815c70f666a04eb284fed742d62e456874f976f972f864ce7947876ad"
+      }
+    },
+    {
+      "event": "metadata_candidate_identity_bound",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T18:56:48.064084+00:00",
+      "status": "implemented_full_local_gate_running",
+      "evidence": [
+        "artifacts/phase23/metadata-engineering-v1/candidate-identity.json"
+      ],
+      "identities": {
+        "sha256": "18ebbd1dc4ff784e5f62176392d7d0baab9d99b935d65ba6976368292f5af715"
+      }
+    },
+    {
+      "event": "metadata_full_local_engineering_completed",
+      "actor": "Codex",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T19:17:24.867742+00:00",
+      "status": "passed",
+      "evidence": [
+        "artifacts/phase23/metadata-engineering-v1/summary.json"
+      ],
+      "identities": {
+        "sha256": "58399ee28f1c846c4f399b8558619a26546d9ca3afe6ef428a201583787ac920"
+      }
+    },
+    {
+      "event": "metadata_candidate_execution_completed",
+      "occurred_at_utc": "2026-09-15T19:26:02.165985Z",
+      "recorded_at_utc": "2026-09-15T19:55:35.069445+00:00",
+      "actor": "assistant",
+      "status": "completed",
+      "evidence": [
+        "artifacts/phase23/corrected-candidate-v2/results.json"
+      ]
+    },
+    {
+      "event": "narrow_source_judgments_and_ci_references_human_review",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T19:55:35.069445+00:00",
+      "actor": "BashaarJavaid",
+      "status": "accepted_not_final_technical_acceptance",
+      "evidence": [
+        "artifacts/phase23/candidate-assessment-v2/review-acceptance.json",
+        "artifacts/phase23/ci-reference-approval.json"
+      ]
+    },
+    {
+      "event": "offline_ci_local_engineering_verified",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T20:17:38.674995+00:00",
+      "actor": "assistant",
+      "status": "passed_with_separate_final_test_portability_check",
+      "evidence": [
+        "artifacts/phase23/ci-engineering-v1/summary.json",
+        "artifacts/phase23/delivery-review-v1/local-commit.json"
+      ]
+    },
+    {
+      "event": "draft_pr_delivered",
+      "occurred_at_utc": "2026-09-15T20:25:46.372227+00:00",
+      "recorded_at_utc": "2026-09-15T20:41:02.987860+00:00",
+      "actor": "assistant",
+      "status": "delivered_not_merged",
+      "evidence": [
+        "artifacts/phase23/verification-review-v1/draft-pr.json"
+      ]
+    },
+    {
+      "event": "first_hosted_verification",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T20:41:02.987860+00:00",
+      "actor": "GitHub Actions",
+      "status": "failed",
+      "evidence": [
+        "artifacts/phase23/hosted-verification-v1/summary.json"
+      ]
+    },
+    {
+      "event": "packaging_correction_locally_verified",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T20:41:02.987860+00:00",
+      "actor": "assistant",
+      "status": "new_execution_review_pending",
+      "evidence": [
+        "artifacts/phase23/hosted-failure-review-v1/local-checks.json"
+      ]
+    },
+    {
+      "event": "second_hosted_verification",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T21:23:33.044719+00:00",
+      "actor": "GitHub Actions",
+      "status": "failed_windows_typecheck_with_verified_phase23_regression",
+      "evidence": [
+        "artifacts/phase23/hosted-verification-v2/summary.json",
+        "artifacts/phase23/hosted-verification-v2/regression-assessment.json"
+      ]
+    },
+    {
+      "event": "windows_supervision_and_checkout_correction_verified",
+      "occurred_at_utc": null,
+      "recorded_at_utc": "2026-09-15T21:23:33.044719+00:00",
+      "actor": "assistant",
+      "status": "local_checks_passed_new_execution_review_pending",
+      "evidence": [
+        "artifacts/phase23/windows-review-v1/local-checks.json",
+        "artifacts/phase23/windows-review-v1/checkout-after.json"
+      ]
+    },
+    {
+      "event": "third_hosted_verification",
+      "occurred_at_utc": "2026-09-15T22:20:46Z",
+      "recorded_at_utc": "2026-09-15T22:29:29.051889+00:00",
+      "actor": "GitHub Actions",
+      "status": "passed_all30_jobs_and_docs",
+      "evidence": [
+        "artifacts/phase23/hosted-verification-v3/summary.json"
+      ]
+    },
+    {
+      "event": "original_advisory_compatibility",
+      "occurred_at_utc": "2026-09-15T22:23:42.605949Z",
+      "recorded_at_utc": "2026-09-15T22:29:29.051889+00:00",
+      "actor": "assistant",
+      "status": "14_complete_7_pairs_narrow_gate_passed",
+      "evidence": [
+        "artifacts/phase23/compatibility-advisory-assessment-v1/summary.json"
+      ]
+    },
+    {
+      "event": "deliberate_regression_rejection",
+      "occurred_at_utc": "2026-09-15T22:25:17.362794+00:00",
+      "recorded_at_utc": "2026-09-15T22:29:29.051889+00:00",
+      "actor": "assistant",
+      "status": "complete_observation_rejected_by_actual_ci_assertion",
+      "evidence": [
+        "artifacts/phase23/regression-rejection-v1/results.json",
+        "artifacts/phase23/regression-rejection-v1/verification.json"
+      ]
+    },
+    {
+      "event": "historical_compatibility_launch",
+      "occurred_at_utc": "2026-09-15T22:26:00.490012+00:00",
+      "recorded_at_utc": "2026-09-15T22:29:29.051889+00:00",
+      "actor": "assistant",
+      "status": "failed_before_first_observation_112_unstarted_closed",
+      "evidence": [
+        "artifacts/phase23/compatibility-v1/execution.json",
+        "artifacts/phase23/compatibility-recovery-review-v1/failed-launch.json"
+      ]
+    },
+    {
+      "event": "historical_compatibility_replacement_attempt",
+      "occurred_at_utc": "2026-09-15T22:46:45.130854+00:00",
+      "recorded_at_utc": "2026-09-15T22:57:29.053480+00:00",
+      "actor": "assistant",
+      "status": "23_complete_one_incomplete_88_unstarted_closed",
+      "evidence": [
+        "artifacts/phase23/compatibility-v2/execution.json",
+        "artifacts/phase23/compatibility-partial-assessment-v1/summary.json"
+      ]
+    }
+  ],
+  "waiting_intervals": [
+    {
+      "reason": "Replacement source-freeze review approved; actual delivery/approval times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/candidate-review-v2/source-freeze.json"
+      ]
+    },
+    {
+      "reason": "Replacement baseline execution approved; actual delivery/approval times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/baseline-review-v2/proposal.json"
+      ]
+    },
+    {
+      "reason": "Bounded correction implementation approved; actual message delivery/approval times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/correction-review-v1/proposal.json"
+      ]
+    },
+    {
+      "reason": "Additional callback-boundary correction approved; actual message delivery/approval times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/callback-review-v1/proposal.json"
+      ]
+    },
+    {
+      "reason": "Dependency audit payload/destination explicitly approved after automatic rejection; actual message times unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/dependency-audit-review-v1/proposal.json",
+        "artifacts/phase23/dependency-audit-authorization-v1.json"
+      ]
+    },
+    {
+      "reason": "Corrected-candidate execution approved; actual message timestamps unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/candidate-execution-review-v1/proposal.json",
+        "artifacts/phase23/candidate-authorization-v1.json"
+      ]
+    },
+    {
+      "reason": "Composed Zod metadata correction explicitly approved; actual message receipt timestamps unavailable.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/metadata-review-v1/proposal.json",
+        "artifacts/phase23/metadata-authorization-v1.json"
+      ]
+    },
+    {
+      "reason": "Exact metadata-candidate 14-observation execution approval pending.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/candidate-execution-review-v2/proposal.json",
+        "artifacts/phase23/candidate-authorization-v2.json"
+      ],
+      "status": "closed_by_explicit_approval"
+    },
+    {
+      "reason": "Exact historical compatibility and deliberate-regression execution approval pending after CI helper engineering.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/compatibility-review-v1/evaluation-proposal.json",
+        "artifacts/phase23/regression-rejection-review-v1/proposal.json"
+      ]
+    },
+    {
+      "reason": "Approval of exact prepared draft delivery/hosted gates and 127 local observations.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/verification-review-v1/proposal.json"
+      ]
+    },
+    {
+      "reason": "Original hosted gate failed; review exact corrected delivery and fresh hosted attempt before any local stage.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/hosted-verification-v1/summary.json",
+        "artifacts/phase23/hosted-failure-review-v1/local-checks.json"
+      ]
+    },
+    {
+      "reason": "Review exact Windows/checkout correction and one fresh hosted attempt before127local observations.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": null,
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/hosted-verification-v2/summary.json",
+        "artifacts/phase23/windows-review-v1/local-checks.json",
+        "artifacts/phase23/windows-review-v1/authorization.json"
+      ],
+      "status": "closed_by_explicit_approval"
+    },
+    {
+      "reason": "Review replacement112 historical observation attempt after sandbox-denied hardware preflight; no automatic retry.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": "2026-09-15T22:29:29.051889+00:00",
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/compatibility-recovery-review-v1/README.md",
+        "artifacts/phase23/compatibility-recovery-review-v1/authorization.json"
+      ],
+      "status": "closed_by_explicit_user_approval"
+    },
+    {
+      "reason": "Approve5 exact accepted calculator assessment bindings,23 retained first passes and89 remaining observations.",
+      "owner": "BashaarJavaid",
+      "started_at_utc": "2026-09-15T22:57:29.053480+00:00",
+      "ended_at_utc": null,
+      "elapsed_seconds": null,
+      "evidence": [
+        "artifacts/phase23/compatibility-metadata-review-v1/README.md"
+      ]
+    }
+  ],
+  "elapsed_seconds": {
+    "advisory_to_intake": null,
+    "intake_to_triage": null,
+    "intake_to_reproduction": null,
+    "intake_to_fix_verification": null,
+    "intake_to_human_review": null,
+    "intake_to_publication": null
+  },
+  "evaluations": [
+    {
+      "stage": "replacement_baseline",
+      "results": "artifacts/phase23/baseline-v2/results.json",
+      "sha256": "be436d58a72e335ab6314cc63181cbac56417ce795bcbaee6a902eab44d15a45",
+      "assessment": "artifacts/phase23/baseline-assessment-v2/summary.json",
+      "case_gate": "failed",
+      "observations": 14,
+      "equal_ordered_pairs": 7,
+      "elapsed_seconds": 146.03758,
+      "remaining": 0
+    },
+    {
+      "stage": "corrected-candidate",
+      "results": "artifacts/phase23/corrected-candidate-v1/results.json",
+      "sha256": "64ed04a23c1ee1f7613af0015be2a1375a3d179a60623f93a34e8f927f58c16a",
+      "assessment": "artifacts/phase23/candidate-assessment-v1/summary.json",
+      "case_gate": "failed",
+      "observations": 14,
+      "equal_ordered_pairs": 7,
+      "elapsed_seconds": 151.922077,
+      "remaining": 0,
+      "detected_vulnerable": 4,
+      "missed_vulnerable": 2,
+      "supported_negative": 6,
+      "unsupported_negative": 2
+    },
+    {
+      "stage": "metadata-corrected-candidate",
+      "results": "artifacts/phase23/corrected-candidate-v2/results.json",
+      "sha256": "d77f2867d966c6f03067028afe037397c5bc75dbba8c2737c8baf9acf1878828",
+      "assessment": "artifacts/phase23/candidate-assessment-v2/summary.json",
+      "case_gate": "reviewed_narrow_pass",
+      "observations": 14,
+      "equal_ordered_pairs": 7,
+      "elapsed_seconds": 188.804086,
+      "remaining": 0,
+      "detected_vulnerable": 6,
+      "supported_negative": 8
+    },
+    {
+      "stage": "historical_compatibility_launch",
+      "state": "failed_before_observation",
+      "started": 0,
+      "completed": 0,
+      "unstarted_closed": 112,
+      "remaining": 0,
+      "evidence": [
+        "artifacts/phase23/compatibility-v1/execution.json"
+      ]
+    },
+    {
+      "stage": "historical_compatibility_replacement",
+      "completed_evaluations": 23,
+      "incomplete_evaluations": 1,
+      "complete_native_reports": 24,
+      "unstarted_closed": 88,
+      "remaining": 0,
+      "pairs": 0,
+      "evidence": [
+        "artifacts/phase23/compatibility-v2/raw/packet.json"
+      ]
+    }
+  ],
+  "release": {
+    "version": null,
+    "revision": null,
+    "approvals": null,
+    "published_at_utc": null
+  },
+  "paid_calls": 0,
+  "target_executions": 0,
+  "replacement_scans": 42,
+  "recorded_at_utc": "2026-09-15T22:57:29.053480+00:00",
+  "previous_record": {
+    "path": "artifacts/phase23/lifecycle/ghsa-3q26-v14-hosted-and-rejection.json",
+    "sha256": "5f26000c0ca6c187a3e92e2a64d2a38483824979c8b46f6746804123fe3d4930"
+  }
+}

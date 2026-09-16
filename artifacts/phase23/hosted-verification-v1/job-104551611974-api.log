@@ -1,0 +1,1436 @@
+﻿2026-09-15T20:25:52.7314957Z Current runner version: '2.337.0'
+2026-09-15T20:25:52.7347839Z ##[group]Runner Image Provisioner
+2026-09-15T20:25:52.7348713Z Hosted Compute Agent
+2026-09-15T20:25:52.7349316Z Version: 20260828.587
+2026-09-15T20:25:52.7350000Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-15T20:25:52.7350769Z Build Date: 2026-08-28T16:44:25Z
+2026-09-15T20:25:52.7351455Z Worker ID: {1f19122e-1710-4001-8169-f0551673238d}
+2026-09-15T20:25:52.7352148Z Azure Region: eastus2
+2026-09-15T20:25:52.7352793Z ##[endgroup]
+2026-09-15T20:25:52.7354118Z ##[group]Operating System
+2026-09-15T20:25:52.7354740Z Microsoft Windows Server 2025
+2026-09-15T20:25:52.7355320Z 10.0.26100
+2026-09-15T20:25:52.7355859Z Datacenter
+2026-09-15T20:25:52.7356438Z ##[endgroup]
+2026-09-15T20:25:52.7356993Z ##[group]Runner Image
+2026-09-15T20:25:52.7357636Z Image: windows-2025-vs2026
+2026-09-15T20:25:52.7358264Z Version: 20260907.229.1
+2026-09-15T20:25:52.7360319Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20260907.229/images/windows/Windows2025-VS2026-Readme.md
+2026-09-15T20:25:52.7361899Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20260907.229
+2026-09-15T20:25:52.7362915Z ##[endgroup]
+2026-09-15T20:25:52.7364431Z ##[group]GITHUB_TOKEN Permissions
+2026-09-15T20:25:52.7367072Z Contents: read
+2026-09-15T20:25:52.7367888Z Metadata: read
+2026-09-15T20:25:52.7368766Z ##[endgroup]
+2026-09-15T20:25:52.7371578Z Secret source: Actions
+2026-09-15T20:25:52.7372819Z Cache mode: write
+2026-09-15T20:25:52.7373873Z Prepare workflow directory
+2026-09-15T20:25:52.7764729Z Prepare all required actions
+2026-09-15T20:25:52.7812283Z Getting action download info
+2026-09-15T20:25:52.9656979Z Download action repository 'actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+2026-09-15T20:25:53.0968357Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-15T20:25:53.2431581Z Download action repository 'astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e' (SHA:d0cc045d04ccac9d8b7881df0226f9e82c39688e)
+2026-09-15T20:25:53.6091890Z Complete job name: Quality (windows-latest, Python 3.11)
+2026-09-15T20:25:53.7434347Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:25:53.7444282Z ##[group]Run actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+2026-09-15T20:25:53.7445304Z with:
+2026-09-15T20:25:53.7445828Z   repository: BashaarJavaid/MCP-Sentinel
+2026-09-15T20:25:53.7451678Z   token: ***
+2026-09-15T20:25:53.7452247Z   ssh-strict: true
+2026-09-15T20:25:53.7452753Z   ssh-user: git
+2026-09-15T20:25:53.7453296Z   persist-credentials: true
+2026-09-15T20:25:53.7453892Z   clean: true
+2026-09-15T20:25:53.7454405Z   sparse-checkout-cone-mode: true
+2026-09-15T20:25:53.7454994Z   fetch-depth: 1
+2026-09-15T20:25:53.7455484Z   fetch-tags: false
+2026-09-15T20:25:53.7455964Z   show-progress: true
+2026-09-15T20:25:53.7456584Z   lfs: false
+2026-09-15T20:25:53.7457026Z   submodules: false
+2026-09-15T20:25:53.7457590Z   set-safe-directory: true
+2026-09-15T20:25:53.7458460Z ##[endgroup]
+2026-09-15T20:25:53.9044271Z Syncing repository: BashaarJavaid/MCP-Sentinel
+2026-09-15T20:25:53.9046154Z ##[group]Getting Git version info
+2026-09-15T20:25:53.9046896Z Working directory is 'D:\a\MCP-Sentinel\MCP-Sentinel'
+2026-09-15T20:25:53.9966633Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-09-15T20:25:54.3131269Z git version 2.55.0.windows.5
+2026-09-15T20:25:54.3182913Z ##[endgroup]
+2026-09-15T20:25:54.3204321Z Temporarily overriding HOME='D:\a\_temp\2187158a-e4a2-4630-8b37-443877b75c82' before making global git config changes
+2026-09-15T20:25:54.3295690Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-15T20:25:54.3298654Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:25:54.3860424Z Deleting the contents of 'D:\a\MCP-Sentinel\MCP-Sentinel'
+2026-09-15T20:25:54.3867366Z ##[group]Initializing the repository
+2026-09-15T20:25:54.3876843Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:25:54.4782144Z Initialized empty Git repository in D:/a/MCP-Sentinel/MCP-Sentinel/.git/
+2026-09-15T20:25:54.4837545Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-15T20:25:54.5407437Z ##[endgroup]
+2026-09-15T20:25:54.5409581Z ##[group]Disabling automatic garbage collection
+2026-09-15T20:25:54.5418319Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-09-15T20:25:54.5723644Z ##[endgroup]
+2026-09-15T20:25:54.5725268Z ##[group]Setting up auth
+2026-09-15T20:25:54.5735856Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-09-15T20:25:54.6037320Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-09-15T20:25:55.9570433Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-15T20:25:55.9880806Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-09-15T20:25:56.5151147Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-15T20:25:56.5470504Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-09-15T20:25:57.0980817Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-09-15T20:25:57.1300631Z ##[endgroup]
+2026-09-15T20:25:57.1302221Z ##[group]Fetching the repository
+2026-09-15T20:25:57.1314833Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +1c31e53495abe2f72eb1cff0850b008950e4d1d6:refs/remotes/pull/40/merge
+2026-09-15T20:26:09.5899480Z From https://github.com/BashaarJavaid/MCP-Sentinel
+2026-09-15T20:26:09.5900948Z  * [new ref]         1c31e53495abe2f72eb1cff0850b008950e4d1d6 -> pull/40/merge
+2026-09-15T20:26:09.5944726Z ##[endgroup]
+2026-09-15T20:26:09.5945354Z ##[group]Determining the checkout info
+2026-09-15T20:26:09.5945975Z ##[endgroup]
+2026-09-15T20:26:09.5960596Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-09-15T20:26:09.6413113Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-09-15T20:26:09.6712721Z ##[group]Checking out the ref
+2026-09-15T20:26:09.6723608Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/40/merge
+2026-09-15T20:26:10.8348132Z Updating files:  34% (2651/7722)
+2026-09-15T20:26:10.8913326Z Updating files:  35% (2703/7722)
+2026-09-15T20:26:11.0333004Z Updating files:  36% (2780/7722)
+2026-09-15T20:26:11.0620123Z Updating files:  37% (2858/7722)
+2026-09-15T20:26:11.1844936Z Updating files:  38% (2935/7722)
+2026-09-15T20:26:11.2152503Z Updating files:  39% (3012/7722)
+2026-09-15T20:26:11.3324511Z Updating files:  40% (3089/7722)
+2026-09-15T20:26:11.3622987Z Updating files:  41% (3167/7722)
+2026-09-15T20:26:11.3929505Z Updating files:  42% (3244/7722)
+2026-09-15T20:26:11.4334204Z Updating files:  43% (3321/7722)
+2026-09-15T20:26:11.4604106Z Updating files:  44% (3398/7722)
+2026-09-15T20:26:11.4856217Z Updating files:  45% (3475/7722)
+2026-09-15T20:26:11.6400486Z Updating files:  46% (3553/7722)
+2026-09-15T20:26:11.6760397Z Updating files:  47% (3630/7722)
+2026-09-15T20:26:11.7124488Z Updating files:  48% (3707/7722)
+2026-09-15T20:26:11.7372635Z Updating files:  49% (3784/7722)
+2026-09-15T20:26:11.7427492Z Updating files:  50% (3861/7722)
+2026-09-15T20:26:12.0379244Z Updating files:  50% (3884/7722)
+2026-09-15T20:26:12.7562034Z Updating files:  51% (3939/7722)
+2026-09-15T20:26:12.9791780Z Updating files:  51% (3992/7722)
+2026-09-15T20:26:13.6012108Z Updating files:  52% (4016/7722)
+2026-09-15T20:26:13.7943097Z Updating files:  53% (4093/7722)
+2026-09-15T20:26:14.0609753Z Updating files:  53% (4114/7722)
+2026-09-15T20:26:14.0785224Z Updating files:  54% (4170/7722)
+2026-09-15T20:26:14.0997210Z Updating files:  55% (4248/7722)
+2026-09-15T20:26:14.1289601Z Updating files:  56% (4325/7722)
+2026-09-15T20:26:14.1995376Z Updating files:  57% (4402/7722)
+2026-09-15T20:26:14.2226982Z Updating files:  58% (4479/7722)
+2026-09-15T20:26:14.2522423Z Updating files:  59% (4556/7722)
+2026-09-15T20:26:14.3049551Z Updating files:  60% (4634/7722)
+2026-09-15T20:26:14.3307556Z Updating files:  61% (4711/7722)
+2026-09-15T20:26:14.3555784Z Updating files:  62% (4788/7722)
+2026-09-15T20:26:14.3812987Z Updating files:  63% (4865/7722)
+2026-09-15T20:26:14.4020564Z Updating files:  64% (4943/7722)
+2026-09-15T20:26:14.4270096Z Updating files:  65% (5020/7722)
+2026-09-15T20:26:14.4514849Z Updating files:  66% (5097/7722)
+2026-09-15T20:26:14.4717883Z Updating files:  67% (5174/7722)
+2026-09-15T20:26:14.4968971Z Updating files:  68% (5251/7722)
+2026-09-15T20:26:14.5194518Z Updating files:  69% (5329/7722)
+2026-09-15T20:26:14.5867473Z Updating files:  70% (5406/7722)
+2026-09-15T20:26:14.6205048Z Updating files:  71% (5483/7722)
+2026-09-15T20:26:14.6393744Z Updating files:  72% (5560/7722)
+2026-09-15T20:26:14.6815520Z Updating files:  73% (5638/7722)
+2026-09-15T20:26:14.7692140Z Updating files:  74% (5715/7722)
+2026-09-15T20:26:14.7695630Z Updating files:  74% (5791/7722)
+2026-09-15T20:26:14.8023979Z Updating files:  75% (5792/7722)
+2026-09-15T20:26:14.9219513Z Updating files:  76% (5869/7722)
+2026-09-15T20:26:14.9722424Z Updating files:  77% (5946/7722)
+2026-09-15T20:26:15.0242086Z Updating files:  78% (6024/7722)
+2026-09-15T20:26:15.0644802Z Updating files:  79% (6101/7722)
+2026-09-15T20:26:15.1414432Z Updating files:  80% (6178/7722)
+2026-09-15T20:26:15.2150231Z Updating files:  81% (6255/7722)
+2026-09-15T20:26:15.2951333Z Updating files:  82% (6333/7722)
+2026-09-15T20:26:15.3276997Z Updating files:  83% (6410/7722)
+2026-09-15T20:26:15.3465566Z Updating files:  84% (6487/7722)
+2026-09-15T20:26:15.3832330Z Updating files:  85% (6564/7722)
+2026-09-15T20:26:15.4237505Z Updating files:  86% (6641/7722)
+2026-09-15T20:26:15.4423713Z Updating files:  87% (6719/7722)
+2026-09-15T20:26:15.4614560Z Updating files:  88% (6796/7722)
+2026-09-15T20:26:15.5177216Z Updating files:  89% (6873/7722)
+2026-09-15T20:26:15.5431494Z Updating files:  90% (6950/7722)
+2026-09-15T20:26:15.5642996Z Updating files:  91% (7028/7722)
+2026-09-15T20:26:15.5851677Z Updating files:  92% (7105/7722)
+2026-09-15T20:26:15.6058377Z Updating files:  93% (7182/7722)
+2026-09-15T20:26:15.6254109Z Updating files:  94% (7259/7722)
+2026-09-15T20:26:15.6609754Z Updating files:  95% (7336/7722)
+2026-09-15T20:26:15.6869463Z Updating files:  96% (7414/7722)
+2026-09-15T20:26:15.7214119Z Updating files:  97% (7491/7722)
+2026-09-15T20:26:15.7510675Z Updating files:  98% (7568/7722)
+2026-09-15T20:26:15.7528491Z Updating files:  99% (7645/7722)
+2026-09-15T20:26:15.7763766Z Updating files:  99% (7650/7722)
+2026-09-15T20:26:15.7764484Z Updating files: 100% (7722/7722)
+2026-09-15T20:26:15.7764872Z Updating files: 100% (7722/7722), done.
+2026-09-15T20:26:15.7980666Z Note: switching to 'refs/remotes/pull/40/merge'.
+2026-09-15T20:26:15.7981018Z 
+2026-09-15T20:26:15.7981284Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-15T20:26:15.7982361Z changes and commit them, and you can discard any commits you make in this
+2026-09-15T20:26:15.7983087Z state without impacting any branches by switching back to a branch.
+2026-09-15T20:26:15.7983506Z 
+2026-09-15T20:26:15.7983779Z If you want to create a new branch to retain commits you create, you may
+2026-09-15T20:26:15.7984409Z do so (now or later) by using -c with the switch command. Example:
+2026-09-15T20:26:15.7984781Z 
+2026-09-15T20:26:15.7985012Z   git switch -c <new-branch-name>
+2026-09-15T20:26:15.7985286Z 
+2026-09-15T20:26:15.7985424Z Or undo this operation with:
+2026-09-15T20:26:15.7985652Z 
+2026-09-15T20:26:15.7985760Z   git switch -
+2026-09-15T20:26:15.7985926Z 
+2026-09-15T20:26:15.7986245Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-15T20:26:15.7986711Z 
+2026-09-15T20:26:15.7987245Z HEAD is now at 1c31e53 Merge f015c005ff40aa660452b730fda4c86c07ff1772 into dd9101ddfead19d65b7a84b374e4cf7e85462ff7
+2026-09-15T20:26:15.8991925Z ##[endgroup]
+2026-09-15T20:26:15.9395886Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-09-15T20:26:15.9698854Z 1c31e53495abe2f72eb1cff0850b008950e4d1d6
+2026-09-15T20:26:16.0194525Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:26:16.0196677Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+2026-09-15T20:26:16.0197060Z with:
+2026-09-15T20:26:16.0197267Z   python-version: 3.11
+2026-09-15T20:26:16.0197713Z   check-latest: false
+2026-09-15T20:26:16.0200911Z   token: ***
+2026-09-15T20:26:16.0201125Z   update-environment: true
+2026-09-15T20:26:16.0201361Z   allow-prereleases: false
+2026-09-15T20:26:16.0201597Z   freethreaded: false
+2026-09-15T20:26:16.0201808Z ##[endgroup]
+2026-09-15T20:26:16.1825161Z ##[group]Installed versions
+2026-09-15T20:26:16.2102933Z (node:1128) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-15T20:26:16.2103649Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-15T20:26:16.2104628Z Successfully set up CPython (3.11.9)
+2026-09-15T20:26:16.2105162Z ##[endgroup]
+2026-09-15T20:26:16.2472233Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:26:16.2473820Z ##[group]Run astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+2026-09-15T20:26:16.2474273Z with:
+2026-09-15T20:26:16.2474531Z   version: 0.8.22
+2026-09-15T20:26:16.2474880Z   enable-cache: true
+2026-09-15T20:26:16.2475258Z   activate-environment: false
+2026-09-15T20:26:16.2475643Z   working-directory: D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:26:16.2476050Z   server-url: https://github.com
+2026-09-15T20:26:16.2479037Z   github-token: ***
+2026-09-15T20:26:16.2479708Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-09-15T20:26:16.2480538Z   restore-cache: true
+2026-09-15T20:26:16.2480862Z   save-cache: true
+2026-09-15T20:26:16.2481209Z   prune-cache: true
+2026-09-15T20:26:16.2481525Z   ignore-nothing-to-cache: false
+2026-09-15T20:26:16.2481865Z   ignore-empty-workdir: false
+2026-09-15T20:26:16.2482189Z   add-problem-matchers: true
+2026-09-15T20:26:16.2482529Z env:
+2026-09-15T20:26:16.2482868Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:16.2483430Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:26:16.2484221Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:16.2484707Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:16.2485123Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:16.2485432Z ##[endgroup]
+2026-09-15T20:26:16.5043209Z (node:1364) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-15T20:26:16.5044527Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-15T20:26:16.5065014Z manifest-file not provided, reading from local file.
+2026-09-15T20:26:16.5118045Z manifest-file does not contain version 0.8.22, arch x86_64, platform pc-windows-msvc. Falling back to GitHub releases.
+2026-09-15T20:26:16.5119389Z Downloading uv from "https://github.com/astral-sh/uv/releases/download/0.8.22/uv-x86_64-pc-windows-msvc.zip" ...
+2026-09-15T20:26:16.9814198Z [command]"C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.ZipFile } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\a\_temp\12bf087e-ee8c-4392-9ead-907a5c278247.zip', 'D:\a\_temp\229157d3-39ff-4503-9674-11053551b672', $true) } catch { if (($_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or ($_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath 'D:\a\_temp\12bf087e-ee8c-4392-9ead-907a5c278247.zip' -DestinationPath 'D:\a\_temp\229157d3-39ff-4503-9674-11053551b672' -Force } else { throw $_ } } ;"
+2026-09-15T20:26:17.6928722Z Set UV_TOOL_BIN_DIR to D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:26:17.6933038Z Added D:\a\_temp\uv-tool-bin-dir to the path
+2026-09-15T20:26:17.6940989Z Added C:\hostedtoolcache\windows\uv\0.8.22\x86_64 to the path
+2026-09-15T20:26:17.6944476Z Set UV_TOOL_DIR to D:\a\_temp\uv-tool-dir
+2026-09-15T20:26:17.6961113Z Set UV_CACHE_DIR to D:\a\_temp\setup-uv-cache
+2026-09-15T20:26:17.6961472Z Successfully installed uv version 0.8.22
+2026-09-15T20:26:17.6964973Z Searching files using cache dependency glob: D:\a\MCP-Sentinel\MCP-Sentinel\**\*requirements*.txt,D:\a\MCP-Sentinel\MCP-Sentinel\**\*requirements*.in,D:\a\MCP-Sentinel\MCP-Sentinel\**\*constraints*.txt,D:\a\MCP-Sentinel\MCP-Sentinel\**\*constraints*.in,D:\a\MCP-Sentinel\MCP-Sentinel\**\pyproject.toml,D:\a\MCP-Sentinel\MCP-Sentinel\**\uv.lock,D:\a\MCP-Sentinel\MCP-Sentinel\**\*.py.lock
+2026-09-15T20:26:19.0492276Z D:\a\MCP-Sentinel\MCP-Sentinel\artifacts\phase22\git-environment-v1-tested\requirements.txt
+2026-09-15T20:26:19.7518034Z D:\a\MCP-Sentinel\MCP-Sentinel\artifacts\phase23\dependency-audit-review-v1\requirements.txt
+2026-09-15T20:26:19.7876194Z D:\a\MCP-Sentinel\MCP-Sentinel\pyproject.toml
+2026-09-15T20:26:19.8562480Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\clean_server\pyproject.toml
+2026-09-15T20:26:19.8590488Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\gpt_review_eval\pyproject.toml
+2026-09-15T20:26:19.8632915Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\vulnerable_server\pyproject.toml
+2026-09-15T20:26:19.8641409Z D:\a\MCP-Sentinel\MCP-Sentinel\tests\fixtures\vulnerable_server\requirements.txt
+2026-09-15T20:26:19.8723280Z D:\a\MCP-Sentinel\MCP-Sentinel\uv.lock
+2026-09-15T20:26:19.8738835Z Found 8 files to hash.
+2026-09-15T20:26:21.7861282Z Trying to restore uv cache from GitHub Actions cache with key: setup-uv-1-x86_64-pc-windows-msvc-3.12.10-pruned-b39e5a7eed198718415546d501e88c020aa04af1e73d72ca029c92eb17ebe66c
+2026-09-15T20:26:21.9466851Z No GitHub Actions cache found for key: setup-uv-1-x86_64-pc-windows-msvc-3.12.10-pruned-b39e5a7eed198718415546d501e88c020aa04af1e73d72ca029c92eb17ebe66c
+2026-09-15T20:26:21.9927744Z ##[group]Run uv sync --frozen --extra dev --python 3.11
+2026-09-15T20:26:21.9928260Z [36;1muv sync --frozen --extra dev --python 3.11[0m
+2026-09-15T20:26:22.0310078Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:26:22.0310575Z env:
+2026-09-15T20:26:22.0310874Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:22.0311738Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:26:22.0312193Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:22.0312596Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:22.0312993Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:22.0313336Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:26:22.0313624Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:26:22.0313886Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:26:22.0314226Z ##[endgroup]
+2026-09-15T20:26:22.3402966Z Using CPython 3.11.9 interpreter at: C:\hostedtoolcache\windows\Python\3.11.9\x64\python3.exe
+2026-09-15T20:26:22.3404018Z Creating virtual environment at: .venv
+2026-09-15T20:26:22.4077366Z    Building portunusmcp-sentinel @ file:///D:/a/MCP-Sentinel/MCP-Sentinel
+2026-09-15T20:26:22.4743509Z Downloading virtualenv (5.1MiB)
+2026-09-15T20:26:22.4763231Z Downloading mypy (10.3MiB)
+2026-09-15T20:26:22.4774269Z Downloading cryptography (3.7MiB)
+2026-09-15T20:26:22.4790705Z Downloading pygments (1.2MiB)
+2026-09-15T20:26:22.4802006Z Downloading openai (1.6MiB)
+2026-09-15T20:26:22.4945889Z Downloading pydantic-core (2.0MiB)
+2026-09-15T20:26:22.4967978Z Downloading pip (1.7MiB)
+2026-09-15T20:26:22.5003296Z Downloading pywin32 (9.1MiB)
+2026-09-15T20:26:22.5011092Z Downloading ruff (11.4MiB)
+2026-09-15T20:26:22.5020705Z Downloading semgrep (55.4MiB)
+2026-09-15T20:26:22.5030676Z Downloading uv (23.5MiB)
+2026-09-15T20:26:23.3566829Z  Downloading pydantic-core
+2026-09-15T20:26:23.7461691Z  Downloading virtualenv
+2026-09-15T20:26:23.8138025Z  Downloading cryptography
+2026-09-15T20:26:23.8918163Z  Downloading pygments
+2026-09-15T20:26:24.0803170Z  Downloading ruff
+2026-09-15T20:26:24.1051640Z  Downloading pip
+2026-09-15T20:26:24.4738435Z  Downloading uv
+2026-09-15T20:26:24.7101980Z  Downloading pywin32
+2026-09-15T20:26:24.8201877Z       Built portunusmcp-sentinel @ file:///D:/a/MCP-Sentinel/MCP-Sentinel
+2026-09-15T20:26:25.1335327Z  Downloading semgrep
+2026-09-15T20:26:25.1411481Z  Downloading openai
+2026-09-15T20:26:25.1934133Z  Downloading mypy
+2026-09-15T20:26:25.1941669Z Prepared 121 packages in 2.82s
+2026-09-15T20:26:25.8534417Z Installed 121 packages in 658ms
+2026-09-15T20:26:25.8537485Z  + annotated-doc==0.0.4
+2026-09-15T20:26:25.8538821Z  + annotated-types==0.7.0
+2026-09-15T20:26:25.8540105Z  + anyio==4.14.2
+2026-09-15T20:26:25.8541571Z  + attrs==26.1.0
+2026-09-15T20:26:25.8542548Z  + boltons==21.0.0
+2026-09-15T20:26:25.8544349Z  + boolean-py==5.0
+2026-09-15T20:26:25.8545570Z  + bracex==3.0
+2026-09-15T20:26:25.8547305Z  + build==1.5.0
+2026-09-15T20:26:25.8548609Z  + cachecontrol==0.14.4
+2026-09-15T20:26:25.8550633Z  + certifi==2026.6.17
+2026-09-15T20:26:25.8551153Z  + cffi==2.1.0
+2026-09-15T20:26:25.8552750Z  + cfgv==3.5.0
+2026-09-15T20:26:25.8553844Z  + charset-normalizer==3.4.9
+2026-09-15T20:26:25.8555123Z  + click==8.4.2
+2026-09-15T20:26:25.8556373Z  + click-option-group==0.5.9
+2026-09-15T20:26:25.8557701Z  + colorama==0.4.6
+2026-09-15T20:26:25.8559105Z  + coverage==7.15.2
+2026-09-15T20:26:25.8560254Z  + cryptography==50.0.1
+2026-09-15T20:26:25.8561517Z  + cyclonedx-python-lib==11.11.0
+2026-09-15T20:26:25.8562820Z  + defusedxml==0.7.1
+2026-09-15T20:26:25.8564009Z  + distlib==0.4.3
+2026-09-15T20:26:25.8565263Z  + distro==1.9.0
+2026-09-15T20:26:25.8566470Z  + exceptiongroup==1.2.2
+2026-09-15T20:26:25.8567727Z  + face==26.0.1
+2026-09-15T20:26:25.8569524Z  + filelock==3.30.3
+2026-09-15T20:26:25.8569797Z  + glom==25.12.0
+2026-09-15T20:26:25.8573375Z  + googleapis-common-protos==1.75.0
+2026-09-15T20:26:25.8573777Z  + h11==0.16.0
+2026-09-15T20:26:25.8574099Z  + httpcore==1.0.9
+2026-09-15T20:26:25.8575736Z  + httpx==0.28.1
+2026-09-15T20:26:25.8576881Z  + httpx-sse==0.4.3
+2026-09-15T20:26:25.8578040Z  + identify==2.6.19
+2026-09-15T20:26:25.8579354Z  + idna==3.18
+2026-09-15T20:26:25.8580842Z  + importlib-metadata==8.7.1
+2026-09-15T20:26:25.8581980Z  + iniconfig==2.3.0
+2026-09-15T20:26:25.8583225Z  + jiter==0.16.0
+2026-09-15T20:26:25.8584391Z  + jsonschema==4.25.1
+2026-09-15T20:26:25.8585647Z  + jsonschema-specifications==2025.9.1
+2026-09-15T20:26:25.8586922Z  + librt==0.13.0
+2026-09-15T20:26:25.8588168Z  + license-expression==30.4.4
+2026-09-15T20:26:25.8589752Z  + markdown-it-py==4.2.0
+2026-09-15T20:26:25.8590627Z  + mcp==1.29.0
+2026-09-15T20:26:25.8591869Z  + mdurl==0.1.2
+2026-09-15T20:26:25.8593021Z  + msgpack==1.2.1
+2026-09-15T20:26:25.8594339Z  + mypy==1.20.2
+2026-09-15T20:26:25.8595499Z  + mypy-extensions==1.1.0
+2026-09-15T20:26:25.8596695Z  + nodeenv==1.10.0
+2026-09-15T20:26:25.8598084Z  + openai==2.46.0
+2026-09-15T20:26:25.8599380Z  + opentelemetry-api==1.37.0
+2026-09-15T20:26:25.8600697Z  + opentelemetry-exporter-otlp-proto-common==1.37.0
+2026-09-15T20:26:25.8602230Z  + opentelemetry-exporter-otlp-proto-http==1.37.0
+2026-09-15T20:26:25.8603440Z  + opentelemetry-instrumentation==0.58b0
+2026-09-15T20:26:25.8604764Z  + opentelemetry-instrumentation-requests==0.58b0
+2026-09-15T20:26:25.8606045Z  + opentelemetry-instrumentation-threading==0.58b0
+2026-09-15T20:26:25.8607883Z  + opentelemetry-proto==1.37.0
+2026-09-15T20:26:25.8609104Z  + opentelemetry-sdk==1.37.0
+2026-09-15T20:26:25.8611186Z  + opentelemetry-semantic-conventions==0.58b0
+2026-09-15T20:26:25.8612302Z  + opentelemetry-util-http==0.58b0
+2026-09-15T20:26:25.8613624Z  + packageurl-python==0.17.6
+2026-09-15T20:26:25.8614805Z  + packaging==25.0
+2026-09-15T20:26:25.8616014Z  + pathspec==1.1.1
+2026-09-15T20:26:25.8617306Z  + pbr==7.0.3
+2026-09-15T20:26:25.8618539Z  + peewee==3.19.0
+2026-09-15T20:26:25.8619637Z  + pip==26.2
+2026-09-15T20:26:25.8620797Z  + pip-api==0.0.34
+2026-09-15T20:26:25.8622053Z  + pip-audit==2.10.1
+2026-09-15T20:26:25.8623414Z  + pip-requirements-parser==32.0.1
+2026-09-15T20:26:25.8624716Z  + platformdirs==4.10.0
+2026-09-15T20:26:25.8625899Z  + pluggy==1.6.0
+2026-09-15T20:26:25.8627730Z  + portunusmcp-sentinel==1.3.0 (from file:///D:/a/MCP-Sentinel/MCP-Sentinel)
+2026-09-15T20:26:25.8628915Z  + pre-commit==4.6.2
+2026-09-15T20:26:25.8630294Z  + protobuf==6.33.6
+2026-09-15T20:26:25.8631535Z  + py-serializable==2.1.0
+2026-09-15T20:26:25.8632598Z  + pycparser==3.0
+2026-09-15T20:26:25.8633815Z  + pydantic==2.13.4
+2026-09-15T20:26:25.8635082Z  + pydantic-core==2.46.4
+2026-09-15T20:26:25.8636358Z  + pydantic-settings==2.14.2
+2026-09-15T20:26:25.8637498Z  + pygments==2.20.0
+2026-09-15T20:26:25.8638702Z  + pyjwt==2.13.0
+2026-09-15T20:26:25.8639942Z  + pyparsing==3.3.2
+2026-09-15T20:26:25.8641283Z  + pyproject-hooks==1.2.0
+2026-09-15T20:26:25.8642572Z  + pytest==9.0.3
+2026-09-15T20:26:25.8643860Z  + pytest-cov==6.3.0
+2026-09-15T20:26:25.8644919Z  + python-discovery==1.6.0
+2026-09-15T20:26:25.8646305Z  + python-dotenv==1.2.2
+2026-09-15T20:26:25.8647661Z  + python-multipart==0.0.32
+2026-09-15T20:26:25.8648125Z  + pywin32==311
+2026-09-15T20:26:25.8649730Z  + pyyaml==6.0.3
+2026-09-15T20:26:25.8650750Z  + referencing==0.37.0
+2026-09-15T20:26:25.8652086Z  + regex==2026.7.10
+2026-09-15T20:26:25.8653252Z  + requests==2.34.2
+2026-09-15T20:26:25.8654459Z  + rich==15.0.0
+2026-09-15T20:26:25.8655880Z  + rpds-py==2026.6.3
+2026-09-15T20:26:25.8656998Z  + ruamel-yaml==0.19.1
+2026-09-15T20:26:25.8658240Z  + ruamel-yaml-clib==0.2.15
+2026-09-15T20:26:25.8659492Z  + ruff==0.15.22
+2026-09-15T20:26:25.8660829Z  + sarif-om==1.0.4
+2026-09-15T20:26:25.8662018Z  + semantic-version==2.10.0
+2026-09-15T20:26:25.8663242Z  + semgrep==1.176.0
+2026-09-15T20:26:25.8664506Z  + setuptools==83.0.0
+2026-09-15T20:26:25.8666827Z  + shellingham==1.5.4
+2026-09-15T20:26:25.8667414Z  + sniffio==1.3.1
+2026-09-15T20:26:25.8668674Z  + sortedcontainers==2.4.0
+2026-09-15T20:26:25.8669511Z  + sse-starlette==3.4.5
+2026-09-15T20:26:25.8670983Z  + starlette==1.3.1
+2026-09-15T20:26:25.8672207Z  + tiktoken==0.13.0
+2026-09-15T20:26:25.8673519Z  + tomli==2.4.1
+2026-09-15T20:26:25.8674627Z  + tomli-w==1.2.0
+2026-09-15T20:26:25.8675938Z  + tqdm==4.69.0
+2026-09-15T20:26:25.8677095Z  + typer==0.27.0
+2026-09-15T20:26:25.8678483Z  + types-jsonschema==4.26.0.20260518
+2026-09-15T20:26:25.8680109Z  + types-pyyaml==6.0.12.20260518
+2026-09-15T20:26:25.8681218Z  + typing-extensions==4.16.0
+2026-09-15T20:26:25.8682545Z  + typing-inspection==0.4.2
+2026-09-15T20:26:25.8683703Z  + urllib3==2.7.0
+2026-09-15T20:26:25.8684919Z  + uv==0.11.15
+2026-09-15T20:26:25.8686284Z  + uvicorn==0.51.0
+2026-09-15T20:26:25.8687656Z  + virtualenv==21.7.8
+2026-09-15T20:26:25.8688835Z  + wcmatch==8.5.2
+2026-09-15T20:26:25.8689946Z  + wrapt==1.17.3
+2026-09-15T20:26:25.8691193Z  + zipp==4.1.0
+2026-09-15T20:26:26.0312865Z ##[group]Run uv lock --check
+2026-09-15T20:26:26.0313257Z [36;1muv lock --check[0m
+2026-09-15T20:26:26.0384925Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:26:26.0385266Z env:
+2026-09-15T20:26:26.0385574Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.0386021Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:26:26.0386463Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.0386857Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.0387282Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.0387626Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:26:26.0387918Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:26:26.0388188Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:26:26.0388445Z ##[endgroup]
+2026-09-15T20:26:26.4451190Z Using CPython 3.12.10 interpreter at: C:\hostedtoolcache\windows\Python\3.12.10\x64\python3.exe
+2026-09-15T20:26:26.4544282Z Resolved 139 packages in 1ms
+2026-09-15T20:26:26.5738888Z ##[group]Run uv run --python 3.11 ruff check .
+2026-09-15T20:26:26.5739324Z [36;1muv run --python 3.11 ruff check .[0m
+2026-09-15T20:26:26.5808737Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-09-15T20:26:26.5809093Z env:
+2026-09-15T20:26:26.5809374Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.5809867Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.11.9\x64/lib/pkgconfig
+2026-09-15T20:26:26.5810322Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.5810719Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.5811109Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.11.9\x64
+2026-09-15T20:26:26.5811446Z   UV_TOOL_BIN_DIR: D:\a\_temp\uv-tool-bin-dir
+2026-09-15T20:26:26.5811725Z   UV_TOOL_DIR: D:\a\_temp\uv-tool-dir
+2026-09-15T20:26:26.5811987Z   UV_CACHE_DIR: D:\a\_temp\setup-uv-cache
+2026-09-15T20:26:26.5812310Z ##[endgroup]
+2026-09-15T20:26:27.0815262Z E501 Line too long (119 > 88)
+2026-09-15T20:26:27.0816541Z  --> artifacts\phase23\compatibility-review-v1\evaluate.py:1:89
+2026-09-15T20:26:27.0817146Z   |
+2026-09-15T20:26:27.0817651Z 1 | """Proposed112-observation local exposed regression and compatibility sequence; no execution without a new approval."""
+2026-09-15T20:26:27.0818302Z   |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0818641Z 2 |
+2026-09-15T20:26:27.0818823Z 3 | import importlib.util
+2026-09-15T20:26:27.0819032Z   |
+2026-09-15T20:26:27.0819199Z 
+2026-09-15T20:26:27.0819400Z I001 [*] Import block is un-sorted or un-formatted
+2026-09-15T20:26:27.0819861Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:54:5
+2026-09-15T20:26:27.0820180Z    |
+2026-09-15T20:26:27.0820353Z 53 |   def identity(group):
+2026-09-15T20:26:27.0820652Z 54 | /     from scripts.phase20_measurements import scanner_identity
+2026-09-15T20:26:27.0821594Z 55 | |     from scripts.phase20_corpus import validate
+2026-09-15T20:26:27.0822007Z 56 | |     from scripts.phase22_corpus import frozen
+2026-09-15T20:26:27.0822356Z 57 | |     from sentinel.static.engine import STATIC_TIMEOUT_SECONDS
+2026-09-15T20:26:27.0822808Z 58 | |     from sentinel.static.semgrep_adapter import SEMGREP_TIMEOUT_SECONDS
+2026-09-15T20:26:27.0823485Z    | |_______________________________________________________________________^
+2026-09-15T20:26:27.0823796Z 59 |
+2026-09-15T20:26:27.0823977Z 60 |       proposal = approved()
+2026-09-15T20:26:27.0824197Z    |
+2026-09-15T20:26:27.0824361Z help: Organize imports
+2026-09-15T20:26:27.0824499Z 
+2026-09-15T20:26:27.0824627Z E501 Line too long (111 > 88)
+2026-09-15T20:26:27.0825129Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:63:89
+2026-09-15T20:26:27.0825464Z    |
+2026-09-15T20:26:27.0825711Z 61 |     from sentinel.static import discovery, module_dispatch
+2026-09-15T20:26:27.0826107Z 62 |     for module in (discovery, module_dispatch):
+2026-09-15T20:26:27.0826619Z 63 |         assert Path(module.__file__).is_relative_to(Path(proposal["frozen_checkout"]) / "src"), module.__name__
+2026-09-15T20:26:27.0827158Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0827531Z 64 |     assert scanner_identity() == proposal["scanner"]
+2026-09-15T20:26:27.0827899Z 65 |     assert sha(Path.cwd() / "uv.lock") == proposal["lock_sha256"]
+2026-09-15T20:26:27.0828216Z    |
+2026-09-15T20:26:27.0828437Z 
+2026-09-15T20:26:27.0828529Z E501 Line too long (129 > 88)
+2026-09-15T20:26:27.0828842Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:73:89
+2026-09-15T20:26:27.0829157Z    |
+2026-09-15T20:26:27.0829462Z 71 |         manifest = unseen_frozen(approval_path=ROOT / g["source_freeze_approval"])
+2026-09-15T20:26:27.0829827Z 72 |     else:
+2026-09-15T20:26:27.0833540Z 73 |         manifest = validate() if group.endswith("historical") else frozen(approval_path=Path.cwd() / g["source_freeze_approval"])
+2026-09-15T20:26:27.0834474Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0835192Z 74 |     selected = [i for i in manifest.inputs if i.id in g["input_ids"]]
+2026-09-15T20:26:27.0835604Z 75 |     assert [i.id for i in selected] == g["input_ids"]
+2026-09-15T20:26:27.0835892Z    |
+2026-09-15T20:26:27.0835988Z 
+2026-09-15T20:26:27.0836083Z E501 Line too long (89 > 88)
+2026-09-15T20:26:27.0836411Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:76:89
+2026-09-15T20:26:27.0836734Z    |
+2026-09-15T20:26:27.0836986Z 74 |     selected = [i for i in manifest.inputs if i.id in g["input_ids"]]
+2026-09-15T20:26:27.0837368Z 75 |     assert [i.id for i in selected] == g["input_ids"]
+2026-09-15T20:26:27.0837800Z 76 |     assert all(i.model_dump(mode="json") == g["inputs"][i.id]["input"] for i in selected)
+2026-09-15T20:26:27.0838275Z    |                                                                                         ^
+2026-09-15T20:26:27.0838601Z 77 |     return proposal, manifest, selected
+2026-09-15T20:26:27.0838848Z    |
+2026-09-15T20:26:27.0838933Z 
+2026-09-15T20:26:27.0839023Z E501 Line too long (213 > 88)
+2026-09-15T20:26:27.0839326Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:82:89
+2026-09-15T20:26:27.0839634Z    |
+2026-09-15T20:26:27.0840008Z 80 | …
+2026-09-15T20:26:27.0840198Z 81 | …
+2026-09-15T20:26:27.0841289Z 82 | …le_id", "SENT-015") and f["location"]["path"] == witness["path"] and f["location"]["range"]["start_line"] == witness["sink_line"]]
+2026-09-15T20:26:27.0841930Z    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0842311Z 83 | …
+2026-09-15T20:26:27.0842490Z 84 | …
+2026-09-15T20:26:27.0842643Z    |
+2026-09-15T20:26:27.0842729Z 
+2026-09-15T20:26:27.0843531Z E501 Line too long (174 > 88)
+2026-09-15T20:26:27.0843860Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:86:89
+2026-09-15T20:26:27.0844187Z    |
+2026-09-15T20:26:27.0844395Z 84 | …not matches
+2026-09-15T20:26:27.0844594Z 85 | …
+2026-09-15T20:26:27.0845144Z 86 | …tartswith("The source rejects literal link-local IPv4 destinations for this caller URL before the request.")]
+2026-09-15T20:26:27.0845709Z    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0846139Z 87 | … "vulnerable" else len(qualified) == len(matches))
+2026-09-15T20:26:27.0846531Z 88 | …s": len(matches), "source_assessment_pending": True}
+2026-09-15T20:26:27.0847489Z    |
+2026-09-15T20:26:27.0847650Z 
+2026-09-15T20:26:27.0847784Z E501 Line too long (115 > 88)
+2026-09-15T20:26:27.0848284Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:87:89
+2026-09-15T20:26:27.0848812Z    |
+2026-09-15T20:26:27.0849218Z 85 | …     else:
+2026-09-15T20:26:27.0850127Z 86 | …         qualified = [f for f in matches if f["description"].startswith("The source rejects literal link-local IPv4 destinations for …
+2026-09-15T20:26:27.0851506Z 87 | …         passed = bool(matches) and (not qualified if label == "vulnerable" else len(qualified) == len(matches))
+2026-09-15T20:26:27.0852386Z    |                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0853657Z 88 | …     return {"condition_passed": bool(passed), "sink_candidates": len(matches), "source_assessment_pending": True}
+2026-09-15T20:26:27.0854387Z    |
+2026-09-15T20:26:27.0854524Z 
+2026-09-15T20:26:27.0854642Z E501 Line too long (117 > 88)
+2026-09-15T20:26:27.0855121Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:88:89
+2026-09-15T20:26:27.0855635Z    |
+2026-09-15T20:26:27.0857291Z 86 |             qualified = [f for f in matches if f["description"].startswith("The source rejects literal link-local IPv4 destinations fo…
+2026-09-15T20:26:27.0858545Z 87 |             passed = bool(matches) and (not qualified if label == "vulnerable" else len(qualified) == len(matches))
+2026-09-15T20:26:27.0859626Z 88 |         return {"condition_passed": bool(passed), "sink_candidates": len(matches), "source_assessment_pending": True}
+2026-09-15T20:26:27.0860517Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0861019Z 89 |
+2026-09-15T20:26:27.0861322Z 90 |     from scripts.phase20_scoring import score
+2026-09-15T20:26:27.0861705Z    |
+2026-09-15T20:26:27.0861837Z 
+2026-09-15T20:26:27.0861970Z E501 Line too long (110 > 88)
+2026-09-15T20:26:27.0862460Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:92:89
+2026-09-15T20:26:27.0862960Z    |
+2026-09-15T20:26:27.0863241Z 90 |     from scripts.phase20_scoring import score
+2026-09-15T20:26:27.0863609Z 91 |
+2026-09-15T20:26:27.0864234Z 92 |     same = supervisor.clean(report["findings"], excluded) == supervisor.clean(reference["findings"], excluded)
+2026-09-15T20:26:27.0865080Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0865566Z 93 |     if not same:
+2026-09-15T20:26:27.0866183Z 94 |         return {"condition_passed": None, "ordered_findings_equal": False, "source_assessment_pending": True}
+2026-09-15T20:26:27.0866886Z    |
+2026-09-15T20:26:27.0867015Z 
+2026-09-15T20:26:27.0867140Z E501 Line too long (109 > 88)
+2026-09-15T20:26:27.0867603Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:94:89
+2026-09-15T20:26:27.0868111Z    |
+2026-09-15T20:26:27.0868723Z 92 |     same = supervisor.clean(report["findings"], excluded) == supervisor.clean(reference["findings"], excluded)
+2026-09-15T20:26:27.0869461Z 93 |     if not same:
+2026-09-15T20:26:27.0870091Z 94 |         return {"condition_passed": None, "ordered_findings_equal": False, "source_assessment_pending": True}
+2026-09-15T20:26:27.0871153Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0871647Z 95 |     if assessment is None:
+2026-09-15T20:26:27.0872315Z 96 |         return {"condition_passed": None, "ordered_findings_equal": same, "source_assessment_pending": True}
+2026-09-15T20:26:27.0873046Z    |
+2026-09-15T20:26:27.0873177Z 
+2026-09-15T20:26:27.0873305Z E501 Line too long (108 > 88)
+2026-09-15T20:26:27.0874055Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:96:89
+2026-09-15T20:26:27.0874516Z    |
+2026-09-15T20:26:27.0875112Z 94 |         return {"condition_passed": None, "ordered_findings_equal": False, "source_assessment_pending": True}
+2026-09-15T20:26:27.0875870Z 95 |     if assessment is None:
+2026-09-15T20:26:27.0876514Z 96 |         return {"condition_passed": None, "ordered_findings_equal": same, "source_assessment_pending": True}
+2026-09-15T20:26:27.0877380Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0878154Z 97 |     row = score(label=label, state="completed", findings=report["findings"], assessment=assessment)
+2026-09-15T20:26:27.0879510Z 98 |     return {**row, "condition_passed": row["candidate_detected"] if label == "vulnerable" else row["false_alarm"] is False, "ordered_f…
+2026-09-15T20:26:27.0880311Z    |
+2026-09-15T20:26:27.0880453Z 
+2026-09-15T20:26:27.0880574Z E501 Line too long (99 > 88)
+2026-09-15T20:26:27.0881072Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:97:89
+2026-09-15T20:26:27.0881591Z    |
+2026-09-15T20:26:27.0881861Z 95 |     if assessment is None:
+2026-09-15T20:26:27.0882538Z 96 |         return {"condition_passed": None, "ordered_findings_equal": same, "source_assessment_pending": True}
+2026-09-15T20:26:27.0883580Z 97 |     row = score(label=label, state="completed", findings=report["findings"], assessment=assessment)
+2026-09-15T20:26:27.0884572Z    |                                                                                         ^^^^^^^^^^^
+2026-09-15T20:26:27.0885619Z 98 |     return {**row, "condition_passed": row["candidate_detected"] if label == "vulnerable" else row["false_alarm"] is False, "ordered_f…
+2026-09-15T20:26:27.0886458Z    |
+2026-09-15T20:26:27.0886697Z 
+2026-09-15T20:26:27.0886834Z E501 Line too long (190 > 88)
+2026-09-15T20:26:27.0887331Z   --> artifacts\phase23\compatibility-review-v1\evaluate.py:98:89
+2026-09-15T20:26:27.0887802Z    |
+2026-09-15T20:26:27.0888172Z 96 | … "source_assessment_pending": True}
+2026-09-15T20:26:27.0888659Z 97 | …"], assessment=assessment)
+2026-09-15T20:26:27.0889553Z 98 | … == "vulnerable" else row["false_alarm"] is False, "ordered_findings_equal": True, "source_assessment_pending": True}
+2026-09-15T20:26:27.0890569Z    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0891108Z    |
+2026-09-15T20:26:27.0891247Z 
+2026-09-15T20:26:27.0891373Z E501 Line too long (105 > 88)
+2026-09-15T20:26:27.0891868Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:117:89
+2026-09-15T20:26:27.0892358Z     |
+2026-09-15T20:26:27.0892668Z 115 |     assert not parent.get("budget_closed", False)
+2026-09-15T20:26:27.0893137Z 116 |     active = parent["attempts"][-1]
+2026-09-15T20:26:27.0894090Z 117 |     assert active["group"] == group and active["input_id"] == input_id and active["state"] == "attempted"
+2026-09-15T20:26:27.0894920Z     |                                                                                         ^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0895640Z 118 |     assert out.resolve() == (Path(consumed["output"]) / active["directory"]).resolve()
+2026-09-15T20:26:27.0896327Z 119 |     item = next(i for i in selected if i.id == input_id)
+2026-09-15T20:26:27.0896752Z     |
+2026-09-15T20:26:27.0896882Z 
+2026-09-15T20:26:27.0897052Z I001 [*] Import block is un-sorted or un-formatted
+2026-09-15T20:26:27.0897810Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:130:5
+2026-09-15T20:26:27.0898293Z     |
+2026-09-15T20:26:27.0898528Z 128 |         return config
+2026-09-15T20:26:27.0898815Z 129 |
+2026-09-15T20:26:27.0899533Z 130 |     from sentinel.static import engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch
+2026-09-15T20:26:27.0900573Z     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0901445Z 131 |     modules = (engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch)
+2026-09-15T20:26:27.0902023Z 132 |     imports = {module.__name__: str(module.__file__) for module in modules}
+2026-09-15T20:26:27.0902365Z     |
+2026-09-15T20:26:27.0902534Z help: Organize imports
+2026-09-15T20:26:27.0902669Z 
+2026-09-15T20:26:27.0902747Z E501 Line too long (125 > 88)
+2026-09-15T20:26:27.0903095Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:130:89
+2026-09-15T20:26:27.0903429Z     |
+2026-09-15T20:26:27.0903599Z 128 |         return config
+2026-09-15T20:26:27.0903806Z 129 |
+2026-09-15T20:26:27.0904254Z 130 |     from sentinel.static import engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch
+2026-09-15T20:26:27.0904889Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0905443Z 131 |     modules = (engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch)
+2026-09-15T20:26:27.0906008Z 132 |     imports = {module.__name__: str(module.__file__) for module in modules}
+2026-09-15T20:26:27.0906352Z     |
+2026-09-15T20:26:27.0906450Z 
+2026-09-15T20:26:27.0906533Z E501 Line too long (109 > 88)
+2026-09-15T20:26:27.0906837Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:131:89
+2026-09-15T20:26:27.0907304Z     |
+2026-09-15T20:26:27.0907741Z 130 |     from sentinel.static import engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch
+2026-09-15T20:26:27.0985395Z 131 |     modules = (engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch)
+2026-09-15T20:26:27.0986418Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0987106Z 132 |     imports = {module.__name__: str(module.__file__) for module in modules}
+2026-09-15T20:26:27.0988037Z 133 |     assert all(Path(path).is_relative_to(Path(proposal["frozen_checkout"]) / "src") for path in imports.values())
+2026-09-15T20:26:27.0988642Z     |
+2026-09-15T20:26:27.0988776Z 
+2026-09-15T20:26:27.0988897Z E501 Line too long (113 > 88)
+2026-09-15T20:26:27.0989363Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:133:89
+2026-09-15T20:26:27.0989704Z     |
+2026-09-15T20:26:27.0990137Z 131 |     modules = (engine, workers, path_flow, typescript_path_flow, semgrep_adapter, discovery, module_dispatch)
+2026-09-15T20:26:27.0990764Z 132 |     imports = {module.__name__: str(module.__file__) for module in modules}
+2026-09-15T20:26:27.0991369Z 133 |     assert all(Path(path).is_relative_to(Path(proposal["frozen_checkout"]) / "src") for path in imports.values())
+2026-09-15T20:26:27.0991914Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.0992935Z 134 |     assert engine.STATIC_TIMEOUT_SECONDS == 1800 and semgrep_adapter.SEMGREP_TIMEOUT_SECONDS == 10
+2026-09-15T20:26:27.0993471Z 135 |     write(out.with_name(out.name + "-runtime-binding.json"), {
+2026-09-15T20:26:27.0993790Z     |
+2026-09-15T20:26:27.0993879Z 
+2026-09-15T20:26:27.0993971Z E501 Line too long (98 > 88)
+2026-09-15T20:26:27.0994288Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:134:89
+2026-09-15T20:26:27.0994885Z     |
+2026-09-15T20:26:27.0995166Z 132 |     imports = {module.__name__: str(module.__file__) for module in modules}
+2026-09-15T20:26:27.0995752Z 133 |     assert all(Path(path).is_relative_to(Path(proposal["frozen_checkout"]) / "src") for path in imports.values())
+2026-09-15T20:26:27.0996403Z 134 |     assert engine.STATIC_TIMEOUT_SECONDS == 1800 and semgrep_adapter.SEMGREP_TIMEOUT_SECONDS == 10
+2026-09-15T20:26:27.0996897Z     |                                                                                         ^^^^^^^^^^
+2026-09-15T20:26:27.0997278Z 135 |     write(out.with_name(out.name + "-runtime-binding.json"), {
+2026-09-15T20:26:27.0997656Z 136 |         "scanner": proposal["scanner"], "imports": imports,
+2026-09-15T20:26:27.0997941Z     |
+2026-09-15T20:26:27.0998119Z 
+2026-09-15T20:26:27.0998292Z I001 [*] Import block is un-sorted or un-formatted
+2026-09-15T20:26:27.0998674Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:143:5
+2026-09-15T20:26:27.0999003Z     |
+2026-09-15T20:26:27.0999177Z 141 |       })
+2026-09-15T20:26:27.0999352Z 142 |
+2026-09-15T20:26:27.0999553Z 143 | /     from contextlib import nullcontext
+2026-09-15T20:26:27.0999880Z 144 | |     from unseen_corpus import frozen as unseen_frozen
+2026-09-15T20:26:27.1000205Z     | |_____________________________________________________^
+2026-09-15T20:26:27.1000530Z 145 |       unseen = g.get("corpus_kind") == "unseen_v1_exposed"
+2026-09-15T20:26:27.1001308Z 146 |       source_approval = (ROOT / g["source_freeze_approval"]) if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_free…
+2026-09-15T20:26:27.1001818Z     |
+2026-09-15T20:26:27.1001988Z help: Organize imports
+2026-09-15T20:26:27.1002122Z 
+2026-09-15T20:26:27.1002208Z E501 Line too long (157 > 88)
+2026-09-15T20:26:27.1002522Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:146:89
+2026-09-15T20:26:27.1002849Z     |
+2026-09-15T20:26:27.1003039Z 144 | …
+2026-09-15T20:26:27.1003220Z 145 | …
+2026-09-15T20:26:27.1004474Z 146 | …) if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_freeze_approval"] else None)
+2026-09-15T20:26:27.1005029Z     |                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1005652Z 147 | …ked), (patch.object(harness, "frozen_phase22", unseen_frozen) if unseen else nullcontext()):
+2026-09-15T20:26:27.1006088Z 148 | …
+2026-09-15T20:26:27.1006247Z     |
+2026-09-15T20:26:27.1006335Z 
+2026-09-15T20:26:27.1006427Z E501 Line too long (149 > 88)
+2026-09-15T20:26:27.1006750Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:147:89
+2026-09-15T20:26:27.1007074Z     |
+2026-09-15T20:26:27.1007260Z 145 | …ed"
+2026-09-15T20:26:27.1007722Z 146 | …al"]) if unseen else (Path.cwd() / g["source_freeze_approval"] if g["source_freeze_approval"] else None)
+2026-09-15T20:26:27.1008431Z 147 | …checked), (patch.object(harness, "frozen_phase22", unseen_frozen) if unseen else nullcontext()):
+2026-09-15T20:26:27.1008927Z     |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1009252Z 148 | …
+2026-09-15T20:26:27.1009435Z 149 | …em]}),
+2026-09-15T20:26:27.1009599Z     |
+2026-09-15T20:26:27.1009686Z 
+2026-09-15T20:26:27.1009772Z E501 Line too long (93 > 88)
+2026-09-15T20:26:27.1010076Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:169:89
+2026-09-15T20:26:27.1010391Z     |
+2026-09-15T20:26:27.1010625Z 167 |     assert report["static_analysis"]["duration_ms"] <= 1800000
+2026-09-15T20:26:27.1011036Z 168 |     assert sha(report_path) == result["outcomes"][0]["report_sha256"]
+2026-09-15T20:26:27.1011554Z 169 |     assert sha(report_path.parent / "configuration.json") == expected["configuration_sha256"]
+2026-09-15T20:26:27.1012037Z     |                                                                                         ^^^^^
+2026-09-15T20:26:27.1012676Z 170 |     if unseen:
+2026-09-15T20:26:27.1012937Z 171 |         witness = proposal["witnesses"][group][input_id]
+2026-09-15T20:26:27.1013378Z     |
+2026-09-15T20:26:27.1013463Z 
+2026-09-15T20:26:27.1013550Z E501 Line too long (197 > 88)
+2026-09-15T20:26:27.1013850Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:172:89
+2026-09-15T20:26:27.1014160Z     |
+2026-09-15T20:26:27.1014343Z 170 | …
+2026-09-15T20:26:27.1014508Z 171 | …
+2026-09-15T20:26:27.1015015Z 172 | …rule_id"] and f["location"]["path"] == witness["path"] and f["location"]["range"]["start_line"] == witness["sink_line"]]
+2026-09-15T20:26:27.1015587Z     |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1016028Z 173 | … len(matches), "source_assessment_pending": True}
+2026-09-15T20:26:27.1016326Z 174 | …
+2026-09-15T20:26:27.1016474Z     |
+2026-09-15T20:26:27.1016563Z 
+2026-09-15T20:26:27.1016640Z E501 Line too long (126 > 88)
+2026-09-15T20:26:27.1016937Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:173:89
+2026-09-15T20:26:27.1017259Z     |
+2026-09-15T20:26:27.1017476Z 171 |         witness = proposal["witnesses"][group][input_id]
+2026-09-15T20:26:27.1018091Z 172 |         matches = [f for f in report["findings"] if f["rule_id"] == witness["rule_id"] and f["location"]["path"] == witness["path"] a…
+2026-09-15T20:26:27.1018855Z 173 |         judgement = {"condition_passed": None, "provisional_sink_candidates": len(matches), "source_assessment_pending": True}
+2026-09-15T20:26:27.1019460Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1019786Z 174 |     else:
+2026-09-15T20:26:27.1020447Z 175 |         judgement = condition(report, json.loads((ROOT / expected["reference_report"]).read_text()), expected["assessment"], item.lab…
+2026-09-15T20:26:27.1020981Z     |
+2026-09-15T20:26:27.1021080Z 
+2026-09-15T20:26:27.1021162Z E501 Line too long (226 > 88)
+2026-09-15T20:26:27.1021618Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:175:89
+2026-09-15T20:26:27.1021959Z     |
+2026-09-15T20:26:27.1022241Z 173 | …atches), "source_assessment_pending": True}
+2026-09-15T20:26:27.1022536Z 174 | …
+2026-09-15T20:26:27.1023144Z 175 | …"]).read_text()), expected["assessment"], item.label, set(proposal["volatile_exclusions"]), proposal["witnesses"].get(group, {}).get(input_id))
+2026-09-15T20:26:27.1023830Z     |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1024201Z 176 | …
+2026-09-15T20:26:27.1024366Z 177 | …
+2026-09-15T20:26:27.1024519Z     |
+2026-09-15T20:26:27.1024616Z 
+2026-09-15T20:26:27.1024704Z E501 Line too long (110 > 88)
+2026-09-15T20:26:27.1025017Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:199:89
+2026-09-15T20:26:27.1025340Z     |
+2026-09-15T20:26:27.1025532Z 197 |         "approval_sha256": sha(APPROVAL),
+2026-09-15T20:26:27.1025854Z 198 |         "execution": "single local serial sequence",
+2026-09-15T20:26:27.1026377Z 199 |         "runner_revision": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+2026-09-15T20:26:27.1026901Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1027238Z 200 |         "python": sys.version,
+2026-09-15T20:26:27.1027509Z 201 |         "platform": platform.platform(),
+2026-09-15T20:26:27.1027767Z     |
+2026-09-15T20:26:27.1027851Z 
+2026-09-15T20:26:27.1027937Z E501 Line too long (96 > 88)
+2026-09-15T20:26:27.1028237Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:203:89
+2026-09-15T20:26:27.1028544Z     |
+2026-09-15T20:26:27.1028723Z 201 |         "platform": platform.platform(),
+2026-09-15T20:26:27.1028989Z 202 |         "cpu_count": os.cpu_count(),
+2026-09-15T20:26:27.1029409Z 203 |         "cpu_topology": subprocess.check_output(["sysctl", "hw.ncpu", "hw.memsize"], text=True),
+2026-09-15T20:26:27.1030028Z     |                                                                                         ^^^^^^^^
+2026-09-15T20:26:27.1030348Z 204 |         "attempts": [],
+2026-09-15T20:26:27.1030576Z 205 |         "unstarted": order,
+2026-09-15T20:26:27.1030787Z     |
+2026-09-15T20:26:27.1030876Z 
+2026-09-15T20:26:27.1030960Z E501 Line too long (100 > 88)
+2026-09-15T20:26:27.1031267Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:214:89
+2026-09-15T20:26:27.1031582Z     |
+2026-09-15T20:26:27.1031733Z 212 |     try:
+2026-09-15T20:26:27.1031934Z 213 |         assert sys.platform == "darwin"
+2026-09-15T20:26:27.1032677Z 214 |         assert not (ASSETS / "execution-consumed.json").exists(), "Sequence budget already consumed"
+2026-09-15T20:26:27.1033201Z     |                                                                                         ^^^^^^^^^^^^
+2026-09-15T20:26:27.1033613Z 215 |         with (ASSETS / "execution-consumed.json").open("x") as receipt:
+2026-09-15T20:26:27.1034338Z 216 |             json.dump({"proposal_sha256": sha(PROPOSAL), "approval_sha256": sha(APPROVAL), "output": str(out), "budget_consumed": Tru…
+2026-09-15T20:26:27.1034843Z     |
+2026-09-15T20:26:27.1034929Z 
+2026-09-15T20:26:27.1035019Z E501 Line too long (145 > 88)
+2026-09-15T20:26:27.1035325Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:216:89
+2026-09-15T20:26:27.1035640Z     |
+2026-09-15T20:26:27.1035921Z 214 | …on").exists(), "Sequence budget already consumed"
+2026-09-15T20:26:27.1036254Z 215 | …pen("x") as receipt:
+2026-09-15T20:26:27.1036728Z 216 | …SAL), "approval_sha256": sha(APPROVAL), "output": str(out), "budget_consumed": True}, receipt)
+2026-09-15T20:26:27.1037203Z     |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1037514Z 217 | …
+2026-09-15T20:26:27.1037689Z 218 | …
+2026-09-15T20:26:27.1037841Z     |
+2026-09-15T20:26:27.1037932Z 
+2026-09-15T20:26:27.1038011Z E501 Line too long (95 > 88)
+2026-09-15T20:26:27.1038438Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:264:89
+2026-09-15T20:26:27.1038768Z     |
+2026-09-15T20:26:27.1039062Z 262 |             row["condition"] = json.loads((out / label / "condition.json").read_text())
+2026-09-15T20:26:27.1039562Z 263 |             # All condition and coverage gates require separate source assessment.
+2026-09-15T20:26:27.1040087Z 264 |             # Collection stops only on execution/identity/schema/timing/cleanup/repeat failure.
+2026-09-15T20:26:27.1040529Z     |                                                                                         ^^^^^^^
+2026-09-15T20:26:27.1040862Z 265 |             write(out / "packet.json", packet)
+2026-09-15T20:26:27.1041148Z 266 |             print(json.dumps(row), flush=True)
+2026-09-15T20:26:27.1041393Z     |
+2026-09-15T20:26:27.1041483Z 
+2026-09-15T20:26:27.1041560Z E501 Line too long (118 > 88)
+2026-09-15T20:26:27.1041867Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:267:89
+2026-09-15T20:26:27.1042191Z     |
+2026-09-15T20:26:27.1042374Z 265 |             write(out / "packet.json", packet)
+2026-09-15T20:26:27.1042650Z 266 |             print(json.dumps(row), flush=True)
+2026-09-15T20:26:27.1043135Z 267 |         assert len(packet["attempts"]) == proposal["bounds"]["native_observations"] == 112 and not packet["unstarted"]
+2026-09-15T20:26:27.1043701Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1044042Z 268 |         packet["passed"] = True
+2026-09-15T20:26:27.1044337Z 269 |         packet["detection_and_coverage_gate_passed"] = None
+2026-09-15T20:26:27.1044629Z     |
+2026-09-15T20:26:27.1044724Z 
+2026-09-15T20:26:27.1044799Z E501 Line too long (100 > 88)
+2026-09-15T20:26:27.1045106Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:291:89
+2026-09-15T20:26:27.1045419Z     |
+2026-09-15T20:26:27.1045582Z 289 |     prior.selfcheck()
+2026-09-15T20:26:27.1046020Z 290 |     witness = {"rule_id": "SENT-012", "path": "src/index.ts", "sink_line": 10}
+2026-09-15T20:26:27.1046541Z 291 |     hit = {"rule_id": "SENT-012", "location": {"path": "src/index.ts", "range": {"start_line": 10}}}
+2026-09-15T20:26:27.1047006Z     |                                                                                         ^^^^^^^^^^^^
+2026-09-15T20:26:27.1047496Z 292 |     assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1048074Z 293 |     assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1048474Z     |
+2026-09-15T20:26:27.1048558Z 
+2026-09-15T20:26:27.1048645Z E501 Line too long (101 > 88)
+2026-09-15T20:26:27.1048944Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:292:89
+2026-09-15T20:26:27.1049259Z     |
+2026-09-15T20:26:27.1049517Z 290 |     witness = {"rule_id": "SENT-012", "path": "src/index.ts", "sink_line": 10}
+2026-09-15T20:26:27.1050009Z 291 |     hit = {"rule_id": "SENT-012", "location": {"path": "src/index.ts", "range": {"start_line": 10}}}
+2026-09-15T20:26:27.1050559Z 292 |     assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1051023Z     |                                                                                         ^^^^^^^^^^^^^
+2026-09-15T20:26:27.1051495Z 293 |     assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1052037Z 294 |     assert condition({"findings": []}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1052416Z     |
+2026-09-15T20:26:27.1052735Z 
+2026-09-15T20:26:27.1052867Z E501 Line too long (100 > 88)
+2026-09-15T20:26:27.1053165Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:293:89
+2026-09-15T20:26:27.1053471Z     |
+2026-09-15T20:26:27.1053889Z 291 |     hit = {"rule_id": "SENT-012", "location": {"path": "src/index.ts", "range": {"start_line": 10}}}
+2026-09-15T20:26:27.1054493Z 292 |     assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1055083Z 293 |     assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1055554Z     |                                                                                         ^^^^^^^^^^^^
+2026-09-15T20:26:27.1056004Z 294 |     assert condition({"findings": []}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1056568Z 295 |     assert not condition({"findings": []}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1056972Z     |
+2026-09-15T20:26:27.1057065Z 
+2026-09-15T20:26:27.1057143Z E501 Line too long (93 > 88)
+2026-09-15T20:26:27.1057443Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:294:89
+2026-09-15T20:26:27.1057748Z     |
+2026-09-15T20:26:27.1058074Z 292 |     assert condition({"findings": [hit]}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1058637Z 293 |     assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1059161Z 294 |     assert condition({"findings": []}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1059582Z     |                                                                                         ^^^^^
+2026-09-15T20:26:27.1060034Z 295 |     assert not condition({"findings": []}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1060523Z 296 |     f = {"dedup_key": "key", "status": "needs_review", "review": None}
+2026-09-15T20:26:27.1060821Z     |
+2026-09-15T20:26:27.1060913Z 
+2026-09-15T20:26:27.1060989Z E501 Line too long (102 > 88)
+2026-09-15T20:26:27.1061284Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:295:89
+2026-09-15T20:26:27.1061721Z     |
+2026-09-15T20:26:27.1062051Z 293 |     assert not condition({"findings": [hit]}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1062591Z 294 |     assert condition({"findings": []}, {}, None, "fixed", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1063140Z 295 |     assert not condition({"findings": []}, {}, None, "vulnerable", set(), witness)["condition_passed"]
+2026-09-15T20:26:27.1063606Z     |                                                                                         ^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1063983Z 296 |     f = {"dedup_key": "key", "status": "needs_review", "review": None}
+2026-09-15T20:26:27.1064294Z 297 |     r = {"findings": [f]}
+2026-09-15T20:26:27.1064497Z     |
+2026-09-15T20:26:27.1064590Z 
+2026-09-15T20:26:27.1064673Z E501 Line too long (109 > 88)
+2026-09-15T20:26:27.1064974Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:298:89
+2026-09-15T20:26:27.1065284Z     |
+2026-09-15T20:26:27.1065528Z 296 |     f = {"dedup_key": "key", "status": "needs_review", "review": None}
+2026-09-15T20:26:27.1065848Z 297 |     r = {"findings": [f]}
+2026-09-15T20:26:27.1066275Z 298 |     a = {"candidate_identity": candidate_identity([f]), "matches": ["key"], "rationale": "Synthetic control"}
+2026-09-15T20:26:27.1066848Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1067258Z 299 |     assert condition(r, r, a, "vulnerable", set())["condition_passed"]
+2026-09-15T20:26:27.1067697Z 300 |     assert not condition(r, r, a, "fixed", set())["condition_passed"]
+2026-09-15T20:26:27.1068016Z     |
+2026-09-15T20:26:27.1068102Z 
+2026-09-15T20:26:27.1068188Z E501 Line too long (93 > 88)
+2026-09-15T20:26:27.1068486Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:302:89
+2026-09-15T20:26:27.1068796Z     |
+2026-09-15T20:26:27.1069043Z 300 |     assert not condition(r, r, a, "fixed", set())["condition_passed"]
+2026-09-15T20:26:27.1070070Z 301 |     assert condition(r, r, {**a, "matches": []}, "fixed", set())["condition_passed"]
+2026-09-15T20:26:27.1070604Z 302 |     assert condition({"findings": []}, r, a, "vulnerable", set())["condition_passed"] is None
+2026-09-15T20:26:27.1071049Z     |                                                                                         ^^^^^
+2026-09-15T20:26:27.1071579Z 303 |     assert condition({"findings": [{**f, "description": "changed"}]}, r, a, "vulnerable", set())["condition_passed"] is None
+2026-09-15T20:26:27.1072048Z     |
+2026-09-15T20:26:27.1072136Z 
+2026-09-15T20:26:27.1072224Z E501 Line too long (124 > 88)
+2026-09-15T20:26:27.1072526Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:303:89
+2026-09-15T20:26:27.1073142Z     |
+2026-09-15T20:26:27.1073413Z 301 |     assert condition(r, r, {**a, "matches": []}, "fixed", set())["condition_passed"]
+2026-09-15T20:26:27.1073893Z 302 |     assert condition({"findings": []}, r, a, "vulnerable", set())["condition_passed"] is None
+2026-09-15T20:26:27.1074513Z 303 |     assert condition({"findings": [{**f, "description": "changed"}]}, r, a, "vulnerable", set())["condition_passed"] is None
+2026-09-15T20:26:27.1075064Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1075377Z     |
+2026-09-15T20:26:27.1075463Z 
+2026-09-15T20:26:27.1075544Z E501 Line too long (150 > 88)
+2026-09-15T20:26:27.1075831Z    --> artifacts\phase23\compatibility-review-v1\evaluate.py:311:89
+2026-09-15T20:26:27.1076129Z     |
+2026-09-15T20:26:27.1076334Z 309 | …
+2026-09-15T20:26:27.1076523Z 310 | ….cwd())]
+2026-09-15T20:26:27.1077011Z 311 | …ion("unseen_corpus", ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py")
+2026-09-15T20:26:27.1077515Z     |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1077834Z 312 | …pec)
+2026-09-15T20:26:27.1078009Z 313 | …
+2026-09-15T20:26:27.1078716Z     |
+2026-09-15T20:26:27.1078803Z 
+2026-09-15T20:26:27.1078889Z E501 Line too long (99 > 88)
+2026-09-15T20:26:27.1079184Z   --> artifacts\phase23\compatibility-review-v1\launch.py:42:89
+2026-09-15T20:26:27.1079494Z    |
+2026-09-15T20:26:27.1079727Z 40 |             raise AssertionError('Missing approval accepted')
+2026-09-15T20:26:27.1080148Z 41 |         assert not OUT.exists() and not (ASSETS/'execution-consumed.json').exists()
+2026-09-15T20:26:27.1080723Z 42 |         print('Missing approval rejected before launch/output/budget mutation; zero observations.')
+2026-09-15T20:26:27.1081199Z    |                                                                                         ^^^^^^^^^^^
+2026-09-15T20:26:27.1081490Z 43 |         return 0
+2026-09-15T20:26:27.1081692Z 44 |     assert not sys.argv[1:]
+2026-09-15T20:26:27.1081899Z    |
+2026-09-15T20:26:27.1081988Z 
+2026-09-15T20:26:27.1082062Z E501 Line too long (109 > 88)
+2026-09-15T20:26:27.1082350Z   --> artifacts\phase23\compatibility-review-v1\launch.py:50:89
+2026-09-15T20:26:27.1082660Z    |
+2026-09-15T20:26:27.1082857Z 48 |         if key.startswith(('OPENAI_', 'SENTINEL_')):
+2026-09-15T20:26:27.1083154Z 49 |             os.environ.pop(key)
+2026-09-15T20:26:27.1083639Z 50 |     os.environ['PATH'] = '/Users/bashaarjavaid/Projects/MCP-Sentinel/.venv/bin:' + os.environ.get('PATH', '')
+2026-09-15T20:26:27.1084186Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1084516Z 51 |     OUT.mkdir(exist_ok=False)
+2026-09-15T20:26:27.1084888Z 52 |     command = [sys.executable, '-I', str(ASSETS/'evaluate.py'), 'run', str(OUT/'raw')]
+2026-09-15T20:26:27.1085263Z    |
+2026-09-15T20:26:27.1085354Z 
+2026-09-15T20:26:27.1085429Z E501 Line too long (116 > 88)
+2026-09-15T20:26:27.1085737Z   --> artifacts\phase23\compatibility-review-v1\launch.py:56:89
+2026-09-15T20:26:27.1086055Z    |
+2026-09-15T20:26:27.1086399Z 54 |     limit = proposal['bounds']['sequence_maximum_minutes'] * 60
+2026-09-15T20:26:27.1086770Z 55 |     with (OUT/'launch.json').open('x') as stream:
+2026-09-15T20:26:27.1087269Z 56 |         json.dump({'command': command, 'cwd': str(Path.cwd()), 'started_at': datetime.now(timezone.utc).isoformat(),
+2026-09-15T20:26:27.1087790Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1088266Z 57 |                    'proposal_sha256': r.sha(r.PROPOSAL), 'approval_sha256': r.sha(r.APPROVAL),
+2026-09-15T20:26:27.1088771Z 58 |                    'launcher_binding_sha256': r.sha(BINDING), 'sequence_limit_seconds': limit,
+2026-09-15T20:26:27.1089138Z    |
+2026-09-15T20:26:27.1089225Z 
+2026-09-15T20:26:27.1089314Z E501 Line too long (94 > 88)
+2026-09-15T20:26:27.1089610Z   --> artifacts\phase23\compatibility-review-v1\launch.py:57:89
+2026-09-15T20:26:27.1089916Z    |
+2026-09-15T20:26:27.1090110Z 55 |     with (OUT/'launch.json').open('x') as stream:
+2026-09-15T20:26:27.1090652Z 56 |         json.dump({'command': command, 'cwd': str(Path.cwd()), 'started_at': datetime.now(timezone.utc).isoformat(),
+2026-09-15T20:26:27.1091226Z 57 |                    'proposal_sha256': r.sha(r.PROPOSAL), 'approval_sha256': r.sha(r.APPROVAL),
+2026-09-15T20:26:27.1091640Z    |                                                                                         ^^^^^^
+2026-09-15T20:26:27.1092066Z 58 |                    'launcher_binding_sha256': r.sha(BINDING), 'sequence_limit_seconds': limit,
+2026-09-15T20:26:27.1092531Z 59 |                    'observations_maximum': 111, 'paid_calls': 0}, stream, indent=2)
+2026-09-15T20:26:27.1093143Z    |
+2026-09-15T20:26:27.1093255Z 
+2026-09-15T20:26:27.1093339Z E501 Line too long (94 > 88)
+2026-09-15T20:26:27.1093628Z   --> artifacts\phase23\compatibility-review-v1\launch.py:58:89
+2026-09-15T20:26:27.1093923Z    |
+2026-09-15T20:26:27.1094289Z 56 |         json.dump({'command': command, 'cwd': str(Path.cwd()), 'started_at': datetime.now(timezone.utc).isoformat(),
+2026-09-15T20:26:27.1094983Z 57 |                    'proposal_sha256': r.sha(r.PROPOSAL), 'approval_sha256': r.sha(r.APPROVAL),
+2026-09-15T20:26:27.1095485Z 58 |                    'launcher_binding_sha256': r.sha(BINDING), 'sequence_limit_seconds': limit,
+2026-09-15T20:26:27.1095909Z    |                                                                                         ^^^^^^
+2026-09-15T20:26:27.1096299Z 59 |                    'observations_maximum': 111, 'paid_calls': 0}, stream, indent=2)
+2026-09-15T20:26:27.1096654Z 60 |         stream.write('\n')
+2026-09-15T20:26:27.1096860Z    |
+2026-09-15T20:26:27.1096951Z 
+2026-09-15T20:26:27.1097036Z E501 Line too long (108 > 88)
+2026-09-15T20:26:27.1097321Z   --> artifacts\phase23\compatibility-review-v1\launch.py:62:89
+2026-09-15T20:26:27.1097626Z    |
+2026-09-15T20:26:27.1097790Z 60 |         stream.write('\n')
+2026-09-15T20:26:27.1098124Z 61 |     timing = r.supervisor.supervise(command, OUT/'sequence.log', limit)
+2026-09-15T20:26:27.1098690Z 62 |     r.write(OUT/'execution.json', {'timing': timing, 'completed_at': datetime.now(timezone.utc).isoformat(),
+2026-09-15T20:26:27.1099202Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1099592Z 63 |                                  'darwin_group_checks': r.prior.DARWIN_GROUP_CHECKS,
+2026-09-15T20:26:27.1100007Z 64 |                                  'proposal_sha256': r.sha(r.PROPOSAL), 'paid_calls': 0})
+2026-09-15T20:26:27.1100326Z    |
+2026-09-15T20:26:27.1100416Z 
+2026-09-15T20:26:27.1100490Z E501 Line too long (106 > 88)
+2026-09-15T20:26:27.1100774Z   --> artifacts\phase23\compatibility-review-v1\launch.py:65:89
+2026-09-15T20:26:27.1101085Z    |
+2026-09-15T20:26:27.1101327Z 63 |                                  'darwin_group_checks': r.prior.DARWIN_GROUP_CHECKS,
+2026-09-15T20:26:27.1101837Z 64 |                                  'proposal_sha256': r.sha(r.PROPOSAL), 'paid_calls': 0})
+2026-09-15T20:26:27.1102403Z 65 |     assert timing['cleanup_verified'] and not timing['timed_out'] and not timing['remaining_group_killed']
+2026-09-15T20:26:27.1102913Z    |                                                                                         ^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1103259Z 66 |     assert timing['elapsed_seconds'] <= limit
+2026-09-15T20:26:27.1103531Z 67 |     return timing['returncode']
+2026-09-15T20:26:27.1103754Z    |
+2026-09-15T20:26:27.1103846Z 
+2026-09-15T20:26:27.1103969Z F401 [*] `unittest.mock.patch` imported but unused
+2026-09-15T20:26:27.1104352Z  --> artifacts\phase23\compatibility-review-v1\verify-sources.py:7:27
+2026-09-15T20:26:27.1104687Z   |
+2026-09-15T20:26:27.1104850Z 5 | import tempfile
+2026-09-15T20:26:27.1105061Z 6 | from pathlib import Path
+2026-09-15T20:26:27.1105290Z 7 | from unittest.mock import patch
+2026-09-15T20:26:27.1105517Z   |                           ^^^^^
+2026-09-15T20:26:27.1105715Z 8 |
+2026-09-15T20:26:27.1105907Z 9 | ROOT = Path(__file__).resolve().parents[3]
+2026-09-15T20:26:27.1106167Z   |
+2026-09-15T20:26:27.1106382Z help: Remove unused import: `unittest.mock.patch`
+2026-09-15T20:26:27.1106581Z 
+2026-09-15T20:26:27.1106687Z E402 Module level import not at top of file
+2026-09-15T20:26:27.1107042Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:11:1
+2026-09-15T20:26:27.1107387Z    |
+2026-09-15T20:26:27.1107571Z  9 | ROOT = Path(__file__).resolve().parents[3]
+2026-09-15T20:26:27.1107862Z 10 | sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+2026-09-15T20:26:27.1108177Z 11 | from scripts import phase20_corpus, phase22_corpus
+2026-09-15T20:26:27.1108475Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1108751Z 12 | from scripts.phase20_measurements import LLM
+2026-09-15T20:26:27.1109063Z 13 | from sentinel.config import load_configuration
+2026-09-15T20:26:27.1109320Z    |
+2026-09-15T20:26:27.1109509Z help: Move module level imports to top of file
+2026-09-15T20:26:27.1109804Z 
+2026-09-15T20:26:27.1109907Z E402 Module level import not at top of file
+2026-09-15T20:26:27.1110255Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:12:1
+2026-09-15T20:26:27.1110578Z    |
+2026-09-15T20:26:27.1110761Z 10 | sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+2026-09-15T20:26:27.1111057Z 11 | from scripts import phase20_corpus, phase22_corpus
+2026-09-15T20:26:27.1111359Z 12 | from scripts.phase20_measurements import LLM
+2026-09-15T20:26:27.1111619Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1111891Z 13 | from sentinel.config import load_configuration
+2026-09-15T20:26:27.1112141Z    |
+2026-09-15T20:26:27.1112320Z help: Move module level imports to top of file
+2026-09-15T20:26:27.1112496Z 
+2026-09-15T20:26:27.1112593Z E402 Module level import not at top of file
+2026-09-15T20:26:27.1112927Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:13:1
+2026-09-15T20:26:27.1113544Z    |
+2026-09-15T20:26:27.1113751Z 11 | from scripts import phase20_corpus, phase22_corpus
+2026-09-15T20:26:27.1114069Z 12 | from scripts.phase20_measurements import LLM
+2026-09-15T20:26:27.1114372Z 13 | from sentinel.config import load_configuration
+2026-09-15T20:26:27.1114640Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1114865Z 14 |
+2026-09-15T20:26:27.1115036Z 15 | HERE = Path(__file__).resolve().parent
+2026-09-15T20:26:27.1115265Z    |
+2026-09-15T20:26:27.1115449Z help: Move module level imports to top of file
+2026-09-15T20:26:27.1115634Z 
+2026-09-15T20:26:27.1115711Z E501 Line too long (132 > 88)
+2026-09-15T20:26:27.1116035Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:17:89
+2026-09-15T20:26:27.1116358Z    |
+2026-09-15T20:26:27.1116527Z 15 | HERE = Path(__file__).resolve().parent
+2026-09-15T20:26:27.1116876Z 16 | proposal = json.loads((HERE / "evaluation-proposal.json").read_text())
+2026-09-15T20:26:27.1117654Z 17 | spec = importlib.util.spec_from_file_location("unseen", ROOT / "artifacts/phase22/integration/v86-regression-preparation/corpus.py")
+2026-09-15T20:26:27.1118347Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1118739Z 18 | unseen = importlib.util.module_from_spec(spec)
+2026-09-15T20:26:27.1119033Z 19 | spec.loader.exec_module(unseen)
+2026-09-15T20:26:27.1119259Z    |
+2026-09-15T20:26:27.1119348Z 
+2026-09-15T20:26:27.1119428Z E501 Line too long (90 > 88)
+2026-09-15T20:26:27.1119751Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:35:89
+2026-09-15T20:26:27.1120083Z    |
+2026-09-15T20:26:27.1120337Z 33 | …     item = items[input_id]
+2026-09-15T20:26:27.1120739Z 34 | …     assert item.model_dump(mode="json") == expected["input"], input_id
+2026-09-15T20:26:27.1121350Z 35 | …     with tempfile.TemporaryDirectory(prefix="phase23-source-preflight-") as temporary:
+2026-09-15T20:26:27.1121830Z    |                                                                                       ^^
+2026-09-15T20:26:27.1122511Z 36 | …         root = phase20_corpus.materialize(item, snapshots[item.snapshot], Path(temporary).resolve() / "source", manifest.packet)
+2026-09-15T20:26:27.1123417Z 37 | …         config = load_configuration(root, environ={}, static_only=True, cli_overrides={"rules_only":True,"ignore_paths":[".phase20/*…
+2026-09-15T20:26:27.1123936Z    |
+2026-09-15T20:26:27.1124022Z 
+2026-09-15T20:26:27.1124112Z E501 Line too long (132 > 88)
+2026-09-15T20:26:27.1124434Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:36:89
+2026-09-15T20:26:27.1124760Z    |
+2026-09-15T20:26:27.1124970Z 34 | …== expected["input"], input_id
+2026-09-15T20:26:27.1125319Z 35 | …fix="phase23-source-preflight-") as temporary:
+2026-09-15T20:26:27.1125833Z 36 | …e(item, snapshots[item.snapshot], Path(temporary).resolve() / "source", manifest.packet)
+2026-09-15T20:26:27.1126294Z    |                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1127084Z 37 | …, environ={}, static_only=True, cli_overrides={"rules_only":True,"ignore_paths":[".phase20/**"],"max_findings_per_scan":500},llm_cli_…
+2026-09-15T20:26:27.1127995Z 38 | …ner.model_dump(mode="json"),"target":config.target.model_dump(mode="json") if config.target else None,"static_only":config.static_onl…
+2026-09-15T20:26:27.1128504Z    |
+2026-09-15T20:26:27.1128588Z 
+2026-09-15T20:26:27.1128674Z E501 Line too long (289 > 88)
+2026-09-15T20:26:27.1128990Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:37:89
+2026-09-15T20:26:27.1129322Z    |
+2026-09-15T20:26:27.1129506Z 35 | …porary:
+2026-09-15T20:26:27.1129792Z 36 | …temporary).resolve() / "source", manifest.packet)
+2026-09-15T20:26:27.1130721Z 37 | …rrides={"rules_only":True,"ignore_paths":[".phase20/**"],"max_findings_per_scan":500},llm_cli_overrides={"model":LLM.model,"reasoning_effort":"medium","retries":0,"max_concurrency":1,"cache_enabled":False})
+2026-09-15T20:26:27.1131681Z    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1132502Z 38 | …nfig.target.model_dump(mode="json") if config.target else None,"static_only":config.static_only,"language":config.language.value}
+2026-09-15T20:26:27.1133059Z 39 | …rue)+"\n").encode())
+2026-09-15T20:26:27.1133585Z    |
+2026-09-15T20:26:27.1133678Z 
+2026-09-15T20:26:27.1133755Z E501 Line too long (212 > 88)
+2026-09-15T20:26:27.1134075Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:38:89
+2026-09-15T20:26:27.1134399Z    |
+2026-09-15T20:26:27.1134675Z 36 | …temporary).resolve() / "source", manifest.packet)
+2026-09-15T20:26:27.1135337Z 37 | …rrides={"rules_only":True,"ignore_paths":[".phase20/**"],"max_findings_per_scan":500},llm_cli_overrides={"model":LLM.model,"reasoning_…
+2026-09-15T20:26:27.1136321Z 38 | …nfig.target.model_dump(mode="json") if config.target else None,"static_only":config.static_only,"language":config.language.value}
+2026-09-15T20:26:27.1136979Z    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1137362Z 39 | …rue)+"\n").encode())
+2026-09-15T20:26:27.1137622Z 40 | …ected["configuration_sha256"])
+2026-09-15T20:26:27.1137854Z    |
+2026-09-15T20:26:27.1137950Z 
+2026-09-15T20:26:27.1138028Z E501 Line too long (103 > 88)
+2026-09-15T20:26:27.1138356Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:39:89
+2026-09-15T20:26:27.1138697Z    |
+2026-09-15T20:26:27.1139241Z 37 | …         config = load_configuration(root, environ={}, static_only=True, cli_overrides={"rules_only":True,"ignore_paths":[".phase20/*…
+2026-09-15T20:26:27.1140131Z 38 | …         payload = {"scanner":config.scanner.model_dump(mode="json"),"target":config.target.model_dump(mode="json") if config.target …
+2026-09-15T20:26:27.1140937Z 39 | …         actual = phase20_corpus.digest((json.dumps(payload,indent=2,sort_keys=True)+"\n").encode())
+2026-09-15T20:26:27.1141427Z    |                                                                                       ^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1142037Z 40 | …         assert actual == expected["configuration_sha256"], (input_id,actual,expected["configuration_sha256"])
+2026-09-15T20:26:27.1142828Z 41 | …     records.append({"group":group,"input_id":input_id,"source_and_input_equal":True,"configuration_sha256":actual})
+2026-09-15T20:26:27.1143286Z    |
+2026-09-15T20:26:27.1143371Z 
+2026-09-15T20:26:27.1143461Z E501 Line too long (113 > 88)
+2026-09-15T20:26:27.1143789Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:40:89
+2026-09-15T20:26:27.1144116Z    |
+2026-09-15T20:26:27.1144621Z 38 |             payload = {"scanner":config.scanner.model_dump(mode="json"),"target":config.target.model_dump(mode="json") if config.targe…
+2026-09-15T20:26:27.1145499Z 39 |             actual = phase20_corpus.digest((json.dumps(payload,indent=2,sort_keys=True)+"\n").encode())
+2026-09-15T20:26:27.1146190Z 40 |             assert actual == expected["configuration_sha256"], (input_id,actual,expected["configuration_sha256"])
+2026-09-15T20:26:27.1146733Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1147291Z 41 |         records.append({"group":group,"input_id":input_id,"source_and_input_equal":True,"configuration_sha256":actual})
+2026-09-15T20:26:27.1148129Z 42 | (HERE / "source-validation.json").write_text(json.dumps({"status":"passed","inputs":records,"count":len(records),"scanner_calls":0,"ta…
+2026-09-15T20:26:27.1148959Z    |
+2026-09-15T20:26:27.1149056Z 
+2026-09-15T20:26:27.1149136Z E501 Line too long (184 > 88)
+2026-09-15T20:26:27.1149619Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:42:89
+2026-09-15T20:26:27.1149970Z    |
+2026-09-15T20:26:27.1150267Z 40 | …id,actual,expected["configuration_sha256"])
+2026-09-15T20:26:27.1150655Z 41 | …input_equal":True,"configuration_sha256":actual})
+2026-09-15T20:26:27.1151275Z 42 | …sed","inputs":records,"count":len(records),"scanner_calls":0,"target_executions":0,"paid_calls":0},indent=2)+"\n")
+2026-09-15T20:26:27.1151839Z    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1152216Z 43 | …ngs verified; zero scans.")
+2026-09-15T20:26:27.1152435Z    |
+2026-09-15T20:26:27.1152526Z 
+2026-09-15T20:26:27.1152604Z E501 Line too long (97 > 88)
+2026-09-15T20:26:27.1152930Z   --> artifacts\phase23\compatibility-review-v1\verify-sources.py:43:89
+2026-09-15T20:26:27.1153266Z    |
+2026-09-15T20:26:27.1153999Z 41 |         records.append({"group":group,"input_id":input_id,"source_and_input_equal":True,"configuration_sha256":actual})
+2026-09-15T20:26:27.1154969Z 42 | (HERE / "source-validation.json").write_text(json.dumps({"status":"passed","inputs":records,"count":len(records),"scanner_calls":0,"ta…
+2026-09-15T20:26:27.1155731Z 43 | print(f"{len(records)} historical source and exact configuration bindings verified; zero scans.")
+2026-09-15T20:26:27.1156218Z    |                                                                                         ^^^^^^^^^
+2026-09-15T20:26:27.1156504Z    |
+2026-09-15T20:26:27.1156598Z 
+2026-09-15T20:26:27.1156678Z E501 Line too long (97 > 88)
+2026-09-15T20:26:27.1156986Z  --> artifacts\phase23\regression-rejection-review-v1\run.py:1:89
+2026-09-15T20:26:27.1157313Z   |
+2026-09-15T20:26:27.1157670Z 1 | """One approved observation with only the promisify binding reversed in a disposable checkout."""
+2026-09-15T20:26:27.1158156Z   |                                                                                         ^^^^^^^^^
+2026-09-15T20:26:27.1158461Z 2 | import hashlib
+2026-09-15T20:26:27.1158646Z 3 | import io
+2026-09-15T20:26:27.1158814Z   |
+2026-09-15T20:26:27.1158910Z 
+2026-09-15T20:26:27.1159014Z F401 [*] `hashlib` imported but unused
+2026-09-15T20:26:27.1159349Z  --> artifacts\phase23\regression-rejection-review-v1\run.py:2:8
+2026-09-15T20:26:27.1159659Z   |
+2026-09-15T20:26:27.1160019Z 1 | """One approved observation with only the promisify binding reversed in a disposable checkout."""
+2026-09-15T20:26:27.1160442Z 2 | import hashlib
+2026-09-15T20:26:27.1160621Z   |        ^^^^^^^
+2026-09-15T20:26:27.1160791Z 3 | import io
+2026-09-15T20:26:27.1160961Z 4 | import json
+2026-09-15T20:26:27.1161135Z   |
+2026-09-15T20:26:27.1161307Z help: Remove unused import: `hashlib`
+2026-09-15T20:26:27.1161479Z 
+2026-09-15T20:26:27.1161564Z F401 [*] `runpy` imported but unused
+2026-09-15T20:26:27.1161877Z  --> artifacts\phase23\regression-rejection-review-v1\run.py:5:8
+2026-09-15T20:26:27.1162184Z   |
+2026-09-15T20:26:27.1162344Z 3 | import io
+2026-09-15T20:26:27.1162510Z 4 | import json
+2026-09-15T20:26:27.1162679Z 5 | import runpy
+2026-09-15T20:26:27.1162849Z   |        ^^^^^
+2026-09-15T20:26:27.1163150Z 6 | import signal
+2026-09-15T20:26:27.1163335Z 7 | import subprocess
+2026-09-15T20:26:27.1163515Z   |
+2026-09-15T20:26:27.1163689Z help: Remove unused import: `runpy`
+2026-09-15T20:26:27.1163856Z 
+2026-09-15T20:26:27.1163953Z E402 Module level import not at top of file
+2026-09-15T20:26:27.1164299Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:17:1
+2026-09-15T20:26:27.1164611Z    |
+2026-09-15T20:26:27.1164804Z 15 | ROOT = Path(__file__).resolve().parents[3]
+2026-09-15T20:26:27.1165097Z 16 | sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+2026-09-15T20:26:27.1165424Z 17 | from scripts import phase23_regression as helper
+2026-09-15T20:26:27.1165709Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1166037Z 18 | from scripts.phase20_corpus import Artifact, digest, tree_digest
+2026-09-15T20:26:27.1166358Z    |
+2026-09-15T20:26:27.1166549Z help: Move module level imports to top of file
+2026-09-15T20:26:27.1166742Z 
+2026-09-15T20:26:27.1166842Z E402 Module level import not at top of file
+2026-09-15T20:26:27.1167170Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:18:1
+2026-09-15T20:26:27.1167479Z    |
+2026-09-15T20:26:27.1167659Z 16 | sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
+2026-09-15T20:26:27.1167960Z 17 | from scripts import phase23_regression as helper
+2026-09-15T20:26:27.1168310Z 18 | from scripts.phase20_corpus import Artifact, digest, tree_digest
+2026-09-15T20:26:27.1168646Z    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1168904Z 19 |
+2026-09-15T20:26:27.1169077Z 20 | HERE = Path(__file__).resolve().parent
+2026-09-15T20:26:27.1169318Z    |
+2026-09-15T20:26:27.1169502Z help: Move module level imports to top of file
+2026-09-15T20:26:27.1169687Z 
+2026-09-15T20:26:27.1169776Z E501 Line too long (91 > 88)
+2026-09-15T20:26:27.1170078Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:33:89
+2026-09-15T20:26:27.1170394Z    |
+2026-09-15T20:26:27.1170736Z 31 |     assert helper.execution_identity() == proposal["identity"]
+2026-09-15T20:26:27.1171167Z 32 |     assert digest(Path(__file__).read_bytes()) == proposal["runner_sha256"]
+2026-09-15T20:26:27.1171685Z 33 |     assert proposal["observations"] == 1 and proposal["input_id"] == "minimized-vulnerable"
+2026-09-15T20:26:27.1172133Z    |                                                                                         ^^^
+2026-09-15T20:26:27.1172792Z 34 |     assert proposal["limits"] == {"input_seconds":1800,"semgrep_seconds":10,"cleanup_seconds":15,"maximum_workers":4,"outer_seconds":2…
+2026-09-15T20:26:27.1173366Z 35 |     assert not (ROOT / proposal["output"]).exists()
+2026-09-15T20:26:27.1173643Z    |
+2026-09-15T20:26:27.1174003Z 
+2026-09-15T20:26:27.1174101Z E501 Line too long (165 > 88)
+2026-09-15T20:26:27.1174416Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:34:89
+2026-09-15T20:26:27.1174730Z    |
+2026-09-15T20:26:27.1174937Z 32 | …runner_sha256"]
+2026-09-15T20:26:27.1175208Z 33 | …_id"] == "minimized-vulnerable"
+2026-09-15T20:26:27.1175746Z 34 | …rep_seconds":10,"cleanup_seconds":15,"maximum_workers":4,"outer_seconds":2100,"outer_cleanup_seconds":15}
+2026-09-15T20:26:27.1176274Z    |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1176592Z 35 | …
+2026-09-15T20:26:27.1176777Z 36 | …)
+2026-09-15T20:26:27.1176938Z    |
+2026-09-15T20:26:27.1177024Z 
+2026-09-15T20:26:27.1177112Z E501 Line too long (94 > 88)
+2026-09-15T20:26:27.1177413Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:38:89
+2026-09-15T20:26:27.1177741Z    |
+2026-09-15T20:26:27.1177982Z 36 |     assert not Path(proposal["disposable_checkout"]).exists()
+2026-09-15T20:26:27.1178361Z 37 |     assert not APPROVAL.with_suffix(".used.json").exists()
+2026-09-15T20:26:27.1178826Z 38 |     assert digest((ROOT / proposal["changed_file"]).read_bytes()) == proposal["before_sha256"]
+2026-09-15T20:26:27.1179309Z    |                                                                                         ^^^^^^
+2026-09-15T20:26:27.1179794Z 39 |     Artifact.model_validate(proposal["patch"]).read(ROOT)
+2026-09-15T20:26:27.1180195Z 40 |     Artifact.model_validate(proposal["reversed_source"]).read(ROOT)
+2026-09-15T20:26:27.1180522Z    |
+2026-09-15T20:26:27.1180618Z 
+2026-09-15T20:26:27.1180699Z E501 Line too long (110 > 88)
+2026-09-15T20:26:27.1181006Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:41:89
+2026-09-15T20:26:27.1181317Z    |
+2026-09-15T20:26:27.1181535Z 39 |     Artifact.model_validate(proposal["patch"]).read(ROOT)
+2026-09-15T20:26:27.1181918Z 40 |     Artifact.model_validate(proposal["reversed_source"]).read(ROOT)
+2026-09-15T20:26:27.1182479Z 41 |     assert digest(Artifact.model_validate(proposal["reversed_source"]).read(ROOT)) == proposal["after_sha256"]
+2026-09-15T20:26:27.1183026Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1183407Z 42 |     manifest_path = ROOT / proposal["manifest"]["path"]
+2026-09-15T20:26:27.1183829Z 43 |     assert digest(manifest_path.read_bytes()) == proposal["manifest"]["sha256"]
+2026-09-15T20:26:27.1184204Z    |
+2026-09-15T20:26:27.1184298Z 
+2026-09-15T20:26:27.1184379Z E501 Line too long (95 > 88)
+2026-09-15T20:26:27.1184676Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:59:89
+2026-09-15T20:26:27.1185006Z    |
+2026-09-15T20:26:27.1185167Z 57 |         else:
+2026-09-15T20:26:27.1185416Z 58 |             raise AssertionError("Missing approval accepted")
+2026-09-15T20:26:27.1185892Z 59 |         print("Missing approval rejected before source checkout, budget or scanner execution.")
+2026-09-15T20:26:27.1186356Z    |                                                                                         ^^^^^^^
+2026-09-15T20:26:27.1186655Z 60 |         return 0
+2026-09-15T20:26:27.1186852Z 61 |     assert not sys.argv[1:]
+2026-09-15T20:26:27.1187065Z    |
+2026-09-15T20:26:27.1187258Z 
+2026-09-15T20:26:27.1187338Z E501 Line too long (202 > 88)
+2026-09-15T20:26:27.1187639Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:69:89
+2026-09-15T20:26:27.1187943Z    |
+2026-09-15T20:26:27.1188119Z 67 | …
+2026-09-15T20:26:27.1188293Z 68 | …
+2026-09-15T20:26:27.1188835Z 69 | …soformat(),"proposal_sha256":digest(PROPOSAL.read_bytes()),"remaining_observations":0,"paid_calls":0,"target_executions":0}
+2026-09-15T20:26:27.1189437Z    |           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1190018Z 70 | …LRM,helper._expired),(signal.SIGINT,helper._cancelled),(signal.SIGTERM,helper._cancelled)]}
+2026-09-15T20:26:27.1190478Z 71 | …
+2026-09-15T20:26:27.1190627Z    |
+2026-09-15T20:26:27.1190716Z 
+2026-09-15T20:26:27.1190798Z E501 Line too long (170 > 88)
+2026-09-15T20:26:27.1191089Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:70:89
+2026-09-15T20:26:27.1191411Z    |
+2026-09-15T20:26:27.1191578Z 68 | …
+2026-09-15T20:26:27.1192154Z 69 | …(timezone.utc).isoformat(),"proposal_sha256":digest(PROPOSAL.read_bytes()),"remaining_observations":0,"paid_calls":0,"target_executio…
+2026-09-15T20:26:27.1193021Z 70 | …in [(signal.SIGALRM,helper._expired),(signal.SIGINT,helper._cancelled),(signal.SIGTERM,helper._cancelled)]}
+2026-09-15T20:26:27.1193560Z    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1194164Z 71 | …
+2026-09-15T20:26:27.1194335Z 72 | …
+2026-09-15T20:26:27.1194482Z    |
+2026-09-15T20:26:27.1194565Z 
+2026-09-15T20:26:27.1194651Z E501 Line too long (129 > 88)
+2026-09-15T20:26:27.1194946Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:74:89
+2026-09-15T20:26:27.1195264Z    |
+2026-09-15T20:26:27.1195433Z 72 |     helper._alarm(2100)
+2026-09-15T20:26:27.1195633Z 73 |     try:
+2026-09-15T20:26:27.1196089Z 74 |         archive = subprocess.check_output(["git","archive","HEAD","src","scripts","schemas","pyproject.toml","uv.lock"],cwd=ROOT)
+2026-09-15T20:26:27.1196823Z    |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1197178Z 75 |         checkout.mkdir()
+2026-09-15T20:26:27.1197469Z 76 |         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+2026-09-15T20:26:27.1197766Z    |
+2026-09-15T20:26:27.1197855Z 
+2026-09-15T20:26:27.1197939Z E501 Line too long (89 > 88)
+2026-09-15T20:26:27.1198242Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:78:89
+2026-09-15T20:26:27.1198550Z    |
+2026-09-15T20:26:27.1198766Z 76 |         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+2026-09-15T20:26:27.1199095Z 77 |             tar.extractall(checkout,filter="data")
+2026-09-15T20:26:27.1199525Z 78 |         # Overlay the reviewed uncommitted candidate bytes, excluding interpreter caches.
+2026-09-15T20:26:27.1199993Z    |                                                                                         ^
+2026-09-15T20:26:27.1200330Z 79 |         for directory in ["src","scripts","schemas"]:
+2026-09-15T20:26:27.1200651Z 80 |             for source in (ROOT / directory).rglob("*"):
+2026-09-15T20:26:27.1200922Z    |
+2026-09-15T20:26:27.1201007Z 
+2026-09-15T20:26:27.1201094Z E501 Line too long (155 > 88)
+2026-09-15T20:26:27.1201388Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:87:89
+2026-09-15T20:26:27.1201693Z    |
+2026-09-15T20:26:27.1201877Z 85 | …
+2026-09-15T20:26:27.1202070Z 86 | ….read_bytes())
+2026-09-15T20:26:27.1202546Z 87 | …d_bytes() for p in (ROOT/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+2026-09-15T20:26:27.1203044Z    |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1203634Z 88 | …read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+2026-09-15T20:26:27.1204759Z 89 | …
+2026-09-15T20:26:27.1204925Z    |
+2026-09-15T20:26:27.1205013Z 
+2026-09-15T20:26:27.1205092Z E501 Line too long (162 > 88)
+2026-09-15T20:26:27.1205399Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:88:89
+2026-09-15T20:26:27.1205711Z    |
+2026-09-15T20:26:27.1205905Z 86 | …d_bytes())
+2026-09-15T20:26:27.1206328Z 87 | …tes() for p in (ROOT/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+2026-09-15T20:26:27.1206985Z 88 | …_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+2026-09-15T20:26:27.1207470Z    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1207781Z 89 | …
+2026-09-15T20:26:27.1208113Z 90 | …rtifact.model_validate(proposal["reversed_source"]).read(ROOT))
+2026-09-15T20:26:27.1208426Z    |
+2026-09-15T20:26:27.1208516Z 
+2026-09-15T20:26:27.1208590Z E501 Line too long (122 > 88)
+2026-09-15T20:26:27.1208904Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:90:89
+2026-09-15T20:26:27.1209220Z    |
+2026-09-15T20:26:27.1209771Z 88 | …     copied = {p.relative_to(checkout).as_posix():p.read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__…
+2026-09-15T20:26:27.1210340Z 89 | …     assert copied == current
+2026-09-15T20:26:27.1210910Z 90 | …     (checkout / proposal["changed_file"]).write_bytes(Artifact.model_validate(proposal["reversed_source"]).read(ROOT))
+2026-09-15T20:26:27.1211493Z    |                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1212189Z 91 | …     changed = {p.relative_to(checkout).as_posix():p.read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "_…
+2026-09-15T20:26:27.1212957Z 92 | …     assert [name for name in current if current[name]!=changed[name]] == [proposal["changed_file"]]
+2026-09-15T20:26:27.1213491Z    |
+2026-09-15T20:26:27.1213580Z 
+2026-09-15T20:26:27.1213660Z E501 Line too long (163 > 88)
+2026-09-15T20:26:27.1213957Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:91:89
+2026-09-15T20:26:27.1214585Z    |
+2026-09-15T20:26:27.1214757Z 89 | …
+2026-09-15T20:26:27.1215085Z 90 | …rtifact.model_validate(proposal["reversed_source"]).read(ROOT))
+2026-09-15T20:26:27.1215688Z 91 | …d_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "__pycache__" not in p.parts}
+2026-09-15T20:26:27.1216197Z    |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1216614Z 92 | …changed[name]] == [proposal["changed_file"]]
+2026-09-15T20:26:27.1216913Z 93 | …rrent)
+2026-09-15T20:26:27.1217075Z    |
+2026-09-15T20:26:27.1217161Z 
+2026-09-15T20:26:27.1217246Z E501 Line too long (103 > 88)
+2026-09-15T20:26:27.1217554Z   --> artifacts\phase23\regression-rejection-review-v1\run.py:92:89
+2026-09-15T20:26:27.1217885Z    |
+2026-09-15T20:26:27.1218387Z 90 | …     (checkout / proposal["changed_file"]).write_bytes(Artifact.model_validate(proposal["reversed_source"]).read(ROOT))
+2026-09-15T20:26:27.1219242Z 91 | …     changed = {p.relative_to(checkout).as_posix():p.read_bytes() for p in (checkout/"src/sentinel").rglob("*") if p.is_file() and "_…
+2026-09-15T20:26:27.1220007Z 92 | …     assert [name for name in current if current[name]!=changed[name]] == [proposal["changed_file"]]
+2026-09-15T20:26:27.1220493Z    |                                                                                       ^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1220930Z 93 | …     receipt["candidate_source_sha256"] = tree_digest(current)
+2026-09-15T20:26:27.1221360Z 94 | …     receipt["reversed_source_sha256"] = tree_digest(changed)
+2026-09-15T20:26:27.1221647Z    |
+2026-09-15T20:26:27.1221732Z 
+2026-09-15T20:26:27.1221818Z E501 Line too long (142 > 88)
+2026-09-15T20:26:27.1222123Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:109:89
+2026-09-15T20:26:27.1222559Z     |
+2026-09-15T20:26:27.1222763Z 107 | ….json",receipt)
+2026-09-15T20:26:27.1222983Z 108 | …s)
+2026-09-15T20:26:27.1223438Z 109 | …e23/candidate-execution-review-v2/proposal.json").read_bytes())["configurations"][item["id"]]
+2026-09-15T20:26:27.1223944Z     |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1224259Z 110 | …ch):
+2026-09-15T20:26:27.1224719Z 111 | …,output/"observation",output/"sources"/item["id"],helper.baseline_environment(output),deadline,config)
+2026-09-15T20:26:27.1225166Z     |
+2026-09-15T20:26:27.1225261Z 
+2026-09-15T20:26:27.1225336Z E501 Line too long (151 > 88)
+2026-09-15T20:26:27.1225639Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:111:89
+2026-09-15T20:26:27.1225957Z     |
+2026-09-15T20:26:27.1226380Z 109 | …andidate-execution-review-v2/proposal.json").read_bytes())["configurations"][item["id"]]
+2026-09-15T20:26:27.1226817Z 110 | …
+2026-09-15T20:26:27.1227254Z 111 | …ut/"observation",output/"sources"/item["id"],helper.baseline_environment(output),deadline,config)
+2026-09-15T20:26:27.1227733Z     |                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1228039Z 112 | …
+2026-09-15T20:26:27.1228309Z 113 | …come["cleanup"] == "verified" and report is not None
+2026-09-15T20:26:27.1228607Z     |
+2026-09-15T20:26:27.1240725Z 
+2026-09-15T20:26:27.1240836Z E501 Line too long (106 > 88)
+2026-09-15T20:26:27.1241202Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:113:89
+2026-09-15T20:26:27.1241555Z     |
+2026-09-15T20:26:27.1242207Z 111 | …         outcome,report = helper._observe(item,output/"observation",output/"sources"/item["id"],helper.baseline_environment(output),…
+2026-09-15T20:26:27.1242843Z 112 | …     receipt["observation"] = outcome
+2026-09-15T20:26:27.1243375Z 113 | …     assert outcome["state"] == "completed" and outcome["cleanup"] == "verified" and report is not None
+2026-09-15T20:26:27.1244109Z     |                                                                                       ^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1244470Z 114 | …     try:
+2026-09-15T20:26:27.1244797Z 115 | …         helper.ci_report_difference(report,reference,item)
+2026-09-15T20:26:27.1245099Z     |
+2026-09-15T20:26:27.1245199Z 
+2026-09-15T20:26:27.1245279Z E501 Line too long (153 > 88)
+2026-09-15T20:26:27.1245616Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:118:89
+2026-09-15T20:26:27.1245943Z     |
+2026-09-15T20:26:27.1246113Z 116 | …
+2026-09-15T20:26:27.1246333Z 117 | …ll condition failed", str(error)
+2026-09-15T20:26:27.1246883Z 118 | …scripts.phase23_regression.ci_report_difference","type":type(error).__name__,"message":str(error)}
+2026-09-15T20:26:27.1247393Z     |                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1247765Z 119 | …f"{type(error).__name__}: {error}\n")
+2026-09-15T20:26:27.1248038Z 120 | …
+2026-09-15T20:26:27.1248190Z     |
+2026-09-15T20:26:27.1248285Z 
+2026-09-15T20:26:27.1248372Z E501 Line too long (92 > 88)
+2026-09-15T20:26:27.1248683Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:119:89
+2026-09-15T20:26:27.1249003Z     |
+2026-09-15T20:26:27.1249365Z 117 | …         assert str(error) == "CI source-matched shell condition failed", str(error)
+2026-09-15T20:26:27.1250140Z 118 | …         receipt["failed_assertion"] = {"function":"scripts.phase23_regression.ci_report_difference","type":type(error).__name__,"me…
+2026-09-15T20:26:27.1250895Z 119 | …         (output/"failed-assertion.txt").write_text(f"{type(error).__name__}: {error}\n")
+2026-09-15T20:26:27.1251341Z     |                                                                                       ^^^^
+2026-09-15T20:26:27.1251654Z 120 | …     else:
+2026-09-15T20:26:27.1252139Z 121 | …         raise AssertionError("Deliberate regression was not rejected by the source-matched assertion")
+2026-09-15T20:26:27.1252704Z     |
+2026-09-15T20:26:27.1252787Z 
+2026-09-15T20:26:27.1252871Z E501 Line too long (106 > 88)
+2026-09-15T20:26:27.1253182Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:121:89
+2026-09-15T20:26:27.1253499Z     |
+2026-09-15T20:26:27.1253805Z 119 |             (output/"failed-assertion.txt").write_text(f"{type(error).__name__}: {error}\n")
+2026-09-15T20:26:27.1254190Z 120 |         else:
+2026-09-15T20:26:27.1254963Z 121 |             raise AssertionError("Deliberate regression was not rejected by the source-matched assertion")
+2026-09-15T20:26:27.1255495Z     |                                                                                         ^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1255849Z 122 |         receipt["status"] = "regression_rejected"
+2026-09-15T20:26:27.1256120Z 123 |         return 0
+2026-09-15T20:26:27.1256306Z     |
+2026-09-15T20:26:27.1256411Z 
+2026-09-15T20:26:27.1256495Z E501 Line too long (114 > 88)
+2026-09-15T20:26:27.1256826Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:133:89
+2026-09-15T20:26:27.1257147Z     |
+2026-09-15T20:26:27.1257368Z 131 |             receipt["disposable_checkout_cleanup"] = "verified"
+2026-09-15T20:26:27.1257696Z 132 |         except BaseException as error:
+2026-09-15T20:26:27.1258185Z 133 |             receipt.update(status="failed",disposable_checkout_cleanup=f"failed: {type(error).__name__}: {error}")
+2026-09-15T20:26:27.1258732Z     |                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-09-15T20:26:27.1259049Z 134 |             raise
+2026-09-15T20:26:27.1259245Z 135 |         finally:
+2026-09-15T20:26:27.1259436Z     |
+2026-09-15T20:26:27.1259531Z 
+2026-09-15T20:26:27.1259636Z E701 Multiple statements on one line (colon)
+2026-09-15T20:26:27.1260010Z    --> artifacts\phase23\regression-rejection-review-v1\run.py:136:48
+2026-09-15T20:26:27.1260342Z     |
+2026-09-15T20:26:27.1260501Z 134 |             raise
+2026-09-15T20:26:27.1260813Z 135 |         finally:
+2026-09-15T20:26:27.1261113Z 136 |             for sig,handler in handlers.items():signal.signal(sig,handler)
+2026-09-15T20:26:27.1261467Z     |                                                ^
+2026-09-15T20:26:27.1261843Z 137 |             receipt["completed_at_utc"] = datetime.now(timezone.utc).isoformat()
+2026-09-15T20:26:27.1262264Z 138 |             helper._atomic_json(output/"results.json",receipt)
+2026-09-15T20:26:27.1262559Z     |
+2026-09-15T20:26:27.1262657Z 
+2026-09-15T20:26:27.1262728Z Found 89 errors.
+2026-09-15T20:26:27.1262950Z [*] 6 fixable with the `--fix` option.
+2026-09-15T20:26:27.2029643Z ##[error]Process completed with exit code 1.
+2026-09-15T20:26:27.2330213Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-15T20:26:27.2331531Z Post job cleanup.
+2026-09-15T20:26:27.4173435Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-09-15T20:26:27.4452935Z git version 2.55.0.windows.5
+2026-09-15T20:26:27.4527578Z Temporarily overriding HOME='D:\a\_temp\8c75f4a7-cfa9-4c43-8a58-4d6802028508' before making global git config changes
+2026-09-15T20:26:27.4528769Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-15T20:26:27.4539738Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\MCP-Sentinel\MCP-Sentinel
+2026-09-15T20:26:27.4872197Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-09-15T20:26:27.5192934Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-09-15T20:26:28.1080925Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-15T20:26:28.1346697Z http.https://github.com/.extraheader
+2026-09-15T20:26:28.1392002Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-09-15T20:26:28.1706498Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-09-15T20:26:28.8026448Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-15T20:26:28.8352194Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-09-15T20:26:29.5021831Z Cleaning up orphan processes
+2026-09-15T20:26:29.5202469Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

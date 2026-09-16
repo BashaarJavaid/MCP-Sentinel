@@ -65,3 +65,15 @@ changelog entry; internal refactors and test-only changes do not. Update public
 documentation in the same pull request when interfaces or behavior change.
 
 There is no DCO, CLA, Code of Conduct, or CODEOWNERS requirement.
+
+## Feedback and maintenance
+
+Use separate false-positive, missed-vulnerability and rule-proposal forms;
+include sanitized source/configuration, immutable revisions and complete report
+evidence. Expectations remain unreviewed until the maintainer checks source
+conditions and analysis support. Optional MIT example reuse consent is separate
+from sanitization; obtain permission or establish an applicable license before
+corpus incorporation. Follow private Sentinel reporting and upstream disclosure
+policies. AI-assisted drafts receive the same review. The [maintenance
+process](phase23-maintenance.md) covers the weekly checklist, lifecycle records,
+offline regression tests and human-approved versioned releases.

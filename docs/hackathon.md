@@ -117,6 +117,11 @@ The Phase 5 `/feedback` record was submitted from the primary thread above.
 
 ## Release evidence
 
+For new feedback-driven releases, follow the [maintenance release review and
+verification checklist](phase23-maintenance.md#release-review-and-verification).
+The version and exact merge/tag/publication actions require maintainer approval.
+Historical release evidence below retains its original version bindings.
+
 ### v1.2.0 release and adoption evidence
 
 The signed [`v1.2.0` GitHub Release](https://github.com/BashaarJavaid/MCP-Sentinel/releases/tag/v1.2.0)

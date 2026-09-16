@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "pending_explicit_payload_and_destination_approval",
+  "recorded_at_utc": "2026-09-15T18:13:38.507942+00:00",
+  "command": [
+    ".venv/bin/pip-audit",
+    "--vulnerability-service",
+    "pypi",
+    "--cache-dir",
+    "/private/tmp/mcp-sentinel-phase23-pip-audit-cache",
+    "--no-deps",
+    "--disable-pip",
+    "--format",
+    "json",
+    "--output",
+    "artifacts/phase23/callback-engineering-v1/dependency-audit.json",
+    "-r",
+    "artifacts/phase23/dependency-audit-review-v1/requirements.txt"
+  ],
+  "destination": "https://pypi.org/pypi/<package>/<version>/json",
+  "payload": "Package name and pinned version in each GET request URL, plus ordinary HTTP client/network metadata. No repository source, credentials, reports or advisory-target code is uploaded.",
+  "requests_file": "artifacts/phase23/dependency-audit-review-v1/requests.json",
+  "requirements_sha256": "f7686dc6337243b257fbf2618ecccf7a71a02584d65e820a67f3b48a48141b2e",
+  "requests_sha256": "b67ce6751bc2dd510d07eb697983e32b758fabcaf736b55d460bb0d4a58c57cc",
+  "requirement_records": 84,
+  "active_requirement_records": 82,
+  "reason": "Automatic approval review rejected the generic make audit command because the specific dependency/version payload and external service had not been explicitly approved.",
+  "source_evidence": ".venv/lib/python3.12/site-packages/pip_audit/_service/pypi.py:59",
+  "paid_calls": 0,
+  "target_execution": false
+}

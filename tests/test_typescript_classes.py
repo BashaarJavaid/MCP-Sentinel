@@ -338,3 +338,91 @@ def test_rule_delegation_does_not_repeat_callee_or_argument_effects(
     monkeypatch.setattr(flow, "call", call)
     analyze(program, state, flow=flow)
     assert len(observed) == count
+
+
+@pytest.mark.parametrize("mutual", [False, True])
+def test_sdk_handler_recursion_remains_unresolved(tmp_path: Path, mutual: bool) -> None:
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        + ("function second(input) { return first(input); }\n" if mutual else "")
+        + "function first(input) { return "
+        + ("second(input); }\n" if mutual else "first(input); }\n")
+        + 'server.tool("recursive", {}, first);\n'
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    state = RuleRunState()
+    flow = TypeScriptPathFlow(program, state)
+    analyze(program, state, flow=flow)
+    assert not state.matches
+    assert any("recursive or unsupported handler" in w.message for w in state.warnings)
+    assert not flow.active and not flow.normal_exits
+
+
+@pytest.mark.parametrize("depth", [0, 63, 64])
+def test_nested_sdk_callback_total_bound(tmp_path: Path, depth: int) -> None:
+    from sentinel.static.typescript_discovery import TypeScriptSymbol
+
+    source = (
+        'import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";\n'
+        'import fs from "node:fs";\n'
+        'const server = new McpServer({name:"test",version:"1"});\n'
+        "function handler(input) {\n"
+        'server.tool("nested", {}, async () => fs.readFileSync(input.path));\n'
+        "}\n"
+    )
+    file = TypeScriptSourceFile(tmp_path / "server.ts", "server.ts", source)
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    state = RuleRunState()
+    flow = TypeScriptPathFlow(program, state)
+    flow.initialize(TypeScriptSymbol(file, program.trees["server.ts"]))
+    handler = program.resolve(file, "handler")
+    assert handler is not None
+    flow.callables["callback"] = handler
+    original = {("registration.ts", 1, 1)}
+    flow.active = original
+    flow.normal_exits = [[] for _ in range(depth)]
+    flow.registered(
+        file, handler.node, [Value(key="tool"), Value(), Value(key="callback")], {}
+    )
+    assert flow.active is original and original == {("registration.ts", 1, 1)}
+    assert len(flow.normal_exits) == depth
+    assert len(state.matches) == (1 if depth == 0 else 0)
+    assert any("nesting limit" in w.message for w in state.warnings) == (depth != 0)
+
+
+@pytest.mark.parametrize("failure", ["exception", "deadline"])
+def test_sdk_callback_restores_registration_stack(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    from sentinel.errors import InfrastructureError
+
+    file = TypeScriptSourceFile(
+        tmp_path / "handler.ts",
+        "handler.ts",
+        "export function handler(input) { return input; }",
+    )
+    program = TypeScriptProgram((file,), deadline=time.monotonic() + 15)
+    flow = TypeScriptPathFlow(program, RuleRunState())
+    handler = program.resolve(file, "handler")
+    assert handler is not None
+    flow.callables["callback"] = handler
+    original = {("registration.ts", 1, 1)}
+    flow.active = original
+    invoke = flow.function
+
+    def interrupted(*args: Any, **kwargs: Any) -> Value:
+        assert flow.active == set() and flow.active is not original
+        if failure == "exception":
+            raise RuntimeError("synthetic callback interruption")
+        program.deadline = 0
+        return invoke(*args, **kwargs)
+
+    monkeypatch.setattr(flow, "function", interrupted)
+    with pytest.raises(RuntimeError if failure == "exception" else InfrastructureError):
+        flow.registered(
+            file, handler.node, [Value(key="tool"), Value(), Value(key="callback")], {}
+        )
+    assert flow.active is original and original == {("registration.ts", 1, 1)}
+    assert not flow.normal_exits

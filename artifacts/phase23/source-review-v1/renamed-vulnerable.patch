@@ -1,0 +1,29 @@
+--- a/src/server.ts
++++ b/src/server.ts
+@@ -1,7 +1,7 @@
+ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+-import stopSandbox, { argSchema as stopSchema } from './tools/stop.ts';
++import removeSandbox, { argumentsSchema as inputSchema } from './tools/stop.ts';
+ 
+-const server = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });
+-server.tool('sandbox_stop', 'Remove a sandbox container.', stopSchema, stopSandbox);
+-await server.connect(new StdioServerTransport());
++const mcpServer = new McpServer({ name: 'phase23-stop-reproduction', version: '1.0.0' });
++mcpServer.tool('sandbox_stop', 'Remove a sandbox container.', inputSchema, removeSandbox);
++await mcpServer.connect(new StdioServerTransport());
+--- a/src/tools/stop.ts
++++ b/src/tools/stop.ts
+@@ -1,9 +1,9 @@
+ import { z } from 'zod';
+ import { execSync } from 'node:child_process';
+ 
+-export const argSchema = { container_id: z.string() };
++export const argumentsSchema = { sandbox_ref: z.string() };
+ 
+-export default async function stopSandbox({ container_id }: { container_id: string }) {
+-  execSync(`docker rm -f ${container_id}`);
++export default async function removeSandbox({ sandbox_ref }: { sandbox_ref: string }) {
++  execSync(`docker rm -f ${sandbox_ref}`);
+   return { content: [{ type: 'text' as const, text: 'Container removed.' }] };
+ }

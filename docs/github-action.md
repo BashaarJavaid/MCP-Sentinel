@@ -1,8 +1,8 @@
 # GitHub Action
 
-The 1.3.0 Action pins `portunusmcp-sentinel==1.3.0`
+The 1.4.0 Action pins `portunusmcp-sentinel==1.4.0`
 package, runs Sentinel, validates SARIF, uploads eligible reports to GitHub code
-scanning, and preserves exit codes. Use `@v1.3.0` for this exact Action release
+scanning, and preserves exit codes. Use `@v1.4.0` for this exact Action release
 or `@v1` for the latest compatible major-version alias.
 
 ## Full scan

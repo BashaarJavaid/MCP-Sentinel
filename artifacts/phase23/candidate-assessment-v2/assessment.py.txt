@@ -1,0 +1,95 @@
+import collections,difflib,hashlib,json,re
+from datetime import datetime,timezone
+from pathlib import Path
+from scripts.phase23_regression import source_files,validate,ordered_report,matching_indexes,execution_identity
+r=Path('artifacts/phase23'); b=r/'corrected-candidate-v2'; a=r/'candidate-assessment-v2'; a.mkdir()
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def put(name,v): (a/name).write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
+manifest=Path('tests/evals/phase23/candidate-v2/manifest.json');m=validate(manifest); items={i['id']:i for i in m['inputs']}; sources={k:source_files(v) for k,v in items.items()}
+ledger=json.loads((b/'results.json').read_text()); proposal=r/'candidate-execution-review-v2/proposal.json';identity=json.loads(proposal.read_text())['identity']
+assert identity==execution_identity()
+assert ledger['status']=='completed' and ledger['remaining_observations']==0 and len(ledger['outcomes'])==14
+assert len(ledger['ordered_pairs'])==7 and all(p['equal'] for p in ledger['ordered_pairs'])
+assert not list((b/'sources').iterdir())
+def context(files,diagnostic):
+ loc=diagnostic.get('location',{});path=loc.get('path');line=loc.get('range',{}).get('start_line')
+ if not path:
+  match=re.search(r'([^\s:]+\.(?:ts|tsx|mts|cts)):(?:(\d+):)?',diagnostic.get('message',''))
+  if match:path=match[1];line=int(match[2]) if match[2] else None
+ if path not in files:return None
+ data=files[path];out={'path':path,'sha256':hashlib.sha256(data).hexdigest()}
+ if line:
+  lines=data.decode().splitlines();low=max(1,line-2);high=min(len(lines),line+2);out.update(start_line=low,end_line=high,text='\n'.join(lines[low-1:high]))
+ return out
+support={
+ 'full-vulnerable':('detected_vulnerable_condition','source_matched','Exact SENT-002 at logic.ts:138 includes emitted registration, imported wrapper errorHandler.ts:382 and full server startup flow locations. Separate source inspection binds the handler at registration.ts:74, nested callback at 100 and helper invocation at 160; those source lines are not all emitted flow locations. The unchanged schema admits initialBranch; object spread retains that field; quote-only replacement does not remove shell substitution. Unknown path sanitization does not sanitize initialBranch.'),
+ 'full-fixed':('supported_negative','established_for_selected_shell_condition','The complete report recognizes the git_init callback and records SENT-014 at the exact execFileAsync sink with registration and imported wrapper flow locations. Source binds immutable promisify(execFile), literal git, separate argv and no shell option. The shared ShellFlow uses that same proved factory/call path. initialBranch remains a scalar field through the object spread and is appended to argv after -b. Retained unresolved path sanitization, logging, fs access and JSON rendering calls do not change this proved execution mode; no protection is credited to them. This establishes only the selected shell condition, not option safety, filesystem safety, runtime success or other rules.'),
+ 'minimized-vulnerable':('detected_vulnerable_condition','source_matched','SENT-002 exact sink/evidence ranges and cross-file flow include the inline SDK registration and command construction. Quote replacement is not credited as sanitization.'),
+ 'renamed-vulnerable':('detected_vulnerable_condition','source_matched','Renamed equivalent retains source-matched SENT-002 and cross-file SDK-to-sink evidence.'),
+ 'minimized-fixed':('supported_negative','established_for_selected_shell_condition','The recognized inline SDK callback forwards its input directly to the included helper. Immutable imports bind util.promisify(child_process.execFile); the reviewed shared interpreter resolves this exact factory and ShellFlow handles the sink with literal git, separate argv and no shell option. SENT-014 at the same sink additionally establishes actual shared argv traversal, not shell vulnerability. The older per-file analyzer cannot follow the imported helper and emits its retained warning; its limitation is covered by the source-bound shared path. No claim about option injection or broader repository safety.'),
+ 'renamed-fixed':('supported_negative','established_for_selected_shell_condition','Same proved immutable promisify(execFile), literal executable and argv path as minimized-fixed, with all frozen identifier renames. Retained per-file helper warning is covered by shared resolution; SENT-014 remains independently assessed.'),
+ 'safe-literal':('supported_negative','established_for_selected_shell_condition','The same recognized direct SDK/helper path and immutable promisify(exec) binding reach a literal command. The tainted replace/build result is not passed to the sink. The per-file imported-helper warning and replace warnings remain, but neither prevents assessment of this source-visible literal-only sink; shared ShellFlow recognizes this proved sink. No sanitization claim or general safety conclusion.')}
+obs=[];findings=[];diags=[];surfaces=[];changes=[];reports={}
+def diag_assessment(id,w):
+ msg=w['message'];full=id.startswith('full-')
+ if 'gitInit/registration.ts:70: ambiguous legacy tool metadata' in msg:
+  raise AssertionError('selected metadata blocker unexpectedly remains')
+ if not full and 'SENT-002 at src/server.ts:10:' in msg:
+  return 'retained_per_file_helper_limit','The old _Analyzer resolves only per-file helpers (typescript_execution.py:detect); emit() retains its unresolved imported call. Shared ShellFlow is separately merged. Source-matched vulnerable findings and unchanged simple fixed/literal control flow establish the selected shared sink path; this warning is not deleted or globally suppressed.'
+ if not full and 'replace' in msg:
+  return 'unproved_string_operation_retained','No sanitizer proof is granted. Vulnerable command taint is preserved; safe-literal computes this value but passes an independent fixed string to exec. For non-shell rules the warning remains outside their established support.'
+ if not full and any(n in msg for n in ('execAsync','runShell')):
+  return 'other_rule_sink_limit','The named rule does not model this shell command as its own protected sink; retain its unresolved warning. SENT-002 separately recognizes the proved execution sink; no sibling-rule safety is claimed.'
+ if full:
+  return ('selected_path_unresolved' if 'gitInit/' in msg else 'other_source_unresolved'),'Exact unresolved binding/flow retained with source identity. Newly recognized metadata exposes more handlers. For the selected git_init shell condition, startup/registration/helper and the immutable sink are independently bound in source-support.json; path sanitization, logging, filesystem access and result rendering are not credited as protection or broader support. Other tools/rules remain outside this narrow support judgment. Name-only diagnostics are not runtime traces.'
+ return 'binding_diagnostic_retained','Static name-only binding diagnostic retained; the shared value interpreter separately handles SDK receiver, imported helper, array operations or literal sink. Source support is narrow and documented per observation; no blanket warning suppression.'
+for n,o in enumerate(ledger['outcomes'],1):
+ id=o['input_id'];p=b/'observations'/f'{n:02d}-{id}'/'report.json';x=json.loads(p.read_text());coverage=x['static_analysis']['coverage']
+ assert sha(p)==o['report_sha256'] and o['state']=='completed' and o['cleanup']=='verified'
+ assert x['analysisComplete'] and x['executionSuccessful']
+ assert matching_indexes(x,items[id])==o['matching_finding_indexes']
+ expected=[4] if id=='full-vulnerable' else [0] if id in ('minimized-vulnerable','renamed-vulnerable') else []
+ assert o['matching_finding_indexes']==expected
+ gate,status,why=support[id]
+ if not id.startswith('full-'):
+  assert len(coverage['surfaces'])==1 and coverage['surfaces'][0]['name']=='git_init' and 'SENT-002' in coverage['surfaces'][0]['examined_rule_ids']
+ else:
+  selected=[s for s in coverage['surfaces'] if s['name']=='git_init']
+  assert len(selected)==1 and selected[0]['status']=='recognized' and 'SENT-002' in selected[0]['examined_rule_ids']
+  assert selected[0]['handler']['path']=='src/mcp-server/tools/gitInit/registration.ts'
+  assert selected[0]['handler']['range']['start_line']==74
+  assert len(coverage['surfaces'])==10
+ obs.append({'observation':n,**o,'report':str(p),'assessment':gate,'analysis_support':status,'support_evidence':why,'findings':len(x['findings']),'warnings':len(x['warnings']),'unresolved_flow_occurrences':len(coverage['unresolved_flows']),'surfaces':len(coverage['surfaces'])})
+ if n>7:
+  assert ordered_report(x)==ordered_report(reports[id]);continue
+ reports[id]=x;files=sources[id]
+ for index,f in enumerate(x['findings']):
+  rule=f['rule_id']; assert rule in ('SENT-002','SENT-003','SENT-014')
+  reason={'SENT-002':'Selected source-matched shell injection. Existing quote replacement does not remove command substitution; actual sink/evidence and cross-file source locations match the frozen condition.',
+  'SENT-003':'Unchanged whole-object helper handoff finding. SDK schema establishes a field type, while this rule does not prove whole-object validation at the handoff. Retain existing assessment for human review; no validation-rule change.',
+  'SENT-014':'Newly exposed option-flow finding at fixed argv sink. Shared TypeScriptOptionFlow flags tainted argv slots without modeling git init -b operand consumption. Source argv is [init, -b, branch value, literal path]; this finding establishes traversal, not exploitability. Potential false positive/command-grammar limitation requires human disposition. Preserve raw High/needs_review; no suppression, new advisory claim or SENT-014 correction.'}[rule]
+  classification={'SENT-002':'selected_vulnerability_detected','SENT-003':'retained_unrelated_validation_finding','SENT-014':'new_unrelated_option_finding_exploitability_unestablished'}[rule]
+  if id.startswith('full-') and rule=='SENT-002' and index not in o['matching_finding_indexes']:
+   classification='new_unrelated_shell_finding_exploitability_unestablished'
+   reason='Newly reached shell command sink in another tool, with full startup/registration/helper flow evidence. Source command construction and all referenced lines are retained in source-contexts.json. Path sanitization is unresolved; some branch/remote fields use character allowlists while merge/show also interpolate quoted fields. This bounded advisory review does not establish an exploit or a sanitizer bypass for this separate sink. Preserve the raw finding and require human disposition; no additional vulnerability count or detector correction is inferred.'
+  if id.startswith('full-') and rule=='SENT-014':
+   reason='Newly reached argv sink using immutable promisify(execFile), literal git and no shell option. Raw taint-slot finding is retained. Source includes -C/-b operands and, for some tools, user ref/remote/branch arguments; generic TypeScriptOptionFlow does not model complete Git option/operand grammar. Source-contexts.json retains exact construction and flow lines. Exploitability is unestablished; potential operand false positives and any real option effects require separate human disposition. No suppression or new advisory claim.'
+  findings.append({'observations':[n,n+7],'input_id':id,'index':index,'finding':f,'classification':classification,'assessment':reason,'source_context':context(files,f)})
+ for channel,values in [('warnings',x['warnings']),('coverage.unresolved_flows',coverage['unresolved_flows'])]:
+  for index,w in enumerate(values):
+   kind,reason=diag_assessment(id,w);diags.append({'observations':[n,n+7],'input_id':id,'channel':channel,'index':index,'diagnostic':w,'classification':kind,'assessment':reason,'source_context':context(files,w)})
+ for index,surface in enumerate(coverage['surfaces']):surfaces.append({'observations':[n,n+7],'input_id':id,'index':index,'surface':surface,'assessment':why if surface['name']=='git_init' else 'New recognized metadata surface; recorded examined rule IDs do not establish general safety. Associated findings/diagnostics are indexed; this tool is outside the selected advisory condition.','source_context':context(files,surface)})
+ oldpath=r/'corrected-candidate-v1/observations'/f'{n:02d}-{id}'/'report.json';old=ordered_report(json.loads(oldpath.read_text()));new=ordered_report(x)
+ diff=''.join(difflib.unified_diff(json.dumps(old,indent=2,sort_keys=True).splitlines(True),json.dumps(new,indent=2,sort_keys=True).splitlines(True),fromfile='baseline/'+id,tofile='candidate/'+id));dp=a/f'baseline-{id}.diff';dp.write_text(diff)
+ top=[k for k in old if old[k]!=new[k]];assert set(top)<={'findings','warnings','static_analysis','summary','review_activity'}
+ sections=[]
+ for key,before,after in [('findings',old['findings'],new['findings']),('warnings',old['warnings'],new['warnings']),('coverage.unresolved_flows',old['static_analysis']['coverage']['unresolved_flows'],new['static_analysis']['coverage']['unresolved_flows']),('coverage.surfaces',old['static_analysis']['coverage']['surfaces'],new['static_analysis']['coverage']['surfaces'])]:
+  ops=[]
+  for action,l,h,ll,hh in difflib.SequenceMatcher(a=[json.dumps(v,sort_keys=True) for v in before],b=[json.dumps(v,sort_keys=True) for v in after],autojunk=False).get_opcodes():
+   if action!='equal':ops.append({'action':action,'before_indexes':list(range(l,h)),'after_indexes':list(range(ll,hh)),'before':before[l:h],'after':after[ll:hh]})
+  sections.append({'section':key,'ordered_changes':ops})
+ changes.append({'input_id':id,'baseline_report':str(oldpath),'baseline_sha256':sha(oldpath),'candidate_report':str(p),'candidate_sha256':sha(p),'complete_ordered_diff':str(dp),'diff_sha256':sha(dp),'changed_top_fields':top,'sections':sections,'assessment':'Findings are indexed separately: new matching SENT-002 or new SENT-014, retained SENT-003. Summary/review counts derive from those additions. Every warning/coverage change remains explicit here and all current occurrences are assessed in diagnostics.json; previous source-bound baseline diagnostics remain retained. The selected full-source surface is now recognized; negative support additionally depends on the source-bound execution path in source-support.json. Ten unrelated full-source shell and eleven full-source option findings per pass remain pending human disposition.'})
+counts={k:sum(o[k] for o in obs) for k in ('findings','warnings','unresolved_flow_occurrences','surfaces')}
+summary={'schema_version':1,'recorded_at_utc':datetime.now(timezone.utc).isoformat(),'status':'candidate_case_gate_source_assessed_pass_pending_human_review','case_id':ledger['case_id'],'scanner_identity':identity,'proposal_sha256':sha(proposal),'manifest_sha256':sha(manifest),'results_sha256':sha(b/'results.json'),'completed_observations':14,'equal_ordered_pairs':7,'detected_vulnerable_observations':6,'missed_vulnerable_observations':0,'supported_negative_observations':8,'unsupported_negative_observations':0,'counts':counts,'started_at_utc':ledger['started_at_utc'],'completed_at_utc':ledger['completed_at_utc'],'stage_elapsed_seconds':(datetime.fromisoformat(ledger['completed_at_utc'])-datetime.fromisoformat(ledger['started_at_utc'])).total_seconds(),'maximum_input_seconds':max(o['input_seconds'] for o in obs),'remaining_observations':0,'new_scans_during_assessment':0,'paid_calls':0,'target_executions':0,'detector_changes_during_assessment':0,'qualification':'Narrow source assessment, not human acceptance. Per-file unresolved helper warnings stay visible; supported derived negatives rely on the separately modeled simple shared path, not absence of warnings. Full inputs now satisfy the selected source-assessed condition; prior baseline and candidate failures remain unchanged. Raw pending_source_assessment fields are unchanged.'}
+for name,v in [('summary',summary),('observations',obs),('findings',findings),('diagnostics',diags),('surfaces',surfaces),('baseline-comparisons',changes)]:put(name+'.json',v)
+print(json.dumps({k:v for k,v in summary.items() if k!='scanner_identity'},indent=2))

@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-15T15:50:59.618837Z",
+  "status": "baseline_packet_verified_unexecuted",
+  "bound_files": {
+    "artifacts/phase23/baseline-review-v1/proposal.json": "8612c2e645e08b78a9cf6ab0cc5b4a6314c0c0702b722ffbd7f3b0dace74a83b",
+    "artifacts/phase23/baseline-review-v1/authorization-template.json": "8d2ca4cfa064fe182aa53027c8e0435dc3ee8ac6f2f7593cb2886aecd1fed6cf",
+    "artifacts/phase23/baseline-review-v1/README.md": "091ade1e47296be4109fbeb3a43feee149f8d0d3162f9222c6dff4a771a953f3",
+    "artifacts/phase23/baseline-review-v1/tests.log": "a4addad71c72221f93baf9f63b56ed84e977cdea552889409188845576a80a8e",
+    "artifacts/phase23/baseline-review-v1/mypy.log": "467364859149a6d51b16354d7d71beef180cec376644e32fbdc65429522ad603",
+    "artifacts/phase23/baseline-review-v1/ruff.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "artifacts/phase23/baseline-review-v1/format.log": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+    "artifacts/phase23/baseline-review-v1/docs.log": "18013a622b464aae49c13d96b82f0bd14ca0876f32748a642d5ace2737dabdd9",
+    "artifacts/phase23/source-freeze.json": "2c719429d26ec2435487ef0f68efb99188c2b8c9be1e034ec46cca068e3e8a05",
+    "tests/evals/phase23/manifest.json": "b0d7d2420d5242eedae3666dac499b2da119607af98d0f59cda28e902f9f6e0e",
+    "scripts/phase23_regression.py": "7d3acd1369644e2dd03501a53788338133c6cadbb58366c9a056dbb4aef4a966",
+    "tests/test_phase23.py": "64700908c6f0c1552c18e1fff84336dde692e8be88340217c029a2a088242cda",
+    "AGENTS.md": "a6e2536cb3664fcf9196e79be6dc0e5f2b6a7c741a70a647f91c8ace71d3ca9f",
+    "ROADMAP.md": "35131c67e36488a48b791ab1cef23cf004b6801ef66839a7a1af050fb7ab0e15",
+    "artifacts/phase23/lifecycle/ghsa-5w57-v2-source-frozen.json": "9616d8ad61a46492c1f88869e9f5f9389a706b8664e3b7b42aa53cf805fa3a76"
+  },
+  "source_and_configuration_checks": {
+    "inputs": 7,
+    "manifest_unchanged": true,
+    "configurations_equal_proposal": true,
+    "advisory_scans": 0
+  },
+  "current_runner_checks": {
+    "focused_tests": "16 passed",
+    "mypy": "154 source files; passed",
+    "ruff": "passed",
+    "format": "2 files already formatted",
+    "strict_docs": "passed using installed mkdocs; no dependency changes",
+    "git_diff_check": "passed"
+  },
+  "earlier_full_gate": {
+    "result": "2603 passed, 36 skipped; make check passed",
+    "scope": "Intake and source preparation, before baseline runner extension",
+    "log": "artifacts/phase23/preparation-make-check.log",
+    "log_sha256": "bbf6287b79552a972f160bd6bc7e13ca5b514561b8e835902c38e7f0f3f9d05f",
+    "helper_snapshot": "artifacts/phase23/source-review-v1/preparation-helper.py.txt",
+    "tests_snapshot": "artifacts/phase23/source-review-v1/preparation-tests.py.txt"
+  },
+  "failures_and_corrections": [
+    {
+      "result": "Initial Ruff SIM105 finding and three configured mypy errors in baseline runner/tests",
+      "resolution": "Used suppress; converted installed resource path through str; explicit monkeypatch module path and nested test typing; current checks pass",
+      "evidence": [
+        "artifacts/phase23/baseline-runner-mypy.log",
+        "artifacts/phase23/baseline-review-v1/proposal-before-typing-fix.json"
+      ]
+    },
+    {
+      "result": "Source review found relative output path mismatch",
+      "resolution": "Resolve output once before policy/environment verification; complete synthetic stage checks the relative command path",
+      "evidence": [
+        "tests/test_phase23.py"
+      ]
+    },
+    {
+      "result": "Source review found PYTHONHASHSEED and PYTHONNOUSERSITE ineffective under Python -I",
+      "resolution": "Removed ignored environment flags; packet promises isolated startup, not a fixed hash seed"
+    },
+    {
+      "result": "Lifecycle append preparation initially used nonexistent label key; KeyError before writing",
+      "resolution": "Read frozen proposed_label into separately accepted reviewed_labels; original lifecycle and manifest unchanged"
+    }
+  ],
+  "hosted_checks": "not dispatched",
+  "current_runner_full_suite": "not yet run; earlier full gate is separately scoped",
+  "baseline_approval_file_exists": false,
+  "baseline_output_exists": false,
+  "advisory_observations": 0,
+  "advisory_target_executions": 0,
+  "paid_calls": 0,
+  "technical_acceptance": "pending",
+  "release_approval": "pending"
+}

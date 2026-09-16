@@ -1,0 +1,543 @@
+"""Phase 23 source checks and explicitly approved offline regression stages."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import difflib
+import importlib.metadata
+import json
+import os
+import platform
+import shutil
+import signal
+import subprocess
+import sys
+import time
+from contextlib import suppress
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from scripts.capture_gpt_reviews import _atomic_json
+from scripts.phase20_corpus import (
+    ROOT,
+    Artifact,
+    archive_files,
+    digest,
+    relative_path,
+    tree_digest,
+)
+
+MANIFEST = ROOT / "tests/evals/phase23/manifest.json"
+ORDER = (
+    "full-vulnerable",
+    "full-fixed",
+    "minimized-vulnerable",
+    "minimized-fixed",
+    "safe-literal",
+    "renamed-vulnerable",
+    "renamed-fixed",
+)
+LABELS = ("vulnerable", "fixed", "vulnerable", "fixed", "safe", "vulnerable", "fixed")
+
+
+def source_files(item: dict[str, Any], root: Path = ROOT) -> dict[str, bytes]:
+    """Verify every file before it can become a later regression input."""
+    source = item["source"]
+    if source["kind"] == "archive":
+        data = Artifact.model_validate(source["artifact"]).read(root)
+        files = archive_files(data, strip_root=source["strip_root"])
+    elif source["kind"] == "directory":
+        directory = root / relative_path(source["path"])
+        if any(p.is_symlink() for p in (directory, *directory.parents)):
+            raise ValueError("symlink source directory")
+        entries = tuple(directory.rglob("*"))
+        if any(p.is_symlink() or not (p.is_dir() or p.is_file()) for p in entries):
+            raise ValueError("source links and special files are forbidden")
+        files = {
+            relative_path(p.relative_to(directory).as_posix()): p.read_bytes()
+            for p in entries
+            if p.is_file()
+        }
+    else:
+        raise ValueError("unknown source kind")
+    if {name: digest(data) for name, data in files.items()} != item["files"]:
+        raise ValueError("source inventory mismatch")
+    if tree_digest(files) != item["tree_sha256"]:
+        raise ValueError("source tree hash mismatch")
+    return files
+
+
+def validate(path: Path = MANIFEST, root: Path = ROOT) -> dict[str, Any]:
+    """Validate a proposed corpus without treating proposed labels as approved."""
+    manifest: dict[str, Any] = json.loads(path.read_bytes())
+    if (
+        manifest["schema_version"] != 1
+        or manifest["status"] != "proposed_pending_user_freeze"
+        or manifest["freeze_approved"] is not False
+        or manifest["case_id"] != "GHSA-5w57-2ccq-8w95"
+        or manifest["source_only"] is not True
+        or tuple(manifest["proposed_order"]) != ORDER
+        or tuple(item["id"] for item in manifest["inputs"]) != ORDER
+        or tuple(item["proposed_label"] for item in manifest["inputs"]) != LABELS
+    ):
+        raise ValueError("unexpected Phase 23 proposal scope or order")
+    for binding in manifest["provenance"]:
+        Artifact.model_validate(binding).read(root)
+    for item in manifest["inputs"]:
+        files = source_files(item, root)
+        for evidence in item["evidence"]:
+            data = files[evidence["path"]]
+            if digest(data) != evidence["sha256"] or not (
+                1
+                <= evidence["start_line"]
+                <= evidence["end_line"]
+                <= len(data.decode().splitlines())
+            ):
+                raise ValueError("source evidence mismatch")
+        match = item["match"]
+        lines = files[match["sink_path"]].decode().splitlines()
+        if (
+            match["rule_id"] != "SENT-002"
+            or not 1 <= match["sink_line"] <= len(lines)
+            or lines[match["sink_line"] - 1].strip() != match["source_text"]
+        ):
+            raise ValueError("finding match source mismatch")
+    return manifest
+
+
+# Execution is a separate, explicitly approved stage. Source validation alone
+# never reaches this launcher.
+VOLATILE_PATHS = (
+    "/scan_id",
+    "/started_at",
+    "/completed_at",
+    "/static_analysis/duration_ms",
+    "/findings/*/finding_id",
+    "/findings/*/scan_id",
+    "/findings/*/timestamp",
+    "/findings/*/provenance/*/timestamp",
+)
+
+
+def ordered_report(report: dict[str, Any]) -> dict[str, Any]:
+    """Remove only reviewed clock/UUID fields; preserve all arrays and other keys."""
+    result = copy.deepcopy(report)
+    for key in ("scan_id", "started_at", "completed_at"):
+        result.pop(key, None)
+    if isinstance(result.get("static_analysis"), dict):
+        result["static_analysis"].pop("duration_ms", None)
+    for finding in result.get("findings", []):
+        for key in ("finding_id", "scan_id", "timestamp"):
+            finding.pop(key, None)
+        for entry in finding.get("provenance", []):
+            entry.pop("timestamp", None)
+    return result
+
+
+def matching_indexes(report: dict[str, Any], item: dict[str, Any]) -> list[int]:
+    match = item["match"]
+    indexes = []
+    for index, finding in enumerate(report["findings"]):
+        location = finding["location"]
+        evidence = finding["evidence"]
+        if (
+            finding["rule_id"] == match["rule_id"]
+            and location["kind"] == "file"
+            and location["path"] == match["sink_path"]
+            and evidence["kind"] == "static"
+            and location["range"]["start_line"]
+            <= match["sink_line"]
+            <= location["range"]["end_line"]
+            and evidence["range"]["start_line"]
+            <= match["sink_line"]
+            <= evidence["range"]["end_line"]
+        ):
+            indexes.append(index)
+    return indexes
+
+
+def execution_identity() -> dict[str, Any]:
+    """Bind installed code, interpreter, dependencies, schemas and bundled rules."""
+    import sentinel
+    from scripts.phase20_measurements import scanner_identity
+    from sentinel.static.engine import STATIC_TIMEOUT_SECONDS
+    from sentinel.static.semgrep_adapter import SEMGREP_TIMEOUT_SECONDS
+    from sentinel.static.workers import FLOW_RULES
+
+    package_root = Path(sentinel.__file__).resolve().parent
+    if package_root != ROOT / "src/sentinel":
+        raise ValueError("installed scanner does not resolve to this source checkout")
+    return {
+        "scanner": scanner_identity(),
+        "python": sys.version,
+        "executable": sys.executable,
+        "executable_sha256": digest(Path(sys.executable).read_bytes()),
+        "platform": platform.platform(),
+        "dependencies": dict(
+            sorted(
+                (d.metadata["Name"], d.version)
+                for d in importlib.metadata.distributions()
+            )
+        ),
+        "files": {
+            p: digest((ROOT / p).read_bytes())
+            for p in (
+                "scripts/phase23_regression.py",
+                "scripts/phase20_corpus.py",
+                "scripts/capture_gpt_reviews.py",
+                "tests/test_phase23.py",
+                "pyproject.toml",
+                "uv.lock",
+            )
+        },
+        "schemas_sha256": tree_digest(
+            {
+                p.relative_to(ROOT).as_posix(): p.read_bytes()
+                for p in (ROOT / "schemas").rglob("*")
+                if p.is_file()
+            }
+        ),
+        "semgrep_core_sha256": digest(
+            Path(
+                str(
+                    importlib.metadata.distribution("semgrep").locate_file(
+                        "semgrep/bin/semgrep-core"
+                    )
+                )
+            ).read_bytes()
+        ),
+        "static_timeout_seconds": STATIC_TIMEOUT_SECONDS,
+        "semgrep_timeout_seconds": SEMGREP_TIMEOUT_SECONDS,
+        "maximum_flow_workers": len(FLOW_RULES),
+    }
+
+
+def _alarm(seconds: float) -> None:
+    signal.setitimer(signal.ITIMER_REAL, max(0.001, seconds))
+
+
+def _expired(signum: int, frame: Any) -> None:
+    raise TimeoutError("approved execution deadline expired")
+
+
+def _cancelled(signum: int, frame: Any) -> None:
+    raise InterruptedError("approved execution cancelled")
+
+
+def _cleanup(process: subprocess.Popen[bytes] | None, source: Path) -> None:
+    """Kill the scanner-owned session and require that its process group vanishes."""
+    _alarm(15)
+    try:
+        if process is not None:
+            with suppress(ProcessLookupError):
+                os.killpg(process.pid, signal.SIGKILL)
+            process.wait(timeout=15)
+            while True:
+                try:
+                    os.killpg(process.pid, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(0.05)
+        if source.exists():
+            shutil.rmtree(source)
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+
+
+def _observe(
+    item: dict[str, Any],
+    destination: Path,
+    source: Path,
+    environment: dict[str, str],
+    outer_deadline: float,
+    expected_configuration: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    from sentinel.report.json_report import report_model_input
+    from sentinel.report.model import ScanReport
+    from sentinel.report.sarif import render_sarif
+    from sentinel.report.validate_json import validate_report_data
+    from sentinel.report.validate_sarif import validate_sarif_data
+
+    started = time.monotonic()
+    result: dict[str, Any] = {
+        "input_id": item["id"],
+        "state": "incomplete",
+        "report_sha256": None,
+        "started_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "cleanup": "not_started",
+        "exit_code": None,
+        "scanner_started": False,
+    }
+    process = None
+    report = None
+    destination.mkdir()
+    _alarm(min(1800, outer_deadline - started))
+    try:
+        for name, data in source_files(item).items():
+            target = source / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        configuration = baseline_configuration(source, environment)
+        _atomic_json(destination / "configuration.json", configuration)
+        if configuration != expected_configuration:
+            raise ValueError("resolved configuration drift")
+        command = [
+            sys.executable,
+            "-I",
+            "-m",
+            "sentinel",
+            "scan",
+            str(source),
+            "--rules-only",
+            "--format",
+            "json",
+            "--output",
+            str(destination / "report.json"),
+        ]
+        result["command"] = command
+        with (
+            (destination / "stdout.log").open("wb") as stdout,
+            (destination / "stderr.log").open("wb") as stderr,
+        ):
+            blocked = {signal.SIGALRM, signal.SIGINT, signal.SIGTERM}
+            previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, blocked)
+            try:
+                process = subprocess.Popen(
+                    command,
+                    cwd=ROOT,
+                    env=environment,
+                    stdin=subprocess.DEVNULL,
+                    stdout=stdout,
+                    stderr=stderr,
+                    start_new_session=True,
+                )
+                result["scanner_started"] = True
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+            result["exit_code"] = process.wait(
+                timeout=max(
+                    0.001,
+                    min(
+                        1800 - (time.monotonic() - started),
+                        outer_deadline - time.monotonic(),
+                    ),
+                )
+            )
+        native_path = destination / "report.json"
+        if native_path.exists():
+            result["report_sha256"] = digest(native_path.read_bytes())
+            report = json.loads(native_path.read_bytes())
+            validate_report_data(report)
+            sarif = json.loads(
+                render_sarif(ScanReport.model_validate_json(report_model_input(report)))
+            )
+            validate_sarif_data(sarif)
+            _atomic_json(destination / "report.sarif", sarif)
+        if report is None or result["exit_code"] not in (0, 1):
+            raise ValueError("scanner did not produce a completed report")
+        if not report["analysisComplete"] or not report["executionSuccessful"]:
+            raise ValueError("native analysis is incomplete or unsuccessful")
+        result["matching_finding_indexes"] = matching_indexes(report, item)
+        result["support_judgment"] = "pending_source_assessment"
+        result["state"] = "completed"
+    except BaseException as error:
+        result["reason"] = f"{type(error).__name__}: {error}"
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        result["input_seconds"] = time.monotonic() - started
+        cleanup_started = time.monotonic()
+        try:
+            _cleanup(process, source)
+            result["cleanup"] = "verified"
+        except Exception as error:
+            result.update(state="incomplete", cleanup=f"failed: {error}")
+        result["cleanup_seconds"] = time.monotonic() - cleanup_started
+        result["completed_at_utc"] = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
+        _atomic_json(destination / "outcome.json", result)
+        _alarm(outer_deadline - time.monotonic())
+    return result, report
+
+
+def run_stage(proposal_path: Path, approval_path: Path, output: Path) -> int:
+    """One-use baseline stage; a missing approval fails before source access."""
+    output = output.resolve()
+    approval = json.loads(approval_path.read_bytes())
+    proposal_bytes = proposal_path.read_bytes()
+    if approval.get("decision") != "approved" or approval.get(
+        "proposal_sha256"
+    ) != digest(proposal_bytes):
+        raise ValueError("exact baseline execution approval missing")
+    proposal = json.loads(proposal_bytes)
+    if (
+        proposal["stage"] != "baseline"
+        or proposal["observations"] != 14
+        or proposal["limits"]
+        != {
+            "input_seconds": 1800,
+            "semgrep_seconds": 10,
+            "cleanup_seconds": 15,
+            "maximum_workers": 4,
+            "outer_seconds": 26400,
+        }
+        or proposal["volatile_paths"] != list(VOLATILE_PATHS)
+        or output.resolve() != ROOT / proposal["output"]
+        or os.name != "posix"
+    ):
+        raise ValueError("baseline proposal scope mismatch")
+    if output.exists():
+        raise ValueError("execution output already exists; no retry is allowed")
+    used_path = approval_path.with_suffix(".used.json")
+    with used_path.open("x") as handle:
+        json.dump(
+            {"proposal_sha256": digest(proposal_bytes), "status": "consumed"}, handle
+        )
+    output.mkdir(parents=True)
+    ledger: dict[str, Any] = {
+        "stage": "baseline",
+        "proposal_sha256": digest(proposal_bytes),
+        "status": "running",
+        "started_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "outcomes": [],
+        "ordered_pairs": [],
+        "case_gate": "pending_source_assessment",
+        "model_calls": 0,
+        "advisory_target_executions": 0,
+    }
+    previous_handlers = {
+        signum: signal.signal(signum, handler)
+        for signum, handler in (
+            (signal.SIGALRM, _expired),
+            (signal.SIGINT, _cancelled),
+            (signal.SIGTERM, _cancelled),
+        )
+    }
+    outer_deadline = time.monotonic() + 26400
+    _alarm(26400)
+    try:
+        freeze = json.loads(
+            (ROOT / "artifacts/phase23/source-freeze.json").read_bytes()
+        )
+        if (
+            freeze["status"] != "accepted_source_freeze"
+            or freeze["manifest"]["sha256"] != proposal["manifest_sha256"]
+            or digest((ROOT / "artifacts/phase23/source-freeze.json").read_bytes())
+            != proposal["source_freeze_sha256"]
+            or digest(MANIFEST.read_bytes()) != proposal["manifest_sha256"]
+            or execution_identity() != proposal["identity"]
+        ):
+            raise ValueError("source freeze or scanner identity drift")
+        manifest = validate()
+        if proposal["order"] != list(ORDER) * 2:
+            raise ValueError("observation order drift")
+        environment = proposal["environment"]
+        if environment != baseline_environment(output):
+            raise ValueError("execution environment drift")
+        (output / "tmp").mkdir()
+        observations = output / "observations"
+        observations.mkdir()
+        reports: dict[str, dict[str, Any]] = {}
+        items = {item["id"]: item for item in manifest["inputs"]}
+        for index, input_id in enumerate(proposal["order"], 1):
+            ledger["outcomes"].append({"input_id": input_id, "state": "started"})
+            _atomic_json(output / "results.json", ledger)
+            outcome, report = _observe(
+                items[input_id],
+                observations / f"{index:02d}-{input_id}",
+                output / "sources" / input_id,
+                environment,
+                outer_deadline,
+                proposal["configurations"][input_id],
+            )
+            ledger["outcomes"][-1] = outcome
+            _atomic_json(output / "results.json", ledger)
+            if outcome["state"] != "completed" or report is None:
+                raise ValueError("incomplete observation closes remaining budget")
+            if input_id in reports:
+                reference = ordered_report(reports[input_id])
+                repeated = ordered_report(report)
+                difference = "".join(
+                    difflib.unified_diff(
+                        json.dumps(reference, indent=2, sort_keys=True).splitlines(
+                            True
+                        ),
+                        json.dumps(repeated, indent=2, sort_keys=True).splitlines(True),
+                        fromfile=f"pass-1/{input_id}",
+                        tofile=f"pass-2/{input_id}",
+                    )
+                )
+                diff_path = output / f"repeat-{input_id}.diff"
+                diff_path.write_text(difference)
+                ledger["ordered_pairs"].append(
+                    {
+                        "input_id": input_id,
+                        "equal": reference == repeated,
+                        "first_observation": index - 7,
+                        "second_observation": index,
+                        "difference": diff_path.name,
+                        "difference_sha256": digest(diff_path.read_bytes()),
+                    }
+                )
+            else:
+                reports[input_id] = report
+        ledger["status"] = "completed"
+        return 0 if all(p["equal"] for p in ledger["ordered_pairs"]) else 1
+    except BaseException as error:
+        ledger.update(
+            status="closed_incomplete", reason=f"{type(error).__name__}: {error}"
+        )
+        return 2
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        for signum, handler in previous_handlers.items():
+            signal.signal(signum, handler)
+        ledger["completed_at_utc"] = (
+            datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        )
+        ledger["unstarted_closed"] = proposal["order"][len(ledger["outcomes"]) :]
+        ledger["remaining_observations"] = 0
+        _atomic_json(output / "results.json", ledger)
+
+
+def baseline_configuration(source: Path, environment: dict[str, str]) -> dict[str, Any]:
+    from sentinel.config import load_configuration
+
+    loaded = load_configuration(
+        source,
+        environ=environment,
+        cli_overrides={"rules_only": True, "format": "json"},
+    )
+    return loaded.model_dump(mode="json", exclude={"scan_root"})
+
+
+def baseline_environment(output: Path) -> dict[str, str]:
+    return {
+        "PATH": str(Path(sys.executable).parent) + ":/usr/bin:/bin",
+        "LANG": "C.UTF-8",
+        "TMPDIR": str(output / "tmp"),
+        "SEMGREP_SEND_METRICS": "off",
+        "SEMGREP_ENABLE_VERSION_CHECK": "0",
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("check")
+    run = subparsers.add_parser("run")
+    run.add_argument("--proposal", type=Path, required=True)
+    run.add_argument("--approval", type=Path, required=True)
+    run.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    if args.command == "run":
+        return run_stage(args.proposal, args.approval, args.output)
+    validate()
+    print("Seven source inputs verified; this command does not authorize scanning.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
