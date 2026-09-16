@@ -2741,7 +2741,7 @@ unchanged; see `ROADMAP.md` §1 for the scope exception.
 - [x] Phase 20 — independent detection benchmark (accepted baseline; vulnerable/fixed pairs, safe controls, held-out cases)
 - [ ] Phase 21 — maintainer pilot and problem validation (recruitment deferred; five external workflows and ranked blockers still required)
 - [x] Phase 22 — MCP coverage and compatibility expansion (V93 technical acceptance and closeout delivery verified under the accepted revised scope; 30 accepted limitations retained; paid benchmark/pilots deferred)
-- [ ] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop)
+- [x] Phase 23 — maintained feedback and regression releases (report-to-tested-release loop verified in 1.4.0; final evidence explicitly accepted)
 - [ ] Phase 24 — retained adoption and product decision (onboarding, 30-day retention, independent useful catches)
 - [ ] Phase 25 — bounded independent AI discovery (conditional after Phase 24; advisory, source-only)
 - [ ] Phase 26 — stateful multi-step security testing (conditional after Phase 24; isolated scenarios)
